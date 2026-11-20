@@ -1,0 +1,42 @@
+{
+  "schema": "workinants.install-failed-precleanup-activation-bounded-proposal.v1",
+  "status": "PROPOSED_NOT_IMPLEMENTED_NOT_REVIEWED_NOT_EXECUTED",
+  "source_basis": {
+    "commit": "fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f",
+    "tree": "2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f",
+    "canonical_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "past_install_run": "4b35e08b-3ecb-4ae6-9574-565bcdd51c1f",
+    "past_install_normalization_sha256": "d6dd830478302d34772f618b4f9e62f23db586180cb7c1e868b1abc3a9d22861"
+  },
+  "exact_gap": {
+    "case_id": "P0C-INSTALL-02",
+    "assertion_id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial",
+    "requirement": "Inject a failure after function setup but before application COMMIT; attempt runtime activation before independent cleanup verification",
+    "current": "PARTIAL",
+    "observed": "Actual failed immutable deployments, rollback, inactive runtime credentials before installation and after cleanup, original-grantor finalization, intended failure diagnostics and retained failure ledger.",
+    "unobserved": "Distinct activation gate attempt after the failed deployment connection exits and before original-grantor finalization/independent cleanup verification."
+  },
+  "proven_source_analysis": {
+    "coordinator": "scripts/sql-review/run-install-control-rehearsal-v4.py",
+    "function": "Session.failure",
+    "current_order": ["bootstrap", "preinstall activation attempt denied", "immutable history staged", "genuine deploy returns closed failure", "gate installed(False, True)", "finally original-grantor finalization", "rollback and ledger verification", "runtime inactive verification", "postcleanup activation attempt denied"],
+    "activation_gate": "scripts/install_control_protocol_v2.py#ActivationGate",
+    "gate_law": "permit requires a closed successful installation AND separately verified original-grantor cleanup, with one-time activation.",
+    "past_results_rewritten": false
+  },
+  "bounded_candidate": {
+    "namespace": "NEW_VERSION_REQUIRED; preserve all V4 source, fixtures and actual history",
+    "change": "Add a phase-qualified activation attempt after a genuine closed failed deploy, before entering finally finalization. Persist the phase, actual closed failure identity, unchanged false gate prerequisites, exact refusal code and database_password_sql_executed=false. Verify four runtime verifiers remain NULL and reject independent candidate startup using the existing bounded authentication helper. Keep evidence labels unique so the later held outcome cannot overwrite this phase.",
+    "authority_observation": "At this stage independently observe the same exact three temporary original-grantor memberships and false leaf CREATE using the existing authority query; do not remove grants until finally. Keep actual operation connection absent before each observation.",
+    "failure_rule": "Unexpected gate permission, active runtime verifier/login, malformed evidence, closure or persistence failure stops the attempt; finally still closes connections, runs original-grantor finalization and owned cleanup.",
+    "scope_choice": "Prefer a smallest coherent versioned packet for the missing phase; author must explain whether reusing the full reviewed three-target suite or a smaller immutable failed-install packet best preserves actual proof and avoids unnecessary repetitions.",
+    "sql_changes": "None to canonical SQL, both already reviewed failure variants, bootstrap, finalization, grants, RLS or worker32 ACL.",
+    "positive_activation": "Never execute ALTER ROLE/PASSWORD during this failed-install phase. The actual production activation gate must reject before generating/executing that SQL.",
+    "required_regressions": ["Actual ordering after closed failed deploy and before finalization", "Old faulty ordering or omitted phase rejected", "Closed failure with install-success false and cleanup-unverified false blocks", "Unexpected permit, active runtime credential and malformed observations reject", "Thrown observer/persistence error preserves safe origin and still finalizes/cleans", "No retained secrets/raw logs/SQL/handles", "Canonical and original failure SQL/worker ACL and prior source bytes unchanged"],
+    "mock_boundaries": "Every Docker/database/process boundary mocked for offline checks; actual proof only in subsequent separately reviewed fresh owned local run."
+  },
+  "review_requirements": "Separate nonauthor review of scope, actual phase evidence, unchanged security rules and test independence before committed packet pin/literal review/fresh actual.",
+  "runtime": "NOT_RUN",
+  "qualification_promoted": false,
+  "Posture": "D"
+}

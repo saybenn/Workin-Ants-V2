@@ -1,0 +1,44 @@
+"""Refresh legacy integration expectations only after real671 acceptance; isolate reviewed Worker boundary here."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';W=T/'worker-b42-v2-Root-real671-build-20261120';sha=lambda b:hashlib.sha256(b).hexdigest()
+p=json.loads((W/'actual-build-proof.json').read_bytes());assert p['status']=='PASS_ACTUAL_UNMOCKED671_BUILDER_EXACT16_ADMISSION' and p['known_exit_code']==0 and p['no_factory_parser_or_source_mocking']is True
+s=json.loads((R/'context/reconciliation/local-f0-qualification-status.json').read_bytes())
+assert s['assertion_status_counts']=={'PASS':638,'PARTIAL':33,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':324,'UNRESOLVED_SOURCE':7}
+assert s['case_status_counts']=={'PASS':5,'PARTIAL':78,'FAILED':0,'DEPENDENCY_BLOCKED':0,'NOT_RUN':11}
+path=R/'scripts/check-local-f0-status.py';raw=path.read_bytes();assert raw==(W/'before-status-checker.py.txt').read_bytes();text=raw.decode()
+assert text.count("{'PASS':625,'PARTIAL':31,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':339,'UNRESOLVED_SOURCE':7}")==1
+assert text.count("self.assertEqual(result['assertion_status_counts']['PASS'],625)")==1
+assert text.count("self.assertEqual(len(self.owner_lease_calls),21)")==1
+text=text.replace("{'PASS':625,'PARTIAL':31,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':339,'UNRESOLVED_SOURCE':7}","{'PASS':638,'PARTIAL':33,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':324,'UNRESOLVED_SOURCE':7}")
+text=text.replace("self.assertEqual(result['assertion_status_counts']['PASS'],625)","self.assertEqual(result['assertion_status_counts']['PASS'],638)")
+text=text.replace("self.assertEqual(len(self.owner_lease_calls),21)","self.assertEqual(len(self.owner_lease_calls),20)")
+anchor='        boundary5.start();self.addCleanup(boundary5.stop)\n';assert text.count(anchor)==1
+new='''        # Worker has a separate real654-input suite and an accepted actual
+        # complete671 CLI build. These legacy evidence mutations isolate only
+        # its exact sixteen-row dispatch; the production reader is unchanged.
+        worker_path='context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json'
+        worker_derived=json.loads((ROOT/worker_path).read_bytes())
+        worker_rows={(row['case_id'],row['assertion_id']):row for row in ledger['assertions'] if row['evidence_path']==worker_path}
+        self.assertEqual(len(worker_rows),16);self.worker_recovery_calls=[]
+        class ClosedWorkerBoundary:
+            def __init__(self):self.seen=set();self.finalized=False
+            def validate_claim(self,case,assertion,status,execution,root,json_pointer=None,ledger_row=None):
+                key=(case,assertion);test.assertIn(key,worker_rows);wanted=worker_rows[key]
+                test.assertEqual(status,wanted['status'],'WORKER_CLAIM_STATUS_CEILING')
+                test.assertEqual(root,ROOT);test.assertEqual(json_pointer,wanted['json_pointer'])
+                test.assertEqual(execution,worker_derived);test.assertEqual(ledger_row,wanted)
+                self.seen.add(key);test.worker_recovery_calls.append(key);return True
+            def verify_unchanged(self):test.assertEqual(self.seen,set(worker_rows));self.finalized=True;return True
+            def require_finalized(self):test.assertTrue(self.finalized);return True
+        def worker_boundary(root):test.assertEqual(root,ROOT);return ClosedWorkerBoundary()
+        boundary16=patch.dict(build.__globals__,prepare_worker_recovery_batch=worker_boundary)
+        boundary16.start();self.addCleanup(boundary16.stop)
+'''
+text=text.replace(anchor,anchor+new)
+anchor2='        self.assertEqual(len(self.install_calls),5)\n';assert text.count(anchor2)==1;text=text.replace(anchor2,anchor2+'        self.assertEqual(len(self.worker_recovery_calls),16)\n')
+ast.parse(text)
+history=T/'worker671-status13-before-expectation-update-20261120.py.txt'
+with history.open('xb')as f:f.write(raw)
+path.write_bytes(text.encode())
+print(json.dumps({'status':'LEGACY13_EXPECTATIONS_UPDATED_AFTER_REAL671_PASS','checker_sha256':sha(path.read_bytes()),'scope':'625→638 literal;31→33/339→324;old owner dispatcher21→20 due exact retained-history concurrent upgrade; exact16 worker boundary only in legacy mutation tests. No production reader/source change.'}))

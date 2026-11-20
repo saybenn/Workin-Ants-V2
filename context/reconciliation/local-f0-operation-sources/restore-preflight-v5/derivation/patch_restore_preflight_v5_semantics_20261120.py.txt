@@ -1,0 +1,68 @@
+from pathlib import Path
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+p=R/'scripts/prepare-restore-control-rehearsal-v5.py';s=p.read_text()
+s=s.replace("'scripts/check-restore-control-rehearsal-v5.py',","'scripts/check-restore-control-rehearsal-v5.py',\n    'scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md',",1)
+old="AND current_setting('archive_command')='' AND current_setting('archive_library')=''"
+new="AND current_setting('archive_command')='(disabled)' AND (SELECT count(*)=1 AND coalesce(bool_and(reset_val IS NOT NULL AND reset_val='' AND vartype='string' AND context='sighup' AND pending_restart IS FALSE),false) FROM pg_settings WHERE name='archive_command') AND current_setting('archive_library')=''"
+assert s.count(old)==1;s=s.replace(old,new)
+needle="    proposal['prepared_files_sha256'] ="
+assert needle in s;s=s.replace(needle,"    proposal['preflight_v5_provenance'] = {'Root_ACK_sha256':'71760d2dbd7620e9697d4a0977d017c4d4c591c6f19ed4088271342aef4af219','audit_proposal_sha256':'52dc417db86d0fb45bef38b4a6c63fd9b0551a98d7ce05238f04407d99bdbd20','historical_c5ac_complete_cause':'UNOBSERVED','runtime':'NOT_RUN'}\n"+needle)
+p.write_bytes(s.encode())
+p=T/'local_f0_restore_preflight_v5_operation_steps.py';s=p.read_text();a=s.index('def backup_preflight(value):');b=s.index('\n\ndef guarded_tool(',a)
+s=s[:a]+'''def backup_preflight(value,phase='BEFORE_BACKUP',response_received=True,expected_system_hash=None):
+    """Only closed comparisons enter evidence; no raw observer/config values."""
+    need(type(phase)is str and phase in ('BEFORE_BACKUP','AFTER_BACKUP')and type(response_received)is bool,'RESTORE_PREFLIGHT_PHASE')
+    query_sha=PROPOSAL['prepared_files_sha256']['backup-preflight.sql'];need(type(query_sha)is str and re.fullmatch('[0-9a-f]{64}',query_sha),'RESTORE_PREFLIGHT_SOURCE_SHA')
+    is_object=type(value)is dict if response_received else None
+    exact_fields=set(value)==BACKUP_PREFLIGHT_FIELDS|{'system_identifier_sha256'}if is_object else None
+    fields={}
+    for field in sorted(BACKUP_PREFLIGHT_FIELDS):
+        present=field in value if is_object else None
+        typed=type(value[field])is bool if present else None
+        fields[field]={'present':present,'type_valid':typed,'observed_boolean':value[field]if typed else None}
+    present='system_identifier_sha256'in value if is_object else None
+    typed=type(value['system_identifier_sha256'])is str if present else None
+    shaped=bool(re.fullmatch('[0-9a-f]{64}',value['system_identifier_sha256']))if typed else None
+    matched=value['system_identifier_sha256']==expected_system_hash if shaped and expected_system_hash is not None else None
+    receipt={'schema':'workinants.restore-preflight-comparisons.v1','phase':phase,'source_sql_sha256':query_sha,'response_received':response_received,'response_classification':'PARSED_OBJECT'if is_object else 'PARSED_OTHER'if response_received else 'UNAVAILABLE_OR_PARSE_REJECTED','response_is_object':is_object,'exact_field_set':exact_fields,'fields':fields,'system_identity':{'present':present,'type_valid':typed,'sha256_shape_valid':shaped,'same_source_match':matched}}
+    report['restore'].setdefault('backup_preflight_comparisons',[]).append(receipt)
+    passed=is_object is True and exact_fields is True and all(row['observed_boolean']is True and row['type_valid']is True for row in fields.values())and shaped is True
+    same_cluster=expected_system_hash is None or type(expected_system_hash)is str and re.fullmatch('[0-9a-f]{64}',expected_system_hash)and matched is True
+    failure=Stop('RESTORE_BACKUP_PREFLIGHT')if not passed else Stop('RESTORE_SOURCE_AFTER_BACKUP_NOT_QUIESCENT')if not same_cluster else None
+    # Latch the original safe comparison origin before a later save failure.
+    if failure is not None:_required_safety_first_exception(failure)
+    persisted=_required_safety_save()
+    if failure is not None:raise failure
+    need(persisted and _required_safety_evidence_complete(),'RESTORE_PREFLIGHT_EVIDENCE_UNCONFIRMED')
+    return value['system_identifier_sha256']
+
+
+def observe_backup_preflight(name,phase,expected_system_hash=None):
+    try:value=fixed_json(name,'backup-preflight.sql')
+    except BaseException as error:
+        failure=error if isinstance(error,Stop)else Stop('RESTORE_PREFLIGHT_OBSERVER_UNAVAILABLE')
+        _required_safety_first_exception(failure)
+        try:backup_preflight(None,phase,response_received=False,expected_system_hash=expected_system_hash)
+        except BaseException:pass
+        raise failure from None
+    return backup_preflight(value,phase,expected_system_hash=expected_system_hash)
+
+
+def quiesce():
+    reload_hba(SOURCE,'source-backup.pg_hba.conf')
+    for role in ROLES[1:]:auth_control(SOURCE,role,'/run/wa-secrets/pgpass','hba')
+    report['restore']['source_system_identifier_sha256']=observe_backup_preflight(SOURCE,'BEFORE_BACKUP')
+    report['steps']['RESTORE-QUIESCENCE']='PASS_POSTGRES_ONLY';save()
+'''+s[b:]
+old="quiescent=fixed_json(SOURCE,'backup-preflight.sql');need(backup_preflight(quiescent)==report['restore']['source_system_identifier_sha256'],'RESTORE_SOURCE_AFTER_BACKUP_NOT_QUIESCENT')"
+assert old in s;s=s.replace(old,"observe_backup_preflight(SOURCE,'AFTER_BACKUP',report['restore']['source_system_identifier_sha256'])")
+p.write_bytes(s.encode())
+doc=R/'scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md'
+doc.write_bytes((doc.read_text()+'''\n\nV5 is a new source-only preflight observation correction. PostgreSQL17.11 displays
+archive_command as (disabled) while archive_mode is off. The observer also
+requires exactly one pg_settings row with an empty raw reset_val, string/sighup
+metadata and no pending restart, so a hidden configured command still rejects.
+All other preflight and restore boundaries are preserved. A fixed per-field
+Boolean/type receipt precedes assertion failure; raw settings and identifiers
+are never retained. The historical c5ac17 values and complete cause remain
+UNOBSERVED. All new source gates are PENDING; runtime remains NOT_RUN.\n''').encode())

@@ -1,0 +1,124 @@
+{
+  "schema": "workinants.restore-resource-mount-v2-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-19T22:40:08.405893+00:00",
+  "reviewer": "independent agent /root/privilege_mount_v2_review; did not author the Restore correction",
+  "decision": "SOURCE_APPROVED",
+  "scope": "EXACT_NEW_RESTORE_RESOURCE_MOUNT_V2_FIVE_AND_RECURSIVE52_SOURCE_ONLY",
+  "request_sha256": "bf8207e2d73a244e51ab91fb0ea2c7f0558a8dd74f010d962466b476bc897a4a",
+  "frozen_manifest_sha256": "a304d23d15287f167906051611abe192f1fb302198edd538be906f3b210c2930",
+  "approved_plan_sha256": "0338969cfaa30cffa08f39e4cd86c8ad0c1b56bad86e03a07a9c46410015efc3",
+  "Root_plan_ACK_sha256": "d323304ef2b1d7c2e003f694cdba42aa8211309c6001d1055cd02efb8aa4d1a5",
+  "operator_sources_sha256": {
+    "execute_local_f0_restore_20261119_resource_mount_v2.py": "b94ac751379d6b6ff204c5fe2324cc1593355f2ec65a316e62de7ee74a8d876d",
+    "local_f0_restore_operation_steps_resource_mount_v2.py": "1a0eb4881497b43eb8c05f7d296c722dbd8eda90c3b3844c51e2552022fd6c3e",
+    "prepare_local_f0_restore_plan_resource_mount_v2.py": "df1aa97ca6cd0026503dbf42cf1d8c9e3ae62290d07f7858360e7d36a201d2b2",
+    "check_local_f0_restore_operation_resource_mount_v2.py": "cb8d20a01c6086527a963333995f012dca830c1b9f0f4818811ea8d9cb961bbf",
+    "pin_local_f0_restore_plan_20261119_resource_mount_v2.py": "01eb4ddcf000bee96136a50e62fcc146aa5c8acba34b5051ccef98c3a96dfdff"
+  },
+  "findings": [],
+  "review_conclusions": {
+    "plan_alignment": "PASS; exact two source inspection hooks plus closed own-profile resource inspector and fixed kernel helper, without changing restore/data behavior.",
+    "resource_profiles": {
+      "source": "Exactly one expected source data volume RW and exact private bootstrap bind RO; optional single matching secret-tmpfs API row. HostConfig always exact private tmpfs five-token set. Prestart and stopped source inspect configuration without exec; running source requires its own owned-CID kernel proof before readiness/firstpgpass.",
+      "staging": "Exactly one expected restored data volume RW and exact protected archive bind RO; no API/HostConfig secret tmpfs and no secret kernel probe. Cannot borrow source bootstrap/data mounts or introduce tools/backup binds.",
+      "target": "Exactly expected restored data volume RW, optional single matching secret-tmpfs API row, no bootstrap/archive/source-data bind. Its own post-start owned-CID kernel proof is mandatory before first targetpgpass. Source proof cannot satisfy target proof."
+    },
+    "identity_isolation": "Exact resource-profile/name, created64-hexCID, both run labels, image/platform, runningBoolean, networknone/noports, no privileged/hostPID/sharedIPC/devices/addedcaps/links. Exact volumeName/CreatedAt/bothlabels/localdriver/nooptions/localScope required; wrong or extra mounts reject.",
+    "kernel_safety": "Fixed30-second owned-CID command only. Root700 directory and exactly one actual tmpfs proc entry with rw/noexec/nosuid/nodev and no conflicting flags are required. Strict int0/token-newline/empty-stderr comparisons; typed Boolean outcomes only, with raw output/errors discarded. Fixed script is byte-identical to accepted Owner script after replacing only its success token. No actual shell/kernel probe executed by this review.",
+    "data_separation": "Existing actual-PGDATA postgres UID/GID, manifest/WAL/archive/integrity/HBA checks remain separate from the new root-owned secret tmpfs stat. Backup, tar staging, target startup, credential rotation, generation, parity and finite probes are unchanged.",
+    "failure_and_cleanup": "Actual new Core/source and create_extra_container/stage_restore compositions stop before private credential writes on kernel failure. Persistent IO cannot qualify the attempt; first failure survives and exact resource/secret cleanup is still attempted. Existing common SafetySQL/finalization/closure/main semantics remain unchanged.",
+    "source_admission": "Actual initialized3C/2V resource globals and whole graph tested. Catalog16, helper5, proposal67/prepared25, canonical7-file history, livefour plus physical fifth source snapshots, current/mockcommitted source matching and explicit PENDING refusal are exercised. Synthetic approval exists only in isolated test clones; no live approval metadata changed.",
+    "historical_truth": "The analogous strict API tmpfs assumption is demonstrated as a Restore source-oracle question, not an observed Restore runtime failure. Old held attempts and their actual authentication stops remain preserved."
+  },
+  "independent_offline_checks": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore-resource-mount-v2-independent-checks-20261119\\checks.json",
+    "sha256": "2c18173192823aa214405ca05cbae19fcac2ad18518b046ab48c96be56c8c086",
+    "unique_test_methods": 101,
+    "suites": [
+      {
+        "file": "check_restore_resource_mount_v2_resources_20261119.py",
+        "source_sha256": "0d9482d1cd5d7c66955a51b2cff9fbb7cb783f2ae0c9a5ccb567706e4819d1a7",
+        "tests": 10,
+        "seconds": 1.485,
+        "unittest_seconds": 0.948,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "64a2006b753ae62298e9084e021c531507f2de05f0d55c51f18407eff791fcad"
+      },
+      {
+        "file": "check_local_f0_restore_operation_resource_mount_v2.py",
+        "source_sha256": "cb8d20a01c6086527a963333995f012dca830c1b9f0f4818811ea8d9cb961bbf",
+        "tests": 64,
+        "seconds": 29.282,
+        "unittest_seconds": 28.658,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "853eec117e167a38b9f042ff3e6502341a3f6509510a05c1ccb5925288054048"
+      },
+      {
+        "file": "check_restore_resource_mount_v2_safety_composed_20261119.py",
+        "source_sha256": "0181b2c8168c2d492bf3b968aae60d67c9a3452b13b085a2aca91b7a5fb71225",
+        "tests": 23,
+        "seconds": 6.219,
+        "unittest_seconds": 5.535,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "d3e5d0ef7472ad0a6d1adee03542668cac1c4846ae1d07ed5ae0858973c12f54"
+      },
+      {
+        "file": "check_restore_resource_mount_v2_source_gates_20261119.py",
+        "source_sha256": "160f1679b620750ba5d02c5e418d4a9321c9de21bdd3bc1a11298f9ab20d0fbc",
+        "tests": 4,
+        "seconds": 27.0,
+        "unittest_seconds": 26.389,
+        "exit_code": 0,
+        "status": "PASS",
+        "output_sha256": "fc8ce7c7703dd53347ea030a93dd42840e5cc068ae3687ae0fc1f6977bb80265"
+      }
+    ],
+    "single_current_sequential_run_all_PASS": true,
+    "author_results_not_used_as_independent_passes": true
+  },
+  "source_scope": {
+    "Core_only_two_literal_source_hooks": true,
+    "Core_other_module_nodes_exact_after_namespace": true,
+    "Steps_only_inspect_restore_changed_and_fixed_helper_constants_added": true,
+    "Steps_other_module_nodes_exact_after_namespace": true,
+    "preparer_fulltext_namespace_only": true,
+    "pinner_only_namespace_and_FROZEN_four_hash_updates": true,
+    "AuthV5_SQL_common13_backup_WAL_staging_rotation_identity_parity_main_finalizer_cleanup_unchanged": true
+  },
+  "preservation": {
+    "recursive_archive52_verified": true,
+    "all71_freeze_members_verified": true,
+    "old65_TASK884_Root_and_INSTALL2_rehashed_unchanged": true,
+    "all33_before_copies_rehashed": true,
+    "old_five_and_held_validation_unchanged": true,
+    "canonical_SQL_migration_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_ACL_source_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "reviewer_modified_only_new_TASK_reports_and_helpers": true
+  },
+  "reviewer_harness_history": {
+    "initial_pre_suite_error": "The first independent audit read INSTALL_extra_two_sha256 relative toTASK instead ofRoot and stopped with FileNotFoundError before starting tests or creating its evidence directory. Corrected only the new reviewer helper base; all reviewed/preserved bytes remained unchanged.",
+    "before_fix_helper": "peer_review_restore_resource_mount_v2_20261119_before_INSTALL_base_fix.py.txt",
+    "before_fix_helper_sha256": "385ac93ebb4fa75a9ba26727765b91819515dda931518d5e721854b8ab40150f",
+    "current_helper_sha256": "41a7fc61ed3a0ee09964bb31b41c4329a9b1bb8002ac6375811ede254e1c6d9f"
+  },
+  "author_history_preserved": {
+    "initial_fixture_failed_run_sha256": "9f3515f2e4920518d821c4c909eeefb2e45a8110835ddde597e8d89ebddd4eed",
+    "meaning": "Three isolated-clone source-gate fixture failures were corrected in new test setup; this review does not relabel that historical run. Current independent101 all passed against the final frozen source/archive."
+  },
+  "limits": {
+    "runtime": "NOT_RUN",
+    "real_Docker_database_SQL_fixed_shell_kernel_probe_network_credentials_or_resources": false,
+    "actual_Git_operation_or_source_pin": false,
+    "live_approval_metadata_mutation": false,
+    "runtime_or_selected_assertion_status_changes": false,
+    "whole94_451_or_production_qualification": false,
+    "privacy_restore_generation_port": "P0F_PRIVACY_RESTORE_GENERATION_PORT remains blocked; no waiver",
+    "Posture": "D",
+    "operational_literal_approval": "NOT_GRANTED_BY_SOURCE_REVIEW"
+  },
+  "next_step": "Root may archive exact independent source approval, complete applicable Root checks, publish/pin a fresh packet and obtain independent operational literal review before any disposable Restore run. Preserve all historical holds and unexercised runtime states.",
+  "plain_english": "Each kind of test box now has the right checklist. Both database boxes must prove their own safe secret folder; the unpacking box has none. All pretend checks pass. A real restore test still needs a separately reviewed run plan."
+}

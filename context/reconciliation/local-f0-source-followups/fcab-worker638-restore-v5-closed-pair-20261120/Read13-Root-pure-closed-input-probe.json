@@ -1,0 +1,39 @@
+{
+  "schema": "workinants.read13-closed-actual-input-pure-probe.v1",
+  "recorded_at_utc": "2026-11-20T11:42:01.515519+00:00",
+  "source_commit": "fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f",
+  "source_tree": "2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f",
+  "packet_sha256": "8b2c8493f8403eec9416934d7c86a975889e8e9a370c478891a9306ccbdc928e",
+  "actual_report_sha256": "9f1bd5efe63aa010d75cb5af8a38538037632c358715e535ac07aa18d77ebd6e",
+  "actual_child_plan_sha256": "4fa575072ea0bf2f8138e68957fc33854f48d56de818c347fdef3fb1975ee869",
+  "coordinator_sha256": "815bf499bbed3c967091739ed3c2e02d2a12e5c6848f480ca94c88792a2c95bf",
+  "source_files": 667,
+  "result": {
+    "status": "PURE_LOAD_INPUTS_REJECTED",
+    "failure": {
+      "exception_class": "HeldFailure",
+      "allowlisted_code": "SOURCE_REVIEW_RECORD_ADMISSION",
+      "source_frames": [
+        {
+          "source": "scripts/sql-review/run-remaining-app-read13-rehearsal.py",
+          "source_sha256": "815bf499bbed3c967091739ed3c2e02d2a12e5c6848f480ca94c88792a2c95bf",
+          "function": "load_inputs",
+          "line": 104
+        },
+        {
+          "source": "scripts/sql-review/run-remaining-app-read13-rehearsal.py",
+          "source_sha256": "815bf499bbed3c967091739ed3c2e02d2a12e5c6848f480ca94c88792a2c95bf",
+          "function": "need",
+          "line": 38
+        }
+      ],
+      "exception_text_raw_output_locals_discarded": true
+    }
+  },
+  "seconds": 6.516,
+  "all_process_network_boundaries_forbidden": true,
+  "source_actual_reports_preserved": true,
+  "new_database_contacts": 0,
+  "original_actual_complete_cause": "UNOBSERVED_NOT_RETROACTIVELY_ESTABLISHED_BY_PURE_REPRODUCTION",
+  "Posture": "D"
+}

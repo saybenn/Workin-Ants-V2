@@ -1,0 +1,84 @@
+{
+  "schema": "workinants.app8f2a-R02-author-context-proposal.v1",
+  "recorded_at_utc": "2026-11-20T11:42:20.091261+00:00",
+  "author": "/root/catalog_v4_review",
+  "decision": "AUTHOR_CONTEXT_AND_OBSERVABILITY_PROPOSAL_ONLY_NOT_INDEPENDENT_CAUSE_APPROVAL",
+  "conflict_disclosure": [
+    "I authored original AppWrite2 R01/R02 child recipes and APPWRITE2-01, including the R02 SQL/grant/observer lineage.",
+    "I authored historical AppOwned Fix2.",
+    "I did not author the newer Restricted GuardObservationV2 delta; I independently reviewed that bounded delta.",
+    "Root has routed full independent stopped-App source/cause analysis to Track. No R02 independent approval is claimed here."
+  ],
+  "closed_actual_bindings": {
+    "normalization_path": "context/reconciliation/local-f0-app-write-two-fcab2e9-8f2aa922-execution.json",
+    "normalization_sha256": "928effb819f748af248db53dd824a465948f5a8e51dbcde0ac8136ac80930483",
+    "child_sha256": "bad5fd6cc1203823e8e581e40568ce27f4ebbfe5fae43a746fddb4a5dca8f0d2",
+    "source_commit": "fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f",
+    "source_tree": "2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f",
+    "packet_files": 240,
+    "packet_sha256": "a9b95a0bcf6bdffb3942f2ebd740929896c7df70f93ab1ed78a402aa2fd44824",
+    "completed_protocols": 13,
+    "stopped_case": "pending-work-next-attempt-update",
+    "stop_code": "EXACT_RECORD_COUNT",
+    "safe_retained_operation_outcome": {
+      "observed_stage": "BUSINESS",
+      "response_received": true,
+      "response_shape_valid": true,
+      "client_exit_received": true,
+      "client_exit": 3,
+      "client_exit_class": "KNOWN",
+      "acknowledged": false,
+      "record_count": 1,
+      "before_marker_matches": true,
+      "after_marker_matches": false,
+      "expected_sequence_matches": false,
+      "diagnostic": null,
+      "operation_closed": true,
+      "global_closure_confirmed": true
+    },
+    "operation_closed": true,
+    "subsequent_cases_stopped": true,
+    "fixture_bypass_restored": true,
+    "evidence_complete": true
+  },
+  "exact_source_sha256": {
+    "scripts/app_write_two_guard_observation_v2_protocol.py": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+    "scripts/sql-review/run-app-write-two-guard-observation-v2.py": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+    "scripts/check-app-write-two-guard-observation-v2-coordinator.py": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+    "review-output/app-write-two-guard-observation-v2/pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+    "review-output/app-write-two-guard-observation-v2/schedule.sql": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad"
+  },
+  "source_observability_fact": {
+    "files": "protocol operation_outcome lines59-75; verdict lines102-110",
+    "fact": "operation_outcome calls diagnostic() only when case.diagnostic is nonnull at the expected guard stage. This positive final case declares diagnostic=null, so the collector leaves its diagnostic null even for a returned BUSINESS error. verdict then checks exact record count before exit/ACK/stderr success; the one observed BEFORE marker trips EXACT_RECORD_COUNT.",
+    "meaning": "This explains the null diagnostic and generic record-count origin, not the database error that caused them. The correctly stopped run is not a false positive."
+  },
+  "R02_AUTHOR_CONTEXT_source_trace": [
+    "The actual SQL attempts only next_attempt_at=server clock plus120s on the exact pending work row with fence0/attempt0/null nextAttempt/lease/effect, RETURNING next_attempt_at and a typed changed-count/future Boolean row, then immediate deferred checks/AFTER marker/COMMIT.",
+    "The work row was intended to come from the genuine separate app scheduler INSERT using the actual Customer Free outbox source, handler assignDefaultFreeTrack.v1 and its registered semantic key; it is not a target-success fixture. Final grant uses platform_integration_owner/runtime.schedule_work.v1/work.schedule, exact work root/source_generation0 and principal currentness.",
+    "Canonical native ACL grants next_attempt_at UPDATE and the returned/predicate SELECT columns. The SELECT RLS requires all13 role-visible SELECT capabilities plus fence revision0; final grant includes those plus UPDATE/@row and UPDATE/nextAttemptAt. UPDATE policy uses @row; physical_guard adds changed-field and OLD fence checks and stamps mutation_transaction_id.",
+    "guard_runtimeworkitem refuses changed immutable identity/ownership, fence regression and field/CAS scope. runtime_transition protects pending/lease/effect/fence/attempt/terminal transitions; this candidate recipe intends no worker claim or effect attachment and preserves pending/fence0/attempt0/null lease/effect.",
+    "The SQL uses no new command/result codec, root alias, principal-ownership predicate, worker permission or owner API. However static intent and mock acceptance do not prove which native check rejected this actual transaction.",
+    "The mock Transport.update models predicate/capability/revision and in-memory work change; it does not execute PostgreSQL trigger bodies or planner/RLS behavior. Its green positive was offline preparation evidence only, superseded for runtime qualification by the actual stop."
+  ],
+  "unobserved_limits": {
+    "actual_stderr_SQLSTATE_message_source_frame": "UNOBSERVED_DISCARDED",
+    "complete_runtime_cause": "UNOBSERVED",
+    "stored_changed1_and_future_after_update": "NOT_PROVEN",
+    "R02_complete_state_after_commit": "NOT_PROVEN",
+    "R02_assertion_qualification": "NOT_PROMOTED",
+    "R01_or13_protocol_mapping": "NO_NEW_MAPPING_FROM_THIS_CONTEXT_NOTE"
+  },
+  "bounded_next_source_proposal": [
+    "Preserve all actual/raw/normalization/assets and frozen V2 code. First complete the independent nonauthor SQL/native guard/source/transport audit; do not change SQL, capabilities, permissions, canonical guards or fixture success state based on the missing error.",
+    "In a new separately ACKed/versioned producer+strict parent schema, retain a safe unexpected-positive-failure observation before verdict. Keep expected-negative diagnostic/verdict semantics unchanged; an observed positive error must never become an expected guard PASS.",
+    "Use a closed source-derived allowlist of diagnostic classifications/SQLSTATE/source-body hash+line only when full exact patterns match. Otherwise retain fixed unlisted/unavailable/malformed and presence/count flags, never raw stderr/SQL/body/dictionaries/credentials/backend handles or raw stderr hashes. Distinguish received empty, malformed and absent error observations.",
+    "Keep original first safe origin, fresh stage slots, exact marker/record/exit/ACK/state/grant checks, close/globalabsence before observers, trigger/native preservation, sticky IO and exact owned cleanup.",
+    "Offline actual CTX/process-boundary regressions should model positive BUSINESS exit3 with BEFORE only and known/unlisted/malformed/canary diagnostics, restoration of the old positive-null collector, simultaneous closure/receipt IO faults and later-case stopping. They establish observability only; any business-source correction needs a separate proven defect and review."
+  ],
+  "no_code_gate_Git_Docker_DB_SQL_network_status_or_progress_edits": true,
+  "no_active_Read13_files_read": true,
+  "Posture": "D",
+  "plain_english": "The last step said error, but this success-test path did not save a safe reason. We know it stopped and closed the door; we do not know the lost reason. Another reviewer checks my old recipe before any fix."
+}

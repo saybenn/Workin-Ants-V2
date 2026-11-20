@@ -1,0 +1,113 @@
+# Additional exact-topology/projection tests; no production factory is replaced.
+def actual_live_root():
+ live=ROOT if(ROOT/'node_modules').is_junction()else ROOT.parent.parent/'workinants-correction-pass'
+ assert(live/'node_modules').is_junction();return live
+
+def test_15_actual_junction_original_strict_reader_still_rejects(self):
+ live=actual_live_root()
+ for original,snapshot in M.METADATA_SNAPSHOTS:
+  with self.subTest(original=original):
+   self.assertEqual(M.sh((live/original).read_bytes()),M.ORIGINAL_PINS[original])
+   self.assertFalse((live/original).resolve(strict=True).is_relative_to(live.resolve(strict=True)))
+   with self.assertRaisesRegex(M.EvidenceFailure,'^PATH_ESCAPE$'):M._read(live,original,M.ORIGINAL_PINS[original])
+
+def test_16_real_physical654_no_original_node_reads_and_finalization(self):
+ logical=M._project_logical_inputs(self.blobs);self.assertEqual(set(logical),set(M.ORIGINAL_PINS));self.assertEqual(len(logical),654)
+ real=Path.open;originals={self.root/name for name,_ in M.METADATA_SNAPSHOTS}
+ def guarded(path,*a,**k):
+  if path in originals:raise AssertionError('ORIGINAL_NODE_READ_FORBIDDEN')
+  return real(path,*a,**k)
+ with patch.object(Path,'open',guarded):
+  batch=M.prepare_batch(self.root);self.check_claims(batch);self.assertTrue(batch.verify_unchanged());self.assertTrue(batch.require_finalized())
+
+def test_17_nested_tools_and_closure_data_must_agree(self):
+ logical=M._project_logical_inputs(self.blobs);original=M.METADATA_SNAPSHOTS[0][0]
+ for name,container in((M.A+'/manifest/migration-ok.json','tools'),('context/reconciliation/local-f0-tooling/prisma-tools-closure.json',None)):
+  for value in('0'*64,False,None):
+   with self.subTest(name=name,value=value):
+    changed=dict(logical);document=M.doc(changed[name]);mapping=document['tools']['files_sha256']if container else document['tools_files_sha256'];mapping[original]=value;changed[name]=data(document)
+    with self.assertRaisesRegex(M.EvidenceFailure,'REVIEWED_TOOL_METADATA_BINDING'):M._verify_metadata_binding(changed)
+
+def test_18_alias_source_mutants_cannot_create_a_caller_override(self):
+ source=(ROOT/'scripts/local_f0_worker_recovery_evidence_v2.py').read_text();literal='METADATA_SNAPSHOTS='+repr(M.METADATA_SNAPSHOTS)
+ self.assertEqual(source.count(literal),1);logical=M._project_logical_inputs(self.blobs);a,b=M.METADATA_SNAPSHOTS
+ for aliases in((a,a),(a,(b[0],a[1])),(a,(b[0],'../outside.json')),(a,b,('OTHER','OTHER')),((a[0]+'-changed',a[1]),b)):
+  with self.subTest(aliases=aliases):
+   namespace={'__name__':'_confined_alias_source_mutant'};exec(compile(source.replace(literal,'METADATA_SNAPSHOTS='+repr(aliases),1),'<alias-mutant>','exec'),namespace)
+   mapping=dict(aliases);physical={mapping.get(k,k):v for k,v in logical.items()}
+   with self.assertRaisesRegex(namespace['EvidenceFailure'],'EXACT_FIXED_METADATA_PROJECTION'):namespace['_project_logical_inputs'](physical)
+ self.assertEqual(len(M.METADATA_SNAPSHOTS),2);self.assertIs(type(M.METADATA_SNAPSHOTS),tuple)
+
+def test_19_missing_or_wrong_snapshot_has_no_live_fallback(self):
+ original,snapshot=M.METADATA_SNAPSHOTS[0];path=self.root/snapshot;raw=path.read_bytes();path.unlink()
+ try:
+  with self.assertRaises(M.EvidenceFailure):M.prepare_batch(self.root)
+ finally:path.write_bytes(raw)
+ changed=dict(self.blobs);changed[snapshot]=b'CANARY_DIFFERENT_SNAPSHOT'
+ with self.assertRaises(M.EvidenceFailure):M.validate_bundle(changed)
+ missing=dict(self.blobs);missing[original]=missing.pop(snapshot)
+ with self.assertRaises(M.EvidenceFailure):M.validate_bundle(missing)
+
+def test_20_snapshot_race_and_late_drift_remain_sticky(self):
+ _,snapshot=M.METADATA_SNAPSHOTS[0];path=self.root/snapshot;original=self.blobs[snapshot];changed=bytes((original[0]^1,))+original[1:];before=path.stat();real_open=Path.open;fired=[]
+ class Reader:
+  def __init__(self,reader):self.reader=reader
+  def __enter__(self):self.reader.__enter__();return self
+  def __exit__(self,*args):return self.reader.__exit__(*args)
+  def fileno(self):return self.reader.fileno()
+  def read(self,*args):
+   raw=self.reader.read(*args)
+   if not fired:
+    fired.append(True)
+    with real_open(path,'wb')as writer:writer.write(changed)
+    os.utime(path,ns=(before.st_atime_ns,before.st_mtime_ns))
+   return raw
+ def hooked(p,*a,**k):
+  reader=real_open(p,*a,**k);return Reader(reader)if p==path and a and a[0]=='rb'else reader
+ self.touched.append(snapshot)
+ with patch.object(Path,'open',hooked),self.assertRaises(M.EvidenceFailure):M._read(self.root,snapshot,M.PINS[snapshot])
+ path.write_bytes(original);batch=M.prepare_batch(self.root);self.check_claims(batch);self.change(snapshot,changed)
+ with self.assertRaises(M.EvidenceFailure):batch.verify_unchanged()
+ self.change(snapshot,original)
+ with self.assertRaises(M.EvidenceFailure):batch.verify_unchanged()
+ with self.assertRaises(M.EvidenceFailure):batch.require_finalized()
+
+def test_21_only_projection_changes_and_real_old_import_tripwire(self):
+ live=actual_live_root();old_raw=(live/'scripts/local_f0_worker_recovery_evidence.py').read_bytes();self.assertEqual(M.sh(old_raw),'3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff')
+ def definitions(raw):return{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+ old=definitions(old_raw);new=definitions((ROOT/'scripts/local_f0_worker_recovery_evidence_v2.py').read_bytes())
+ self.assertEqual(set(new)-set(old),{'_verify_metadata_binding','_project_logical_inputs'})
+ self.assertEqual({n for n in old if old[n]!=new[n]},{'validate_bundle'})
+ self.assertEqual(M.ORIGINAL_PINS,{n:M.PINS[dict(M.METADATA_SNAPSHOTS).get(n,n)]for n in M.ORIGINAL_PINS})
+ basis=(ROOT/(M.ARCHIVE+'/current-snapshots/prepare-local-f0-status.py.txt')).read_bytes();builder=(ROOT/'scripts/prepare-local-f0-status.py').read_bytes()
+ self.assertEqual(builder.replace(b'from local_f0_worker_recovery_evidence_v2 import',b'from local_f0_worker_recovery_evidence import'),basis)
+ root=self.root/'old-import-real-cli';root.mkdir(exist_ok=True)
+ for n,b in self.blobs.items():p=root/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+ inventory=M.doc(self.blobs['context/reconciliation/local-f0-assertions.json'])
+ for n,w in inventory['source_provenance']['files_sha256'].items():
+  raw=(ROOT/n).read_bytes();self.assertEqual(M.sh(raw),w);p=root/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
+ scripts=('prepare-local-f0-status.py','local_f0_worker_recovery_evidence_v2.py','local_f0_migration_evidence.py','local_f0_catalog_evidence.py','local_f0_restricted_evidence.py','local_f0_native_prefix_evidence.py','local_f0_owner_lease_evidence.py','local_f0_native_complete_evidence.py','local_f0_scoped_read_evidence.py','local_f0_install_evidence.py')
+ for n in scripts:p=root/'scripts'/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((ROOT/'scripts'/n).read_bytes())
+ # Live accepted V1 source is used only as a restoration mutant, not a proof.
+ (root/'scripts/local_f0_worker_recovery_evidence.py').write_bytes(old_raw)
+ for original,snapshot in M.METADATA_SNAPSHOTS:
+  p=root/original;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(self.blobs[snapshot])
+ ledger=deepcopy(self.proposed);ledger['assertions']=[self.rows[k]for k in M.LEDGER_CHANGES];(root/'context/reconciliation/local-f0-assertion-evidence.json').write_bytes(data(ledger))
+ script=root/'scripts/prepare-local-f0-status.py';script.write_bytes(builder.replace(b'from local_f0_worker_recovery_evidence_v2 import',b'from local_f0_worker_recovery_evidence import'))
+ real_resolve=Path.resolve
+ def observed_junction_projection(path,*a,**k):
+  if path.is_relative_to(root/'node_modules'):return real_resolve(live/path.relative_to(root),*a,**k)
+  return real_resolve(path,*a,**k)
+ saved={n:sys.modules.pop(n)for n in list(sys.modules)if n.startswith('local_f0_')};oldpath=list(sys.path)
+ try:
+  sys.path.insert(0,str(root/'scripts'))
+  with patch.object(Path,'resolve',observed_junction_projection),redirect_stdout(io.StringIO()),self.assertRaisesRegex(AssertionError,'PATH_ESCAPE'):
+   runpy.run_path(str(script),run_name='__main__')
+  self.assertFalse((root/'context/reconciliation/local-f0-qualification-status.json').exists())
+ finally:
+  sys.path[:]=oldpath
+  for n in list(sys.modules):
+   if n.startswith('local_f0_'):sys.modules.pop(n)
+  sys.modules.update(saved)
+
+for _fn in(test_15_actual_junction_original_strict_reader_still_rejects,test_16_real_physical654_no_original_node_reads_and_finalization,test_17_nested_tools_and_closure_data_must_agree,test_18_alias_source_mutants_cannot_create_a_caller_override,test_19_missing_or_wrong_snapshot_has_no_live_fallback,test_20_snapshot_race_and_late_drift_remain_sticky,test_21_only_projection_changes_and_real_old_import_tripwire):setattr(WorkerEvidenceTests,_fn.__name__,_fn)

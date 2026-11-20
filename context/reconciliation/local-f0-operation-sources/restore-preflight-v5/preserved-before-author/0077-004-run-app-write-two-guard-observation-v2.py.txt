@@ -1,0 +1,294 @@
+"""Dormant finite R01/R02 app-write coordinator. Import/help execute no process.
+
+Only Root's separately reviewed same-source/run/CID/native packet may execute.
+No provisioning, cleanup, repair, migration, owner adapter or worker loop lives here.
+"""
+import argparse
+from copy import deepcopy
+import hashlib
+import io
+import json
+import os
+from pathlib import Path
+import re
+import secrets
+import subprocess
+from contextlib import redirect_stdout,redirect_stderr
+import uuid
+import time
+
+ROOT=Path(__file__).resolve().parents[2]
+TASK=ROOT.parent
+PACKET=ROOT/'review-output/app-write-two-guard-observation-v2'
+SELF='scripts/sql-review/run-app-write-two-guard-observation-v2.py'
+PROTOCOL='scripts/app_write_two_guard_observation_v2_protocol.py'
+BASE='scripts/sql-review/run-scoped-read-companion-rehearsal.py'
+CONTEXT='scripts/sql-review/run-context-control-rehearsal.py'
+COLLECTOR='scripts/sql-review/collect_native_catalog.sql'
+HELPERS=(BASE,CONTEXT,'scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/run-local-f0-migrate.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/prepare-local-f0-history.py')
+EXPECTED_CATALOG='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433'
+APPLICATION='review-output/foundation-application.review.sql'
+APPLICATION_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+
+class HeldFailure(Exception):
+ def __init__(self,code):self.code=code;super().__init__(code)
+
+def need(value,code):
+ if not value:raise HeldFailure(code)
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(v):return json.dumps(v,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+def digest(v):return sha(canonical(v).encode())
+def quote(v):return "'"+str(v).replace("'","''")+"'"
+
+def unique_json(raw):
+ def pairs(items):
+  value={}
+  for key,item in items:need(key not in value,'DUPLICATE_JSON_FIELD');value[key]=item
+  return value
+ try:return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in ()).throw(HeldFailure('NONFINITE_JSON')))
+ except HeldFailure:raise
+ except BaseException:raise HeldFailure('MALFORMED_JSON') from None
+
+def source_path(relative):
+ need(type(relative) is str and '\\' not in relative and ':' not in relative and not relative.startswith('/') and all(p not in ('','.','..') for p in relative.split('/')),'SOURCE_PATH')
+ path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'SOURCE_PATH_ESCAPE');return path
+
+def external(value):
+ path=Path(value);need(path.is_absolute(),'EXTERNAL_ABSOLUTE_PATH');path=path.resolve()
+ need(path.is_relative_to(TASK.resolve()) and not path.is_relative_to(ROOT.resolve()),'EXTERNAL_TASK_PATH');return path
+
+def checked_source(relative,pins):
+ need(relative in pins,'SOURCE_NOT_ADMITTED')
+ try:raw=source_path(relative).read_bytes()
+ except OSError:raise HeldFailure('SOURCE_FILE_UNAVAILABLE') from None
+ need(sha(raw)==pins[relative],'SOURCE_FILE_DRIFT');return raw
+
+def checked_sql(packet,name):
+ need(type(name) is str and Path(name).name==name and name in packet['prepared_files_sha256'],'FIXED_SQL_NAME')
+ raw=(PACKET/name).read_bytes();need(sha(raw)==packet['prepared_files_sha256'][name],'PREPARED_SQL_DRIFT');return raw.decode('utf8')
+
+def compiled(raw,relative):
+ namespace={'__name__':'_app_write_two_reviewed','__file__':str(source_path(relative))};output=io.StringIO()
+ try:
+  with redirect_stdout(output),redirect_stderr(output):exec(compile(raw,str(source_path(relative)),'exec'),namespace)
+ except BaseException:raise HeldFailure('VERIFIED_MODULE_LOAD_REFUSED') from None
+ need(not output.getvalue(),'VERIFIED_MODULE_OUTPUT_REFUSED');return namespace
+
+def load_inputs(plan):
+ keys={'schema','scope','run_id','source_commit','source_tree','packet_sha256','packet_files_sha256','reviewed_packet_sha256','reviewed_content_sha256','target_manifest','immutable_container_id','native_snapshot','native_comparison','native_attestation','scenario_names'}
+ need(type(plan) is dict and set(plan)==keys,'RUN_PLAN_FIELDS')
+ need(plan['schema']=='workinants.app-write-two-run.v1' and plan['scope']=='REVIEWED_SELECTED94_TWO_APP_WRITE_CRITERIA_ONLY','RUN_PLAN_SCOPE')
+ need(type(plan['run_id']) is str and str(uuid.UUID(plan['run_id']))==plan['run_id'] and uuid.UUID(plan['run_id']).version==4,'RUN_UUID4')
+ for key in ('source_commit','source_tree'):need(type(plan[key]) is str and re.fullmatch('[0-9a-f]{40}',plan[key]),'SOURCE_CHECKPOINT')
+ need(type(plan['immutable_container_id']) is str and re.fullmatch('[0-9a-f]{64}',plan['immutable_container_id']),'IMMUTABLE_CREATED_CID')
+ pins=plan['packet_files_sha256'];need(type(pins) is dict and pins and all(type(v) is str and re.fullmatch('[0-9a-f]{64}',v) for v in pins.values()),'CLOSED_PACKET_PINS')
+ need(sha(''.join(k+'\0'+pins[k]+'\n' for k in sorted(pins)).encode())==plan['packet_sha256'],'CLOSED_PACKET_AGGREGATE')
+ blobs={relative:checked_source(relative,pins) for relative in pins}
+ raw=(PACKET/'fixtures.json').read_bytes();need(sha(raw)==plan['reviewed_packet_sha256'] and pins.get('review-output/app-write-two-guard-observation-v2/fixtures.json')==sha(raw),'REVIEWED_FIXTURE_FILE')
+ packet=unique_json(raw)
+ need(packet['schema']=='workinants.app-write-two-fixtures.v1' and packet['status']=='NOT_RUN' and packet['database_posture']=='D' and packet['database_contacted'] is False and packet['sql_executed'] is False,'REVIEWED_FIXTURE_SCOPE')
+ need(digest({k:packet[k] for k in ('source_files_sha256','prepared_files_sha256')})==packet['source_only_packet_sha256']==plan['reviewed_content_sha256'],'REVIEWED_CONTENT_AGGREGATE')
+ need(packet['source_files_sha256'].get(APPLICATION)==APPLICATION_SHA and pins.get(APPLICATION)==APPLICATION_SHA,'CANONICAL_SQL')
+ for relative,value in packet['source_files_sha256'].items():need(pins.get(relative)==value and sha(blobs[relative])==value,'FIXTURE_SOURCE_BINDING')
+ for name,value in packet['prepared_files_sha256'].items():
+  need(pins.get('review-output/app-write-two-guard-observation-v2/'+name)==value,'FIXTURE_SQL_PACKET_BINDING');checked_sql(packet,name)
+ finite={'case_count':14,'business_claims':2,'genuine_customer_groups':1,'scheduled_work':1,'grant_instances_max':15,'simultaneous_app_sessions_max':1,'worker_loop':False};caps=packet['finite_caps']
+ need(type(caps) is dict and set(caps)==set(finite) and all(type(caps[k]) is type(wanted) and caps[k]==wanted for k,wanted in finite.items()),'EXACT_TYPED_FINITE_CAPS')
+ need(type(packet['cases']) is list and plan['scenario_names']==[c['name'] for c in packet['cases']] and len(packet['cases'])==14 and all(c['status']=='NOT_RUN' for c in packet['cases']),'EXACT_FINITE_CASES')
+ tables={model['object'] for model in packet['models'].values()}|{'platform_private.identity_service_authorization','platform_private.identity_service_receipt'}
+ need(len(tables)==42 and all(type(packet[k]) is dict and set(packet[k])==tables and all(type(v) is int and v>=0 for v in packet[k].values()) for k in ('setup_expected_counts','committed_expected_counts','scheduled_expected_counts')),'EXACT_TYPED_COMPLETE42_COUNTS')
+ need(type(packet['worker_acl_rows']) is list and len(packet['worker_acl_rows'])==32,'WORKER_ACL_CEILING')
+ documents={}
+ for key in ('native_snapshot','native_comparison','native_attestation'):
+  entry=plan[key];need(type(entry) is dict and set(entry)=={'path','sha256'},'NATIVE_BINDING_FIELDS');data=external(entry['path']).read_bytes();need(sha(data)==entry['sha256'],'NATIVE_FILE_DRIFT');documents[key]=unique_json(data)
+ native,comparison,attestation=(documents[k] for k in ('native_snapshot','native_comparison','native_attestation'))
+ need(native.get('format')=='workinants.native-catalog.v1' and type(native.get('server_version_num')) is int and native['server_version_num']==170011 and native.get('read_only') is True and native.get('collected_as')=='postgres' and native.get('collector_is_superuser') is True,'NATIVE_COLLECTOR_IDENTITY')
+ counts=comparison.get('check_counts');need(type(counts) is dict and set(counts)=={'PASS'} and type(counts['PASS']) is int and counts['PASS']==29089,'NATIVE_EXACT_INTEGER_COMPARISON_COUNT')
+ need(comparison.get('format')=='workinants.catalog-comparison.v1' and comparison.get('status')=='PASS' and comparison.get('source_expected_sha256')==EXPECTED_CATALOG and comparison.get('native_snapshot_sha256')==digest(native) and comparison.get('findings')==[],'NATIVE_EXACT_COMPARISON_PASS')
+ expected={'schema':'workinants.app-write-two-native-attestation.v1','run_id':plan['run_id'],'container_id':plan['immutable_container_id'],'source_commit':plan['source_commit'],'source_tree':plan['source_tree'],'packet_sha256':plan['packet_sha256'],'collector_sha256':pins[COLLECTOR],'source_expected_sha256':EXPECTED_CATALOG,'native_snapshot_sha256':digest(native),'native_comparison_file_sha256':plan['native_comparison']['sha256'],'original_grantor_finalized':True,'operation_backends_absent':True,'comparison_status':'PASS'}
+ need(canonical(attestation)==canonical(expected),'SAME_SOURCE_RUN_CID_NATIVE_ATTESTATION')
+ # No helper executes until the complete source closure, packet and evidence bytes were verified.
+ need(all(name in blobs for name in (SELF,PROTOCOL,*HELPERS,COLLECTOR)),'HELPER_SOURCE_CLOSURE')
+ protocol=compiled(blobs[PROTOCOL],PROTOCOL)
+ need(tuple(c['name'] for c in packet['cases'])==protocol['CASE_NAMES'] and tuple(x['case_id']+'|'+x['assertion_id'] for x in packet['claim_ceilings'])==protocol['CLAIMS'],'EXACT_SOURCE_PROTOCOL_AND_CLAIMS')
+ context=compiled(blobs[CONTEXT],CONTEXT)
+ context['load_helpers'](blobs)
+ target=context['HOST']['validate_manifest'](plan['target_manifest'])
+ need(target['run_id']==plan['run_id'] and target['source']['integrated_sql_sha256']==APPLICATION_SHA,'TARGET_RUN_SOURCE_BINDING')
+ for relative in pins:checked_source(relative,pins)
+ base=compiled(blobs[BASE],BASE)
+ return packet,native,target,protocol,context,base
+
+class Evidence:
+ def __init__(self,path,plan,packet):
+  self.directory=external(path);need(not self.directory.exists(),'FRESH_EXTERNAL_EVIDENCE_DIRECTORY');self.directory.mkdir();self.path=self.directory/'app-write-two-results.json';self.finalizing=False;self.failed=False
+  self.value={'schema':'workinants.app-write-two-evidence.v1','status':'IN_PROGRESS','current_stage':'ENTRY','current_case':None,'run_id':plan['run_id'],'container_id':plan['immutable_container_id'],'source_commit':plan['source_commit'],'source_tree':plan['source_tree'],'packet_sha256':plan['packet_sha256'],'reviewed_packet_sha256':plan['reviewed_packet_sha256'],'reviewed_content_sha256':plan['reviewed_content_sha256'],'selected_controls':[{'id':x,'status':'NOT_RUN'} for x in packet['selected_control_ids']],'results':[],'operations':[],'authentication':[],'unexpected':[],'subsequent_cases_stopped':False,'cleanup_required':True,'fixture_owner_bypass_restored':False,'evidence_complete':True,'database_posture':'D','limits':packet['scope_limits']};self.save()
+ def stop(self,code,stage=None):
+  self.value.update(status='STOPPED_PARTIAL_EVIDENCE_PRESERVED',subsequent_cases_stopped=True)
+  item={'stage':stage or self.value['current_stage'],'case':self.value['current_case'],'code':code}
+  if item not in self.value['unexpected']:self.value['unexpected'].append(item)
+ def save(self):
+  try:
+   temp=self.path.with_suffix('.json.tmp')
+   with temp.open('w',encoding='utf8',newline='\n') as f:f.write(json.dumps(self.value,indent=2,ensure_ascii=False,allow_nan=False)+'\n');f.flush();os.fsync(f.fileno())
+   temp.replace(self.path);return True
+  except BaseException:
+   self.failed=True;self.value['evidence_complete']=False;self.stop('SANITIZED_EVIDENCE_WRITE_UNCONFIRMED')
+   if not self.finalizing:raise HeldFailure('SANITIZED_EVIDENCE_WRITE_UNCONFIRMED') from None
+   return False
+ def stage(self,value):self.value['current_stage']=value;self.save()
+
+def coordinator_type(context,base):
+ class Coordinator(base['coordinator_type'](context)):
+  def __init__(self,plan,packet,native,target,evidence,protocol,session_factory=None):
+   super().__init__(plan,packet,native,target,evidence,protocol,session_factory);self.counts=dict.fromkeys(packet['setup_expected_counts'],0);self.source_committed=False;self.scheduled=False;self.schedule_identity=None
+  def text(self,name):return checked_sql(self.packet,name)
+  def session(self,role):
+   value=super().session(role);need(len([s for s in self.sessions if not s.closed and s.role=='wa_app_runtime'])<=1 and not any(s.role=='wa_worker' for s in self.sessions),'ONE_APP_NO_WORKER_CLIENT');return value
+  def state(self):
+   self.global_closure();value=unique_json(self.raw('postgres',self.text('complete-state-observe.sql')));need(type(value) is dict and set(value)==set(self.counts) and len(value)==42,'FULL42_TABLE_SET')
+   for table,count in self.counts.items():
+    actual=value[table];wanted=len(self.instances) if table=='platform.database_action_grant' else count
+    need(type(actual) is dict and set(actual)=={'count','rows_sha256'} and type(actual['count']) is int and actual['count']==wanted and type(actual['rows_sha256']) is str and re.fullmatch('[0-9a-f]{64}',actual['rows_sha256']),'FULL42_TYPED_COUNTS_HASHES')
+   self.record({'stage':'COMPLETE42_STATE','case':self.evidence.value['current_case'],'tables':deepcopy(value),'sha256':digest(value)})
+   return value
+  def restore_fixture_identity(self):
+   self.global_closure();actual=unique_json(self.raw('postgres',checked_source(COLLECTOR,self.plan['packet_files_sha256']).decode()));proof=self.protocol['restoration_identity'](self.native,actual);self.record({'stage':'PRE_RESTORATION_EXACT_TWO_IDENTITY',**proof})
+  def setup(self):
+   self.resource();context['API']['authentication_preflight'](self.evidence,self.container);self.global_closure()
+   need(self.raw('postgres',"SELECT current_setting('server_version_num')='170011' AND current_setting('log_statement')='none' AND current_setting('log_min_error_statement')='panic' AND current_setting('password_encryption')='scram-sha-256';")=='t','SAFE_SERVER_SETTINGS')
+   need(self.raw('postgres',"SELECT NOT EXISTS(SELECT 1 FROM pg_auth_members WHERE member='wa_schema_owner'::regrole AND roleid=ANY(ARRAY['wa_private_helper_owner'::regrole,'wa_customer_verifier'::regrole,'wa_track_verifier'::regrole])) AND NOT has_schema_privilege('wa_private_helper_owner','platform_private','CREATE') AND NOT has_schema_privilege('wa_customer_verifier','platform_private','CREATE') AND NOT has_schema_privilege('wa_track_verifier','platform_private','CREATE');")=='t','ORIGINAL_GRANTOR_FINALIZATION_REQUIRED')
+   self.native_parity('PRE_FIXTURE_FULL_NATIVE');self.state();self.bypass_open=True;self.evidence.stage('EXACT_TWO_USER_FIXTURE_ATTEMPT')
+   self.fixture_commit('independent-user-fixtures.sql','SYNTHETIC_USER_PREREQUISITES_ONLY');self.native_parity('POST_FIXTURE_ALL_GUARDS_RESTORED');self.bypass_open=False;self.evidence.value['fixture_owner_bypass_restored']=True;self.counts=deepcopy(self.packet['setup_expected_counts'])
+   actual=unique_json(self.raw('postgres',self.text('user-coherence-observe.sql')));need(canonical(actual)==canonical({'users':2,'coherent':True}),'TWO_COHERENT_CURRENT_USERS');self.state()
+  def operation(self,case):
+   template=self.packet['grants'][case['grant']];record={'stage':'RESTRICTED_APP_TRANSACTION','case':case['name'],'actual_login':'wa_app_runtime','issuer_committed':False,'same_tuple_verified':False,'bind_stage_reached':False,'write_stage_reached':False,'read_stage_reached':False,'operation_closed':False}
+   stage='NOT_STARTED';slots={key:{'received':False,'response':None} for key in ('SAME_XID','BIND_MARKER','BIND','BUSINESS')}
+   record['operation_outcome']=self.protocol['operation_outcome'](case,stage,False,None,False,None,False,False,self.application);self.record(record)
+   session=None;instance=None;primary=None;code=None;backend=None;exit_received=False;global_closed=False
+   def call(next_stage,text):
+    nonlocal stage
+    stage=next_stage;slot=slots[stage];slot.update(received=False,response=None)
+    response=session.call(text);slot.update(received=True,response=response)
+    need(type(response) is tuple and len(response)==3 and type(response[0]) is list and len(response[0])<=16 and all(type(x) is str and len(x)<=65536 for x in response[0]) and type(response[1]) is bool and type(response[2]) is str and len(response[2])<=65536,'TYPED_OPERATION_RESULT')
+    return response
+   try:
+    session=self.session('wa_app_runtime');session.begin('read committed');backend=session.capture();instance=self.issue(template,backend);record['issuer_committed']=True;self.retention([instance],True)
+    rows,ack,errors=call('SAME_XID','SELECT pg_current_xact_id()::text='+quote(backend['xid'])+';');need(rows==['t'] and ack is True and errors=='','SAME_RESTRICTED_XID');record['same_tuple_verified']=True
+    bind=self.protocol['marker'](case['name'],'BIND');rows,ack,errors=call('BIND_MARKER','SELECT '+quote(bind)+';');need(rows==[bind] and ack is True and errors=='','EXACT_BIND_STAGE_MARKER');record['bind_stage_reached']=True;self.evidence.save()
+    rows,ack,errors=call('BIND','SELECT platform_private.bind_request_context('+quote(self.instances[instance]['secret'])+');')
+    if case['kind']!='binder-denial':
+     need(rows==[] and ack is True and errors=='','FRESH_TUPLE_CONTEXT_REQUIRED');record['read_stage_reached']=case['kind']=='read-support';record['write_stage_reached']=case['kind']!='read-support';self.evidence.save();rows,ack,errors=call('BUSINESS',self.text(case['sql']))
+   except BaseException as error:primary=error
+   finally:
+    if session is not None:
+     try:code=session.close();exit_received=True
+     except BaseException as error:
+      if primary is None:primary=error
+     record['operation_closed']=session.closed is True
+    previous=self.evidence.finalizing;self.evidence.finalizing=True
+    try:
+     try:self.global_closure();global_closed=True
+     except BaseException as error:
+      if primary is None:primary=error
+     # Persist a fixed projection before any primary rethrow, retention or
+     # verdict. Fresh slots prevent a failed business call reusing bind ACK.
+     slot=slots.get(stage,{'received':False,'response':None})
+     try:
+      record['operation_outcome']=self.protocol['operation_outcome'](case,stage,slot['received'],slot['response'],exit_received,code,record['operation_closed'],global_closed,self.application)
+      self.protocol['validate_operation_outcome'](record['operation_outcome'])
+     except BaseException as error:
+      self.evidence.failed=True;self.evidence.value['evidence_complete']=False
+      record['operation_outcome']=self.protocol['operation_outcome'](case,stage,slot['received'],None,exit_received,code,record['operation_closed'],global_closed,self.application)
+      if primary is None:primary=error
+     try:
+      if not self.evidence.save() and primary is None:primary=HeldFailure('SANITIZED_EVIDENCE_WRITE_UNCONFIRMED')
+     except BaseException as error:
+      self.evidence.failed=True;self.evidence.value['evidence_complete']=False
+      if primary is None:primary=error
+    finally:self.evidence.finalizing=previous
+   if primary is not None:raise primary
+   need(record['operation_closed'] is True and global_closed is True,'RESTRICTED_CONNECTION_CLOSURE_REQUIRED');self.retention([instance],True)
+   rows,ack,errors=slots[stage]['response'];result=self.protocol['verdict'](case,code,rows,ack,errors,self.application);record.update(exit_code=code,verdict=result);self.evidence.save();return backend,result
+  def source_observer(self,xid=None):
+   actual=unique_json(self.raw('postgres',self.text('source-customer-observe.sql')));need(canonical(actual)==canonical(self.packet['source_customer']['observer_expected']),'GENUINE_COMPLETE_SH004_CUSTOMER_REQUIRED')
+   source_counts=deepcopy(actual)
+   actual=unique_json(self.raw('postgres',self.text('effect-coherence-observe.sql')));need(canonical(actual)==canonical({'effects':1,'actual_sh004_result_and_source_match':True}),'SUPPLIED_ACTUAL_SH004_EFFECT_COHERENCE')
+   if xid is not None:
+    q=self.packet['ids']['RuntimeCommandReceipt'];expected={'count':7,'same_actual_app_transaction':True}
+    sql="SELECT jsonb_build_object('count',count(*),'same_actual_app_transaction',coalesce(bool_and(mutation_transaction_id="+quote(xid)+"),false)) FROM (SELECT mutation_transaction_id FROM platform.runtime_command_receipt WHERE id="+quote(q)+" UNION ALL SELECT mutation_transaction_id FROM app.customer_profiles WHERE id="+quote(self.packet['ids']['CustomerProfile'])+" UNION ALL SELECT mutation_transaction_id FROM app.customer_profile_lifecycle_event WHERE command_receipt_id="+quote(q)+" UNION ALL SELECT mutation_transaction_id FROM platform.owner_mutation_evidence WHERE command_receipt_id="+quote(q)+" UNION ALL SELECT mutation_transaction_id FROM platform.runtime_outbox_message WHERE command_receipt_id="+quote(q)+" UNION ALL SELECT mutation_transaction_id FROM platform.runtime_effect_receipt WHERE command_receipt_id="+quote(q)+') x;'
+    actual=unique_json(self.raw('postgres',sql));need(canonical(actual)==canonical(expected),'SOURCE_AND_EFFECT_ACTUAL_APP_XID')
+   self.record({'stage':'ACTUAL_SH004_SOURCE_EFFECT_COHERENCE','source_counts':source_counts,'effects':1,'supplied_stored_command_result_and_own_schema_match':True,'source_effect_group_same_actual_app_xid':xid is not None,'canonical_result_link_guard_claimed':False})
+  def work_observer(self,updated=False,xid=None):
+   actual=unique_json(self.raw('postgres',self.text('work-coherence-observe.sql')));need(type(actual) is dict and set(actual)=={'work','pending_zero_fence_attempt_null_lease_effect','not_before_null','not_before_future','identity_sha256'} and type(actual['work']) is int and actual['work']==1 and actual['pending_zero_fence_attempt_null_lease_effect'] is True and actual['not_before_null'] is (not updated) and actual['not_before_future'] is updated and type(actual['identity_sha256']) is str and re.fullmatch('[0-9a-f]{64}',actual['identity_sha256']),'GENUINE_PENDING_WORK_NOT_BEFORE_CONTROL')
+   if self.schedule_identity is None:self.schedule_identity=actual['identity_sha256']
+   need(actual['identity_sha256']==self.schedule_identity,'WORK_IDENTITY_SOURCE_STATE_LEASE_EFFECT_UNCHANGED')
+   if xid is not None:
+    value=self.raw('postgres','SELECT count(*)=1 AND coalesce(bool_and(mutation_transaction_id='+quote(xid)+'),false) FROM platform.runtime_work_item WHERE id='+quote(self.packet['ids']['work'])+';');need(value=='t','ACTUAL_WORK_APP_MUTATION_XID')
+   self.record({'stage':'PENDING_WORK_CONTROL','work':1,'pending_zero_fence_attempt_null_lease_effect':True,'not_before_null':not updated,'server_not_before_future':updated,'identity_sha256':actual['identity_sha256'],'actual_app_mutation_xid_verified':xid is not None})
+  def schedule(self):
+   need(self.source_committed and not self.scheduled,'GENUINE_SOURCE_BEFORE_SCHEDULE');name='genuine-pending-schedule';self.evidence.value['current_case']=name;self.evidence.stage('GENUINE_APP_SCHEDULING_PREREQUISITE');before=self.state();case={'name':name,'kind':'normal','grant':'schedule','sql':'schedule.sql','diagnostic':None,'expected_records':[self.protocol['marker'](name,'BEFORE'),{'scheduled':1},self.protocol['marker'](name,'AFTER')],'claim':None}
+   backend,_=self.operation(case);self.counts=deepcopy(self.packet['scheduled_expected_counts']);self.scheduled=True;after=self.state();need(all(canonical(before[t])==canonical(after[t]) for t in before if t not in ('platform.database_action_grant','platform.runtime_work_item')),'UNDECLARED_COMPLETE42_DATA_CHANGE');self.work_observer(False,backend['xid']);self.source_observer();self.record({'stage':'GENUINE_APP_SCHEDULE_PREREQUISITE','actual_app_committed':True,'owner_write_or_worker_claim':False,'before_complete_state_sha256':digest(before),'complete_state_sha256':digest(after),'all_other_tables_unchanged':True})
+  def run_case(self,case):
+   if case['phase']=='update' and not self.scheduled:self.schedule()
+   self.evidence.value['current_case']=case['name'];self.evidence.stage('FINITE_APP_WRITE_PROTOCOL');before=self.state()
+   if case['kind']=='read-support':
+    need(self.source_committed and not self.scheduled and case['claim'] is None and case['positive'] is False,'GENUINE_SOURCE_BEFORE_READ_SUPPORT');self.source_observer()
+   if self.scheduled:self.work_observer(False)
+   backend,result=self.operation(case)
+   if case['name']=='genuine-sh004-effect-insert':self.source_committed=True;self.counts=deepcopy(self.packet['committed_expected_counts'])
+   after=self.state();allowed=set(case['allowed_changed_tables'])|{'platform.database_action_grant'};need(all(canonical(before[t])==canonical(after[t]) for t in before if t not in allowed),'UNDECLARED_COMPLETE42_DATA_CHANGE')
+   if self.source_committed:self.source_observer(backend['xid'] if case['name']=='genuine-sh004-effect-insert' else None)
+   if self.scheduled:self.work_observer(case['positive'],backend['xid'] if case['positive'] else None)
+   self.retention(list(self.instances));self.native_parity('ALL_GUARDS_UNCHANGED_AFTER_PROTOCOL')
+   self.evidence.value['results'].append({'case':case['name'],'claim':case['claim'],'operation_closed_before_observers':True,'tables_observed':42,'before_complete_state_sha256':digest(before),'complete_state_sha256':digest(after),'allowed_changed_tables':sorted(allowed),'all_other_tables_unchanged':True,'grants_retained':len(self.instances),**result});self.evidence.save()
+  def execute(self):
+   self.setup();need(tuple(c['name'] for c in self.packet['cases'])==self.protocol['CASE_NAMES'],'EXACT14_SOURCE_CASES')
+   for case in self.packet['cases']:self.run_case(case)
+   need(self.source_committed and self.scheduled and len(self.evidence.value['results'])==14,'EXACT_TWO_WRITE_COMPLETION_REQUIRED');self.native_parity('FINAL_FULL_NATIVE_PARITY');self.evidence.value.update(status='PASS_FINITE_TWO_APP_WRITE_CRITERIA_ONLY',current_case=None,current_stage='COMPLETE');self.evidence.save()
+ return Coordinator
+
+def safe_code(error):
+ allowed={'SANITIZED_EVIDENCE_WRITE_UNCONFIRMED','GLOBAL_BACKEND_CLOSURE_UNCONFIRMED','NATIVE_TRIGGER_FUNCTION_ACL_DRIFT','SOURCE_FILE_DRIFT','SOURCE_FILE_UNAVAILABLE','PREPARED_SQL_DRIFT','EXACT_TYPED_COMPLETE42_COUNTS','FULL42_TABLE_SET','FULL42_TYPED_COUNTS_HASHES','UNDECLARED_COMPLETE42_DATA_CHANGE','RESTRICTED_CONNECTION_CLOSURE_REQUIRED','FRESH_TUPLE_CONTEXT_REQUIRED','IMMUTABLE_21_FIELD_ISSUER_RETENTION','EXACT_RECORD_COUNT','EXACT_STAGE_AND_RECORD_SEQUENCE','EXACT_EXISTING_CUSTOMER_READ_COUNT','ACKNOWLEDGED_SOURCE_COMMIT_REQUIRED','INTENDED_SOURCE_GUARD_REQUIRED','SUPPLIED_ACTUAL_SH004_EFFECT_COHERENCE','GENUINE_COMPLETE_SH004_CUSTOMER_REQUIRED','SOURCE_AND_EFFECT_ACTUAL_APP_XID','GENUINE_PENDING_WORK_NOT_BEFORE_CONTROL','WORK_IDENTITY_SOURCE_STATE_LEASE_EFFECT_UNCHANGED','ACTUAL_WORK_APP_MUTATION_XID','SAME_RESTRICTED_XID','EXACT_BIND_STAGE_MARKER','TWO_COHERENT_CURRENT_USERS','GENUINE_SOURCE_BEFORE_READ_SUPPORT','SECRET_EVIDENCE_EXCLUSION'}
+ allowed|={'TYPED_OPERATION_RESULT','ISSUER_OR_PRIVILEGED_COMMIT_UNCONFIRMED','SESSION_CLOSURE_UNCONFIRMED','EXACT_BACKEND_STILL_LIVE','UNOBSERVED_SESSION_OUTPUT'}
+ code=getattr(error,'code',None);return code if type(code) is str and code in allowed else 'UNEXPECTED_APP_WRITE_PROTOCOL_FAILURE'
+
+def coordinate(plan,evidence_directory):
+ packet,native,target,protocol,context,base=load_inputs(plan);evidence=Evidence(evidence_directory,plan,packet);coordinator=coordinator_type(context,base)(plan,packet,native,target,evidence,protocol)
+ try:coordinator.execute()
+ except BaseException as error:evidence.stop(safe_code(error));evidence.finalizing=True;evidence.save()
+ finally:
+  evidence.finalizing=True
+  for session in coordinator.sessions:
+   if not session.closed:
+    try:session.close()
+    except BaseException:evidence.stop('ORIGINAL_CONNECTION_CLOSURE_UNCONFIRMED','FINALLY')
+  absent=False
+  try:coordinator.global_closure();absent=True
+  except BaseException:evidence.stop('GLOBAL_BACKEND_CLOSURE_UNCONFIRMED','FINALLY')
+  if absent:
+   restored=True
+   if coordinator.bypass_open:
+    try:coordinator.restore_fixture_identity();coordinator.fixture_commit('exact-fixture-restore.sql','FINALLY_EXACT_TWO_FIXTURE_RESTORE');coordinator.bypass_open=False
+    except BaseException:restored=False;evidence.stop('EXACT_FIXTURE_RESTORATION_UNCONFIRMED','FINALLY')
+   try:coordinator.native_parity('FINALLY_FULL_NATIVE_PARITY')
+   except BaseException:restored=False;evidence.stop('FINAL_NATIVE_PARITY_UNCONFIRMED','FINALLY')
+   evidence.value['fixture_owner_bypass_restored']=restored
+  try:
+   for relative in plan['packet_files_sha256']:checked_source(relative,plan['packet_files_sha256'])
+   evidence.value['source_packet_unchanged_after']=True
+  except BaseException:evidence.value['source_packet_unchanged_after']=False;evidence.stop('SOURCE_PACKET_DRIFT','POSTCHECK')
+  if any(value[k] in canonical(evidence.value) for value in coordinator.instances.values() for k in ('secret','token_hash')):
+   evidence.value={k:evidence.value[k] for k in ('schema','run_id','database_posture')};evidence.value.update(status='STOPPED_PARTIAL_EVIDENCE_PRESERVED',current_stage='SANITIZATION',current_case=None,results=[],operations=[],unexpected=[],subsequent_cases_stopped=True,evidence_complete=False);evidence.stop('SECRET_EVIDENCE_EXCLUSION','SANITIZATION')
+  else:evidence.value['sanitization']={'context_secrets_or_hashes_found':False,'raw_errors_handles_statement_bodies_or_row_values_retained':False}
+  evidence.save()
+ return evidence.value
+
+def main(argv=None):
+ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--execute-reviewed-app-writes',action='store_true');parser.add_argument('--run-plan',type=Path);parser.add_argument('--evidence-directory',type=Path);args=parser.parse_args(argv)
+ try:
+  need(args.execute_reviewed_app_writes and args.run_plan is not None and args.evidence_directory is not None,'EXPLICIT_REVIEWED_EXECUTION_REQUIRED');value=coordinate(unique_json(external(args.run_plan).read_bytes()),args.evidence_directory);print(json.dumps({'status':value['status'],'completed_protocols':len(value['results']),'raw_output_discarded':True}));return 0 if not value['unexpected'] and value['evidence_complete'] is True else 1
+ except BaseException:print(json.dumps({'status':'HELD_OR_STOPPED','code':'APP_WRITE_TWO_COORDINATOR_REFUSED','raw_output_discarded':True}));return 1
+if __name__=='__main__':raise SystemExit(main())
+

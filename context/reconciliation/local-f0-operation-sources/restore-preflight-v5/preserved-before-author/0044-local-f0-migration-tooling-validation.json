@@ -1,0 +1,66 @@
+{
+  "scope": "PROVISIONAL_LOCAL_MIGRATION_SOURCE_AND_OFFLINE_GUARDS_NOT_EXECUTION",
+  "date": "2026-11-17",
+  "authority": "context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md",
+  "status": "SOURCE_PREPARED_AND_REVIEWED_OPERATIONAL_EXPERIMENT_PENDING",
+  "files_sha256": {
+    "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "2cfbf4523d6168beba264b338fb4734c7956464adb019a185d3de07c5ba4581b",
+    "scripts/sql-review/run-local-f0-migrate.py": "f93b49a67bf9cea9520493eecf3c02df7fec7e1e6631b8946c51f2a43b7aee36",
+    "scripts/sql-review/check-local-f0-migrate-guard.mjs": "c0fdb674270ef0ce5c94a06259bedc9fd8ace1396bb6876c463fd6bb02c95c17",
+    "scripts/check-local-f0-migrate.py": "fb47cff1850baad009dabcebeb8450e615e4fd5bb4a1b33b5be8ce2c0981677b",
+    "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e"
+  },
+  "commands": [
+    {
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-local-f0-migrate.py"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_bootstrap_and_wrong_cut_refuse_even_with_matching_hash (__main__.HistoryTests.test_bootstrap_and_wrong_cut_refuse_even_with_matching_hash) ... ok\ntest_bootstrap_secret_path_is_absolute_task_owned_and_external (__main__.HistoryTests.test_bootstrap_secret_path_is_absolute_task_owned_and_external) ... ok\ntest_exact_integrated_migration_is_only_a_byte_plan (__main__.HistoryTests.test_exact_integrated_migration_is_only_a_byte_plan) ... ok\ntest_manifest_and_sources_must_match_exactly (__main__.HistoryTests.test_manifest_and_sources_must_match_exactly) ... ok\ntest_no_explicit_source_hash_refuses (__main__.HistoryTests.test_no_explicit_source_hash_refuses) ... ok\ntest_rejects_other_target_history_tools_and_unknown_fields (__main__.HistoryTests.test_rejects_other_target_history_tools_and_unknown_fields) ... ok\ntest_actual_image_and_entrypoint_drift_refuse_before_copied_code (__main__.LauncherTests.test_actual_image_and_entrypoint_drift_refuse_before_copied_code) ... ok\ntest_coordinator_mocked_all_processes_and_exact_immutable_id (__main__.LauncherTests.test_coordinator_mocked_all_processes_and_exact_immutable_id) ... ok\ntest_no_execution_without_opt_in (__main__.LauncherTests.test_no_execution_without_opt_in) ... ok\ntest_no_raw_exception_output (__main__.LauncherTests.test_no_raw_exception_output) ... ok\ntest_realistic_unpublished_expose_is_allowed (__main__.LauncherTests.test_realistic_unpublished_expose_is_allowed) ... ok\ntest_recovery_requires_bound_reviewed_evidence (__main__.LauncherTests.test_recovery_requires_bound_reviewed_evidence) ... ok\ntest_runtime_metadata_guards (__main__.LauncherTests.test_runtime_metadata_guards) ... ok\n\n----------------------------------------------------------------------\nRan 13 tests in 0.014s\n\nOK\n"
+    },
+    {
+      "command": [
+        "node",
+        "scripts/sql-review/check-local-f0-migrate-guard.mjs"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\":\"PASS_ENVIRONMENT_FREE_ONLY\",\"checks\":40,\"database_contacted\":false,\"process_executed\":false}\n",
+      "stderr": ""
+    }
+  ],
+  "python_test_methods": 13,
+  "node_checks": 40,
+  "independent_review": {
+    "reviewer": "review_track_ports",
+    "decision": "APPROVED_SOURCE_GUARDS_ONLY",
+    "actual_canonical_byte_plan_accepted_without_writes": true,
+    "resolved": [
+      "Reviewed exact3runtime hashes bind host bytes/copiedbytes/history before Node or Prisma execution",
+      "Strict private IPC/network/identity/image checks",
+      "Exact owner-only manifested bootstrap secret bind",
+      "No arbitrary CLI diagnostic/log retention"
+    ],
+    "operational_wrapper_and_literal_fault_recovery_manifest": "REVIEW_REQUIRED_BEFORE_RUNTIME"
+  },
+  "source_history": {
+    "id": "20261117000100_f0_local_initial",
+    "sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "one_integrated_stream": true,
+    "raw_structure_separately_applied": false,
+    "genuine_ledger_or_database_execution_by_new_tools": "NOT_RUN",
+    "adopted": false
+  },
+  "database_posture": "D",
+  "root_package_lock_sha256": "6b4e322549d6a6c14cd8542a21c1a6621a2625f88dbab5606174fd655dcdda1f",
+  "June_migration_sha256": "5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055",
+  "hosted_contact_authorized": false,
+  "root_database_aliases": "UNCHANGED_BLOCKED"
+}

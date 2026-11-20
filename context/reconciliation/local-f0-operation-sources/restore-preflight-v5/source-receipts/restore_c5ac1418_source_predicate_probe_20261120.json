@@ -1,0 +1,42 @@
+{
+  "schema": "workinants.restore-c5ac-source-predicate-probe.v1",
+  "scope": "PURE_SOURCE_MODEL_NOT_HISTORICAL_RUNTIME_VALUES",
+  "seconds": 0.047,
+  "sql_sha256": "7208371cdbc049fb1d41d8510c6764b46c7df3ed98ea828d4b6a4e839e8e0550",
+  "steps_sha256": "001aa98bb064d62fcc98f36ddc0b31d80aafc7a8b6a932843d6bb24da9d1e889",
+  "exact_expression": "current_setting('primary_conninfo') = '' AND current_setting('primary_slot_name') = '' AND current_setting('restore_command') = '' AND current_setting('archive_mode') = 'off' AND current_setting('archive_command') = '' AND current_setting('archive_library') = '' AND current_setting('synchronous_standby_names') = ''",
+  "cases": [
+    {
+      "archive_mode_class": "off",
+      "raw_command_class": "EMPTY",
+      "old_predicate": false,
+      "old_actual_guard": "RESTORE_BACKUP_PREFLIGHT",
+      "recommended_source_semantics": true
+    },
+    {
+      "archive_mode_class": "off",
+      "raw_command_class": "NONEMPTY",
+      "old_predicate": false,
+      "old_actual_guard": "RESTORE_BACKUP_PREFLIGHT",
+      "recommended_source_semantics": false
+    },
+    {
+      "archive_mode_class": "on",
+      "raw_command_class": "EMPTY",
+      "old_predicate": false,
+      "old_actual_guard": "RESTORE_BACKUP_PREFLIGHT",
+      "recommended_source_semantics": false
+    },
+    {
+      "archive_mode_class": "always",
+      "raw_command_class": "EMPTY",
+      "old_predicate": false,
+      "old_actual_guard": "RESTORE_BACKUP_PREFLIGHT",
+      "recommended_source_semantics": false
+    }
+  ],
+  "source_contradiction_proven": true,
+  "historical_failed_field_or_full_cause_observed": false,
+  "new_SQL_or_operator_implemented": false,
+  "database_Docker_Git_network_or_SQL_execution": false
+}

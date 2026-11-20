@@ -1,0 +1,19 @@
+from pathlib import Path
+import ast,hashlib,json,types
+T=Path(__file__).resolve().parent;D=T/'worker-b42-evidence-adapter-confined-v2-draft-20261120';F=D/'future-root';R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+old=(R/'scripts/local_f0_worker_recovery_evidence.py').read_bytes();new=(F/'scripts/local_f0_worker_recovery_evidence_v2.py').read_bytes();assert sha(old)=='3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff'
+def defs(raw):return{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+a,b=defs(old),defs(new);assert set(b)-set(a)=={'_verify_metadata_binding','_project_logical_inputs'};assert{n for n in a if a[n]!=b[n]}=={'validate_bundle'}
+module=types.ModuleType('_worker_v2_static');exec(compile(new,'<verified-current-v2>','exec'),module.__dict__)
+original=ast.literal_eval(next(n.value for n in ast.parse(old).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='PINS'for t in n.targets)));assert module.ORIGINAL_PINS==original
+expected={dict(module.METADATA_SNAPSHOTS).get(n,n):wanted for n,wanted in original.items()};assert module.PINS==expected and len(expected)==654
+assert len(set(original)-set(expected))==len(set(expected)-set(original))==2
+assert all(expected[n]==original[n]for n in set(original)&set(expected))
+builder=(F/'scripts/prepare-local-f0-status.py').read_bytes();old_builder=(R/'scripts/prepare-local-f0-status.py').read_bytes();assert sha(old_builder)=='715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6'
+assert builder.replace(b'from local_f0_worker_recovery_evidence_v2 import',b'from local_f0_worker_recovery_evidence import')==old_builder
+assert sha((F/module.DERIVED).read_bytes())=='45489b9495ca594034ee9a4d8651813826da464cb12b83b0f82641efb21c897a'
+preserved=json.loads((D/'before-author-preservation.json').read_bytes())
+assert all(sha((D/'preserved-before-author'/n).read_bytes())==wanted for n,wanted in preserved['files_sha256'].items())
+out={'status':'PASS_STATIC_EXACT_BOUNDED_DERIVATION','module_sha256':sha(new),'builder_sha256':sha(builder),'added_functions':sorted(set(b)-set(a)),'changed_existing_functions':['validate_bundle'],'reader_capture_batch_claim_final_barrier_and_all_other_defs_AST_identical':True,'original654_map_exact':True,'other652_physical_names_hashes_exact':True,'physical654_logical654':True,'derived45489_unchanged':True,'old35_and_live40_and_failure_probes_preserved':True,'preserved_files':len(preserved['files_sha256']),'new_root_source_or_database_changes':False}
+(D/'static-derivation-verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out))

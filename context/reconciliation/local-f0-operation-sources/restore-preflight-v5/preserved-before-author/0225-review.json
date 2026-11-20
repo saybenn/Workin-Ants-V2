@@ -1,0 +1,116 @@
+{
+  "schema": "workinants.restore-bound-evidence-v3-header-fix2-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T02:01:08.134449+00:00",
+  "reviewer": "/root/privilege_mount_v2_review",
+  "decision": "SOURCE_APPROVED_EXACT_HEADER_FIX2_FIVE_ONLY_NO_RUNTIME",
+  "closed_finding": "RESTORE-BOUND-V3-01",
+  "prior_HELD_review_sha256": "310fa0c7c7182dc42bef98b4b899bb136286acac086dc3196180ee87079339bb",
+  "independence": "Reviewer authored prior independent HOLD, not operational/source correction code. Accepted SafetySQL/resource/Restore layers remain pinned prior inputs; no new runtime authority is inferred.",
+  "exact_delivery_sha256": "61cf564037bf9ebb72cf53fe323fcbb5226c10158bddb84e7ffc6f04475820a0",
+  "exact_author_review_sha256": "4b2be7f1208a3ea2869a2fc68bcb0db51e7251dfb9c3a2251004ae10ba08b27a",
+  "exact_freeze_manifest_sha256": "8d9959ec8a999207c9dffc1cd1002391bbe9dbdd511ab49afedc6d0110528611",
+  "exact_five_sha256": {
+    "check_local_f0_restore_operation_bound_evidence_v3.py": "472e10548e6075be114ebfcb98b792479c176fd7605fa155855f03e0066dd969",
+    "execute_local_f0_restore_20261119_bound_evidence_v3.py": "a2d2f7e3af1974911483ad88063e34089b530ae16a0c8506ca172f0f4536814d",
+    "local_f0_restore_operation_steps_bound_evidence_v3.py": "dd909a5698e41b95d7fad339e3307330c39ac9d4568333cb453b6a99e1aa9a42",
+    "pin_local_f0_restore_plan_20261119_bound_evidence_v3.py": "969de8516d454c3de4b7c4abee198d5f5f92ae065ba6c9e3ad5b2a18182e72eb",
+    "prepare_local_f0_restore_plan_bound_evidence_v3.py": "2030cbd86e230711ae352e02e2a464eeea68525c06a8f0ca6737926e6ea6897d"
+  },
+  "exact_validation_sha256": "7ca108f7f3ac0d32bcb37e00f112828728fa6947752f48d26f84c0515f2a9055",
+  "closure_evidence": {
+    "both_prior_actual_function_probes_null_and_unconfirmed": true,
+    "restored_old_classifier_fails_both_required_null_expectations": true,
+    "finite13_and_source_metadata_contract_retained": true,
+    "legitimate_CRLF_DETAIL_context_source_bound_frame_retained": true,
+    "actual_bound_operation_preserves_original_stop_close_and_global_zero": true,
+    "secret_canary_excluded": true
+  },
+  "source_scope": {
+    "check_local_f0_restore_operation_bound_evidence_v3.py": {
+      "bytes_unchanged": false,
+      "new_functions": [],
+      "removed_functions": [],
+      "changed_functions": []
+    },
+    "execute_local_f0_restore_20261119_bound_evidence_v3.py": {
+      "bytes_unchanged": true,
+      "new_functions": [],
+      "removed_functions": [],
+      "changed_functions": []
+    },
+    "local_f0_restore_operation_steps_bound_evidence_v3.py": {
+      "bytes_unchanged": false,
+      "new_functions": [],
+      "removed_functions": [],
+      "changed_functions": [
+        "bound_diagnostic"
+      ]
+    },
+    "pin_local_f0_restore_plan_20261119_bound_evidence_v3.py": {
+      "bytes_unchanged": false,
+      "new_functions": [],
+      "removed_functions": [],
+      "changed_functions": []
+    },
+    "prepare_local_f0_restore_plan_bound_evidence_v3.py": {
+      "bytes_unchanged": true,
+      "new_functions": [],
+      "removed_functions": [],
+      "changed_functions": []
+    }
+  },
+  "offline_checks": [
+    {
+      "suite": "focused_header_and_contract",
+      "selected_methods": [
+        "test_inline_and_malformed_severity_candidates_are_not_one_attributable_header",
+        "test_bad_types_controls_and_multiple_headers_keep_state_and_single_header_unconfirmed",
+        "test_single_exact_header_with_legitimate_multiline_pg_context_stays_source_bound",
+        "test_restoring_only_original_header_classifier_fails_both_required_null_expectations",
+        "test_fixed13_only_single_exact_headers_never_export_unknown_or_multiple",
+        "test_helper_metadata_arbitrary_keys_or_unbound_frames_are_discarded",
+        "test_metadata_enum_and_alias_require_exact_builtin_strings",
+        "test_declaration_or_source_drift_before_after_helper_is_not_accepted",
+        "test_first_operation_stop_survives_secondary_global_failure",
+        "test_negative_guard_cannot_pass_if_source_metadata_is_unconfirmed"
+      ],
+      "tests_run": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 3.764,
+      "status": "PASS"
+    },
+    {
+      "suite": "necessary_source_gates",
+      "selected_methods": [
+        "test_actual_pinner_full_current_and_committed_graph_keeps_execution_pending",
+        "test_explicit_PENDING_new_review_blocks_actual_pinner_and_runtime_before_process",
+        "test_new_five_scope_old_recipe_and_archive_are_exact"
+      ],
+      "tests_run": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 24.496,
+      "status": "PASS"
+    }
+  ],
+  "unique_methods": 13,
+  "preservation": {
+    "current_snapshots": 200,
+    "old_frozen_snapshots": 192,
+    "archive_files": 89,
+    "before_and_after_match": true,
+    "old_HELD_and_finding_unchanged": true,
+    "SQL_proposal91834_content2752_recipe67_artifact25_ACL_common_resource_auth_backup_cleanup_unchanged": true
+  },
+  "limits": [
+    "This closes only the frozen header-attribution source finding; no binder-verdict/permission change or bypass claim.",
+    "Prior27 methods and full101 were not repeated; function-level AST comparisons prove only bound_diagnostic runtime behavior changed, and selected regressions cover the affected contracts.",
+    "Production independent_bound_evidence_review gate remains PENDING, source uninstalled/unpinned for any new runtime decision; Root metadata/publication/current+committed pin/fresh literal remain separate.",
+    "No actual Git/Docker/SQL/database/network/resource/credential actions or source/gate edits; active Native OUT not read.",
+    "Original3b8 complete cause and discarded exit/ack/SQLSTATE remain UNOBSERVED; unexercised runtime NOT_RUN and Posture D remain."
+  ],
+  "plain_english": "The recorder now refuses to call two error labels one error. The old broken check fails the new examples, and the fixed check keeps only safe facts. No database run was approved or started."
+}

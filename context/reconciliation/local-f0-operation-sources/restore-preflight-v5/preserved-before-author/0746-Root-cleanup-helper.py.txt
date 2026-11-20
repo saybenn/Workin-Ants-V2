@@ -1,0 +1,25 @@
+"""Independent read-only recovery absence check, after known session29229 exit1."""
+from pathlib import Path
+import datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+mp=T/'local-f0-restore-plan-c5ac1418/operation-manifest.json';mb=mp.read_bytes();wanted='989ba4e50cf343388b6ed46488428cecea4fae9a933d5ea74442005b03195e65';assert sha(mb)==wanted;m=json.loads(mb)
+assert m['source_commit']=='c401d2f2503dee08ad5913fb6cf1fa944c5f3e5a'and m['source_tree']=='13aabf5061aaeac34462da38cf4e5110ee119c54'
+out=Path(m['evidence_directory']);assert out.is_relative_to(T)and not out.is_relative_to(R);rb=(out/'run-evidence.json').read_bytes();r=json.loads(rb);assert r['run_id']==m['run_id']and r['status']!='IN_PROGRESS'and r['finished_at']
+def docker(*a):return subprocess.run(['docker','--context','desktop-linux',*a],capture_output=True,text=True,timeout=30,shell=False)
+def absent(p):
+ try:p.lstat()
+ except FileNotFoundError:return True
+ return False
+c=docker('context','inspect','desktop-linux');assert c.returncode==0;contexts=json.loads(c.stdout);assert len(contexts)==1 and contexts[0]['Name']=='desktop-linux';endpoint=contexts[0]['Endpoints']['docker']['Host'];assert endpoint=='npipe:////./pipe/dockerDesktopLinuxEngine'
+s=docker('version','--format','{{json .Server}}');assert s.returncode==0;server=json.loads(s.stdout);assert server['Os']=='linux'and server['Arch']=='amd64'
+names=[('container','wa-p0c-c5ac1418-restore-source'),('volume','wa-p0c-c5ac1418-restore-source-data'),('container','wa-p0c-c5ac1418-restore-staging'),('container','wa-p0c-c5ac1418-restore-target'),('volume','wa-p0c-c5ac1418-restore-target-data')]
+assert names==[('container',m['targets'][0]['name']),('volume',m['targets'][0]['volume']),('container',m['restore']['staging']['name']),('container',m['restore']['restored']['name']),('volume',m['restore']['restored']['volume'])]
+obs={}
+for kind,name in names:
+ d=docker(kind,'inspect',name);expected='Error response from daemon: No such container: '+name if kind=='container'else'Error response from daemon: get '+name+': no such volume';obs[name]={'kind':kind,'absent_exact_known_diagnostic':d.returncode==1 and d.stdout.strip()=='[]'and d.stderr.strip()==expected,'raw_output_retained':False}
+i=docker('image','inspect',m['image']);images=json.loads(i.stdout)if i.returncode==0 else[];retained=len(images)==1 and images[0].get('Os')=='linux'and images[0].get('Architecture')=='amd64'and images[0].get('Id')=='sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+archive=Path(m['restore']['archive_path']);assert archive.is_relative_to(out/'private');ok=all(v['absent_exact_known_diagnostic']for v in obs.values())and absent(out/'private')and absent(archive)and retained
+v={'schema':'workinants.c401-restore-c5ac-independent-physical-cleanup.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_INDEPENDENT_PHYSICAL_CLEANUP'if ok else'UNCONFIRMED_PHYSICAL_CLEANUP','run_id':m['run_id'],'manifest_sha256':wanted,'run_evidence_sha256':sha(rb),'source_commit':m['source_commit'],'source_tree':m['source_tree'],'packet_sha256':m['packet_sha256'],'actual_wrapper_status':r['status'],'endpoint':endpoint,'server':{k:server[k]for k in('Os','Arch','Version')},'exact_name_observations':obs,'private_directory_absent':absent(out/'private'),'private_archive_absent':absent(archive),'pinned_image_retained':retained,'wrapper_cleanup_claim':r.get('cleanup_actions_confirmed',False),'wrapper_evidence_complete':r.get('evidence_complete'),'resource_names_include_uncreated_staging_and_target':True,'no_resource_mutation_or_SQL':True,'Posture':'D'}
+p=T/'restore_v4_c401_c5ac1418_independent_cleanup_20261120.json'
+with p.open('xb')as f:f.write((json.dumps(v,indent=2)+'\n').encode())
+print(json.dumps({'path':str(p),'sha256':sha(p.read_bytes()),'status':v['status'],'raw_evidence_sha256':sha(rb)}));raise SystemExit(0 if ok else 2)

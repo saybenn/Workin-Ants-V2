@@ -1,0 +1,38 @@
+"""Independent read-only exact local cleanup proof, after the executor's known exit."""
+from pathlib import Path
+import argparse,datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+cfg={'AppV2':('local-f0-app-write-two-guard-observation-v2-owned-plan-8f2aa922/operation-manifest.json','0754808b8e6425d472191f9c3519313f76c5894c6e0fe00a5be23f1342ffec65','8f2aa922-6bb7-49a1-add6-4b15aa983b43','wa-p0c-8f2aa922-appwrite2'), 'Read13':('local-f0-remaining-app-read13-owned-v1-plan-0b7c519e/operation-manifest.json',None,'0b7c519e-68be-4c44-ac42-83adcfe0def4','wa-p0c-0b7c519e-read13')}
+p=argparse.ArgumentParser();p.add_argument('family',choices=cfg);p.add_argument('--known-executor-session',type=int,required=True);p.add_argument('--known-exit',type=int,required=True);a=p.parse_args()
+name,wanted,run,resource=cfg[a.family]
+if a.family=='Read13':
+ approval=json.loads((T/'fcab_Read13_0b7c519e_Root_literal_approval_receipt_20261120.json').read_bytes());wanted=approval['approved_manifest_sha256']
+raw=(T/name).read_bytes();assert sha(raw)==wanted;m=json.loads(raw)
+assert m['source_commit']=='fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f' and m['source_tree']=='2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f' and m['run_id']==run
+out=Path(m['evidence_directory']);assert out.resolve().is_relative_to(T.resolve()) and not out.resolve().is_relative_to(R.resolve())
+e=(out/'run-evidence.json').read_bytes();r=json.loads(e);assert r['run_id']==run and r['status']!='IN_PROGRESS' and r.get('finished_at')
+def docker(*args):return subprocess.run(['docker','--context','desktop-linux',*args],capture_output=True,text=True,timeout=30,shell=False)
+def absent(path):
+ try:path.lstat()
+ except FileNotFoundError:return True
+ return False
+c=docker('context','inspect','desktop-linux');assert c.returncode==0;v=json.loads(c.stdout)
+assert len(v)==1 and v[0]['Name']=='desktop-linux';endpoint=v[0]['Endpoints']['docker']['Host'];assert endpoint=='npipe:////./pipe/dockerDesktopLinuxEngine'
+s=docker('version','--format','{{json .Server}}');assert s.returncode==0;server=json.loads(s.stdout);assert server['Os']=='linux' and server['Arch']=='amd64'
+names=[('container',t['name'])for t in m['targets']]+[('volume',t['volume'])for t in m['targets']]
+assert names==[('container',resource),('volume',resource+'-data')];observations={}
+for kind,n in names:
+ result=docker(kind,'inspect',n)
+ expected='Error response from daemon: No such container: '+n if kind=='container' else 'Error response from daemon: get '+n+': no such volume'
+ observations[n]={'kind':kind,'absent_exact_known_diagnostic':result.returncode==1 and result.stdout.strip()=='[]' and result.stderr.strip()==expected,'raw_output_retained':False}
+i=docker('image','inspect',m['image']);assert i.returncode==0
+hp='scripts/sql-review/local_image_identity.py';hb=(R/hp).read_bytes();assert sha(hb)==m['packet_files_sha256'][hp]=='a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604'
+ns={'__name__':'_Root_cleanup_reviewed_image_identity','__file__':str(R/hp)};exec(compile(hb,str(R/hp),'exec'),ns)
+identity=ns['validate_cached_image'](json.loads(i.stdout),(R/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes());assert identity['reference']==m['image']
+ok=all(x['absent_exact_known_diagnostic'] for x in observations.values()) and absent(out/'private')
+assert (out/'run-evidence.json').read_bytes()==e
+proof={'schema':'workinants.fcab-exact-independent-physical-cleanup.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'family':a.family,'status':'PASS_INDEPENDENT_PHYSICAL_CLEANUP' if ok else 'UNCONFIRMED_PHYSICAL_CLEANUP','run_id':run,'manifest_sha256':wanted,'run_evidence_sha256':sha(e),'source_commit':m['source_commit'],'source_tree':m['source_tree'],'packet_sha256':m['packet_sha256'],'actual_wrapper_status':r['status'],'known_executor_session':a.known_executor_session,'known_executor_exit':a.known_exit,'endpoint':endpoint,'server':{k:server[k]for k in('Version','Os','Arch')},'exact_name_observations':observations,'private_directory_absent':absent(out/'private'),'pinned_image_retained_and_validated':identity,'wrapper_cleanup_claim':r.get('cleanup_actions_confirmed',False),'wrapper_evidence_complete':r.get('evidence_complete'),'no_resource_mutation_or_SQL':True,'Posture':'D'}
+pp=T/('fcab_'+a.family+'_'+run[:8]+'_independent_cleanup_20261120.json')
+with pp.open('xb') as f:f.write((json.dumps(proof,indent=2,allow_nan=False)+'\n').encode())
+print(json.dumps({'path':str(pp),'sha256':sha(pp.read_bytes()),'status':proof['status'],'run_evidence_sha256':sha(e),'wrapper_status':r['status']}))
+raise SystemExit(0 if ok else 2)

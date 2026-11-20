@@ -1,0 +1,970 @@
+"""Offline-only restore operator checks. Every subprocess entry is refused/mocked."""
+import ast
+from contextlib import redirect_stdout
+import copy
+import hashlib
+import io
+import json
+from pathlib import Path
+import runpy
+import subprocess
+import socket
+import tarfile
+import tempfile
+import types
+import unittest
+from unittest.mock import Mock,patch
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+CORE=TASK/'execute_local_f0_restore_preflight_v5_20261120.py'
+STEPS=TASK/'local_f0_restore_preflight_v5_operation_steps.py'
+PROPOSAL=json.loads((ROOT/'review-output/restore-control-rehearsal-v5/proposal.json').read_bytes())
+BASELINE=TASK/'local-f0-catalog-v4-plan-8fa680ed/operation-manifest.json'
+CID='a'*64
+CANARY='PRIVATE_BACKUP_OR_SECRET_CANARY_NEVER_EXPORT'
+
+
+def namespace():
+    result=runpy.run_path(str(CORE));result=result['launch'].__globals__
+    exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),result)
+    result.update(ROOT=ROOT,TASK=TASK,PROPOSAL=PROPOSAL,report={'stage':'TEST','steps':{},'restore':{},'targets':{},'events':[],'unexpected':[],'cleanup':{}},
+        RUN_ID='550e8400-e29b-41d4-a716-446655440000',SOURCE='source',RESTORED='target',STAGING='stage',DB='wa_p0c_rehearsal',
+        IMAGE=PROPOSAL['image'],CONFIG='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d',LABEL='p0c-local-f0',CONNECTION_TAG='wa-restore-mock',
+        ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),
+        RESOURCE_CONTAINERS=('source','stage','target'),RESOURCE_VOLUMES=('source-data','target-data'),TARGETS=[{'name':'source','volume':'source-data','kind':'ok'}],created_containers={'source':CID,'stage':'b'*64,'target':'c'*64},created_volumes={'source-data':'SOURCE_TIME','target-data':'TARGET_TIME'},
+        passwords={'source':{role:CANARY+'_'+role for role in ('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')}},
+        all_secrets=[],secret_paths=[],GRANTS=[],HELPERS={},save=lambda:None,event=lambda *a,**k:None)
+    result['source_text']=lambda name:(ROOT/'review-output/restore-control-rehearsal-v5'/name).read_text()
+    return result
+
+
+def archive_bytes(hba,extra=None,omit=()):
+    entries={'PG_VERSION':b'17\n','backup_manifest':b'{}','postgresql.auto.conf':b'# inert\n','pg_hba.conf':hba.encode(),
+        'global/pg_control':b'\0'*8192,'pg_wal/'+'A'*24:b'WAL_FIXTURE_NOT_RUNTIME_PROOF','base/5/1':CANARY.encode()}
+    entries.update(extra or {})
+    out=io.BytesIO()
+    with tarfile.open(fileobj=out,mode='w') as tf:
+        for name,value in entries.items():
+            if name in omit:continue
+            info=tarfile.TarInfo(name);info.size=len(value);tf.addfile(info,io.BytesIO(value))
+    return out.getvalue()
+
+
+class RestoreOperationTests(unittest.TestCase):
+    def setUp(self):
+        self.run=patch.object(subprocess,'run',side_effect=AssertionError('UNMOCKED_RUNTIME_FORBIDDEN'));self.run.start();self.addCleanup(self.run.stop)
+        self.popen=patch.object(subprocess,'Popen',side_effect=AssertionError('UNMOCKED_RUNTIME_FORBIDDEN'));self.popen.start();self.addCleanup(self.popen.stop)
+        self.extra_processes=[patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_RUNTIME_FORBIDDEN')) for name in ('check_call','check_output','call')]
+        for guard in self.extra_processes:guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+        self.n=namespace()
+
+    def test_core_and_plan_import_help_are_helper_free_and_process_free(self):
+        for path in (CORE,TASK/'prepare_local_f0_restore_preflight_v5_plan.py'):
+            module=runpy.run_path(str(path));entry=module.get('launch',module.get('main'))
+            with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as found:entry(['--help'])
+            self.assertEqual(found.exception.code,0)
+            with redirect_stdout(io.StringIO()):self.assertEqual(entry([]),1)
+
+    def test_transitive_helper_drift_fails_before_any_helper_executes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);pins={}
+            for name in self.n['HELPER_FILES']:
+                path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'raise RuntimeError("'+CANARY.encode()+b'")\n');pins[name]='0'*64
+            self.n.update(ROOT=root,MANIFEST={'packet_files_sha256':pins})
+            output=io.StringIO()
+            with redirect_stdout(output),self.assertRaises(self.n['Stop']) as found:self.n['load_reviewed_helper'](self.n['HELPER_FILES'][0])
+            self.assertEqual(found.exception.code,'CATALOG_PACKET_SOURCE_DRIFT');self.assertNotIn(CANARY,output.getvalue())
+
+    def test_all_sql_source_reads_hash_same_bytes_and_never_use_read_text(self):
+        path='review-output/foundation-application.review.sql';raw=(ROOT/path).read_bytes()
+        self.n['MANIFEST']={'packet_files_sha256':{path:hashlib.sha256(raw).hexdigest()}}
+        with patch.object(Path,'read_text',side_effect=AssertionError('SECOND_READ_FORBIDDEN')):
+            self.assertEqual(self.n['read_pinned'](path),raw)
+        with patch.object(Path,'read_bytes',return_value=CANARY.encode()),self.assertRaises(self.n['Stop']):self.n['read_pinned'](path)
+
+    def valid_resource(self,kind):
+        n=self.n;name={'source':'source','staging':'stage','target':'target'}[kind];volume='source-data' if kind=='source' else 'target-data'
+        with_root='C:\\Users\\elijr\\task\\private'
+        n['PRIVATE']=Path(with_root);n['ARCHIVE']=n['PRIVATE']/'restore01-base.tar'
+        n['report']['image']={'image_id':n['IMAGE'].split('@')[1]}
+        mounts=[{'Type':'volume','Name':volume,'Destination':'/var/lib/postgresql/data','RW':True}]
+        if kind in ('source','staging'):mounts.append({'Type':'bind','Source':str(n['PRIVATE']/'ok-bootstrap-password') if kind=='source' else str(n['ARCHIVE']),'Destination':'/run/bootstrap-password' if kind=='source' else '/run/restore01-base.tar','RW':False})
+        # Docker API omits configured --tmpfs from the default Mounts fixture.
+        value={'Id':n['created_containers'][name],'Name':'/'+name,'Config':{'Image':n['IMAGE'],'Labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':n['RUN_ID']}},
+            'Image':n['report']['image']['image_id'],'Platform':'linux','State':{'Running':True},'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],'Links':None,
+            'Tmpfs':{} if kind=='staging' else {'/run/wa-secrets':'rw,noexec,nosuid,nodev,mode=0700'}},'NetworkSettings':{'Ports':{}},'Mounts':mounts}
+        vol={'Name':volume,'CreatedAt':n['created_volumes'][volume],'Labels':value['Config']['Labels'],'Driver':'local','Options':{},'Scope':'local'}
+        n['inspect_container']=lambda name:value;n['inspect_volume']=lambda name:vol
+        def kernel(args,input=None,timeout=60):
+            self.assertEqual(args,['exec','-i',n['created_containers'][name],'sh','-ceu',n['RESTORE_SECRET_TMPFS_SCRIPT']]);self.assertIsNone(input);self.assertEqual(timeout,30)
+            return types.SimpleNamespace(returncode=0,stdout=n['RESTORE_SECRET_TMPFS_TOKEN']+'\n',stderr='')
+        n['docker']=kernel
+        return name,value,vol
+
+    def test_exact_source_staging_target_mount_and_namespace_boundaries(self):
+        for kind in ('source','staging','target'):
+            name,value,vol=self.valid_resource(kind);self.n['inspect_restore'](name,kind)
+            for alter in ('writablebind','extra','wrongvolume','sharedipc','privileged','hostnetwork','wrongcreatedat','wrongcid'):
+                bad,volume=copy.deepcopy(value),copy.deepcopy(vol)
+                if alter=='writablebind':
+                    if kind=='target':continue
+                    next(item for item in bad['Mounts'] if item['Type']=='bind')['RW']=True
+                elif alter=='extra':bad['Mounts'].append({'Type':'bind','Source':'C:\\outside','Destination':'/outside','RW':False})
+                elif alter=='wrongvolume':bad['Mounts'][0]['Name']='foreign'
+                elif alter=='sharedipc':bad['HostConfig']['IpcMode']='container:foreign'
+                elif alter=='privileged':bad['HostConfig']['Privileged']=True
+                elif alter=='hostnetwork':bad['HostConfig']['NetworkMode']='host'
+                elif alter=='wrongcreatedat':volume['CreatedAt']='REUSED'
+                else:bad['Id']='d'*64
+                self.n['inspect_container']=lambda name,bad=bad:bad;self.n['inspect_volume']=lambda name,volume=volume:volume
+                with self.subTest(kind=kind,alter=alter),self.assertRaises(self.n['Stop']):self.n['inspect_restore'](name,kind)
+
+    def test_all_three_resources_bind_the_exact_admitted_store_id(self):
+        for kind in ('source','staging','target'):
+            for admitted in (self.n['IMAGE'].split('@')[1], self.n['CONFIG']):
+                name,value,vol=self.valid_resource(kind)
+                self.n['report']['image']={'image_id':admitted};value['Image']=admitted
+                self.n['inspect_restore'](name,kind)
+                value['Image']=self.n['CONFIG'] if admitted!=self.n['CONFIG'] else self.n['IMAGE'].split('@')[1]
+                with self.subTest(kind=kind,admitted=admitted),self.assertRaises(self.n['Stop']):
+                    self.n['inspect_restore'](name,kind)
+
+    def test_physical_archive_validation_exports_only_hashes_counts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'restore01-base.tar';path.write_bytes(archive_bytes(self.n['source_text']('source-backup.pg_hba.conf')));self.n['ARCHIVE']=path
+            value=self.n['validate_backup_archive'](path)
+            self.assertEqual(value['regular_file_count'],7);self.assertFalse(value['raw_exported']);self.assertNotIn(CANARY,json.dumps(value))
+
+    def test_unsafe_or_incomplete_archive_never_reaches_extract(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'restore01-base.tar';self.n['ARCHIVE']=path;hba=self.n['source_text']('source-backup.pg_hba.conf')
+            for extra,omit in [({'../outside':b'x'},()),({'/outside':b'x'},()),({'standby.signal':b''},()),({'postgresql.auto.conf':b"primary_conninfo='secret'"},()),({'pg_hba.conf':b'host all all all trust'},()),({},('backup_manifest',)),({},('pg_wal/'+'A'*24,))]:
+                path.write_bytes(archive_bytes(hba,extra,omit))
+                with self.subTest(extra=list(extra),omit=omit),self.assertRaises(self.n['Stop']):self.n['validate_backup_archive'](path)
+            for kind in (tarfile.SYMTYPE,tarfile.LNKTYPE,tarfile.FIFOTYPE,tarfile.CHRTYPE):
+                out=io.BytesIO()
+                with tarfile.open(fileobj=out,mode='w') as tf:
+                    info=tarfile.TarInfo('unsafe');info.type=kind;info.linkname='/outside';tf.addfile(info)
+                path.write_bytes(out.getvalue())
+                with self.subTest(kind=kind),self.assertRaises(self.n['Stop']):self.n['validate_backup_archive'](path)
+
+    def test_backup_commands_are_real_walstream_and_protected_no_password_argv_env(self):
+        n=self.n;events=[];n['inspect_restore']=lambda *a,**k:None;n['private_input']=lambda *a:events.append(('private',a[1]));n['verify_archive_dacl']=lambda:events.append(('dacl',))
+        n['validate_backup_archive']=lambda path:{'archive_sha256':'a'*64};n['PRIVATE']=Path('C:/task/private');n['ARCHIVE']=Mock();n['ARCHIVE'].exists.return_value=False
+        def docker(args,input=None,timeout=60):
+            events.append(tuple(args));out=''
+            if '--version' in args:out=args[-2]+' (PostgreSQL) 17.11 (Debian)\n'
+            if args[-1].startswith('umask 077; cd '):out='600:0:0:1\n'
+            return types.SimpleNamespace(returncode=0,stdout=out,stderr='')
+        n['docker']=docker;n['backup_archive']()
+        backup=next(e for e in events if 'pg_basebackup' in e and '--version' not in e)
+        self.assertIn('PGPASSFILE=/run/wa-secrets/replication.pgpass',backup);self.assertIn('--wal-method=stream',backup);self.assertIn('--manifest-checksums=SHA256',backup)
+        self.assertTrue(any('pg_verifybackup' in e for e in events));self.assertIn(('dacl',),events)
+        self.assertNotIn('PGPASSWORD',repr(events));self.assertNotIn(CANARY,repr(events));self.assertNotIn(CANARY,json.dumps(n['report']))
+
+    def test_stage_verifies_before_hba_and_never_initdb_bootstrap_or_migrate(self):
+        n=self.n;events=[];n['ARCHIVE']=Path('C:/task/private/restore01-base.tar');meta={'archive_sha256':'a'*64};n['validate_backup_archive']=lambda path:meta
+        n['inspect_restore']=lambda *a,**k:events.append(('inspect',*a));n['create_extra_volume']=lambda:events.append(('volume',));n['create_extra_container']=lambda name,staging:events.append(('create',name,staging));n['report']['restore']['postgres_os_identity']=[999,999]
+        n['verify_hba']=lambda *a:events.append(('hba',*a));n['inspect_container']=lambda name:None
+        def docker(args,input=None,timeout=60):
+            events.append(tuple(args));return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+        n['docker']=docker
+        def tool(name,args,label,**kwargs):
+            events.append((label,*args));return meta['archive_sha256']+'  /run/restore01-base.tar\n' if label=='RESTORE_STAGE_ARCHIVE_HASH' else ''
+        n['guarded_tool']=tool;n['private_input']=lambda *a:None
+        n['report']['restore']['source_system_identifier_sha256']='f'*64
+        n['raw_sql']=lambda *a:json.dumps({'version':170011,'safe':True,'auth':'scram-sha-256:postgres','primary':True,'system_identifier_sha256':'f'*64})
+        n['stage_restore'](meta)
+        verify=next(i for i,e in enumerate(events) if e[0]=='RESTORE_STAGE_VERIFYBACKUP')
+        hba=next(i for i,e in enumerate(events) if any(isinstance(x,str) and 'cat > /var/lib/postgresql/data/pg_hba.conf' in x for x in e))
+        create=events.index(('create','target',False));self.assertLess(verify,hba);self.assertLess(hba,create)
+        self.assertNotIn('initdb',repr(events));self.assertNotIn('migration.sql',repr(events));self.assertNotIn('bootstrap.review.sql',repr(events))
+
+    def test_old_grant_expiry_revocation_or_mutation_stops_without_repair(self):
+        n=self.n;record={'id':'550e8400-e29b-41d4-a716-446655440000'};n['WORKER']={'quote':lambda x:"'"+x+"'"}
+        good={'count':1,'row_sha256':'a'*64,'unrevoked':True,'unexpired':True,'user_generation_zero':True}
+        calls=[]
+        n['raw_sql']=lambda *a:calls.append(a[-1]) or json.dumps(good)
+        self.assertEqual(n['retention']('target',record),'a'*64)
+        for change in ({'unexpired':False},{'unrevoked':False},{'user_generation_zero':False},{'row_sha256':'b'*64}):
+            n['raw_sql']=lambda *a,change=change:calls.append(a[-1]) or json.dumps({**good,**change})
+            with self.assertRaises(n['Stop']):n['retention']('target',record,'a'*64)
+        self.assertTrue(all('UPDATE ' not in query and 'INSERT ' not in query for query in calls))
+
+    def test_source_fixture_and_recovery_order_before_finite_diagnostics(self):
+        n=self.n;events=[];old={'id':'private'};baseline={'native_sha256':'b'*64}
+        n.update(source_fixtures=lambda:events.append('source') or old,quiesce=lambda:events.append('quiesce'),baselines=lambda *a:events.append(a[1]) or baseline,
+            retention=lambda *a:events.append('retention') or 'a'*64,backup_archive=lambda:events.append('backup') or {'archive_sha256':'a'*64},stage_restore=lambda x:events.append('stage'),fixture_observers=lambda *a:events.append('fixtures'),
+            rotate_credentials=lambda:events.append('rotate_all_six'),identity_recovery=lambda:events.append('identity_revoke_recover'),diagnostic_probes=lambda *a:events.append('diagnostics'),
+            fixed_json=lambda *a:{**{key:True for key in n['BACKUP_PREFLIGHT_FIELDS']},'system_identifier_sha256':'f'*64},validate_backup_archive=lambda path:{'archive_sha256':'a'*64},ARCHIVE=Path('private'))
+        n['report']['restore']['source_system_identifier_sha256']='f'*64
+        n['restore_experiment']()
+        for before,after in [('source','quiesce'),('quiesce','backup'),('backup','stage'),('restore-native-before.json','rotate_all_six'),('rotate_all_six','identity_revoke_recover'),('identity_revoke_recover','diagnostics')]:self.assertLess(events.index(before),events.index(after))
+
+    def bound_session_mock(self,exit_code=3,negative_ack=False,negative_lines=None,issuer_ack=True,issuer_returning=None):
+        n=self.n;worker=runpy.run_path(str(ROOT/'scripts/sql-review/run-worker-control-rehearsal.py'));events=[];app=(ROOT/'review-output/foundation-application.review.sql').read_bytes()
+        import re
+        body=re.search(r'CREATE FUNCTION platform_private\.bind_request_context\(secret text\).*?AS (\$[a-z_0-9]*\$)(.*?)\1;',app.decode(),re.S)[2]
+        line=next(index for index,value in enumerate(body.split('\n'),1) if "RAISE EXCEPTION 'invalid, stale or unsupported context'" in value)
+        stderr='ERROR:  42501: invalid, stale or unsupported context\nCONTEXT:  PL/pgSQL function platform_private.bind_request_context(text) line '+str(line)+' at RAISE\n'
+        counter=[0]
+        class FakeSession:
+            def __init__(self,role,container,api,raw):self.role=role;self.process=types.SimpleNamespace(wait=lambda timeout:exit_code);counter[0]+=1;self.xid=str(10000+counter[0]);events.append((role,'open'))
+            def capture(self):
+                events.append((self.role,'capture'));return {'login':self.role,'current_user':self.role,'database':n['DB'],'isolation':'read committed','pid':'8123','xid':self.xid,'started':'2026-11-18 00:00:00+00'}
+            def finish(self,text):
+                events.append((self.role,'finish'))
+                if self.role=='wa_context_issuer':return 0,([json.dumps({'created_at':'2026-11-18T05:00:00.001+00:00','expires_at':'2026-11-18T05:05:00+00:00'})] if issuer_returning is None else issuer_returning),issuer_ack,''
+                return 0,[json.dumps({'visible_exact_root':1})],True,''
+            def call(self,text):
+                if 'clock_timestamp()' in text:return [json.dumps({'clock':'2026-11-18T05:00:00+00:00'})],True,''
+                events.append((self.role,'bind' if 'bind_request_context' in text else 'same_xid'))
+                return ((negative_lines or []),negative_ack,stderr) if 'bind_request_context' in text else (['t'],True,'')
+            def close(self):events.append((self.role,'close'))
+        worker['Session']=FakeSession;n['WORKER']=worker;n['MANIFEST']={'packet_files_sha256':{path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest() for path in (*n['HELPER_FILES'],n['RESTORE_BOUND_DECLARATION'],n['RESTORE_BOUND_SOURCE'])}};n['grant_row_facts']=lambda *a,**k:'e'*64
+        def boundary(args,input=None,timeout=60,**kwargs):
+            if input==n['_SAFETY_SQL_RECIPES']['GLOBAL_BACKENDS']:events.append(('global','closed'));return types.SimpleNamespace(returncode=0,stdout='{"migrator":0,"other_client_backends":0}',stderr='')
+            raise AssertionError('UNMODELED_BOUNDARY')
+        n['command']=boundary
+        return events
+
+    def test_real_tuple_issuer_commit_close_before_app_bind_and_no_handle_export(self):
+        n=self.n;events=self.bound_session_mock()
+        record=n['bound_operation']('source','app',n['source_text']('app-read.sql'),expected_json={'visible_exact_root':1})
+        self.assertLess(events.index(('wa_app_runtime','capture')),events.index(('wa_context_issuer','capture')))
+        self.assertLess(events.index(('wa_context_issuer','close')),events.index(('wa_app_runtime','same_xid')))
+        self.assertLess(events.index(('wa_context_issuer','close')),events.index(('wa_app_runtime','finish')))
+        self.assertEqual(events[-1],('global','closed'))
+        exported=json.dumps(n['report']);self.assertNotIn(record['secret'],exported);self.assertNotIn(record['id'],exported);self.assertNotIn(record['backend']['xid'],exported)
+
+    def test_exact_negative_binder_requires_exit3_no_ack_no_later_sql_and_source_frame(self):
+        n=self.n;events=self.bound_session_mock();old={'id':'private','secret':'1'*64,'backend':{'pid':'1','xid':'1'},'grant':PROPOSAL['grants']['app']}
+        n['bound_operation']('target','app','',old=old,negative=True)
+        self.assertIn(('wa_app_runtime','bind'),events);self.assertNotIn(('wa_app_runtime','finish'),events);self.assertEqual(events[-1],('global','closed'))
+        for code,ack,lines in [(0,False,[]),(2,False,[]),(3,True,[]),(3,False,[CANARY])]:
+            events=self.bound_session_mock(exit_code=code,negative_ack=ack,negative_lines=lines)
+            with self.subTest(code=code,ack=ack,lines=lines),self.assertRaises(n['Stop']):n['bound_operation']('target','app','',old=old,negative=True)
+            self.assertEqual(events[-1],('global','closed'));self.assertNotIn(('wa_app_runtime','finish'),events)
+
+    def test_missing_issuer_ack_stops_before_bound_business_call_and_closes_both(self):
+        n=self.n;events=self.bound_session_mock(issuer_ack=False)
+        # The shared session helper uses its own fixed failure type for malformed
+        # grants; the operator's actual missing-ACK guard uses Stop.
+        with self.assertRaises(n['Stop']):n['bound_operation']('source','app',n['source_text']('app-read.sql'),expected_json={'visible_exact_root':1})
+        self.assertNotIn(('wa_app_runtime','finish'),events);self.assertNotIn(('wa_app_runtime','same_xid'),events)
+        self.assertIn(('wa_context_issuer','close'),events);self.assertIn(('wa_app_runtime','close'),events)
+
+    def test_cleanup_deletes_only_exact_created_resources_and_private_archive(self):
+        n=self.n
+        with tempfile.TemporaryDirectory(prefix='offline-restore-cleanup-',dir=TASK) as directory:
+            n['OUT']=Path(directory)
+            private=Path(directory)/'private';private.mkdir();secret=private/'ok-bootstrap-password';archive=private/'restore01-base.tar';secret.write_text(CANARY);archive.write_bytes(CANARY.encode())
+            labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':n['RUN_ID']};containers={name:{'Name':'/'+name,'Id':cid,'Config':{'Labels':labels}} for name,cid in n['created_containers'].items()};volumes={name:{'Name':name,'CreatedAt':time,'Labels':labels} for name,time in n['created_volumes'].items()};commands=[]
+            n.update(PRIVATE=private,secret_paths=[secret,archive],attempted_containers=set(containers),attempted_volumes=set(volumes),RESOURCE_CONTAINERS=tuple(containers),RESOURCE_VOLUMES=tuple(volumes))
+            n['inspect_container']=lambda name:containers.get(name);n['inspect_volume']=lambda name:volumes.get(name);n['inventory']=lambda:(set(containers)|{'unrelated'},set(volumes)|{'unrelated-volume'})
+            def docker(args,input=None,timeout=60):
+                commands.append(args)
+                if args[:2]==['container','rm']:
+                    selected=next(name for name,row in containers.items() if row['Id']==args[-1]);containers.pop(selected)
+                elif args[:2]==['volume','rm']:volumes.pop(args[-1])
+                else:raise AssertionError('UNEXPECTED_CLEANUP_COMMAND')
+                return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+            n['docker']=docker;n['cleanup']()
+            self.assertEqual(len(commands),5);self.assertFalse(private.exists());self.assertNotIn('unrelated',repr(commands));self.assertFalse(n['report']['cleanup_summary']['image_removed'])
+            self.assertEqual({args[-1] for args in commands if args[:2]==['container','rm']},set(n['created_containers'].values()))
+
+    def test_restore_failure_stops_later_steps_and_always_cleans(self):
+        n=self.n;events=[]
+        with tempfile.TemporaryDirectory() as directory:
+            n.update(OUT=Path(directory)/'new',MANIFEST={'review_status':'APPROVED_LOCAL_F0_RESTORE_PREFLIGHT_V5_ATTEMPT'},bootstrap_attempted=set(),finalization_attempted=set())
+            for name in ('verify_restore_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','catalog_experiment','secret_scan','cleanup','verify_tool_data'):
+                n[name]=lambda name=name:events.append(name)
+            n['restore_experiment']=lambda:(_ for _ in ()).throw(n['Stop']('EXPECTED_MOCK_STOP'))
+            self.assertEqual(n['main'](),1)
+            self.assertIn('cleanup',events);self.assertIn('secret_scan',events)
+            self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED')
+            self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+
+    def test_source_and_target_password_controls_use_only_private_files(self):
+        n=self.n;n['closed_backends']=n['_required_zero_backends']=lambda *a:None;calls=[]
+        good={'session_user':'postgres','current_user':'postgres','database':'wa_p0c_rehearsal','system_user':'scram-sha-256:postgres'}
+        n['command']=lambda args,text,timeout:calls.append(args) or types.SimpleNamespace(returncode=0,stdout=json.dumps(good),stderr='')
+        n['auth_control']('source','postgres','/run/wa-secrets/pgpass','correct')
+        n['command']=lambda args,text,timeout:calls.append(args) or types.SimpleNamespace(returncode=2,stdout='',stderr='psql: error: connection to server at "127.0.0.1", port 5432 failed: FATAL:  password authentication failed for user "postgres"\npassword retrieved from file "/run/wa-secrets/wrong.pgpass"\n')
+        n['auth_control']('source','postgres','/run/wa-secrets/wrong.pgpass','password')
+        self.assertTrue(all(any('PGPASSFILE=' in arg for arg in args) for args in calls));self.assertNotIn('PGPASSWORD',repr(calls));self.assertNotIn(CANARY,repr(calls))
+
+    def test_source_proposal_is_exact_and_keeps_all_assertions_not_run(self):
+        n=self.n
+        self.assertEqual(hashlib.sha256((ROOT/'review-output/restore-control-rehearsal-v5/proposal.json').read_bytes()).hexdigest(),n['RESTORE_PROPOSAL_SHA'])
+        self.assertEqual(PROPOSAL['source_only_packet_sha256'],n['RESTORE_CONTENT_SHA'])
+        self.assertTrue(all(row['status']=='NOT_RUN' for row in PROPOSAL['source_assertion_definition']['assertions']))
+        self.assertFalse(PROPOSAL['quarantine']['service_activation'])
+
+    def test_plan_preparation_creates_only_new_source_files_and_keeps_execution_unpinned(self):
+        module=runpy.run_path(str(TASK/'prepare_local_f0_restore_preflight_v5_plan.py'));g=module['prepare'].__globals__
+        with tempfile.TemporaryDirectory(prefix='offline-restore-plan-',dir=TASK) as directory:
+            base=Path(directory);raw=BASELINE.read_bytes();baseline=base/'baseline.json';baseline.write_bytes(raw)
+            for name in (*g['EXTERNAL_FILES'],'pin_local_f0_restore_preflight_v5_plan_20261120.py'):(base/name).write_bytes((TASK/name).read_bytes())
+            with patch.dict(g,TASK=base,ROOT=ROOT):
+                result=g['prepare'](baseline,hashlib.sha256(raw).hexdigest(),'550e8400-e29b-41d4-a716-446655440000')
+                master=json.loads(Path(result['operation_manifest']).read_bytes())
+                self.assertEqual(master['source_commit'],'TO_BE_PINNED');self.assertEqual(master['source_tree'],'TO_BE_PINNED');self.assertEqual(master['packet_files_sha256'],{})
+                self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertFalse(result['database_contacted']);self.assertFalse(result['resources_created'])
+                self.assertEqual(result['source_files'],7)
+                with self.assertRaises(g['Refused']):g['prepare'](baseline,hashlib.sha256(raw).hexdigest(),'550e8400-e29b-41d4-a716-446655440000')
+
+
+
+    def test_all_21_issued_fields_are_independent_predicates_and_query_parses(self):
+        n=self.n;actual=n['grant_row_facts'];self.bound_session_mock()
+        record=n['bound_operation']('source','app',n['source_text']('app-read.sql'),expected_json={'visible_exact_root':1})
+        self.assertEqual(len(record['expected']),21);self.assertEqual(record['expected']['transaction_id'],record['backend']['xid'])
+        self.assertNotEqual(record['expected']['mutation_transaction_id'],record['backend']['xid'])
+        good={'count':1,'row_sha256':'e'*64,'issuer_owned':True,'unrevoked':True,'unexpired':True,'exact_fields':True};queries=[]
+        n['raw_sql']=lambda name,role,text:(queries.append((role,text)) or json.dumps(good))
+        self.assertEqual(actual('source',record,require_unexpired=True,issuer=True),'e'*64)
+        from pglast import parse_sql
+        self.assertEqual(len(parse_sql(queries[0][1])),4);self.assertEqual(queries[0][0],'wa_context_issuer')
+        for field in record['expected']:self.assertIn('g.'+field+' IS NOT DISTINCT FROM (',queries[0][1])
+        self.assertNotIn(record['secret'],queries[0][1])
+        for change in ({'count':True},{'count':1.0},{'exact_fields':False},{'exact_fields':1},{'row_sha256':CANARY}):
+            n['raw_sql']=lambda *a,change=change:json.dumps({**good,**change})
+            with self.assertRaises(n['Stop']):actual('source',record)
+        self.assertNotIn(record['expected']['created_at'],json.dumps(n['report']))
+
+    def test_fixture_generations_normalize_only_canonical_bigint_before_session(self):
+        n=self.n
+        for value in (0,'0',2,'2',9223372036854775807,'9223372036854775807'):
+            self.assertEqual(n['generation_number'](value),int(value));self.assertIs(type(n['generation_number'](value)),int)
+        for value in (False,True,0.0,None,'00','+0','-0',' 0','0\n',-1,9223372036854775808,'9223372036854775808',CANARY):
+            with self.assertRaises(n['Stop']):n['generation_number'](value)
+            for field in ('security_generation','source_generation'):
+                grant=copy.deepcopy(PROPOSAL['grants']['app']);grant[field]=value
+                n['session']=Mock(side_effect=AssertionError('NO_ISSUER_SESSION'))
+                with self.assertRaises(n['Stop']):n['issue']('source',grant,{'pid':'101','xid':'202','login':'wa_app_runtime','current_user':'wa_app_runtime'})
+                n['session'].assert_not_called()
+
+    def test_malformed_or_outside_window_issuer_returning_never_reaches_bind(self):
+        n=self.n
+        values=[[],[json.dumps({'created_at':CANARY,'expires_at':CANARY})],[json.dumps({'created_at':'2026-11-18T05:00:00+00:00','expires_at':'2026-11-18T05:06:00+00:00'})],[json.dumps({'created_at':'2026-11-18T05:00:00+00:00','expires_at':'2026-11-18T05:05:00+00:00','extra':CANARY})]]
+        for rows in values:
+            events=self.bound_session_mock(issuer_returning=rows)
+            with self.assertRaises(n['Stop']):n['bound_operation']('source','app',n['source_text']('app-read.sql'),expected_json={'visible_exact_root':1})
+            self.assertNotIn(('wa_app_runtime','finish'),events);self.assertIn(('wa_context_issuer','close'),events);self.assertEqual(events[-1],('global','closed'))
+            self.assertNotIn(CANARY,json.dumps(n['report']))
+
+    def test_negative_binder_rejects_float_exit_and_truthy_nonboolean_frame(self):
+        n=self.n;old={'id':'private','secret':'1'*64,'backend':{'pid':'1','xid':'1'},'grant':PROPOSAL['grants']['app']}
+        for code in (3.0,False,None):
+            events=self.bound_session_mock(exit_code=code)
+            with self.assertRaises(n['Stop']):n['bound_operation']('target','app','',old=old,negative=True)
+            self.assertEqual(events[-1],('global','closed'))
+        events=self.bound_session_mock();n['WORKER']['binder_diagnostic']=lambda *a:{'matched':1,'source_frame_verified':CANARY}
+        with self.assertRaises(n['Stop']):n['bound_operation']('target','app','',old=old,negative=True)
+        self.assertNotIn(CANARY,json.dumps(n['report']));self.assertNotIn(('wa_app_runtime','finish'),events)
+
+    def test_authentication_rejects_extra_text_controls_and_float_exit_but_checks_closure(self):
+        n=self.n;events=[];n['closed_backends']=n['_required_zero_backends']=lambda *a:events.append('closed')
+        expected='FATAL: password authentication failed for user "postgres"\n'
+        for code,text in [(2,CANARY+'\n'+expected),(2,expected+CANARY),(2,'\x1b[31m'+expected),(2.0,expected),(2,expected+expected)]:
+            n['command']=lambda *a,code=code,text=text,**kw:types.SimpleNamespace(returncode=code,stdout='',stderr=text)
+            with self.assertRaises(n['Stop']):n['auth_control']('source','postgres','/run/wa-secrets/wrong.pgpass','password')
+            self.assertEqual(events[-1],'closed');self.assertNotIn(CANARY,json.dumps(n['report']))
+
+    def test_inventory_uncertainty_cannot_be_treated_as_resource_absence(self):
+        n=self.n;n.update(RESOURCE_CONTAINERS=('source','stage','target'),RESOURCE_VOLUMES=('source-data','target-data'))
+        n['docker']=lambda *a,**kw:types.SimpleNamespace(returncode=1,stdout='',stderr=CANARY)
+        n['inventory']=lambda:(_ for _ in ()).throw(n['Stop']('RESOURCE_INVENTORY_FAILED'))
+        for function,name in ((n['inspect_container'],'source'),(n['inspect_volume'],'source-data')):
+            with self.assertRaises(n['Stop']):function(name)
+        n['inventory']=lambda:(set(),set());self.assertIsNone(n['inspect_container']('source'));self.assertIsNone(n['inspect_volume']('source-data'))
+        n['inventory']=lambda:({'source'},{'source-data'})
+        for function,name in ((n['inspect_container'],'source'),(n['inspect_volume'],'source-data')):
+            with self.assertRaises(n['Stop']):function(name)
+        self.assertNotIn(CANARY,json.dumps(n['report']))
+
+    def test_cleanup_keeps_foreign_identity_but_attempts_secrets_and_independent_absence(self):
+        n=self.n
+        with tempfile.TemporaryDirectory(prefix='offline-restore-cleanup-',dir=TASK) as directory:
+            out=Path(directory);private=out/'private';private.mkdir();secret=private/'ok-bootstrap-password';archive=private/'restore01-base.tar';secret.write_text(CANARY);archive.write_bytes(CANARY.encode())
+            labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':n['RUN_ID']};commands=[]
+            n.update(OUT=out,PRIVATE=private,secret_paths=[secret,archive],attempted_containers={'source'},attempted_volumes=set(),RESOURCE_CONTAINERS=('source',),RESOURCE_VOLUMES=())
+            n['inspect_container']=lambda name:{'Name':'/source','Id':'d'*64,'Config':{'Labels':labels}}
+            n['docker']=lambda args,**kw:(commands.append(args) or types.SimpleNamespace(returncode=0,stdout='',stderr=''))
+            n['inventory']=lambda:({'source'},set())
+            with self.assertRaises(n['Stop']):n['cleanup']()
+            self.assertEqual(commands,[]);self.assertFalse(private.exists());self.assertTrue(n['report']['cleanup_summary']['resource_presence_after']['source'])
+            self.assertFalse(n['report']['cleanup_summary']['image_removed'])
+
+    def test_restore_native_pipeline_retains_v4_text_preflight_and_global_closure(self):
+        tree=ast.parse(STEPS.read_bytes());f=next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='catalog_experiment');calls=[node for node in ast.walk(f) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name)]
+        self.assertLess(next(node.lineno for node in calls if node.func.id=='text_compatibility_preflight'),min(node.lineno for node in calls if node.func.id=='collect_native'));self.assertTrue(any(node.func.id=='acl_compatibility_preflight' for node in calls))
+        captured=[]
+        def command(args,input=None,timeout=60):captured.append(input);return types.SimpleNamespace(returncode=0,stdout='{"migrator":0,"other_client_backends":0}',stderr='')
+        self.n['command']=command;self.n['closed_backends']('source','TEST_GLOBAL');query=captured[0].split("'other_client_backends'",1)[1];self.assertNotIn('datname=',query);self.assertNotIn('application_name=',query)
+
+    def test_bootstrap_and_finalizer_execute_the_same_pinned_sql_bytes(self):
+        n=self.n;captured=[];n.update(finalization_attempted=set(),finalized=set(),LEAVES=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier'));n['report']['targets']={'source':{}}
+        path='review-output/foundation-bootstrap-finalize.review.sql';raw=(ROOT/path).read_bytes();n['MANIFEST']={'packet_files_sha256':{path:hashlib.sha256(raw).hexdigest()}}
+        def command(args,input=None,timeout=60):
+            if input==raw.decode():captured.append(input);return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+            value={'migrator':0,'other_client_backends':0} if input==n['_SAFETY_SQL_RECIPES']['FINALIZATION_BACKENDS'] else {'grantor':'postgres','auth':'scram-sha-256:postgres','remaining_memberships':0,'active_install_connections':0,'leaf_create':dict.fromkeys(n['LEAVES'],False)}
+            return types.SimpleNamespace(returncode=0,stdout=json.dumps(value),stderr='')
+        n['command']=command
+        with patch.object(Path,'read_text',side_effect=AssertionError('UNPINNED_REOPEN')):n['finalize']('source')
+        self.assertEqual(captured,[raw.decode()]);captured.clear();n['finalization_attempted']=set()
+        with patch.object(Path,'read_bytes',return_value=CANARY.encode()),self.assertRaises(n['Stop']):n['finalize']('source')
+        self.assertEqual(captured,[]);tree=ast.parse(STEPS.read_bytes());source=ast.get_source_segment(STEPS.read_text(),next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='bootstrap_all'));self.assertIn("read_pinned('review-output/foundation-bootstrap.review.sql').decode('utf8')",source);self.assertIn('source_authentication_preflight(name)',source)
+
+    def test_nested_history_and_archive_preservation_rejects_each_drift(self):
+        n=self.n
+        with tempfile.TemporaryDirectory() as directory:
+            base=Path(directory);tools=base/'tools.tar.gz';tools.write_bytes(b'tools');nested=base/'manifest.json';nested.write_bytes(b'{}');archive=base/'source.tar.gz';archive.write_bytes(b'archive');snapshot=base/'source';snapshot.mkdir();migration=snapshot/'migration.sql';migration.write_bytes(b'source')
+            pins={'manifest_path':str(nested),'manifest_sha256':hashlib.sha256(nested.read_bytes()).hexdigest(),'source_archive':str(archive),'source_archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'source_snapshot':str(snapshot),'source_files_sha256':{'migration.sql':hashlib.sha256(migration.read_bytes()).hexdigest()}}
+            n['MANIFEST']={'tool_archive':str(tools),'tool_archive_sha256':hashlib.sha256(tools.read_bytes()).hexdigest(),'migration_targets':{'ok':pins}}
+            n['verify_external_input_preservation']()
+            for path in (tools,nested,archive,migration):
+                original=path.read_bytes();path.write_bytes(CANARY.encode())
+                with self.assertRaises(n['Stop']):n['verify_external_input_preservation']()
+                path.write_bytes(original)
+            (snapshot/'extra.sql').write_text(CANARY)
+            with self.assertRaises(n['Stop']):n['verify_external_input_preservation']()
+            self.assertNotIn(CANARY,json.dumps(n['report']))
+
+    def test_backup_archive_does_not_admit_a_second_hardlink(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'restore01-base.tar';path.write_bytes(archive_bytes(self.n['source_text']('source-backup.pg_hba.conf')));self.n['ARCHIVE']=path;observed=path.stat()
+            # Sandbox forbids creating a real additional hardlink. Model the
+            # actual stat field without weakening the operator's nlink guard.
+            with patch.object(Path,'stat',return_value=types.SimpleNamespace(st_mode=observed.st_mode,st_nlink=2)),self.assertRaises(self.n['Stop']):self.n['validate_backup_archive'](path)
+
+    def test_backup_preflight_requires_every_fixed_boolean_and_same_cluster(self):
+        n=self.n;good={**{key:True for key in n['BACKUP_PREFLIGHT_FIELDS']},'system_identifier_sha256':'f'*64}
+        self.assertEqual(n['backup_preflight'](good),'f'*64)
+        from pglast import parse_sql
+        tree=parse_sql(n['source_text']('backup-preflight.sql'));projection=tree[2].stmt.targetList[0].val
+        literals=[node.val.sval for node in projection.args[::2]]
+        self.assertEqual(set(literals),set(good))
+        mutants=[{}, {'system_identifier_sha256':'f'*64}, {**good,'extra':CANARY}, {**good,'system_identifier_sha256':CANARY}]
+        for field in n['BACKUP_PREFLIGHT_FIELDS']:
+            mutants.extend([{key:value for key,value in good.items() if key!=field}, {**good,field:1}, {**good,field:False}, {**good,field:CANARY}])
+        for value in mutants:
+            with self.assertRaises(n['Stop']):n['backup_preflight'](value)
+        self.assertNotIn(CANARY,json.dumps(n['report']))
+
+
+    def test_nested_manifest_current_read_drift_stops_before_tools_or_coordinator(self):
+        n=self.n;path=TASK/'mock-nested-manifest.json';raw=b'{"tools":{"files_sha256":{}}}';plan={'manifest_path':str(path),'manifest_sha256':hashlib.sha256(raw).hexdigest()};n['MANIFEST']={'migration_targets':{'ok':plan}}
+        n['TARGETS']=[{'name':'source','kind':'ok'}];tools=Mock(side_effect=AssertionError('NO_DOCKER'));helpers=Mock(side_effect=AssertionError('NO_HELPER_OR_COORDINATE'));n['docker']=tools;n['load_reviewed_helper']=helpers
+        with patch.object(Path,'read_bytes',return_value=raw),patch.object(Path,'read_text',side_effect=AssertionError('NO_SECOND_READ')):self.assertEqual(n['read_target_manifest'](plan),raw)
+        with patch.object(Path,'read_bytes',side_effect=[raw,CANARY.encode()]):
+            self.assertEqual(n['read_target_manifest'](plan),raw)
+            with self.assertRaisesRegex(n['Stop'],'TARGET_PLAN_DRIFT'):n['provision_migration_tools']()
+        with patch.object(Path,'read_bytes',return_value=CANARY.encode()),self.assertRaisesRegex(n['Stop'],'TARGET_PLAN_DRIFT'):n['migrate']({'name':'source','kind':'ok'},'deploy','MOCK_DEPLOY')
+        tools.assert_not_called();helpers.assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+
+class RuntimeClosureTests(RestoreOperationTests):
+    # Reuse the existing process/network refusal setUp; do not inherit/rerun
+    # its32 methods in discovery. The real verifier/loader remains unmocked.
+    def full_fixture(self,base,old=False):
+        preparer=runpy.run_path(str(TASK/('prepare_local_f0_restore_plan_bound_evidence_v4.py' if old else 'prepare_local_f0_restore_preflight_v5_plan.py')));g=preparer['prepare'].__globals__
+        baseline=base/'baseline.json';raw=BASELINE.read_bytes();baseline.write_bytes(raw)
+        for name in (*g['EXTERNAL_FILES'],'pin_local_f0_restore_preflight_v5_plan_20261120.py'):(base/name).write_bytes((TASK/name).read_bytes())
+        with patch.dict(g,TASK=base,ROOT=ROOT):prepared=g['prepare'](baseline,hashlib.sha256(raw).hexdigest(),'550e8400-e29b-41d4-a716-446655440000')
+        path=Path(prepared['operation_manifest']);master=json.loads(path.read_bytes());root=base/'current-source-and-snapshots';root.mkdir()
+        files=dict(master['prepared_source_file_inventory_sha256'])
+        for relative,digest in list(files.items()):
+            body=(ROOT/relative).read_bytes();self.assertEqual(hashlib.sha256(body).hexdigest(),digest);dest=root/relative;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(body)
+        sources=(*g['EXTERNAL_FILES'],'pin_local_f0_restore_preflight_v5_plan_20261120.py')
+        for name in sources:
+            relative='context/reconciliation/local-f0-operation-sources/restore-preflight-v5/'+name+'.txt';body=(TASK/name).read_bytes();dest=root/relative;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(body);files[relative]=hashlib.sha256(body).hexdigest()
+        for relative in master['catalog']['tool_source_files_sha256']:
+            dest=root/relative;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((ROOT/relative).read_bytes())
+        if not old:
+            # Explicit OFFLINE synthetic review fixture only. Real Root metadata
+            # remains PENDING and carries no execution authority from this test.
+            prefix='context/reconciliation/local-f0-operation-sources/restore-preflight-v5/'
+            review_path=prefix+'reviews/OFFLINE-synthetic-review.json'
+            review=(json.dumps({'decision':'SOURCE_APPROVED','scope':'OFFLINE_TEST_ONLY_NO_RUNTIME_AUTHORITY'})+'\n').encode()
+            destination=root/review_path;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(review)
+            files[review_path]=hashlib.sha256(review).hexdigest()
+            for metadata in ('context/reconciliation/local-f0-restore-preflight-v5-source-validation.json','context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json'):
+                body=json.loads((root/metadata).read_bytes());body['source_review_status']='SOURCE_APPROVED'
+                body['independent_source_review']={'decision':'SOURCE_APPROVED','path':review_path,'sha256':files[review_path]};body['archive_files_sha256'][review_path]=files[review_path]
+                raw=(json.dumps(body,indent=2)+'\n').encode();(root/metadata).write_bytes(raw);files[metadata]=hashlib.sha256(raw).hexdigest()
+        master.update(source_commit='a'*40,source_tree='b'*40,packet_files_sha256=files)
+        master['packet_sha256']=hashlib.sha256(''.join(p+'\0'+files[p]+'\n' for p in sorted(files)).encode()).hexdigest()
+        if old:
+            sources=('execute_local_f0_restore_20261117_image_v2.py','local_f0_restore_operation_steps_image_v2.py','prepare_local_f0_restore_plan_image_v2.py','check_local_f0_restore_operation_image_v2.py')
+            for name in sources:(base/name).write_bytes((TASK/name).read_bytes())
+            master['restore']['external_files_sha256']={p:hashlib.sha256((TASK/p).read_bytes()).hexdigest() for p in sources};master['wrapper_sha256']=master['restore']['external_files_sha256'][sources[0]];master['steps_sha256']=master['restore']['external_files_sha256'][sources[1]]
+            files.pop('scripts/sql-review/run-worker-control-rehearsal.py')
+        path.write_text(json.dumps(master,indent=2)+'\n');core=TASK/('execute_local_f0_restore_20261117_image_v2.py' if old else CORE.name);steps=TASK/('local_f0_restore_operation_steps_image_v2.py' if old else STEPS.name)
+        ns=runpy.run_path(str(core));ns=ns['launch'].__globals__;ns['initialize'](path);exec(compile(steps.read_bytes(),str(steps),'exec'),ns);ns['ROOT']=root;ns['save']=Mock();ns['event']=Mock()
+        def common():
+            # Only the outer Git/status/common boundary is replaced. Admit the
+            # complete real current source+snapshot map before the real catalog
+            # generator, exact16 source modules and closed Worker loader run.
+            for relative,digest in files.items():self.assertEqual(hashlib.sha256((root/relative).read_bytes()).hexdigest(),digest)
+            self.assertEqual(len(master['migration_targets']['ok']['source_files_sha256']),7)
+            if not old:
+                expected={name:hashlib.sha256((base/name).read_bytes()).hexdigest() for name in sources}
+                ns['preflight_v5_source_admission'](ns['read_pinned'],True,PROPOSAL,expected)
+        ns['verify_common_packet']=common
+        ns['TASK']=base
+        return ns,master,path,root,g
+    def test_original_packet_missing_worker_reproduces_exact_source_keyerror(self):
+        with tempfile.TemporaryDirectory(prefix='offline-restore-v3-',dir=TASK) as directory:
+            n,master,path,root,g=self.full_fixture(Path(directory),old=True)
+            with self.assertRaises(KeyError) as failure:n['verify_restore_packet']()
+            self.assertEqual(failure.exception.args,('scripts/sql-review/run-worker-control-rehearsal.py',))
+    def test_actual_full_verifier_with_real_prepared_pending_manifest_and_snapshots(self):
+        with tempfile.TemporaryDirectory(prefix='offline-restore-v3-',dir=TASK) as directory:
+            n,master,path,root,g=self.full_fixture(Path(directory));self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertEqual(master['restore_runtime_helpers_sha256'],g['HELPER_PINS']);self.assertTrue(set(g['HELPER_FILES'])<=set(master['packet_files_sha256']))
+            n['verify_restore_packet']();self.assertTrue(callable(n['WORKER']['Session']));self.assertEqual(n['report']['catalog_preparation']['source_expected_sha256'],n['EXPECTED_SHA'])
+            self.assertTrue(all(callable(n['WORKER'][key]) for key in ('grant_sql','binder_diagnostic','remove_redundant_begin')));self.assertFalse(Path(master['evidence_directory']).exists())
+    def test_missing_unknown_and_drifted_dependencies_stop_before_any_helper_compile(self):
+        for defect in ('missing-map','unknown-map','missing-pin','drift'):
+            with self.subTest(defect=defect),tempfile.TemporaryDirectory(prefix='offline-restore-v3-',dir=TASK) as directory:
+                n,master,path,root,g=self.full_fixture(Path(directory));worker='scripts/sql-review/run-worker-control-rehearsal.py'
+                if defect=='missing-map':master['restore_runtime_helpers_sha256'].pop(worker)
+                elif defect=='unknown-map':master['restore_runtime_helpers_sha256'][CANARY]='a'*64
+                elif defect=='missing-pin':master['packet_files_sha256'].pop(worker)
+                else:(root/worker).write_bytes(("raise RuntimeError('"+CANARY+"')").encode())
+                n['MANIFEST']=master
+                with patch('builtins.compile',side_effect=AssertionError('HELPER_EXECUTION_BEFORE_CLOSED_SOURCE_ADMISSION')) as compile_,self.assertRaises(n['Stop']) as failure:n['verify_restore_packet']()
+                self.assertNotIn(CANARY,str(failure.exception));self.assertNotIn(CANARY,json.dumps(n['report']));compile_.assert_not_called()
+    def test_pin_lookup_precedes_any_filesystem_read_or_resolve(self):
+        n=self.n;n['MANIFEST']={'packet_files_sha256':{}}
+        for path in ('scripts/sql-review/run-worker-control-rehearsal.py','CANARY-UNREGISTERED.py'):
+            with patch.object(Path,'read_bytes',side_effect=AssertionError('NO_UNPINNED_READ')),patch.object(Path,'resolve',side_effect=AssertionError('NO_UNPINNED_RESOLVE')),self.assertRaises(n['Stop']) as failure:n['read_pinned'](path)
+            self.assertEqual(failure.exception.code,'CATALOG_PACKET_SOURCE_PIN_REQUIRED')
+    def test_preparer_rejects_drifted_worker_before_history_compile_or_file_creation(self):
+        g=runpy.run_path(str(TASK/'prepare_local_f0_restore_preflight_v5_plan.py'))['prepare'].__globals__;original=Path.read_bytes
+        with tempfile.TemporaryDirectory(prefix='offline-restore-v3-',dir=TASK) as directory:
+            base=Path(directory);raw=BASELINE.read_bytes();baseline=base/'baseline.json';baseline.write_bytes(raw)
+            for name in (*g['EXTERNAL_FILES'],'pin_local_f0_restore_preflight_v5_plan_20261120.py'):(base/name).write_bytes((TASK/name).read_bytes())
+            def changed(path):return ("raise RuntimeError('"+CANARY+"')").encode() if path==ROOT/'scripts/sql-review/run-worker-control-rehearsal.py' else original(path)
+            with patch.dict(g,TASK=base,ROOT=ROOT),patch.object(Path,'read_bytes',changed),patch('builtins.compile',side_effect=AssertionError('NO_HELPER_COMPILE')) as compile_,self.assertRaises(g['Refused']) as failure:g['prepare'](baseline,hashlib.sha256(raw).hexdigest(),'550e8400-e29b-41d4-a716-446655440000')
+            self.assertNotIn(CANARY,str(failure.exception));compile_.assert_not_called();self.assertEqual({p.name for p in base.iterdir()},{baseline.name,*g['EXTERNAL_FILES'],'pin_local_f0_restore_preflight_v5_plan_20261120.py'})
+    def test_mid_preparation_worker_drift_cannot_emit_an_inconsistent_held_plan(self):
+        g=runpy.run_path(str(TASK/'prepare_local_f0_restore_preflight_v5_plan.py'))['prepare'].__globals__;original=Path.read_bytes;reads=[0]
+        with tempfile.TemporaryDirectory(prefix='offline-restore-v3-',dir=TASK) as directory:
+            base=Path(directory);raw=BASELINE.read_bytes();baseline=base/'baseline.json';baseline.write_bytes(raw)
+            for name in (*g['EXTERNAL_FILES'],'pin_local_f0_restore_preflight_v5_plan_20261120.py'):(base/name).write_bytes((TASK/name).read_bytes())
+            def changed(path):
+                if path==ROOT/'scripts/sql-review/run-worker-control-rehearsal.py':
+                    reads[0]+=1
+                    if reads[0]>1:return CANARY.encode()
+                return original(path)
+            with patch.dict(g,TASK=base,ROOT=ROOT),patch.object(Path,'read_bytes',changed),self.assertRaises(g['Refused']) as failure:g['prepare'](baseline,hashlib.sha256(raw).hexdigest(),'550e8400-e29b-41d4-a716-446655440000')
+            self.assertIn(str(failure.exception),('V5_PACKET_SOURCE_DRIFT','RESTORE_SOURCE_ADMISSION_DRIFT','RUNTIME_HELPER_CHANGED_DURING_PREPARATION'));self.assertFalse((base/'local-f0-restore-plan-550e8400').exists())
+    def test_pin_helper_freezes_exact_current_four_sources_and_closed_runtime_map(self):
+        pin=runpy.run_path(str(TASK/'pin_local_f0_restore_preflight_v5_plan_20261120.py'));prep=runpy.run_path(str(TASK/'prepare_local_f0_restore_preflight_v5_plan.py'))
+        self.assertEqual(pin['HELPER_PINS'],prep['HELPER_PINS']);self.assertEqual(set(pin['HELPER_FILES']),set(self.n['HELPER_FILES']));self.assertEqual(pin['FROZEN'],{p:hashlib.sha256((TASK/p).read_bytes()).hexdigest() for p in prep['EXTERNAL_FILES']})
+
+# Inherit refusal setup and fixture utilities, not the32 unrelated test methods.
+for _name in list(dir(RestoreOperationTests)):
+    if _name.startswith('test_') and _name not in RuntimeClosureTests.__dict__:setattr(RuntimeClosureTests,_name,None)
+
+class FinallySafetyTests(unittest.TestCase):
+    """Actual new main/cleanup/save bodies; every operation process is refused."""
+    def setUp(self):
+        from types import SimpleNamespace
+        self.Result=SimpleNamespace;self.guards=[]
+        for name in ('run','Popen','check_call','check_output','call'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('NO_REAL_PROCESS'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NO_NETWORK'));guard.start();self.addCleanup(guard.stop)
+        tmp=tempfile.TemporaryDirectory(prefix='offline-finally-v4-',dir=TASK);self.addCleanup(tmp.cleanup);self.base=Path(tmp.name)
+        n=runpy.run_path(str(CORE));self.n=n['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),self.n);self.lease='lease_revoke' in CORE.name;self.events=[]
+        n=self.n;n.update(ROOT=ROOT,TASK=TASK,OUT=self.base/'evidence',PRIVATE=self.base/'evidence/private',RUN_ID='550e8400-e29b-41d4-a716-446655440000',LABEL='p0c-local-f0',CONNECTION_TAG='wa-first-test',ROLES=('postgres','wa_migrator'),all_secrets=[],secret_paths=[],created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),RESOURCE_CONTAINERS=(),RESOURCE_VOLUMES=())
+        n['report']={'stage':'ENTRY','status':'IN_PROGRESS','unexpected':[],'events':[],'steps':{},'targets':{},'cleanup':{},'qualified_native_snapshot_sha256':'a'*64,'source_verification':{'files_sha256':{'AGENTS.md':hashlib.sha256((ROOT/'AGENTS.md').read_bytes()).hexdigest()}}}
+        external={CORE.name:hashlib.sha256(CORE.read_bytes()).hexdigest()};n['MANIFEST']={'review_status':'APPROVED_LOCAL_F0_LEASE_REVOKE_ATTEMPT' if self.lease else 'APPROVED_LOCAL_F0_RESTORE_PREFLIGHT_V5_ATTEMPT','operator_sources_sha256':external,'restore':{'external_files_sha256':external}}
+        self.raw_save=n['save'];self.raw_cleanup=n['cleanup'];self.raw_event=n['event']
+        for name in ('verify_packet' if self.lease else 'verify_restore_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','catalog_experiment','lease_experiment' if self.lease else 'restore_experiment'):
+            n[name]=lambda name=name:self.events.append(name)
+        n['finalize']=lambda name:self.events.append('finalize:'+name);n['secret_scan']=lambda:self.events.append('scan');n['cleanup']=lambda:self.events.append('cleanup');n['verify_tool_data']=lambda:self.events.append('tool-postcheck');n['verify_external_input_preservation']=lambda:self.events.append('archive-postcheck')
+        n['save']=lambda:None;n['event']=lambda *a,**k:None
+    def invoke(self):
+        with redirect_stdout(io.StringIO()) as output:result=self.n['main']()
+        self.assertNotIn(CANARY,output.getvalue());self.assertNotIn(CANARY,json.dumps(self.n['report']));return result
+    def persistent_after_initial(self):
+        calls=[0]
+        def save():
+            calls[0]+=1
+            if calls[0]>1:raise OSError(CANARY)
+        self.n['save']=save
+    def test_actual_operational_stop_finalizer_and_persistent_save_do_not_skip_any_finally_branch(self):
+        n=self.n;n['bootstrap_attempted']={'first','second'};self.persistent_after_initial()
+        def stop():n['report']['stage']='ORIGINAL_OPERATION';raise n['Stop']('ORIGINAL_OPERATION_STOP')
+        n['verify_packet' if self.lease else 'verify_restore_packet']=stop
+        def finalize(name):
+            self.events.append('finalize:'+name)
+            if name=='first':raise OSError(CANARY)
+        n['finalize']=finalize;self.assertEqual(self.invoke(),1)
+        for key in ('finalize:first','finalize:second','scan','cleanup','tool-postcheck','archive-postcheck'):self.assertIn(key,self.events)
+        self.assertEqual(n['report']['primary_failure'],{'stage':'ORIGINAL_OPERATION','code':'ORIGINAL_OPERATION_STOP'});self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_actual_scan_failure_and_persistent_save_still_attempt_cleanup_and_all_postchecks(self):
+        n=self.n;self.persistent_after_initial()
+        def scan():self.events.append('scan');raise OSError(CANARY)
+        n['secret_scan']=scan;self.assertEqual(self.invoke(),1)
+        for key in ('cleanup','tool-postcheck','archive-postcheck'):self.assertIn(key,self.events)
+        self.assertFalse(n['report']['evidence_complete'])
+    def test_stop_event_output_failure_cannot_skip_finally(self):
+        n=self.n;n['verify_packet' if self.lease else 'verify_restore_packet']=lambda:(_ for _ in ()).throw(n['Stop']('ORIGINAL_OPERATION_STOP'));n['event']=lambda *a,**k:(_ for _ in ()).throw(BrokenPipeError(CANARY))
+        self.assertEqual(self.invoke(),1);self.assertIn('cleanup',self.events);self.assertIn('archive-postcheck',self.events);self.assertEqual(n['report']['primary_failure']['code'],'ORIGINAL_OPERATION_STOP');self.assertFalse(n['report']['evidence_complete'])
+    def test_initial_evidence_failure_stops_before_preflight_or_creation(self):
+        n=self.n;n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));self.assertEqual(self.invoke(),1);self.assertNotIn('preflight',self.events);self.assertNotIn('create_resources',self.events);self.assertIn('cleanup',self.events)
+    def test_final_save_failure_cannot_return_or_emit_pass(self):
+        self.persistent_after_initial();self.assertEqual(self.invoke(),1);self.assertEqual(self.n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(self.n['report']['evidence_complete'])
+    def test_final_output_failure_is_sticky_nonzero_even_if_file_saving_recovers(self):
+        n=self.n
+        with patch('builtins.print',side_effect=BrokenPipeError(CANARY)):self.assertEqual(n['main'](),1)
+        self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_raw_operational_event_output_failure_marks_incomplete_before_main_handles_it(self):
+        n=self.n;n['OUT'].mkdir();n['event']=self.raw_event;n['save']=self.raw_save
+        with patch('builtins.print',side_effect=BrokenPipeError(CANARY)),self.assertRaises(BrokenPipeError):n['event']('SAFE_STAGE','ATTEMPTED')
+        self.assertFalse(n['evidence_is_complete']());n['save']();self.assertFalse(json.loads((n['OUT']/'run-evidence.json').read_bytes())['evidence_complete'])
+    def test_raw_save_failure_remains_sticky_after_a_later_real_save_succeeds(self):
+        n=self.n;n['OUT'].mkdir();n['save']=self.raw_save
+        with patch.object(Path,'open',side_effect=OSError(CANARY)),self.assertRaises(OSError):n['save']()
+        n['save']();self.assertFalse(n['evidence_is_complete']());value=json.loads((n['OUT']/'run-evidence.json').read_bytes());self.assertFalse(value['evidence_complete']);self.assertTrue(value['persistence_failure'])
+    def test_tool_and_archive_postchecks_run_after_packet_read_failure(self):
+        n=self.n;n['report']['source_verification']['files_sha256']={'not-a-current-source-file': '0'*64};self.assertEqual(self.invoke(),1);self.assertIn('tool-postcheck',self.events);self.assertIn('archive-postcheck',self.events);self.assertFalse(n['report']['packet_unchanged_after_run']);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
+    def test_archive_and_operator_postchecks_run_after_tool_postcheck_exception(self):
+        n=self.n;n['verify_tool_data']=lambda:(_ for _ in ()).throw(OSError(CANARY));self.assertEqual(self.invoke(),1);self.assertIn('archive-postcheck',self.events);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
+    def test_unmodified_all_success_status_is_preserved(self):
+        self.assertEqual(self.invoke(),0);expected='PASS_FINITE_LEASE_AND_APP_CURRENTNESS_ONLY_CASES_NOT_RUN' if self.lease else 'PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN';self.assertEqual(self.n['report']['status'],expected);self.assertTrue(self.n['evidence_is_complete']())
+    def cleanup_fixture(self,mode):
+        n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();names=('source',) if self.lease else ('source','staging','target');volumes=('source-data',) if self.lease else ('source-data','target-data');ids={name:format(i+1,'064x') for i,name in enumerate(names)};labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':n['RUN_ID']};present_c=set(names);present_v=set(volumes);calls=[]
+        n.update(RESOURCE_CONTAINERS=names,RESOURCE_VOLUMES=volumes,created_containers=ids,created_volumes={name:'FIXED_CREATED_AT' for name in volumes},attempted_containers=set(names),attempted_volumes=set(volumes));n['secret_paths']=[n['PRIVATE']/'ok-bootstrap-password']+([] if self.lease else [n['PRIVATE']/'restore01-base.tar'])
+        for path in n['secret_paths']:path.write_text('synthetic test bytes')
+        def container(name):
+            calls.append(('inspect-container',name))
+            if name==names[0] and mode=='inspection':raise OSError(CANARY)
+            return {'Id':'f'*64 if name==names[0] and mode=='foreign' else ids[name],'Name':'/'+name,'Config':{'Labels':labels}}
+        def volume(name):calls.append(('inspect-volume',name));return {'Name':name,'CreatedAt':'FIXED_CREATED_AT','Labels':labels}
+        def docker(args,**kwargs):
+            calls.append(tuple(args))
+            if args[:2]==['container','rm']:present_c.remove(next(name for name in ids if ids[name]==args[-1]))
+            if args[:2]==['volume','rm']:present_v.remove(args[-1])
+            return self.Result(returncode=0,stdout='',stderr='')
+        def inventory():
+            calls.append(('independent-absence',))
+            if mode=='absence':raise OSError(CANARY)
+            return present_c,present_v
+        n.update(inspect_container=container,inspect_volume=volume,docker=docker,inventory=inventory,cleanup=self.raw_cleanup);n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));return names,volumes,ids,calls
+    def test_cleanup_report_save_failure_does_not_skip_volumes_private_files_or_final_absence(self):
+        names,volumes,ids,calls=self.cleanup_fixture('save');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertTrue(all(('container','rm','-f',ids[name]) in calls for name in names));self.assertTrue(all(('volume','rm',name) in calls for name in volumes));self.assertFalse(n['PRIVATE'].exists());self.assertIn(('independent-absence',),calls);self.assertFalse(n['report']['evidence_complete']);self.assertNotEqual(n['report']['steps'].get('CATALOG-CLEANUP'),'PASS')
+    def test_cleanup_inspection_failure_and_failed_error_save_do_not_skip_other_resources(self):
+        names,volumes,ids,calls=self.cleanup_fixture('inspection');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertTrue(all(('container','rm','-f',ids[name]) in calls for name in names[1:]));self.assertTrue(all(('volume','rm',name) in calls for name in volumes));self.assertFalse(n['PRIVATE'].exists());self.assertIn(('independent-absence',),calls)
+    def test_cleanup_foreign_identity_is_not_deleted_despite_failed_bookkeeping(self):
+        names,volumes,ids,calls=self.cleanup_fixture('foreign');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertNotIn(('container','rm','-f','f'*64),calls);self.assertNotIn(('container','rm','-f',ids[names[0]]),calls);self.assertIn(('independent-absence',),calls);self.assertFalse(n['PRIVATE'].exists())
+    def test_private_metadata_read_error_never_claims_absence_and_still_observes_resources(self):
+        names,volumes,ids,calls=self.cleanup_fixture('metadata');n=self.n;original=Path.lstat
+        def lstat(path,*a,**k):
+            if path==n['PRIVATE']:raise PermissionError(CANARY)
+            return original(path,*a,**k)
+        with patch.object(Path,'lstat',lstat),self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertIn(('independent-absence',),calls);self.assertFalse(n['report']['host_secret_cleanup']['private_directory_absent']);self.assertFalse(n['report']['cleanup_summary']['private_directory_absent']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_cleanup_unknown_absence_retains_fixed_unconfirmed_flags(self):
+        names,volumes,ids,calls=self.cleanup_fixture('absence');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertFalse(n['report']['cleanup_summary']['resource_absence_observation_completed']);self.assertIsNone(n['report']['cleanup_summary']['resource_presence_after']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_one_private_unlink_failure_does_not_skip_other_secret_or_absence(self):
+        names,volumes,ids,calls=self.cleanup_fixture('unlink');n=self.n;original=Path.unlink;first=n['secret_paths'][0]
+        def unlink(path,*a,**k):
+            if path==first:raise OSError(CANARY)
+            return original(path,*a,**k)
+        with patch.object(Path,'unlink',unlink),self.assertRaises(n['Stop']):n['cleanup']()
+        for path in n['secret_paths'][1:]:self.assertFalse(path.exists())
+        self.assertIn(('independent-absence',),calls);self.assertNotIn(CANARY,json.dumps(n['report']))
+
+
+TEMPLATE_OLD_STEPS=TASK/'auth-v5-before-author-20261119'/'local_f0_restore_operation_steps_finally_v4.py'
+
+# The auth oracle projects pinned libpq formatting from the actual process argv.
+import copy as _auth_copy
+import types as _auth_types
+
+class AuthV5ProjectionTests(unittest.TestCase):
+    def setUp(self):
+        for key in ('run','Popen','call','check_call','check_output'):
+            guard=patch.object(subprocess,key,side_effect=AssertionError('RUNTIME_NOT_MOCKED'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+        self.n=namespace();self.n.update(DB='wa_p0c_rehearsal',CONNECTION_TAG='wa-auth-v5-offline');self.events=[];self.saved=[]
+        self.n['closed_backends']=self.n['_required_zero_backends']=lambda *args:self.events.append(('closure',args))
+        self.n['save']=lambda:self.saved.append(_auth_copy.deepcopy(self.n['report']))
+        self.root_key='restore' if 'restore' in STEPS.name and 'lease' not in STEPS.name else 'lease_revoke'
+    def projected(self,args,expected='password',visible_state=False,crlf=False):
+        role=args[args.index('-U')+1];host=args[args.index('-h')+1];port=args[args.index('-p')+1];db=args[args.index('-d')+1]
+        file=next(value[len('PGPASSFILE='):] for value in args if value.startswith('PGPASSFILE='))
+        state='28P01' if expected=='password' else '28000'
+        primary='password authentication failed for user "'+role+'"' if expected=='password' else 'pg_hba.conf rejects connection for host "'+host+'", user "'+role+'", database "'+db+'", no encryption'
+        output='psql: error: connection to server at "'+host+'", port '+port+' failed: FATAL:  '+(state+': ' if visible_state else '')+primary+'\n'
+        if expected=='password':output+='password retrieved from file "'+file+'"\n'
+        if crlf:output=output.replace('\n','\r\n')
+        return _auth_types.SimpleNamespace(returncode=2,stdout='',stderr=output)
+    def call(self,role='postgres',file='/run/wa-secrets/wrong.pgpass',expected='password'):
+        self.n['auth_control']('source',role,file,expected)
+        return self.n['report'][self.root_key]['authentication'][-1]
+    def assert_safe_comparison(self,proof):
+        expected={'result_fields_typed','exit_two','stdout_empty','text_bounded','controls_absent','endpoint_exact','single_fatal','expected_primary','sqlstate_compatible','selected_file_warning_exact','line_count_exact','transport_exact','sqlstate_category','password_file_basename'}
+        self.assertEqual(set(proof['comparison']),expected)
+        for key in expected-{'sqlstate_category','password_file_basename'}:self.assertIs(type(proof['comparison'][key]),bool)
+        self.assertIn(proof['comparison']['sqlstate_category'],('UNOBSERVED','ABSENT_EXACT_PRIMARY','EXPECTED','MISMATCH','MALFORMED'))
+        self.assertNotIn(CANARY,json.dumps(self.n['report']));self.assertNotIn('password retrieved',json.dumps(self.n['report']));self.assertNotIn('password authentication failed',json.dumps(self.n['report']))
+    def test_all_roles_actual_passfile_projection_and_visible_state_or_crlf(self):
+        files=('/run/wa-secrets/wrong.pgpass','/run/wa-secrets/source-old.pgpass') if self.root_key=='restore' else ('/run/wa-secrets/wrong.pgpass',)
+        for role in self.n['ROLES']:
+            for file in files:
+                for visible,crlf in ((False,False),(True,False),(False,True)):
+                    with self.subTest(role=role,file=file,visible=visible,crlf=crlf):
+                        self.n['command']=lambda args,*a,visible=visible,crlf=crlf,**kw:self.projected(args,visible_state=visible,crlf=crlf)
+                        proof=self.call(role,file);self.assertTrue(proof['matched']);self.assertTrue(proof['operation_closed']);self.assert_safe_comparison(proof)
+                        self.assertEqual(proof['comparison']['sqlstate_category'],'EXPECTED' if visible else 'ABSENT_EXACT_PRIMARY')
+    def test_hba_exact_28000_remains_separate_and_rejects_warning(self):
+        for role in self.n['ROLES']:
+            for visible in (False,True):
+                self.n['command']=lambda args,*a,visible=visible,**kw:self.projected(args,'hba',visible_state=visible)
+                proof=self.call(role,'/run/wa-secrets/pgpass','hba');self.assertTrue(proof['matched']);self.assert_safe_comparison(proof)
+            def warning(args,*a,**kw):
+                result=self.projected(args,'hba');result.stderr+='password retrieved from file "/run/wa-secrets/pgpass"\n';return result
+            self.n['command']=warning
+            with self.assertRaises(self.n['Stop']):self.call(role,'/run/wa-secrets/pgpass','hba')
+            proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['matched']);self.assertFalse(proof['comparison']['selected_file_warning_exact']);self.assertTrue(proof['operation_closed'])
+    def test_hba_wrong_category_identity_transport_or_extra_never_pass(self):
+        changes=(lambda s:s.replace('FATAL:  ','FATAL:  28P01: '),lambda s:s.replace('FATAL:  ','FATAL:  42501: '),lambda s:s.replace('FATAL:  ','FATAL:  P0001: '),lambda s:s.replace('user "postgres"','user "wa_worker"'),lambda s:s.replace('database "wa_p0c_rehearsal"','database "other_db"'),lambda s:s.replace('127.0.0.1','192.0.2.1'),lambda s:s.replace('no encryption','SSL encryption'),lambda s:s+CANARY+'\n')
+        for change in changes:
+            def command(args,*a,change=change,**kw):
+                result=self.projected(args,'hba');result.stderr=change(result.stderr);return result
+            self.n['command']=command
+            with self.assertRaises(self.n['Stop']):self.call(file='/run/wa-secrets/pgpass',expected='hba')
+            proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['matched']);self.assertTrue(proof['operation_closed']);self.assert_safe_comparison(proof)
+            before=self.saved[-2][self.root_key]['authentication'][-1];self.assertEqual(before['comparison'],proof['comparison']);self.assertFalse(before['matched']);self.assertFalse(before['operation_closed'])
+    def test_missing_warning_is_required_and_old_parser_restoration_is_detected(self):
+        self.n['command']=lambda args,*a,**kw:self.projected(args)
+        old=TEMPLATE_OLD_STEPS
+        tree=ast.parse(old.read_bytes());node=next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='auth_control')
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(old),'exec'),self.n)
+        with self.assertRaises(self.n['Stop']) as failure:self.call()
+        self.assertEqual(failure.exception.code,'RESTORE_AUTH_EXACT_DENIAL')
+        self.n=namespace();self.n.update(DB='wa_p0c_rehearsal',CONNECTION_TAG='wa-auth-v5-offline');self.n['closed_backends']=self.n['_required_zero_backends']=lambda *a:None;self.n['save']=lambda:None
+        def missing(args,*a,**kw):
+            result=self.projected(args);result.stderr=result.stderr.split('\n')[0]+'\n';return result
+        self.n['command']=missing
+        with self.assertRaises(self.n['Stop']):self.call()
+        self.assertFalse(self.n['report'][self.root_key]['authentication'][-1]['comparison']['selected_file_warning_exact'])
+    def test_wrong_role_state_file_endpoint_and_extra_lines_reject_before_next_step(self):
+        changes={
+            'role':lambda s:s.replace('user "postgres"','user "wa_worker"'),
+            '28000':lambda s:s.replace('FATAL:  ','FATAL:  28000: '),
+            '42501':lambda s:s.replace('FATAL:  ','FATAL:  42501: '),
+            'P0001':lambda s:s.replace('FATAL:  ','FATAL:  P0001: '),
+            'malformed_state':lambda s:s.replace('FATAL:  ','FATAL:  28P01X: '),
+            'file':lambda s:s.replace('/run/wa-secrets/wrong.pgpass','/run/wa-secrets/source-old.pgpass'),
+            'unknown_file':lambda s:s.replace('/run/wa-secrets/wrong.pgpass',CANARY),
+            'path_suffix':lambda s:s.replace('wrong.pgpass','wrong.pgpass.extra'),
+            'other_host':lambda s:s.replace('127.0.0.1','192.0.2.1'),
+            'other_port':lambda s:s.replace('5432','6432'),
+            'parentheses':lambda s:s.replace('"127.0.0.1",','"127.0.0.1" (127.0.0.1),'),
+            'bare_primary':lambda s:s.split(' failed: ',1)[1],
+            'extra':lambda s:s+CANARY+'\n',
+            'detail':lambda s:s+'DETAIL: '+CANARY+'\n',
+            'hint':lambda s:s+'HINT: '+CANARY+'\n',
+            'duplicate_primary':lambda s:s+s.split('\n')[0]+'\n',
+            'duplicate_warning':lambda s:s+s.split('\n')[1]+'\n',
+            'blank':lambda s:s+'\n',
+            'sgr':lambda s:'\x1b[31m'+s,
+            'cr':lambda s:s+'\r',
+            'unicode':lambda s:s+'\u200b',
+            'oversize':lambda s:s+'x'*4097,
+            'surrogate':lambda s:s+'\ud800'}
+        for name,change in changes.items():
+            with self.subTest(name=name):
+                def command(args,*a,change=change,**kw):
+                    result=self.projected(args);result.stderr=change(result.stderr);return result
+                self.n['command']=command
+                with self.assertRaises(self.n['Stop']):self.call()
+                proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['matched']);self.assertTrue(proof['operation_closed']);self.assert_safe_comparison(proof)
+                before=self.saved[-2][self.root_key]['authentication'][-1];self.assertEqual(before['comparison'],proof['comparison']);self.assertFalse(before['matched']);self.assertFalse(before['operation_closed'])
+        self.assertEqual(len(self.events),len(changes))
+    def test_result_type_stdout_and_transport_controls_keep_fixed_failure_metadata(self):
+        for field,value in (('returncode',True),('returncode',2.0),('returncode',None),('returncode',0),('stdout',CANARY),('stdout',None),('stderr',None),('stderr',{CANARY:CANARY})):
+            def command(args,*a,field=field,value=value,**kw):
+                result=self.projected(args);setattr(result,field,value);return result
+            self.n['command']=command
+            with self.assertRaises(self.n['Stop']):self.call()
+            proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['matched']);self.assertTrue(proof['operation_closed']);self.assert_safe_comparison(proof)
+        original=self.n['psql_args']
+        for field,value in (('-h','192.0.2.1'),('-p','6432'),('-U','wa_worker'),('-d','other_db')):
+            def args(name,role,field=field,value=value):
+                result=original(name,role);result[result.index(field)+1]=value;return result
+            self.n['psql_args']=args;self.n['command']=lambda args,*a,**kw:self.projected(args)
+            with self.assertRaises(self.n['Stop']):self.call()
+            proof=self.n['report'][self.root_key]['authentication'][-1];self.assertFalse(proof['comparison']['transport_exact']);self.assert_safe_comparison(proof)
+    def test_correct_identity_and_io_failure_still_run_closure(self):
+        self.n['command']=lambda *a,**kw:_auth_types.SimpleNamespace(returncode=0,stderr='',stdout=json.dumps({'session_user':'postgres','current_user':'postgres','database':self.n['DB'],'system_user':'scram-sha-256:postgres'}))
+        proof=self.call(file='/run/wa-secrets/pgpass',expected='correct');self.assertTrue(proof['matched']);self.assertNotIn('comparison',proof)
+        self.n['command']=lambda args,*a,**kw:self.projected(args)
+        calls=[]
+        def fail_comparison_save():
+            proof=self.n['report'][self.root_key].get('authentication',[])
+            if proof and 'comparison' in proof[-1]:calls.append('comparison');raise OSError(CANARY)
+        self.n['save']=fail_comparison_save
+        with self.assertRaises(OSError):self.call()
+        self.assertEqual(len(self.events),2);self.assertNotIn(CANARY,json.dumps(self.n['report']));self.assertTrue(calls)
+    def test_pure_comparison_shapes_have_no_observed_text_or_unknown_keys(self):
+        args=self.n['psql_args']('source','postgres');args[args.index('PGPASSFILE=/run/wa-secrets/pgpass')]='PGPASSFILE=/run/wa-secrets/wrong.pgpass'
+        result=self.projected(args);comparison=self.n['auth_denial_comparison'](result,'postgres','/run/wa-secrets/wrong.pgpass','password',args)
+        self.assert_safe_comparison({'comparison':comparison})
+        for key in ('stdout','stderr','primary','warning','message','unknown'):self.assertNotIn(key,comparison)
+        self.assertTrue(all(value is True for key,value in comparison.items() if type(value) is bool))
+
+BOUND_FOCUSED_SHA='a1eb06615ac16b001234aec7fa4dd26dd89d556a26d342ad1fe7459e83328420'
+
+class PreflightV5Tests(RestoreOperationTests):
+    def good(self):
+        # Each environmental fixture corresponds to an actual named projection.
+        from pglast import ast,parse_sql
+        statement=next(raw.stmt for raw in parse_sql(self.n['source_text']('backup-preflight.sql')) if isinstance(raw.stmt,ast.SelectStmt))
+        args=statement.targetList[0].val.args
+        model=runpy.run_path(str(ROOT/'scripts/check-restore-control-rehearsal-v5.py'))['archive_transport_projection']
+        settings={name:'' for name in ('primary_conninfo','primary_slot_name','restore_command','archive_library','synchronous_standby_names')}
+        settings.update(archive_mode='off',archive_command='(disabled)')
+        row={'name':'archive_command','reset_val':'','vartype':'string','context':'sighup','pending_restart':False}
+        result={args[i].val.sval:True for i in range(0,len(args),2)}
+        result['no_recovery_or_archive_transport']=model(self.n['source_text']('backup-preflight.sql'),settings,[row]);result['system_identifier_sha256']='f'*64
+        return result
+    def last(self):return self.n['report']['restore']['backup_preflight_comparisons'][-1]
+    def test_sixteen_fields_preserve_missing_type_false_and_true_before_original_stop(self):
+        n=self.n;good=self.good();self.assertEqual(n['backup_preflight'](good),'f'*64)
+        self.assertEqual(set(self.last()['fields']),n['BACKUP_PREFLIGHT_FIELDS'])
+        for field in n['BACKUP_PREFLIGHT_FIELDS']:
+            for alteration in ('missing','type','false'):
+                with self.subTest(field=field,alteration=alteration):
+                    value=dict(good)
+                    if alteration=='missing':del value[field]
+                    else:value[field]=CANARY if alteration=='type' else False
+                    with self.assertRaises(n['Stop']) as failure:n['backup_preflight'](value)
+                    self.assertEqual(failure.exception.code,'RESTORE_BACKUP_PREFLIGHT')
+                    entry=self.last()['fields'][field]
+                    self.assertEqual(entry,{'present':alteration!='missing','type_valid':None if alteration=='missing' else alteration=='false','observed_boolean':False if alteration=='false' else None})
+        self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_exact_keys_and_system_identity_shape_never_retain_unknown_values(self):
+        n=self.n;good=self.good()
+        for value in ({**good,CANARY:CANARY},{**good,'system_identifier_sha256':CANARY},{**good,'system_identifier_sha256':None},{k:v for k,v in good.items() if k!='system_identifier_sha256'},[CANARY],None):
+            with self.assertRaises(n['Stop']):n['backup_preflight'](value)
+        self.assertNotIn(CANARY,json.dumps(n['report']))
+        self.assertNotIn('f'*64,json.dumps(n['report']))
+    def test_after_backup_exact_source_hash_required_and_observed_match_is_typed(self):
+        n=self.n;good=self.good()
+        self.assertEqual(n['backup_preflight'](good,'AFTER_BACKUP',expected_system_hash='f'*64),'f'*64);self.assertIs(self.last()['system_identity']['same_source_match'],True)
+        with self.assertRaises(n['Stop']) as failure:n['backup_preflight'](good,'AFTER_BACKUP',expected_system_hash='e'*64)
+        self.assertEqual(failure.exception.code,'RESTORE_SOURCE_AFTER_BACKUP_NOT_QUIESCENT');self.assertIs(self.last()['system_identity']['same_source_match'],False)
+    def test_process_or_parse_unavailable_has_null_comparisons_and_original_safe_origin(self):
+        n=self.n;n['fixed_json']=Mock(side_effect=n['Stop']('RESTORE_FIXED_OBSERVER_RECORD'))
+        with self.assertRaises(n['Stop']) as failure:n['observe_backup_preflight']('source','BEFORE_BACKUP')
+        self.assertEqual(failure.exception.code,'RESTORE_FIXED_OBSERVER_RECORD');receipt=self.last();self.assertFalse(receipt['response_received']);self.assertIsNone(receipt['response_is_object']);self.assertTrue(all(value=={'present':None,'type_valid':None,'observed_boolean':None} for value in receipt['fields'].values()));self.assertEqual(n['report']['primary_failure']['code'],failure.exception.code)
+    def test_persistent_comparison_io_latches_incomplete_and_never_passes(self):
+        n=self.n;n['save']=Mock(side_effect=OSError(CANARY));value=self.good();value['no_recovery_or_archive_transport']=False
+        with self.assertRaises(n['Stop']) as failure:n['backup_preflight'](value)
+        self.assertEqual(failure.exception.code,'RESTORE_BACKUP_PREFLIGHT');self.assertEqual(n['report']['primary_failure']['code'],'RESTORE_BACKUP_PREFLIGHT');self.assertFalse(n['evidence_is_complete']());self.assertFalse(self.last()['fields']['no_recovery_or_archive_transport']['observed_boolean']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_real_quiesce_fixed_json_query_command_closes_before_false_verdict(self):
+        n=self.n;events=[];value=self.good();value['no_recovery_or_archive_transport']=False
+        n['reload_hba']=lambda *a:events.append('quarantine');n['auth_control']=lambda *a:events.append('hba-control')
+        def command(args,input=None,timeout=60):
+            self.assertIn(CID,args);self.assertEqual(args[0],'docker');self.assertEqual(args[1:3],['--context','desktop-linux'])
+            if input==n['_SAFETY_SQL_RECIPES']['GLOBAL_BACKENDS']:
+                events.append('global-closed');body={'migrator':0,'other_client_backends':0}
+            else:self.assertEqual(input,n['source_text']('backup-preflight.sql'));events.append('preflight-query-exit0');body=value
+            return types.SimpleNamespace(returncode=0,stdout=json.dumps(body)+'\n',stderr='')
+        n['command']=command
+        with self.assertRaises(n['Stop']) as failure:n['quiesce']()
+        self.assertEqual(failure.exception.code,'RESTORE_BACKUP_PREFLIGHT');self.assertEqual(events[-2:],['preflight-query-exit0','global-closed']);self.assertNotIn('source_system_identifier_sha256',n['report']['restore']);self.assertEqual(n['report']['catalog_operations'][-1]['exit_code'],0);self.assertIs(self.last()['fields']['no_recovery_or_archive_transport']['observed_boolean'],False)
+    def test_pending_source_gates_refuse_before_helper_compile_or_runtime(self):
+        n=self.n;p='context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json';c='context/reconciliation/local-f0-restore-preflight-v5-source-validation.json'
+        all_five={name:hashlib.sha256((TASK/name).read_bytes()).hexdigest() for name in (*n['EXTERNAL_FILES'],'pin_local_f0_restore_preflight_v5_plan_20261120.py')}
+        for meta in (p,c):self.assertEqual(json.loads((ROOT/meta).read_bytes())['source_review_status'],'PENDING')
+        with patch('builtins.compile',side_effect=AssertionError('PENDING_MUST_NOT_COMPILE')) as compiler,self.assertRaises(n['Stop']) as failure:n['preflight_v5_source_admission'](lambda relative:(ROOT/relative).read_bytes(),True,PROPOSAL,all_five)
+        self.assertEqual(failure.exception.code,'V5_SEPARATE_SOURCE_REVIEW_REQUIRED');compiler.assert_not_called()
+    def test_actual_new_source_gate_function_is_identical_in_three_entrypoints(self):
+        trees=[ast.parse(path.read_bytes()) for path in (STEPS,TASK/'prepare_local_f0_restore_preflight_v5_plan.py',TASK/'pin_local_f0_restore_preflight_v5_plan_20261120.py')]
+        funcs=[next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='preflight_v5_source_admission') for tree in trees]
+        self.assertEqual(ast.dump(funcs[0]),ast.dump(funcs[1]));self.assertEqual(ast.dump(funcs[0]),ast.dump(funcs[2]))
+
+class PreflightV5MainSafetyTests(FinallySafetyTests):
+    def test_preflight_false_and_persistent_receipt_io_keep_origin_cleanup_and_no_backup(self):
+        n=self.n;events=self.events;n['report']['restore']={};n['PROPOSAL']=PROPOSAL
+        fields=n['BACKUP_PREFLIGHT_FIELDS'];value={**dict.fromkeys(fields,True),'system_identifier_sha256':'f'*64};value['no_recovery_or_archive_transport']=False
+        # Run the actual quiesce/receipt in this same main namespace; only the
+        # unrelated prior source setup and process observer are modeled.
+        function=next(x for x in ast.parse(STEPS.read_bytes()).body if isinstance(x,ast.FunctionDef)and x.name=='quiesce')
+        exec(compile(ast.Module(body=[function],type_ignores=[]),'<actual-V5-quiesce>','exec'),n)
+        n['SOURCE']='first';n['ROLES']=('postgres','wa_app_runtime');n['bootstrap_attempted']={'first','second'}
+        n['reload_hba']=lambda *a:events.append('source-quarantine');n['auth_control']=lambda *a:events.append('hba-control')
+        n['fixed_json']=lambda *a:events.append('closed-preflight-process')or value
+        n['restore_experiment']=n['quiesce']
+        self.persistent_after_initial()
+        self.assertEqual(self.invoke(),1);self.assertEqual(n['report']['primary_failure']['code'],'RESTORE_BACKUP_PREFLIGHT');self.assertFalse(n['report']['evidence_complete'])
+        for event in ('finalize:first','finalize:second','scan','cleanup','tool-postcheck','archive-postcheck'):self.assertIn(event,events)
+        self.assertNotIn('source_system_identifier_sha256',n['report']['restore']);self.assertNotIn('backup',events)
+
+class PreflightV5SourceGraphTests(RuntimeClosureTests):
+    def test_actual_pure_prepare_and_pinner_pending_refusal_no_compile_or_OUT(self):
+        with tempfile.TemporaryDirectory(prefix='offline-v5-pending-',dir=TASK) as directory:
+            base=Path(directory);prep=runpy.run_path(str(TASK/'prepare_local_f0_restore_preflight_v5_plan.py'))['prepare'].__globals__
+            baseline=base/'baseline.json';raw=BASELINE.read_bytes();baseline.write_bytes(raw)
+            # Physical source hashes are checked against the real new five.
+            for name in (*prep['EXTERNAL_FILES'],'pin_local_f0_restore_preflight_v5_plan_20261120.py'):(base/name).write_bytes((TASK/name).read_bytes())
+            with patch.dict(prep,TASK=base):prepared=prep['prepare'](baseline,hashlib.sha256(raw).hexdigest())
+            path=Path(prepared['operation_manifest']);plan=json.loads(path.read_bytes());pin=runpy.run_path(str(TASK/'pin_local_f0_restore_preflight_v5_plan_20261120.py'))
+            self.assertFalse(Path(plan['evidence_directory']).exists())
+            with patch('builtins.compile',side_effect=AssertionError('PENDING_MUST_NOT_COMPILE'))as compiler,self.assertRaises(pin['Held'])as failure:pin['validate_filesystem'](path)
+            self.assertEqual(failure.exception.code,'V5_SEPARATE_SOURCE_REVIEW_REQUIRED');compiler.assert_not_called();self.assertFalse(Path(plan['evidence_directory']).exists())
+    def test_actual_full_pinner_synthetic_review_current_inventory_and_real_snapshots(self):
+        with tempfile.TemporaryDirectory(prefix='offline-v5-pinner-',dir=TASK)as directory:
+            n,master,path,root,g=self.full_fixture(Path(directory))
+            master.update(source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_sha256='TO_BE_PINNED',packet_files_sha256={})
+            names=set(master['prepared_source_file_inventory_sha256']);names.add('context/reconciliation/local-f0-operation-sources/restore-preflight-v5/reviews/OFFLINE-synthetic-review.json')
+            master['prepared_source_file_inventory_sha256']={name:hashlib.sha256((root/name).read_bytes()).hexdigest()for name in names}
+            path.write_bytes((json.dumps(master,indent=2)+'\n').encode())
+            pin=runpy.run_path(str(TASK/'pin_local_f0_restore_preflight_v5_plan_20261120.py'));globals_=pin['validate_filesystem'].__globals__
+            with patch.dict(globals_,ROOT=root):
+                checked=pin['validate_filesystem'](path);self.assertEqual(checked[2],master);self.assertTrue(set(master['prepared_source_file_inventory_sha256'])<=set(checked[3]));self.assertFalse(Path(master['evidence_directory']).exists())
+                # The actual pinner's Git calls are read-only and independently
+                # compare every admitted current blob. A changed committed blob
+                # stops before preserving/updating the held manifest.
+                def git(*args):
+                    if args==('rev-parse','HEAD'):return b'a'*40+b'\n'
+                    if args==('rev-parse','HEAD^{tree}'):return b'b'*40+b'\n'
+                    if args[0]=='show':return CANARY.encode()
+                    raise AssertionError('UNREGISTERED_GIT_COMMAND')
+                with patch.dict(globals_,git_read=git),self.assertRaises(pin['Held'])as failure:pin['pin'](path)
+                self.assertEqual(failure.exception.code,'CURRENT_AND_COMMITTED_BLOB_MISMATCH');self.assertEqual(json.loads(path.read_bytes()),master)
+                def exact_git(*args):
+                    if args==('rev-parse','HEAD'):return b'a'*40+b'\n'
+                    if args==('rev-parse','HEAD^{tree}'):return b'b'*40+b'\n'
+                    self.assertEqual(args[0],'show');return (root/args[1].split(':',1)[1]).read_bytes()
+                with patch.dict(globals_,git_read=exact_git):pinned=pin['pin'](path)
+                result=json.loads(path.read_bytes());self.assertEqual(result['source_commit'],'a'*40);self.assertEqual(result['source_tree'],'b'*40);self.assertEqual(result['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertFalse(Path(master['evidence_directory']).exists());self.assertEqual(result['packet_files_sha256'],checked[3])
+
+for _class,_base in ((PreflightV5MainSafetyTests,FinallySafetyTests),(PreflightV5SourceGraphTests,RuntimeClosureTests)):
+    for _name in list(dir(_base)):
+        if _name.startswith('test_')and _name not in _class.__dict__:setattr(_class,_name,None)
+
+for _name in list(dir(RestoreOperationTests)):
+    if _name.startswith('test_') and _name not in PreflightV5Tests.__dict__:setattr(PreflightV5Tests,_name,None)
+
+if __name__=='__main__':
+    unittest.main(verbosity=2)
+

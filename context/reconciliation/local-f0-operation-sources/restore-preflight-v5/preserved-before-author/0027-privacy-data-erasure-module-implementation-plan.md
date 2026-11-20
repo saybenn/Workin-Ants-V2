@@ -1,0 +1,2738 @@
+# Privacy / Data Erasure Module Implementation Plan
+
+> **Module ID:** `privacy_data_erasure`  
+> **Canonical module name:** Privacy / Data Erasure Module  
+> **Primary Cluster:** CL-08 Privacy & Location Safety  
+> **Companion Module architecture:** `context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md`<br>
+> **Plan status:** Implementation sequence; decision-gated where architecture/legal policy is unresolved  
+> **Subordination rule:** This plan is subordinate to the CL-08 `build-plan.md` and may not independently reorder Cluster work or redefine ownership.  
+> **Total numbered features:** 9
+
+**Shared Operation status:** References use permanent IDs and canonical names from `context/shared/shared-operations.md`; that registry controls owner, classification, status, and reusable boundary. SH-003 queryOwnerFacts remains **Proposed ruling** and is not an unconditional prerequisite or an approved universal DTO/API. Adoption requires separate Shared Operations approval before API/schema commitment. Existing source-owner-specific public queries may be consumed within their approved contracts; direct cross-domain Prisma/repository reads remain prohibited.
+
+### Current context paths and missing artifact roles
+
+Read `context/context-map.md` first for authority by concern, then the existing artifacts relevant to the feature:
+
+- Overview: `context/project-overview-v3.md`.
+- Shared Operations: `context/shared/shared-operations.md`.
+- Cluster architecture: `context/clusters/Privacy & Location Safety/privacy-location-safety-architecture.md`.
+- Cluster build plan: `context/clusters/Privacy & Location Safety/privacy-location-safety-build-plan.md`.
+- Module architecture: `context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md`.
+- Module implementation plan: `context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md`.
+
+Root/repository-root and context-root `architecture.md`, `build-plan.md`, `code-standards.md`, and dedicated `progress-tracker.md` are currently **missing**. References to those global artifacts below describe future roles, not loadable files or current authority. Do not create local substitutes or infer global approval. Apply existing concern owners through the context map; stop work that needs a missing global decision. Until a dedicated tracker is available, report progress/blockers in the task completion report; progress does not approve architecture.
+
+---
+
+## Core Principle
+
+Implement Privacy / Data Erasure through narrow, verifiable slices:
+
+```text
+public/observable behavior
+→ validated command/query
+→ Privacy-owned policy
+→ Privacy-owned authoritative write/read
+→ canonical shared-operation calls
+→ source-owner privacy executor calls
+→ event/audit/notification effects
+→ durable jobs where required
+→ tests
+→ exit gate
+```
+
+Privacy owns the legal/request workflow and aggregate proof. It does **not** own every Module's data, provider clients, Search index, Media storage mechanics, authorization system, audit ledger, queue infrastructure, Notification delivery, or legal retention law.
+
+The Module must become executable without becoming a universal "delete user" service.
+
+---
+
+## Build Rules
+
+1. Use `context/context-map.md` for existing concern owners; root architecture/code standards are currently missing.
+2. Follow CL-08 architecture and build sequence.
+3. Follow this Module architecture.
+4. Implement only Privacy / Data Erasure's declared truth.
+5. Consume neighboring Modules through approved public interfaces.
+6. Use Canonical Shared Operations; do not create local copies.
+7. Validate every command/query at runtime.
+8. Resolve authenticated actors and authorize protected operations server-side.
+9. Lifecycle transitions are Privacy-owned and transaction-safe.
+10. Destructive external effects are idempotent and owner-executed.
+11. `DataErasureJob` remains business truth; generic `QueueJob` is operational only.
+12. `DataErasureTarget` remains Privacy disposition truth; provider/owner status does not replace it.
+13. Retention exemptions require authoritative owner facts.
+14. Provider details stay behind provider-owning Modules.
+15. Search changes go through Search.
+16. Media storage/signed access goes through Media.
+17. Audit/AccessAuditLog remain Audit-owned.
+18. Notification owns channel delivery.
+19. Jobs use canonical queue/retry/dead-letter mechanisms.
+20. Events use the canonical transactional outbox only after event names/contracts are approved.
+21. Never populate `dueAt`, approve/reject a request, transition to `verified`, decide `access` semantics, or complete correction/restriction from guessed policy.
+22. Never hard-delete `User` as a shortcut before U-08-08 is resolved.
+23. Never claim backup purge before U-08-09 is resolved.
+24. Every numbered feature has tests and an exit gate.
+25. Do not start the next numbered feature until the current exit gate passes, unless the feature is decision-gated and the project owner intentionally pauses that path.
+26. When implementation settles a binding deferred decision, update architecture first and record the ruling.
+27. Record unresolved blockers rather than hiding them behind feature flags, TODOs, generic `other` logic, or silent partial behavior.
+
+---
+
+## Preconditions
+
+### Hard platform dependencies
+
+The following must exist before the feature that invokes them:
+
+- Prisma/PostgreSQL migrations and transaction support;
+- runtime schema validation;
+- `SH-001 resolveAuthenticatedActor`;
+- `SH-002 authorizeResourceAction`;
+- `SH-044 executeIdempotentCommand`;
+- DB-backed `SH-051 acquireAggregateLock` and/or approved optimistic-concurrency primitive;
+- `SH-047 enqueueReliableJob` and bounded retry/dead-letter behavior;
+- request/correlation context;
+- structured logging with telemetry sanitization;
+- Audit / Event Ledger append interfaces;
+- standardized root result/error contract.
+
+If one is not implemented, schedule it in its canonical owner. Do not create a Privacy-only substitute.
+
+### Public interfaces that may initially be stubbed
+
+Contract tests may use approved fakes/stubs for:
+
+- Identity privacy-verification result;
+- `SH-096 enumerateSubjectData`;
+- `SH-097 evaluateRetentionRequirement`;
+- `SH-095 executePrivacyInstruction`;
+- `SH-123 validateOwnedTargetReference`;
+- Media private artifact creation/finalization;
+- `SH-127 requestMediaAccess`;
+- Search `SH-091 requestSearchProjectionRefresh`;
+- Notification `SH-041 requestNotification`;
+- Audit `SH-029 appendAuditEvent` / `SH-030 recordSensitiveAccess`;
+- Observability `SH-037 recordIntegrationFailure`;
+- provider deletion results returned through owner executors.
+
+Stubs must match the canonical contracts and may not implement neighboring lifecycle truth inside Privacy.
+
+### Existing schema
+
+Current Prisma already contains:
+
+- `PrivacyRequest`
+- `DataErasureJob`
+- `DataErasureTarget`
+- `DataRetentionExemption`
+- `DataExportBundle`
+- all related enums.
+
+Only migrations explicitly approved by updated architecture may be added.
+
+### Decision gates
+
+Do not implement production behavior dependent on:
+
+- U-08-01 identity-verification proof;
+- U-08-02 access vs export semantics;
+- U-08-03 correction/restriction proof;
+- U-08-04 retained-target aggregation;
+- U-08-05 cancellation/rejection policy;
+- U-08-06 jurisdiction/deadline policy;
+- U-08-07 active-request concurrency policy;
+- U-08-08 final User disposition;
+- U-08-09 backup representation;
+- U-08-21 Location retention under privacy;
+- U-08-22 export Media relation/manifest hardening;
+- U-08-23 explicit Location Safety target types;
+- PR-08-03 domain event family;
+- PR-08-04 Media referential-integrity change;
+- PR-08-05 Location target-type addition;
+
+until they are approved in architecture/progress context.
+
+---
+
+# Phase 1 — Contracts and Source-of-Truth Foundation
+
+## 01 Privacy Request Intake and Status Surface
+
+### Objective
+
+Create the first working Privacy-owned vertical slice: an authenticated User can submit a modeled privacy request and read its authoritative status without the platform pretending that identity verification, legal deadlines, fulfillment, or completion already exist.
+
+### Observable Result
+
+- authenticated User submits `access`, `export`, `erasure`, `correction`, or `restriction`;
+- one `PrivacyRequest(status=submitted)` is created per idempotent command;
+- User sees request history and detail;
+- another normal User cannot read the request;
+- explicitly authorized admin/support can read the permitted metadata;
+- no surface claims `verified`, legal due date, erasure completion, export readiness, or correction/restriction completion.
+
+### Cluster Build-Plan Link
+
+Supports CL-08 **Feature 01 — Privacy Request Intake and Status Surface**.
+
+This Module feature must satisfy the Privacy portion of the Cluster exit gate before Module Feature 02 begins.
+
+### Dependencies
+
+- current PrivacyRequest schema/enums;
+- `SH-001 resolveAuthenticatedActor`;
+- `SH-002 authorizeResourceAction`;
+- `SH-044 executeIdempotentCommand`;
+- `SH-029 appendAuditEvent`;
+- request context/structured logging/sanitization;
+- SH-036 emitMetric and SH-038 recordQueueTelemetry through canonical Ops/queue owners; Privacy retains workflow state and safe dimension policy;
+- root runtime validation and result conventions.
+
+### In Scope
+
+- request DTO/schema validation;
+- `submitPrivacyRequest`;
+- `getPrivacyRequest`;
+- `listUserPrivacyRequests`;
+- Privacy repository for request model only;
+- owner-scoped query policies;
+- safe self-service request form/status UI if application UI is part of the current root delivery pattern;
+- narrow admin/support list/detail if CL-08 admin surfaces are active;
+- request submission audit;
+- idempotency tests;
+- telemetry redaction.
+
+### Out of Scope
+
+- identity-verification completion;
+- transition to `verifying_identity` or `verified`;
+- `dueAt` calculation;
+- request cancellation/rejection;
+- erasure job creation;
+- export generation;
+- target inventory;
+- correction/restriction execution;
+- hard-delete/anonymized User strategy;
+- provider calls;
+- local Notification delivery.
+
+### Module-Owned Data
+
+- `PrivacyRequest`
+- `PrivacyRequestType`
+- `PrivacyRequestStatus`
+
+No schema change is required.
+
+Do not add active-request uniqueness while U-08-07 is unresolved.
+
+### Public Interfaces
+
+Introduce/complete:
+
+```ts
+submitPrivacyRequest(...)
+getPrivacyRequest(...)
+listUserPrivacyRequests(...)
+```
+
+Minimum safe response:
+
+```text
+id
+type
+status
+requestedAt
+verifiedAt
+dueAt
+completedAt
+safe rejection summary when authorized
+safe export-bundle summary only after later features
+```
+
+Do not return unrestricted `adminNote`.
+
+### Shared Operations Used
+
+#### `SH-001 resolveAuthenticatedActor`
+- **Owner:** Identity & Access
+- **Invocation:** before every protected command/query
+- **Local policy:** which Privacy resource/action is being requested
+- **Prohibited duplicate:** `requireUser`, local session parser
+
+#### `SH-002 authorizeResourceAction`
+- **Owner:** Role / Authority
+- **Invocation:** before request read/list/admin view
+- **Local policy:** request owner/admin action facts
+- **Prohibited duplicate:** `privacyAuth.ts`, local admin matrix
+
+#### `SH-044 executeIdempotentCommand`
+- **Owner:** platform application infrastructure
+- **Invocation:** request submission
+- **Local policy:** semantic request fingerprint and conflict behavior
+- **Prohibited duplicate:** Privacy idempotency table/service
+
+#### `SH-029 appendAuditEvent`
+- **Owner:** Audit / Event Ledger
+- **Invocation:** successful submit and sensitive admin actions
+- **Local policy:** safe event meaning/metadata
+- **Prohibited duplicate:** PrivacyAuditLog
+
+#### request/log sanitization operations
+- **Owner:** platform/Ops
+- **Invocation:** all endpoints
+- **Local policy:** Privacy sensitive-field classification
+- **Prohibited duplicate:** local unstructured logger
+
+### Domain Logic
+
+- accept only modeled `PrivacyRequestType` values;
+- request begins at `submitted`;
+- User ID comes from server actor/authorized subject context, never client truth;
+- `requestedAt`, created/updated timestamps are server-owned;
+- `dueAt` remains null unless approved later;
+- no automatic verification transition;
+- no consent or entitlement gate;
+- no ComplianceHold assumption;
+- same idempotency key + same semantic fingerprint returns original result;
+- same key + different fingerprint returns deterministic conflict.
+
+### Authorization / Compliance
+
+- normal User may submit for self;
+- normal User may read own request;
+- cross-user access denied;
+- admin/support only through named Role / Authority action;
+- no blanket admin export/content access is implied;
+- privacy right intake is not premium;
+- generic privacy-policy consent is not a prerequisite to create the request.
+
+### Database / Transaction Behavior
+
+- validate before transaction;
+- `SH-044 executeIdempotentCommand` atomically claims command and writes `PrivacyRequest`;
+- no client-supplied status;
+- indexes already present should support owner/history/status reads;
+- if `SH-029 appendAuditEvent` is not in same database transaction, follow root audit criticality policy; do not invent local rollback semantics.
+
+### Events / Jobs
+
+No fulfillment worker.
+
+If PR-08-03 has been approved and root event registry contains `privacy.request.submitted`, write its outbox record transactionally. Otherwise emit no domain event.
+
+### Provider Integration
+
+None.
+
+### UI / Admin Surface
+
+Self-service UI, if UI is in scope:
+
+- request-type selection;
+- submit;
+- request list;
+- request detail;
+- status copy driven from source truth;
+- neutral "submitted" messaging.
+
+Admin/support:
+
+- metadata list/detail;
+- no raw target or export contents;
+- access controlled by Role / Authority.
+
+### Failure Behavior
+
+- invalid type → validation denial;
+- unauthenticated → auth denial;
+- unauthorized ID → root anti-enumeration behavior;
+- idempotency conflict → deterministic conflict;
+- DB failure → no request created;
+- audit/log failure → root criticality behavior, never fabricated Privacy status;
+- unsupported UI path → explicit unavailable/decision-gated state.
+
+### Tests
+
+**Unit**
+- request type validation;
+- safe serializer;
+- default `submitted`.
+
+**Integration**
+- authenticated create;
+- owner read/list;
+- cross-user denial;
+- authorized admin read;
+- idempotent replay;
+- idempotency conflict.
+
+**Security/privacy**
+- no request details in telemetry;
+- no arbitrary `adminNote`;
+- no guessed `dueAt`.
+
+**E2E**
+- submit → history → detail shows same authoritative request.
+
+### Documentation Updates
+
+- update Module public-interface documentation if names/result shapes change;
+- update progress tracker;
+- update architecture only if a binding ownership/transition decision changes;
+- do not mark unresolved U-08 items complete.
+
+### Acceptance Criteria
+
+- `PrivacyRequest` is the sole request truth;
+- request starts at `submitted`;
+- owner isolation is enforced;
+- no local auth/idempotency/audit infrastructure;
+- no legal semantics invented;
+- public contract is documented and tested.
+
+### Exit Gate
+
+Before Feature 02:
+
+- typecheck passes;
+- lint/format checks pass;
+- unit/integration/E2E tests pass;
+- duplicate same-key submit creates one request;
+- cross-user read fails;
+- no unapproved status transition occurs;
+- CL-08 Feature 01 Privacy exit criteria are met;
+- progress tracker records Feature 01 complete.
+
+---
+
+## 02 Privacy Executor Protocol and Subject-Data Inventory
+
+### Objective
+
+Define and prove the cross-Module protocol that lets Privacy discover data owners, enumerate subject data, receive retention facts, and request owner-local execution without direct cross-domain repositories.
+
+### Observable Result
+
+An authorized internal diagnostic can perform a **dry-run subject inventory** for test data and display:
+
+```text
+owner Module
+target type
+stable target reference
+supported actions
+sensitivity
+retention-candidate flag
+export serializer version
+cursor/progress
+safe error/result
+```
+
+At least two different source Modules participate through the same protocol shape.
+
+### Cluster Build-Plan Link
+
+Supports CL-08 **Feature 02 — Privacy Executor Protocol and Subject-Data Inventory**.
+
+### Dependencies
+
+- Module Feature 01;
+- canonical `SH-096 enumerateSubjectData`;
+- `SH-097 evaluateRetentionRequirement`;
+- `SH-095 executePrivacyInstruction`;
+- `SH-123 validateOwnedTargetReference`;
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)`;
+- `SH-044 executeIdempotentCommand`;
+- request/correlation/logging;
+- approved fake executors for at least two owners.
+
+### In Scope
+
+- `contracts/privacy-executor.ts`;
+- target descriptor and normalized result schemas;
+- executor registry;
+- bounded/cursorable enumeration orchestration;
+- dry-run diagnostic;
+- owner registration/coverage checks;
+- reference fake executors;
+- contract tests;
+- safe retention-result contract;
+- safe export-section contract.
+
+### Out of Scope
+
+- full production executor implementation for all Modules;
+- destructive target execution;
+- DataErasureJob creation;
+- final retention exemption writes;
+- legal retention rules;
+- direct provider deletion;
+- correction/restriction terminal proof;
+- universal polymorphic database table.
+
+### Module-Owned Data
+
+No mandatory Prisma write.
+
+Contract descriptor should include:
+
+```text
+ownerModule
+targetType
+targetId or externalRef
+subjectId
+supportedActions
+sensitivity
+sourceVersion
+retentionCandidate
+exportSerializerVersion
+```
+
+This descriptor is not a new universal truth table.
+
+### Public Interfaces
+
+Define canonical protocol types for:
+
+```ts
+enumerateSubjectData(request) // SH-096 enumerateSubjectData
+evaluateRetentionRequirement(request) // SH-097 evaluateRetentionRequirement
+executePrivacyInstruction(request) // SH-095 executePrivacyInstruction
+serializePrivacyExportSection(request)
+```
+
+Normalized result vocabulary:
+
+```text
+erased
+anonymized
+retained
+skipped
+failed_retryable
+failed_terminal
+not_found
+unsupported_action
+```
+
+Do not add corrected/restricted terminal statuses until U-08-03.
+
+### Shared Operations Used
+
+#### `SH-096 enumerateSubjectData`
+- **Owner:** each data owner through Privacy-defined interface
+- **Invocation:** inventory
+- **Local policy:** required descriptor shape, coverage, cursor rules
+- **Prohibited duplicate:** global data crawler
+
+#### `SH-097 evaluateRetentionRequirement`
+- **Owner:** source owner supplies facts; Privacy records exemption later
+- **Invocation:** protocol contract and dry-run
+- **Local policy:** standardized proof fields
+- **Prohibited duplicate:** tax/contract retention engine
+
+#### `SH-095 executePrivacyInstruction`
+- **Owner:** source owner executes
+- **Invocation:** contract only; destructive calls wait for Feature 03
+- **Local policy:** supported action/result vocabulary
+- **Prohibited duplicate:** direct source repositories
+
+#### `SH-123 validateOwnedTargetReference`
+- **Owner:** target owner
+- **Invocation:** registry/contract validation
+- **Local policy:** what Privacy relation needs validation
+- **Prohibited duplicate:** direct cross-Module `findUnique`
+
+#### `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)`
+- **Owner:** source Module
+- **Invocation:** minimal supplemental facts if needed
+- **Local policy:** DTO minimization
+- **Prohibited duplicate:** polymorphic owner repository
+
+#### `SH-044 executeIdempotentCommand`
+- **Owner:** platform
+- **Invocation:** executor command contract requirements
+- **Local policy:** owner action idempotency key
+- **Prohibited duplicate:** local executor dedupe store
+
+### Domain Logic
+
+- executors register explicitly by owner Module and supported target types;
+- unsupported owner/type is visible, never silently ignored;
+- inventory is cursorable/bounded;
+- descriptors contain references, not raw sensitive data;
+- source Module defines its schema mapping and export meaning;
+- owner must validate target again at execution;
+- `other` must identify explicit executor owner and cannot select generic deletion;
+- dry-run performs no mutation;
+- Privacy must not edit registry policy to understand another Module's internal tables.
+
+### Authorization / Compliance
+
+- diagnostic is developer/admin-only;
+- executor itself must enforce subject/owner context through its owner;
+- retentionCandidate is not final exemption;
+- no admin universal raw-data read;
+- no raw provider credentials/results.
+
+### Database / Transaction Behavior
+
+No cross-Module DB transaction.
+
+Executor registry can be static/configured at application composition layer but must not become source truth for owner lifecycle.
+
+If inventory output is temporarily cached for diagnostics, it must be ephemeral/non-authoritative and contain no raw payload.
+
+### Events / Jobs
+
+For large inventory, allow `SH-047 enqueueReliableJob` using cursor checkpoints.
+
+Dry-run fixture may stay synchronous.
+
+No domain events required.
+
+### Provider Integration
+
+None directly.
+
+### UI / Admin Surface
+
+Internal coverage/inventory diagnostic:
+
+- owner;
+- target type;
+- protocol version;
+- cursor;
+- count;
+- supported actions;
+- retention policy status;
+- error category.
+
+No raw subject data.
+
+### Failure Behavior
+
+- owner not registered → explicit `OWNER_NOT_REGISTERED`;
+- invalid target type → validation;
+- owner timeout → `DEPENDENCY_RETRYABLE`;
+- owner says unsupported → explicit unsupported;
+- one owner fails → inventory is incomplete and visibly failed; do not infer "no data";
+- ambiguous owner for `postgres_profile`/`other` → decision-gated or explicit diagnostic failure.
+
+### Tests
+
+**Contract**
+- target descriptor schema;
+- pagination/cursor;
+- stable normalized results;
+- owner validation;
+- export-section schema;
+- invalid/unknown result rejection.
+
+**Integration**
+- at least two fake/real owner executors enumerate same subject;
+- one owner failure remains visible.
+
+**Security**
+- descriptors exclude raw content/secrets;
+- no direct cross-owner Prisma repository.
+
+### Documentation Updates
+
+- add protocol/version to Module architecture if finalized;
+- dependency Module interface docs must reference the contract;
+- progress tracker lists which executors are fake/real;
+- if durable ownerModule persistence becomes required, architecture must be updated before schema migration.
+
+### Acceptance Criteria
+
+- one canonical protocol shape;
+- at least two owners pass contract suite;
+- inventory is bounded;
+- no generic database crawler;
+- `other` cannot execute generically;
+- missing owner cannot be hidden.
+
+### Exit Gate
+
+- contract schemas documented;
+- executor registry test passes;
+- two-owner dry-run succeeds;
+- unknown owner/type tests fail safely;
+- telemetry is payload-safe;
+- no ownership boundary violation;
+- CL-08 Feature 02 exit criteria pass.
+
+---
+
+# Phase 2 — Core Lifecycle and Fulfillment
+
+## 03 Verified Erasure Orchestration and Retention Proof
+
+### Objective
+
+Build the durable erasure workflow for a request that is already authoritatively `verified`, proving cross-Module target registration, retention proof, owner-local execution, retry safety, and Privacy-owned disposition.
+
+### Observable Result
+
+For an approved fixture/authoritative verified request:
+
+- one erasure job is created;
+- target inventory is persisted;
+- at least two owner executors run;
+- one target can erase successfully;
+- one target can be retained with a documented exemption;
+- retryable failures remain visible and retry safely;
+- requester/admin can read safe job/target summary;
+- request is not falsely declared complete while U-08-04 remains unresolved.
+
+### Cluster Build-Plan Link
+
+Supports CL-08 **Feature 04 — Erasure Orchestration, Target Disposition, and Retention Proof**.
+
+CL-08 Feature 03 is Location-only and is not duplicated in this Module plan.
+
+### Dependencies
+
+- Module Features 01–02;
+- authoritative test/approved `PrivacyRequest(status=verified, type=erasure)`;
+- `SH-047 enqueueReliableJob`;
+- `SH-048 executeRetryWithBackoff`;
+- `SH-049 orchestrateWorkflowSteps`;
+- `SH-050 reconcileWorkflowStatus`;
+- DB aggregate locking;
+- Audit/Ops interfaces;
+- at least two executor implementations/fakes;
+- owner retention result contract.
+
+### In Scope
+
+- `startVerifiedErasure`;
+- `discoverAndRegisterTargets`;
+- `processErasureTarget`;
+- `recordDataRetentionExemption`;
+- `resolveErasureTarget`;
+- `reconcileErasureJobOutcome` without guessing final request result;
+- erasure workers;
+- target/job admin summary;
+- retry/dead-letter visibility;
+- cross-owner contract calls;
+- normalized target result mapping.
+
+### Out of Scope
+
+- how request becomes `verified`;
+- `access`;
+- correction/restriction;
+- cancellation/rejection;
+- User final hard delete;
+- backup deletion;
+- final request `completed` vs `partially_completed` for mixed retention;
+- direct provider SDK;
+- all production executors.
+
+### Module-Owned Data
+
+- `DataErasureJob`
+- `DataErasureTarget`
+- `DataRetentionExemption`
+- `PrivacyRequest` may transition to `processing` only through the approved build-safe verified→processing rule.
+
+No schema migration required for the initial slice.
+
+### Public Interfaces
+
+Internal application/worker interfaces:
+
+```ts
+startVerifiedErasure(...)
+discoverAndRegisterTargets(...)
+processErasureTarget(...)
+retryErasureTarget(...)
+reconcileErasureJobOutcome(...)
+getErasureJobSummary(...)
+getErasureTargetSummary(...)
+```
+
+External owner calls use Feature 02 contracts.
+
+### Shared Operations Used
+
+#### `SH-099 orchestratePrivacyFulfillment`
+- **Owner:** Privacy
+- **Invocation:** coordinates erasure sequence
+- **Local policy:** Privacy ordering/target/result semantics
+- **Prohibited duplicate:** feature-module GDPR workflow
+
+#### `SH-096 enumerateSubjectData`
+- owner inventory.
+
+#### `SH-097 evaluateRetentionRequirement`
+- owner supplies required retention facts.
+
+#### `SH-095 executePrivacyInstruction`
+- owner performs actual mutation.
+
+#### `SH-098 anonymizePersonalFields`
+- used by source owner, not as global Privacy mutation.
+
+#### `SH-049 orchestrateWorkflowSteps` / `SH-050 reconcileWorkflowStatus`
+- shared mechanics; `DataErasureJob` remains truth.
+
+#### `SH-047 enqueueReliableJob` / `SH-048 executeRetryWithBackoff`
+- durable worker execution; no Privacy queue framework.
+
+#### `SH-044 executeIdempotentCommand`
+- job start, target registration/execution result recording.
+
+#### `SH-051 acquireAggregateLock`
+- request/job/target race control.
+
+#### `SH-053 transitionLifecycleState`
+- Privacy status plumbing.
+
+#### `SH-029 appendAuditEvent`
+- erasure start/retention/admin actions.
+
+#### `SH-037 recordIntegrationFailure`
+- operational failures only.
+
+### Domain Logic
+
+1. Refuse start unless request:
+   - exists;
+   - `type=erasure`;
+   - `status=verified`.
+2. Acquire request aggregate lock.
+3. Use idempotent start command to find/create semantic `DataErasureJob(status=queued)`.
+4. Queue discovery.
+5. Inventory all registered in-scope executors.
+6. Register target references while the job registration lock prevents duplicates.
+7. For each target:
+   - validate through owner;
+   - call retention interface;
+   - if retention required:
+     - validate controlled reason/basis;
+     - create `DataRetentionExemption`;
+     - request owner anonymization when permitted/required;
+     - record final returned target disposition;
+   - otherwise call owner `SH-095 executePrivacyInstruction(erasure)`;
+   - record normalized target result.
+8. Retry only retryable technical failures.
+9. Never infer successful erasure from queued provider work.
+10. Preserve already successful target proof under replay.
+11. Reconcile `DataErasureJob`.
+12. Do not set aggregate `PrivacyRequest` terminal state until U-08-04 is approved.
+
+### Authorization / Compliance
+
+- requester sees safe own summary;
+- detailed target/exemption view is authorized admin/compliance only;
+- no arbitrary admin can choose `legal_obligation`;
+- no Track entitlement gate;
+- ComplianceHold is evaluated only if approved for a specific operation;
+- source owner remains authoritative for retained record facts.
+
+### Database / Transaction Behavior
+
+**Start**
+- request lock;
+- check request status/type;
+- create/fetch semantic job;
+- transition request to `processing` only if approved in current architecture;
+- enqueue after commit/outbox pattern.
+
+**Target registration**
+- lock erasure job;
+- prevent duplicate tuple under the job using semantic registry comparison;
+- do not add schema uniqueness without architecture approval.
+
+**Target resolution**
+- lock target row;
+- if already terminal with same semantic owner result, replay;
+- if conflicting terminal result, invariant conflict/manual review;
+- write target status + exemption in one Privacy transaction where applicable.
+
+**Reconciliation**
+- lock job;
+- compute from persisted target states;
+- do not use queue states.
+
+### Events / Jobs
+
+Jobs:
+
+```text
+privacy inventory/discovery
+per-target erasure
+target retry
+erasure reconciliation
+```
+
+If PR-08-03 is approved:
+
+```text
+privacy.erasure_job.queued
+privacy.target.resolved
+```
+
+use outbox.
+
+Dead-letter:
+
+- operational record in Ops;
+- Privacy job/target remains visibly unresolved/failed according to policy;
+- no false completion.
+
+### Provider Integration
+
+No direct provider clients.
+
+Owner executors may internally use `SH-070 deleteProviderResource`.
+
+### UI / Admin Surface
+
+Requester-safe status:
+
+- request processing;
+- target totals;
+- completed/retained/failed counts;
+- generic pending/manual-review message.
+
+Admin:
+
+- job/target list;
+- owner Module;
+- target type;
+- safe result;
+- retryable/terminal indicator from worker/Ops;
+- retention reason/basis reference where authorized;
+- retry action routed through canonical queue/idempotency.
+
+### Failure Behavior
+
+- inventory owner timeout → job remains incomplete; retry;
+- unknown executor → explicit unresolved target coverage;
+- retained without basis → invariant violation/manual review;
+- owner returns retryable → queue retry; do not mark erased;
+- retry exhaustion → terminal failure/manual-review path, no false completion;
+- duplicate delivery → idempotent replay;
+- provider unavailable → owner normalized retryable result;
+- Audit/Notification failure does not become target success.
+
+### Tests
+
+**Unit**
+- target result mapping;
+- retention requirement validation;
+- exemption creation;
+- job aggregation mechanics without final request policy;
+- retry classification.
+
+**Integration**
+- two owner executors;
+- erased target;
+- retained target + exemption;
+- anonymized retained target where fake owner supports it;
+- retryable then success;
+- terminal failure.
+
+**Concurrency**
+- duplicate erasure start;
+- two registration workers;
+- two target workers;
+- late duplicate owner result.
+
+**Compliance**
+- no retained target without exemption;
+- no direct provider client;
+- no QueueJob-as-business-status.
+
+**E2E**
+- seeded verified request → processing → visible target results.
+
+### Documentation Updates
+
+- progress tracker records executor set and fixtures;
+- if target-owner persistence gap blocks an owner, record decision rather than patching schema;
+- architecture update required before any new target status/uniqueness/provider ownership decision.
+
+### Acceptance Criteria
+
+- job/target/exemption truth is durable;
+- at least two owners participate through public executor contracts;
+- retained target has exemption;
+- same target effect occurs once under replay;
+- provider mechanics remain outside Privacy;
+- final aggregate request is not guessed.
+
+### Exit Gate
+
+- CL-08 Feature 04 Privacy exit criteria pass;
+- concurrency tests pass;
+- retry/dead-letter path visible;
+- target status cannot be falsely successful;
+- typecheck/lint/unit/integration/E2E pass;
+- progress tracker records unresolved U-08-04.
+
+---
+
+## 04 Privacy Export Bundle and Secure Delivery
+
+### Objective
+
+Generate, store, authorize, deliver, expire, and clean up a private `DataExportBundle` for an authoritatively verified `export` request while leaving object storage and signed access with Media.
+
+### Observable Result
+
+For a verified export fixture/approved request:
+
+```text
+queued → generating → ready → expired
+```
+
+Requester can obtain short-lived access while ready/unexpired; another User cannot. Sensitive access is audited. Expired bundle stops issuing access.
+
+Production export is gated until SH-100 createPrivacyExportArtifact is fully satisfied: manifest and per-owner sections, archive hash/encryption, protected MediaAccessGrant/access, expiry and cleanup, and sensitive-access audit. A bare `DataExportBundle.mediaAssetId` is not sufficient production proof. The Media handoff, integrity/persistence representation, algorithm, and key-management implementation remain unresolved; this requirement does not approve them.
+
+### Cluster Build-Plan Link
+
+Supports CL-08 **Feature 05 — Privacy Export Bundle and Secure Delivery**.
+
+### Dependencies
+
+- Module Features 01–02;
+- authoritative verified `export` request;
+- owner export serializers;
+- Media private artifact create/finalize;
+- `SH-127 requestMediaAccess`;
+- canonical queue/expiry;
+- Audit;
+- approved shared encryption/hash implementation satisfying mandatory SH-100 createPrivacyExportArtifact protections; production remains gated until available.
+
+### In Scope
+
+- `generateDataExportBundle`;
+- `getPrivacyExportStatus`;
+- `authorizePrivacyExportDownload`;
+- `expireDataExportBundle`;
+- export generation worker;
+- expiry worker;
+- owner section assembly;
+- private Media handoff;
+- short-lived signed access handoff;
+- access audit;
+- ready/failed/expired UI;
+- cleanup reconciliation.
+
+### Out of Scope
+
+- `access` request semantics;
+- production manifest fields not approved under U-08-22;
+- direct R2/S3 calls;
+- custom encryption stack;
+- permanent URL;
+- browser-local data aggregation;
+- automatic legal deadline logic;
+- admin unrestricted content preview.
+
+### Module-Owned Data
+
+- `DataExportBundle`
+- `DataExportStatus`
+
+Current fields:
+
+```text
+privacyRequestId
+userId
+status
+mediaAssetId
+expiresAt
+generatedAt
+failureReason
+```
+
+Do not add Media relation/manifest/hash fields until PR-08-04/U-08-22 are approved.
+
+### Public Interfaces
+
+```ts
+generateDataExportBundle(...)
+getPrivacyExportStatus(...)
+authorizePrivacyExportDownload(...)
+expireDataExportBundle(...)
+```
+
+Actual file issuance:
+
+```text
+Privacy authorize
+→ Media requestMediaAccess # SH-127 requestMediaAccess
+```
+
+### Shared Operations Used
+
+#### `SH-100 createPrivacyExportArtifact`
+- **Owner:** Privacy owns bundle/content policy; Media owns storage
+- **Invocation:** export worker
+- **Local policy:** owner sections, completeness, expiry
+- **Prohibited duplicate:** R2 archive/signed delivery stack
+
+#### `SH-096 enumerateSubjectData`
+- obtain exportable owner sections/references.
+
+#### `SH-127 requestMediaAccess`
+- **Owner:** Media
+- **Invocation:** after fresh Privacy access allow
+- **Local policy:** bundle ready/unexpired and requester authorization
+- **Prohibited duplicate:** local presign
+
+#### `SH-072 hashCanonicalPayload`
+- mandatory SH-100 createPrivacyExportArtifact manifest/archive integrity; the evidence representation remains unresolved.
+
+#### `SH-075 encryptSensitiveValue` or approved archive encryption
+- mandatory SH-100 createPrivacyExportArtifact archive protection through an approved shared security mechanism; implementation remains unresolved, never local crypto.
+
+#### `SH-030 recordSensitiveAccess`
+- mandatory SH-100 createPrivacyExportArtifact sensitive-access proof for export issuance/download.
+
+#### `SH-047 enqueueReliableJob`
+- generation/cleanup.
+
+#### `SH-055 runDeadlineExpiration`
+- expiry scan.
+
+#### `SH-044 executeIdempotentCommand`
+- generation/finalization/expiry.
+
+#### `SH-029 appendAuditEvent`
+- generation/expiry lifecycle proof.
+
+#### `SH-041 requestNotification`
+- optional approved ready/failure notice.
+
+### Domain Logic
+
+1. request must be `type=export`, `status=verified`;
+2. create/fetch semantic bundle at `queued`;
+3. transition to `generating`;
+4. enumerate owner export serializers;
+5. if required owner section cannot be produced, fail/wait according to approved export completeness policy; do not silently omit;
+6. assemble approved artifact/manifest;
+7. ask Media to store/finalize private asset;
+8. verify returned Media reference through owner interface;
+9. only then set `mediaAssetId`, `generatedAt`, `expiresAt`, `status=ready`;
+10. download decision rechecks actor ownership, bundle status, expiry;
+11. Media issues short-lived access;
+12. expiry sets bundle `expired` and requests Media cleanup;
+13. Media cleanup failure remains operational/retryable; bundle does not become accessible again.
+
+### Authorization / Compliance
+
+- requester owns bundle;
+- admin role alone does not grant download;
+- sensitive admin access is separately authorized;
+- signed URL issuance is audited;
+- no entitlement gate;
+- export contents must exclude nonexportable secrets/credentials/security material according to owner serializer;
+- telemetry redacts contents.
+
+### Database / Transaction Behavior
+
+- request/bundle lock during generation claim;
+- Media network/storage call outside DB transaction;
+- final `ready` write only after valid Media result;
+- bundle status + Media ref/timestamps transactionally written;
+- expiry row lock prevents generation/expiry conflict;
+- outbox event, if approved, written with `ready` commit.
+
+### Events / Jobs
+
+Jobs:
+
+- export generation;
+- expiry;
+- cleanup retry/reconciliation.
+
+Proposed event if approved:
+
+```text
+privacy.export.ready
+```
+
+Notification after source commit only.
+
+### Provider Integration
+
+No direct provider.
+
+Media may call R2/S3 behind its adapter.
+
+### UI / Admin Surface
+
+Requester:
+
+- generation status;
+- ready download control;
+- expired state;
+- failure state with approved retry/support guidance.
+
+Admin:
+
+- safe generation failure/attempt metadata;
+- no default file-content preview.
+
+### Failure Behavior
+
+- owner serializer retryable failure → job retry;
+- owner serializer terminal/unsupported → bundle not `ready`;
+- Media create/finalize failure → bundle not `ready`;
+- signed URL issuance failure → bundle can remain `ready`, access attempt fails and is observable;
+- expired bundle → deny new issuance;
+- cleanup failure → retry; bundle remains expired;
+- stale UI button → server still denies.
+
+### Tests
+
+Production acceptance tests must prove the full SH-100 createPrivacyExportArtifact protection chain; missing integrity, encryption, grant/access, cleanup, or audit protection cannot pass the production gate.
+
+**Unit**
+- lifecycle;
+- expiry;
+- access decision;
+- safe section filtering.
+
+**Contract**
+- owner export serializer;
+- Media artifact result;
+- signed URL handoff.
+
+**Integration**
+- ready bundle has valid Media reference;
+- signed access;
+- cleanup request;
+- audit;
+- Notification request does not own state.
+
+**Security**
+- cross-user denial;
+- no permanent URL;
+- no signed URL/log payload;
+- no export body telemetry.
+
+**E2E**
+- verified export → ready → download access → expired denial.
+
+### Documentation Updates
+
+- progress tracker;
+- if PR-08-04/U-08-22 approved during implementation, update architecture first then add migration;
+- record export serializer coverage.
+
+### Acceptance Criteria
+
+- production export satisfies the complete SH-100 createPrivacyExportArtifact protection chain; unresolved representation or Media handoff blocks the gate;
+- Privacy owns bundle state, Media owns artifact;
+- bundle ready only after Media finalization;
+- access re-authorized at issuance;
+- access short-lived/audited;
+- expiry blocks future access;
+- no direct object storage code.
+
+### Exit Gate
+
+- CL-08 Feature 05 exit criteria pass;
+- all tests pass;
+- no orphan Media ref intentionally created;
+- no false `ready`;
+- production remains blocked while U-08-22 representation or the Media handoff prevents full SH-100 createPrivacyExportArtifact compliance; nonproduction fixtures do not satisfy this production gate.
+
+---
+
+# Phase 3 — Decision-Gated Domain Completion
+
+## 05 Complete Privacy Request Semantics
+
+> **Decision-Gated Feature:** do not start until the required CL-08 decisions are approved and the Module/Cluster architecture is updated.
+
+### Objective
+
+Complete production semantics for all declared request types and the full `PrivacyRequest` lifecycle.
+
+### Observable Result
+
+Supported users can complete approved workflows for:
+
+- access;
+- export;
+- erasure;
+- correction;
+- restriction;
+
+with accurate verification, deadlines where required, cancellation/rejection where allowed, target-level proof, and aggregate terminal status.
+
+### Cluster Build-Plan Link
+
+Supports CL-08 **Feature 06 — Complete Privacy Request Semantics**.
+
+### Dependencies
+
+Module Features 01–04.
+
+Required approved decisions:
+
+- U-08-01;
+- U-08-02;
+- U-08-03;
+- U-08-04;
+- U-08-05;
+- U-08-06;
+- U-08-07;
+- U-08-08 as needed for erasure completion;
+- U-08-09 if completion wording depends on backup state.
+
+### In Scope
+
+Only after decisions:
+
+- Identity verification orchestration;
+- full transition graph;
+- request cancellation/rejection;
+- access-request behavior;
+- correction executor/results;
+- restriction executor/results;
+- approved due date/jurisdiction/version logic;
+- approved aggregate completion;
+- active-request conflict behavior;
+- final User handoff if part of approved erasure;
+- updated user/admin UI;
+- approved notifications/events.
+
+### Out of Scope
+
+- changing source Module retention law;
+- generic legal decision engine;
+- universal admin override;
+- backup semantics not approved;
+- creating source-module correction/restriction repositories inside Privacy.
+
+### Module-Owned Data
+
+Current Privacy records plus only approved migrations, potentially:
+
+- identity-verification evidence reference;
+- jurisdiction/policy version;
+- deadline extension proof;
+- correction/restriction target proof/status model;
+- active-request conflict constraints;
+- completion metadata.
+
+Do not choose columns merely because this plan lists the concepts.
+
+### Public Interfaces
+
+Complete only as approved:
+
+```ts
+verifyPrivacyRequestIdentity(...)
+cancelPrivacyRequest(...)
+rejectPrivacyRequest(...)
+processDataAccessRequest(...)
+processDataCorrectionRequest(...)
+processDataRestrictionRequest(...)
+completePrivacyRequest(...)
+```
+
+Existing submit/read/export interfaces remain.
+
+### Shared Operations Used
+
+- `SH-001 resolveAuthenticatedActor`
+- `SH-002 authorizeResourceAction`
+- approved Identity privacy-verification interface
+- `SH-014 requireStepUpForSensitiveAction` only if approved
+- `SH-053 transitionLifecycleState`
+- `SH-044 executeIdempotentCommand`
+- `SH-099 orchestratePrivacyFulfillment`
+- `SH-096 enumerateSubjectData`
+- `SH-097 evaluateRetentionRequirement`
+- `SH-095 executePrivacyInstruction`
+- `SH-050 reconcileWorkflowStatus`
+- `SH-047 enqueueReliableJob`
+- `SH-041 requestNotification`
+- `SH-029 appendAuditEvent`
+- `SH-030 recordSensitiveAccess`
+- `SH-046 publishDomainEvent` only for registered event names.
+
+No local replacements.
+
+### Domain Logic
+
+Implement the **approved** transition matrix exactly.
+
+The resulting design must define:
+
+- what proof moves `submitted/verifying_identity` to `verified`;
+- access request result vs export artifact;
+- target/result model for correction/restriction;
+- what retained targets mean for request completion;
+- cancellation/rejection eligibility/authority;
+- due date source/version;
+- active conflicting request behavior;
+- final account disposition;
+- what is communicated about backup persistence.
+
+### Authorization / Compliance
+
+- self-service identity verification is separate from ordinary login;
+- admin rejection/cancellation is explicitly authorized and policy-bound;
+- no entitlement gate;
+- Consent does not substitute for identity proof;
+- ComplianceHold interaction follows approved legal policy;
+- correction/restriction remains owner-executed.
+
+### Database / Transaction Behavior
+
+- implement approved constraints/migrations only;
+- request transition uses aggregate lock/CAS;
+- active-request uniqueness enforced only if approved;
+- verification reference and transition written atomically where possible;
+- target proof model transactionally records correction/restriction result;
+- final request completion transaction verifies child-state invariants.
+
+### Events / Jobs
+
+Approved request-type workers.
+
+If PR-08-03 has been approved and registered, events may include:
+
+```text
+privacy.request.verified
+privacy.request.completed
+```
+
+Deadline worker only after U-08-06.
+
+### Provider Integration
+
+Identity provider verification remains Identity-owned.
+
+All data/provider execution remains source-owner-owned.
+
+### UI / Admin Surface
+
+Requester:
+
+- verification step;
+- request-specific result;
+- authoritative due date if applicable;
+- correction/restriction status;
+- safe rejection/cancellation explanation where approved.
+
+Admin/legal:
+
+- policy-versioned controls;
+- explicit authority;
+- no unrestricted personal payload.
+
+### Failure Behavior
+
+- verification failure → approved state/reason, not invented;
+- conflicting active request → approved conflict/merge behavior;
+- missed deadline → approved escalation, not hidden;
+- correction/restriction unsupported by owner → explicit unresolved/partial per approved policy;
+- retained target → approved aggregation;
+- admin action without authority → deny.
+
+### Tests
+
+**Transition matrix**
+- every legal/illegal transition.
+
+**Request type**
+- access, export, erasure, correction, restriction.
+
+**Verification**
+- valid/invalid/stale proof.
+
+**Deadline**
+- jurisdiction/policy/version.
+
+**Authority**
+- cancellation/rejection matrix.
+
+**Aggregation**
+- erased/anonymized/retained/skipped/failed combinations.
+
+**Concurrency**
+- duplicate/conflicting requests.
+
+**E2E**
+- each enabled request type.
+
+### Documentation Updates
+
+Mandatory:
+
+- update Module architecture with each approved decision;
+- update CL-08 architecture/build plan if sequencing/contract changed;
+- update Prisma/schema docs;
+- update public dependency contracts;
+- progress tracker includes approval references.
+
+### Acceptance Criteria
+
+- no hidden unresolved semantics;
+- every request type has explicit target/aggregate proof;
+- final state is derivable from approved rules;
+- legal deadline logic is versioned;
+- cancellation/rejection is authorized;
+- source ownership remains intact.
+
+### Exit Gate
+
+- all required U-08 decisions approved in architecture;
+- all enabled request types pass E2E;
+- no direct cross-Module mutation;
+- no guessed legal policy remains;
+- CL-08 Feature 06 exit gate passes.
+
+---
+
+# Phase 4 — Module Integration
+
+## 06 Location Safety Privacy Executor Integration
+
+### Objective
+
+Integrate Location Safety as a first-class participant in Privacy subject inventory and disposition without absorbing Location Safety truth.
+
+### Observable Result
+
+Privacy coverage diagnostics can show Location Safety records for a subject/context and can execute the approved privacy disposition through Location Safety's executor. Public fuzzy projection changes/removal propagate through Search via Location Safety/Search ownership.
+
+### Cluster Build-Plan Link
+
+Supports the Privacy half of CL-08 **Feature 08 — Location Revocation, Privacy Executor, and Gate-Change Reconciliation**, and contributes to Feature 10 coverage.
+
+This Module feature cannot force CL-08 Feature 08 to start before Location Safety's prerequisites/decision gates.
+
+### Dependencies
+
+- Module Feature 02;
+- Module Feature 03 for real target orchestration;
+- Location Safety Feature 03/07 as required by CL-08 sequencing;
+- Location Safety implementation of:
+  - `SH-096 enumerateSubjectData`
+  - `SH-097 evaluateRetentionRequirement`
+  - `SH-095 executePrivacyInstruction`
+- approved U-08-21 retention policy;
+- approved U-08-23 target-type strategy for production.
+
+### In Scope
+
+- register Location Safety executor;
+- contract tests;
+- include Location Safety inventory in coverage;
+- dispatch Privacy instruction;
+- record Privacy-owned target/exemption result;
+- verify Search effect occurs through Location Safety/Search public interfaces;
+- correlation/ops linkage.
+
+### Out of Scope
+
+- Location fuzzing algorithm;
+- exact reveal decision;
+- revocation policy;
+- Booking/Order gate logic;
+- direct `FuzzyLocationCache`/`LocationReveal` repository access;
+- direct Search mutation;
+- guessing location retention.
+
+### Module-Owned Data
+
+Privacy:
+
+- `DataErasureTarget`
+- `DataRetentionExemption`
+- job/request aggregate records as applicable.
+
+Location-owned records remain external.
+
+If PR-08-05 is approved, schema migration for explicit target types belongs to approved schema change; Privacy then recognizes them.
+
+### Public Interfaces
+
+Consume Location executor contracts only.
+
+No new location public API is defined here.
+
+### Shared Operations Used
+
+- `SH-096 enumerateSubjectData`
+- `SH-097 evaluateRetentionRequirement`
+- `SH-095 executePrivacyInstruction`
+- `SH-123 validateOwnedTargetReference`
+- `SH-044 executeIdempotentCommand`
+- `SH-047 enqueueReliableJob`
+- `SH-029 appendAuditEvent`
+- `SH-037 recordIntegrationFailure`
+- Search refresh remains through Search/Location path.
+
+### Domain Logic
+
+- Location executor advertises supported target types/actions;
+- Privacy inventories through it;
+- owner returns retention facts;
+- Privacy records exemption if required;
+- owner performs erase/anonymize/revoke/invalidate action;
+- Privacy maps normalized result to target status;
+- if Search projection must change, Location/Search owners perform that work;
+- no exact location value enters Privacy target descriptor/log.
+
+### Authorization / Compliance
+
+- system executor call is authorized by the privacy workflow;
+- manual admin access remains separately authorized;
+- retention must follow U-08-21;
+- no arbitrary deletion of safety proof;
+- no exact location in audit/telemetry.
+
+### Database / Transaction Behavior
+
+- Privacy target/exemption transaction only after Location result;
+- no cross-Module transaction;
+- replay-safe target execution;
+- if Location result is retryable, Privacy does not claim terminal success.
+
+### Events / Jobs
+
+Use canonical job and retry.
+
+Location may publish its own approved events; Privacy consumes only when explicitly required.
+
+### Provider Integration
+
+None in Privacy.
+
+### UI / Admin Surface
+
+Coverage diagnostic:
+
+```text
+Location Safety
+target types
+protocol version
+retention-policy status
+executor implemented/decision-gated/failed
+```
+
+No exact coordinates or addresses.
+
+### Failure Behavior
+
+- U-08-21/23 unresolved → production path shows `decision_gated`;
+- Location unavailable → retryable;
+- Location says retained → exemption required;
+- Search failure behind Location/Search → Privacy target cannot be falsely successful if Search deletion is part of required owner result contract;
+- unsupported target → explicit coverage failure.
+
+### Tests
+
+- Location executor contract;
+- inventory;
+- erase/anonymize/retain result;
+- no direct Location Prisma access;
+- no exact location payload;
+- Search failure propagation as normalized owner result;
+- idempotent replay.
+
+### Documentation Updates
+
+- mark U-08-21/23 approved only with architecture change;
+- update coverage matrix;
+- progress tracker;
+- dependency interface docs.
+
+### Acceptance Criteria
+
+- Location participates through canonical privacy protocol;
+- Privacy never owns Location tables/policy;
+- retained Location target has Privacy exemption;
+- public projection cleanup remains Search/Location-owned;
+- exact location never enters Privacy payload/log.
+
+### Exit Gate
+
+- required Location decisions approved for production, or path remains explicitly disabled;
+- contract/integration tests pass;
+- CL-08 Feature 08 Privacy executor criteria pass.
+
+---
+
+## 07 Search, Media, Audit, Notification, and Ops Bridge Integration
+
+### Objective
+
+Replace early mocks with real cross-cutting owner interfaces so Privacy-driven de-indexing, Media deletion/export access, audit proof, notifications, and operational failures work end to end.
+
+### Observable Result
+
+- erasure can remove a public Search projection through Search;
+- Media erasure failure prevents false target success;
+- export uses real private Media artifact/signed access;
+- Privacy sensitive access appears in Audit;
+- approved status notification is delivered through Notification;
+- failed owner/provider work appears in Ops;
+- correlation IDs connect the chain without moving source truth.
+
+### Cluster Build-Plan Link
+
+Supports CL-08 **Feature 09 — Search, Media, Audit, Notification, and Ops Bridges**.
+
+### Dependencies
+
+- Module Features 03–04;
+- real Search interface;
+- real Media privacy executor/artifact/signed access;
+- real Audit interfaces;
+- real Notification request interface;
+- real Ops failure interface;
+- canonical outbox/jobs if events are enabled.
+
+### In Scope
+
+- integration adapters/clients to **Module public interfaces**, not provider SDKs;
+- Search privacy refresh/de-index contract;
+- Media privacy executor and export artifact;
+- Audit append/sensitive access;
+- Notification request;
+- Ops failure/correlation;
+- integration and E2E tests.
+
+### Out of Scope
+
+- Search internals;
+- Media storage/scanning internals;
+- Audit table design;
+- Notification provider configuration;
+- Sentry/Ops platform internals;
+- direct Typesense/R2/SES calls.
+
+### Module-Owned Data
+
+No new ownership.
+
+Validate boundaries:
+
+- SearchUpsertEvent stays Search;
+- MediaAsset/MediaAccessGrant stay Media;
+- AuditEvent/AccessAuditLog stay Audit;
+- Notification/Delivery stay Notification;
+- QueueJob/IntegrationFailure stay Ops.
+
+### Public Interfaces
+
+Consume:
+
+```text
+requestSearchProjectionRefresh # SH-091 requestSearchProjectionRefresh
+Media privacy executor
+Media private artifact create/finalize
+requestMediaAccess # SH-127 requestMediaAccess
+appendAuditEvent # SH-029 appendAuditEvent
+recordSensitiveAccess # SH-030 recordSensitiveAccess
+requestNotification # SH-041 requestNotification
+recordIntegrationFailure # SH-037 recordIntegrationFailure
+```
+
+### Shared Operations Used
+
+All above plus:
+
+- `SH-044 executeIdempotentCommand`;
+- `SH-047 enqueueReliableJob`;
+- `SH-046 publishDomainEvent`/`SH-045 deduplicateDomainEvent` only for approved events;
+- request/correlation/telemetry operations.
+
+### Domain Logic
+
+- owner truth commits before nonauthoritative notification;
+- SH-091 requestSearchProjectionRefresh acceptance is not proof of completed Search deletion or owner-data erasure; a target requiring Search removal waits for Search-owned completion evidence; durable completion-receipt representation remains unresolved;
+- Media deletion is part of Media target success and must succeed before Privacy marks that target erased;
+- export bundle `ready` only after Media artifact valid;
+- audit proof remains separate from target/request state;
+- Notification failure does not change request status;
+- Ops failure is supplemental;
+- all cross-Module calls carry correlation/causation where supported.
+
+### Authorization / Compliance
+
+- export access authorization remains Privacy + Role;
+- Media only receives authorized access request;
+- admin Audit/Ops view has its own authority;
+- notification payload minimized;
+- Search receives target/projection intent, not private payload;
+- no personal export body in Ops.
+
+### Database / Transaction Behavior
+
+- Privacy source transaction completes before asynchronous Search/Notification dispatch;
+- event/outbox if approved;
+- target status waits for required synchronous owner-executor result or reconciled async result according to contract;
+- no distributed transaction across Modules/providers.
+
+### Events / Jobs
+
+Real reliable jobs/inbox/outbox.
+
+Search and provider reconciliation remain in their owners.
+
+Privacy may run its own target/job reconciliation only.
+
+### Provider Integration
+
+None in Privacy.
+
+### UI / Admin Surface
+
+- job detail links correlation ID;
+- safe Audit references;
+- safe Ops failure status;
+- Notification delivery status only if root admin UI exposes it;
+- no provider payload dump.
+
+### Failure Behavior
+
+- Search unavailable → retry via Search/Ops; required projection target not falsely complete;
+- Media delete unavailable → target stays unresolved/failed;
+- Media signed URL unavailable → bundle may remain ready but access fails;
+- Notification failure → Privacy truth unchanged;
+- Audit failure → follow root criticality policy;
+- Ops recording failure → no business-state substitution.
+
+### Tests
+
+**Contract/integration**
+- Search refresh;
+- Media delete/artifact/signed access;
+- Audit append;
+- sensitive access;
+- Notification request;
+- IntegrationFailure.
+
+**E2E**
+- erasure removes representative public Search result;
+- export ready/download audit;
+- Media deletion failure does not produce target erased.
+
+**Security**
+- no provider clients in Privacy package;
+- no exact/sensitive payload in notifications/logs.
+
+### Documentation Updates
+
+- dependency public interfaces;
+- progress tracker;
+- architecture only if bridge semantics change;
+- PR-08-04 migration only if approved.
+
+### Acceptance Criteria
+
+- all five owner bridges are real public-interface calls;
+- no direct provider calls;
+- state/evidence ownership remains separate;
+- correlation preserved;
+- failure semantics are correct.
+
+### Exit Gate
+
+- CL-08 Feature 09 Privacy criteria pass;
+- integration/E2E tests pass;
+- provider-import lint/architecture check finds no forbidden SDK in Privacy;
+- no source-of-truth transfer.
+
+---
+
+## 08 Full Data-Owner Executor Coverage
+
+### Objective
+
+Reach production-ready executor coverage for every currently modeled Privacy target family and make missing/decision-gated coverage impossible to hide.
+
+### Observable Result
+
+Authorized developer/admin diagnostic reports each current `DataErasureTargetType` as:
+
+```text
+implemented
+unsupported_by_policy
+decision_gated
+or failed
+```
+
+with explicit owner Module, protocol version, retention-policy status, provider dependency, and contract-test status.
+
+Representative full erasure spans several Clusters using only public contracts.
+
+### Cluster Build-Plan Link
+
+Supports the Privacy half of CL-08 **Feature 10 — Full Data-Owner Executor Coverage and Booking/Order Location Contracts**.
+
+This Module does not implement the Booking/Order Location contracts themselves; Location Safety consumes those. Privacy only requires Location Safety's privacy executor.
+
+### Dependencies
+
+- Module Features 02–07;
+- relevant neighboring Module architectures/public interfaces;
+- production executor implementations or explicit decision gates.
+
+### In Scope
+
+Coverage for current target owners:
+
+- Identity & Access;
+- Customer / Buyer Profile;
+- Track Subscription & Entitlement;
+- Messaging;
+- Notification;
+- Media / File Access;
+- Search / Public Visibility;
+- Video Infrastructure;
+- Payment / Payout / Tax;
+- Booking & Calendar;
+- Digital Goods Access;
+- Transaction / Order/Agreement;
+- Location Safety once U-08-21/23 approved.
+
+Messaging and Notification participate through SH-096 `enumerateSubjectData`, expose owner-side SH-097 `evaluateRetentionRequirement`, and execute approved dispositions through SH-095 `executePrivacyInstruction`. Retention evaluation returns required, reason code, legal/policy basis, retainUntil, minimum fields, permitted anonymization, and source reference under approved policy. Privacy owns `DataRetentionExemption` creation and final workflow completion; it must not directly rewrite CL-07 tables.
+
+**CL-07-R005 — unresolved Privacy target mapping:** inventory must cover `ThreadParticipant`, `MessageMedia`, `NotificationSubscription`, `NotificationDelivery`, and `NotificationSubscriptionEvent` as well as Thread, Message, and Notification. How those child records become `DataErasureTarget` entries remains a Privacy-owned architecture decision. Do not silently omit them, invent enum values, select an ad hoc untyped `other` mapping, or assume parent erasure determines every child disposition. Destructive workflows depending on this mapping remain gated until it is approved.
+
+Also:
+
+- startup/CI executor registry completeness check;
+- protocol-version compatibility;
+- representative owner retention decisions;
+- representative provider deletion normalized results;
+- bounded inventory/performance checks.
+
+### Out of Scope
+
+- new target families not evidenced in schema/registry;
+- refactoring neighbor lifecycles;
+- universal polymorphic FK;
+- generic privacy crawler;
+- direct provider SDK;
+- making `postgres_profile` ambiguity disappear without approved owner mapping.
+
+### Module-Owned Data
+
+No new domain model required for the coverage dashboard unless root architecture approves a rebuildable diagnostic projection. The source is executor registration/config plus test results.
+
+`DataErasureTargetType` remains Privacy-owned vocabulary.
+
+### Public Interfaces
+
+Prove for each target family:
+
+```text
+enumerateSubjectData # SH-096 enumerateSubjectData
+evaluateRetentionRequirement # SH-097 evaluateRetentionRequirement
+executePrivacyInstruction # SH-095 executePrivacyInstruction
+validateOwnedTargetReference # SH-123 validateOwnedTargetReference
+export serializer where applicable
+```
+
+### Shared Operations Used
+
+- all privacy executor protocol operations;
+- `SH-070 deleteProviderResource` through owners;
+- `SH-044 executeIdempotentCommand`;
+- `SH-047 enqueueReliableJob`;
+- `SH-003 queryOwnerFacts (Proposed ruling; adoption gated)`;
+- `SH-037 recordIntegrationFailure`;
+- `SH-091 requestSearchProjectionRefresh` where owner result requires it;
+- Media/Audit interfaces.
+
+### Domain Logic
+
+- every target type maps to exactly one executor owner for a given descriptor;
+- ambiguous families require explicit descriptor owner and cannot execute if owner is not durable/validated;
+- `other` has no generic handler;
+- coverage check fails CI for required production target with no owner;
+- executor versions are explicit;
+- inventory is paginated/bounded;
+- owner result evidence is normalized;
+- Privacy never reconstructs provider status itself.
+
+### Authorization / Compliance
+
+- coverage diagnostic is developer/admin-only;
+- diagnostic contains no raw subject data;
+- owner executor still validates subject/target authority;
+- retention basis is owner-provided;
+- no support/admin universal read.
+
+### Database / Transaction Behavior
+
+No cross-owner writes.
+
+Representative integration fixtures may seed neighbor data through their public test fixtures or approved setup APIs. Do not write neighbor tables from Privacy tests as implementation behavior.
+
+### Events / Jobs
+
+Cross-cluster contract suite runs in CI.
+
+Large representative erasure journey uses normal jobs/retries.
+
+### Provider Integration
+
+Provider owner contract tests may use sandbox/fakes in their own Modules. Privacy only tests normalized results.
+
+### UI / Admin Surface
+
+Coverage matrix:
+
+```text
+target type
+owner Module
+protocol version
+enumeration
+retention
+execution
+export
+provider dependency
+status
+blocker ID
+last contract-test status
+```
+
+No raw subject data.
+
+### Failure Behavior
+
+- missing owner → CI/diagnostic failure;
+- unsupported policy → explicit supported state, not silent skip;
+- decision-gated → explicit blocker ID;
+- executor version mismatch → fail closed;
+- ambiguous target owner → fail closed;
+- provider unavailable → normalized retryable result;
+- owner reports target absent → map according to approved target contract, not automatic erase.
+
+### Tests
+
+**Contract**
+- one suite per owner/target family;
+- protocol version;
+- normalized error/result.
+
+**Coverage**
+- every enum value mapped or explicitly decision-gated;
+- `other` has no generic delete handler.
+
+**Integration**
+- representative erasure spanning Identity/Customer/Media/Search/Messaging plus other approved set;
+- retained financial/contract example;
+- provider deletion result translation.
+
+**Performance**
+- pagination/large inventory;
+- batch target registration.
+
+**Security**
+- no raw payload in diagnostic.
+
+### Documentation Updates
+
+- target owner matrix;
+- progress tracker;
+- dependency interface status;
+- durable owner routing/replay after restart is required; its persistence representation remains unresolved. Do not add `ownerModule`, fingerprint/version fields, or another representation until the owning architecture approves it and a later schema-authorized step applies it.
+
+### Acceptance Criteria
+
+- no current target type is silently unsupported;
+- each production-required owner passes contract suite;
+- missing executor is visible in CI;
+- provider deletion remains owner-controlled;
+- direct cross-Module database access does not exist.
+
+### Exit Gate
+
+- CL-08 Feature 10 Privacy criteria pass;
+- all required target types implemented or explicitly decision-gated;
+- representative cross-cluster erasure E2E passes;
+- coverage dashboard/CI cannot hide gaps.
+
+---
+
+# Phase 5 — Hardening and Production Verification
+
+## 09 Security, Reconciliation, Concurrency, and Production Hardening
+
+### Objective
+
+Prove Privacy / Data Erasure remains correct under retries, duplicate delivery, concurrency, stale target state, dependency/provider outages, export expiry/cleanup failure, migrations, and sensitive-data access.
+
+### Observable Result
+
+- destructive effects are replay-safe;
+- stuck jobs/targets are visible and reconcilable;
+- no hidden partial success;
+- retained target proof is complete;
+- export access cannot outlive Privacy expiry;
+- public Search cleanup is reconciled through Search;
+- operators have safe diagnostic/manual-review paths;
+- legal-gated request types remain disabled unless their decisions are approved;
+- launch checklist records exact enabled capabilities and remaining blockers.
+
+### Cluster Build-Plan Link
+
+Supports the Privacy portion of CL-08 **Feature 11 — Security, Reconciliation, Privacy, and Production Hardening**.
+
+### Dependencies
+
+- Module Features 01–08;
+- all production-bound required U-08 decisions approved or affected paths disabled;
+- production shared operations;
+- real owner executors;
+- root health/incident/security policy;
+- approved migration/backfill plan if schema changes exist.
+
+### In Scope
+
+#### Privacy reconciliation
+- stalled request/job/target diagnostics;
+- target replay/reconciliation;
+- export orphan/cleanup reconciliation;
+- executor version compatibility;
+- retention-exemption completeness scan;
+- Search-required target reconciliation through Search owner;
+- owner/provider result mismatch detection;
+- manual-review routing.
+
+#### Concurrency/idempotency
+- duplicate web submit;
+- duplicate erasure start;
+- duplicate target;
+- duplicate owner result;
+- two target workers;
+- two reconcilers;
+- duplicate export generation;
+- generation/expiry race;
+- late result after terminal state.
+
+#### Security/privacy
+- authorization/RLS where applicable;
+- service-role scope;
+- telemetry redaction;
+- signed URL leakage checks;
+- secret/import boundary check;
+- rate limiting through root mechanism;
+- destructive command confirmation/idempotency;
+- admin sensitive-access policy.
+
+#### Migration/backfill
+- only approved schema changes;
+- dry run;
+- rollback;
+- verification before destructive cleanup.
+
+### Out of Scope
+
+- unapproved new privacy laws;
+- provider families not represented in architecture;
+- redesigning neighbor Modules;
+- enabling a decision-gated workflow just to satisfy launch tests;
+- generic legal automation.
+
+### Module-Owned Data
+
+Review/index current models.
+
+Approved migrations may include only decisions already recorded, such as:
+
+- explicit Media relation;
+- approved verification/policy fields;
+- approved correction/restriction proof;
+- approved uniqueness/version fields;
+- approved target types.
+
+No migration is justified solely by this hardening feature.
+
+### Public Interfaces
+
+No broad new API.
+
+May add authorized diagnostics:
+
+```text
+getPrivacyReconciliationStatus
+retryPrivacyWork
+getExecutorCoverage
+```
+
+Retry/manual actions must call existing idempotent workflows and preserve authority.
+
+### Shared Operations Used
+
+Especially:
+
+- `SH-044 executeIdempotentCommand`
+- `SH-045 deduplicateDomainEvent`
+- `SH-047 enqueueReliableJob`
+- `SH-048 executeRetryWithBackoff`
+- `SH-050 reconcileWorkflowStatus`
+- `SH-051 acquireAggregateLock`
+- `SH-052 withOptimisticConcurrency`
+- `SH-055 runDeadlineExpiration`
+- `SH-037 recordIntegrationFailure`
+- `SH-039 checkServiceHealth`
+- `SH-040 correlateOpsIncident`
+- `SH-034 sanitizeTelemetryMetadata`
+- `SH-029 appendAuditEvent`
+- `SH-030 recordSensitiveAccess`
+- Search/provider reconciliation through their owners.
+
+### Domain Logic
+
+#### Stalled work
+
+Classify:
+
+```text
+awaiting approved decision
+awaiting owner
+retryable dependency
+dead-letter/manual review
+terminal domain failure
+ready for reconciliation
+```
+
+Do not map all stalled work to `failed`.
+
+#### Target reconciliation
+
+- revalidate owner target;
+- query owner evidence/result if protocol supports reconciliation;
+- never repeat destructive call unless idempotency identity proves safe;
+- target state changes only through Privacy transition policy.
+
+#### Export reconciliation
+
+- bundle ready must point to valid private Media artifact;
+- expired bundle must not issue access;
+- orphan Media artifact cleanup requested through Media;
+- missing artifact for `ready` bundle is invariant failure/manual repair, not silent regeneration.
+
+#### Retention completeness
+
+Every `retained` target must have at least one valid exemption based on owner facts.
+
+#### Search
+
+If privacy requires a Search projection removal and Search reports stale/missing execution, request/reconcile through Search. Do not call provider.
+
+#### User/backups
+
+Enforce only approved U-08-08/09 behavior. If unresolved, destructive final account/backup claims remain disabled.
+
+### Authorization / Compliance
+
+Explicit review:
+
+- self-service vs admin Privacy access;
+- export content access;
+- retained legal records;
+- Audit/Ops access;
+- service-role scope;
+- provider secret boundary;
+- rate limiting;
+- data minimization;
+- irreversible action safety;
+- enabled legal request types and approved policy versions.
+
+### Database / Transaction Behavior
+
+- stress DB locks;
+- detect deadlocks/timeouts and safe retry;
+- verify no duplicate target/business effect;
+- use bounded batch/cursor scans;
+- approved migrations staged;
+- destructive backfill has dry-run and rollback;
+- parent cascade behavior tested so Privacy proof cannot be accidentally deleted.
+
+### Events / Jobs
+
+- reconciliation worker;
+- stuck-work scanner;
+- export expiry/cleanup reconciliation;
+- target retry/dead-letter;
+- approved deadline scanner only if U-08-06 resolved.
+
+Outbox/inbox replay tests if events enabled.
+
+### Provider Integration
+
+None directly.
+
+Provider outage simulations arrive through owner executor normalized responses.
+
+### UI / Admin Surface
+
+Production diagnostics:
+
+- request/job/target state;
+- retry/dead-letter/manual review;
+- owner executor status;
+- retention proof status;
+- export artifact/access state;
+- correlation ID;
+- safe dependency health.
+
+No raw export/private content.
+
+### Failure Behavior
+
+- provider owner unavailable → bounded retry, no false success;
+- owner contract unavailable → job/target remains unresolved;
+- repeated terminal failure → manual review/terminal Privacy state per approved policy;
+- Search unavailable → owner/source erasure truth preserved; a Privacy target requiring Search removal remains non-successful until Search-owned deletion-completion evidence is available; SH-091 requestSearchProjectionRefresh queue acceptance alone is insufficient;
+- Media unavailable → required Media target/bundle cannot be falsely successful;
+- Audit unavailable → approved root criticality behavior;
+- migration anomaly → stop destructive phase;
+- security/key issue → deny sensitive access.
+
+### Tests
+
+**Security**
+- authorization;
+- admin access matrix;
+- signed URL leakage;
+- telemetry redaction;
+- secret/provider import boundary;
+- rate-limit behavior if configured;
+- service-role scope.
+
+**Concurrency/idempotency**
+- duplicate request;
+- duplicate jobs;
+- duplicate events;
+- target workers;
+- reconciliation overlap;
+- export race.
+
+**Privacy/compliance**
+- retained target exemption;
+- no hidden target failure;
+- no soft-delete shortcut;
+- no User hard-delete if unresolved;
+- no backup false claim;
+- export expiry;
+- target-owner coverage.
+
+**Failure/reconciliation**
+- provider/owner outage;
+- Search lag/failure;
+- Media deletion failure;
+- orphan bundle;
+- dead-letter recovery;
+- owner result replay.
+
+**Performance**
+- large subject inventory pagination;
+- large target job batching;
+- worker scan indexes;
+- admin diagnostic bounds.
+
+**E2E**
+- full approved erasure journey;
+- export journey;
+- access/correction/restriction only if enabled;
+- representative multi-cluster owner coverage.
+
+### Documentation Updates
+
+- final progress tracker status;
+- enabled/disabled legal-gated capabilities;
+- approved decision IDs/versions;
+- migrations/backfills;
+- residual risks;
+- runbooks/ops references where root context supports them;
+- architecture changes only for actual binding decisions.
+
+### Acceptance Criteria
+
+- no enabled path relies on unresolved architecture;
+- all destructive work is idempotent and observable;
+- all retained targets have proof;
+- no required owner/provider failure is hidden;
+- production export satisfies the complete SH-100 createPrivacyExportArtifact protection chain, including manifest, per-owner sections, archive hash/encryption, MediaAccessGrant/access, expiry/cleanup, and sensitive-access audit;
+- cross-Module ownership preserved;
+- production diagnostics are safe;
+- all required quality checks pass.
+
+### Exit Gate
+
+Module production readiness passes only when:
+
+- all enabled request types have approved lifecycle/policy and E2E tests;
+- Features 01–08 exit gates passed;
+- coverage matrix has no hidden production gaps;
+- typecheck passes;
+- lint/format passes;
+- unit tests pass;
+- contract tests pass;
+- integration tests pass;
+- database/migration tests pass;
+- concurrency/idempotency tests pass;
+- security/privacy/compliance tests pass;
+- critical E2E tests pass;
+- provider-boundary checks pass;
+- progress tracker records remaining disabled decision-gated features and risks.
+
+---
+
+# Phase Summary
+
+| **Phase** | **Name** | **Features** |
+| --------- | -------- | ------------ |
+| Phase 1 | Contracts and Source-of-Truth Foundation | 01 Privacy Request Intake and Status Surface; 02 Privacy Executor Protocol and Subject-Data Inventory |
+| Phase 2 | Core Lifecycle and Fulfillment | 03 Verified Erasure Orchestration and Retention Proof; 04 Privacy Export Bundle and Secure Delivery |
+| Phase 3 | Decision-Gated Domain Completion | 05 Complete Privacy Request Semantics |
+| Phase 4 | Module Integration | 06 Location Safety Privacy Executor Integration; 07 Search, Media, Audit, Notification, and Ops Bridge Integration; 08 Full Data-Owner Executor Coverage |
+| Phase 5 | Hardening and Production Verification | 09 Security, Reconciliation, Concurrency, and Production Hardening |
+
+**Total features: 9**
+
+### Cluster sequencing correspondence
+
+| Module feature | CL-08 feature(s) |
+|---|---|
+| 01 | CL-08 01 |
+| 02 | CL-08 02 |
+| 03 | CL-08 04 |
+| 04 | CL-08 05 |
+| 05 | CL-08 06 |
+| 06 | CL-08 08 and 10 Privacy participation |
+| 07 | CL-08 09 |
+| 08 | CL-08 10 Privacy participation |
+| 09 | CL-08 11 Privacy participation |
+
+CL-08 Features 03 and 07 are Location Safety-owned and are intentionally not duplicated here.
+
+---
+
+# Module Execution Pattern
+
+Before implementing each numbered feature:
+
+1. Read `context/project-overview-v3.md`.
+2. Root architecture is currently missing; stop at required global decision gaps.
+3. Root code standards are currently missing; do not invent replacement standards.
+4. Read Canonical Shared Operations Registry.
+5. Read CL-08 architecture.
+6. Read CL-08 build plan.
+7. Read this Module architecture.
+8. Read this Module implementation plan.
+9. Read direct dependency public-interface sections for the current feature.
+10. Dedicated progress tracker is currently missing; report blockers/progress in the task completion report.
+11. Confirm the prior Module exit gate and the corresponding Cluster sequence.
+12. Check all required U-08/Proposed Ruling decision gates.
+13. Write the concise feature implementation specification.
+14. Implement only that feature.
+15. Run required quality checks.
+16. Verify public contracts and ownership boundaries.
+17. Update progress.
+18. Update architecture first if a binding decision legitimately changed.
+19. Record unresolved risks and deferred work.
+20. Start the next feature only after the exit gate passes.
+
+---
+
+# Required Feature Implementation Specification
+
+Immediately before coding one numbered feature, the coding agent must produce a concise specification containing:
+
+- **Feature number/name**
+- **Objective**
+- **Observable result**
+- **Cluster build-plan link**
+- **Dependencies**
+- **Required approved decision gates**
+- **In scope**
+- **Out of scope**
+- **Owned data affected**
+- **Schema/migration impact**
+- **Public contracts**
+- **Shared operations consumed**
+- **Permissions/compliance**
+- **Primary workflow**
+- **Provider integration**
+- **Jobs/events**
+- **Idempotency/concurrency**
+- **Database transaction boundaries**
+- **Error/failure behavior**
+- **Tests**
+- **Acceptance criteria**
+- **Documentation updates**
+- **Exit gate**
+
+Do not generate detailed specifications for all future features at once. The implementation plan establishes binding sequence and boundaries; the next-feature specification converts only the current feature into coding tasks.
+
+---
+
+# Required Completion Report
+
+After implementing each numbered feature, report:
+
+- **Feature completed**
+- **Files added**
+- **Files changed**
+- **Database changes**
+- **Migrations**
+- **Dependencies added**
+- **Module public interfaces added/changed**
+- **Shared operations reused**
+- **Events/jobs added**
+- **Provider adapter changes**
+- **Neighbor Module interfaces consumed**
+- **Tests added/changed**
+- **Commands run**
+- **Manual/contract verification**
+- **Authorization/compliance verification**
+- **Documentation updated**
+- **Architecture decisions consumed**
+- **Assumptions**
+- **Known failures**
+- **Remaining risks**
+- **Deferred work**
+- **Exit-gate result**
+
+A feature is not complete because code compiles. The exit gate must pass, the public contract must be proven, source-of-truth boundaries must remain intact, and unresolved legal/architecture questions must remain explicit.
+
+---
+
+# Final Quality Check
+
+Before marking the Module implementation plan complete, verify:
+
+1. `PrivacyRequest`, `DataErasureJob`, `DataErasureTarget`, `DataRetentionExemption`, and `DataExportBundle` each have exactly one owner.
+2. No neighboring Module truth was absorbed.
+3. Every shared operation is consumed rather than duplicated.
+4. Shared mechanism/separate truth boundaries are explicit in code placement and tests.
+5. Public commands and queries are owned by Privacy.
+6. Data owners are accessed through executor/public interfaces.
+7. No provider adapter lives in Privacy.
+8. Audit, domain events, and observability remain distinct.
+9. Privacy orchestration remains Privacy-owned.
+10. Search remains projection and Search-owned.
+11. Media remains file/object/signed-access owner.
+12. Retention facts come from source owners; Privacy owns exemptions.
+13. Feature order matches CL-08 sequencing.
+14. Every numbered feature has automated tests and an exit gate.
+15. Decision-gated semantics are disabled rather than guessed.
+16. A coding agent can implement the next feature without inventing ownership, provider placement, lifecycle truth, or cross-Module access patterns.
+
+## WA-R008 — Media public-access integration
+
+This consumer invokes SH-127 `requestMediaAccess` with its own actor/resource/action-bound contextual authorization and required evidence. Media independently evaluates asset safety, grant, scope, expiry and revocation, then performs SH-087 `issueSignedMediaUrl` internally. The consumer never calls the signer or reads storage directly. SH-127's identity is approved; its registry status remains Proposed ruling for owner-specific integration completion. Bind the caller's exact contextual decision and failure/access-proof semantics before production use. A Media failure must not be recorded as successful file access.
+
+
+## WA-R017 — Owner facts and decision contracts
+
+**Applied architecture ruling (AI_RESOLVED), 2026-09-30.** The [WA-R017 contract](../../../reconciliation/platform-architecture-rulings.md#wa-r017--owner-facts-and-decision-contracts) amends this document for the scoped concerns below. Earlier unresolved/proposed labels on those concerns are superseded; adjacent legal/product gates remain.
+
+SH-003 is a family of small owner-specific queries, not a mandatory universal DTO. Each query takes authenticated caller/purpose and a typed owner resource reference, exposes only required authorized facts with an owner-issued source token, and distinguishes unavailable/stale from absence or denial. Consumers do not load foreign Prisma records. SH-015 remains a reusable result pattern, not a universal domain enum: carry a decision category, stable owner reason code, evidence/source token and evaluation time; payload variants remain owner-specific. Domain outcomes such as Job Compliance warning/review_required and Healthcare redacted/blocked retain their distinct meaning. An unavailable prerequisite never becomes allow. Exact wire names/runtime schemas are DEFERRED_IMPLEMENTATION_DETAIL inside these constraints and must be fixed in producer/consumer fixtures before parallel integration.
+
+Adopt this interpretation for all references that formerly treated SH-003/015 proposal status as an unconditional blocker on owner-specific interfaces. Neither SH status is promoted. New generic repositories, universal authorization or generic business-policy dispatch are forbidden. Grouped owner-specific contracts do not become interchangeable because their envelopes look similar.
+
+
+## WA-R020 — Privacy executor identity and truthful completion
+
+**Applied architecture ruling (AI_RESOLVED_WITH_TRADEOFF), 2026-09-30.** The [WA-R020 contract](../../../reconciliation/platform-architecture-rulings.md#wa-r020--privacy-executor-identity-and-truthful-completion) amends this document for the scoped concerns below. Earlier unresolved/proposed labels on those concerns are superseded; adjacent legal/product gates remain.
+
+Privacy persists an immutable target descriptor with request identity, owner Module ID, registered owner target kind, opaque source ID/version, permitted action and descriptor/executor schema version. Each owner validates its own reference and field map. Typed child targets may be enumerated separately or included in an explicit versioned parent executor contract listing all covered child kinds; arbitrary `other`, a crawler or assumed cascade never supplies coverage. Deduplicate by request+owner+target-kind+source-id+action+source-version; preserve a new generation when re-evaluation changes an instruction. This is Privacy dispatch metadata, not polymorphic Media ownership.
+
+Persist per-target attempts and final owner receipts independently of queue telemetry. A receipt names target/instruction identity, source version observed, action/outcome, executor version, completion time, evidence reference and any owner retention basis. Correction/restriction are explicit outcomes, never mislabeled deletion. Search acceptance is pending until Search returns its actual required projection outcome; Media artifact readiness similarly requires actual finalize/readiness proof. Retention is complete only when Privacy accepts an evidence-backed lawful exemption, not merely because an owner requested one.
+
+Aggregate completion means every required target has either verified execution or an accepted lawful disposition. Summaries/exports disclose retained or restricted categories and reasons safely; `completed` never means all data was erased. Outstanding/failed targets prevent completed. A lawful fully accounted exemption does not by itself mean technical partial failure. An incomplete export stays pending/retryable or failed; no silent serializer omission or ready download. Any future deliberate partial-export product must explicitly distinguish partial from complete. This chooses correctness over premature delivery.
+
+One request may have multiple execution/artifact generations for retries or refreshes; generations are immutable, correlated and only the current authorized ready artifact is offered. Revoke superseded access. Per-subject conflicting mutations serialize and re-evaluate owner state; do not reject or erase a legal request merely because another exists. Statutory verification, deadlines, restriction entitlement, backup completion wording, retention schedules and final User disposition remain EXTERNAL_REQUIREMENT. Identity markers are projections of Privacy outcomes, not a second rights lifecycle. Exact target enums/schema fields are deferred implementation constrained by this protocol.
+
+Acceptance: restart routing, duplicate targets, changed source version, missing child coverage, failed serializer, lawful exemption versus unproven retention, Search queue acknowledgment versus completion, stale bundle access and concurrent conflicting instructions. No blanket claim of complete privacy coverage is authorized until all owner target/field matrices are reviewed.
+
+
+## WA-R023 — Sensitive disclosure and audit failure boundaries
+
+Class: **AI_RESOLVED_WITH_TRADEOFF**.
+
+Require a durable sensitive-access audit acceptance before returning exact private location, protected file/playback/join credentials, resumes, healthcare-sensitive fields, tax/identity/Agreement evidence, or sensitive admin exports. If required proof cannot be durably recorded, withhold the protected response and return a retriable unavailable result; never return the secret and log later. Record safe allowed/denied/redacted/blocked/unavailable outcomes under Audit-owned vocabulary without importing Healthcare enums as generic authorization. Include service/system/provider actor attribution and request correlation, not nullable User alone. A denied request must still disclose no target-existence details; audit trouble never changes denial into access.
+
+Privileged irreversible mutations require durable owner decision/history plus atomic audit-outbox intent before committing owner state. If that local durable write fails, roll back the mutation. Later Audit transport failure retries/reconciles; it does not roll back an already executed external financial/legal effect or erase domain evidence. Where a legal action specifically requires pre-action Audit acceptance, its owner contract adds that stricter gate; legal deadlines/recovery remain scoped requirements. Low-risk diagnostics are best effort and never recursively produce infinite failures.
+
+Identity owns fresh action-bound assurance; Role still authorizes the action. Require step-up for security-factor/recovery changes, financial adjudication/movement, privileged permission changes, bulk sensitive evidence export and administrative override/release of protective controls. Existing sessions or admin roles do not substitute. Exact assurance methods/lifetimes and action registration are security implementation policy, with provider capability checked before activation. Ordinary read access is not automatically all step-up; owner-specific policy may require it. Privacy identity verification is a separate statutory proof requirement.
+
+Tradeoff: protected access becomes dependent on durable audit availability; this is preferable to an unprovable sensitive disclosure. Acceptance: audit unavailable before response, durable intent failure before mutation, outbox delivery outage after commit, privileged service actor, retry without duplicate effect, denied-target anti-enumeration and redaction-safe evidence. These rules amend failure/assurance portions only; per-owner legal retention and complete target/action matrices remain separate work.
+
+Duplicate-collapse scope: CL01-HU-006/007/008/012 security portions; CL02-D025/044/056; CL04-U032; CL-05-U007/062; CL-06-U048/055; CL-08-U16 and HU-09/19; CL-09-D016/030/031/032/035/043/046; CL-10-HU031/PR-CL10-09. Unnamed adjacent questions are not closed.
+
+## WA-R034 — Search work, protected transport and completion evidence
+
+Classification: AI_RESOLVED_WITH_TRADEOFF except explicitly deferred or external activation requirements.
+
+Search remains rebuildable projection. Source owners supply opaque currentness tokens, purpose-limited field allowlists and a currentness query; do not compare arbitrary tokens lexicographically or rely on wall-clock updatedAt alone. Search assigns a monotonic per-target work generation under a target lock and records all relevant source/visibility/Track/Location/Moderation evidence versions. Before writing and before exposing protected results, re-evaluate current source authorization and projection applicability. An older job cannot supersede a newer generation; deletion/restriction tombstones take precedence until current owner evidence explicitly permits publication again. Provider-native conditional writes are not assumed: adapters must prove their serialization/reconciliation behavior, and server query filtering prevents stale provider data from becoming an authority bypass.
+
+Evolve SearchUpsertEvent into Search-owned durable work with request/command identity, typed target/source owner, expected tokens, generation, operation/purpose, pending/processing/completed/failed/superseded state, outcome and attempt/provider correlation. Shared queue leases/retries are separate. pending→processing; processing→completed/failed or pending for technical retry; stale work→superseded with successor correlation. Completed outcomes are upserted/removed/no_op/skipped with explicit reason and confirmed generation. A privacy removal cannot be marked completed from skipped/unavailable source facts. Same request/fingerprint replays the same work/result. Exact Prisma columns/indexes follow coordinated schema ownership, not a second queue.
+
+All Search queries are server-mediated at launch, including public queries. No browser receives privileged or public Typesense credentials. Use independently versioned per-entity public collections with controlled alias cutover after full validated rebuild; protected Candidate collections/credentials are separate and never part of public federated queries or public counts/facets/autocomplete. Admin write credentials remain distinct from scoped server query credentials. Verify actual provider configuration/capabilities before activation; no current provider feature is presumed from these architectural requirements. Schema migration builds a new generation, validates completeness/currentness, then atomically changes the serving configuration; retain rollback generation without restoring revoked projections.
+
+Protected Candidate search composes authenticated actor, current Organization membership/action authority, applicable Organization commercial permission, Candidate owner-approved searchable projection/visibility, applicable Hold/Moderation restrictions and field-level access policy. A result cannot imply permission to open a resume: resume access uses Candidate and Media separately. Search revalidates each returned Candidate's current projection/permission before disclosure; deny/unavailable removes that result rather than returns stale sensitive fields. Suppress provider totals/facets that expose filtered protected populations. Record one durable access batch proof before each protected response with requesting actor/Org/purpose, query fingerprint, permitted result target/version references and outcome; do not log raw sensitive query text. Resume/detail access produces its own required proof. If mandatory proof cannot commit, withhold the response under WA-R023.
+
+Public results also obey current source restrictions; query sanitization and bounded result sizes apply before provider access. Basic relevance plus a stable target-ID tie-breaker is the launch ranking baseline. Advanced trust/recency/featured weighting is deferred versioned tuning, not a new premium benefit. Candidate's approved subscription boost follows WA-R030 (1.15 after eligibility, non-metered); it never changes privacy/eligibility. Generic User and CustomerProfile public indexing stay disabled; reserved enum values do not authorize publication. Search receives accepted source facts only, not raw AI suggestions or AI diagnostic history.
+
+Source enumeration uses opaque stable cursors, snapshot/high-watermark identity, target/source token and explicit end-of-snapshot completeness. Each contextual owner enumerates its own records/joins. Incremental iteration cannot prove an unobserved target is deleted. Orphan removal requires a complete comparable source snapshot or an explicit owner deletion/tombstone receipt; cursor interruption never means empty source. Taxonomy changes request affected-owner enumeration and each source requests refresh through Search; neither Taxonomy nor Search scans foreign joins. Required per-target projection/AI/authority DTO field lists remain owner-specific and need bilateral qualification; the common mechanics do not approve arbitrary fields.
+
+SH-091 returns accepted work identity, not completion. Search exposes a versioned completion receipt/query bound to request/work identity, typed target, requested generation/policy and verified outcome. Privacy/Moderation require removed/no_op-absent proof for their exact instruction; missing/timeout/provider uncertainty remains pending/unavailable. Receipt persists provider acknowledgement and reconciliation observation; tombstone prevents late stale jobs from resurrecting removed content. A superseded work receipt points to its successor, whose qualifying outcome is required before external fulfillment completes. Search never closes Privacy/Moderation's own workflow.
+
+Start reconciliation/maintenance through authorized bounded manual commands; automatic cadence is versioned operational configuration added only with run budgets/coverage evidence. No periodic AI reclassification, end-user notification, query-history analytics store or speculative provider callback is implied. Per-action request/backfill/model cost limits use SH-132 and shared execution with explicit configured budgets and fail posture; never substitute Track commercial metering. No intrinsic Taxonomy cron or extra business-run table is required for normal maintenance. Operational telemetry is minimized and separate from domain completion evidence. Legal retention for subject-linked work/access receipts and actual provider configuration remain external requirements.
+
+Required implementation checks: delayed stale upsert after deletion, provider write uncertainty, current-source denial at query time, protected collection isolation/totals, audit failure, incomplete enumeration, interrupted generation cutover, duplicate refresh, superseded removal receipt and consumer completion correlation. These contracts require adapter and bilateral fixture evidence before parallel-interface promotion; this architecture pass does not execute provider/schema/runtime tests.
+
+## WA-R036 — Healthcare boundary history and effective evidence
+
+Classification: AI_RESOLVED_WITH_TRADEOFF except explicitly deferred or external activation requirements.
+
+Healthcare boundary and access policy records require append-only revisions, effective intervals, actor/reason/source proof and expected version. Retirement is an explicit authorized classification correction, never hard deletion. Resource owners supply typed parent ancestry; inherit the most restrictive applicable active boundary/policy over the validated ancestry. Explicit child policy may strengthen but never weaken an active ancestor. Clearing a mistaken boundary requires authorized Healthcare review and evidence, reevaluation of descendants and acknowledgments of affected projections. It does not erase historical classifications or authorize provider deletion. Existing-boundary schema must evolve before these mutations activate.
+
+Role denial returns denied and terminates before Healthcare payload treatment. After Role allows, Healthcare returns allowed, redacted or blocked; blocked means authorized action but no payload disclosure under Healthcare policy. Failure or unknown ancestry/policy is blocked/unavailable, never allow. Policies use versioned resource-specific field-path masks: allowed field set, removed paths, masked paths with approved transform identifiers, policyRevision and boundary references. Source owners apply masks before serialization, attachments, exports and notifications; unknown field/path/version fails closed. No raw sensitive payload is sent to an admin client for client-side masking. Admin policy changes, boundary retirement, evidence export and BAA manual verification require fresh scoped step-up plus registered authority.
+
+Maintain an explicit effective BAA reference per Healthcare profile and covered scope. A candidate replacement does not displace a still valid effective BAA before verified activation. Activation compares expected current reference, parties/scope/document version, required signatures, effective dates and validity. Overlapping inconsistent scopes require review; never latest-row-wins. BAA graph: draft→sent→signed→verified; draft/sent/signed→rejected with immutable reason/evidence; sent/signed/verified→revoked when authorized; applicable elapsed agreements→expired. Rejected/revoked/expired are terminal for that agreement; reissue creates a new linked agreement. Corrections cannot rewrite signed evidence. Healthcare profile summaries are derived from effective evidence plus profile-level restriction: not_applicable→pending_baa on accepted applicability; pending_baa→baa_sent→baa_signed from effective workflow; baa_signed→verified only after all Healthcare checks; applicable states→rejected/suspended under authorized decision. Rejected/suspended may return to the currently justified pending_baa/baa_sent/baa_signed/verified state only through authorized remediation and full current evaluation; no self-service restore. Missing/expired/revoked BAA never leaves verified readiness active.
+
+lockedHealthcareFlag is a derived UI/edit restriction indicator only; source policy and revision must be queried for authority. It does not replace a boundary, BAA, Hold or readiness. BAA proof contains agreement/scope, party legal identifiers and represented authority, document version and canonical bytes hash, signer/countersigner identities/roles, signature intent and timestamp, provider envelope/reference and verified evidence provenance. Required legal parties, signature sufficiency, text, effective terms and retention are EXTERNAL_REQUIREMENT before live Healthcare contracting. Technical storage of those fields is not legal approval. documentMediaId becomes an explicit Healthcare-owned evidence attachment relation to MediaAsset with immutable evidence version/hash; Media lifecycle cannot overwrite executed bytes. No public/eager signed URL in BAA DTOs.
+
+Healthcare-owned provider event effects follow WA-R018 with unique provider/account/event/handler version, payload fingerprint, agreement target, received time, processing status, attempt history, verified normalized outcome, effect receipt and reconcile status. Event arrival is not BAA execution. Unknown provider states stay unresolved. Provider-specific e-sign selection/capability, storage and video BAA coverage must come from actual qualified provider/account/region/configuration evidence through the corresponding provider owner; Healthcare evaluates it. No provider brand implies coverage. Required tests include ancestor restriction precedence, unknown mask denial, replacement race, late signed callback after revocation, and summary rebuild; provider/legal qualification remains separate.
+
+
+## WA-R042 — Approved service reports, discovery choice, invitation validity and conversations
+
+Binding P16–P19 owner rulings, received 2026-10-07 America/New_York. Supersede open recommendations; no implementation completion implied.
+
+### P17
+
+Candidate discovery/search participation is explicit opt-in and off by default. Persist the Candidate-owned participation choice with version, actor and time; no default database visibility boolean or JobApplication submission implies opt-in. Application workflow can expose the Candidate/application to that specific authorized hiring Organization independently of general discovery.
+
+Disabling discovery invalidates future candidate-search exposure immediately at the authoritative query boundary and requests removal through Search/privacy contracts with durable completion evidence. Delayed provider deletion cannot authorize stale result disclosure. Opt-out preserves valid JobApplications and authorized hiring history under their owners. It grants no raw-resume access and does not enable anonymous Candidate indexing.
+
+## WA-R055 — Notification intents and credential generations
+
+Implement the corresponding owner architecture contract before consumers. First align the forward schema/constraints and immutable evidence representation under the database integration owner; then implement owner commands/queries and shared execution adapters; then qualify consumer fixtures. Historical decision gates covered by this ruling are resolved at architecture level only.
+
+Extend WA-R021 without creating another business lifecycle. SH-041 intake binds source owner, source aggregate/revision, immutable semantic intent ID, template/schema version, owner-resolved User recipients, safe context route, sensitivity and channel requirements. Deduplicate on source intent plus resolved User, not display text or provider ID. A changed payload under the same intent fingerprint is a conflict. Recipient resolution comes from the source owner's authorized facts; Notification never scans foreign memberships or application tables. Current access is rechecked for protected context before rendering or route dereference.
+
+Register only concrete source outcomes: Messaging committed new-message fact requests a minimal new-message alert to other currently eligible participants; Order/Booking participant-visible outcome or schedule changes use the source-selected participants; Hiring uses its authorized application/interview recipient facts; Privacy requests verification-needed, terminal-outcome or export-ready intents only after its own corresponding durable transition. Material proposal change visibility is source-owned under P14; private adjudication records never become generic alert variables. Optional viewed/shortlisted, Location notices and unrelated new business triggers remain disabled absent an approved owner trigger. Failed notification delivery cannot roll back source truth. Source legal owners determine legally sufficient notice; transport acceptance, open/click or retry success never proves legal service.
+
+Notification owns append-only interaction evidence (recipient/notification, action, occurrence/received times, command/source evidence) independently of provider attempts. Browser observations are untrusted interaction evidence until validated and do not establish completed domain action. Template versions and channel-safe variable schemas are immutable. Source intent carries safe references rather than raw messages, resumes, exact locations, legal documents or credentials. Consent selects the currently applicable content/version for push acceptance and binds the actual presented version; client-supplied version or browser permission alone is not Consent proof.
+
+Each live push credential is uniquely bound by provider/account/environment and credential fingerprint to one authorized recipient/device generation. Raw endpoint/token stays in protected Notification credential storage; logs/audit contain only safe references. Rotation atomically supersedes the old generation and records actor/provenance; dispatch checks current generation immediately before send. A delayed failure/revocation callback may affect only its matching generation, never disable the replacement. Migration inventories collisions and quarantines ambiguous ownership; no last-write or arbitrary winner. Provider uncertain outcomes reconcile the same attempt before resend under WA-R021.
+
+Notification owns generic email/SMS/Web Push adapter configuration; Identity challenge delivery remains Identity-owned. Selected provider/account/environment, consent/payload permission, capability, callback verification and actual send/recovery evidence are EXTERNAL_REQUIREMENT per enabled channel. No enum activates a vendor. Verify duplicate source intents, revoked recipients, raw-payload rejection, partial channel failure, same token across accounts, late old-generation callback and rotation/send race. These fixtures plus the final source/template matrix gate deployment.
+
+Record actual fixture, replay, concurrency and access evidence before interface freeze. Legal/provider activation gates remain scoped; no runtime completion is claimed by this plan.
+
+## WA-R056 — Privacy verification and request execution history
+
+Implement the corresponding owner architecture contract before consumers. First align the forward schema/constraints and immutable evidence representation under the database integration owner; then implement owner commands/queries and shared execution adapters; then qualify consumer fixtures. Historical decision gates covered by this ruling are resolved at architecture level only.
+
+Privacy alone owns request transition decisions. Identity supplies immutable verification evidence bound to request subject, requested action/purpose, assurance, method, issuer, verifiedAt, expiry and logical attempt. Privacy verifies applicability against its approved policy revision before submitted→verifying_identity→verified. Failed verification may remain verifying for a permitted new attempt or receive authorized rejection; no guessed legal deadline or attempt limit. Verified→processing dispatches only an immutable execution generation with target inventory and policy/source versions under WA-R020.
+
+Access and export share owner-provided subject-data inventory but differ in output: access is a scoped authorized rights response; export creates a portable private artifact. Neither authorizes another participant's data. Correction/restriction executors acknowledge accepted work separately from completed effect; only verified owner receipts advance completion. Serialize conflicting subject mutations and re-evaluate current policy/source state before each effect. Identity privacy flags project Privacy's outcome; they cannot drive request completion. Search removal requires its qualifying target/generation receipt, not queue acknowledgment.
+
+Cancellation is an authorized request decision for eligible nonterminal work: record actor/reason/version, prevent new dispatch, reconcile in-flight effects and preserve all completed receipts. It never reverses erasure or manufactures rollback. Late receipts remain attached to the cancelled generation and are disclosed in its accounted outcome. Rejection records controlled policy reason, authority, source evidence and applied policy revision, not free-text notes alone. Reopening starts a linked new execution generation after fresh verification/eligibility as required; prior terminal history and effects remain immutable. Notes are minimized append-only annotations with author/time, separate from decision proof. No terminal row overwrite or automatic reexecution of prior completed effects.
+
+Privacy completion follows WA-R020: all targets must have confirmed effect or valid accepted exemption; pending/failed targets cannot be hidden by aggregate completed. A lawful accounted exemption is not automatically technical partial failure. Export readiness requires complete contribution inventory. Exact statutory verification sufficiency, rejection grounds, deadlines, retention periods, backup treatment and final identity disposition remain EXTERNAL_REQUIREMENT, supplied as approved jurisdiction/version policy before the affected path activates. Hold existence alone is not a statutory exemption. Verify stale verification proof, concurrent requests, cancellation during effect, late receipt, reopen after erasure and incomplete export before enabling execution.
+
+Record actual fixture, replay, concurrency and access evidence before interface freeze. Legal/provider activation gates remain scoped; no runtime completion is claimed by this plan.
+
+## WA-R057 — Privacy owner inventory and private export handoff
+
+Implement the corresponding owner architecture contract before consumers. First align the forward schema/constraints and immutable evidence representation under the database integration owner; then implement owner commands/queries and shared execution adapters; then qualify consumer fixtures. Historical decision gates covered by this ruling are resolved at architecture level only.
+
+Each owner implements WA-R020 versioned enumerateSubjectData/evaluateRetentionRequirement/executePrivacyInstruction descriptors. Inventory is explicit, paginated with completion evidence and stable target/version identity; no generic other target or assumed database cascade can count as coverage. Messaging covers Thread, participant current state/history, Message/revisions/restrictions and MessageMedia joins. Notification covers Notification/interaction evidence, NotificationSubscription/credential generations, Delivery attempts and SubscriptionEvent. Location covers FuzzyLocationCache, reveal/revocation evidence and its provider references; exact source facts remain inventoried by their source owner. Restricted proof is accounted even when excluded from requester disclosure. Owner field/action matrices must identify erase, minimize, retain, export or restrict disposition with policy basis and executor receipts before destructive activation.
+
+Privacy owns an immutable export manifest: subject/request/job/generation, owner contribution IDs and versions, authorized field scope, safely stated exclusions with disposition evidence, assembly completion, byte hash/algorithm, creation time and actor/correlation. Exact Location subject data may be included only under approved access policy after removing other parties' data; encryption keys, provider credentials and access tokens are never export content. Record opaque key-version/storage evidence where required, never keys. A complete manifest describes actual serialized bytes, not promised future contributions.
+
+Use Media's WA-R050 createMediaUploadSession→bounded upload→completeMediaUpload→getMediaUploadStatus/getMediaReadiness protocol, with Privacy job/bundle revision as semantic key and purpose-bound private artifact authorization. Same key and bytes replay; changed bytes require a new revision or conflict. Upload acknowledgment never means ready. Require exact immutable ready Media version, matching hash/size and completed manifest before bundle ready. Bind through an explicit Privacy-owned MediaAsset/version reference, not polymorphic ownership. Failed scan/partial assembly keeps download unavailable. Terminal upload retry uses a linked Media attempt per WA-R050 while preserving bundle-generation lineage.
+
+At download, Privacy rechecks requester/action/scope and current generation; Media rechecks asset safety/revocation and issues bounded access through SH-127. Commit required access evidence before protected disclosure. Superseded/expired/revoked generations cannot receive fresh access even if cleanup worker is late. Retain prior manifest/status evidence under approved retention while deleting bytes through Media's executor when authorized. No stored public URL, direct storage SDK or convenience export endpoint may bypass owner gates. Audit exports use the same Media mechanism but an Audit-owned manifest; this ruling does not transfer Audit export ownership.
+
+Legal retention/exemption duration, backup-expiry representation and final retained shell require approved external policy. Location's geocoder/account/region/purpose and key lifecycle qualification remain external activation gates; consumers cannot choose their own geocoder or crypto. Verify omitted child inventory, partial serializer, hash mismatch, scan failure, changed-byte retry, stale generation access, retained shared Media references and provider-deletion uncertainty. Concrete schema, executor field matrices and bilateral fixtures remain implementation qualification, not unresolved architecture permission.
+
+Record actual fixture, replay, concurrency and access evidence before interface freeze. Legal/provider activation gates remain scoped; no runtime completion is claimed by this plan.
+
+
+## WA-R066 — Finite Notification source and recipient contracts
+
+Classification: AI_RESOLVED_WITH_TRADEOFF. Architecture contract; implementation and external qualification remain explicit gates.
+
+SH-041 uses the following finite versioned semantic-intent/template registrations. These are architecture contracts, not implemented renderers, selected delivery vendors or proof of delivery. Sources emit an intent only after the corresponding durable owner transition. Every intent binds source owner, typed aggregate ID/revision, immutable semantic intent ID, template key/version, owner-resolved local User recipients, safe authenticated route, sensitivity and event kind. Notification owns channel consent, current endpoint generation, eligible delivery, attempts and receipts. Sources never ask Notification to scan foreign memberships or reconstruct business state.
+
+| Intent/template | Committed source and recipients | Safe additional content |
+| --- | --- | --- |
+| message.new.v1 | Messaging messaging.message_created.v1; other currently eligible Thread participants selected by Messaging, excluding sender | Thread/Message references only; no message body or attachment URL |
+| order.outcome.v1 | Order order.outcome_changed.v1; currently authorized Order participants selected by Order for its source kind | Safe operational outcome code and Order link; no financial consequence implied |
+| booking.schedule.v1 | Booking confirmed/rescheduled/cancelled facts; currently authorized affected Booking participants | Safe change kind and authenticated schedule link; no exact address or meeting credential |
+| interview.invitation.v1 | Interview invitation/current schedule revision; invited eligible Candidate and authorized Organization participants selected by Interview | Interview reference and safe proposed/scheduled kind |
+| interview.schedule.v1 | Interview cancellation/reschedule/replacement; currently authorized affected participants selected by Interview | Safe change kind and authorized predecessor/successor references; no new removed-user notice |
+| application.status.v1 | Candidate accepted_offer or withdrawn: current authorized hiring Organization recipients selected by Candidate through Hiring facts; Candidate rejected or hired: the application Candidate User | Application reference and exactly accepted_offer/withdrawn/rejected/hired change code; no view/stage alert or general Candidate exposure |
+| privacy.verification_needed.v1 | Privacy durable request transition requiring verification; request subject through Privacy/Identity-authorized route | Request reference and safe action-needed code; no verification secret |
+| privacy.outcome.v1 | Privacy accounted terminal outcome; currently authorized request subject/representative | Safe terminal category and link; no restricted exemption evidence or other parties' data |
+| privacy.export_ready.v1 | Privacy complete manifest and ready exact Media version/current generation; currently authorized export requester | Request/bundle reference; no signed credential or stored public URL |
+| security.notice.v1 | Identity committed security intent; affected local User only | Generic change and authenticated-context link; no OTP, recovery token, precise IP or factor details |
+| supply.status.v1 | Professional/Marketplace committed status/remediation intent under R035; owner-resolved Professional User | Generic status/remediation code; no Healthcare/provider/Hold detail |
+
+Candidate registers `candidate.application_status_changed.v1` with eventId, application ID/revision, committed time, semantic command identity, old/new status, authorized actor reference and safe typed Candidate/Organization subject references. This event contains no resume, message, employer notes or protected evidence. The source owner derives notification recipients from current Hiring authority. Only the four listed successful status transitions may create application.status.v1 at launch; application views, recruiter stages and retry transport do not. Candidate acceptance must already satisfy R045 current-offer proof, and withdrawal does not restore quota. Sending a notification never makes an application or Candidate publicly discoverable.
+
+Deduplicate one semantic intent × resolved User; channel attempts are children of that intent. Changed payload under the same fingerprint conflicts. Retries preserve identity. Current protected-context access is rechecked before rendering/dereference; loss of membership suppresses the protected notice. Do not create a removed-user notice without its own approved source policy. Delayed invitation links must recheck P18/current schedule. Notification failure never rolls back source truth. No message bodies, resumes, exact locations, raw provider failures, adjudication evidence or credentials may enter generic variables.
+
+Material proposal changes remain visibly surfaced by Gig's current-revision presentation under P14; a delivered notice is not evidence the latest terms were presented for acceptance. Participant-facing Dispute updates reuse Order conversation under P19, but a Review fact cannot be relabeled as an Order event; any separate Review alert remains disabled until registered. Optional viewed/shortlisted, Location, Interview completion/no-show and other undeclared alerts remain disabled. This finite registration does not provide legally sufficient notice policy. Exact copy, renderer/schema fixtures, provider/account/channel qualification and delivery recovery proof remain activation prerequisites. Existing broad notification suggestions are narrowed by this explicit source/recipient matrix for these intents.
+
+
+## WA-R068 / WA-R069 — Authority/event qualification sequence
+
+Implement the `privacy_data_erasure` obligations in this Module's architecture and `context/reconciliation/authority-event-contracts.md` before dependent event consumers activate. First register concrete action ports (`submitPrivacyRequest / cancelPrivacyRequest / authorizePrivacyExportDownload / recordDataRetentionExemption`), source fact fields/revisions and required B/S/A assurance; then qualify producer outbox/history and the specifically named subscriber effects. Do not implement the entire cross-platform matrix inside this Module.
+
+Acceptance evidence must show wrong relationship/target and stale source facts deny; action-bound assurance cannot replay cross-target; source outage cannot become allowed; duplicate event replay has one effect; same ID/different fingerprint quarantines; late revisions/tombstones cannot resurrect access; correction preserves history and reevaluates the original logical effect. Verify registered payload field minimization and subscriber audience independently of transport delivery. Existing explicit commands and notification intents retain their separate receipts/qualification.
+
+Requester statutory verification remains distinct from operator step-up. Execution authorization binds approved subject verification, scope and generation; fresh human step-up applies only where the specific registered actor/action policy requires it. Executors receive explicit commands with receipts, never broad deletion broadcasts.
+
+DTO/server-RLS parity, executable fixtures, outbox/inbox recovery and provider/security configuration are implementation qualification, not unresolved ownership. Legal/program/provider values remain scoped activation gates; unsupported paths stay disabled. Architecture integration does not claim frozen interfaces, successful runtime tests or permission to change schemas.
+
+## WA-R081–083 — Bridge qualification sequence
+
+Implement only the owner architecture's reviewed bridge obligations (BF-008, BF-010, BF-026, BF-027, BF-033, BF-048, BF-063, BF-065, BF-066, BF-071, BF-082, BF-102, BF-116, BF-117, BF-131, BF-153, BF-155, BF-156, BF-157, BF-158, BF-159, BF-160, BF-162, BF-163, BF-164, BF-166, BF-168, BF-169, BF-176, BF-177, BF-186, BF-198, BF-203, BF-204, BF-205, BF-210, BF-211, BF-213, BF-214, BF-215, BF-222, BF-224, BF-229, BF-230, BF-231, BF-232, BF-233, BF-234, BF-235, BF-236, BF-242, BF-249, BF-256, BF-257, BF-266, BF-268). Load `context/reconciliation/bridge-contract-bindings.md` and the final inventory for current versions and disabled facets. First bind closed schemas and current source/actor/purpose fixtures; then qualify shared persistence/outbox/idempotency/receipt mechanisms; then connect producer and consumer. Required denial, stale/replay/conflicting-key, late-result and sensitive-field negative fixtures precede interface freeze. Provider/legal/database evidence gates only the affected activation. No full-Cluster dependency or parallel lane is implied, and no optional path is enabled by a fake or a passing structural checker. Preserve historical snapshots and P01–P19; do not implement schema/provider/product slices during readiness.
+
+
+## WA-R085–087 — Platform qualification dependencies
+
+Follow this owner's platform-convergence architecture and the platform lifecycle/action matrix. Current lifecycle scope: Request verification; generation-specific target inventory/instructions; execution receipt reconciliation; export manifest and expiry; lawful exemptions.
+
+Qualify source-fact leaves and exact required owner ports against fixtures before composed decisions, then local persistence/receipts and actual adapters. A contract dependency is not a requirement that the whole upstream Module/Cluster be mature. Production activation still requires every actual port and action-specific external requirement. Do not wait for downstream Search/Notification/telemetry to commit source truth or to bootstrap shared primitives.
+
+Negative qualification must cover the relevant cycles in platform-dependency-graph.json, stale/revoked source facts, changed fingerprints, unknown external outcomes, projection-as-authority, recursive fact/access calls and actual mandatory proof failures. No schema migration, provider activation, DTO freeze, root build plan or parallel lane approval follows from static review. Preserve Privacy per-owner field/action/serializer coverage as a separate gate.
+
+
+## WA-R088 — Contract qualification reference
+
+The full-platform v1 contract companion elaborates existing owner responsibilities under Directive 005; no permanent SH identity/status or source lifecycle is transferred. Read the relevant journey in `context/workflows/platform-workflows.md`, then the specific resource under `context/shared/contracts/`.
+
+Source/owner implementation or owner-policy variants in this Module: SH-003, SH-015, SH-026, SH-031, SH-043, SH-049, SH-050, SH-053, SH-088, SH-089, SH-095, SH-096, SH-097, SH-098, SH-099, SH-100, SH-104, SH-110, SH-123, SH-125. These registrations are bounded to the existing source/action/purpose; a protocol family does not prove every field executor or activate every possible target.
+
+Selected consuming integration contracts: SH-001, SH-002, SH-003, SH-008, SH-014, SH-015, SH-029, SH-030, SH-031, SH-032, SH-041, SH-044, SH-046, SH-047, SH-048, SH-049, SH-050, SH-054, SH-055, SH-072, SH-075, SH-076, SH-086, SH-088, SH-089, SH-091, SH-093, SH-095, SH-096, SH-097, SH-098, SH-099, SH-100, SH-104, SH-110, SH-123, SH-125, SH-127, SH-132. The 907 concrete consumer expectation records across the platform are declarations and synthetic wire checks, not real adapter qualification. Other textual mentions remain discovery references until a concrete route is registered.
+
+EVOLVABLE_COMPATIBLY means specified architecture and exact v1 compatibility obligations; all actual runtime qualifications remain NOT_QUALIFIED. No freeze or parallel permission is created. The 13 external contract gates and action-specific legal/provider/retention/database gates are cumulative. Trusted invocation context comes from the server, never client/fixture assertions.
+
+Follow Phase 0 in the root build plan before dependent activation: actual producer/consumer fixtures, source-currentness and denial, durable local transaction/outbox, CAS/reservation/fenced claims, server/RLS parity, Privacy field/action inventories and applicable provider evidence. Contract fixtures support isolated work without full upstream Cluster maturity; they never replace a real dependency at integration.

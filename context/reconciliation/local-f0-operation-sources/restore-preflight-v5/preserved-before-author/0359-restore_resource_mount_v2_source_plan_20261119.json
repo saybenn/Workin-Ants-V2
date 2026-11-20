@@ -1,0 +1,276 @@
+{
+  "schema": "workinants.restore-resource-mount-v2-bounded-source-plan.v1",
+  "author": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T22:01:29.359764+00:00",
+  "status": "PROPOSED_PENDING_ROOT_ACK_AND_INDEPENDENT_PLAN_REVIEW",
+  "posture": "D",
+  "runtime": "NOT_RUN",
+  "objective": "Create a NEW versioned Restore five correcting only its resource observation and fixed secret-tmpfs kernel proof, while retaining its own source/staging/restored-target contract and all physical restore/AuthV5/SQL semantics.",
+  "source_basis": {
+    "exact_Restore_SafetySQL_V1_five_sha256": {
+      "check_local_f0_restore_operation_safety_sql_v1.py": "085f756f7ffa3f8567381ebdceb1e01efa963e74f0a35f242767d73a46daaf9c",
+      "execute_local_f0_restore_20261119_safety_sql_v1.py": "8041399106d33d4687f1f357709c7b657f2e55adb29e588822896c941b1b8a81",
+      "local_f0_restore_operation_steps_safety_sql_v1.py": "2a55669c8a589599c5549f2826a9aba4b2c99f3df2cc593fcab6d7517ab38508",
+      "pin_local_f0_restore_plan_20261119_safety_sql_v1.py": "ceb85b4b84c061d9aaabc9753a501317f7e3020ca2375bb1383002fa5439ed30",
+      "prepare_local_f0_restore_plan_safety_sql_v1.py": "eca3dbd63b87a89583345f0e04ed3c4656a7653558a5fb855d29dde8439747d9"
+    },
+    "prior_exact_version_source_review_sha256": "4b9f4e1e5113623ab5e71e500732a7602be92a8d0878605a240793407d652093",
+    "current_held_validation": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-restore-safety-sql-v1-source-validation.json",
+      "sha256": "4b59e5c73e1eb3f59f482fed4b63220d5407a122574bdb2c5a0ce61eda629b7d"
+    },
+    "Restore_proposal": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\review-output\\restore-control-rehearsal\\proposal.json",
+      "sha256": "91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca",
+      "content_sha256": "2752ff8019c7d2c59a029e0595e5c42de6cc3e0c16d3ce18dffa75b1be70c1f1",
+      "source_files": 67,
+      "prepared_files": 25
+    },
+    "accepted_Owner_resource_observer_derivation": {
+      "steps_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_owner_read_operation_steps_resource_mount_v2.py",
+      "steps_sha256": "85ac46ef87bfbd944b18fcc672e7543ab58917edcf3b27710047467c12f7313f",
+      "source_review_sha256": "c893926f6e9bbb42e247296ec8b3b5ce6418f60b79ba8a6b764c2c39bb4603ee",
+      "scope": "Only fixed readonly /proc/mounts and stat proof, strict transport result, HostConfig option-token reasoning and safe phase/boolean diagnostics. No Owner identity/protocol/resource semantics copied."
+    },
+    "actual_Owner44ac_prestart_evidence_sha256": "431974385be89aede305c950348e8a20816d6a9326a263f8bc0c57561daccace",
+    "actual_Owner7293_safe_observation": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-owner-read-72934689\\run-evidence.json",
+      "bytes_sha256_at_read": "566f4b4ed04f4e7a23995ef7f3de20217264a3364bb4025cdb623ecdbe3436f3",
+      "mutable_run_evidence_snapshot_not_final_run_hash": true,
+      "safe_fields_only": {
+        "inspection_phases": [
+          {
+            "phase": "PRESTART",
+            "mount_counts": {
+              "data": 1,
+              "bootstrap": 1,
+              "tmpfs_api": 0
+            },
+            "kernel_required": false,
+            "confirmed": true
+          },
+          {
+            "phase": "RUNNING",
+            "mount_counts": {
+              "data": 1,
+              "bootstrap": 1,
+              "tmpfs_api": 0
+            },
+            "kernel_required": true,
+            "confirmed": true
+          },
+          {
+            "phase": "RUNNING",
+            "mount_counts": {
+              "data": 1,
+              "bootstrap": 1,
+              "tmpfs_api": 0
+            },
+            "kernel_required": true,
+            "confirmed": true
+          }
+        ],
+        "kernel_boolean_records": [
+          {
+            "phase": "RUNNING_KERNEL_TMPFS",
+            "owned_identity": true,
+            "attempted": true,
+            "command_returned": true,
+            "integer_exit_zero": true,
+            "fixed_token": true,
+            "stderr_empty": true,
+            "confirmed": true
+          },
+          {
+            "phase": "RUNNING_KERNEL_TMPFS",
+            "owned_identity": true,
+            "attempted": true,
+            "command_returned": true,
+            "integer_exit_zero": true,
+            "fixed_token": true,
+            "stderr_empty": true,
+            "confirmed": true
+          }
+        ]
+      },
+      "scope": "Actual Owner API tmpfs count0 plus correct config/running kernel proof, not a Restore runtime observation or Owner full-run claim."
+    }
+  },
+  "diagnosis": {
+    "Restore_runtime_failure_observed": false,
+    "source_only_question": "Restore Steps883 demands a tmpfs row in API Mounts for source and restored target, while exact --tmpfs configuration may be represented only by HostConfig.Tmpfs. Actual Owner observations demonstrate this representation on the same reviewed Docker/image path; no actual Restore failure is inferred.",
+    "separate_layers": "Prestart/stopped-container configuration inspection must accept the exact logical mounts and tmpfs HostConfig; source/target after-start kernel proof independently establishes actual tmpfs type/options/directory ownership before further client-secret writes."
+  },
+  "new_only": {
+    "five_names": [
+      "execute_local_f0_restore_20261119_resource_mount_v2.py",
+      "local_f0_restore_operation_steps_resource_mount_v2.py",
+      "prepare_local_f0_restore_plan_resource_mount_v2.py",
+      "check_local_f0_restore_operation_resource_mount_v2.py",
+      "pin_local_f0_restore_plan_20261119_resource_mount_v2.py"
+    ],
+    "Root_archive": "context/reconciliation/local-f0-operation-sources/restore-physical-resource-mount-v2",
+    "Root_validation": "context/reconciliation/local-f0-restore-resource-mount-v2-source-validation.json",
+    "source_preparation_only": "No fresh operational literal, target, volume, credentials, backup or database action during this source implementation.",
+    "mandatory_fresh_review_gate": "New validation starts PENDING_ROOT_AND_INDEPENDENT_REVIEW for the new exact five through the existing mandatory independent_safety_sql_review gate, with old layer reviews explicitly historical. No old SOURCE_APPROVED field may silently approve new resource bytes."
+  },
+  "preserve": [
+    "All old Restore five, old30, INSTALL extra2, newer other-family files/archives/reviews and every old/fcef/unused literal remain byte-preserved and held. No identical retry, old plan mutation, Git or pinned-source change in this planning task.",
+    "Canonical5ae,32WorkerACL, source proposal67/prepared25, common a3cf functions/classes/constants/SQL recipes and AuthV5 diagnostic/parser/closure behavior remain exact.",
+    "Exact Docker create flags/image/network none/no ports/labels/platform/mount declarations, role set, candidate credentials, private paths, source installation/finalization, tool provisioning and cleanup ownership remain unchanged.",
+    "Backup/WAL/quiescence/PG_VERSION/pg_control/pg_verifybackup/archive-DACL/digest/restore-data ownership/config-delta/parity/credential rotation/identity recovery/finite probes remain unchanged. No target bootstrap or duplicate migration, new app SQL/lease behavior/permission repair/provider activation/privacy qualification."
+  ],
+  "own_resource_contract": {
+    "counts": "Two database targets, three named containers and two named volumes. Staging is an intermediate process using the restored target volume; it is not a third database target.",
+    "names": {
+      "source": "wa-p0c-<run8>-restore-source",
+      "source_volume": "wa-p0c-<run8>-restore-source-data",
+      "staging": "wa-p0c-<run8>-restore-staging",
+      "restored_target": "wa-p0c-<run8>-restore-target",
+      "restored_volume": "wa-p0c-<run8>-restore-target-data"
+    },
+    "profiles": {
+      "source": {
+        "data": "Exactly source-volume RW at /var/lib/postgresql/data.",
+        "bind": "Exactly owner-only PRIVATE/ok-bootstrap-password RO at /run/bootstrap-password, including only the existing exact Windows/Docker Desktop path rendering.",
+        "API_Mounts": "Exactly data+bind and zero or one exact RW tmpfs /run/wa-secrets row; no duplicates/extras/unknown mounts. Default API fixture has two entries.",
+        "HostConfig_Tmpfs": "Exactly /run/wa-secrets and the five unique tokens rw,nosuid,noexec,nodev plus mode=0700 or mode=700; no extra/duplicate/empty/conflicting tokens.",
+        "running_probe": "Required after source start before readiness/first container pgpass. Stopped-source reinspection later is configuration-only and must not exec into a stopped CID."
+      },
+      "staging": {
+        "data": "Exactly restored-target-volume RW at /var/lib/postgresql/data; never source volume.",
+        "bind": "Exactly manifested protected PRIVATE/restore01-base.tar RO at /run/restore01-base.tar with existing exact host/Desktop path allowance.",
+        "API_Mounts": "Exactly data+archive-bind; no optional tmpfs and no secret/bootstrap/extra mount.",
+        "HostConfig_Tmpfs": "Empty absent/None or exact empty dict as supported by the existing Docker API contract; malformed truthy/falsey substitutes rejected.",
+        "running_probe": "No secret-tmpfs observer and no pgpass/private client-secret provisioning. Preserve sh -ceu sleep900 staging command and exact archive/hash/empty-target/verifybackup steps."
+      },
+      "target": {
+        "data": "Exactly restored-target-volume RW at /var/lib/postgresql/data after staging verification; source/staging removed or stopped as already required.",
+        "bind": "No bootstrap bind, no host archive bind and no source volume. Restored database starts existing physical data without bootstrap.",
+        "API_Mounts": "Exactly data plus zero or one exact RW tmpfs /run/wa-secrets row. Default API fixture has one entry; never copy Owner two-entry minimum.",
+        "HostConfig_Tmpfs": "Same exact one-key/five-unique-token secret tmpfs configuration as source.",
+        "running_probe": "Required by existing create_extra_container post-start inspect, before return to stage_restore and its first private_input(pgpass)."
+      }
+    },
+    "not_mounts": "/run/wa-f0-tools and /run/wa-f0-source are directories populated by existing copy/extract operations; /run/wa-restore-backup is a protected source writable-layer directory. Do not add tools/source/backup Docker mounts.",
+    "identity_and_isolation": "Use closed source/staging/target kind-to-exact-name/volume mapping, captured immutable64hex CID, exact name/both labels/image/platform/state and Restore own network/ports/privileged/PID/IPC/devices/capabilities/volumeName+CreatedAt/driver/options/scope checks. Preserve no-links/no-host-namespace requirement from the existing proposal; any necessary explicit comparison closes that same resource contract, not an Owner-only semantic rule."
+  },
+  "bounded_implementation": {
+    "Steps_inspector": "Replace only inspect_restore resource-oracle logic with the closed three-profile configuration checks, typed/strict mount counts, exact tmpfs options and safe phase/comparison/count records. Running source/target calls one new fixed same-file helper; staging and non-running source never dispatch it. Preserve existing callsites and signatures.",
+    "new_fixed_helper": "A Restore-specific helper/constant pair derives only accepted Owner fixed readonly script semantics: literal /proc/mounts, exactly one /run/wa-secrets target, tmpfs, exactly one each rw/noexec/nosuid/nodev and no ro/exec/suid/dev conflict; independent existing stat must return directory:700:0:0 under LC_ALL=C. No arbitrary target/path/script/command/SQL, mount, chmod, chown or tool installation is added.",
+    "transport": "Use only exact owned captured CID and fixed sh -ceu script through unchanged Docker transport, timeout30s, no input. Require exact int0 (reject bool/float), exact one Restore fixed token plus newline and exact empty stderr. Unknown/malformed/nonzero/timeout/transport exceptions become fixed sanitized refusal; no raw output/exception/credentials retained.",
+    "normal_IO": "These are normal pre-behavior resource checks: phase/result booleans are recorded before assertions; save/output failure stops normal work. Preserve sticky evidence failure and the separate accepted SafetySQL/finally cleanup behavior. Do not extend the required-safety SQL selector or bypass normal IO for this observer.",
+    "Core_exact_two_hooks": "Unlike Owner, current Restore Core.create_resources has no inspect_restore calls. In NEW Core only, add inspect_restore(name,source,running=False) immediately after captured identity/safe target recording and before container start; add inspect_restore(name,source) immediately after successful start and before readiness/pgpass. Use literal string source in actual code. All remaining Core AST, create args, transport/SQL/finalizer/cleanup and role/password generation remain exact after namespace rename.",
+    "existing_extra_container_hooks": "Keep create_extra_container AST/create flags unchanged: existing prestart and post-start inspect_restore calls already cover staging/target, so the corrected post-start target inspector establishes kernel proof before stage_restore private_input. No move/reorder of restore/start/credential logic.",
+    "independent_restored_data_verification": "Secret tmpfs directory owner is root0:0 with0700. Restored PGDATA remains owned by the actual captured postgres OS UID/GID and follows existing staged700/PG_VERSION/pg_control/no recovery-or-standby-signal/WAL/manifest/config review. Do not require PGDATA owner root or equate successful tmpfs proof with restored data integrity/parity.",
+    "namespace_and_graph": "Only new five/source-root/validation names and final hash maps change outside bounded Core/Steps/test deltas. Preserve inherited four EXTERNAL_FILES/FROZEN entries plus separately admitted physical pinner self-snapshot as the fifth, or justify any graph-interface change before broadening; all five must be closed in actual runtime/pinner/prepared/current/committed inventory. No cross-family runtime import or dependency on an Owner operational manifest is introduced."
+  },
+  "mandatory_offline_checks": [
+    "Default real-command-boundary API fixtures use source2, staging2 and target1 entries. Source/target accept tmpfs_api0 with exact HostConfig; zero or one matching optional API tmpfs row is accepted only for source/target. Restoring only old inspect_restore reproduces RESTORE_MOUNT_SET on same source2 and target1 fixtures; no fabricated third/default tmpfs row.",
+    "Every profile rejects wrong captured CID/name/kind/image/platform/labels/state, data volume/CreatedAt/source/destination/RW, bind purpose/path/RW, unknown/duplicate/extra mount, target bootstrap/archive/source-volume mount, staging tmpfs, malformed HostConfig and missing/extra/duplicate/conflicting option tokens. Existing isolation/no-port/no-namespace/no-links rules remain enforced.",
+    "Actual helper is invoked through command-only mocks for both running source and target: exact immutable CID/fixed script/no input/30s/int0/token newline/empty stderr. Fixed source/model vectors reject wrong fs/target count, duplicate/missing/conflicting required flags, non-directory/wrongmode/uid/gid, malformed output, bool/float exits, timeout/transport and canary; do not execute real shell/kernel during source checks.",
+    "Actual NEW Core.create_resources with only process transport mocked proves prestart configuration -> start -> independent running kernel -> readiness -> pgpass -> later bootstrap. Source observer failure prevents readiness/pgpass/SQL and real exact cleanup still progresses under persistent IO/scan/finalizer/save/stdout failures with first Stop preserved.",
+    "Actual unchanged create_extra_container and stage_restore composition through command-only boundaries proves staging gets no secret probe, stopped source gets no exec, staging removed/absence confirmed before target start, target config beforestart and kernel afterstart before its first private_input. Failure blocks private_input, readiness, credential rotation and later SQL; retain existing restore-data verification independently.",
+    "Independent source and target observer records must never qualify the other CID; clean source tmpfs cannot authorize restored target. Reinspect after start rather than accept configuration-only proof. Both data ownership/integrity proof and root secret-folder proof must be represented as separate conditions.",
+    "All existing applicable Restore64 and actual common SafetySQL composition vectors remain passing. Initial/final save/stdout failures cannot PASS; every eligible finalizer/global closure/secret scan/exact3CID2volume/private-file/absence/source-preservation branch progresses independently.",
+    "Actual whole verifier from real fresh PENDING mock preparation reconstructs proposal67/prepared25, complete catalog16/helpers5/seven-file history10300tool closure and all physical five. Actual pinner/current+synthetic-committed closure, recursive fresh archive/validation fingerprints and isolated explicit PENDING source gate negatives run before any process/helper mutation boundary.",
+    "AST checks prove all common helpers/ordinary sql/observe/psql_args/cleanup/main/AuthV5/restore semantics/create flags unchanged; Core delta is exactly two literal source inspection calls. New inspector must not assume Owner single resource or2min mounts for target.",
+    "Before-author preservation manifest and after-source rehash preserve old5/old30/INSTALL2/other-family work/allold held literals/SQL/ACL/proposal and previous historical reports. Freeze new exact five and source-only reports; no source self-approval or runtime resource/credential creation."
+  ],
+  "source_line_evidence": {
+    "execute_local_f0_restore_20261119_safety_sql_v1.py": {
+      "resource_declarations": [
+        44,
+        48
+      ],
+      "source_create_and_unchanged_flags": [
+        252,
+        272
+      ],
+      "missing_source_prestart_poststart_inspection_gap": [
+        272,
+        280
+      ],
+      "source_first_pgpass": 280,
+      "exact_owned_cleanup": [
+        444,
+        501
+      ]
+    },
+    "local_f0_restore_operation_steps_safety_sql_v1.py": {
+      "proposal_identity_and3container2volume": [
+        692,
+        725
+      ],
+      "typed_data_and_native_ledger_authority_parity": [
+        850,
+        867
+      ],
+      "own_three_profile_inspector": [
+        871,
+        888
+      ],
+      "overstrict_api_tmpfs_predicate": 883,
+      "private_file_allowlist": [
+        891,
+        894
+      ],
+      "source_running_reinspection": 1022,
+      "backup_and_protected_archive": [
+        1092,
+        1150
+      ],
+      "unchanged_extra_create_and_existing_hooks": [
+        1153,
+        1167
+      ],
+      "stopped_source_staging_data_verification_target_start_pgpass": [
+        1170,
+        1192
+      ],
+      "credential_rotation_AuthV5_preserve": [
+        1195,
+        1203
+      ],
+      "main_and_finally": [
+        1270,
+        1310
+      ]
+    },
+    "pin_local_f0_restore_plan_20261119_safety_sql_v1.py": {
+      "four_external_plus_physical_self_fifth": [
+        82,
+        83,
+        112,
+        113
+      ],
+      "current_recursive_and_pending_review_gates": [
+        99,
+        114
+      ],
+      "fresh_seven_history10300tools": [
+        115,
+        136
+      ]
+    }
+  },
+  "approval_sequence": [
+    "Root ACK of this exact plan.",
+    "Separate independent PLAN review; resolve concrete source findings before code authoring.",
+    "Designated author creates only new five and new source-only archive/validation after approval; no edits to old files or pinned source while current runs freeze da5.",
+    "Independent exact new source+offline composition/whole-graph review; metadata stays PENDING until Root records grounded approval.",
+    "Root-only publication/admission/pin of a fresh current+committed full packet, then separate fresh operational literal review/live preflight before any controlled Restore attempt."
+  ],
+  "limits": {
+    "plan_only": true,
+    "implementation_authored": false,
+    "tests_or_real_shell_kernel": "NOT_RUN",
+    "Git_Docker_DB_SQL_network": "FORBIDDEN_NOT_RUN",
+    "repo_pinned_source_metadata_or_old_files_modified": false,
+    "only_this_new_TASK_plan_written": true,
+    "Restore_runtime_or_assertion_status_promoted": false,
+    "Owner_actual_full_run_or_Restore_actual_failure_inferred": false,
+    "privacy_restore_generation_port": "REMAINS_EXTERNAL_DEPENDENCY_NO_NEW_WAIVER"
+  },
+  "plain_english": "Restore uses three boxes: the old database, a temporary unpacking box, and the restored database. Only the two database boxes need the secret memory folder. Check each folder after its box starts and before adding passwords. Keep checking the restored data separately. This is a plan only; nothing real is created."
+}

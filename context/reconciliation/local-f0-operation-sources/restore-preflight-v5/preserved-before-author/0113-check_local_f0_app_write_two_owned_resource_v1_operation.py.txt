@@ -1,0 +1,412 @@
+"""Offline owned-source checks; private mirrored approval fixture, process boundaries only."""
+from contextlib import redirect_stdout
+from copy import deepcopy
+import ast,hashlib,io,json,os,runpy,shutil,socket,subprocess,tempfile,types,unittest,uuid,inspect,re
+from pathlib import Path
+from unittest.mock import patch,Mock
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+N=('execute_local_f0_app_write_two_owned_resource_v1_20261119.py','local_f0_app_write_two_owned_resource_v1_operation_steps.py','prepare_local_f0_app_write_two_owned_resource_v1_plan.py','check_local_f0_app_write_two_owned_resource_v1_operation.py','pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py')
+BASELINE=T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json'
+VALIDATION='context/reconciliation/local-f0-app-write-two-owned-resource-v1-source-validation.json'
+CID='a'*64;CANARY='APP_OWNED_MOCK_ONLY_PASSWORD_HANDLE_STDERR_CANARY'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+def aggregate(m):return sha(''.join(k+'\0'+m[k]+'\n' for k in sorted(m)).encode())
+class Fixture:
+ """Private file inputs; no module-global installation/evidence proof injection."""
+ def __init__(self):
+  self.temp=tempfile.TemporaryDirectory(prefix='app-owned-offline-',dir=T);self.base=Path(self.temp.name).resolve();assert self.base.parent==T.resolve();live=self.base/'source-preparation';live.mkdir();p=runpy.run_path(str(T/N[2]));made=p['prepare'](BASELINE,sha(BASELINE.read_bytes()),output_parent=live);value=json.loads(Path(made['operation_manifest']).read_bytes());self.task=self.base/'mirror';self.task.mkdir();self.root=self.task/'workinants-correction-pass';self.root.mkdir()
+  for relative,wanted in value['prepared_source_file_inventory_sha256'].items():
+   raw=(R/relative).read_bytes();assert sha(raw)==wanted;dest=self.root/relative;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
+  for relative,wanted in value['catalog']['tool_source_files_sha256'].items():
+   raw=(R/relative).read_bytes();assert sha(raw)==wanted;dest=self.root/relative;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
+  for name in N:(self.task/name).write_bytes((T/name).read_bytes())
+  # Sole mocked source-approval boundary: private mirrored metadata only. The
+  # real Root validation remains PENDING. Current source bytes are untouched.
+  path=self.root/VALIDATION;owned=json.loads(path.read_bytes());owned['source_reviews']={'author':'SOURCE_REVIEWED','offline':'PASS','independent':'SOURCE_APPROVED','Root':'SOURCE_APPROVED'};path.write_text(json.dumps(owned,indent=2)+'\n',encoding='utf8',newline='\n')
+  baseline=json.loads(BASELINE.read_bytes());tool=self.task/'tools.tar.gz';shutil.copyfile(baseline['tool_archive'],tool);baseline['tool_archive']=str(tool);self.baseline=self.task/'source-baseline.json';self.baseline.write_text(json.dumps(baseline,indent=2)+'\n',encoding='utf8',newline='\n')
+  self.prep=runpy.run_path(str(self.task/N[2]));self.pin=runpy.run_path(str(self.task/N[4]))
+ def close(self):self.temp.cleanup()
+ def git(self,args,**options):
+  assert args[0]=='git','ONLY_GIT_MODEL';text=bool(options.get('text'));stdout=b''
+  if args[-1]=='HEAD':stdout=b'b'*40+b'\n'
+  elif args[-1]=='HEAD^{tree}':stdout=b'c'*40+b'\n'
+  elif 'show' in args:stdout=(self.root/args[-1].split(':',1)[1]).read_bytes()
+  elif args[-1]=='--batch':
+   request=options['input'];request=request.decode() if isinstance(request,bytes)else request
+   for line in request.splitlines():
+    body=(self.root/line.split(':',1)[1]).read_bytes();stdout+=b'a'*40+b' blob '+str(len(body)).encode()+b'\n'+body+b'\n'
+  else:raise AssertionError('UNREGISTERED_GIT_QUERY')
+  return types.SimpleNamespace(returncode=0,stdout=stdout.decode() if text else stdout,stderr='' if text else b'')
+ def prepare(self,approved_operation=True):
+  parent=self.task/str(uuid.uuid4());parent.mkdir();made=self.prep['prepare'](self.baseline,sha(self.baseline.read_bytes()),output_parent=parent);path=Path(made['operation_manifest'])
+  with patch.object(subprocess,'run',side_effect=self.git):self.pin['pin'](path)
+  value=json.loads(path.read_bytes())
+  if approved_operation:value['review_status']='APPROVED_LOCAL_F0_APP_WRITE_TWO_ATTEMPT';path.write_text(json.dumps(value,indent=2)+'\n',encoding='utf8',newline='\n')
+  return path,value
+ def initialize(self,path,create_out=True):
+  module=runpy.run_path(str(self.task/N[0]));n=module['launch'].__globals__;n['initialize'](path);exec(compile((self.task/N[1]).read_bytes(),str(self.task/N[1]),'exec'),n)
+  if create_out:n['OUT'].mkdir()
+  return module,n
+
+class ProcessModel:
+ """Finite external-command model. All owning Python/SQL producers stay real.
+
+ Historical sanitized catalog facts are explicit mock process responses, not
+ injected installation/registration proofs. RAM install admission is produced
+ only by the actual migration and catalog pipeline under test.
+ """
+ def __init__(self,fixture,path):
+  self.fixture=fixture;self.path=path;self.manifest=json.loads(path.read_bytes());self.n=None;self.calls=[];self.containers={};self.volumes={};self.running=False;self.finalized=False;self.deploys=0;self.fail_stage=None;self.bad_global=None;self.after_started=False;self.outer_after_component=False;self.mutate_cleanup_reference=False;self.cleanup_reference_mutated=False
+  child=runpy.run_path(str(fixture.root/'scripts/check-app-write-two-control-coordinator.py'));self.vm=child['Transport'](child['G'].build()[1]);self.child=child
+  assets=R/'context/reconciliation/local-f0-run-assets/b9703d7-native-catalog-23bd8979'
+  self.catalog={k:json.loads((assets/(k+'.json')).read_bytes()) for k in ('native-before','ledger-observation','oracle-preflight','oracle-results','oracle-closure','acl-preflight','text-preflight')}
+  self.image='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1';self.md=self.image.split('@')[1];self.cd='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d';self.name=self.manifest['targets'][0]['name'];self.volume=self.manifest['targets'][0]['volume'];self.labels={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':self.manifest['run_id']};self.target=json.loads(Path(self.manifest['migration_targets']['ok']['manifest_path']).read_bytes())
+ def response(self,value='',code=0,stderr='',binary=False):
+  out=value if isinstance(value,str) else json.dumps(value)
+  return types.SimpleNamespace(returncode=code,stdout=out.encode() if binary else out,stderr=stderr.encode() if binary else stderr)
+ def image_value(self):return {'Id':self.md,'Os':'linux','Architecture':'amd64','RepoDigests':['postgres@'+self.md],'Descriptor':{'digest':self.md,'mediaType':'application/vnd.oci.image.manifest.v1+json','size':3628},'Config':{'Env':['PG_VERSION=17.11-1.pgdg13+1']}}
+ def container(self):return {'Id':CID,'Name':'/'+self.name,'Config':{'Image':self.image,'Labels':self.labels},'Image':self.md,'Platform':'linux','State':{'Running':self.running},'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],'Links':None,'Tmpfs':{'/run/wa-secrets':'rw,nosuid,noexec,nodev,mode=0700'}},'NetworkSettings':{'Ports':{'5432/tcp':None}},'Mounts':[{'Type':'volume','Name':self.volume,'Destination':'/var/lib/postgresql/data','RW':True},{'Type':'bind','Source':self.target['target']['bootstrap_secret_host_path'],'Destination':'/run/bootstrap-password','RW':False}]}
+ def native(self):
+  value=deepcopy(self.catalog['native-before'])
+  for row in value['triggers']:
+   if row['table_name'] in self.vm.disabled and row['name']=='owner_commit':row['enabled']='D'
+  return value
+ def process(self,args,**options):
+  try:return self._process(args,**options)
+  except BaseException as error:
+   text=error.args[0] if type(error)is AssertionError and error.args else None
+   self.last_mock_fault={'class':type(error).__name__,'fixed_code':text if type(text)is str and re.fullmatch('[A-Z0-9_]{1,100}',text)else'UNCLASSIFIED_MODEL_BOUNDARY'}
+   raise
+ def _process(self,args,**options):
+  self.calls.append((list(args),self.n['report']['stage'] if self.n else 'ENTRY'));text=options.get('input')or''
+  if args[0]=='git':return self.fixture.git(args,**options)
+  if args[0]=='powershell.exe':return self.response('OWNER_ONLY_VERIFIED\n')
+  assert args[:3]==['docker','--context','desktop-linux'],'UNREGISTERED_PROCESS'
+  d=args[3:]
+  if d[:2]==['context','inspect']:return self.response([{'Name':'desktop-linux','Endpoints':{'docker':{'Host':'npipe:////./pipe/dockerDesktopLinuxEngine'}}}])
+  if d[0]=='version':return self.response({'Version':'29.6.2','Os':'linux','Arch':'amd64'})
+  if d[:2]==['container','ls']:return self.response('\n'.join(self.containers))
+  if d[:2]==['volume','ls']:
+   if self.mutate_cleanup_reference and self.deploys==1 and not self.containers and not self.volumes and not self.cleanup_reference_mutated:
+    path=Path(self.manifest['evidence_directory'])/'app-write-two-component/app-write-two-results.json';raw=path.read_bytes();changed=raw.replace(b'"status": "PASS_FINITE_TWO_APP_WRITE_CRITERIA_ONLY"',b'"status": "FAIL_FINITE_TWO_APP_WRITE_CRITERIA_ONLY"');assert raw!=changed and len(raw)==len(changed),'ACTUAL_REFERENCE_MUTANT_SHAPE';path.write_bytes(changed);self.cleanup_reference_mutated=True
+   return self.response('\n'.join(self.volumes))
+  if d[:2]==['image','inspect']:return self.response([self.image_value()])
+  if d[:3]==['buildx','imagetools','inspect']:return self.response((self.fixture.root/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_text())
+  if d[:2]==['volume','create']:self.volumes[self.volume]={'Name':self.volume,'CreatedAt':'MOCK_CREATED','Labels':self.labels,'Driver':'local','Options':{},'Scope':'local'};return self.response(self.volume)
+  if d[:2]==['volume','inspect']:return self.response([self.volumes[self.volume]]) if self.volume in self.volumes else self.response('',1)
+  if d[:2]==['container','create']:self.containers[self.name]=CID;return self.response(CID)
+  if d[:2]==['container','inspect']or d[0]=='inspect':return self.response([self.container()]) if self.name in self.containers else self.response('',1)
+  if d[:2]==['container','start']:assert d[2]==CID;self.running=True;return self.response(CID)
+  if d[:2]==['container','rm']:assert d==['container','rm','-f',CID];self.containers.clear();self.running=False;return self.response(CID)
+  if d[:2]==['volume','rm']:assert d==['volume','rm',self.volume];self.volumes.clear();return self.response(self.volume)
+  if d[0]=='cp':assert d[-1].startswith(CID+':/run/wa-f0-');return self.response()
+  assert d[0]=='exec','UNREGISTERED_DOCKER';stage=self.n['report']['stage'] if self.n else ''
+  if self.fail_stage and stage==self.fail_stage:raise OSError(CANARY)
+  if 'pg_isready' in d:return self.response()
+  if 'psql' in d:return self.sql(args,text,options)
+  if 'sh' in d:
+   script=d[-1]
+   if 'WA_OWNER_SECRET_TMPFS_V2_OK' in script:return self.response('WA_OWNER_SECRET_TMPFS_V2_OK\n')
+   if 'stat -c' in script:return self.response('600:0:0\n')
+   raise AssertionError('UNREGISTERED_SHELL')
+  if '/usr/bin/sha256sum' in d:
+   paths=d[d.index('--')+1:];values={**{'/run/wa-f0-tools/'+k:v for k,v in self.target['tools']['files_sha256'].items()},**{'/run/wa-f0-source/'+k:v for k,v in self.target['source']['runtime_files_sha256'].items()}}
+   return self.response(''.join(values[p]+'  '+p+'\n' for p in paths))
+  if d[-1]=='--version':return self.response('v24.22.1\n' if 'node/bin/node' in d[-2] else 'schema-engine d1b3f377ca835d73fd50954a5e22128b9ebdd6b8\n')
+  if 'mkdir' in d or 'tar' in d or 'rm' in d:return self.response()
+  if '/run/wa-f0-source/scripts/sql-review/local-f0-migrate-runner.mjs' in d:
+   public=json.loads(text);assert d[-1]=='deploy' and public['observed']['container_id']==CID;self.deploys+=1;assert self.deploys==1,'SECOND_DEPLOY_FORBIDDEN'
+   return self.response({'schema':'workinants.local-f0-migrate-result.v2','operation':'deploy','status':'CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS','exit_code':0,'prisma_codes':[],'sqlstates':[],'no_pending_message_observed':False,'raw_output_discarded':True,'database_qualification_claimed':False,'run_id':self.manifest['run_id'],'container_id':CID,'source_sql_sha256':self.target['source']['integrated_sql_sha256'],'attestation_sha256':sha(text.encode()),'diagnostic_format':{'text_valid':True,'sgr_stripped':False,'headers_valid':True,'prisma_header_present':False,'prisma_header_unique':False,'database_header_present':False,'database_header_unique':False}})
+  raise AssertionError('UNREGISTERED_EXEC')
+ def sql(self,args,text,options):
+  stage=self.n['report']['stage'];active=sum(not m.closed for m in self.vm.models)
+  if "'migrator'" in text and "'other_client_backends'" in text:
+   if self.vm.coordinator is not None:self.outer_after_component=True
+   return self.response({'migrator':0,'other_client_backends':active if self.bad_global is None else self.bad_global})
+  if text==self.n['_required_safety_text']('ORIGINAL_GRANTOR_FINALIZATION'):self.finalized=True;return self.response()
+  if "'remaining_memberships'" in text:return self.response({'grantor':'postgres','auth':'scram-sha-256:postgres','remaining_memberships':0 if self.finalized else 3,'leaf_create':dict.fromkeys(self.n['LEAVES'],not self.finalized),'active_install_connections':active})
+  if stage=='BOOTSTRAP_SETTINGS':return self.response({'login':'postgres','auth':'scram-sha-256:postgres','safe':True,'diagnostics_safe':True,'superuser':True})
+  if stage=='FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE':return self.response({'public_owner':'pg_database_owner','public_acl':[{'role':'pg_database_owner','privilege':p,'grantor':'pg_database_owner','grant_option':False} for p in ('CREATE','USAGE')]+[{'role':'PUBLIC','privilege':'USAGE','grantor':'pg_database_owner','grant_option':False}],'application_roles':0,'event_triggers':0})
+  if stage in ('BOOTSTRAP','CREDENTIAL_PROVISION'):return self.response()
+  if stage=='EMPTY_APPLICATION_BASELINE':return self.response({'public_owner':'pg_database_owner','public_acl':None,'event_triggers':0,'public_relations':0,'application_relations':0})
+  if 'pg_hba_file_rules' in text:return self.response([{'rule_number':i+1,'type':'host','database':['all'],'user_name':['all'],'address':a,'netmask':m,'auth_method':'scram-sha-256','error':None} for i,(a,m) in enumerate([('127.0.0.1','255.255.255.255'),('::1','ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')])])
+  if 'FROM pg_authid' in text:return self.response(dict.fromkeys(('postgres','wa_migrator','wa_app_runtime','wa_worker','wa_context_issuer','wa_identity_service_authority'),True))
+  role=args[args.index('-U')+1]
+  if 'PGPASSWORD' in args:return self.response('',2,'FATAL:  password authentication failed for user "'+role+'"\n')
+  if "'auth',system_user" in text:return self.response({'login':role,'auth':'scram-sha-256:'+role,'database':'wa_p0c_rehearsal','client':'127.0.0.1','server':'127.0.0.1'})
+  if 'workinants.native-catalog.v1' in text:
+   assert self.deploys==1 and self.finalized,'NATIVE_BEFORE_REAL_INSTALL_FINALIZATION';return self.response(self.native())
+  if 'workinants.expression-oracle-preflight.v1' in text:
+   self.after_started=self.after_started or stage.startswith('APP_WRITE_TWO_AFTER');return self.response('\n'.join(json.dumps(self.catalog[k]) for k in ('oracle-preflight','oracle-results','oracle-closure')))
+  if 'workinants.prisma-ledger-native.v1' in text:return self.response(self.catalog['ledger-observation'])
+  if 'workinants.catalog-acl-preflight.v1' in text:return self.response(self.catalog['acl-preflight'])
+  if 'workinants.catalog-text-preflight.v1' in text:return self.response(self.catalog['text-preflight'])
+  if stage.startswith('data-'):
+   # After measurement may outlast the immediate not-before witness. The
+   # original data is unchanged; no perpetual-future assertion is manufactured.
+   self.vm.now=10000.;assert self.outer_after_component and active==0,'AFTER_OBSERVER_WITHOUT_OUTER_CLOSURE';return self.response({t:{'count':len(rows),'rows_sha256':self.child['P'].digest(sorted(rows.values(),key=self.child['P'].canonical))} for t,rows in self.vm.rows.items()})
+  return self.vm.raw(args,**options)
+
+class SourceTests(unittest.TestCase):
+ @classmethod
+ def setUpClass(cls):cls.fixture=Fixture()
+ @classmethod
+ def tearDownClass(cls):cls.fixture.close()
+ def setUp(self):
+  for name in ('run','Popen','call','check_call','check_output'):
+   guard=patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  for target,name in [(socket,'create_connection'),(socket.socket,'connect')]:
+   guard=patch.object(target,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+ def test_current_live_source_gate_is_PENDING(self):
+  value=json.loads((R/VALIDATION).read_bytes());self.assertEqual(set(value['source_reviews'].values()),{'PENDING'})
+ def test_actual_initialize_raw_five_full_verifier_and_real_catalog_reproduction(self):
+  path,value=self.fixture.prepare();_,n=self.fixture.initialize(path)
+  with patch.object(subprocess,'run',side_effect=self.fixture.git):n['verify_app_write_two_packet']()
+  self.assertEqual(n['report']['source_verification']['file_count'],len(value['packet_files_sha256']));self.assertEqual(n['report']['catalog_preparation']['status'],'SOURCE_REPRODUCED_NOT_RUN');self.assertEqual(len(n['APP_FIXTURES']['cases']),14);self.assertEqual(len(n['app_trace']()),221)
+ def test_actual_pin_checks_committed_blobs_and_stays_pending_operation(self):
+  path,value=self.fixture.prepare(False);self.assertEqual(value['source_commit'],'b'*40);self.assertEqual(value['source_tree'],'c'*40);self.assertEqual(value['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertEqual(value['packet_sha256'],aggregate(value['packet_files_sha256']));self.assertTrue(path.with_name('operation-manifest-before-source-pin.json').is_file())
+ def test_live_pending_source_metadata_rejects_before_source_import(self):
+  path,_=self.fixture.prepare();_,n=self.fixture.initialize(path);pending=json.loads((R/VALIDATION).read_bytes())
+  with self.assertRaises(n['Stop']):n['source_review_gate'](pending)
+ def test_actual_missing_helper_and_historical_graph_reject_before_compile_or_process(self):
+  for removed in ('scripts/sql-review/run-app-write-two-control-rehearsal.py','scripts/sql-review/run-scoped-read-companion-rehearsal.py','scripts/sql-review/run-context-control-rehearsal.py'):
+   path,_=self.fixture.prepare();_,n=self.fixture.initialize(path);n['MANIFEST']['packet_files_sha256'].pop(removed)
+   with self.subTest(removed=removed),self.assertRaisesRegex(n['Stop'],'REQUIRED_SOURCE_MISSING'):n['verify_app_write_two_packet']()
+   self.assertEqual(n['HELPERS'],{});self.assertNotIn('catalog_preparation',n['report'])
+ def test_live_five_or_transitive_second_read_drift_rejects_without_echo(self):
+  path,_=self.fixture.prepare();_,n=self.fixture.initialize(path);original=Path.read_bytes
+  for relative in (self.fixture.task/N[1],self.fixture.root/'scripts/sql-review/run-context-control-rehearsal.py'):
+   def read(p):return CANARY.encode() if p==relative else original(p)
+   with self.subTest(file=relative.name),patch.object(Path,'read_bytes',read),self.assertRaises(n['Stop']):n['verify_app_write_two_packet']()
+   self.assertEqual(n['HELPERS'],{});self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_pending_operation_cannot_enter_source_or_create_evidence(self):
+  path,value=self.fixture.prepare(False);module=runpy.run_path(str(self.fixture.task/N[0]))
+  with redirect_stdout(io.StringIO()):self.assertEqual(module['launch'](['--execute-reviewed-app-writes','--manifest',str(path)]),1)
+  self.assertFalse(Path(value['evidence_directory']).exists())
+ def test_actual_initialize_rejects_duplicate_nonfinite_and_oversized_json(self):
+  path,value=self.fixture.prepare();module=runpy.run_path(str(self.fixture.task/N[0]));raw=path.read_bytes()
+  for bad in (b'{"purpose":0,'+raw[1:],b'{"untrusted":NaN,'+raw[1:],b' '*(4*1024*1024+1)):
+   path.write_bytes(bad)
+   with self.subTest(shape=bad[:24]),self.assertRaises((ValueError,AssertionError)):module['initialize'](path)
+  path.write_bytes(raw);self.assertFalse(Path(value['evidence_directory']).exists())
+ def test_separate_after_producer_contains_no_install_or_domain_mutation_path(self):
+  source=(T/N[1]).read_text();tree=ast.parse(source);functions={f.name:f for f in tree.body if isinstance(f,ast.FunctionDef)}
+  calls=lambda f:[node.func.id for node in ast.walk(functions[f]) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name)]
+  self.assertEqual(calls('catalog_experiment').count('migrate_success'),1);self.assertFalse(set(calls('app_after_proofs'))&{'catalog_experiment','migrate','migrate_success','sql','observe'});self.assertEqual(calls('app_after_proofs').count('app_after_data'),3)
+  manifest=json.loads((R/VALIDATION).read_bytes());self.assertEqual(manifest['child_validation_sha256'],'36389e123689caa7b6f6cadc147aae5bc29b8a7fe896793b0f7935fee3c711a4')
+ def test_actual_pinner_rejects_committed_blob_drift_without_writing_pin(self):
+  parent=self.fixture.task/str(uuid.uuid4());parent.mkdir();made=self.fixture.prep['prepare'](self.fixture.baseline,sha(self.fixture.baseline.read_bytes()),output_parent=parent);path=Path(made['operation_manifest']);original=path.read_bytes()
+  def bad(args,**kw):
+   reply=self.fixture.git(args,**kw)
+   if args[-1]=='--batch':reply.stdout=reply.stdout.replace(b'"NOT_RUN"',b'"NOT_RAN"',1)
+   return reply
+  with patch.object(subprocess,'run',side_effect=bad),self.assertRaises(self.fixture.pin['Held']):self.fixture.pin['pin'](path)
+  self.assertEqual(path.read_bytes(),original);self.assertFalse(path.with_name('operation-manifest-before-source-pin.json').exists())
+ def test_dormant_entry_help_and_no_flag(self):
+  for file in (N[0],N[2],N[4]):
+   module=runpy.run_path(str(self.fixture.task/file));entry=module.get('launch',module.get('main'))
+   with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as result:entry(['--help'])
+   self.assertEqual(result.exception.code,0)
+   if file!=N[4]:
+    with redirect_stdout(io.StringIO()):self.assertEqual(entry([]),1)
+
+class ComposedTests(unittest.TestCase):
+ setUpClass=classmethod(SourceTests.setUpClass.__func__)
+ tearDownClass=classmethod(SourceTests.tearDownClass.__func__)
+ setUp=SourceTests.setUp
+ def test_actual_launch_install_coordinate_CTX_processes_and_readonly_after(self):
+  path,plan=self.fixture.prepare();module=runpy.run_path(str(self.fixture.task/N[0]));model=ProcessModel(self.fixture,path);model.n=module['launch'].__globals__
+  with patch.object(subprocess,'run',side_effect=model.process),patch.object(subprocess,'Popen',side_effect=model.vm.popen),redirect_stdout(io.StringIO()):code=module['launch'](['--execute-reviewed-app-writes','--manifest',str(path)])
+  n=model.n;report=n['report'];self.assertEqual(code,0,(report.get('unexpected'),report.get('primary_failure'),getattr(model,'last_mock_fault',None),report['app_write_two'].get('component_report_reference')));self.assertEqual(report['status'],'PASS_LOCAL_APP_WRITE_TWO_SQL_SUBSET_ONLY');self.assertEqual(model.deploys,1);self.assertTrue(model.after_started);self.assertTrue(model.finalized);self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{});self.assertFalse(n['PRIVATE'].exists());self.assertTrue(report['cleanup_actions_confirmed']);self.assertTrue(all(m.closed for m in model.vm.models));self.assertNotIn(CANARY,json.dumps(report))
+  value=json.loads((n['OUT']/'app-write-two-component/app-write-two-results.json').read_bytes());self.assertEqual(len(value['results']),14);self.assertEqual(len(value['operations']),221);self.assertEqual(len(model.vm.rows['platform.database_action_grant']),15);self.assertEqual(sum(row['stage']=='COMPLETE42_STATE' for row in value['operations']),32);self.assertEqual(sum(row['stage']=='GLOBAL_BACKEND_CLOSURE' for row in value['operations']),69);self.assertEqual(sum(row['stage']=='IMMUTABLE_ISSUER_RETENTION' for row in value['operations']),44);self.assertEqual(sum(row['stage']=='ACTUAL_SH004_SOURCE_EFFECT_COHERENCE' for row in value['operations']),12);self.assertEqual(sum(row['stage']=='PENDING_WORK_CONTROL' for row in value['operations']),13)
+  self.assertEqual(report['catalog_comparison']['check_counts'],{'PASS':29089});self.assertEqual(report['app_write_two']['after_readonly_proofs']['oracle_expression_hashes'],416);self.assertEqual(report['app_write_two']['after_readonly_proofs']['private_ledger_checks'],22)
+  self.assertLess(next(iter(model.vm.rows['platform.runtime_work_item'].values()))['next_attempt_at'],model.vm.now)
+  # These pure admission mutants use actual producer evidence, never a golden
+  # hand-built PASS object. No operation or observer is run by these checks.
+  bads=[]
+  def mutant(label,change):
+   row=deepcopy(value);change(row);bads.append((label,row))
+  mutant('CID',lambda x:x.update(container_id='b'*64));mutant('run',lambda x:x.update(run_id=str(uuid.uuid4())));mutant('source',lambda x:x.update(source_commit='f'*40));mutant('packet',lambda x:x.update(packet_sha256='f'*64));mutant('partial',lambda x:x.update(status='STOPPED_PARTIAL_EVIDENCE_PRESERVED'));mutant('IO',lambda x:x.update(evidence_complete=False));mutant('closure',lambda x:x['results'][0].update(operation_closed_before_observers=False));mutant('two-claim-ceiling',lambda x:x['results'][6].update(claim=x['results'][5]['claim']));mutant('support-count',lambda x:x['results'][7]['read_counts'].update(existing_customer=1));mutant('extra-operation',lambda x:x['operations'].append(deepcopy(x['operations'][-1])));mutant('operation-order',lambda x:x['operations'].reverse());mutant('unexpected',lambda x:x['unexpected'].append({'code':'UNLISTED'}));mutant('restoration',lambda x:x.update(fixture_owner_bypass_restored=False));mutant('auth-canary',lambda x:x['authentication_comparison'].update(untrusted=CANARY));mutant('HBA-canary',lambda x:x['effective_hba_selections'][0].update(untrusted=CANARY));mutant('HBA-bool',lambda x:x['effective_hba_selections'][0].update(rule_number=True));mutant('wrongpw-exit-float',lambda x:x['authentication'][0].update(wrong_password_exit_code=2.0));mutant('source-guard',lambda x:next(r for r in x['operations'] if r['stage']=='RESTRICTED_APP_TRANSACTION' and r['verdict']['source_guard']is not None)['verdict']['source_guard'].update(sqlstate='P0001'));mutant('count-bool',lambda x:next(r for r in x['operations'] if r['stage']=='COMPLETE42_STATE')['tables']['app.users'].update(count=False));mutant('count-float',lambda x:next(r for r in x['operations'] if r['stage']=='COMPLETE42_STATE')['tables']['app.users'].update(count=0.0));mutant('wrong-retention-field',lambda x:next(r for r in x['operations'] if r['stage']=='IMMUTABLE_ISSUER_RETENTION').update(all_21_fields_match=False));mutant('work-clock-null-is-not-true',lambda x:next(r for r in x['operations'] if r['stage']=='PENDING_WORK_CONTROL').update(server_not_before_future=None));mutant('later-read-xid-not-source-write',lambda x:[r.update(source_effect_group_same_actual_app_xid=True) for r in x['operations'] if r['stage']=='ACTUAL_SH004_SOURCE_EFFECT_COHERENCE'])
+  for label,bad in bads:
+   with self.subTest(mutant=label),self.assertRaises(n['Stop']):n['validate_app_result'](bad,plan)
+  self.assertEqual(len(bads),23)
+  self.fix2_actual_producer_gates(n,value,plan)
+
+ def fix2_actual_producer_gates(self,n,value,plan):
+  held=self.fixture.root/'context/reconciliation/local-f0-operation-sources/app-write-two-owned-resource-v1/preserved-held-v1'/ (N[1]+'.txt');raw=held.read_bytes();self.assertEqual(sha(raw),'8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb');node=next(x for x in ast.parse(raw).body if isinstance(x,ast.FunctionDef)and x.name=='validate_app_result');scope=dict(n);exec(compile(ast.Module(body=[node],type_ignores=[]),'HELD_V1_VALIDATOR_ONLY','exec'),scope);old=scope['validate_app_result']
+  # Actual successful source output defines all27 required keys. Every omitted
+  # key, extra field and wrong builtin type must reject before qualification.
+  self.assertEqual(len(value),27)
+  for key in value:
+   bad=deepcopy(value);bad.pop(key)
+   with self.subTest(missing=key),self.assertRaises(n['Stop']):n['validate_app_result'](bad,plan)
+  missing=deepcopy(value);missing.pop('current_case');old(missing,plan)
+  with self.assertRaises(AssertionError):
+   with self.assertRaises(n['Stop']):old(missing,plan)
+  for key,item in value.items():
+   bad=deepcopy(value);bad[key]=[] if type(item)is dict else {} if type(item)is list else 0 if type(item)is bool else False if item is None else 17
+   with self.subTest(type=key),self.assertRaises(n['Stop']):n['validate_app_result'](bad,plan)
+  for change in ('extra','nonfinite'):
+   bad=deepcopy(value)
+   if change=='extra':bad['unlisted']=CANARY
+   else:bad['operations'][0]['unlisted']=float('nan')
+   with self.subTest(change=change),self.assertRaises(n['Stop']):n['validate_app_result'](bad,plan)
+  # Keep each nonempty user pair/count and all local result links consistent.
+  # The old validator admits all four; only chronological no-write links reject.
+  for case in (value['results'][0]['case'],value['results'][1]['case'],'genuine-pending-schedule','work-wrong-root'):
+   bad=deepcopy(value);states=[r for r in bad['operations']if r.get('stage')=='COMPLETE42_STATE'and r.get('case')==case];self.assertEqual(len(states),2);self.assertEqual(states[0]['tables']['app.users']['count'],2)
+   for row in states:row['tables']['app.users']['rows_sha256']='e'*64;row['sha256']=n['digest'](row['tables'])
+   if case=='genuine-pending-schedule':result=next(r for r in bad['operations']if r['stage']=='GENUINE_APP_SCHEDULE_PREREQUISITE')
+   else:result=next(r for r in bad['results']if r['case']==case)
+   result.update(before_complete_state_sha256=states[0]['sha256'],complete_state_sha256=states[1]['sha256'])
+   with self.subTest(discontinuity=case),self.assertRaisesRegex(n['Stop'],'CHRONOLOGICAL_STATE_CONTINUITY'):n['validate_app_result'](bad,plan)
+   old(bad,plan)
+   with self.assertRaises(AssertionError):
+    with self.assertRaises(n['Stop']):old(bad,plan)
+
+ def test_actual_full_parent_rejects_reference_mutation_normal_and_preserved_mtime(self):
+  for preserved in (False,True):
+   path,plan=self.fixture.prepare();module=runpy.run_path(str(self.fixture.task/N[0]));model=ProcessModel(self.fixture,path);model.n=module['launch'].__globals__;fixed=Path(plan['evidence_directory'])/'app-write-two-component/app-write-two-results.json';original=Path.open;changed=[False]
+   class ChangedStream:
+    def __init__(self,stream):self.stream=stream
+    def __enter__(self):return self
+    def __exit__(self,*args):self.stream.close()
+    def fileno(self):return self.stream.fileno()
+    def read(self,count):
+     raw=self.stream.read(count)
+     if not changed[0]:
+      replacement=raw.replace(b'"status": "PASS_FINITE_TWO_APP_WRITE_CRITERIA_ONLY"',b'"status": "FAIL_FINITE_TWO_APP_WRITE_CRITERIA_ONLY"');assert raw!=replacement and len(raw)==len(replacement),'ACTUAL_MUTANT_BYTES';stamp=fixed.stat()
+      with original(fixed,'wb')as writer:writer.write(replacement)
+      os.utime(fixed,ns=(stamp.st_atime_ns,stamp.st_mtime_ns if preserved else stamp.st_mtime_ns+1000000000));changed[0]=True
+     return raw
+   def opened(p,*args,**kw):return ChangedStream(original(p,*args,**kw))if p==fixed and args and args[0]=='rb'else original(p,*args,**kw)
+   with self.subTest(preserved_mtime=preserved),patch.object(subprocess,'run',side_effect=model.process),patch.object(subprocess,'Popen',side_effect=model.vm.popen),patch.object(Path,'open',opened),redirect_stdout(io.StringIO()):code=module['launch'](['--execute-reviewed-app-writes','--manifest',str(path)])
+   n=model.n;self.assertTrue(changed[0]);self.assertEqual(code,1);self.assertFalse(model.after_started);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertTrue(n['report']['app_write_two']['component_closure_confirmed']);self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertFalse(model.containers or model.volumes);self.assertFalse(n['PRIVATE'].exists());self.assertTrue(all(m.closed for m in model.vm.models));self.assertNotIn(CANARY,json.dumps(n['report']));self.assertEqual(json.loads(fixed.read_bytes())['status'],'FAIL_FINITE_TWO_APP_WRITE_CRITERIA_ONLY');self.assertNotEqual(n['report']['app_write_two']['component_report_reference']['read_status'],'RETAINED')
+
+ def test_final_pass_reference_barrier_rejects_post_scan_cleanup_mutation(self):
+  path,_=self.fixture.prepare();module=runpy.run_path(str(self.fixture.task/N[0]));model=ProcessModel(self.fixture,path);model.n=module['launch'].__globals__;model.mutate_cleanup_reference=True
+  with patch.object(subprocess,'run',side_effect=model.process),patch.object(subprocess,'Popen',side_effect=model.vm.popen),redirect_stdout(io.StringIO()):code=module['launch'](['--execute-reviewed-app-writes','--manifest',str(path)])
+  n=model.n;self.assertTrue(model.cleanup_reference_mutated);self.assertTrue(model.after_started);self.assertEqual(code,1);self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertEqual(n['report']['primary_failure']['stage'],'FINAL_REFERENCE_INTEGRITY');self.assertFalse(n['report']['app_write_two']['component_report_reference']['integrity_recheck_match']);self.assertFalse(model.containers or model.volumes);self.assertFalse(n['PRIVATE'].exists())
+
+ def test_actual_child_prefix_stops_outer_after_proof_and_unconditionally_closes(self):
+  path,_=self.fixture.prepare();module=runpy.run_path(str(self.fixture.task/N[0]));model=ProcessModel(self.fixture,path);model.vm.fail_case='effect-missing-result-field';model.n=module['launch'].__globals__
+  with patch.object(subprocess,'run',side_effect=model.process),patch.object(subprocess,'Popen',side_effect=model.vm.popen),redirect_stdout(io.StringIO()):code=module['launch'](['--execute-reviewed-app-writes','--manifest',str(path)])
+  n=model.n;self.assertEqual(code,1);self.assertFalse(model.after_started);self.assertTrue(model.outer_after_component);self.assertTrue(n['report']['app_write_two']['component_closure_attempted']);self.assertTrue(n['report']['app_write_two']['component_closure_confirmed']);self.assertTrue(all(m.closed for m in model.vm.models));self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{});self.assertFalse(n['PRIVATE'].exists());self.assertNotIn(CANARY,json.dumps(n['report']));self.assertFalse((n['OUT']/'after-oracle-evidence.json').exists())
+  value=json.loads((n['OUT']/'app-write-two-component/app-write-two-results.json').read_bytes());self.assertEqual(len(value['results']),2);self.assertTrue(value['subsequent_cases_stopped']);self.assertEqual(value['status'],'STOPPED_PARTIAL_EVIDENCE_PRESERVED');self.assertTrue(value['fixture_owner_bypass_restored'])
+ def test_actual_parent_component_finally_global_sql_survives_persistent_io_and_blocks_after(self):
+  path,_=self.fixture.prepare();module=runpy.run_path(str(self.fixture.task/N[0]));model=ProcessModel(self.fixture,path);model.n=module['launch'].__globals__;original=Path.open
+  def failed(p,*args,**kw):
+   if model.vm.coordinator is not None and p==Path(model.manifest['evidence_directory'])/'run-evidence.json.tmp':raise OSError(CANARY)
+   return original(p,*args,**kw)
+  with patch.object(subprocess,'run',side_effect=model.process),patch.object(subprocess,'Popen',side_effect=model.vm.popen),patch.object(Path,'open',failed),redirect_stdout(io.StringIO()):code=module['launch'](['--execute-reviewed-app-writes','--manifest',str(path)])
+  n=model.n;report=n['report'];self.assertEqual(code,1);self.assertEqual(model.deploys,1);self.assertTrue(model.outer_after_component);self.assertFalse(model.after_started);self.assertTrue(model.finalized);self.assertEqual(report['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(report['evidence_complete']);self.assertTrue(report['persistence_failure']);self.assertTrue(report['cleanup_actions_confirmed']);self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{});self.assertFalse(n['PRIVATE'].exists());self.assertTrue(all(m.closed for m in model.vm.models));self.assertNotIn(CANARY,json.dumps(report))
+  self.assertTrue(report['app_write_two']['component_closure_attempted']);self.assertFalse(report['app_write_two']['component_closure_confirmed']);self.assertEqual(report['app_write_two']['component_report_reference']['read_status'],'NOT_READ_CLOSURE_UNCONFIRMED');self.assertTrue(any(r['stage']=='APP_WRITE_TWO_POST_COMPONENT' and r['all_other_client_backends_absent'] is True for r in report['backend_closures']));self.assertNotIn('qualified_native_snapshot_sha256',report);self.assertNotIn('after_readonly_proofs',report['app_write_two'])
+  child=json.loads((n['OUT']/'app-write-two-component/app-write-two-results.json').read_bytes());self.assertEqual(len(child['results']),14);self.assertTrue(child['evidence_complete']);self.assertEqual(report['primary_failure']['code'],'EVIDENCE_WRITE_UNCONFIRMED')
+
+class ReferenceSafetyTests(unittest.TestCase):
+ setUpClass=classmethod(SourceTests.setUpClass.__func__)
+ tearDownClass=classmethod(SourceTests.tearDownClass.__func__)
+ setUp=SourceTests.setUp
+ def reference(self):
+  path,_=self.fixture.prepare();_,n=self.fixture.initialize(path);directory=n['OUT']/'app-write-two-component';directory.mkdir();fixed=directory/'app-write-two-results.json';return n,fixed,{'artifact':'app-write-two-component/app-write-two-results.json','present':None,'read_status':'UNAVAILABLE'}
+ def test_actual_bounded_stream_limit_and_fixed_marker_before_failed_io(self):
+  n,fixed,reference=self.reference();fixed.write_bytes(b'{"known":true}\n');opened=[];original=Path.open
+  class Stream:
+   def __init__(self,stream):self.stream=stream
+   def __enter__(self):return self
+   def __exit__(self,*args):self.stream.close()
+   def fileno(self):return self.stream.fileno()
+   def read(self,count):opened.append(count);return self.stream.read(count)
+  def read(p,*args,**kw):return Stream(original(p,*args,**kw)) if p==fixed else original(p,*args,**kw)
+  with patch.object(Path,'open',read):self.assertEqual(n['app_read_closed_reference'](reference),{'known':True})
+  self.assertEqual(opened,[16*1024*1024+1]*2);self.assertEqual(reference['read_status'],'RETAINED');self.assertTrue(reference['closed_recheck_match'])
+  for method in ('lstat','open'):
+   ref={'artifact':reference['artifact'],'present':None,'read_status':'UNAVAILABLE'};original=getattr(Path,method)
+   def denied(p,*a,**k):
+    if p==fixed:raise OSError(CANARY)
+    return original(p,*a,**k)
+   with self.subTest(method=method),patch.object(Path,method,denied),self.assertRaises(OSError):n['app_read_closed_reference'](ref)
+   self.assertEqual(ref['artifact'],reference['artifact']);self.assertEqual(ref['read_status'],'UNAVAILABLE');self.assertNotIn(CANARY,json.dumps(ref))
+ def test_actual_absence_oversize_growth_duplicate_nonfinite_and_untrusted_values(self):
+  n,fixed,ref=self.reference()
+  with self.assertRaises(n['Stop']):n['app_read_closed_reference'](ref)
+  self.assertEqual(ref['read_status'],'ABSENT')
+  for content in (b'{"x":1,"x":2}',b'{"x":NaN}',b'not json'):
+   fixed.write_bytes(content);ref={'artifact':'app-write-two-component/app-write-two-results.json','present':None,'read_status':'UNAVAILABLE'}
+   with self.subTest(content=content),self.assertRaises((n['Stop'],ValueError)):n['app_read_closed_reference'](ref)
+  fixed.write_bytes(b'x'*(16*1024*1024+1));ref={'artifact':'app-write-two-component/app-write-two-results.json','present':None,'read_status':'UNAVAILABLE'}
+  with self.assertRaises(n['Stop']):n['app_read_closed_reference'](ref)
+  self.assertEqual(ref['read_status'],'OVERSIZED')
+ def test_actual_reference_rejects_typed_size_links_symlink_and_growth(self):
+  n,fixed,_=self.reference();fixed.write_bytes(b'{}');original=Path.lstat;metadata=original(fixed)
+  for field,bad in (('st_size',2.0),('st_size',True),('st_size',-1),('st_nlink',2),('st_mode',0o120777)):
+   values={k:getattr(metadata,k) for k in ('st_size','st_nlink','st_mode','st_dev','st_ino')};values[field]=bad
+   def changed(p,*a,**kw):return types.SimpleNamespace(**values) if p==fixed else original(p,*a,**kw)
+   ref={'artifact':'app-write-two-component/app-write-two-results.json','present':None,'read_status':'UNAVAILABLE'}
+   with self.subTest(field=field,value=bad),patch.object(Path,'lstat',changed),self.assertRaises(n['Stop']):n['app_read_closed_reference'](ref)
+  actual_open=Path.open
+  class Growing:
+   def __init__(self,stream):self.stream=stream
+   def __enter__(self):return self
+   def __exit__(self,*args):self.stream.close()
+   def fileno(self):return self.stream.fileno()
+   def read(self,count):self.count=count;return b'x'*count
+  def opened(p,*a,**k):return Growing(actual_open(p,*a,**k)) if p==fixed else actual_open(p,*a,**k)
+  ref={'artifact':'app-write-two-component/app-write-two-results.json','present':None,'read_status':'UNAVAILABLE'}
+  with patch.object(Path,'open',opened),self.assertRaises(n['Stop']):n['app_read_closed_reference'](ref)
+  self.assertEqual(ref['read_status'],'OVERSIZED')
+ def test_fresh_byte_recheck_and_restored_old_reader_tripwire(self):
+  n,fixed,_=self.reference();held=self.fixture.root/'context/reconciliation/local-f0-operation-sources/app-write-two-owned-resource-v1/preserved-held-v1'/(N[1]+'.txt');raw=held.read_bytes();self.assertEqual(sha(raw),'8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb');node=next(x for x in ast.parse(raw).body if isinstance(x,ast.FunctionDef)and x.name=='app_read_closed_reference');scope=dict(n);exec(compile(ast.Module(body=[node],type_ignores=[]),'HELD_V1_READER_ONLY','exec'),scope);original=Path.open
+  for reader in (n['app_read_closed_reference'],scope['app_read_closed_reference']):
+   fixed.write_bytes(b'{"known":0}\n');stamp=fixed.stat();changed=[False];reads=[]
+   class Changed:
+    def __init__(self,stream):self.stream=stream
+    def __enter__(self):return self
+    def __exit__(self,*args):self.stream.close()
+    def fileno(self):return self.stream.fileno()
+    def read(self,count):
+     raw=self.stream.read(count);reads.append(count)
+     if not changed[0]:
+      with original(fixed,'wb')as writer:writer.write(b'{"known":1}\n')
+      os.utime(fixed,ns=(stamp.st_atime_ns,stamp.st_mtime_ns));changed[0]=True
+     return raw
+   def opened(p,*a,**k):return Changed(original(p,*a,**k))if p==fixed and a and a[0]=='rb'else original(p,*a,**k)
+   ref={'artifact':'app-write-two-component/app-write-two-results.json','present':None,'read_status':'UNAVAILABLE'}
+   with patch.object(Path,'open',opened):
+    if reader is n['app_read_closed_reference']:
+     with self.assertRaises(n['Stop'])as stopped:reader(ref)
+     self.assertNotEqual(ref['read_status'],'RETAINED')
+    else:
+     self.assertEqual(reader(ref),{'known':0});self.assertEqual(ref['read_status'],'RETAINED');self.assertNotEqual(ref['artifact_sha256'],sha(fixed.read_bytes()))
+   self.assertTrue(changed[0],{'code':stopped.exception.code if reader is n['app_read_closed_reference']else'OLD','reference':ref});self.assertTrue(all(count==16*1024*1024+1 for count in reads))
+ def test_atomic_replace_accepts_common_version_and_stable_per_representation_ctime(self):
+  n,fixed,_=self.reference();temporary=fixed.with_suffix('.tmp');common=('st_mode','st_dev','st_ino','st_nlink','st_size','st_mtime_ns')
+  for i in range(4):
+   with temporary.open('wb')as writer:writer.write(json.dumps({'known':i}).encode());writer.flush();os.fsync(writer.fileno())
+   temporary.replace(fixed);before=fixed.lstat()
+   with fixed.open('rb')as reader:
+    opened=os.fstat(reader.fileno());reader.read(1024);after_handle=os.fstat(reader.fileno())
+   after=fixed.lstat();self.assertTrue(all(getattr(before,k)==getattr(opened,k)==getattr(after_handle,k)==getattr(after,k)for k in common));self.assertEqual(opened.st_ctime_ns,after_handle.st_ctime_ns);self.assertEqual(before.st_ctime_ns,after.st_ctime_ns)
+   ref={'artifact':'app-write-two-component/app-write-two-results.json','present':None,'read_status':'UNAVAILABLE'};self.assertEqual(n['app_read_closed_reference'](ref),{'known':i});self.assertTrue(ref['closed_recheck_match'])
+ def test_real_safety_sql_and_finalizer_progress_under_persistent_evidence_io(self):
+  path,_=self.fixture.prepare();module,n=self.fixture.initialize(path);model=ProcessModel(self.fixture,path);model.n=n
+  with patch.object(subprocess,'run',side_effect=model.process),redirect_stdout(io.StringIO()):
+   n['preflight']();n['ensure_image']();n['create_resources']();n['bootstrap_all']()
+   n['remember_failure']('FIRST_SOURCE_STOP','FIXED_FIRST_FAILURE');primary=deepcopy(n['report']['primary_failure']);original=Path.open
+   def broken(p,*a,**k):
+    if p==n['OUT']/'run-evidence.json.tmp':raise OSError(CANARY)
+    return original(p,*a,**k)
+   with patch.object(Path,'open',broken):
+    with self.assertRaises(n['Stop']):n['finalize'](model.name)
+    self.assertTrue(model.finalized);self.assertEqual(n['report']['targets'][model.name]['finalization'],'OBSERVED_CLEANUP_EVIDENCE_INCOMPLETE')
+    with self.assertRaises(n['Stop']):n['closed_backends'](model.name,'AFTER_PERSISTENCE_STOP')
+    n['cleanup']()
+  self.assertEqual(n['report']['primary_failure'],primary);self.assertTrue(n['report']['persistence_failure']);self.assertFalse(n['report']['evidence_complete']);self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{});self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_active_or_invalid_global_counts_block_actual_revoke(self):
+  for count in (1,True,0.0,-1):
+   path,_=self.fixture.prepare();_,n=self.fixture.initialize(path);model=ProcessModel(self.fixture,path);model.n=n
+   with patch.object(subprocess,'run',side_effect=model.process),redirect_stdout(io.StringIO()):
+    n['preflight']();n['ensure_image']();n['create_resources']();n['bootstrap_all']();model.bad_global=count
+    with self.subTest(count=count),self.assertRaises(n['Stop']):n['finalize'](model.name)
+    self.assertFalse(model.finalized);model.bad_global=None;n['cleanup']()
+if __name__=='__main__':unittest.main(verbosity=2)

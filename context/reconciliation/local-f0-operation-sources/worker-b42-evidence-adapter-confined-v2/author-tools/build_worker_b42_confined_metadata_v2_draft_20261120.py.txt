@@ -1,0 +1,71 @@
+"""TASK-only V2 derivation; preserve prior candidates and live Root bytes."""
+from pathlib import Path
+import ast,hashlib,json,shutil
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';OLD=T/'worker-b42-evidence-adapter-v1-draft-20261120';D=T/'worker-b42-evidence-adapter-confined-v2-draft-20261120';F=D/'future-root'
+ARCH='context/reconciliation/local-f0-operation-sources/worker-b42-evidence-adapter-confined-v2'
+ALIAS=(('node_modules/@prisma/engines-version/package.json',ARCH+'/tool-data/engines-version.package.json'),('node_modules/prisma/package.json',ARCH+'/tool-data/prisma.package.json'))
+sha=lambda b:hashlib.sha256(b).hexdigest()
+data=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(n,b):p=F/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+def preserve():
+ assert not D.exists();D.mkdir();before=D/'preserved-before-author';before.mkdir();mapping={}
+ def copy(scope,name,raw):
+  path=before/scope/name
+  if path.suffix=='.py':path=path.with_name(path.name+'.txt')
+  path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw);mapping[path.relative_to(before).as_posix()]=sha(raw)
+ report=json.loads((OLD/'author-review.json').read_bytes());assert sha((OLD/'author-review.json').read_bytes())=='254dd49815df20cfd3b9b0769adb7ff4d609ef14554cba3da6cd467855140ae2'
+ for n,w in report['proposed_Root_files_sha256'].items():raw=(OLD/'future-root'/n).read_bytes();assert sha(raw)==w;copy('author35',n,raw)
+ live=set(report['proposed_Root_files_sha256'])|{p.relative_to(R).as_posix()for p in(R/'context/reconciliation/local-f0-operation-sources/worker-b42-evidence-adapter-v1').rglob('*')if p.is_file()}
+ assert len(live)==40
+ for n in sorted(live):copy('live-Root40',n,(R/n).read_bytes())
+ for p in sorted((T/'worker-b42-Root-real671-build-20261120').iterdir()):
+  if p.is_file():copy('failed-80425',p.name,p.read_bytes())
+ for n in('worker_b42_confined_metadata_v2_bounded_source_plan_20261120.json','worker_b42_confined_metadata_v2_Root_bounded_implementation_ACK_20261120.json','worker_b42_live_admission_readonly_diagnosis_20261120.json','worker_b42_path_escape_readonly_probe_20261120.json','worker_b42_evidence_adapter_independent_source_review_20261120.json'):
+  copy('TASK',n,(T/n).read_bytes())
+ out={'schema':'workinants.worker-b42-confined-v2-before-author-preservation.v1','files_sha256':mapping,'original35':35,'live_Root40':40,'source_files_modified':False};(D/'before-author-preservation.json').write_bytes(data(out))
+
+def build():
+ if not D.exists():preserve()
+ if not F.exists():shutil.copytree(OLD/'future-root',F,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+ raw=(R/'scripts/local_f0_worker_recovery_evidence.py').read_bytes();assert sha(raw)=='3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff'
+ old=raw.decode();tree=ast.parse(old);assignment=next(n for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='PINS'for t in n.targets));pins=ast.literal_eval(assignment.value)
+ assert len(pins)==654
+ for original,snapshot in ALIAS:
+  b=(R/original).read_bytes();assert sha(b)==pins[original];put(snapshot,b)
+ original_line=ast.get_source_segment(old,assignment);new=old.replace(original_line,'ORIGINAL_'+original_line,1)
+ inserted="""
+# Fixed retrospective data identities, never a caller-supplied filesystem alias.
+METADATA_SNAPSHOTS=@@ALIASES@@
+PINS={dict(METADATA_SNAPSHOTS).get(name,name):wanted for name,wanted in ORIGINAL_PINS.items()}
+
+def _verify_metadata_binding(logical):
+    nested=doc(logical[A+'/manifest/migration-ok.json'])
+    closure=doc(logical['context/reconciliation/local-f0-tooling/prisma-tools-closure.json'])
+    for original,snapshot in METADATA_SNAPSHOTS:
+        need(nested['tools']['files_sha256'][original]==closure['tools_files_sha256'][original]==ORIGINAL_PINS[original]==sh(logical[original]),'REVIEWED_TOOL_METADATA_BINDING')
+
+def _project_logical_inputs(physical):
+    need(METADATA_SNAPSHOTS==@@ALIASES@@,'EXACT_FIXED_METADATA_PROJECTION')
+    need(type(physical)is dict and len(PINS)==GRAPH_FILES and set(physical)==set(PINS),'EXACT_PHYSICAL_GRAPH')
+    need(all(type(value)is bytes and sh(value)==PINS[name]for name,value in physical.items()),'PHYSICAL_BYTES_HASHES')
+    mapping=dict(METADATA_SNAPSHOTS)
+    logical={name:physical[mapping.get(name,name)]for name in ORIGINAL_PINS}
+    need(len(logical)==GRAPH_FILES and set(logical)==set(ORIGINAL_PINS)and all(sh(value)==ORIGINAL_PINS[name]for name,value in logical.items()),'EXACT_ORIGINAL_LOGICAL_GRAPH')
+    _verify_metadata_binding(logical)
+    return logical
+
+""".replace('@@ALIASES@@',repr(ALIAS))
+ marker='class EvidenceFailure(Exception):';assert new.count(marker)==1;new=new.replace(marker,inserted+marker,1)
+ original="    _audit_semantics(blobs)\n    execution=doc(blobs[DERIVED]);need(type(execution)is dict,'DERIVED_OBJECT')"
+ assert new.count(original)==1;new=new.replace(original,"    logical=_project_logical_inputs(blobs)\n    _audit_semantics(logical)\n    execution=doc(logical[DERIVED]);need(type(execution)is dict,'DERIVED_OBJECT')",1)
+ original="same(execution['claims'],_expected_claims(blobs),'ALL17_SOURCE_DERIVED_CLAIMS')";assert new.count(original)==1;new=new.replace(original,"same(execution['claims'],_expected_claims(logical),'ALL17_SOURCE_DERIVED_CLAIMS')",1)
+ new=new.replace('Pure exact Worker21 closed-evidence qualification, pending separate review.','Pure exact Worker21 closed-evidence qualification V2, pending separate review.',1)
+ ast.parse(new);put('scripts/local_f0_worker_recovery_evidence_v2.py',new.encode())
+ builder=(R/'scripts/prepare-local-f0-status.py').read_bytes();assert sha(builder)=='715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6'
+ selected=builder.decode().replace('from local_f0_worker_recovery_evidence import','from local_f0_worker_recovery_evidence_v2 import');assert selected!=builder.decode();put('scripts/prepare-local-f0-status.py',selected.encode())
+ check=(R/'scripts/check-local-f0-worker-recovery-evidence.py').read_bytes();assert sha(check)=='795f77704cddbc0a684b55260f7a5e9e629016aadea0f163e0269b0bef3aa2d5'
+ check=check.decode().replace("'scripts/local_f0_worker_recovery_evidence.py'","'scripts/local_f0_worker_recovery_evidence_v2.py'").replace("'local_f0_worker_recovery_evidence.py'","'local_f0_worker_recovery_evidence_v2.py'")
+ append=(T/'worker_b42_confined_v2_checks_extension_20261120.py.txt').read_text()
+ marker="if __name__=='__main__':unittest.main(verbosity=2)";assert check.count(marker)==1;check=check.replace(marker,append+'\n'+marker);ast.parse(check);put('scripts/check-local-f0-worker-recovery-evidence-v2.py',check.encode())
+ out={'schema':'workinants.worker-b42-confined-v2-author-derivation.v1','status':'AUTHOR_DRAFT_PENDING_REVIEW','module_sha256':sha(new.encode()),'checker_sha256':sha(check.encode()),'builder_sha256':sha(selected.encode()),'physical654_original_logical654':True,'original654_map_sha256':sha(json.dumps(pins,sort_keys=True,separators=(',',':')).encode()),'aliases':list(ALIAS),'root_writes':False};(D/'derivation.json').write_bytes(data(out));print(json.dumps(out))
+if __name__=='__main__':build()

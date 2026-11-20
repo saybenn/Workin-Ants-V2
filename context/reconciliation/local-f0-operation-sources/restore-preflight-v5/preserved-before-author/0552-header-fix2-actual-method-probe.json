@@ -1,0 +1,56 @@
+{
+  "actual_process_network": "FORBIDDEN_BY_AUDIT",
+  "binder_verdict_or_permission_bypass_claimed": false,
+  "only_changed_runtime_function": "bound_diagnostic",
+  "runtime": "NOT_RUN",
+  "schema": "workinants.restore-bound-v3-header-fix2-actual-method-probe.v1",
+  "status": "PASS",
+  "vectors": {
+    "two_headers_same_line": {
+      "fixed": {
+        "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+        "redaction": "NO_SINGLE_EXACT_HEADER",
+        "single_header": false,
+        "source_binding_confirmed": false,
+        "source_metadata": null,
+        "sqlstate": null
+      },
+      "old_classifier_fails_required_null_expectation": true,
+      "restored_old_classifier": {
+        "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+        "redaction": "SOURCE_BOUND_METADATA",
+        "single_header": true,
+        "source_binding_confirmed": true,
+        "source_metadata": {
+          "classification": "UNRECOGNIZED",
+          "frame_classification": "NOT_RETAINED"
+        },
+        "sqlstate": "42501"
+      },
+      "synthetic_input_sha256": "108748659f543829130641f5c0c681323d1b9f573dd928fa6848027ae4599622"
+    },
+    "valid_then_malformed_severity": {
+      "fixed": {
+        "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+        "redaction": "NO_SINGLE_EXACT_HEADER",
+        "single_header": false,
+        "source_binding_confirmed": false,
+        "source_metadata": null,
+        "sqlstate": null
+      },
+      "old_classifier_fails_required_null_expectation": true,
+      "restored_old_classifier": {
+        "classification": "UNEXPECTED_NOT_GUARD_PROOF",
+        "redaction": "SOURCE_BOUND_METADATA",
+        "single_header": true,
+        "source_binding_confirmed": true,
+        "source_metadata": {
+          "classification": "UNRECOGNIZED",
+          "frame_classification": "NOT_RETAINED"
+        },
+        "sqlstate": "42501"
+      },
+      "synthetic_input_sha256": "0c3bf9af15848e15089d9a0b082177309fdb25c5fbf696c885713468819d5191"
+    }
+  }
+}

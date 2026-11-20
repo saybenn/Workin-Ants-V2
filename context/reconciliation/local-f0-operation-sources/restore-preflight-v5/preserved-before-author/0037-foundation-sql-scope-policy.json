@@ -1,0 +1,4029 @@
+{
+  "status": "SOURCE_REVIEW_ONLY_NOT_ROLE_POLICY_QUALIFICATION",
+  "domain_scopes": [
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-007.v1",
+      "purpose": "owner:recordConsentProof",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ],
+      "related_reads": {
+        "ConsentPresentation": "presentation",
+        "ConsentContentRevision": "contentRevision"
+      }
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-008.v1",
+      "purpose": "owner:queryConsentProof",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ],
+      "related_reads": {
+        "ConsentPresentation": "presentation",
+        "ConsentContentRevision": "contentRevision"
+      }
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-009.v1",
+      "purpose": "owner:resolveActiveConsentVersion",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-010.v1",
+      "purpose": "owner:presentStandaloneConsent",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "ConsentLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-026.v1",
+      "purpose": "owner:authorizeContextualResourceAccess",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-049.v1",
+      "purpose": "owner:orchestrateWorkflowSteps",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-050.v1",
+      "purpose": "owner:reconcileWorkflowStatus",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-088.v1",
+      "purpose": "owner:manageTemporaryAccessGrant",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-089.v1",
+      "purpose": "owner:revokeTemporaryAccessGrant",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-099.v1",
+      "purpose": "owner:orchestratePrivacyFulfillment",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-100.v1",
+      "purpose": "owner:createPrivacyExportArtifact",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-104.v1",
+      "purpose": "owner:preserveEvidenceSnapshot",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-110.v1",
+      "purpose": "owner:createDomainSnapshot",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "privacy_data_erasure",
+      "action": "SH-125.v1",
+      "purpose": "owner:recordDomainAccessEvent",
+      "root_kind": "PrivacyRequest",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-001.v1",
+      "purpose": "owner:resolveAuthenticatedActor",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-014.v1",
+      "purpose": "owner:requireStepUpForSensitiveAction",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-088.v1",
+      "purpose": "owner:manageTemporaryAccessGrant",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-089.v1",
+      "purpose": "owner:revokeTemporaryAccessGrant",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "AgeGateAttempt",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-001.v1",
+      "purpose": "owner:resolveAuthenticatedActor",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-014.v1",
+      "purpose": "owner:requireStepUpForSensitiveAction",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-088.v1",
+      "purpose": "owner:manageTemporaryAccessGrant",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-089.v1",
+      "purpose": "owner:revokeTemporaryAccessGrant",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "AgeGateBlock",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-029.v1",
+      "purpose": "owner:appendAuditEvent",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-030.v1",
+      "purpose": "owner:recordSensitiveAccess",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "AccessAuditLog",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-001.v1",
+      "purpose": "owner:resolveAuthenticatedActor",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-014.v1",
+      "purpose": "owner:requireStepUpForSensitiveAction",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-088.v1",
+      "purpose": "owner:manageTemporaryAccessGrant",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-089.v1",
+      "purpose": "owner:revokeTemporaryAccessGrant",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "User",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-001.v1",
+      "purpose": "owner:resolveAuthenticatedActor",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-014.v1",
+      "purpose": "owner:requireStepUpForSensitiveAction",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-088.v1",
+      "purpose": "owner:manageTemporaryAccessGrant",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-089.v1",
+      "purpose": "owner:revokeTemporaryAccessGrant",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "UserRole",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-016.v1",
+      "purpose": "owner:evaluateProfessionalReadiness",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-024.v1",
+      "purpose": "owner:evaluatePublicReadiness",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-090.v1",
+      "purpose": "owner:attachValidatedMedia",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-094.v1",
+      "purpose": "owner:buildSourceProjection",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-102.v1",
+      "purpose": "owner:resolveModerationTarget",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-103.v1",
+      "purpose": "owner:executeModerationDecision",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-114.v1",
+      "purpose": "owner:provisionOneToOneProfile",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-115.v1",
+      "purpose": "owner:buildAggregateProjection",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-121.v1",
+      "purpose": "owner:applyAiSuggestion",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "professional_eligibility",
+      "action": "SH-124.v1",
+      "purpose": "owner:generateUniqueSlug",
+      "root_kind": "ProfessionalProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-024.v1",
+      "purpose": "owner:evaluatePublicReadiness",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-026.v1",
+      "purpose": "owner:authorizeContextualResourceAccess",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-090.v1",
+      "purpose": "owner:attachValidatedMedia",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-094.v1",
+      "purpose": "owner:buildSourceProjection",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-102.v1",
+      "purpose": "owner:resolveModerationTarget",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-103.v1",
+      "purpose": "owner:executeModerationDecision",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-114.v1",
+      "purpose": "owner:provisionOneToOneProfile",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-115.v1",
+      "purpose": "owner:buildAggregateProjection",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-121.v1",
+      "purpose": "owner:applyAiSuggestion",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "candidate_application_resume_privacy",
+      "action": "SH-125.v1",
+      "purpose": "owner:recordDomainAccessEvent",
+      "root_kind": "CandidateProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-029.v1",
+      "purpose": "owner:appendAuditEvent",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-030.v1",
+      "purpose": "owner:recordSensitiveAccess",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "audit_event_ledger",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "AuditEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-001.v1",
+      "purpose": "owner:resolveAuthenticatedActor",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-014.v1",
+      "purpose": "owner:requireStepUpForSensitiveAction",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-088.v1",
+      "purpose": "owner:manageTemporaryAccessGrant",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-089.v1",
+      "purpose": "owner:revokeTemporaryAccessGrant",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "UserSecurityProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-001.v1",
+      "purpose": "owner:resolveAuthenticatedActor",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-014.v1",
+      "purpose": "owner:requireStepUpForSensitiveAction",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-088.v1",
+      "purpose": "owner:manageTemporaryAccessGrant",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-089.v1",
+      "purpose": "owner:revokeTemporaryAccessGrant",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "identity_access",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "AuthProviderAccount",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-005.v1",
+      "purpose": "owner:resolveEntitlement",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-006.v1",
+      "purpose": "owner:consumeMeteredEntitlement",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-109.v1",
+      "purpose": "owner:snapshotExternalDecision",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-119.v1",
+      "purpose": "owner:applyTemporaryFeatureGrant",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "TrackPlan",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-005.v1",
+      "purpose": "owner:resolveEntitlement",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-006.v1",
+      "purpose": "owner:consumeMeteredEntitlement",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-109.v1",
+      "purpose": "owner:snapshotExternalDecision",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-119.v1",
+      "purpose": "owner:applyTemporaryFeatureGrant",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "TrackEntitlementDefinition",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-005.v1",
+      "purpose": "owner:resolveEntitlement",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-006.v1",
+      "purpose": "owner:consumeMeteredEntitlement",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-109.v1",
+      "purpose": "owner:snapshotExternalDecision",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-119.v1",
+      "purpose": "owner:applyTemporaryFeatureGrant",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "TrackPlanEntitlement",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-005.v1",
+      "purpose": "owner:resolveEntitlement",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-006.v1",
+      "purpose": "owner:consumeMeteredEntitlement",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-109.v1",
+      "purpose": "owner:snapshotExternalDecision",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-119.v1",
+      "purpose": "owner:applyTemporaryFeatureGrant",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "TrackSubscription",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-005.v1",
+      "purpose": "owner:resolveEntitlement",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-006.v1",
+      "purpose": "owner:consumeMeteredEntitlement",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-109.v1",
+      "purpose": "owner:snapshotExternalDecision",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-119.v1",
+      "purpose": "owner:applyTemporaryFeatureGrant",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "TrackEntitlementGrant",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-005.v1",
+      "purpose": "owner:resolveEntitlement",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-006.v1",
+      "purpose": "owner:consumeMeteredEntitlement",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-109.v1",
+      "purpose": "owner:snapshotExternalDecision",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-119.v1",
+      "purpose": "owner:applyTemporaryFeatureGrant",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "TrackUsageEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-005.v1",
+      "purpose": "owner:resolveEntitlement",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-006.v1",
+      "purpose": "owner:consumeMeteredEntitlement",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-109.v1",
+      "purpose": "owner:snapshotExternalDecision",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-119.v1",
+      "purpose": "owner:applyTemporaryFeatureGrant",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "TrackUsageCounter",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-003.v1",
+      "purpose": "owner:queryOwnerFacts",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-005.v1",
+      "purpose": "owner:resolveEntitlement",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-006.v1",
+      "purpose": "owner:consumeMeteredEntitlement",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-015.v1",
+      "purpose": "owner:returnDecisionResult",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-031.v1",
+      "purpose": "owner:appendDomainLifecycleEvent",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-043.v1",
+      "purpose": "owner:resolveNotificationRecipients",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-053.v1",
+      "purpose": "owner:transitionLifecycleState",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-060.v1",
+      "purpose": "owner:deduplicateProviderEvent",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-061.v1",
+      "purpose": "owner:translateProviderStatus",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-062.v1",
+      "purpose": "owner:reconcileProviderState",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-063.v1",
+      "purpose": "owner:captureProviderSnapshot",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-064.v1",
+      "purpose": "owner:authorizeExternalProviderConnection",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-070.v1",
+      "purpose": "owner:deleteProviderResource",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-080.v1",
+      "purpose": "owner:manageVersionedRules",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-095.v1",
+      "purpose": "owner:executePrivacyInstruction",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-096.v1",
+      "purpose": "owner:enumerateSubjectData",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-097.v1",
+      "purpose": "owner:evaluateRetentionRequirement",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-098.v1",
+      "purpose": "owner:anonymizePersonalFields",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-109.v1",
+      "purpose": "owner:snapshotExternalDecision",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-119.v1",
+      "purpose": "owner:applyTemporaryFeatureGrant",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT",
+        "INSERT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "track_subscription_entitlement",
+      "action": "SH-123.v1",
+      "purpose": "owner:validateOwnedTargetReference",
+      "root_kind": "TrackSubscriptionEvent",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "resolve",
+      "root_kind": "CustomerProfile",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "customer_buyer_profile",
+      "action": "SH-004.v1",
+      "purpose": "provision",
+      "root_kind": "CustomerProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT"
+      ]
+    },
+    {
+      "owner": "customer_buyer_profile",
+      "action": "SH-114.v1",
+      "purpose": "provision",
+      "root_kind": "CustomerProfile",
+      "verbs": [
+        "SELECT",
+        "INSERT"
+      ]
+    },
+    {
+      "owner": "customer_buyer_profile",
+      "action": "updateCustomerProfileIdentity.v1",
+      "purpose": "profile_update",
+      "root_kind": "CustomerProfile",
+      "verbs": [
+        "SELECT",
+        "UPDATE"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-009.v1",
+      "purpose": "owner:resolveActiveConsentVersion",
+      "root_kind": "ConsentContentRevision",
+      "verbs": [
+        "SELECT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "SH-010.v1",
+      "purpose": "owner:presentStandaloneConsent",
+      "root_kind": "ConsentPresentation",
+      "verbs": [
+        "SELECT"
+      ],
+      "related_reads": {
+        "ConsentContentRevision": "contentRevision"
+      }
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "publishConsentVersion.v1",
+      "purpose": "consent.publish_version",
+      "root_kind": "ConsentContentRevision",
+      "verbs": [
+        "SELECT",
+        "INSERT"
+      ]
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "recordConsentPresentation.v1",
+      "purpose": "consent.record_presentation",
+      "root_kind": "ConsentPresentation",
+      "verbs": [
+        "SELECT",
+        "INSERT"
+      ],
+      "related_reads": {
+        "ConsentContentRevision": "contentRevision"
+      }
+    },
+    {
+      "owner": "consent_disclosure",
+      "action": "recordConsentDisposition.v1",
+      "purpose": "consent.record_disposition",
+      "root_kind": "ConsentDisposition",
+      "verbs": [
+        "SELECT",
+        "INSERT"
+      ],
+      "related_reads": {
+        "ConsentPresentation": "presentation",
+        "ConsentLog": "proof"
+      }
+    }
+  ],
+  "worker_scope": {
+    "owner": "track_subscription_entitlement",
+    "action": "assignDefaultFreeTrack.v1",
+    "purpose": "default_free_enrollment",
+    "root_kind": "RuntimeWorkItem"
+  },
+  "runtime_work_scopes": [
+    {
+      "owner": "platform_integration_owner",
+      "action": "runtime.claim_work.v1",
+      "purpose": "work.claim"
+    },
+    {
+      "owner": "platform_integration_owner",
+      "action": "runtime.renew_work.v1",
+      "purpose": "work.renew"
+    },
+    {
+      "owner": "platform_integration_owner",
+      "action": "runtime.schedule_work.v1",
+      "purpose": "work.schedule"
+    }
+  ],
+  "reservation_scope": {
+    "action": "runtime.reservation.v1",
+    "purpose": "reservation",
+    "root_kind": "RuntimeReservation"
+  },
+  "registered_global_consent_contexts": [],
+  "global_context_rule": "No global context is currently registered. NULL/empty context IDs fail closed until Consent owner adds an exact reviewed action/context tuple; non-global exact IDs work now.",
+  "source_verb_rule": "Query, pure, result, presentation, history/access-evidence and derived-projection purposes cannot mutate source roots. Independent proof writes need an explicitly registered owner operation; Module participation never grants root DML.",
+  "consent_auxiliary_rule": "Private SQL admission for WA-R019 immutable catalog/rendering/disposition records; no new public SH variant or implemented adapter. Exact root ID and per-row/verb/field caps remain mandatory. Related SELECT also requires <root-kind>/<root-id>/<relationship>/<child-id>. SH-007 cannot append prerequisite rows; SH-009/010 remain SELECT-only. Actual publisher approval, rendering and affirmative acceptance remain owner adapter obligations."
+}

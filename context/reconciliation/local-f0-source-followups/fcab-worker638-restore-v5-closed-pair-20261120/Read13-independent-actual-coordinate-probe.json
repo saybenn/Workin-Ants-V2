@@ -1,0 +1,56 @@
+{
+  "schema": "workinants.read13-0b7c-independent-entry-and-namespace-probe.v1",
+  "reviewer": "/root/restricted_controls_operator",
+  "seconds": 5.421,
+  "actual_child_plan_sha256": "4fa575072ea0bf2f8138e68957fc33854f48d56de818c347fdef3fb1975ee869",
+  "coordinator_sha256": "815bf499bbed3c967091739ed3c2e02d2a12e5c6848f480ca94c88792a2c95bf",
+  "child_validation_sha256": "c629d249c4d818c195720e2a9052882b27044fc739b5ffade3c84dd18abe6905",
+  "actual_entry": {
+    "function": "coordinate -> load_inputs",
+    "result": "REJECTED",
+    "safe_code": "SOURCE_REVIEW_RECORD_ADMISSION",
+    "source_frames": [
+      {
+        "function": "coordinate",
+        "line": 389
+      },
+      {
+        "function": "load_inputs",
+        "line": 104
+      },
+      {
+        "function": "need",
+        "line": 38
+      }
+    ],
+    "project_helper_compiles": 0,
+    "process_calls": 0,
+    "child_evidence_directory_created": false
+  },
+  "gate_comparisons": {
+    "review_path_is_string": true,
+    "required_child_prefix": false,
+    "pinned_review_hash_matches": true,
+    "review_bytes_hash_matches": true,
+    "review_path_in_admitted_blobs": true,
+    "review_path_in_child_archive_map": false
+  },
+  "proposed_metadata_predicate_only": {
+    "old_path": "context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1/reviews/same-Restricted-source-closure.json",
+    "new_path": "context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1/reviews/same-Restricted-source-closure.json",
+    "review_bytes_sha256_unchanged": "9d8b0231dbd5658c39dedc4ef0d3a0269cbd81ee6b4a3a2670bf9672176ffdb6",
+    "actual_source_predicate_passes_after_addition_and_pointer_update": true,
+    "old_prefix_still_rejects": true,
+    "missing_pin_or_blob_or_wrong_hash_reject": true,
+    "not_a_full_corrected_load_or_runtime_qualification": true
+  },
+  "preservation": {
+    "actual667_current_inputs_rehashed_entry_exit": true,
+    "retained29_asset_hashes_verified": true,
+    "Root_source_and_actual_evidence_writes": false
+  },
+  "all_process_network_boundaries_forbidden": true,
+  "historical_actual_complete_cause": "UNOBSERVED; this is a separately identified current closed-input reproduction.",
+  "runtime_or_Git_or_approval_changes": false,
+  "Posture": "D"
+}

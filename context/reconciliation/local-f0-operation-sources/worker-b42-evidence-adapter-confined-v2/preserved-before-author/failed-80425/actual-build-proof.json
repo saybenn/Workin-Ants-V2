@@ -1,0 +1,85 @@
+{
+  "schema": "workinants.worker-b42-Root-actual671-build.v1",
+  "recorded_at_utc": "2026-11-20T11:49:14.523797+00:00",
+  "actual_command": [
+    "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "-B",
+    "scripts/prepare-local-f0-status.py"
+  ],
+  "no_factory_parser_or_source_mocking": true,
+  "prior656_sha256": "50ea0011abb0f30730a5c4f3ff7f3dd56a13b664378ec7254646835b042c4d61",
+  "candidate671_sha256": "8b7cd04a5681dc7d2b2996c20b896dc352af67e88f968f1ccc9250f9bdda0d64",
+  "exact16_assertion_keys": [
+    [
+      "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-RuntimeAttempt-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "positive.wa_worker.update"
+    ],
+    [
+      "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TABLE-TrackSubscription-ALLOW",
+      "positive.wa_worker.select"
+    ],
+    [
+      "P0C-TRACK-01",
+      "control.concurrent_fence"
+    ],
+    [
+      "P0C-TRACK-01",
+      "control.preserve_valid_selection"
+    ],
+    [
+      "P0C-TRACK-01",
+      "vector.LEASE-ATTACH.adversarial"
+    ],
+    [
+      "P0C-TRACK-01",
+      "vector.LEASE-RECOVERY.adversarial"
+    ],
+    [
+      "P0C-TRACK-01",
+      "vector.LEASE-RECOVERY.positive"
+    ]
+  ],
+  "prior_unrelated656_rows_and_executions_preserved": true,
+  "Posture": "D",
+  "known_exit_code": 1,
+  "seconds": 13.485,
+  "stderr_present": true,
+  "unrestricted_stderr_retained": false,
+  "status": "HELD_ACTUAL671_BUILD_UNVERIFIED_OLD656_LEDGER_STATUS_RESTORED"
+}

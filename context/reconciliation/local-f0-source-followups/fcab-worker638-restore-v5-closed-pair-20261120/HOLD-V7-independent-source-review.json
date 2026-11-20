@@ -1,0 +1,109 @@
+{
+  "schema": "workinants.privilege-v7-independent-nonauthor-source-review.v1",
+  "recorded_at_utc": "2026-11-20T12:56:05.137812+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "HOLD",
+  "lineage_disclosure": "Reviewer did not author V7 protocol/coordinator/owned five or data. Reviewer independently reviewed earlier V6 and some accepted inherited source/evidence components. Historical App/Read13 authorship is not authorship of this V7 delta.",
+  "reviewed_delivery_sha256": "2a62c339a5c7e3bf298118c10b31dd38d83453ae4baa256fba6e98bc85ff8356",
+  "source4_sha256": {
+    "scripts/privilege_ceiling_control_protocol_v7.py": "7f20d136bb3eed707e08887212dea9defde5537b357442a421aa5e4cabc94864",
+    "scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py": "571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f",
+    "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v7.py": "5ceb4255a72d110510ddc0e2f1eb220446741543e5683ddb03ad036e196065d5",
+    "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-V7.md": "52ff274504b9cd3b916b7babf737d8e37d6faf5692356663040eb7eb43b57ad2"
+  },
+  "operator_sources_sha256": {
+    "execute_local_f0_privilege_ceiling_v7_20261120.py": "58d44455767e11a79d13aea4883016b9a00fc8a2044ab7f8231e897fcfd6aee2",
+    "local_f0_privilege_ceiling_v7_operation_steps.py": "16ad7c49c15c2f4786ecba7c6fd60f4785e4252a707be98b34754c7cefa5e199",
+    "prepare_local_f0_privilege_ceiling_v7_plan.py": "057f86eb2825b350504d0baca62638129cf9387de07842ea6a63a5f1204394c3",
+    "check_local_f0_privilege_ceiling_v7_operation.py": "c9c1bd77c9a40e57439b3e4e29c64d37ed098cb15777666596f3b97c16a56f86",
+    "pin_local_f0_privilege_ceiling_v7_plan_20261120.py": "32694fb7b44bc15ed931c589969f375e019cd08f5fd15711d7d32a14223e3c02"
+  },
+  "validation_files_sha256": {
+    "context/reconciliation/privilege-ceiling-v7-source-validation.json": "dd7a914de83357c134e6a990b6353b826f4d0f30be099b70fe82d9c9538f61e3",
+    "context/reconciliation/local-f0-privilege-ceiling-owned-v7-source-validation.json": "7e7143083a81b78922e54d25e2f23cd5553130bd57f8ca9a0ca3b5a35017a9f8"
+  },
+  "source_preservation": {
+    "freeze_sha256": "34349fb3e916aac4b2a2374dfe281effb97604165ee9aca072e7622f71af3260",
+    "all779_current_and_snapshot_bytes_verified_entry_exit": true,
+    "closed_archive_files": 207,
+    "no_source_or_gate_edits": true
+  },
+  "findings": [
+    {
+      "id": "V7-FINAL-REFERENCE-POSTCHECK-01",
+      "priority": "P1",
+      "file": "local_f0_privilege_ceiling_v7_operation_steps.py",
+      "file_sha256": "16ad7c49c15c2f4786ecba7c6fd60f4785e4252a707be98b34754c7cefa5e199",
+      "function": "main",
+      "location": "finally checks tuple at about1115: component_report_reference_unchanged precedes packet/tool/external checks; final verdict at about1127 has no later reference read.",
+      "title": "Recheck retained component bytes after every later source/archive postcheck before final PASS",
+      "confirmed_boundary": "The actual main calls the actual retained-file integrity barrier, then verify_tool_data()/other postchecks, then decides final PASS. A component file mutation during a later postcheck is never compared with the original admitted SHA/length.",
+      "actual_probe": {
+        "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_v7_final_reference_order_independent_probe_20261120.json",
+        "sha256": "8be0bcfe57d23e959465482e7e9fa7fccd2574f05408b239123121e1d1eefb4b",
+        "seconds": 0.453,
+        "vectors": [
+          "No mutation: exit0 with matching retained hash.",
+          "Mutation during cleanup before the current barrier: exit1/STOP and reference flagfalse.",
+          "Same-size/mtime-restored mutation during later tool postcheck: exit0/PASS with reference flagtrue and retained bytes SHA differing from the original reference."
+        ],
+        "proof_scope": "Actual unchanged main and actual closed reader/barrier. Prior domain/resource/source qualification phases are isolated to exercise finalization ordering. This is not a real database run or proof of a complete200-case mocked domain result."
+      },
+      "impact": "An otherwise qualified run can emit a final PASS and retain a stale component reference after a late postcheck mutation. Existing inflight/cleanup controls and green16 tests do not cover this later boundary.",
+      "smallest_bounded_fix": "Preserve current779/frozen9/reports and add a fresh original-SHA/length integrity barrier after the entire preservation-check loop and its writes, immediately before final status/finished evidence. Keep the early barrier, every postcheck/finalizer/cleanup attempt and original first failure. On uncertainty set a fixed failed-reference flag/failure and prevent PASS; never overwrite the original reference SHA/length to accept new bytes.",
+      "required_regressions": [
+        "Actual main/reader: nochange passes, cleanup mutation still stops, and same-size/mtime-restored mutations in tool/external-source/archive postchecks stop after all eligible checks ran.",
+        "Original child failure stays primary if the final barrier or its bookkeeping also fails; sticky IO/global closure/exact cleanup remain intact.",
+        "Restore only the old final-barrier placement and require the late-postcheck regression to reproduce acceptance/fail.",
+        "Use actual produced component evidence in a targeted owning composition when justified; no arbitrary PASS factory or guard/cache disabling. Preserve all previous failed/limited reviewer and author outcomes."
+      ]
+    }
+  ],
+  "independent_checks": {
+    "corrected_explicit16": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_v7_independent_explicit16_20261120.json",
+      "sha256": "f8cda6dbb0783eaaf29655658c9950bfacf9aa31e564bf0917357ab527dda708",
+      "status": "PASS",
+      "methods": 16,
+      "seconds": 40.453,
+      "log_sha256": "8517448c397b1cc943a06977559c7967dbbb6db7700f688eea04ec21b18ea717"
+    },
+    "earlier_reviewer_selection_error_preserved": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_v7_independent_bounded_checks_20261120.json",
+      "sha256": "d985c73e0707d6e52d91609174fde5274a02cd12a51176f1c056d433b16d010c",
+      "methods_discovered": 86,
+      "PASS": 59,
+      "FAIL": 3,
+      "ERROR": 24,
+      "seconds": 118.781,
+      "reason": "loadTestsFromTestCase inadvertently included inherited legacy suites. This was not the intended bounded selection; their failures were not independently triaged as new production defects. The corrected exact class-owned16 subsequently passed.",
+      "log_sha256": "165493d6227db1d36f331ae52d8d5ca328fa71ece3757a24929c6eb1b26cc98e"
+    },
+    "cache_probe": {
+      "actual_parent_catalog_prepare_then_private_loader_then_repeated_private_loader": "PASS_WITHOUT_CACHE_CLEAR",
+      "six_helpers_globally_installed_after_parent_sequence": false,
+      "deliberately_inserted_dirty_sentinel": "REJECTED_PRELOADED_HELPER_CACHE_REJECTED_WITH_SENTINEL_PRESERVED",
+      "sentinel_cleanup": "Only reviewer-inserted negative-control sentinel removed after rejection, no real guard weakened."
+    }
+  },
+  "otherwise_reviewed_without_additional_confirmed_blocker": [
+    "Exact eight CREATE fragments only: four fixed schema template SHA256s times two intended actor roles; case/schema/role/UUID4/template/rendered/query SHA binding, actual standalone ASCII CREATE/RangeVar cursor/libpq60/10 projection, no arbitrary SQL splitting/search. Root primary-source audit0f19845 and224-mutant receipt e7ec0270 were examined as Root evidence, not relabeled fresh reviewer web reads.",
+    "Strict SQLSTATE plus exact schema/native location/metadata and optional exact line/caret; generic42501 alone does not pass. Other192 diagnostics and all200 SQL/202 artifacts/original122 source inputs/32WorkerACL remain preserved.",
+    "Fixed typed diagnostic receipts precede assertions; unlisted/malformed/multiseverity/canary inputs cannot echo arbitrary values. First finite operation origin is retained across later labels/IO; actual source-bound stopped report never substitutes for all-success200/244/40/16/3.",
+    "Parent always attempts independent global closure before retained-file IO/observers. Closed regular/single-link bounded descriptor/path metadata and two fresh closed byte/hash reads preserve original reference integrity through the checks they actually surround.",
+    "Child4+owned5 exact source review gates/read hashes precede project helper/resource phases. Actual parent helper loader uses private ModuleType graphs and never adds the six helper names to sys.modules. Child/native imports do not introduce those global helpers.",
+    "Test-only six-name cache cleanup occurs before Core.launch because the offline SQL model imports catalog helpers for fixtures. It is not a cleanup at the parent-to-child handoff; production cache guard is unchanged and independent cold/dirty controls verify it.",
+    "Author normal933.328s, stopped/IO+late-cleanup1178.140s, final gates8 and postfreeze4 results remain author evidence with exact source/version qualification. No unnecessary15-minute independent full suite was repeated."
+  ],
+  "historical_limits": [
+    "Discarded086c CREATE primary/LINE/caret/native frame/full cause remains UNOBSERVED.",
+    "Earlier192-stop IO exception complete cause remains UNOBSERVED; the separate Windows held-reader experiment demonstrates a possible mechanism only."
+  ],
+  "all_new_source_gates": "PENDING",
+  "runtime": "NOT_RUN_BY_REVIEWER",
+  "assertion_status_changes": "NONE",
+  "Posture": "D",
+  "no_Git_Docker_DB_SQL_network_source_or_gate_mutation": true,
+  "next_gate": "Root bounded fix ACK, author preservation/new freeze, same-reviewer focused closure before any source metadata approval/publication/pin/runtime.",
+  "plain_english": "The report is checked, then other chores run. The report can change during those chores and still get a final yes. Check it once more after the last chore."
+}

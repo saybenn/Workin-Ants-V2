@@ -1,0 +1,4 @@
+SELECT jsonb_build_object(
+'authorization_count',(SELECT count(*) FROM platform_private.identity_service_authorization),
+'receipt_count',(SELECT count(*) FROM platform_private.identity_service_receipt),
+'exact_current_link',EXISTS(SELECT 1 FROM platform_private.identity_service_authorization a JOIN platform_private.identity_service_receipt r ON r.id=a.identity_receipt_id WHERE a.service_principal='ctx01-control-synthetic.v1' AND a.security_generation=1 AND r.id='7133a084-53bf-5f89-9159-f9baf185751c' AND r.security_generation=a.security_generation AND r.service_principal=a.service_principal AND r.transition='revoke' AND r.previous_receipt_id='9f6b0fa9-7a6f-52a6-8297-6ea55cbf6c0f' AND a.revoked_at IS NOT NULL AND r.revoked_at IS NOT DISTINCT FROM a.revoked_at AND r.mutation_transaction_id=a.mutation_transaction_id));

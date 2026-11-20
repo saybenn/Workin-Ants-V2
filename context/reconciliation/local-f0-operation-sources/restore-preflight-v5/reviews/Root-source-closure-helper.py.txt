@@ -1,0 +1,38 @@
+"""Close only the hash-bound separate V5 source gates; no SQL/runtime/Git mutation."""
+from pathlib import Path
+import ast,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+dp=T/'restore_preflight_v5_frozen_source_delivery_20261120.json';db=dp.read_bytes();assert sha(db)=='10bd902e12b0c5d6149bf12775a65154f8ce4d0609efac8441bc3bb68093ce81';d=json.loads(db)
+pp=T/'restore_preflight_v5_independent_source_review_20261120.json';pb=pp.read_bytes();assert sha(pb)=='cb2d0fa128a30c5b59069affdce628e8fe4f2f48ba1bd89258bbcd56c3845e9c';peer=json.loads(pb)
+assert peer['decision']=='SOURCE_APPROVED' and peer['findings']==[] and peer['reviewed_delivery_sha256']==sha(db)
+assert len(d['Root_files_sha256'])==1069
+for n,h in d['Root_files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in peer['exact_eight_sources_sha256'].items():
+ p=R/n if n.startswith('scripts/')else T/n;assert sha(p.read_bytes())==h
+ if p.suffix=='.py':ast.parse(p.read_bytes())
+assert d['external_five_sha256']=={n:h for n,h in peer['exact_eight_sources_sha256'].items()if not n.startswith('scripts/')}
+cn='context/reconciliation/local-f0-restore-preflight-v5-source-validation.json';on='context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json'
+cb=(R/cn).read_bytes();ob=(R/on).read_bytes();assert sha(cb)==d['validation_sha256'][cn]=='a607f574815d1c5d846c35706866accb2c3ab1d06158317bd805c699a2bcc7bb';assert sha(ob)==d['validation_sha256'][on]=='69fd4470bda43eb7df68a8b41d9be4bd8f2127f235d85752a5aa53abb06c4ec8'
+c=json.loads(cb);o=json.loads(ob);assert c['archive_files_sha256']==o['archive_files_sha256'] and len(c['archive_files_sha256'])==1038
+assert o['all_five_sources_sha256']==d['external_five_sha256'] and o['child_validation']==cn
+A=R/'context/reconciliation/local-f0-operation-sources/restore-preflight-v5'
+assert {p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()}==c['archive_files_sha256']
+for meta in(c,o):assert meta['source_review_status']=='PENDING' and meta['independent_source_review']=={'decision':'PENDING','path':None,'sha256':None}
+root={'schema':'workinants.restore-preflight-v5-Root-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','reviewer':'/root','peer_sha256':sha(pb),'exact_eight_sources_sha256':peer['exact_eight_sources_sha256'],'review':{'SQL':'Only backup-preflight.sql changes among25 leaves. Exact archive_mode=off plus PG17 disabled SHOW value and unique raw reset_val empty/context sighup/type string/no pending restart; no relaxation of hidden command checks. Other15 predicates and system hash proof retained.','observation':'Fixed16 comparison receipt before assertion; typed presence/unknown semantics, no raw17/settings/sysid/SQL/credentials/handles. First safe primary before secondary IO, independently closed operation before observers and before verdict.','isolation':'Other24 leaves,51 Core functions and89 ordinary Steps functions unchanged; originalgrantor,34? no added ACL,32worker rows, image/resource/mount/quarantine/COMMIT/recovery/generation/cleanup limits unchanged.','checks':'Author96 distinct methods across source21/focused9/graph9/applicable57, version-qualified failures and corrected affected tests preserved. Peer independently30PASS7.796s with exact1069+5/1038 closure and static scope proof. These repeat checks are not additional unique runtime coverage.','historical':'c5ac17 raw values/16 predicate values/failed field/complete original cause UNOBSERVED. Source-proven display defect and pure counterexamples do not reconstruct historical values. Physical backup/staging/restored target/generation still NOT_RUN.','execution':'Only source gates close. New held source plan must be freshly prepared against current metadata, normally published, current+committed pinned and independently literal-reviewed/live-prefighted before Root-only actual.'},'runtime':'NOT_RUN','Posture':'D'}
+root['review']['isolation']='Other24 leaves,51 Core functions and89 ordinary Steps functions unchanged; original grantor, no added ACL,32 worker rows, image/resource/mount/quarantine/COMMIT/recovery/generation/cleanup limits unchanged.'
+extras={'child-validation-before-Root-closure.json':cb,'owned-validation-before-Root-closure.json':ob,'independent-Catalog-source-review.json':pb,'frozen-author-delivery.json':db,'frozen-author-report.json':Path(d['author_report_path']).read_bytes(),'Root-source-closure.json':enc(root),'Root-source-closure-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in extras.items():put(A/'reviews'/n,b)
+archive={p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()};assert len(archive)==1045
+peerpath=(A/'reviews/independent-Catalog-source-review.json').relative_to(R).as_posix()
+for meta,name in((c,cn),(o,on)):
+ meta['source_review_status']='SOURCE_APPROVED';meta['independent_source_review']={'decision':'SOURCE_APPROVED','path':peerpath,'sha256':sha(pb)};meta['archive_files_sha256']=archive
+ (R/name).write_bytes(enc(meta))
+files={**d['Root_files_sha256'],**archive,cn:sha((R/cn).read_bytes()),on:sha((R/on).read_bytes())}
+assert len(files)==1076
+for n,h in files.items():assert sha((R/n).read_bytes())==h
+inventory={'schema':'workinants.restore-preflight-v5-source-approved-final-inventory.v1','files':len(files),'files_sha256':dict(sorted(files.items())),'child_validation_sha256':files[cn],'owned_validation_sha256':files[on],'independent_source_review_sha256':sha(pb),'Root_source_closure_sha256':sha(enc(root)),'exact_source_code_unchanged_after_peer_review':True,'runtime':'NOT_RUN','Posture':'D'}
+ip=T/'restore_preflight_v5_source_approved_committable_inventory_20261120.json';put(ip,enc(inventory))
+print(json.dumps({'inventory_sha256':sha(ip.read_bytes()),'files':len(files),'child_validation_sha256':files[cn],'owned_validation_sha256':files[on],'archive':len(archive),'runtime':'NOT_RUN'}))

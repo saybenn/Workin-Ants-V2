@@ -1,3 +1,35 @@
+## Local F0 continuation —638 accepted assertions and reviewed recovery source (2026-11-20)
+
+The actual unmocked671-row builder passed in390.344s, followed by13 integration regressions in332.414s. Exactly16 Worker assertion links change: twelve newPASS,onePARTIAL-to-PASS with its complete prior fence evidence preserved,and three newPARTIAL. The671-row ledger preserves all other655 old rows and old executions. Coverage is638PASS/33PARTIAL/324NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED across1034assertions;94cases remain5PASS/78PARTIAL/11NOT_RUN. Four Worker source ceilings remainPARTIAL, including one unchanged historical corroboration. No production worker loop or blanket case promotion.
+
+The V1 full build rejected and restored the old656/625 bytes; its original exception/fullcause was not retained. A later exact-source, process-blocked replay separately proves two tool metadata paths traverse an outsideRoot junction. V2 uses only two fixed hash-identical tracked snapshots, preserving original654 logical identities, physical654 closed reads/final barrier and strict confinement. Its21author checks and independent Root33-predicate/real654/16-row review passed before the real full build. Original failed build/metadata/reviews are immutable history; snapshots do not prove current node_modules state.
+
+Both fcab App8f2a and Read130b7c attempts are stopped,preserved and independentlycleaned. App completed13protocols,then failed its final positive Work UPDATE with no retained primary diagnostic; new diagnostic-only source work is authorized. Read13 created no child results; later process-blocked source replays prove the current wrong review-archive namespace,while the original exception/fullcause remainsunobserved. Fresh private Read13 data preserves all101SQL semantics after49declared IDs,with child6 code unchanged; new bindings/entry receipt require composed tests and independent review.
+
+RestorePreflightV5 is source-approved,Rootclosed1076files and process-blocked1200-file preparation/validation passed. Its fresh9cf7cce2 plan remainsTO_BE_PINNED/PENDING/NOT_RUN. V7source tests passed offline but independent review remainsopen; the missing INSTALL failure/precleanup phase is stillPARTIAL while its new source is tested. All actual DB resources/private secrets are absent; pinned image retained. Canonical5aeSQL,June,A-D,32workerACL,1034requirements and451register are unchanged. PostureD and Brain final stage acceptance remain. Continue after publication.
+
+Plain English: The scoreboard rebuild and its safety checks passed. Thirteen more assertions now have passing proof, while three new ones have only part of their proof. Two stopped database tests still need corrections; unfinished work stays unfinished.
+
+Current detailed evidence: `context/reconciliation/local-f0-worker638-closed-pair-reviewed-restore-progress-20261120.json`, SHA-256 `4365bbcad3d02376c2e2597d816e9eb670cfa8cad495da2f1614057b263e97ae`. Earlier sections remain version-qualified history.
+
+---
+
+## Local F0 continuation — two stopped attempts, unchanged625, bounded source corrections (2026-11-20)
+
+The published checkpoint isfcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f/tree2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f. Fresh App8f2a completed13of14 finite protocols, then its final pending Work UPDATE stopped with exit3/one BEFORE record/no AFTER and no retained unexpected diagnostic. The exact child failure origin, closures, final native guard parity and30sanitized assets are preserved. Its SQLSTATE/primary/complete cause remain unobserved; no SQL recipe or permission defect is proven. New diagnostics-only source work is authorized under separate review.
+
+Read13run0b7c passed prerequisites but stopped before child evidence/results;29assets are preserved. Process-blocked saved-input and independent entry replays separately prove an admission mismatch: Root placed the review record in the owned archive while the unchanged coordinator requires the child archive. The original exception/fullcause stays unobserved. Correct metadata, materialize a fresh identifier-only packet and review its exact outer bindings; no identical opaque retry or reused run approval. Both1C1V pairs/private secrets are independently absent and image retained; no database runtime is active.
+
+Accepted coverage remains625PASS/31PARTIAL/339NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED, with656ledger rows and5PASS/78PARTIAL/11NOT_RUN across94cases. Worker source passed independent14checks, but the real671-row build rejected; old ledger/status were restored and rehashed. A new pure reproduction identifies two metadata files under an outsideRoot junction. Fixed immutable snapshots are proposed while preserving containment; no Worker count increase is admitted.
+
+RestorePreflightV5 is separately source-approved with1076closed files and an actual process-blocked1200-file preparation/validation pass. Its fresh plan remains unpinned/PENDING/NOT_RUN. V7final offline checks and the missing INSTALL failure/precleanup activation-phase source work continue. Canonical5aeSQL,June migration,A-D,32workerACL,1034requirements and451register remain unchanged. PostureD, all later-phase boundaries and Brain final acceptance remain. A published checkpoint does not finish this assignment.
+
+Plain English: Two tests stopped safely and saved their clues. The toy databases and keys are gone. The scoreboard stays at its old checked score while the new readers and test tools are corrected and reviewed.
+
+Current detailed evidence: `context/reconciliation/local-f0-fcab-closed-app-read13-source-corrections-progress-20261120.json`, SHA-256 `73970ab19fa510fe7bece12467eff205b052116c827d415578e248c2966e8d4b`. Earlier sections remain version-qualified history.
+
+---
+
 ## Local F0 continuation — accepted625 and reviewed next packets (2026-11-20)
 
 The actual unmocked656-row builder and13 integrated regressions passed. Coverage is625PASS/31PARTIAL/339NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED across1034assertions;94cases are5PASS/78PARTIAL/11NOT_RUN. P0C-INSTALL-01 becomes the fifth wholePASS through unchanged all-mandatory aggregation. The exact five INSTALL changes preserve old provenance: twoPARTIAL-to-PASS, two newPASS, one newPARTIAL. Missing failed-install/precleanup activation timing stays unproved andPARTIAL; twelve oldPASS rows remain unchangedcorroborations.

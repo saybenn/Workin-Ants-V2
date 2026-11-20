@@ -1,0 +1,236 @@
+{
+  "schema": "workinants.restore-v4-fix2-custom-namespace-version-qualification.v1",
+  "source_only": true,
+  "input_probe_sha256": "78af420710aca8854b9380114a57716edc2816beb28f79e449bf1efd3f9b293c",
+  "rows": [
+    {
+      "sql": "SET transaction.custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "REJECTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET transaction.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "REJECTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET transaction.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "REJECTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET TrAnSaCtIoN.custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "REJECTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET TrAnSaCtIoN.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "REJECTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET TrAnSaCtIoN.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "REJECTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET \"transaction\".custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET \"transaction\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET \"transaction\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET \"TRANSACTION\".custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET \"TRANSACTION\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET \"TRANSACTION\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL transaction.custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET LOCAL transaction.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET LOCAL transaction.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET LOCAL TrAnSaCtIoN.custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET LOCAL TrAnSaCtIoN.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET LOCAL TrAnSaCtIoN.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET LOCAL \"transaction\".custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL \"transaction\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL \"transaction\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL \"TRANSACTION\".custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL \"TRANSACTION\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL \"TRANSACTION\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET SESSION transaction.custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET SESSION transaction.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET SESSION transaction.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET SESSION TrAnSaCtIoN.custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET SESSION TrAnSaCtIoN.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET SESSION TrAnSaCtIoN.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET SESSION \"transaction\".custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET SESSION \"transaction\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET SESSION \"transaction\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET SESSION \"TRANSACTION\".custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET SESSION \"TRANSACTION\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET SESSION \"TRANSACTION\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL transaction /* namespace */ . /* leaf */ custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "REJECTED"
+    },
+    {
+      "sql": "SET LOCAL \"transaction.custom\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL \"TRANSACTION.CUSTOM\" = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "RESET transaction.custom; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "RESET \"transaction\".custom; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "RESET \"ALL\"; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "RESET \"all\".custom; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL transaction_isolation.custom = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    },
+    {
+      "sql": "SET LOCAL custom.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "held064": "ADMITTED",
+      "Fix2a185": "ADMITTED"
+    }
+  ],
+  "held064_incorrect_rejections": 6,
+  "Fix2a185_incorrect_rejections": 19,
+  "newly_rejected_in_Fix2": 13,
+  "scope": "Existing bare-prefix overbreadth retained and extended by scoped classifier; no claim all incorrect cases originated in Fix2."
+}

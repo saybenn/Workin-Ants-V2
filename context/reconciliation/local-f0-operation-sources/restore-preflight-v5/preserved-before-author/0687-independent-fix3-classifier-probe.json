@@ -1,0 +1,1145 @@
+{
+  "schema": "workinants.restore-v4-fix3-independent-classifier-probe.v1",
+  "five_sha256": {
+    "execute_local_f0_restore_20261119_bound_evidence_v4.py": "187108844d74827427a2ccfd2299d67c466c8ff474df4124c138bf34f92ccc36",
+    "local_f0_restore_operation_steps_bound_evidence_v4.py": "001aa98bb064d62fcc98f36ddc0b31d80aafc7a8b6a932843d6bb24da9d1e889",
+    "prepare_local_f0_restore_plan_bound_evidence_v4.py": "ac714d7e1966199c6036b5bba78e9f41160f30d8366eaddbd31b9ee39fa01752",
+    "check_local_f0_restore_operation_bound_evidence_v4.py": "e2e754d3e64610825367987c9c13c2564186ce1dbbe19c153034b38f7904a6f3",
+    "pin_local_f0_restore_plan_20261119_bound_evidence_v4.py": "a4d86ca6cd866fefcad980f2306976734acfe4af80932c09e693f4c0ccc6e6f6"
+  },
+  "steps_sha256": "001aa98bb064d62fcc98f36ddc0b31d80aafc7a8b6a932843d6bb24da9d1e889",
+  "original74": {
+    "rejected": 68,
+    "accepted_exact": 6,
+    "immutable_input_sha256": "832e93e7659bb4132687c41bf1fadc1662c5184ab922f6a0f66f8d2630a7fa81"
+  },
+  "custom_namespace_vectors": [
+    {
+      "sql": "SET transaction.custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET transaction.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET transaction.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET TrAnSaCtIoN.custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET TrAnSaCtIoN.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET TrAnSaCtIoN.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET \"transaction\".custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET \"transaction\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET \"transaction\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET \"TRANSACTION\".custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET \"TRANSACTION\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET \"TRANSACTION\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL transaction.custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL transaction.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL transaction.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL TrAnSaCtIoN.custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL TrAnSaCtIoN.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL TrAnSaCtIoN.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL \"transaction\".custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL \"transaction\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL \"transaction\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL \"TRANSACTION\".custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.custom",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL \"TRANSACTION\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL \"TRANSACTION\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.transaction_read_only",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION transaction.custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION transaction.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION transaction.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION TrAnSaCtIoN.custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION TrAnSaCtIoN.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION TrAnSaCtIoN.\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION \"transaction\".custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION \"transaction\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION \"transaction\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION \"TRANSACTION\".custom = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION \"TRANSACTION\".transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET SESSION \"TRANSACTION\".\"transaction_read_only\" = 'on'; SELECT 1; COMMIT;",
+      "family": "DOTTED_TRANSACTION_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL transaction /* namespace */ . /* leaf */ custom = 'on'; SELECT 1; COMMIT;",
+      "family": "COMMENT_SEPARATED_DOTTED_NAMESPACE",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL \"transaction.custom\" = 'on'; SELECT 1; COMMIT;",
+      "family": "NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction.custom",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL \"TRANSACTION.CUSTOM\" = 'on'; SELECT 1; COMMIT;",
+      "family": "NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "TRANSACTION.CUSTOM",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "RESET transaction.custom; SELECT 1; COMMIT;",
+      "family": "NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_RESET",
+          "name": "transaction.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "RESET \"transaction\".custom; SELECT 1; COMMIT;",
+      "family": "NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_RESET",
+          "name": "transaction.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "RESET \"ALL\"; SELECT 1; COMMIT;",
+      "family": "NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_RESET",
+          "name": "ALL",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "RESET \"all\".custom; SELECT 1; COMMIT;",
+      "family": "NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_RESET",
+          "name": "all.custom",
+          "local": false
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL transaction_isolation.custom = 'on'; SELECT 1; COMMIT;",
+      "family": "NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_isolation.custom",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "sql": "SET LOCAL custom.transaction_isolation = 'on'; SELECT 1; COMMIT;",
+      "family": "NAMESPACE_AND_QUOTED_KEYWORD_NEGATIVE_CONTROL",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "custom.transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected": "ADMITTED_EXACT_BUSINESS",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    }
+  ],
+  "incorrect_rejections": 0,
+  "scope": "Actual production helper only, pglast offline parse/AST oracle. No SQL/process/network execution. No pinned-three-source or actual runtime failure inferred."
+}

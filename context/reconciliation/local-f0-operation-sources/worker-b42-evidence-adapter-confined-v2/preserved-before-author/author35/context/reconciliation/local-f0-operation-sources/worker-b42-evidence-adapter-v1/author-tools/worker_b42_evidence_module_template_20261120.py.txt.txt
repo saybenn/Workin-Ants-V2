@@ -1,0 +1,189 @@
+"""Pure exact Worker21 closed-evidence qualification, pending separate review.
+
+No runtime, archived code, SQL, process or network execution occurs here.
+Only16 authorized ledger changes are a default batch; claim17 corroborates an
+unchanged older PARTIAL row. Raw per-case42 snapshots/rowsets were not retained.
+"""
+import ast,hashlib,json,math,os,re,stat
+from pathlib import Path
+from collections import Counter
+from types import MappingProxyType
+@@CONSTANTS@@
+BASELINE_CANONICAL_SHA='acd236a2f0cbaa04d7273c739087be22b8a894a748e1dfd55890de3066df87a6'
+@@COMMON@@
+
+def _capture(root):
+    blobs={name:_read(root,name,wanted)for name,wanted in PINS.items()}
+    need(len(blobs)==GRAPH_FILES and sum(map(len,blobs.values()))<=MAX_BUNDLE_BYTES,'BUNDLE_SIZE')
+    return blobs
+
+def _audit_semantics(blobs):
+    raws=blobs;cache={}
+    def J(name):
+        raw=blobs[name]
+        if raw not in cache:cache[raw]=doc(raw)
+        return cache[raw]
+@@SEMANTICS@@
+    need(native_sha==NATIVE and len(native['relations'])==42,'EXACT_REVIEWED_FULL_NATIVE')
+    source_expected=J('review-output/native-catalog/expected.json')
+    need(digest(source_expected['expected'])==master['catalog']['source_expected_sha256'],'SOURCE_EXPECTED_CATALOG_HASH')
+    need(len(fixtures['worker_acl_rows'])==32 and digest(fixtures['worker_acl_rows'])==WORKER32_SHA,'UNCHANGED32_WORKER_ACL')
+    need(len(master['packet_files_sha256'])==601 and all(sh(blobs[name])==wanted for name,wanted in {**master['packet_files_sha256'],**record['assets_sha256']}.items()),'FULL601_42_SOURCE_GRAPH')
+    need(record['source_commit']==COMMIT and record['source_tree']==TREE and record['run_id']==RUN and record['operation_packet_sha256']==PACKET and child['current_stage']=='COMPLETE'and child['current_case']is None,'FIXED_REVIEWED_IDENTITY_COMPLETE')
+    need(master['review_status']=='APPROVED_LOCAL_F0_WORKER_RECOVERY_ATTEMPT','EXACT_APPROVED_LITERAL')
+    details=outer['worker_recovery'];child_raw=blobs[A+'/evidence/worker-recovery-component/worker-recovery-results.json']
+    same(details['component_report_reference'],{'artifact':'worker-recovery-component/worker-recovery-results.json','present':True,'read_status':'RETAINED','artifact_sha256':sh(child_raw),'bytes':len(child_raw)},'CLOSED_LITERAL_CHILD_REFERENCE')
+    need(details['component_closure_attempted']is True and details['component_closure_confirmed']is True and details['component_report_sha256']==digest(child),'PARENT_CHILD_CLOSURE_AND_BYTES')
+    summary=J(A+'/evidence/worker-recovery-component-result.json')
+    same(summary,{'schema':'workinants.worker-recovery-component-summary.v1','status':child['status'],'completed_protocols':21,'complete_state_sha256':child['results'][-1]['complete_state_sha256'],'grants_retained':33,'component_report_sha256':digest(child),'selected_assertions':'NOT_PROMOTED_PENDING_INDEPENDENT_EVIDENCE_REVIEW'},'EXACT_COMPONENT_SUMMARY')
+    attestation=J(A+'/evidence/worker-recovery-native-attestation.json');run_plan=J(A+'/evidence/worker-recovery-run-plan.json')
+    need(run_plan['schema']=='workinants.worker-recovery-run.v1'and run_plan['scope']=='REVIEWED_SELECTED94_WORKER_RECOVERY_SQL_SUBSET_ONLY'and run_plan['scenario_names']==[c['name']for c in fixtures['cases']],'EXACT_REAL15_FIELD_CHILD_PLAN')
+    need(all(attestation[key]==value for key,value in{'run_id':RUN,'container_id':cid,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'native_snapshot_sha256':NATIVE,'original_grantor_finalized':True,'operation_backends_absent':True}.items()),'SAME_CID_SOURCE_NATIVE_ATTESTATION')
+    need(run_plan['run_id']==RUN and run_plan['immutable_container_id']==cid and run_plan['packet_sha256']==PACKET and run_plan['native_attestation']['sha256']==sh(blobs[A+'/evidence/worker-recovery-native-attestation.json'])and run_plan['native_snapshot']['sha256']==sh(blobs[A+'/evidence/native-before.json']),'ACTUAL_CHILD_PLAN_NATIVE_BINDING')
+    same(child['limits'],fixtures['scope_limits'],'FINITE_SCOPE_LIMITS')
+    same(child['selected_controls'],[{'id':name,'status':'NOT_RUN'}for name in fixtures['selected_control_ids']],'NO_RAW_CASE_PROMOTION')
+    for path,wanted in fixtures['source_files_sha256'].items():need(master['packet_files_sha256'].get(path)==wanted==sh(blobs[path]),'FIXTURE_SOURCE_PIN')
+    for path,wanted in fixtures['prepared_files_sha256'].items():need(master['packet_files_sha256'].get('review-output/worker-recovery-control-rehearsal/'+path)==wanted==sh(blobs['review-output/worker-recovery-control-rehearsal/'+path]),'PREPARED_SQL_PIN')
+    owned=J('context/reconciliation/local-f0-worker-recovery-owned-guard-observation-v2-source-validation.json')
+    for key in('independent_safety_sql_review','independent_guard_observation_review'):
+        review=owned[key];need(review['decision']=='SOURCE_APPROVED'and review['operator_sources_sha256']==master['worker_recovery']['external_files_sha256']and sh(blobs[review['path']])==review['sha256'],'BOUND_OWNED_SOURCE_REVIEW')
+    source_root='context/reconciliation/local-f0-operation-sources/worker-recovery-owned-guard-observation-v2/'
+    for name,wanted in master['worker_recovery']['external_files_sha256'].items():need(sh(blobs[source_root+name+'.txt'])==wanted,'EXACT_ARCHIVED_FIVE')
+    for case in fixtures['cases']:
+        if not case['name'].startswith('current-worker-read-'):continue
+        model=case['name'].removeprefix('current-worker-read-');query=blobs['review-output/worker-recovery-control-rehearsal/'+case['sql']].decode()
+        table,row_id=re.search(r"FROM ([a-z_]+\.[a-z_]+) WHERE id='([^']+)'",query).groups();schema,name=table.split('.')
+        policy=next(line for line in application.splitlines()if line.startswith('CREATE POLICY "p_worker_select" ON "'+schema+'"."'+name+'"'))
+        fields=re.findall(r"'([^']+)'",re.search(r'ARRAY\[(.*?)\]::text\[\]',policy)[1])
+        need(fields and all(model+'/'+row_id+'/SELECT/'+field in fixtures['grants']['A-process']['allowed_fields']for field in fields),'COMPLETE_SCOPED_MODEL_CAPS')
+        need('platform_private.worker_track_allowed'in policy and 'platform_private.row_allowed'in policy,'ACTUAL_WORKER_RLS_BOUNDARY')
+    migration=outer['migration_operations'][0];registration=J(A+'/evidence/ledger-registration.json')
+    need(migration['attestation_sha256']==registration['target_attestation_sha256']and migration['source_sql_sha256']==APP,'FIRST_GENUINE_INSTALL_ATTESTATION')
+    expected_cleanup={target:{'kind':'container','absent_exact_known_diagnostic':True,'raw_output_retained':False},master['targets'][0]['volume']:{'kind':'volume','absent_exact_known_diagnostic':True,'raw_output_retained':False}}
+    same(cleanup['exact_name_observations'],expected_cleanup,'EXACT_TWO_INDEPENDENT_ABSENCES')
+    need(cleanup['run_id']==RUN and cleanup['source_commit']==COMMIT and cleanup['source_tree']==TREE and cleanup['packet_sha256']==PACKET and cleanup['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'and cleanup['private_directory_absent']is True and cleanup['pinned_image_retained']is True,'INDEPENDENT_CLEANUP_PROOF')
+    need(cleanup['manifest_sha256']==record['operation_manifest_sha256']and cleanup['run_evidence_sha256']==record['raw_evidence_sha256'],'INDEPENDENT_CLEANUP_INPUT_BINDING')
+    same(outer['cleanup_summary']['resource_presence_after'],dict.fromkeys(expected_cleanup,False),'OUTER_TWO_RESOURCE_ABSENCES')
+    need(outer['cleanup_summary']['private_directory_absent']is True and outer['cleanup_summary']['image_removed']is False and outer['cleanup_summary']['unrelated_resources_changed']is False,'EXACT_OWNED_CLEANUP')
+
+def _expected_claims(blobs):
+    proposal=doc(blobs[ARCHIVE+'/exact17-mapping-proposal.json'])
+    inventory=doc(blobs['context/reconciliation/local-f0-assertions.json'])
+    fixture=doc(blobs['review-output/worker-recovery-control-rehearsal/fixtures.json'])
+    baseline=doc(blobs[BASELINE]);old={(row['case_id'],row['assertion_id']):row for row in baseline['assertions']}
+    cases={case['id']:case for case in inventory['cases']};claims=[]
+    need(len(baseline['assertions'])==len(old)==653 and Counter(row['status']for row in baseline['assertions'])=={'PASS':621,'PARTIAL':32},'ARCHIVED_653_BASE')
+    need(len(proposal['proposed_actions'])==len(fixture['assertion_ceilings'])==len(CLOSED_CLAIMS)==17,'EXACT17_CEILINGS')
+    for index,(row,ceiling)in enumerate(zip(proposal['proposed_actions'],fixture['assertion_ceilings'])):
+        key=(row['case_id'],row['assertion_id']);need(CLOSED_CLAIMS.get(key)==index,'CLOSED17_ORDER')
+        item=next(value for value in cases[key[0]]['assertions']if value['id']==key[1])
+        expected_sha=sh(item['expected_assertion'].encode());complete_sha=sh(canonical(item).encode())
+        need(item['availability']=='CANDIDATE_LOCAL_SQL_PATH'and item['dependency_ids']==[],'SOURCE_REQUIREMENT_AVAILABLE')
+        same([row['expected_assertion_sha256'],row['complete_source_assertion_sha256'],row['proposed_status']],[expected_sha,complete_sha,CLAIM_STATUSES[key]],'EXACT_EXPECTATION_STATUS')
+        same([ceiling['case_id'],ceiling['assertion_id'],ceiling['expected_assertion_sha256'],ceiling['complete_source_assertion_sha256'],ceiling['maximum_after_actual_evidence_and_review']],[key[0],key[1],expected_sha,complete_sha,CLAIM_STATUSES[key]],'SOURCE_CEILING')
+        need(row['action']==CLAIM_ACTIONS[key],'EXACT_ROOT_MAPPING_ACTION')
+        claim={'case_id':key[0],'assertion_id':key[1],'status':CLAIM_STATUSES[key],'expected_assertion_sha256':expected_sha,'complete_source_assertion_sha256':complete_sha,'maximum_status':CLAIM_STATUSES[key],'action':CLAIM_ACTIONS[key],'ledger_changing':key in LEDGER_CHANGES,'qualification_scope':row['qualified_scope'],'qualification_limit':row['qualification_limit'],'evidence_pieces':row['observations']}
+        if key in old:
+            same(row['complete_previous_ledger_row'],old[key],'COMPLETE_OLD_ROW');need(row['previous_ledger_row_canonical_sha256']==sh(canonical(old[key]).encode()),'OLD_ROW_CANONICAL_SHA')
+            claim.update(prior_evidence=old[key],prior_evidence_sha256=sh(canonical(old[key]).encode()))
+        claims.append(claim)
+    need(Counter(row['status']for row in claims)=={'PASS':13,'PARTIAL':4},'EXACT13_PASS4_PARTIAL')
+    return claims
+
+def _expected_ledger_row(claim,execution_sha):
+    row={key:claim[key]for key in('case_id','assertion_id','status','expected_assertion_sha256')}
+    row.update(source_commit=COMMIT,source_tree=TREE,packet_sha256=PACKET,application_sql_sha256=APP,run_id=RUN,evidence_path=DERIVED,evidence_sha256=execution_sha,json_pointer='/claims/'+str(CLOSED_CLAIMS[(row['case_id'],row['assertion_id'])]),qualification_scope=claim['qualification_scope'],qualification_limit=claim['qualification_limit'])
+    if claim['action']=='UPGRADE_PARTIAL_TO_PASS_PRESERVE_COMPLETE_PRIOR_ROW':row.update(previous_evidence=claim['prior_evidence'],previous_evidence_sha256=claim['prior_evidence_sha256'])
+    return row
+
+def propose_ledger_delta(current,execution,baseline):
+    """Pure additive proposal; never reads or writes a live ledger."""
+    _typed_json(current);_typed_json(execution);_typed_json(baseline)
+    need(sh(canonical(baseline).encode())==BASELINE_CANONICAL_SHA,'EXACT_PRIOR653_HISTORY')
+    need(sh((json.dumps(execution,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode())==PINS[DERIVED],'EXACT_DERIVED_DELTA')
+    need(type(current)is dict and type(current.get('assertions'))is list and type(current.get('executions'))is list,'CURRENT_LEDGER_SHAPE')
+    result=doc(canonical(current).encode());rows=result['assertions']
+    old={(r['case_id'],r['assertion_id']):r for r in baseline['assertions']}
+    lookup={(r['case_id'],r['assertion_id']):i for i,r in enumerate(rows)}
+    need(len(lookup)==len(rows)and set(old)<=set(lookup),'COMPLETE_UNIQUE_PRIOR_KEYS')
+    need(result['executions'][:len(baseline['executions'])]==baseline['executions'],'PRESERVE_PRIOR_EXECUTIONS')
+    changed=set()
+    for claim in execution['claims']:
+        key=(claim['case_id'],claim['assertion_id'])
+        if not claim['ledger_changing']:
+            same(rows[lookup[key]],old[key],'KEEP_OLD_CORROBORATED_ROW');continue
+        row=_expected_ledger_row(claim,PINS[DERIVED])
+        if claim['action']=='UPGRADE_PARTIAL_TO_PASS_PRESERVE_COMPLETE_PRIOR_ROW':
+            need(key in lookup and old[key]['status']=='PARTIAL','EXACT_PARTIAL_UPGRADE')
+            same(rows[lookup[key]],old[key],'DO_NOT_OVERWRITE_EXISTING_WORKER_HISTORY');rows[lookup[key]]=row
+        else:
+            need(key not in lookup,'DO_NOT_OVERWRITE_EXISTING_PASS');lookup[key]=len(rows);rows.append(row)
+        changed.add(key)
+    need(changed==set(LEDGER_CHANGES)and len(rows)==len(current['assertions'])+15,'EXACT16_CHANGES15_APPENDS')
+    for row in current['assertions']:
+        key=(row['case_id'],row['assertion_id'])
+        if key not in changed:same(rows[lookup[key]],row,'PRESERVE_EVERY_UNRELATED_ROW')
+    need(all(r.get('evidence_path')!=DERIVED for r in result['executions']),'DO_NOT_OVERWRITE_EXECUTION')
+    result['executions'].append({'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'evidence_path':DERIVED,'evidence_sha256':PINS[DERIVED],'actual_result':KIND,'qualification_scope':'Exact16 changing Worker assertion links only;17th is unchanged old PARTIAL corroboration. Source review and Root admission required.'})
+    same(result['executions'][:-1],current['executions'],'PRESERVE_ALL_CURRENT_EXECUTIONS')
+    return result
+
+def validate_bundle(blobs):
+    need(type(blobs)is dict and set(blobs)==set(PINS),'EXACT_CLOSED_GRAPH')
+    need(all(type(value)is bytes and sh(value)==PINS[name]for name,value in blobs.items()),'CAPTURED_BYTES_HASHES')
+    for name,wanted in AUDIT_PINS.items():need(sh(blobs[name])==wanted,'APPROVED_AUDIT_HISTORY_ACK_BYTES')
+    _audit_semantics(blobs)
+    execution=doc(blobs[DERIVED]);need(type(execution)is dict,'DERIVED_OBJECT')
+    same(sorted(execution),sorted(DERIVED_FIELDS),'DERIVED_CLOSED_FIELDS')
+    same({key:execution[key]for key in('schema','derivation','actual_result','run_id','source_commit','source_tree','packet_sha256')},{'schema':'workinants.worker-b42-derived-qualified-evidence.v1','derivation':'EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE','actual_result':KIND,'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET},'DERIVED_IDENTITY_KIND')
+    same(execution['source_record'],{'path':REC,'sha256':PINS[REC],'packet_alias_from':'operation_packet_sha256'},'RAW_RECORD_ALIAS')
+    same(execution['independent_audit_files_sha256'],AUDIT_PINS,'CLOSED_AUDIT_GRAPH')
+    same(execution['preserved_prior_ledger'],{'path':BASELINE,'sha256':AUDIT_PINS[BASELINE],'rows':653},'IMMUTABLE_PRIOR653')
+    ack=doc(blobs[ARCHIVE+'/Root-exact17-implementation-ACK.json'])
+    need(ack['decision']=='AUTHORIZE_TASK_ONLY_NEW_PURE_ADAPTER_DRAFT_PENDING_SEPARATE_SOURCE_REVIEW'and ack['Root_rechecked17_requirements_caps_statuses_and_complete_prior_rows']is True,'BOUNDED_ROOT_ACK')
+    same(execution['claims'],_expected_claims(blobs),'ALL17_SOURCE_DERIVED_CLAIMS')
+    same(execution['limits'],LIMITS,'EXACT_SCOPE_LIMITS')
+    return canonical(execution)
+
+class QualificationBatch:
+    """Immutable private capture, sticky refusal, complete final byte barrier."""
+    def __init__(self,root,_single=None):
+        path=Path(root);need(not path.is_symlink(),'ROOT_SYMLINK');self.__root=path.resolve(strict=True)
+        blobs=_capture(self.__root);self.__execution=validate_bundle(blobs)
+        execution=doc(blobs[DERIVED]);self.__rows=MappingProxyType({(c['case_id'],c['assertion_id']):canonical(_expected_ledger_row(c,PINS[DERIVED]))for c in execution['claims']})
+        self.__snapshot=MappingProxyType(blobs);self.__expected=frozenset(LEDGER_CHANGES)
+        if _single is not None:need(_single in CLOSED_CLAIMS,'UNSUPPORTED_CLAIM');self.__expected=frozenset((_single,))
+        self.__seen=set();self.__failed=False;self.__finalized=False
+    def validate_claim(self,case_id,assertion_id,status,execution,root=None,json_pointer=None,ledger_row=None):
+        try:
+            need(not self.__failed and not self.__finalized,'BATCH_CLOSED')
+            need(all(type(v)is str for v in(case_id,assertion_id,status,json_pointer)),'CLAIM_FIELDS');key=(case_id,assertion_id)
+            need(key in self.__expected and key not in self.__seen,'UNSUPPORTED_OR_DUPLICATE_CLAIM')
+            need(status==CLAIM_STATUSES[key]and json_pointer=='/claims/'+str(CLOSED_CLAIMS[key]),'EXACT_STATUS_POINTER')
+            if root is not None:need(Path(root).resolve(strict=True)==self.__root,'BATCH_ROOT')
+            need(type(execution)is dict and type(ledger_row)is dict,'EXACT_DERIVED_AND_LEDGER_ROW');_typed_json(execution);_typed_json(ledger_row)
+            need(canonical(execution)==self.__execution,'EXACT_DERIVED_RECORD');need(canonical(ledger_row)==self.__rows[key],'EXACT_NEW_ROW_AND_PRIOR_HISTORY')
+            self.__seen.add(key);return True
+        except EvidenceFailure:self.__failed=True;raise
+        except Exception:self.__failed=True;raise EvidenceFailure('WORKER_EVIDENCE_REJECTED')from None
+    def verify_unchanged(self):
+        try:
+            need(not self.__failed and not self.__finalized,'BATCH_CLOSED');need(self.__seen==self.__expected,'INCOMPLETE_BATCH')
+            again=_capture(self.__root);need(all(again[name]==self.__snapshot[name]for name in PINS),'FINAL_BYTE_DRIFT')
+            self.__snapshot=None;self.__finalized=True;return True
+        except EvidenceFailure:self.__failed=True;raise
+        except Exception:self.__failed=True;raise EvidenceFailure('WORKER_EVIDENCE_REJECTED')from None
+    def require_finalized(self):need(not self.__failed and self.__finalized,'FINAL_BYTE_BARRIER_REQUIRED');return True
+
+def prepare_batch(root):
+    try:return QualificationBatch(root)
+    except EvidenceFailure:raise
+    except Exception:raise EvidenceFailure('WORKER_EVIDENCE_REJECTED')from None
+
+def validate_claim(case_id,assertion_id,status,execution,root,json_pointer=None,ledger_row=None):
+    try:
+        need(all(type(v)is str for v in(case_id,assertion_id,status,json_pointer)),'CLAIM_FIELDS');key=(case_id,assertion_id)
+        need(key in CLOSED_CLAIMS and status==CLAIM_STATUSES[key]and json_pointer=='/claims/'+str(CLOSED_CLAIMS[key]),'EXACT_STATUS_POINTER')
+        batch=QualificationBatch(root,_single=key);batch.validate_claim(case_id,assertion_id,status,execution,root,json_pointer,ledger_row);batch.verify_unchanged();return batch.require_finalized()
+    except EvidenceFailure:raise
+    except Exception:raise EvidenceFailure('WORKER_EVIDENCE_REJECTED')from None

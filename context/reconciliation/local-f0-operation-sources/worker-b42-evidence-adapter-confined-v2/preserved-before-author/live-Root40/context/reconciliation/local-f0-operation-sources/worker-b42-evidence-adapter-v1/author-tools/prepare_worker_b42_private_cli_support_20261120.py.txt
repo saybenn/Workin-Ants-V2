@@ -1,0 +1,12 @@
+from pathlib import Path
+import json,hashlib
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'worker-b42-evidence-adapter-v1-draft-20261120';F=D/'future-root'
+inv=json.loads((F/'context/reconciliation/local-f0-assertions.json').read_bytes());out={}
+for name,wanted in inv['source_provenance']['files_sha256'].items():
+ raw=(R/name).read_bytes();assert hashlib.sha256(raw).hexdigest()==wanted
+ p=F/name
+ if not p.exists():p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw);out[name]=wanted
+ else:assert hashlib.sha256(p.read_bytes()).hexdigest()==wanted
+failure={'status':'FAILED_CHECKER_VERSION_PRESERVED_NOT_A_PASS','session_id':53214,'tests':14,'passed_methods':12,'methods_with_errors':2,'subtest_errors':7,'seconds':283.326,'production_module_sha256':'3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff','checker_sha256':'15792e029a01706f4a983a95160cce3e44762df1d5924eb264e1f0faac22a22d','causes':['test05 tuple-member lookup StopIteration; production code not reached by those subtests','test14 private CLI fixture omitted source-inventory dependency database-candidate-access-matrix.json; existing builder correctly refused missing file'],'scope':'Only checker selection and private fixture closure change; production module/builder/evidence unchanged','private_CLI_support_additions':out}
+(D/'preserved-before-checker-selection-and-fixture-fix/failure.json').write_text(json.dumps(failure,indent=2)+'\n')
+(D/'private-cli-support.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out))

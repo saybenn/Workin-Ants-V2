@@ -1,0 +1,70 @@
+"""Publish only the reviewed Worker638, Restore V5, and closed-run evidence inventory."""
+from pathlib import Path
+import datetime,hashlib,io,json,re,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+P='fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f';B='refs/heads/codex/p0c-candidate-corrections-2026-10-31'
+FOLLOW='context/reconciliation/local-f0-source-followups/fcab-worker638-restore-v5-closed-pair-20261120'
+A='context/reconciliation/local-f0-worker638-restore-v5-publication-admission-20261120.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def git(*a):return subprocess.check_output(['git','-c','core.longpaths=true',*a],cwd=R,timeout=120)
+def origin():
+ assert git('remote','get-url','--push','origin').decode().strip()in('https://github.com/saybenn/Workin-Ants-V2.git','https://github.com/saybenn/Workin-Ants-V2')
+ remote=git('ls-remote','--refs','origin',B).decode().strip().split();assert len(remote)==2 and remote[1]==B
+ return remote[0]
+def blobs(files,ref):
+ raw=subprocess.check_output(['git','-c','core.longpaths=true','cat-file','--batch'],cwd=R,input=''.join(ref+':'+n+'\n'for n in sorted(files)).encode())
+ stream=io.BytesIO(raw)
+ for n in sorted(files):
+  header=stream.readline().decode().split();assert len(header)==3 and header[1]=='blob',n
+  b=stream.read(int(header[2]));assert stream.read(1)==b'\n'and sha(b)==files[n]and sha((R/n).read_bytes())==files[n],n
+ assert not stream.read()
+def admission():
+ b=(R/A).read_bytes();v=json.loads(b);assert v['parent']==P
+ return v,{**v['admitted_files_sha256'],A:sha(b)}
+if '--verify-commit'in sys.argv or '--after-push'in sys.argv:
+ v,files=admission();c=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+ assert git('rev-parse','HEAD^').decode().strip()==P;blobs(files,c)
+ changed=set(git('diff','--name-only','-z',P,c).decode().split('\0'))-{''};assert changed<=set(files)
+ for n in set(files)-changed:assert sha(git('show',P+':'+n))==files[n]
+ assert not git('diff','--cached','--name-only').strip()
+ after='--after-push'in sys.argv;remote=origin();assert remote==(c if after else P)
+ proof={'schema':'workinants.worker638-restore-v5-full-commit-publication-proof.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PUBLISHED_FULL_REMOTE_HASH_AND_ALL_BLOBS_VERIFIED'if after else'COMMITTED_BLOBS_AND_REMOTE_FF_PARENT_VERIFIED','commit':c,'tree':tree,'direct_parent':P,'admitted_files':len(files),'changed_files':len(changed),'all_current_and_committed_SHA256_equal':True,'independent_fresh_ls_remote_full_hash':remote,'branch':B,'normal_fast_forward_only':True,'unreviewed_WIP_excluded':True,'Posture':'D','continue_standing_assignment':True}
+ out=T/('worker638_restore_v5_publication_full_commit_verification_20261120.json'if after else'worker638_restore_v5_before_push_full_commit_verification_20261120.json');put(out,enc(proof));print(json.dumps({**proof,'proof_sha256':sha(out.read_bytes())}));raise SystemExit(0)
+assert git('rev-parse','HEAD').decode().strip()==P and not git('diff','--cached','--name-only').strip()
+if '--stage'in sys.argv:
+ v,files=admission();assert origin()==P
+ for n,h in files.items():assert sha((R/n).read_bytes())==h,n
+ path=T/'worker638_restore_v5_exact_stage_paths_20261120.nul';put(path,('\0'.join(sorted(files))+'\0').encode());git('add','--pathspec-from-file='+str(path),'--pathspec-file-nul')
+ staged=set(git('diff','--cached','--name-only','-z').decode().split('\0'))-{''};assert staged<=set(files);blobs(files,'')
+ for n in set(files)-staged:assert sha(git('show',P+':'+n))==files[n]
+ proof={'schema':'workinants.worker638-restore-v5-exact-staged-byte-proof.v1','parent':P,'admitted_files':len(files),'staged_changes':len(staged),'same_parent':len(files)-len(staged),'all_current_and_staged_SHA256_equal':True,'unreviewed_WIP_staged':False,'Posture':'D'};out=T/'worker638_restore_v5_exact_staged_byte_proof_20261120.json';put(out,enc(proof));print(json.dumps({**proof,'proof_sha256':sha(out.read_bytes())}));raise SystemExit(0)
+name='worker638_restore_v5_checkpoint_prepared_inventory_20261120.json';raw=(T/name).read_bytes();assert sha(raw)=='375a491d1d800efa8f215b80742ca2e99bce176e640feb77d8b4acd6fe23671c';v=json.loads(raw);files=v['files_sha256'];assert len(files)==1346 and v['parent']==P
+for n,h in files.items():assert sha((R/n).read_bytes())==h,n
+checks={
+ 'repository-context-check.log.txt':('worker638_restore_v5_context_check_20261120.log','1e3dbbc062877ee446d9a6a2cb8928f24a020b21b65622a43ac8d3785f0af6d6'),
+ 'repository-foundation-check.json':('worker638_restore_v5_foundation_check_20261120.json','ff8033b574e2a534e9c8222a463f9d72cff052b2aa9fdab0cc7d3e25ad0d74ef')}
+for dest,(source,h)in checks.items():
+ b=(T/source).read_bytes();assert sha(b)==h
+ if source.endswith('.log'):assert b'Structural checks PASSED'in b
+ else:assert json.loads(b)['errors']==[]
+ put(R/FOLLOW/dest,b);files[FOLLOW+'/'+dest]=h
+for dest,source in [('prepared-1346-file-inventory.json',name),('Root-final-admission-helper.py.txt',Path(__file__).name)]:
+ b=(T/source).read_bytes();put(R/FOLLOW/dest,b);files[FOLLOW+'/'+dest]=sha(b)
+for n,h in files.items():
+ b=(R/n).read_bytes();assert sha(b)==h and b'\0'not in b and len(b)<50*1024*1024;ntext=b.decode('utf-8-sig')
+ assert not re.search(rb'(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|AKIA[A-Z0-9]{16}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)',b),n
+ if n.endswith('.json'):
+  def pairs(rows):
+   out={}
+   for k,x in rows:assert k not in out;out[k]=x
+   return out
+  json.loads(ntext,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')))
+assert sha((R/'vercel.json').read_bytes())==v['vercel_sha256']
+changed=set(git('diff','--name-only','-z').decode().split('\0'))-{''};assert changed<=set(files)
+rows=[x for x in git('status','--porcelain=v1','-z','--untracked-files=all').decode().split('\0')if x]
+record={'schema':'workinants.worker638-restore-v5-publication-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'parent':P,'admitted_files_sha256':dict(sorted(files.items())),'source_families':v['families'],'accepted_assertion_counts':v['accepted_assertion_counts'],'ledger_rows':671,'selected94_case_counts':{'PASS':5,'PARTIAL':78,'NOT_RUN':11},'actual671_build_and_status13':'PASS_REAL_READERS_AND_FULL13_REGRESSION','repository_checks':{dest:{'source':s,'sha256':h,'exit_code':0}for dest,(s,h)in checks.items()},'actual_recent_attempts':'App 8f2aa922 and Read13 0b7c519e stopped, preserved, and independently cleaned; no coverage promoted from either.','RestoreV5':'INDEPENDENT_SOURCE_APPROVED; 1200-file pure prepare/validate PASS; fresh physical attempt NOT_RUN.','database_resources_currently_active':False,'prepared_inventory_sha256':sha(raw),'preserved_unstaged_paths':sorted(x[3:]for x in rows if x[3:]not in files),'reviewed_tracked_changes':sorted(changed),'unreviewed_V7_ReadV2_INSTALL_App_code_excluded':True,'deployment_suppression_verified':True,'normal_authenticated_fast_forward_only':True,'Posture':'D','continue_standing_assignment':True}
+put(R/A,enc(record));out=T/'worker638_restore_v5_admission_prepared_20261120.json';put(out,enc({'admission':A,'sha256':sha((R/A).read_bytes()),'files_excluding_admission':len(files),'no_Git_mutation':True,'Posture':'D'}));print(out.read_text())

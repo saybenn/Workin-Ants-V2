@@ -1,0 +1,50 @@
+from pathlib import Path
+import hashlib,json,re,shutil,runpy
+
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+enc=lambda value:(json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+five=('execute_local_f0_restore_preflight_v5_20261120.py','local_f0_restore_preflight_v5_operation_steps.py','prepare_local_f0_restore_preflight_v5_plan.py','check_local_f0_restore_preflight_v5_operation.py','pin_local_f0_restore_preflight_v5_plan_20261120.py')
+sources=('scripts/prepare-restore-control-rehearsal-v5.py','scripts/check-restore-control-rehearsal-v5.py','scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md')
+files,proposal=runpy.run_path(str(R/sources[0]))['build']()
+packet=R/'review-output/restore-control-rehearsal-v5'
+for name,text in files.items():(packet/name).write_bytes(text.encode())
+proposal_sha=sha((packet/'proposal.json').read_bytes());content=proposal['source_only_packet_sha256']
+for name in five:
+ p=T/name;s=p.read_text()
+ s=re.sub(r"(?m)^((?:RESTORE_)?PROPOSAL_SHA=)'[0-9a-f]{64}'",lambda m:m[1]+repr(proposal_sha),s)
+ s=re.sub(r"(?m)^((?:RESTORE_)?CONTENT_SHA=)'[0-9a-f]{64}'",lambda m:m[1]+repr(content),s)
+ p.write_bytes(s.encode())
+pins={name:sha((T/name).read_bytes()) for name in five[:-1]}
+p=T/five[-1];s=p.read_text();s=re.sub(r'(?m)^FROZEN=.*$',lambda m:'FROZEN='+repr(pins),s);p.write_bytes(s.encode())
+all_five={name:sha((T/name).read_bytes()) for name in five}
+prefix='context/reconciliation/local-f0-operation-sources/restore-preflight-v5'
+archive=R/prefix;archive.mkdir(parents=True,exist_ok=True)
+for name in five:(archive/(name+'.txt')).write_bytes((T/name).read_bytes())
+for name in sources:
+ p=archive/'root-sources'/(name+'.txt');p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((R/name).read_bytes())
+preserve=T/'restore-preflight-v5-before-author-20261120'
+dest=archive/'preserved-before-author'
+if not dest.exists():shutil.copytree(preserve,dest)
+for name in ('restore-preflight-v5-after-29-checks-before-final-tests-20261120','restore-preflight-v5-derivation-missing-old-doc-20261120','restore-preflight-v5-before-graph-harness-copy-fix-20261120','restore-preflight-v5-before-applicable-harness-fix-20261120','restore-preflight-v5-scope-before-explicit-gate-AST-assert-20261120'):
+ dest=archive/'preserved-author-checkpoints'/name
+ if not dest.exists():shutil.copytree(T/name,dest)
+for name in ('build_restore_preflight_v5_sources_20261120.py','patch_restore_preflight_v5_semantics_20261120.py','patch_restore_preflight_v5_admission_20261120.py','refresh_restore_preflight_v5_source_closure_20261120.py','run_restore_preflight_v5_author_checks_20261120.py','check_restore_preflight_v5_scope_20261120.py','freeze_restore_preflight_v5_author_20261120.py'):
+ p=archive/'derivation'/(name+'.txt');p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((T/name).read_bytes())
+for p in (T/'restore-preflight-v5-checkpoint-checks-20261120').iterdir():
+ dest=archive/'author-check-history'/p.name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(p.read_bytes())
+for p in T.glob('restore_preflight_v5_checks_*'):
+ if p.suffix in ('.json','.log'):
+  dest=archive/'author-check-history'/p.name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(p.read_bytes())
+for name in ('restore_preflight_v5_Root_exclusive_bounded_implementation_ACK_20261120.json','restore_c5ac1418_independent_audit_and_bounded_source_proposal_final_20261120.json','restore_c5ac1418_audit_cleanup_provenance_addendum_20261120.json','restore_c5ac1418_source_predicate_probe_20261120.json'):
+ p=archive/'source-receipts'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((T/name).read_bytes())
+for name in ('restore_preflight_v5_frozen_author_source_report_20261120.json','restore_preflight_v5_static_scope_20261120.json','restore_preflight_v5_static_scope_v2_20261120.json'):
+ p=archive/'source-receipts'/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((T/name).read_bytes())
+archive_pins={p.relative_to(R).as_posix():sha(p.read_bytes()) for p in archive.rglob('*') if p.is_file()}
+base={'source_review_status':'PENDING','independent_source_review':{'decision':'PENDING','path':None,'sha256':None},'archive_files_sha256':archive_pins,'limits':{'posture':'D','runtime':'NOT_RUN','privacy_gate':'P0F_PRIVACY_RESTORE_GENERATION_PORT','historical_c5ac_complete_cause':'UNOBSERVED','physical_restore_qualified':False}}
+base['author_report_sha256']=sha((T/'restore_preflight_v5_frozen_author_source_report_20261120.json').read_bytes())
+base['offline_checks']=json.loads((T/'restore_preflight_v5_frozen_author_source_report_20261120.json').read_bytes())['offline_checks']
+child={**base,'schema':'workinants.restore-preflight-v5-child-source-validation.v1','sources_sha256':{name:sha((R/name).read_bytes()) for name in sources},'packet_source_files_sha256':proposal['source_files_sha256'],'prepared_files_sha256':proposal['prepared_files_sha256'],'proposal_sha256':proposal_sha,'content_sha256':content}
+owned={**base,'schema':'workinants.restore-preflight-v5-owned-source-validation.v1','all_five_sources_sha256':all_five,'operator_sources_sha256':pins,'child_validation':'context/reconciliation/local-f0-restore-preflight-v5-source-validation.json','Root_ACK_sha256':'71760d2dbd7620e9697d4a0977d017c4d4c591c6f19ed4088271342aef4af219'}
+for name,value in [('context/reconciliation/local-f0-restore-preflight-v5-source-validation.json',child),('context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json',owned)]:(R/name).write_bytes(enc(value))
+print(json.dumps({'new_five':all_five,'proposal_sha256':proposal_sha,'content_sha256':content,'source_count':len(proposal['source_files_sha256']),'artifacts':len(files),'archive_files':len(archive_pins),'gates':'PENDING'}))

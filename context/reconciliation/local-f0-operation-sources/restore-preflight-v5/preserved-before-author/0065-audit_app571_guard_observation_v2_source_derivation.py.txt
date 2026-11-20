@@ -1,0 +1,28 @@
+"""Pure source/AST/SQL comparison receipt; no database or process calls."""
+from pathlib import Path
+import ast,hashlib,json,sys,re
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sys.path.insert(0,str(T/'offline-python'))
+from pglast import parse_sql,ast as pg
+H=lambda b:hashlib.sha256(b).hexdigest()
+new=json.loads((R/'review-output/app-write-two-guard-observation-v2/fixtures.json').read_bytes());old=json.loads((R/'review-output/app-write-two-control-rehearsal/fixtures.json').read_bytes());app=(R/'review-output/foundation-application.review.sql').read_text();assert H(app.encode())=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+rows=[];stmt_count=0
+for name,wanted in old['prepared_files_sha256'].items():
+ if name.endswith('.sql'):
+  b=(R/'review-output/app-write-two-guard-observation-v2'/name).read_bytes();assert H(b)==wanted;stmt_count+=len(parse_sql(b))
+for before,after in zip(old['cases'],new['cases']):
+ assert {k:v for k,v in before.items() if k!='diagnostic'}=={k:v for k,v in after.items() if k!='diagnostic'}
+ if before['name']!='effect-wrong-root':assert before==after
+ nodes=parse_sql((R/'review-output/app-write-two-guard-observation-v2'/after['sql']).read_bytes());writes=[x.stmt for x in nodes if isinstance(x.stmt,(pg.InsertStmt,pg.UpdateStmt))]
+ first=writes[0] if writes else None;spec=after['diagnostic'];body_sha=None;line=None
+ if spec and spec['function']:
+  fn=spec['function'];sig='secret text' if fn=='bind_request_context' else '';body=re.search(r'CREATE FUNCTION platform_private\.'+fn+r'\('+sig+r'\).*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',app,re.S)[2];body_sha=H(body.encode());lines=[i for i,s in enumerate(body.split('\n'),1) if 'RAISE EXCEPTION ' + "'"+spec['message']+"'" in s];assert len(lines)==1;line=lines[0]
+ if after['name']=='effect-wrong-root':assert first.relation.schemaname+'.'+first.relation.relname=='platform.runtime_command_receipt' and line==7 and body_sha=='01c6a19be31eb4a29e8ca0e676b0b4d5314291a0196e895e7ebee10e36f658c8'
+ base=new['grants']['effect' if after['phase'].startswith('effect') else 'update'];grant=new['grants'][after['grant']];scalar={k:{'base':base.get(k),'case':grant.get(k)} for k in set(base)|set(grant) if k not in ('template_id','allowed_fields') and base.get(k)!=grant.get(k)}
+ rows.append({'case':after['name'],'first_top_level_write':None if first is None else first.relation.schemaname+'.'+first.relation.relname,'diagnostic':spec,'source_body_sha256':body_sha,'source_body_line':line,'scalar_grant_delta':scalar,'added_caps':sorted(set(grant['allowed_fields'])-set(base['allowed_fields'])),'removed_caps':sorted(set(base['allowed_fields'])-set(grant['allowed_fields'])),'SQL_unchanged':True,'oracle_unchanged':before==after})
+assert sum(not x['oracle_unchanged'] for x in rows)==1 and old['grants']==new['grants'] and old['worker_acl_rows']==new['worker_acl_rows'] and len(new['worker_acl_rows'])==32
+# Reconstruct and preserve the exact already-exercised 28-method test version
+# after a narrow two-method test-only addition, for honest version qualification.
+p=R/'scripts/check-app-write-two-guard-observation-v2-coordinator.py';raw=p.read_text();a=raw.index(' def test_old_mock_restoration_misses_actual_first_guard(');b=raw.index(' def projection_model(',a);prior=(raw[:a]+raw[b:]).encode();assert H(prior)=='8a960ddf9dfa1535648abacfc34924c8f01ddddc81b46995ea715bed9672b1b1'
+D=T/'app571-v2-qualified-prior-child28';D.mkdir(exist_ok=False);(D/(p.name+'.txt')).write_bytes(prior)
+v={'schema':'workinants.app571-v2-source-derivation.v1','canonical_sha256':H(app.encode()),'cases':rows,'unchanged_SQL_leaves':22,'SQL_statements':stmt_count,'all_grant_templates_unchanged':True,'worker_ACL_rows_unchanged':32,'changed_oracles':1,'previous_28_method_source_sha256':H(prior),'current_child_check_sha256':H(p.read_bytes()),'scope':'SOURCE_ONLY_ALL_RUNTIME_NOT_RUN_NO_QUALIFICATION_PROMOTION'}
+b=(json.dumps(v,indent=2)+'\n').encode();(T/'app571_v2_source_derivation_20261120.json').write_bytes(b);print(json.dumps({'cases':len(rows),'SQL':22,'statements':stmt_count,'sha256':H(b)}))

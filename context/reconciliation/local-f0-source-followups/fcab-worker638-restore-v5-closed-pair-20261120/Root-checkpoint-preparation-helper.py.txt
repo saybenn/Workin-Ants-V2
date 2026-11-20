@@ -1,0 +1,85 @@
+"""Curate reviewed source/evidence, preserve original checkouts, and inspect outgoing bytes before staging."""
+from pathlib import Path
+import datetime,hashlib,json,re,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';P='fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+FOLLOW='context/reconciliation/local-f0-source-followups/fcab-worker638-restore-v5-closed-pair-20261120'
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def git(*a,cwd=R):return subprocess.check_output(['git','--no-optional-locks','-c','core.longpaths=true',*a],cwd=cwd,timeout=90)
+assert git('rev-parse','HEAD').decode().strip()==P and not git('diff','--cached','--name-only').strip()
+files={};families={}
+for family,name,h in [('RestoreV5','restore_preflight_v5_source_approved_committable_inventory_20261120.json','107844d764c74075dc62c05661198eeff1ddbfffce59a9e226deacc07d459ed9'),('Worker638','worker_v2_actual671_final_committable_inventory_20261120.json','f394bc3e14ce81f3c6c728a2cd1daed7cd15f863ed97eff1a2a1481b4c8f5664'),('Progress638','worker638_closed_pair_reviewed_restore_progress_inventory_20261120.json','d06b6d4da55043081259ac4696edc3484fbdeb9cd9e5806ba3f336cd9ed2b267')]:
+ raw=(T/name).read_bytes();assert sha(raw)==h;value=json.loads(raw);m=value['files_sha256']
+ for n,wanted in m.items():
+  assert n not in files or files[n]==wanted
+  files[n]=wanted
+ families[family]={'inventory':name,'sha256':h,'files':len(m)}
+for family,name,h in [('App','fcab_app_8f2aa922_stopped_attempt_preserved_inventory_20261120.json','b00b127784869d4e3a909febc2357ccf6bf42e2feaaace15f11cbbd707f7f45c'),('Read13','fcab_read13_0b7c519e_stopped_attempt_preserved_inventory_20261120.json','743b5150671483598dff27f473401c45e6b635e2c0b68ebf3e5921ef96919a37')]:
+ raw=(T/name).read_bytes();assert sha(raw)==h;value=json.loads(raw)
+ for n,wanted in {**value['assets_sha256'],value['record']:value['record_sha256']}.items():assert n not in files;files[n]=wanted
+ families[family]={'inventory':name,'sha256':h,'files':len(value['assets_sha256'])+1}
+old_progress='context/reconciliation/local-f0-fcab-closed-app-read13-source-corrections-progress-20261120.json';assert sha((R/old_progress).read_bytes())=='73970ab19fa510fe7bece12467eff205b052116c827d415578e248c2966e8d4b';files[old_progress]=sha((R/old_progress).read_bytes())
+copies={
+ 'previous-fcab-publication-full-proof.json':'fcab2e9_publication_full_commit_verification_20261120.json',
+ 'Worker638-final-inventory.json':'worker_v2_actual671_final_committable_inventory_20261120.json',
+ 'RestoreV5-reviewed-final-inventory.json':'restore_preflight_v5_source_approved_committable_inventory_20261120.json',
+ 'RestoreV5-actual-pure-prepare-validate.json':'restore_preflight_v5_actual_approved_prepare_validate_20261120.json',
+ 'App-independent-source-outcome-audit.json':'app8f2a_independent_source_outcome_audit_and_proposal_20261120.json',
+ 'App-author-context-only.json':'app8f2a_R02_author_context_and_observability_proposal_20261120.json',
+ 'PENDING-App-diagnostic-only-Root-ACK.json':'app8f2a_unexpected_positive_diagnostic_Root_bounded_implementation_ACK_20261120.json',
+ 'Read13-Root-pure-closed-input-probe.json':'read13_closed_actual_load_inputs_pure_probe_20261120.json',
+ 'Read13-Root-pure-probe-helper.py.txt':'probe_read13_closed_actual_load_inputs_pure_20261120.py',
+ 'Read13-independent-namespace-and-fresh-packet-plan.json':'read13_0b7c_independent_namespace_diagnosis_and_fresh_packet_source_plan_20261120.json',
+ 'Read13-independent-actual-coordinate-probe.json':'read13_0b7c_independent_admission_probe_20261120.json',
+ 'PENDING-Read13-ownedV2-Root-ACK.json':'read13_namespace_fresh_packet_owned_v2_Root_bounded_implementation_ACK_20261120.json',
+ 'Worker-V1-actual-build-held.json':'worker-b42-Root-real671-build-20261120/actual-build-proof.json',
+ 'Worker-V1-actual-source-replay.json':'worker_b42_live_admission_readonly_diagnosis_20261120.json',
+ 'Worker-V1-junction-path-probe.json':'worker_b42_path_escape_readonly_probe_20261120.json',
+ 'Worker-confined-V2-source-plan.json':'worker_b42_confined_metadata_v2_bounded_source_plan_20261120.json',
+ 'Worker-confined-V2-Root-ACK.json':'worker_b42_confined_metadata_v2_Root_bounded_implementation_ACK_20261120.json',
+ 'PENDING-INSTALL-precleanup-phase-source-plan.json':'install_failed_precleanup_activation_bounded_source_proposal_20261120.json',
+ 'PENDING-INSTALL-independent-phase-plan-review.json':'install_failed_precleanup_activation_independent_plan_review_20261120.json',
+ 'PENDING-INSTALL-Root-phase-implementation-ACK.json':'install_failed_precleanup_activation_Root_bounded_implementation_ACK_20261120.json',
+ 'PENDING-V7-Root-primary-source-CREATE-audit.json':'privilege_v7_Root_primary_source_projection_audit_20261120.json',
+ 'PENDING-V7-Root-CREATE224-probe.json':'privilege_v7_Root_independent_CREATE_projection_probe_20261120.json',
+ 'PENDING-V7-Root-CREATE-probe-helper.py.txt':'probe_privilege_v7_Root_independent_CREATE_projection_20261120.py',
+ 'HOLD-V7-independent-source-review.json':'privilege_v7_independent_source_review_HOLD_20261120.json',
+ 'HOLD-V7-actual-main-final-reference-probe.json':'privilege_v7_final_reference_order_independent_probe_20261120.json',
+ 'PENDING-V7-Root-final-reference-fix-ACK.json':'privilege_v7_final_reference_postcheck_Root_bounded_fix_ACK_20261120.json',
+ 'Root-progress638-helper.py.txt':'record_worker638_closed_pair_reviewed_restore_progress_20261120.py',
+ 'Root-previous-progress625-helper.py.txt':'record_fcab_closed_pair_and_source_corrections_progress_20261120.py',
+ 'Root-board-pointer-reconciliation-helper.py.txt':'reconcile_fcab_board_active_source_pointers_20261120.py',
+ 'Root-worker-closure-before-encoding-name-fix.py.txt':'close_worker_v2_actual671_admission_20261120.before-encoding-name-fix.py.txt',
+ 'Root-checkpoint-preparation-helper.py.txt':Path(__file__).name}
+for n,source in copies.items():
+ raw=(T/source).read_bytes();put(R/FOLLOW/n,raw);files[FOLLOW+'/'+n]=sha(raw)
+pres=[]
+for label,path,head,branch,status in [('original_windows',Path(r'C:\Users\elijr\source\WorkinAnts-Checkpoint010'),'8917e2035622017eccd14c99ad7fd2b55740163f','codex/p0c-candidate-corrections-2026-10-31',''),('original_onedrive',Path(r'C:\Users\elijr\OneDrive\Desktop\Coding\Personal Projects\workin-ants-v2'),'526bb1ab30480d66ca8b7da08d16badc6e613c1d','main','D context/project-overview-v3.md')]:
+ actual_head=git('rev-parse','HEAD',cwd=path).decode().strip();actual_branch=git('rev-parse','--abbrev-ref','HEAD',cwd=path).decode().strip();actual_status=git('status','--porcelain=v1','-uno',cwd=path).decode().strip()
+ assert(actual_head,actual_branch,actual_status)==(head,branch,status)
+ pres.append({'checkout':label,'path':str(path),'HEAD':head,'branch':branch,'tracked_status':actual_status,'checkout_or_index_mutated':False})
+proof={'schema':'workinants.worker638-checkpoint-original-checkouts-preserved.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'checkouts':pres,'sandbox_note':'Original Windows status required read-only escalated execution; initial sandbox status was inconclusive. No Git configuration was changed.'}
+put(R/FOLLOW/'original-checkouts-preserved.json',enc(proof));files[FOLLOW+'/original-checkouts-preserved.json']=sha(enc(proof))
+assert git('remote','get-url','--push','origin').decode().strip()in('https://github.com/saybenn/Workin-Ants-V2.git','https://github.com/saybenn/Workin-Ants-V2')
+vercel=(R/'vercel.json').read_bytes();assert sha(vercel)=='81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f';vc=json.loads(vercel);assert vc['git']['deploymentEnabled']['codex/p0c-candidate-corrections-2026-10-31']is False
+workflows=R/'.github/workflows';assert not workflows.exists()or not any(p.is_file()for p in workflows.rglob('*'))
+hooks=git('config','--get','core.hooksPath')if subprocess.run(['git','-c','core.longpaths=true','config','--get','core.hooksPath'],cwd=R,capture_output=True).returncode==0 else b'';assert not hooks.strip()
+common=Path(git('rev-parse','--git-common-dir').decode().strip());common=common if common.is_absolute()else(R/common).resolve();hookdir=common/'hooks';assert not hookdir.exists()or not any(p.is_file()and not p.name.endswith('.sample')for p in hookdir.iterdir())
+scan={'files':0,'bytes':0,'strict_JSON_files':0,'high_confidence_secret_findings':[]}
+pattern=re.compile(rb'(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|AKIA[A-Z0-9]{16}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)')
+def strict_json(raw):
+ def pairs(items):
+  out={}
+  for key,value in items:assert key not in out;out[key]=value
+  return out
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(AssertionError('NONFINITE_JSON')))
+for n,wanted in files.items():
+ path=R/n;assert path.resolve().is_relative_to(R.resolve())and not path.is_symlink();raw=path.read_bytes();assert sha(raw)==wanted and len(raw)<50*1024*1024 and b'\0'not in raw;raw.decode('utf-8-sig')
+ assert not pattern.search(raw),n
+ if n.endswith('.json'):strict_json(raw);scan['strict_JSON_files']+=1
+ scan['files']+=1;scan['bytes']+=len(raw)
+assert set(git('diff','--name-only').decode().splitlines())<=set(files)
+assert not any('privilege-ceiling-v7' in n or 'privilege-ceiling-owned-v7' in n or n.startswith('scripts/')and 'privilege' in n for n in files)
+record={'schema':'workinants.worker638-reviewed-restore-checkpoint-prepared-inventory.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'parent':P,'files_sha256':dict(sorted(files.items())),'files':len(files),'families':families,'byte_and_secret_scan':scan,'vercel_sha256':sha(vercel),'deployment_suppressed':True,'active_workflows_or_hooks':False,'original_checkouts_preserved':True,'unreviewed_V7_ReadV2_INSTALL_App_code_excluded':True,'accepted_assertion_counts':json.loads((R/'context/reconciliation/local-f0-qualification-status.json').read_bytes())['assertion_status_counts'],'context_checks':'PENDING_RUN_AFTER_PREPARATION','Posture':'D'}
+out=T/'worker638_restore_v5_checkpoint_prepared_inventory_20261120.json';put(out,enc(record));print(json.dumps({'inventory_sha256':sha(out.read_bytes()),'files':len(files),'families':families,'scan':scan,'original_work_preserved':True,'deployment_suppressed':True}))

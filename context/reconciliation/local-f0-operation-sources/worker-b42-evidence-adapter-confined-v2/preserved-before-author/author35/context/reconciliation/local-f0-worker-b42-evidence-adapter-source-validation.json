@@ -1,0 +1,137 @@
+{
+  "schema": "workinants.worker-b42-pure-evidence-adapter-source-validation.v1",
+  "status": "PENDING_SEPARATE_NONAUTHOR_SOURCE_REVIEW",
+  "Posture": "D",
+  "source_review": "PENDING",
+  "Root_admission": "NOT_RUN",
+  "actual_Root_unmocked_full_build": "NOT_RUN",
+  "proposed_files_sha256": {
+    "scripts/local_f0_worker_recovery_evidence.py": "3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff",
+    "scripts/check-local-f0-worker-recovery-evidence.py": "795f77704cddbc0a684b55260f7a5e9e629016aadea0f163e0269b0bef3aa2d5",
+    "scripts/prepare-local-f0-status.py": "715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6",
+    "context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json": "45489b9495ca594034ee9a4d8651813826da464cb12b83b0f82641efb21c897a"
+  },
+  "runtime_source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+  "runtime_source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+  "operation_packet_sha256": "13985c51d69a30f776bfa9c653bd507ae6f2634639b4d11151d67e5e239f0882",
+  "fixed_graph": {
+    "files": 654,
+    "measured_bytes": 64922355,
+    "cap_bytes": 65011712,
+    "old_live_ledger_path_remapped_to": "archived immutable prior653-ledger.json",
+    "archived_data_or_code_executed": false
+  },
+  "builder_basis_sha256": "c99712e7836f65dd8c4ad97b73d9f1e5e29f64abc8e52af4040acec26289d80a",
+  "preserved_current656_sha256": "50ea0011abb0f30730a5c4f3ff7f3dd56a13b664378ec7254646835b042c4d61",
+  "proposed_change": {
+    "derived_records": 17,
+    "ledger_changes": 16,
+    "append_PASS": 12,
+    "append_PARTIAL": 3,
+    "upgrade_PARTIAL_to_PASS_with_complete_prior_row": 1,
+    "unchanged_old_PARTIAL_corroboration": 1,
+    "rebase_arbitrary_unrelated_rows_and_executions": true
+  },
+  "checks": {
+    "status": "PASS",
+    "failed": 0,
+    "methods": 14,
+    "validation_strategy": "10 unchanged methods from preserved actual 14-method run + final affected05/14 + strengthened08/09. Not a claim that the failed first suite passed. No broad repeat of unchanged expensive file-reader tests.",
+    "initial_run": {
+      "session": 53214,
+      "exit": 1,
+      "methods": 14,
+      "passing_methods": 12,
+      "method_errors": 2,
+      "subtest_errors": 7,
+      "seconds": 283.326,
+      "checker_sha256": "15792e029a01706f4a983a95160cce3e44762df1d5924eb264e1f0faac22a22d",
+      "production_module_sha256": "3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff",
+      "initial_checker_entry_hash_was_not_separately_instrumented": true,
+      "checker_bytes_preserved_after_uninterrupted_no_source_edit_run": true
+    },
+    "unchanged_final_methods_AST_identical": [
+      "test_01_real654_batch16_final_all_inputs",
+      "test_02_standalone_and_old_lease_corroboration",
+      "test_03_rebase656_preserves_install_every_old_row_and_execution",
+      "test_04_delta_refuses_existing_pass_divergent_history_duplicates",
+      "test_06_final_drift_unrelated_input_sticky_after_restore",
+      "test_07_missing_unrelated_input_refuses_admission",
+      "test_10_native_oracle_ledger_cleanup_source_and42_coherence",
+      "test_11_duplicate_nonfinite_json_and_fixed_errors",
+      "test_12_read_same_size_mtime_restored_race_and_old_reader_tripwire",
+      "test_13_closed_reader_ast_matches_reviewed_install_and_builder_additive"
+    ],
+    "entire_nonclass_checker_AST_identical": true,
+    "shared_setup_helpers_AST_identical_except_semantic_mutate": true,
+    "affected_caps_and_private_CLI": {
+      "status": "PASS",
+      "selectors": [
+        "test_05_bad_caps_pointer_prior_history_and_sticky_batch",
+        "test_14_private_actual_cli_worker16_real_inventory_no_factory_patching"
+      ],
+      "methods": 2,
+      "failed": 0,
+      "seconds": 78.76499999998487,
+      "source_entry_sha256": {
+        "scripts/local_f0_worker_recovery_evidence.py": "3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff",
+        "scripts/check-local-f0-worker-recovery-evidence.py": "17fcf04b32539a7b1c2b448dfb6f655db70ecd73ac429f1560e759a7f80d4e08",
+        "scripts/prepare-local-f0-status.py": "715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6",
+        "context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json": "45489b9495ca594034ee9a4d8651813826da464cb12b83b0f82641efb21c897a"
+      },
+      "source_exit_sha256": {
+        "scripts/local_f0_worker_recovery_evidence.py": "3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff",
+        "scripts/check-local-f0-worker-recovery-evidence.py": "17fcf04b32539a7b1c2b448dfb6f655db70ecd73ac429f1560e759a7f80d4e08",
+        "scripts/prepare-local-f0-status.py": "715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6",
+        "context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json": "45489b9495ca594034ee9a4d8651813826da464cb12b83b0f82641efb21c897a"
+      },
+      "all_process_network_boundaries_blocked": true,
+      "live_Root_writes": false,
+      "full_671_Root_status_build": "NOT_RUN"
+    },
+    "strengthened_semantic_reseal": {
+      "status": "PASS",
+      "selectors": [
+        "test_08_semantic_rehashed_clock_commit_effect_and_role_mutants",
+        "test_09_semantic_typed42_counts_diagnostic_and_closure"
+      ],
+      "methods": 2,
+      "failed": 0,
+      "seconds": 10.296000000002095,
+      "source_entry_sha256": {
+        "scripts/local_f0_worker_recovery_evidence.py": "3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff",
+        "scripts/check-local-f0-worker-recovery-evidence.py": "795f77704cddbc0a684b55260f7a5e9e629016aadea0f163e0269b0bef3aa2d5",
+        "scripts/prepare-local-f0-status.py": "715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6",
+        "context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json": "45489b9495ca594034ee9a4d8651813826da464cb12b83b0f82641efb21c897a"
+      },
+      "source_exit_sha256": {
+        "scripts/local_f0_worker_recovery_evidence.py": "3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff",
+        "scripts/check-local-f0-worker-recovery-evidence.py": "795f77704cddbc0a684b55260f7a5e9e629016aadea0f163e0269b0bef3aa2d5",
+        "scripts/prepare-local-f0-status.py": "715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6",
+        "context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json": "45489b9495ca594034ee9a4d8651813826da464cb12b83b0f82641efb21c897a"
+      },
+      "all_process_network_boundaries_blocked": true,
+      "live_Root_writes": false,
+      "full_671_Root_status_build": "NOT_RUN"
+    },
+    "final_checker_sha256": "795f77704cddbc0a684b55260f7a5e9e629016aadea0f163e0269b0bef3aa2d5",
+    "source_graph_files": 654,
+    "full_671_Root_unmocked_build": "NOT_RUN_REQUIRED_AFTER_REVIEW",
+    "no_live_Root_writes": true,
+    "no_runtime_network_or_database": true
+  },
+  "scope_limits": {
+    "all_raw_per_case42_rows_retained": false,
+    "complete42_receipts_and_hashes_source_bound": true,
+    "whole_case_or_API_or_worker_loop_qualified": false,
+    "register451_promoted": false,
+    "old6282_complete_cause": "UNOBSERVED",
+    "case17": "EARLY_FIXED_TRACK_BINDING_P0001_BODYLINE7_ONLY"
+  },
+  "independent_worker_evidence_adapter_review": {
+    "decision": "PENDING",
+    "reviewer": null,
+    "path": null,
+    "sha256": null
+  }
+}

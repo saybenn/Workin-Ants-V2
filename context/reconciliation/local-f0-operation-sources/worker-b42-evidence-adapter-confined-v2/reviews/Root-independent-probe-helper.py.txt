@@ -1,0 +1,56 @@
+"""Independent nonauthor checks of V2's two-file confinement correction and exact current16-row proposal."""
+from pathlib import Path
+import ast,datetime,hashlib,json,runpy,socket,subprocess,time
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';F=T/'worker-b42-evidence-adapter-confined-v2-draft-20261120/future-root';sha=lambda b:hashlib.sha256(b).hexdigest()
+newpath=F/'scripts/local_f0_worker_recovery_evidence_v2.py';nb=newpath.read_bytes();assert sha(nb)=='b201bfa6a5b016d858ada96ebeb9f49cb85b5832037e5efb4c2d631cbcaec0a0'
+oldpath=R/'scripts/local_f0_worker_recovery_evidence.py';ob=oldpath.read_bytes();assert sha(ob)=='3685e0a7534cff29d91b2a8ac68368d0acde42331877a819b81de12f682c1bff'
+builder=(F/'scripts/prepare-local-f0-status.py').read_bytes();livebuilder=(R/'scripts/prepare-local-f0-status.py').read_bytes()
+assert sha(builder)=='cc17de640c624cb9f259d88e71dfff21a461cc2762a204939e8bcd2856d6d4f4' and sha(livebuilder)=='715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6'
+assert builder==livebuilder.replace(b'from local_f0_worker_recovery_evidence import',b'from local_f0_worker_recovery_evidence_v2 import',1)
+oldast=ast.parse(ob);newast=ast.parse(nb)
+def bodies(tree):return{node.name:ast.dump(node,include_attributes=False)for node in tree.body if isinstance(node,(ast.FunctionDef,ast.ClassDef))}
+oa,na=bodies(oldast),bodies(newast);assert set(na)-set(oa)=={'_verify_metadata_binding','_project_logical_inputs'} and {k for k in oa if oa[k]!=na[k]}=={'validate_bundle'}
+for k in('_read','_capture','QualificationBatch','propose_ledger_delta','validate_claim','prepare_batch','_expected_claims','_expected_ledger_row','_audit_semantics'):assert oa[k]==na[k]
+candidatepath=T/'worker-b42-Root-real671-build-20261120/proposed671-ledger.json';cb=candidatepath.read_bytes();assert sha(cb)=='8b7cd04a5681dc7d2b2996c20b896dc352af67e88f968f1ccc9250f9bdda0d64';candidate=json.loads(cb)
+calls=[];outside=[];checks=[];started=time.monotonic();original_open=Path.open
+def forbidden(*a,**k):calls.append('FORBIDDEN');raise AssertionError('PROCESS_NETWORK_FORBIDDEN')
+def checked_open(path,*a,**k):
+ if '/node_modules/'in str(path).replace(chr(92),'/'):outside.append('ORIGINAL_METADATA_DATA_READ');raise AssertionError('ORIGINAL_METADATA_OPEN_FORBIDDEN')
+ return original_open(path,*a,**k)
+def check(name,value):assert value,name;checks.append(name)
+with patch.multiple(subprocess,run=forbidden,Popen=forbidden,check_output=forbidden,check_call=forbidden,call=forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden),patch.object(Path,'open',checked_open):
+ old=runpy.run_path(str(oldpath),run_name='_Root_old_Worker_reader');new=runpy.run_path(str(newpath),run_name='_Root_new_Worker_reader')
+ check('original654_logical_map_exact',new['ORIGINAL_PINS']==old['PINS'] and len(new['ORIGINAL_PINS'])==654)
+ aliases=dict(new['METADATA_SNAPSHOTS']);check('only_two_fixed_aliases',len(aliases)==2)
+ for original,snapshot in aliases.items():
+  p=R/original;check(original+'/real-junction-outsideRoot',any(parent.is_junction()for parent in p.parents if parent.is_relative_to(R)) and not p.resolve().is_relative_to(R.resolve()))
+  try:old['_read'](R.resolve(),original,old['PINS'][original])
+  except old['EvidenceFailure']as e:check(original+'/old-reader-still-rejects',e.args==('PATH_ESCAPE',))
+  else:raise AssertionError('ORIGINAL_JUNCTION_ACCEPTED')
+  check(original+'/snapshot-same-original-hash',new['PINS'][snapshot]==new['ORIGINAL_PINS'][original])
+ check('other652_physical_names_hashes_exact',{n:h for n,h in new['PINS'].items()if n not in aliases.values()}=={n:h for n,h in old['PINS'].items()if n not in aliases})
+ physical=new['_capture'](F.resolve());logical=new['_project_logical_inputs'](physical);check('real654_capture_and_projection',set(logical)==set(old['PINS']))
+ execution=json.loads(physical[new['DERIVED']]);rows={(r['case_id'],r['assertion_id']):r for r in candidate['assertions']};batch=new['prepare_batch'](F)
+ for key in new['LEDGER_CHANGES']:
+  row=rows[key];check('/'.join(key)+'/exact-real-row-accepted',batch.validate_claim(*key,row['status'],execution,F,json_pointer=row['json_pointer'],ledger_row=row)is True)
+ check('actual_final654_byte_barrier',batch.verify_unchanged()is True and batch.require_finalized()is True)
+ for original,snapshot in aliases.items():
+  bad=dict(physical);bad[snapshot]=b'{}'
+  try:new['_project_logical_inputs'](bad)
+  except new['EvidenceFailure']:check(original+'/changed-snapshot-rejects',True)
+  else:raise AssertionError('CHANGED_SNAPSHOT_ACCEPTED')
+  bad=dict(physical);bad.pop(snapshot)
+  try:new['_project_logical_inputs'](bad)
+  except new['EvidenceFailure']:check(original+'/missing-snapshot-rejects',True)
+  else:raise AssertionError('MISSING_SNAPSHOT_ACCEPTED')
+  fake=dict(logical);name=new['A']+'/manifest/migration-ok.json';nested=json.loads(fake[name]);nested['tools']['files_sha256'][original]='0'*64;fake[name]=json.dumps(nested).encode()
+  try:new['_verify_metadata_binding'](fake)
+  except new['EvidenceFailure']:check(original+'/nested-tool-disagreement-rejects',True)
+  else:raise AssertionError('FOREIGN_TOOL_METADATA_ACCEPTED')
+ assert not calls and not outside
+assert newpath.read_bytes()==nb and oldpath.read_bytes()==ob and candidatepath.read_bytes()==cb
+receipt={'schema':'workinants.worker-v2-Root-independent-source-graph-probe.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'PASS_BOUNDED_NONAUTHOR_V2_SOURCE_AND_REAL_GRAPH_CHECKS','module_sha256':sha(nb),'builder_sha256':sha(builder),'old_module_sha256':sha(ob),'candidate671_sha256':sha(cb),'physical_inputs':654,'original_logical_inputs':654,'real_candidate_rows_checked':16,'checks':checks,'predicates':len(checks),'seconds':round(time.monotonic()-started,3),'only_existing_function_changed':'validate_bundle','reader_capture_batch_claim_final_barrier_AST_unchanged':True,'all_process_network_forbidden':True,'original_junction_metadata_data_open_attempts':0,'live_Root_or_ledger_written':False,'actual_complete_Root671_build':'NOT_RUN_BY_THIS_PROBE','Posture':'D'}
+rp=T/'worker_v2_Root_independent_closed_graph_and16_probe_20261120.json'
+with rp.open('xb')as f:f.write((json.dumps(receipt,indent=2,allow_nan=False)+'\n').encode())
+print(json.dumps({'path':str(rp),'sha256':sha(rp.read_bytes()),'predicates':len(checks),'rows':16,'seconds':receipt['seconds'],'status':receipt['decision']}))

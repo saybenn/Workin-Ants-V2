@@ -1,0 +1,38 @@
+"""Preserve stopped V6 actuals with original verdict distinct from finally labels."""
+from pathlib import Path
+import collections,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+mp=T/'local-f0-privilege-ceiling-plan-086c453e/operation-manifest.json';mb=mp.read_bytes();assert sha(mb)=='045856b72cc1fa7ee3efadb09f59c98d209a3b5f50e37b520016aeaf8b49c8f6';m=json.loads(mb);H='c401d2f2503dee08ad5913fb6cf1fa944c5f3e5a';TREE='13aabf5061aaeac34462da38cf4e5110ee119c54';assert m['source_commit']==H and m['source_tree']==TREE
+out=Path(m['evidence_directory']);assert out==T/'local-f0-privilege-ceiling-086c453e'and not(out/'private').exists();rb=(out/'run-evidence.json').read_bytes();assert sha(rb)=='9c644fc323a1660078e90a7a4bc4ef65d2482d8ac42c2abb175cfb022f473bd3';r=json.loads(rb)
+cb=(out/'privilege-ceiling-component/privilege-ceiling-results.json').read_bytes();assert sha(cb)=='e7159c9b26fccf7302a63f283a1b0d528fcec88e5b647ff4640944dfa629b9c6';c=json.loads(cb);cur=c['current']
+assert r['status']=='STOPPED_ATTEMPT_PRESERVED'and r['finished_at']and r['evidence_complete']is True and r['cleanup_actions_confirmed']is True
+assert c['status']=='STOPPED_PARTIAL_EVIDENCE_PRESERVED'and c['current_case']=='CREATE-wa_app_runtime-app'and c['subsequent_cases_stopped']is True and len(c['results'])==34 and len(c['operations'])==78
+assert c['results'][-1]['name']=='GRANT-wa_app_runtime-DELETE'and all(x['status']=='PASS_FINITE_PRIVILEGE_CONTRAST_ONLY'and x['whole_case_promoted']is False for x in c['results'])
+assert cur['exit_code']==3 and cur['acknowledgement']is False and cur['exact_empty_output']is True and cur['closed_before_observers']is True and cur['global_client_closure_confirmed']is True and cur['all_100_trigger_functions_restored']is True and cur['post_case_state_verified']is True and cur['native_catalog_unchanged']is True
+assert cur['original_operation_failure']=={'phase':'VERDICT','classification':'SOURCE_HELD_FAILURE','code':'INTENDED_PRIVILEGE_GUARD_NOT_PROVEN'}
+assert len(c['native_controls'])==40 and len(c['definer_metadata'])==16 and len(c['issuer_protocols'])==2 and len(c['global_client_boundaries'])==185
+preservation={k:v for k,v in r.items()if k.endswith('_unchanged_after_run')};assert len(preservation)==4 and all(x is True for x in preservation.values())
+clean=T/'privilege_v6_c401_086c453e_independent_cleanup_20261120.json';cleanb=clean.read_bytes();assert sha(cleanb)=='4124c18130075ccf1e29d590f62f76701450443bb0af1663b10f1c4195ecda92'and json.loads(cleanb)['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+A=R/'context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e';assert not A.exists();copies={}
+for p in out.rglob('*'):
+ if not p.is_file():continue
+ rel=p.relative_to(out);assert'private'not in rel.parts and not p.is_symlink()and(p.suffix=='.json'or rel.as_posix()=='set-private-acl.ps1');target=A/'evidence'/rel
+ if p.suffix=='.ps1':target=target.with_name(target.name+'.txt')
+ copies[target]=p.read_bytes()
+for p in mp.parent.iterdir():
+ if p.is_file()and p.suffix=='.json':copies[A/'manifest'/p.name]=p.read_bytes()
+for kind,b in m['migration_targets'].items():
+ raw=Path(b['manifest_path']).read_bytes();assert sha(raw)==b['manifest_sha256'];copies[A/'manifest'/('migration-'+kind+'.json')]=raw
+for name,source in {'independent-cleanup.json':clean.name,'independent-literal-review.json':'privilege_metadata_v6_086c453e_independent_operational_literal_review_20261120.json','Root-literal-approval.json':'c401_V6_Root_literal_approval_receipt_20261120.json','Root-cleanup-helper.py.txt':'verify_c401_privilege_086c453e_completed_cleanup_20261120.py'}.items():copies[A/name]=(T/source).read_bytes()
+facts={'schema':'workinants.privilege086c-closed-observed-prefix-origin-reconciliation.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'completed_negative_protocols':34,'last_completed_negative':'GRANT-wa_app_runtime-DELETE','operations':78,'current_unqualified_case':c['current_case'],'actual_original_failure':cur['original_operation_failure'],'actual_operation_minimum':{'exit_code':3,'acknowledgement':False,'exact_empty_output':True,'intended_diagnostic_proof':'NOT_MATCHED','safe_SQLSTATE_only':'42501','raw_primary_location_caret_frame':'NOT_RETAINED_UNOBSERVED','complete_original_cause':'UNOBSERVED'},'actual_safety_observations':{'closed_before_observers':True,'operation_backend_absence_and_global_closure_confirmed':True,'all100_trigger_functions_restored':True,'post_case_data_and_native_unchanged':True,'native_fixture_validity_controls':40,'definer_metadata':16,'completed_issuer_protocols':2,'global_client_boundaries':185,'physical1C1V_private_cleanup_independent':'PASS_IMAGE_RETAINED'},'finally_labels_preserved':{'child_current_stage':c['current_stage'],'outer_unexpected':r['unexpected'],'interpretation':'Original failure is VERDICT/intended diagnostic not proven. Finally SOURCE_QUALIFIED_NATIVE_CATALOG and outer REQUIRED_GLOBAL_BACKEND_CLOSURE labels are not evidence of failed global closure.'},'source_question':'Independent source audit investigates single-line BEGIN/SET/CREATE/ROLLBACK template versus physical-line-only source-position matcher. Separately proven source counterexample may explain stop but cannot reconstruct discarded actual message/location. No identical retry or SQL/permission repair.','unexecuted':'Remaining166 negative protocols and third service issuer protocol NOT_RUN; currentCREATE not qualified. No assertion/wholecase promotion.','Posture':'D'}
+copies[A/'audit/observed-prefix-origin-reconciliation.json']=enc(facts);copies[A/'audit/Root-preservation-helper.py.txt']=Path(__file__).read_bytes()
+for p,b in copies.items():
+ assert len(b)<50*1024*1024 and b'\0'not in b;b.decode('utf-8-sig')
+ if p.suffix=='.json':json.loads(b)
+ put(p,b)
+assets={p.relative_to(R).as_posix():sha(b)for p,b in copies.items()}
+record={'schema':'workinants.local-f0-c401-privilege-version-qualified-stopped-execution-record.v1','recorded_at_utc':facts['recorded_at_utc'],'run_id':m['run_id'],'source_commit':H,'source_tree':TREE,'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(mb),'known_executor_exit':{'session':9374,'exit_code':1},'started_at_utc':r['started_at'],'finished_at_utc':r['finished_at'],'actual_wrapper_status':r['status'],'actual_steps':r['steps'],'raw_evidence_sha256':sha(rb),'raw_child_file_sha256':sha(cb),'raw_reports_unchanged':True,'independent_cleanup_sha256':sha(cleanb),'facts':facts,'assets_sha256':assets,'source_preservation':preservation,'qualification_status':'STOPPED_PREFIX_PRESERVED_NO_ASSERTION_PROMOTION','Posture':'D'}
+p=R/'context/reconciliation/local-f0-privilege-c401d2f-086c453e-execution.json';put(p,enc(record));receipt={'record':p.relative_to(R).as_posix(),'record_sha256':sha(p.read_bytes()),'asset_count':len(assets),'assets_sha256':assets,'no_runtime_or_Git_mutation':True,'Posture':'D'};q=T/'c401_privilege_086c_stopped_attempt_preserved_inventory_20261120.json';put(q,enc(receipt));print(json.dumps({'record_sha256':receipt['record_sha256'],'assets':len(assets),'inventory_sha256':sha(q.read_bytes())}))

@@ -1,0 +1,1855 @@
+{
+  "schema": "workinants.restore-v4-independent-transaction-classifier-probe.v1",
+  "source_only": true,
+  "steps_sha256": "0640945a621b6914b9076b8d248a4f2f0c4c485fd42f7227dee67dacaf3cdcd8",
+  "source_line": 933,
+  "five_sha256": {
+    "execute_local_f0_restore_20261119_bound_evidence_v4.py": "187108844d74827427a2ccfd2299d67c466c8ff474df4124c138bf34f92ccc36",
+    "local_f0_restore_operation_steps_bound_evidence_v4.py": "0640945a621b6914b9076b8d248a4f2f0c4c485fd42f7227dee67dacaf3cdcd8",
+    "prepare_local_f0_restore_plan_bound_evidence_v4.py": "ac714d7e1966199c6036b5bba78e9f41160f30d8366eaddbd31b9ee39fa01752",
+    "check_local_f0_restore_operation_bound_evidence_v4.py": "e2e754d3e64610825367987c9c13c2564186ce1dbbe19c153034b38f7904a6f3",
+    "pin_local_f0_restore_plan_20261119_bound_evidence_v4.py": "ff85f78e0aba7cf52de31ecdf5274faa2bf8898fbf2cc73d2abc5421ed6d81e4"
+  },
+  "actual_production_function": "normalize_bound_envelope after actual Core.initialize and complete Steps exec; no actual process/database operations",
+  "vectors": [
+    {
+      "family": "SET_BARE_TRANSACTION",
+      "sql": "SET TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION",
+      "sql": "SET TRANSACTION READ ONLY; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION",
+      "sql": "SET TRANSACTION READ WRITE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION",
+      "sql": "SET TRANSACTION DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION CHARACTERISTICS AS TRANSACTION DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION",
+      "sql": "SET TRANSACTION NOT DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION CHARACTERISTICS AS TRANSACTION NOT DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "REJECTED",
+      "facts": {
+        "mode": "UNCONFIRMED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": null,
+        "emitted_commit_count": null,
+        "business_bytes_preserved": false,
+        "stop_code": "RESTORE_ENVELOPE_UNSUPPORTED_TRANSACTION"
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET transaction_isolation = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_QUOTED",
+      "sql": "SET \"transaction_isolation\" = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET transaction_read_only = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_QUOTED",
+      "sql": "SET \"transaction_read_only\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET transaction_deferrable = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_deferrable",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_QUOTED",
+      "sql": "SET \"transaction_deferrable\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_deferrable",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET default_transaction_isolation = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_QUOTED",
+      "sql": "SET \"default_transaction_isolation\" = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET default_transaction_read_only = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_QUOTED",
+      "sql": "SET \"default_transaction_read_only\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET default_transaction_deferrable = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_deferrable",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_BARE_TRANSACTION_GUC_QUOTED",
+      "sql": "SET \"default_transaction_deferrable\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_deferrable",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION",
+      "sql": "SET LOCAL TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_SESSION_CHARACTERISTICS",
+      "sql": "SET LOCAL SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION",
+      "sql": "SET LOCAL TRANSACTION READ ONLY; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_SESSION_CHARACTERISTICS",
+      "sql": "SET LOCAL SESSION CHARACTERISTICS AS TRANSACTION READ ONLY; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION",
+      "sql": "SET LOCAL TRANSACTION READ WRITE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_SESSION_CHARACTERISTICS",
+      "sql": "SET LOCAL SESSION CHARACTERISTICS AS TRANSACTION READ WRITE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION",
+      "sql": "SET LOCAL TRANSACTION DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_SESSION_CHARACTERISTICS",
+      "sql": "SET LOCAL SESSION CHARACTERISTICS AS TRANSACTION DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION",
+      "sql": "SET LOCAL TRANSACTION NOT DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_SESSION_CHARACTERISTICS",
+      "sql": "SET LOCAL SESSION CHARACTERISTICS AS TRANSACTION NOT DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET LOCAL transaction_isolation = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_QUOTED",
+      "sql": "SET LOCAL \"transaction_isolation\" = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET LOCAL transaction_read_only = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_read_only",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_QUOTED",
+      "sql": "SET LOCAL \"transaction_read_only\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_read_only",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET LOCAL transaction_deferrable = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_deferrable",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_QUOTED",
+      "sql": "SET LOCAL \"transaction_deferrable\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_deferrable",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET LOCAL default_transaction_isolation = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_QUOTED",
+      "sql": "SET LOCAL \"default_transaction_isolation\" = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_isolation",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET LOCAL default_transaction_read_only = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_read_only",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_QUOTED",
+      "sql": "SET LOCAL \"default_transaction_read_only\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_read_only",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET LOCAL default_transaction_deferrable = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_deferrable",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_LOCAL_TRANSACTION_GUC_QUOTED",
+      "sql": "SET LOCAL \"default_transaction_deferrable\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_deferrable",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION",
+      "sql": "SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION",
+      "sql": "SET SESSION TRANSACTION READ ONLY; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION SESSION CHARACTERISTICS AS TRANSACTION READ ONLY; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION",
+      "sql": "SET SESSION TRANSACTION READ WRITE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION SESSION CHARACTERISTICS AS TRANSACTION READ WRITE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION",
+      "sql": "SET SESSION TRANSACTION DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION SESSION CHARACTERISTICS AS TRANSACTION DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION",
+      "sql": "SET SESSION TRANSACTION NOT DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_SESSION_CHARACTERISTICS",
+      "sql": "SET SESSION SESSION CHARACTERISTICS AS TRANSACTION NOT DEFERRABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "SESSION CHARACTERISTICS",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET SESSION transaction_isolation = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_QUOTED",
+      "sql": "SET SESSION \"transaction_isolation\" = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET SESSION transaction_read_only = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_QUOTED",
+      "sql": "SET SESSION \"transaction_read_only\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET SESSION transaction_deferrable = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_deferrable",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_QUOTED",
+      "sql": "SET SESSION \"transaction_deferrable\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "transaction_deferrable",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET SESSION default_transaction_isolation = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_QUOTED",
+      "sql": "SET SESSION \"default_transaction_isolation\" = 'serializable'; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_isolation",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET SESSION default_transaction_read_only = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_QUOTED",
+      "sql": "SET SESSION \"default_transaction_read_only\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_read_only",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_IDENTIFIER",
+      "sql": "SET SESSION default_transaction_deferrable = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_deferrable",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "SET_SESSION_TRANSACTION_GUC_QUOTED",
+      "sql": "SET SESSION \"default_transaction_deferrable\" = on; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "default_transaction_deferrable",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "COMMENTS_IN_CONTROL",
+      "sql": "SET /*a*/ LOCAL /*b*/ TRANSACTION READ ONLY; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": true
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "COMMENTS_IN_CONTROL",
+      "sql": "SET /*a*/ SESSION /*b*/ TRANSACTION ISOLATION LEVEL SERIALIZABLE; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_MULTI",
+          "name": "TRANSACTION",
+          "local": false
+        }
+      ],
+      "expected_contract": "REJECT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "BUSINESS_NEGATIVE_CONTROL",
+      "sql": "SET LOCAL search_path = public; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "search_path",
+          "local": true
+        }
+      ],
+      "expected_contract": "ACCEPT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "BUSINESS_NEGATIVE_CONTROL",
+      "sql": "SET LOCAL \"search_path\" = public; SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [
+        {
+          "kind": "VAR_SET_VALUE",
+          "name": "search_path",
+          "local": true
+        }
+      ],
+      "expected_contract": "ACCEPT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 3,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 2,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "BUSINESS_NEGATIVE_CONTROL",
+      "sql": "SELECT 'SET LOCAL TRANSACTION READ ONLY;'; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [],
+      "expected_contract": "ACCEPT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 2,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 1,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "BUSINESS_NEGATIVE_CONTROL",
+      "sql": "SELECT \"transaction_isolation\"; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [],
+      "expected_contract": "ACCEPT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 2,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 1,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "BUSINESS_NEGATIVE_CONTROL",
+      "sql": "/* SET LOCAL TRANSACTION READ ONLY; */ SELECT 1; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [],
+      "expected_contract": "ACCEPT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 2,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 1,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    },
+    {
+      "family": "BUSINESS_NEGATIVE_CONTROL",
+      "sql": "SELECT $$SET LOCAL TRANSACTION READ ONLY;$$; COMMIT;",
+      "parse": "VALID",
+      "variable_statements": [],
+      "expected_contract": "ACCEPT",
+      "actual": "ADMITTED",
+      "facts": {
+        "mode": "TERMINAL_COMMIT_RETAINED",
+        "source_bounded": true,
+        "lexically_closed": true,
+        "source_statements": 2,
+        "source_begin_count": 0,
+        "source_commit_count": 1,
+        "business_statements": 1,
+        "emitted_commit_count": 1,
+        "business_bytes_preserved": true
+      }
+    }
+  ],
+  "counterexamples": 58,
+  "pinned_three_sources_contain_no_discovered_control_forms": true,
+  "qualification": "Helper-contract gap only. No actual runtime failure, old warning, permissions defect or physical restore claim inferred."
+}

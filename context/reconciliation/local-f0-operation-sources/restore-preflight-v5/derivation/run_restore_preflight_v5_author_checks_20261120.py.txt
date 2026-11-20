@@ -1,0 +1,27 @@
+"""Versioned offline checks; all service/process boundaries are forbidden/mocked."""
+from pathlib import Path
+import argparse,hashlib,io,json,runpy,sys,time,unittest
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sys.path[:0]=[str(T/'offline-python'),str(R/'scripts')]
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('mode',choices=('source','focused','graph','applicable','main','affected'));parser.add_argument('tag');args=parser.parse_args()
+ root=('scripts/prepare-restore-control-rehearsal-v5.py','scripts/check-restore-control-rehearsal-v5.py','scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md')
+ external=('execute_local_f0_restore_preflight_v5_20261120.py','local_f0_restore_preflight_v5_operation_steps.py','prepare_local_f0_restore_preflight_v5_plan.py','check_local_f0_restore_preflight_v5_operation.py','pin_local_f0_restore_preflight_v5_plan_20261120.py')
+ def hashes():return {**{name:sha((R/name).read_bytes())for name in root},**{name:sha((T/name).read_bytes())for name in external}}
+ entry=hashes();start=time.monotonic();suite=unittest.TestSuite()
+ if args.mode=='source':
+  m=runpy.run_path(str(R/root[1]));suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(m['RestoreProposalTests']))
+ else:
+  m=runpy.run_path(str(T/external[3]))
+  if args.mode=='affected':
+   for name in ('test_original_packet_missing_worker_reproduces_exact_source_keyerror','test_preparer_rejects_drifted_worker_before_history_compile_or_file_creation'):suite.addTest(m['RuntimeClosureTests'](name))
+  else:
+   selected={'focused':('PreflightV5Tests','PreflightV5MainSafetyTests'),'graph':('RuntimeClosureTests','PreflightV5SourceGraphTests'),'applicable':('RestoreOperationTests','FinallySafetyTests','AuthV5ProjectionTests'),'main':('PreflightV5MainSafetyTests',)}[args.mode]
+   for name in selected:suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(m[name]))
+ prefix=T/('restore_preflight_v5_checks_'+args.mode+'_'+args.tag);log=prefix.with_suffix('.log');receipt=prefix.with_suffix('.json');assert not log.exists()and not receipt.exists()
+ stream=io.StringIO();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite);log.write_bytes(stream.getvalue().encode());exit=hashes()
+ value={'schema':'workinants.restore-preflight-v5-offline-checks.v1','mode':args.mode,'methods':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'skipped':len(result.skipped),'seconds':round(time.monotonic()-start,3),'status':'PASS'if result.wasSuccessful()else'FAIL','entry_source_sha256':entry,'exit_source_sha256':exit,'source_preserved':entry==exit,'log_sha256':sha(log.read_bytes()),'runtime':'NOT_RUN','all_service_process_network_boundaries_mocked_or_forbidden':True}
+ raw=(json.dumps(value,indent=2)+'\n').encode();receipt.write_bytes(raw);print(json.dumps({'receipt':str(receipt),'sha256':sha(raw),'status':value['status'],'methods':value['methods'],'failures':value['failures'],'errors':value['errors'],'seconds':value['seconds']}),flush=True)
+ return 0 if result.wasSuccessful()and entry==exit else 1
+if __name__=='__main__':raise SystemExit(main())

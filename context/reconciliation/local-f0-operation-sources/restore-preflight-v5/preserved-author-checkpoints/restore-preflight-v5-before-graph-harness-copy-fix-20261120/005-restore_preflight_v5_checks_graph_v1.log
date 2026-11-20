@@ -1,0 +1,53 @@
+test_actual_full_verifier_with_real_prepared_pending_manifest_and_snapshots (<run_path>.RuntimeClosureTests.test_actual_full_verifier_with_real_prepared_pending_manifest_and_snapshots) ... ok
+test_mid_preparation_worker_drift_cannot_emit_an_inconsistent_held_plan (<run_path>.RuntimeClosureTests.test_mid_preparation_worker_drift_cannot_emit_an_inconsistent_held_plan) ... ok
+test_missing_unknown_and_drifted_dependencies_stop_before_any_helper_compile (<run_path>.RuntimeClosureTests.test_missing_unknown_and_drifted_dependencies_stop_before_any_helper_compile) ... ok
+test_original_packet_missing_worker_reproduces_exact_source_keyerror (<run_path>.RuntimeClosureTests.test_original_packet_missing_worker_reproduces_exact_source_keyerror) ... ERROR
+test_pin_helper_freezes_exact_current_four_sources_and_closed_runtime_map (<run_path>.RuntimeClosureTests.test_pin_helper_freezes_exact_current_four_sources_and_closed_runtime_map) ... ok
+test_pin_lookup_precedes_any_filesystem_read_or_resolve (<run_path>.RuntimeClosureTests.test_pin_lookup_precedes_any_filesystem_read_or_resolve) ... ok
+test_preparer_rejects_drifted_worker_before_history_compile_or_file_creation (<run_path>.RuntimeClosureTests.test_preparer_rejects_drifted_worker_before_history_compile_or_file_creation) ... ERROR
+test_actual_full_pinner_synthetic_review_current_inventory_and_real_snapshots (<run_path>.PreflightV5SourceGraphTests.test_actual_full_pinner_synthetic_review_current_inventory_and_real_snapshots) ... ok
+test_actual_pure_prepare_and_pinner_pending_refusal_no_compile_or_OUT (<run_path>.PreflightV5SourceGraphTests.test_actual_pure_prepare_and_pinner_pending_refusal_no_compile_or_OUT) ... ok
+
+======================================================================
+ERROR: test_original_packet_missing_worker_reproduces_exact_source_keyerror (<run_path>.RuntimeClosureTests.test_original_packet_missing_worker_reproduces_exact_source_keyerror)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_preflight_v5_operation.py", line 521, in test_original_packet_missing_worker_reproduces_exact_source_keyerror
+    with self.assertRaises(KeyError) as failure:n['verify_restore_packet']()
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\local_f0_restore_operation_steps_image_v2.py", line 668, in verify_restore_packet
+    for name,expected in external.items():need(hashlib.sha256((TASK/name).read_bytes()).hexdigest()==expected,'RESTORE_EXTERNAL_SOURCE_DRIFT')
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-restore-v3-0evi5qre\\execute_local_f0_restore_20261117_image_v2.py'
+
+======================================================================
+ERROR: test_preparer_rejects_drifted_worker_before_history_compile_or_file_creation (<run_path>.RuntimeClosureTests.test_preparer_rejects_drifted_worker_before_history_compile_or_file_creation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_preflight_v5_operation.py", line 549, in test_preparer_rejects_drifted_worker_before_history_compile_or_file_creation
+    with patch.dict(g,TASK=base,ROOT=ROOT),patch.object(Path,'read_bytes',changed),patch('builtins.compile',side_effect=AssertionError('NO_HELPER_COMPILE')) as compile_,self.assertRaises(g['Refused']) as failure:g['prepare'](baseline,hashlib.sha256(raw).hexdigest(),'550e8400-e29b-41d4-a716-446655440000')
+                                                                                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\prepare_local_f0_restore_preflight_v5_plan.py", line 122, in prepare
+    all_five={name:sha((TASK/name).read_bytes()) for name in (*EXTERNAL_FILES,'pin_local_f0_restore_preflight_v5_plan_20261120.py')}
+                       ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_preflight_v5_operation.py", line 548, in changed
+    def changed(path):return ("raise RuntimeError('"+CANARY+"')").encode() if path==ROOT/'scripts/sql-review/run-worker-control-rehearsal.py' else original(path)
+                                                                                                                                                   ^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-restore-v3-de02xa4f\\execute_local_f0_restore_preflight_v5_20261120.py'
+
+----------------------------------------------------------------------
+Ran 9 tests in 134.549s
+
+FAILED (errors=2)

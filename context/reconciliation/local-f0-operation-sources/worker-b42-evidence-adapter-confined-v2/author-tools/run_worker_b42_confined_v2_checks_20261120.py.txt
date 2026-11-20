@@ -1,0 +1,10 @@
+from pathlib import Path
+import hashlib,importlib.util,json,sys,time,unittest
+T=Path(__file__).resolve().parent;D=T/'worker-b42-evidence-adapter-confined-v2-draft-20261120';R=D/'future-root'
+names=('scripts/local_f0_worker_recovery_evidence_v2.py','scripts/check-local-f0-worker-recovery-evidence-v2.py','scripts/prepare-local-f0-status.py','context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json')
+pins=lambda:{n:hashlib.sha256((R/n).read_bytes()).hexdigest()for n in names}
+start=pins();spec=importlib.util.spec_from_file_location('worker_v2_checks',R/names[1]);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+selectors=sys.argv[1:]or unittest.defaultTestLoader.getTestCaseNames(m.WorkerEvidenceTests);begin=time.monotonic()
+result=unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(m.WorkerEvidenceTests(name)for name in selectors))
+out={'status':'PASS'if result.wasSuccessful()and start==pins()else'FAIL','selectors':selectors,'methods':result.testsRun,'failed':len(result.failures)+len(result.errors),'seconds':time.monotonic()-begin,'source_entry_sha256':start,'source_exit_sha256':pins(),'process_network_boundaries_blocked':True,'live_Root_writes':False,'actual_complete_Root_671_build':'NOT_RUN_REQUIRED_AFTER_REVIEW'}
+dest=D/('small-checks-result.json'if sys.argv[1:]else'final21-checks-result.json');dest.write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out));raise SystemExit(0 if out['status']=='PASS'else 1)

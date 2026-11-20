@@ -1,0 +1,66 @@
+"""Verify independent literal and fresh read-only local identity, then change only external review_status."""
+from pathlib import Path
+import datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+C='fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f';TREE='2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f'
+PENDING='2767be3f3a602cb587c7e7856005333fb04681c22f6505eab2b70e67495fb6f5'
+REVIEW='b2fc27d80e96c6dc7be0a50fc1ecd9edc03454ad4e6a8f51b3640377c0f9ce80'
+path=T/'local-f0-app-write-two-guard-observation-v2-owned-plan-8f2aa922/operation-manifest.json'
+raw=path.read_bytes();assert sha(raw)==PENDING;m=json.loads(raw)
+reviewpath=T/'appv2_8f2aa922_independent_operational_literal_review_20261120.json'
+reviewraw=reviewpath.read_bytes();assert sha(reviewraw)==REVIEW;review=json.loads(reviewraw)
+assert review['decision']=='SOURCE_LITERAL_APPROVED_FOR_ONE_BOUNDED_LOCAL_ATTEMPT' and review['failure'] is None
+assert review['reviewer']=='/root/catalog_v4_review' and review['actual_whole_verifier']=='PASS'
+assert review['manifest_sha256']==PENDING and m['review_status']=='PENDING_OPERATIONAL_REVIEW'
+assert review['run_id']==m['run_id']=='8f2aa922-6bb7-49a1-add6-4b15aa983b43'
+assert review['source_commit']==m['source_commit']==C and review['source_tree']==m['source_tree']==TREE
+pins=m['packet_files_sha256'];assert len(pins)==review['packet_files']==240
+for n,h in pins.items():assert sha((R/n).read_bytes())==h
+aggregate=sha(''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode())
+assert aggregate==m['packet_sha256']==review['packet_sha256']=='a9b95a0bcf6bdffb3942f2ebd740929896c7df70f93ab1ed78a402aa2fd44824'
+five=m['app_write_two']['external_files_sha256'];assert len(five)==5 and five==review['external_five_sha256']
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+steps=(T/'local_f0_app_write_two_guard_observation_v2_operation_steps.py').read_text()
+assert "MANIFEST['review_status']=='APPROVED_LOCAL_F0_APP_WRITE_TWO_ATTEMPT'" in steps
+def git(*a):return subprocess.check_output(['git','--no-optional-locks','-c','core.longpaths=true',*a],cwd=R,timeout=60).decode().strip()
+assert git('rev-parse','HEAD')==C and git('rev-parse','HEAD^{tree}')==TREE
+remote=git('ls-remote','--exit-code','origin','refs/heads/codex/p0c-candidate-corrections-2026-10-31').split()
+assert remote==[C,'refs/heads/codex/p0c-candidate-corrections-2026-10-31']
+def docker(*a):return subprocess.run(['docker','--context','desktop-linux',*a],cwd=R,capture_output=True,text=True,timeout=30,shell=False)
+c=docker('context','inspect','desktop-linux');assert c.returncode==0
+contexts=json.loads(c.stdout);assert len(contexts)==1 and contexts[0]['Name']=='desktop-linux'
+endpoint=contexts[0]['Endpoints']['docker']['Host'];assert endpoint=='npipe:////./pipe/dockerDesktopLinuxEngine'
+s=docker('version','--format','{{json .Server}}');assert s.returncode==0;server=json.loads(s.stdout)
+assert server['Os']=='linux' and server['Arch']=='amd64'
+i=docker('image','inspect',m['image']);assert i.returncode==0
+helper='scripts/sql-review/local_image_identity.py';hb=(R/helper).read_bytes()
+assert sha(hb)==pins[helper]=='a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604'
+ns={'__name__':'_Root_reviewed_pure_image_identity','__file__':str(R/helper)}
+exec(compile(hb,str(R/helper),'exec'),ns)
+identity=ns['validate_cached_image'](json.loads(i.stdout),(R/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes())
+assert identity['reference']==m['image']
+names=[('container',t['name'])for t in m['targets']]+[('volume',t['volume'])for t in m['targets']]
+assert names==[('container','wa-p0c-8f2aa922-appwrite2'),('volume','wa-p0c-8f2aa922-appwrite2-data')]
+observations={}
+for kind,n in names:
+ result=docker(kind,'inspect',n)
+ expected='Error response from daemon: No such container: '+n if kind=='container' else 'Error response from daemon: get '+n+': no such volume'
+ assert result.returncode==1 and result.stdout.strip()=='[]' and result.stderr.strip()==expected
+ observations[n]={'kind':kind,'absent_exact_known_diagnostic':True,'raw_output_retained':False}
+out=Path(m['evidence_directory']);assert out.resolve().is_relative_to(T.resolve()) and not out.resolve().is_relative_to(R.resolve())
+for p in (out,out/'private'):
+ try:p.lstat()
+ except FileNotFoundError:pass
+ else:raise AssertionError('FRESH_EVIDENCE_OR_PRIVATE_PATH_CONFLICT')
+assert path.read_bytes()==raw and git('rev-parse','HEAD')==C
+with path.with_name('operation-manifest-before-operational-review.json').open('xb') as f:f.write(raw)
+m['review_status']='APPROVED_LOCAL_F0_APP_WRITE_TWO_ATTEMPT'
+assert {k for k in m if m[k]!=json.loads(raw)[k]}=={'review_status'}
+temp=path.with_name('operation-manifest-reviewed.tmp')
+with temp.open('xb') as f:f.write((json.dumps(m,indent=2,allow_nan=False)+'\n').encode())
+temp.replace(path)
+receipt={'schema':'workinants.fcab-AppV2-Root-exact-literal-approval.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_commit':C,'source_tree':TREE,'run_id':m['run_id'],'review_path':str(reviewpath),'review_sha256':REVIEW,'pending_manifest_sha256':PENDING,'approved_manifest_sha256':sha(path.read_bytes()),'changed_keys':['review_status'],'packet_sha256':aggregate,'packet_files':len(pins),'fresh_preflight':{'endpoint':endpoint,'server':{k:server[k]for k in ('Version','Os','Arch')},'image_identity':identity,'exact_names':observations,'OUT_private_absent':True},'runtime':'NOT_RUN_AT_APPROVAL','Posture':'D'}
+rp=T/'fcab_AppV2_8f2aa922_Root_literal_approval_receipt_20261120.json'
+with rp.open('xb') as f:f.write((json.dumps(receipt,indent=2,allow_nan=False)+'\n').encode())
+print(json.dumps({'receipt':str(rp),'receipt_sha256':sha(rp.read_bytes()),'approved_manifest_sha256':receipt['approved_manifest_sha256'],'status':'APPROVED_EXACT_FLAG_ONLY_AFTER_FRESH_LOCAL_PREFLIGHT','runtime':'NOT_RUN_AT_APPROVAL'}))

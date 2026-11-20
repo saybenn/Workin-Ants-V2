@@ -1,0 +1,49 @@
+"""Independent bounded protocol checks derived from the pinned PG17 primary source."""
+from pathlib import Path
+from copy import deepcopy
+import datetime,hashlib,json,runpy,socket,subprocess,time
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+p=R/'scripts/privilege_ceiling_control_protocol_v7.py';raw=p.read_bytes();assert sha(raw)=='7f20d136bb3eed707e08887212dea9defde5537b357442a421aa5e4cabc94864'
+packetpath=R/'review-output/privilege-ceiling-control-rehearsal/fixtures.json';packetraw=packetpath.read_bytes();packet=json.loads(packetraw);cases=[x for x in packet['cases']if x['diagnostic']['kind']=='SCHEMA_CREATE'];assert len(cases)==8
+calls=[]
+def forbidden(*a,**k):calls.append('FORBIDDEN');raise AssertionError('ALL_PROCESS_NETWORK_FORBIDDEN')
+checks=[];started=time.monotonic();run='75cb0890-354e-4bf3-9268-bfe544842b75'
+def check(name,value):assert value,name;checks.append(name)
+with patch.multiple(subprocess,run=forbidden,Popen=forbidden,check_output=forbidden,check_call=forbidden,call=forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden):
+ n=runpy.run_path(str(p),run_name='_Root_independent_pure_V7_CREATE')
+ for case in cases:
+  label=case['name'];template=(packetpath.parent/case['file']).read_text();rendered=n['reviewed_text'](template,run);binding=n['create_projection_binding'](case,template,rendered,run)
+  query='CREATE TABLE '+case['schema']+'.wa_priv_'+run[:8]+'_probe(id integer);'
+  check(label+'/exact-bound-query',binding['query']==query)
+  # Independently derive ASCII projection for RangeVar position13 from PG17,
+  # rather than using the implementation to create the expected diagnostic.
+  display=query if len(query)<=60 else query[:60]+'...';line='LINE 1: '+display;caret=' '*(len('LINE 1: ')+len('CREATE TABLE '))+'^'
+  stderr='ERROR:  42501: permission denied for schema '+case['schema']+'\n'+line+'\n'+caret+'\nLOCATION:  aclcheck_error, aclchk.c:1\n'
+  identity={'template_sha256':sha(template.encode()),'rendered_source_sha256':sha(rendered.encode())};metadata={'schema_create':False,'schema_usage':True}
+  def verdict(error=stderr,meta=metadata,source=rendered,b= binding,ident=identity):return n['diagnostic_with_receipt'](error,case['diagnostic'],meta,source,n['source_position_matches'],create_binding=b,source_identity=ident)
+  matched,receipt=verdict();check(label+'/intended-fixed-projection',matched['matched']is True and receipt['strict_match']is True and receipt['position_source']=='VERIFIED_CREATE_QUERY' and receipt['position_projection_matches']is True)
+  old=n['_unchanged_diagnostic'](stderr,case['diagnostic'],metadata,rendered,n['source_position_matches']);check(label+'/old-BEGIN-line-restoration-rejects',old['matched']is False)
+  mutations={
+   'unrelated-P0001':stderr.replace('42501','P0001',1),
+   'foreign-schema-message':stderr.replace('permission denied for schema '+case['schema'],'permission denied for schema unrelated',1),
+   'wrong-native-function':stderr.replace('aclcheck_error,','aclcheck_error_col,',1),
+   'wrong-caret':stderr.replace(caret+'\n',' '+caret+'\n',1),
+   'different-query':stderr.replace('wa_priv_'+run[:8],'wa_priv_deadbeef',1),
+   'extra-header':stderr+'ERROR:  42501: SOURCE_CANARY_NOT_FOR_EXPORT\n',
+   'source-lookalike':stderr.replace('CREATE TABLE','CREATE  TABLE',1),
+   'unrelated-42501':stderr.replace('permission denied for schema '+case['schema'],'permission denied for table unrelated',1),
+   'control-byte':stderr+'\x00SOURCE_CANARY_NOT_FOR_EXPORT',
+  }
+  for name,value in mutations.items():
+   bad,small=verdict(error=value);check(label+'/'+name,bad['matched']is False and small['strict_match']is False);check(label+'/'+name+'/canary-redacted','SOURCE_CANARY_NOT_FOR_EXPORT'not in json.dumps([bad,small]))
+  for value in(None,True,'false',0):
+   bad,small=verdict(meta={'schema_create':value});check(label+'/metadata-'+type(value).__name__,bad['matched']is False and small['strict_match']is False)
+  wrong=deepcopy(binding);wrong['query_sha256']='0'*64;bad,small=verdict(b=wrong);check(label+'/wrong-binding-hash',bad['matched']is False and small['strict_match']is False)
+  bad,small=verdict(source=rendered+' ');check(label+'/source-drift',bad['matched']is False and small['strict_match']is False)
+  check(label+'/no-SQL-retained',query not in json.dumps([matched,receipt]) and template not in json.dumps([matched,receipt]))
+assert not calls and p.read_bytes()==raw and packetpath.read_bytes()==packetraw
+receipt={'schema':'workinants.privilege-v7-Root-independent-CREATE-probe.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'PASS_BOUNDED_PURE_PROTOCOL_CHECKS','source_sha256':sha(raw),'fixture_sha256':sha(packetraw),'CREATE_cases':8,'independent_predicates':len(checks),'predicate_ids':checks,'seconds':round(time.monotonic()-started,3),'source_restoration_counterexample':'Old unchanged source_position_matches rejects every new fixed CREATE projection because rendered input line starts BEGIN.','all_process_network_boundaries_forbidden':True,'actual_database_claims':0,'historical086c_complete_cause':'UNOBSERVED','Posture':'D'}
+rp=T/'privilege_v7_Root_independent_CREATE_projection_probe_20261120.json'
+with rp.open('xb')as f:f.write((json.dumps(receipt,indent=2,allow_nan=False)+'\n').encode())
+print(json.dumps({'path':str(rp),'sha256':sha(rp.read_bytes()),'predicates':len(checks),'cases':8,'seconds':receipt['seconds'],'status':receipt['decision']}))

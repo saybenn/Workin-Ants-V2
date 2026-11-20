@@ -1,0 +1,420 @@
+{
+  "schema": "workinants.worker-b42-independent-cleanup-source-contract-addendum.v1",
+  "status": "PURE_CLOSED_INPUT_CHECKS_COMPLETE_NO_NEW_CLAIMS",
+  "parent_audit_path": "worker_b42_independent_actual_evidence_audit_20261120.json",
+  "parent_audit_sha256": "858203dd9cacd8d1afca42ccb85a748462ccabc33050b0fa2f0e1748060b53c4",
+  "checks": [
+    {
+      "id": "independent-cleanup-exact-run-source-and-evidence",
+      "status": "PASS"
+    },
+    {
+      "id": "independent-exact-one-container-one-volume-absence",
+      "status": "PASS"
+    },
+    {
+      "id": "independent-private-absence-and-retained-image",
+      "status": "PASS"
+    },
+    {
+      "id": "outer-owned-resource-absence-and-secret-cleanup",
+      "status": "PASS"
+    },
+    {
+      "id": "immutable-created-CID-deploy-registration-and-child",
+      "status": "PASS"
+    },
+    {
+      "id": "actual-private-kernel-controls-before-credentials",
+      "status": "PASS"
+    },
+    {
+      "id": "current-tool-archive-and-exact10300-member-source-map",
+      "status": "PASS"
+    },
+    {
+      "id": "three-current-runtime-code-byte-pins",
+      "status": "PASS"
+    },
+    {
+      "id": "current-fresh-seven-history-snapshot-and-archive",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-TrackSubscription",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-TrackEntitlementGrant",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-RuntimeCommandReceipt",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-RuntimeOutboxMessage",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-RuntimeEffectReceipt",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-RuntimeAttempt",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-RuntimeInboxReceipt",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-OwnerMutationEvidence",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-TrackBaseSelection",
+      "status": "PASS"
+    },
+    {
+      "id": "source-fixed-complete-read-caps-TrackEnrollmentReceipt",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-TrackSubscription-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-TrackEntitlementGrant-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-RuntimeCommandReceipt-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-RuntimeCommandReceipt-ALLOW|positive.wa_worker.update",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-RuntimeOutboxMessage-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-RuntimeEffectReceipt-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-RuntimeAttempt-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-RuntimeInboxReceipt-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-OwnerMutationEvidence-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-TrackBaseSelection-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TABLE-TrackEnrollmentReceipt-ALLOW|positive.wa_worker.select",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TRACK-01|control.preserve_valid_selection",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TRACK-01|control.lease_transitions",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TRACK-01|control.concurrent_fence",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TRACK-01|vector.LEASE-ATTACH.adversarial",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TRACK-01|vector.LEASE-RECOVERY.positive",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-expectation-P0C-TRACK-01|vector.LEASE-RECOVERY.adversarial",
+      "status": "PASS"
+    },
+    {
+      "id": "exact17-and-existing-two-within-ceilings",
+      "status": "PASS"
+    },
+    {
+      "id": "exact-proposed-actions",
+      "status": "PASS"
+    },
+    {
+      "id": "unchanged653-ledger-baseline",
+      "status": "PASS"
+    }
+  ],
+  "check_count": 39,
+  "read_policy_projection": {
+    "TrackSubscription": {
+      "table": "app.track_subscriptions",
+      "fixed_source_policy_fields": [
+        "id",
+        "userId",
+        "planId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "status",
+        "provider",
+        "currentPeriodStart",
+        "currentPeriodEnd",
+        "endedAt",
+        "revision"
+      ],
+      "required_field_token_count": 13,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackSubscription.sql",
+      "query_sha256": "4b3b2076d8ff77ea88e578c6eab237f91804622dbadb8208efd58fa63e7a8904",
+      "policy_line": 3467,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "TrackEntitlementGrant": {
+      "table": "app.track_entitlement_grants",
+      "fixed_source_policy_fields": [
+        "id",
+        "userId",
+        "subscriptionId",
+        "entitlementId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "status",
+        "valueType",
+        "booleanValue",
+        "intValue",
+        "decimalValue",
+        "stringValue",
+        "startsAt",
+        "expiresAt",
+        "revokedAt",
+        "sourcePlanId",
+        "sourceEventId",
+        "revision"
+      ],
+      "required_field_token_count": 20,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackEntitlementGrant.sql",
+      "query_sha256": "a40cf9c8dd3787d4405fc4a64c10bb8a3320cc374e65be5684e2378d36c6055f",
+      "policy_line": 3477,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "RuntimeCommandReceipt": {
+      "table": "platform.runtime_command_receipt",
+      "fixed_source_policy_fields": [
+        "id",
+        "ownerModuleId",
+        "operation",
+        "subjectScope",
+        "semanticKey",
+        "fingerprint",
+        "state",
+        "sourceRevision",
+        "resultSchemaId",
+        "resultSchemaVersion",
+        "resultDigest",
+        "resultBody",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "required_field_token_count": 14,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeCommandReceipt.sql",
+      "query_sha256": "1a72a47fc56d983c03ffae7a19bbd16c7eacad525d1ecb98d4b22c9bb45fe5c3",
+      "policy_line": 3515,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "RuntimeOutboxMessage": {
+      "table": "platform.runtime_outbox_message",
+      "fixed_source_policy_fields": [
+        "id",
+        "commandReceiptId",
+        "kind",
+        "producerOwner",
+        "aggregateKind",
+        "aggregateId",
+        "sourceRevision",
+        "sourceGeneration",
+        "ordinal",
+        "name",
+        "schemaVersion",
+        "payloadSchemaId",
+        "payloadHash",
+        "payload",
+        "correlationId",
+        "causationId",
+        "correctionOfId",
+        "occurredAt",
+        "effectiveAt",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "required_field_token_count": 21,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeOutboxMessage.sql",
+      "query_sha256": "e007d3a0f146d750cffeedf9a62815f1226fccabff30bd09180aeadb9dbffdb6",
+      "policy_line": 3525,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "RuntimeEffectReceipt": {
+      "table": "platform.runtime_effect_receipt",
+      "fixed_source_policy_fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "operation",
+        "subjectScope",
+        "semanticEffectKey",
+        "fingerprint",
+        "state",
+        "sourceRevision",
+        "fence",
+        "resultSchemaId",
+        "resultHash",
+        "committedAt",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "required_field_token_count": 15,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeEffectReceipt.sql",
+      "query_sha256": "afba370911c790aaee513d5c26cc055da2d7b19049614d27647232b9a4be65f9",
+      "policy_line": 3533,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "RuntimeAttempt": {
+      "table": "platform.runtime_attempt",
+      "fixed_source_policy_fields": [
+        "id",
+        "workItemId",
+        "attemptNumber",
+        "fence",
+        "workerId",
+        "result",
+        "reasonCode",
+        "startedAt",
+        "finishedAt",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "required_field_token_count": 11,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeAttempt.sql",
+      "query_sha256": "3bea82b4bb39949ee06c47c707ed4147633aeafa29ebf307c6561edd54af17b7",
+      "policy_line": 3553,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "RuntimeInboxReceipt": {
+      "table": "platform.runtime_inbox_receipt",
+      "fixed_source_policy_fields": [
+        "id",
+        "outboxMessageId",
+        "consumerOwner",
+        "handlerName",
+        "payloadHash",
+        "effectReceiptId",
+        "createdAt",
+        "mutationTransactionId"
+      ],
+      "required_field_token_count": 8,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeInboxReceipt.sql",
+      "query_sha256": "3d58a5ff45fccb706b6fe5d8df1af32bb9362bd1b06c98ab5e606f7696bc09c0",
+      "policy_line": 3561,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "OwnerMutationEvidence": {
+      "table": "platform.owner_mutation_evidence",
+      "fixed_source_policy_fields": [
+        "id",
+        "commandReceiptId",
+        "ownerModuleId",
+        "aggregateKind",
+        "aggregateId",
+        "previousRevision",
+        "committedRevision",
+        "action",
+        "decisionRef",
+        "evidenceSchemaId",
+        "evidenceSchemaVersion",
+        "evidenceDigest",
+        "createdAt",
+        "evidenceBody",
+        "mutationTransactionId"
+      ],
+      "required_field_token_count": 15,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-OwnerMutationEvidence.sql",
+      "query_sha256": "6564f05eb002b44ae136888173dc5f290482c211b1ce9099edaff3f08c123a77",
+      "policy_line": 3581,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "TrackBaseSelection": {
+      "table": "app.track_base_selection",
+      "fixed_source_policy_fields": [
+        "id",
+        "userId",
+        "track",
+        "customerProfileId",
+        "candidateProfileId",
+        "professionalProfileId",
+        "subscriptionId",
+        "revision",
+        "sourceGeneration"
+      ],
+      "required_field_token_count": 9,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackBaseSelection.sql",
+      "query_sha256": "33003bf9982621468611374a17471d7de31eb8e5e0ae5f6ec4558c864dd46549",
+      "policy_line": 3595,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    },
+    "TrackEnrollmentReceipt": {
+      "table": "app.track_enrollment_receipt",
+      "fixed_source_policy_fields": [
+        "id",
+        "userId",
+        "track",
+        "profileId",
+        "sourceOwner",
+        "sourceCreationRevision",
+        "selectionId",
+        "selectionRevision",
+        "semanticKey",
+        "fingerprint",
+        "resultCode",
+        "effectReceiptId"
+      ],
+      "required_field_token_count": 12,
+      "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackEnrollmentReceipt.sql",
+      "query_sha256": "802fafc51c41f4d5a575f1c4179bcbf7e725785dab4c787e3e076502f99dc9e2",
+      "policy_line": 3605,
+      "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+    }
+  },
+  "tool_archive_sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+  "source_snapshot7_sha256": {
+    "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+    "prisma/foundation/history-manifest.json": "fdd65dc60864d65a16445d912fd98c28ad6a9b66270cbb021e91dccbed5b7461",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd"
+  },
+  "source_archive_sha256": "f68cbb28f05dbdcaeee6131b1ea78bbcc6f5d8fd11d14bd8acdd1e1ce64f7093",
+  "all647_base_inputs_rechecked_unchanged": true,
+  "code_or_SQL_executed_on_database": false,
+  "project_helpers_executed": false,
+  "nested_processes_started": false
+}

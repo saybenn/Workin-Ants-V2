@@ -1,0 +1,60 @@
+{
+  "schema": "workinants.restore-preflight-v5-Root-bounded-source-ACK.v1",
+  "recorded_at_utc": "2026-11-20T10:27:48.128173+00:00",
+  "decision": "AUTHORIZE_EXCLUSIVE_NEW_V5_SOURCE_ONLY_PENDING_SEPARATE_REVIEW",
+  "Root": "/root",
+  "proposal_sha256": "52dc417db86d0fb45bef38b4a6c63fd9b0551a98d7ce05238f04407d99bdbd20",
+  "Root_primary_verification": [
+    "Root independently opened REL_17_11 xlog.c show_archive_command lines4450-4458: disabledshowhook witharchivinginactive.",
+    "Root independently opened REL_17_11 guc_funcs.c PGC_STRING reset_val lines674-678: rawresetstring pstrdup independentofShowGUCOption display; context/vartype/pendingrestart exposed. RuntimePGversion170011/sourceimage remainsbound."
+  ],
+  "new_namespace": {
+    "root_sources": [
+      "scripts/prepare-restore-control-rehearsal-v5.py",
+      "scripts/check-restore-control-rehearsal-v5.py",
+      "scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md"
+    ],
+    "external_five": [
+      "execute_local_f0_restore_preflight_v5_20261120.py",
+      "local_f0_restore_preflight_v5_operation_steps.py",
+      "prepare_local_f0_restore_preflight_v5_plan.py",
+      "check_local_f0_restore_preflight_v5_operation.py",
+      "pin_local_f0_restore_preflight_v5_plan_20261120.py"
+    ],
+    "artifact_root": "review-output/restore-control-rehearsal-v5",
+    "child_validation": "context/reconciliation/local-f0-restore-preflight-v5-source-validation.json",
+    "owned_validation": "context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json",
+    "archive_root": "context/reconciliation/local-f0-operation-sources/restore-preflight-v5",
+    "source_gates": "Child+owned four source review states beginPENDING; actualpinner andwholeoperator verifybothclosednewsource/artifact/five/snapshot/archive gates BEFOREhelpercompile/resourcecalls. No aliasoldapprovedgates."
+  },
+  "authorized_semantics": [
+    "Preserve archive_mode=off exactly, all recovery/primary-slot/restore/archive-library/synchronous-standby and preload/subscription/foreign-server restrictions, all startup/config/source bindings and every other preflight predicate. Never change server settings to force this check.",
+    "Correct ONLY the archive_command observation in a new versioned packet. Require the exact PG17 disabled display under off mode AND a separate effective raw/reset empty proof through the single pg_settings archive_command row, with exact string/sighup metadata and no pending restart. The verified PG17 API exposes raw reset_val separately from its display hook; PGC_SIGHUP is not a SQL session-settable context. Missing/null/unknown metadata fails closed.",
+    "Do not accept arbitrary display strings, drop the mode check, substitute pg_settings.setting (also show-hook processed), or use boot_val as proof of the current configured value. A nonempty hidden configured command must reject even though its display is disabled.",
+    "Keep SELECT-only pg_catalog observation under the same existing postgres login; no permission/role/schema/image/mount/configuration/network/resource changes. Keep the other24 prepared-artifact semantics and canonical5ae/32 worker ACL/source fixtures and grants unchanged except necessary versioned source/provenance/hash closure."
+  ],
+  "required_safe_receipt": [
+    "Before raising the preflight assertion, persist a closed phase enum (BEFORE_BACKUP or AFTER_BACKUP), input source SQL SHA, response/object/exact-field-set checks, and one fixed entry for each of the16 named predicates. Each entry distinguishes missing, wrong type, actual false and actual true via present/type-valid flags and Boolean-or-null; no raw dictionary or arbitrary keys/values.",
+    "System identity retention is shape/match Booleans or an already validated64-hex hash only. Never export raw system identifiers, setting strings, commands, paths, credentials, handles, SQL output or exception text. Keep the post-backup same-cluster equality requirement exact.",
+    "Malformed/process-unavailable data must retain a fixed unavailable/parse classification where possible and stop; comparison persistence failure is sticky and cannot permit backup. Record the original safe failure before secondary close/write errors reorder it; preserve independent global closure and exact cleanup."
+  ],
+  "focused_validation": [
+    "Use actual emitted SQL AST/projection, not an all-True dictionary oracle: off mode with empty raw reset passes corrected semantics; off with hidden nonempty raw command rejects; on/always, unknown display, missing/duplicate row, wrong context/type, null/nonempty reset or pending restart reject. Restore the old empty-display predicate and require the source regression to fail.",
+    "For each of16 fields plus exact-key/system-ID shapes, exercise actual backup_preflight failure receipt before original Stop. Canary values in unknown keys, setting/command strings and malformed responses never appear in retained evidence. Missing is not observed false.",
+    "Real quiesce/fixed_json/run_catalog_query command-boundary mocks must model SQL exit0 then a Boolean failure; all clients close before observations, backup/staging/target remain untouched, and controlled cleanup progresses despite persistent/transient evidence IO.",
+    "Preserve post-backup same-source hash control. Code/parser/byte-reproduction/whole prepare+pinner/source/current+committed and applicable existing boundary/cleanup tests must use actual new closed graph, physical snapshots and explicit synthetic review fixtures; no factory PASS injection.",
+    "Rerun only changes justified by actual source/namespace/observability delta, recording exact method counts/durations/limits; no status/case promotion from fixtures or source tests."
+  ],
+  "Root_conditions": [
+    "PreserveoldV4Fix3/five/713source/proposal918/content275/25leaves/c5acactualmanifest/raw/cleanup andeveryhistoricalwarning/failedcheck beforeanyedit. OldsourceSourceMap/pinner remainsunchanged. Newgenerator/checker/doc+externalfive only, plusnewpacket/twoPENDINGvalidators/closedarchive.",
+    "Changeonlysource-correct no-archive observation: archive_mode exactlyoff, display exactly(disabled), exactsinglepg_settings archive_command row withrawreset empty/context sighup/vartype string/pending_restartfalse. Not boot_val orpg_settings.setting; hiddennonemptyrawcommand mustreject. Preserveallother15predicates/other24leafsemantics/recovery/replication/foreign/preload/sourceconfig checks. No server setting/role/permission repair.",
+    "Generatoris authoritative; regenerateV5packet. No generatedonlypatch. AllDomainSQL/contextfixturecopies/grants/migrationSQL5ae/June/32ACL andallfinitequarantine/sourceID/rotation/storage/backup/cleanup/timeouts stayexact; namespace/sourcehash/proposalmetadata maychangeasrequired. Existing protocolfunctions liveinoldgenerator; nonewseparateprotocolfile neededunlessRootlaterACKsone.",
+    "Beforeallpreflightassertions retainclosed16namedcomparison sourceSchema/phase BEFORE_BACKUPorAFTER_BACKUP/querySHA/response+object+exactfieldset and present/type-valid/Boolean-null bits. Missing/unreceived isnotfalse, malformednotobserved; systemIDonlyshape/match/validatedhash, neverrawsysid/settings/commands/paths/SQL/dicts/handles/secrets/exceptions. StickyIO firstsafeorigin andindependentclosure/eligiblecleanup persist.",
+    "Postbackup same-cluster systemIDequality exact. Secretdataonlyprotectedruntimefiles/stdin; privatearchiveoutsiderepo removedonlyexactownedresource identity. Same3C2V source/staging/target/networknone/noports/pinnedimage/freshUUID. No imagepull unlessexactpinnedneeded.",
+    "Required regressionsdependonactualSQL AST/projection/rawreset/display distinction,16fieldfailures/missingwrongtypes/extrakeys/systemIDshape/secretcanaries/oldSQLpredicate-restoration, actualfixed_json/quiesce/catalog/body/cleanupIO paths andrealnewprepare+pinner/sourcegraph withprocessboundariesmocked. No all-True oracle/factoryPASS injection. PreserveFix3singleterminalCOMMIT/customGUCscanner andallpriorsecurityharnessboundarytests.",
+    "Historicalc5ac17inputvalues/failedfield/fullcauseUNOBSERVED despiteprovensourcecontradiction. Physicalbackup/staging/restoredtarget/generation andprivacyreapplication remainNOT_RUN. Do notclaimrestoreorwholecasequalificationfromsourcefix.",
+    "SeparateindependentnonauthorcodeReview (notimplementationauthor),Rootmetadataclosure/publish/current+committedpin/freshliteral/livepreflight precedefreshactual. Nooldidenticalretry orsource/runtimeexpansion. Rootauthorizedauthor maybeginstaticsourceworknow; heavysuitescoordinatewithCatalogRead13/PrivINSTALLreaderreview. NoGit/Docker/DB/SQL/network/Rootledger/status/progress changes fromsourceACK."
+  ],
+  "runtime": "NOT_RUN",
+  "Posture": "D"
+}

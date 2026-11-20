@@ -1,0 +1,47 @@
+"""Read-only AST/byte scope proof; never executes a project module."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+replacements={
+ 'execute_local_f0_restore_preflight_v5_20261120.py':'execute_local_f0_restore_20261119_bound_evidence_v4.py',
+ 'local_f0_restore_preflight_v5_operation_steps.py':'local_f0_restore_operation_steps_bound_evidence_v4.py',
+ 'prepare_local_f0_restore_preflight_v5_plan.py':'prepare_local_f0_restore_plan_bound_evidence_v4.py',
+ 'check_local_f0_restore_preflight_v5_operation.py':'check_local_f0_restore_operation_bound_evidence_v4.py',
+ 'pin_local_f0_restore_preflight_v5_plan_20261120.py':'pin_local_f0_restore_plan_20261119_bound_evidence_v4.py',
+ 'review-output/restore-control-rehearsal-v5':'review-output/restore-control-rehearsal',
+ 'context/reconciliation/local-f0-operation-sources/restore-preflight-v5':'context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4',
+ 'context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json':'context/reconciliation/local-f0-restore-bound-evidence-v4-source-validation.json',
+ 'LOCAL_F0_RESTORE_PREFLIGHT_V5_REHEARSAL':'LOCAL_F0_RESTORE_REHEARSAL',
+ 'APPROVED_LOCAL_F0_RESTORE_PREFLIGHT_V5_ATTEMPT':'APPROVED_LOCAL_F0_RESTORE_ATTEMPT',
+ '2dba2c292178cc971896ee8f2065445be5acae40aca86ba3944960ce337c6685':'91834ed47f63820db5bb4cc16d77056577f7831f57eeed923198b630af15aaca',
+ 'f9858f8b29eb5da030710fc9ab6bf7f400a11baedcf759dc69169eba1e26144e':'2752ff8019c7d2c59a029e0595e5c42de6cc3e0c16d3ce18dffa75b1be70c1f1'}
+def functions(raw):
+ result={}
+ def scan(body,prefix=''):
+  for node in body:
+   if isinstance(node,(ast.FunctionDef,ast.ClassDef)):
+    name=prefix+node.name
+    if isinstance(node,ast.FunctionDef):result[name]=ast.dump(node,include_attributes=False)
+    scan(node.body,name+'.')
+ scan(ast.parse(raw).body);return result
+proof={}
+for name,old in list(replacements.items())[:5]:
+ text=(T/name).read_text()
+ for after,before in replacements.items():text=text.replace(after,before)
+ a=functions((T/old).read_bytes());b=functions(text)
+ proof[name]={'changed_functions':[key for key in a if key in b and a[key]!=b[key]],'removed_functions':sorted(set(a)-set(b)),'added_functions':sorted(set(b)-set(a)),'unchanged_functions':sum(key in b and a[key]==b[key]for key in a)}
+assert proof['execute_local_f0_restore_preflight_v5_20261120.py']['changed_functions']==[]
+assert set(proof['local_f0_restore_preflight_v5_operation_steps.py']['changed_functions'])=={'verify_common_packet','backup_preflight','quiesce','restore_experiment'}
+assert proof['prepare_local_f0_restore_preflight_v5_plan.py']['changed_functions']==['prepare']
+assert proof['pin_local_f0_restore_preflight_v5_plan_20261120.py']['changed_functions']==['validate_filesystem']
+packet=R/'review-output/restore-control-rehearsal-v5';old=R/'review-output/restore-control-rehearsal';proposal=json.loads((packet/'proposal.json').read_bytes())
+changed=[name for name in proposal['prepared_files_sha256']if(packet/name).read_bytes()!=(old/name).read_bytes()];assert changed==['backup-preflight.sql']
+preserve=T/'restore-preflight-v5-before-author-20261120';saved=json.loads((preserve/'manifest.json').read_bytes())
+# The original preservation mapping has absolute sources and local snapshots.
+rows=saved.get('files',saved.get('files_sha256'));assert isinstance(rows,dict)
+for source,row in rows.items():
+ assert hashlib.sha256((preserve/row['snapshot']).read_bytes()).hexdigest()==row['sha256']
+gates=[functions((T/name).read_bytes())['preflight_v5_source_admission']for name in ('local_f0_restore_preflight_v5_operation_steps.py','prepare_local_f0_restore_preflight_v5_plan.py','pin_local_f0_restore_preflight_v5_plan_20261120.py')]
+assert len(set(gates))==1
+result={'schema':'workinants.restore-preflight-v5-static-scope.v1','normalized_function_deltas':proof,'only_changed_prepared_leaf':changed,'other_prepared_leaves_byte_exact':24,'original_preserved_files':len(rows),'source_gate_functions_identical_AST':True,'all_runtime':'NOT_RUN','database_SQL_or_project_execution':False}
+path=T/'restore_preflight_v5_static_scope_v2_20261120.json';assert not path.exists();raw=(json.dumps(result,indent=2)+'\n').encode();path.write_bytes(raw);print(json.dumps({'sha256':hashlib.sha256(raw).hexdigest(),**result}))

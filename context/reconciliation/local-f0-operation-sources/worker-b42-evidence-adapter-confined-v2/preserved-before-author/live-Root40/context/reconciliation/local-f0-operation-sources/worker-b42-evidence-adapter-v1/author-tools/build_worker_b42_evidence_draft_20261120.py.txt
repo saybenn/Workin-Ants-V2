@@ -1,0 +1,115 @@
+"""Author only the new TASK future-root draft. Never writes the live Root."""
+from pathlib import Path
+from copy import deepcopy
+import ast,hashlib,json,shutil,textwrap
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';DRAFT=TASK/'worker-b42-evidence-adapter-v1-draft-20261120';FUTURE=DRAFT/'future-root'
+ARCHIVE='context/reconciliation/local-f0-operation-sources/worker-b42-evidence-adapter-v1';DERIVED='context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json';BASELINE=ARCHIVE+'/prior653-ledger.json';REC='context/reconciliation/local-f0-worker-5f189aa-b42c35d5-execution.json';A='context/reconciliation/local-f0-run-assets/5f189aa-worker-b42c35d5'
+BUILDER_SHA='c99712e7836f65dd8c4ad97b73d9f1e5e29f64abc8e52af4040acec26289d80a'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+canonical=lambda value:json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)
+data=lambda value:(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def load(path):return json.loads(path.read_bytes())
+def put(name,raw):
+ path=FUTURE/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+def function(text,name):return next(n for n in ast.parse(text).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))and n.name==name)
+def expected_row(claim,digest,index):
+ row={k:claim[k]for k in('case_id','assertion_id','status','expected_assertion_sha256')};key=(row['case_id'],row['assertion_id'])
+ row.update(source_commit='5f189aa6262bd5ecbffda0940e404038993fce05',source_tree='fd736f36633b28267602759c0da0d368bd625ef6',packet_sha256='13985c51d69a30f776bfa9c653bd507ae6f2634639b4d11151d67e5e239f0882',application_sql_sha256='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad',run_id='b42c35d5-f574-444e-b480-67670c56c7c5',evidence_path=DERIVED,evidence_sha256=digest,json_pointer='/claims/'+str(index),qualification_scope=claim['qualification_scope'],qualification_limit=claim['qualification_limit'])
+ if claim['action']=='UPGRADE_PARTIAL_TO_PASS_PRESERVE_COMPLETE_PRIOR_ROW':row.update(previous_evidence=claim['prior_evidence'],previous_evidence_sha256=claim['prior_evidence_sha256'])
+ return row
+def apply_delta(current,execution,derived_sha,baseline):
+ result=deepcopy(current);lookup={(x['case_id'],x['assertion_id']):i for i,x in enumerate(result['assertions'])};old={(x['case_id'],x['assertion_id']):x for x in baseline['assertions']}
+ assert len(lookup)==len(result['assertions'])and set(old)<=set(lookup)and result['executions'][:len(baseline['executions'])]==baseline['executions']
+ changes=[]
+ for index,claim in enumerate(execution['claims']):
+  key=(claim['case_id'],claim['assertion_id']);action=claim['action']
+  if not claim['ledger_changing']:assert result['assertions'][lookup[key]]==old[key];continue
+  row=expected_row(claim,derived_sha,index)
+  if action=='UPGRADE_PARTIAL_TO_PASS_PRESERVE_COMPLETE_PRIOR_ROW':
+   assert key in lookup and result['assertions'][lookup[key]]==old[key]and old[key]['status']=='PARTIAL';result['assertions'][lookup[key]]=row
+  else:assert key not in lookup;lookup[key]=len(result['assertions']);result['assertions'].append(row)
+  changes.append(key)
+ assert len(changes)==16 and len(result['assertions'])==len(current['assertions'])+15
+ for row in current['assertions']:
+  key=(row['case_id'],row['assertion_id'])
+  if key not in changes:assert result['assertions'][lookup[key]]==row
+ entry={'run_id':execution['run_id'],'source_commit':execution['source_commit'],'source_tree':execution['source_tree'],'packet_sha256':execution['packet_sha256'],'evidence_path':DERIVED,'evidence_sha256':derived_sha,'actual_result':execution['actual_result'],'qualification_scope':'Exact16 changing Worker assertion links only;17th is unchanged old PARTIAL corroboration. Source review and Root admission required.'}
+ assert all(x.get('evidence_path')!=DERIVED for x in result['executions']);result['executions'].append(entry);assert result['executions'][:-1]==current['executions'];return result
+
+def semantics():
+ source=(TASK/'worker_b42_independent_actual_audit_stage2_20261120.py').read_text();main=function(source,'main');nodes=[];active=False
+ for node in main.body:
+  if isinstance(node,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='record'for t in node.targets):active=True
+  if not active:continue
+  if isinstance(node,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='authored_review'for t in node.targets):break
+  if isinstance(node,ast.Expr)and isinstance(node.value,ast.Call)and getattr(node.value.func,'id',None)=='check'and node.value.args and isinstance(node.value.args[0],ast.Constant)and node.value.args[0].value=='source-hashes-and-external-five-still-match':continue
+  if isinstance(node,ast.Expr)and isinstance(node.value,ast.Call)and getattr(node.value.func,'id',None)=='check'and node.value.args and isinstance(node.value.args[0],ast.Constant)and node.value.args[0].value=='closed-assets-exact42':
+   node=ast.parse("check('closed-assets-exact42',len(record['assets_sha256'])==42 and set(record['assets_sha256'])==set(ASSET_KEYS))").body[0]
+  nodes.append(deepcopy(node))
+ class Transform(ast.NodeTransformer):
+  def visit_Name(self,node):return ast.copy_location(ast.Name('equal',node.ctx),node)if node.id=='same'else node
+  def visit_Assert(self,node):return ast.copy_location(ast.Expr(ast.Call(ast.Name('need',ast.Load()),[self.visit(node.test),node.msg if isinstance(node.msg,ast.Constant)and type(node.msg.value)is str else ast.Constant('WORKER_EVIDENCE_CONTRACT')],[])),node)
+  def visit_Call(self,node):
+   node=self.generic_visit(node)
+   if isinstance(node.func,ast.Name)and node.func.id=='sha'and len(node.args)==1 and isinstance(node.args[0],ast.Call)and getattr(node.args[0].func,'id',None)=='canonical':return ast.copy_location(ast.Call(ast.Name('digest',ast.Load()),node.args[0].args,[]),node)
+   return node
+  def visit_Constant(self,node):return ast.copy_location(ast.Name('BASELINE',ast.Load()),node)if node.value=='context/reconciliation/local-f0-assertion-evidence.json'else node
+ tree=Transform().visit(ast.Module(body=nodes,type_ignores=[]));ast.fix_missing_locations(tree);body=ast.unparse(tree)
+ assert not({'ROOT','TASK','Path','inputs'}&{n.id for n in ast.walk(tree)if isinstance(n,ast.Name)})
+ return textwrap.indent(body+'\n_verify_operations(operations,child["results"],fixtures,native_sha)\n','    ')
+
+def operator_verifier():
+ source=(TASK/'local_f0_worker_recovery_guard_observation_v2_operation_steps.py').read_text();node=deepcopy(function(source,'verify_worker_operations'));node.name='_verify_operations';node.args.args.extend((ast.arg('f'),ast.arg('native_sha')))
+ class Transform(ast.NodeTransformer):
+  def visit_Name(self,n):return ast.copy_location(ast.Name('f',n.ctx),n)if n.id=='WORKER_FIXTURES'else n
+  def visit_Subscript(self,n):
+   if isinstance(n.value,ast.Name)and n.value.id=='report'and isinstance(n.slice,ast.Constant)and n.slice.value=='qualified_native_snapshot_sha256':return ast.copy_location(ast.Name('native_sha',ast.Load()),n)
+   return self.generic_visit(n)
+ node=Transform().visit(node);ast.fix_missing_locations(node);return ast.unparse(node)+'\n'
+
+def build(copy_inputs=False):
+ global CLOSED
+ DRAFT.mkdir(exist_ok=True);FUTURE.mkdir(exist_ok=True)
+ proposal=load(TASK/'worker_b42_independent_assertion_mapping_proposal_20261120.json');baseline_raw=(TASK/'worker_b42_baseline_653_ef0fbf8_assertion_evidence_20261120.json').read_bytes();assert sha(baseline_raw)=='ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3';baseline=json.loads(baseline_raw)
+ refs={'Root-exact17-implementation-ACK.json':('worker_b42_Root_exact17_pure_adapter_implementation_ACK_20261120.json','6b25793c9bb27d03bc7c7782adfeedc9cf968ad8c59bfff21df1d56597c3382b'),'independent-actual-audit.json':('worker_b42_independent_actual_evidence_audit_20261120.json','858203dd9cacd8d1afca42ccb85a748462ccabc33050b0fa2f0e1748060b53c4'),'cleanup-source-contract-addendum.json':('worker_b42_cleanup_source_contract_addendum_20261120.json','4304deaba621361ba9920d1efba679b8aa39edc34e8801406cab2a585bb0b7dc'),'exact17-mapping-proposal.json':('worker_b42_independent_assertion_mapping_proposal_20261120.json','1452b04041d87f9861119227d418fef6eface78ded2ccf5e22f5a759d44239eb'),'audit-proposal-bundle.json':('worker_b42_independent_audit_proposal_bundle_20261120.json','df095fde29a38fe5d5345b466c1948bab2a927fce717173f64323725e813c471'),'closed-input-stage1.json':('worker_b42_independent_closed_inputs_stage1_20261120.json','07611b910533eba74aff1517048468f9e63d11d65cd9c16853303e6b15b93072')}
+ audit_pins={BASELINE:sha(baseline_raw)};put(BASELINE,baseline_raw)
+ for dest,(name,wanted)in refs.items():
+  raw=(TASK/name).read_bytes();assert sha(raw)==wanted;put(ARCHIVE+'/'+dest,raw);audit_pins[ARCHIVE+'/'+dest]=wanted
+ old={(r['case_id'],r['assertion_id']):r for r in baseline['assertions']};claims=[];CLOSED={};actions={};statuses={}
+ for i,row in enumerate(proposal['proposed_actions']):
+  key=(row['case_id'],row['assertion_id']);CLOSED[key]=i;actions[key]=row['action'];statuses[key]=row['proposed_status']
+  claim={'case_id':key[0],'assertion_id':key[1],'status':row['proposed_status'],'expected_assertion_sha256':row['expected_assertion_sha256'],'complete_source_assertion_sha256':row['complete_source_assertion_sha256'],'maximum_status':row['proposed_status'],'action':row['action'],'ledger_changing':not row['action'].startswith('CORROBORATE'),'qualification_scope':row['qualified_scope'],'qualification_limit':row['qualification_limit'],'evidence_pieces':row['observations']}
+  if key in old:claim.update(prior_evidence=old[key],prior_evidence_sha256=sha(canonical(old[key]).encode()))
+  claims.append(claim)
+ limits={'Posture':'D','maximum_claims':17,'ledger_changes':16,'append_rows':15,'whole_case_promoted':False,'owner_API_or_result_codec_qualified':False,'production_worker_loop_qualified':False,'register451_promoted':False,'raw_per_case42_rows_retained':False,'old6282_complete_cause':'UNOBSERVED','case17_guard':'EARLY_FIXED_TRACK_BINDING_P0001_BODYLINE7_ONLY'}
+ execution={'schema':'workinants.worker-b42-derived-qualified-evidence.v1','derivation':'EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE','actual_result':'DERIVED_REVIEWED_WORKER17_FINITE_SQL_ASSERTIONS_ONLY','run_id':proposal['run_id'],'source_commit':proposal['source_commit'],'source_tree':proposal['source_tree'],'packet_sha256':proposal['operation_packet_sha256'],'source_record':{'path':REC,'sha256':proposal['execution_record_sha256'],'packet_alias_from':'operation_packet_sha256'},'independent_audit_files_sha256':audit_pins,'preserved_prior_ledger':{'path':BASELINE,'sha256':sha(baseline_raw),'rows':653},'claims':claims,'limits':limits}
+ derived_raw=data(execution);put(DERIVED,derived_raw)
+ stage=load(TASK/'worker_b42_independent_closed_inputs_stage1_20261120.json');pins=dict(stage['inputs_sha256']);pins.pop('context/reconciliation/local-f0-assertion-evidence.json');pins.update(audit_pins);pins[DERIVED]=sha(derived_raw)
+ record=load(ROOT/REC);measured=0
+ for name,wanted in pins.items():
+  source=FUTURE/name if name in audit_pins or name==DERIVED else ROOT/name
+  raw=source.read_bytes();assert sha(raw)==wanted,name;measured+=len(raw)
+  if copy_inputs and source.is_relative_to(ROOT):put(name,raw)
+ install=(ROOT/'scripts/local_f0_install_evidence.py').read_text();common='\n\n'.join(ast.get_source_segment(install,function(install,name))for name in('EvidenceFailure','need','sh','_typed_json','canonical','same','doc','_read'))+'\n\nsha=sh\nexact=same\ndef digest(value):return sh(canonical(value).encode())\n'
+ fixture=load(ROOT/'review-output/worker-recovery-control-rehearsal/fixtures.json')
+ constants={'B':A,'A':A,'REC':REC,'RUN':proposal['run_id'],'COMMIT':proposal['source_commit'],'TREE':proposal['source_tree'],'PACKET':proposal['operation_packet_sha256'],'APP':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','NATIVE':'7f183bd1a745933de51f5d3f1798fbc01885ad7a2cde34c347160e61a8199303','ARCHIVE':ARCHIVE,'DERIVED':DERIVED,'BASELINE':BASELINE,'KIND':execution['actual_result'],'PINS':dict(sorted(pins.items())),'AUDIT_PINS':audit_pins,'ASSET_KEYS':tuple(record['assets_sha256']),'CLOSED_CLAIMS':CLOSED,'LEDGER_CHANGES':tuple(key for key in CLOSED if not actions[key].startswith('CORROBORATE')),'CLAIM_ACTIONS':actions,'CLAIM_STATUSES':statuses,'DERIVED_FIELDS':tuple(execution),'LIMITS':limits,'GRAPH_FILES':len(pins),'MEASURED_BYTES':measured,'MAX_BUNDLE_BYTES':((measured+1048575)//1048576)*1048576,'WORKER32_SHA':sha(canonical(fixture['worker_acl_rows']).encode())}
+ text=(TASK/'worker_b42_evidence_module_template_20261120.py.txt').read_text().replace('@@CONSTANTS@@','\n'.join(name+'='+repr(value)for name,value in constants.items())).replace('@@COMMON@@',common).replace('@@SEMANTICS@@',semantics())+'\n'+operator_verifier()
+ ast.parse(text);put('scripts/local_f0_worker_recovery_evidence.py',text.encode())
+ source_builder=(ROOT/'scripts/prepare-local-f0-status.py').read_bytes();assert sha(source_builder)==BUILDER_SHA
+ put(ARCHIVE+'/builder-before-c997.py.txt',source_builder)
+ builder=source_builder.decode().replace('from local_f0_install_evidence import prepare_batch as prepare_install_batch, EvidenceFailure as InstallEvidenceFailure','from local_f0_install_evidence import prepare_batch as prepare_install_batch, EvidenceFailure as InstallEvidenceFailure\nfrom local_f0_worker_recovery_evidence import prepare_batch as prepare_worker_recovery_batch, EvidenceFailure as WorkerRecoveryEvidenceFailure')
+ marker='EVIDENCE_RECORDS={' if 'EVIDENCE_RECORDS={'in builder else'EVIDENCE_RECORDS = {';assert builder.count(marker)==1
+ builder=builder.replace(marker,marker+'\n    '+repr(DERIVED)+':('+repr(sha(derived_raw))+','+repr(execution['actual_result'])+'),',1)
+ entry="    install_batch=None";assert builder.count(entry)==1
+ builder=builder.replace(entry,"    worker_recovery_batch=None\n    if any(row.get('evidence_path')=="+repr(DERIVED)+" for row in ledger['assertions']):\n        try:worker_recovery_batch=prepare_worker_recovery_batch(ROOT)\n        except WorkerRecoveryEvidenceFailure as error:raise AssertionError(str(error)) from None\n"+entry,1)
+ branch="                elif row['evidence_path']=='context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json':";assert builder.count(branch)==1
+ builder=builder.replace(branch,"                elif row['evidence_path']=="+repr(DERIVED)+":\n                    try:worker_recovery_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer,ledger_row=row)\n                    except WorkerRecoveryEvidenceFailure as error:raise AssertionError(str(error)) from None\n"+branch,1)
+ end='    return {\'scope\':\'ACTUAL_ASSERTION_EVIDENCE_OVER_EXACT_EXISTING94_IDS\'';assert builder.count(end)==1
+ builder=builder.replace(end,"    if worker_recovery_batch is not None:\n        try:worker_recovery_batch.verify_unchanged();worker_recovery_batch.require_finalized()\n        except WorkerRecoveryEvidenceFailure as error:raise AssertionError(str(error)) from None\n"+end,1);ast.parse(builder);put('scripts/prepare-local-f0-status.py',builder.encode())
+ if copy_inputs:
+  current_raw=(ROOT/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes();assert sha(current_raw)=='50ea0011abb0f30730a5c4f3ff7f3dd56a13b664378ec7254646835b042c4d61';current=json.loads(current_raw)
+  (DRAFT/'current656-before-worker.json').write_bytes(current_raw);proposed=apply_delta(current,execution,sha(derived_raw),baseline);put('context/reconciliation/local-f0-assertion-evidence.json',data(proposed));(DRAFT/'proposed-ledger.current656-plus-worker.json').write_bytes(data(proposed))
+ result={'schema':'workinants.worker-b42-author-draft-stage.v1','status':'DRAFT_PENDING_REVIEW','Root_writes':False,'graph_files':len(pins),'measured_graph_bytes':measured,'cap_bytes':constants['MAX_BUNDLE_BYTES'],'derived_sha256':sha(derived_raw),'module_sha256':sha(text.encode()),'builder_basis_sha256':BUILDER_SHA,'future_builder_sha256':sha(builder.encode()),'reader_basis':'Current reviewed INSTALL/Six _read AST copied unchanged','data_copied':copy_inputs,'independent_source_review':'PENDING'};(DRAFT/'draft-stage.json').write_bytes(data(result));print(json.dumps(result));return result
+if __name__=='__main__':
+ import sys
+ build(copy_inputs='--copy-inputs'in sys.argv)

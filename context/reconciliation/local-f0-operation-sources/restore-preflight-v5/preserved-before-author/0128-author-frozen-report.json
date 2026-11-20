@@ -1,0 +1,170 @@
+{
+  "schema": "workinants.app571-guard-observation-v2-author-freeze.v1",
+  "recorded_at_utc": "2026-11-20T09:33:56.497191+00:00",
+  "author": "/root/restricted_controls_operator",
+  "lineage": {
+    "plan_author": "/root/install_outer_review",
+    "original_AppFix2_author": "Catalog",
+    "new_implementation_author_did_not_author_plan_or_AppFix2": true,
+    "independent_final_code_review": "PENDING_ROOT_TO_ASSIGN"
+  },
+  "plan_sha256": "971c1394021a1973452353bb4c83eeba815ed1563d4ac6eb1ffad898935fc9e0",
+  "Root_plan_ACK_sha256": "25708eb58b4dba54760d6752dfc9daa4440b2ef467a367bee78d8edebb8ff539",
+  "status": "AUTHOR_CHECKED_SOURCE_ONLY_ALL_REVIEW_GATES_PENDING",
+  "Posture": "D",
+  "root_sources_sha256": {
+    "scripts/app_write_two_guard_observation_v2_protocol.py": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+    "scripts/prepare-app-write-two-guard-observation-v2.py": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+    "scripts/check-app-write-two-guard-observation-v2.py": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+    "scripts/check-app-write-two-guard-observation-v2-coordinator.py": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+    "scripts/sql-review/run-app-write-two-guard-observation-v2.py": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df"
+  },
+  "owned_sources_sha256": {
+    "execute_local_f0_app_write_two_guard_observation_v2_20261120.py": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+    "local_f0_app_write_two_guard_observation_v2_operation_steps.py": "0f4a06fb9b414440e8a10b73f490896d45484042d470a67d1c0f5bf61be80eb0",
+    "prepare_local_f0_app_write_two_guard_observation_v2_plan.py": "8d15259367dacbb4906757595536b074e2c225fc84e22fdb2470b598ff5aee83",
+    "check_local_f0_app_write_two_guard_observation_v2_operation.py": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+    "pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py": "f81b58eae6c40c5e475efa5c3d170864038e8ce152991c7d7421d51f458fbee2"
+  },
+  "fixtures_sha256": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962",
+  "content_sha256": "43c3278d935cb437e35c91d2692f6543deb14d02c105578c18701f0bb6d1d4f6",
+  "corrected_oracle": {
+    "case": "effect-wrong-root",
+    "first_DML": "platform.runtime_command_receipt INSERT",
+    "sqlstate": "P0001",
+    "diagnostic": "command action/root does not match protected scope",
+    "source_function": "platform_private.command_state_guard()",
+    "source_body_sha256": "01c6a19be31eb4a29e8ca0e676b0b4d5314291a0196e895e7ebee10e36f658c8",
+    "source_body_line": 7,
+    "other13_oracles_unchanged": true,
+    "wrong_purpose_remains": "runtime_command_receipt RLS42501"
+  },
+  "observation_contract": {
+    "exact_fields": 14,
+    "stages": [
+      "NOT_STARTED",
+      "SAME_XID",
+      "BIND_MARKER",
+      "BIND",
+      "BUSINESS"
+    ],
+    "fresh_response_received_and_shape_flags": true,
+    "known_client_exits": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "other_exit": "OTHER_WITHOUT_RAW_NUMBER",
+    "raw_records_stderr_SQL_handles_passwords_retained": false,
+    "primary_safe_code_latched_before_later_IO_can_reorder_origin": true,
+    "closure_and_global_closure_before_verdict_or_failure_rethrow": true
+  },
+  "parent_contract": {
+    "ordinary_stopped_keys": 27,
+    "minimal_sanitizer_keys": 11,
+    "minimal_child_source_CID_fields": "ABSENT_NOT_INVENTED",
+    "unconditional_global_closure_then_coherent_reference_integrity_then_stopped_branch": true,
+    "strict_success_27_keys_current_case_None_unchanged": true,
+    "success_counts": {
+      "cases": 14,
+      "grants": 15,
+      "operations": 221,
+      "snapshots42": 32,
+      "global_closure": 69,
+      "retention": 44,
+      "source_checks": 12,
+      "work_checks": 13
+    },
+    "double_closed_reads_fstat_Windows_ctime_fresh_hash_after_cleanup_and_state_chains": "PRESERVED"
+  },
+  "actual_checks": {
+    "sourcefinal04": {
+      "group": "source",
+      "source_sha256": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "tests_run": 14,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 0.719,
+      "success": true,
+      "all_Docker_database_network_boundaries_mocked": true,
+      "database_runtime_qualification": false,
+      "log_sha256": "c6a8c49c8a60b6df55441f362feb645cca4cb5cfae236e1362c3af0f327e1f70"
+    },
+    "childfinal03": {
+      "group": "child",
+      "source_sha256": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+      "tests_run": 31,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 149.281,
+      "success": true,
+      "all_Docker_database_network_boundaries_mocked": true,
+      "database_runtime_qualification": false,
+      "log_sha256": "ec53a1177d8902aed9c9ca25e08ec9213259a8b0580ddb7eaf2e880639351302"
+    },
+    "ownedfull02": {
+      "group": "owned",
+      "source_sha256": "4244e45de97f3a8780cf63e64bc5f9af1704ad939348600a16efbc1f51b349b1",
+      "tests_run": 25,
+      "failures": 1,
+      "errors": 1,
+      "skips": 0,
+      "seconds": 316.359,
+      "success": false,
+      "all_Docker_database_network_boundaries_mocked": true,
+      "database_runtime_qualification": false,
+      "log_sha256": "684aca68f267896de89a16c654a62212778b2bda76f7164a68b3e8690dac2afa"
+    },
+    "ownedaffected03": {
+      "group": "owned",
+      "source_sha256": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+      "tests_run": 2,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "seconds": 99.031,
+      "success": true,
+      "all_Docker_database_network_boundaries_mocked": true,
+      "database_runtime_qualification": false,
+      "log_sha256": "c59a627aedb980170d55cdf57403cc06ba8e7407503dc700d749de19e445066f"
+    }
+  },
+  "qualification_of_results": {
+    "source": "14 PASS at final generated packet; parsing22 SQL/129 statements and byte reproduction.",
+    "child": "31 PASS at exact final coordinator7654ac95 and check0b0ecadc,149.281s.",
+    "owned": "Full25 recorded23PASS/1FAIL/1ERROR316.359s before test-only bindings corrected. Affected2 then PASS99.031s at final checkfd857a3c; no claim that one final full25 suite was run.",
+    "owned_failed_bindings": "One historical file path was renamed; one expected mock failure code guessed intended diagnostic instead of actual EXACT_RECORD_COUNT. Failed records and all draft bytes retained.",
+    "historical_validator_projection": "Only new additive operation_outcome is removed when exercising the old held validator against its historical producer shape; current validator always receives full actual new producer evidence.",
+    "native_fixtures": "All29089/oracle416/ledger22 facts used ONLY as explicit OFFLINE_MOCK responses through actual comparator/registration/Prisma code; no actual installation/runtime qualification.",
+    "method_count": "70 distinct methods covered, with owning23 version-qualified plus final affected2; no broad rerun claimed."
+  },
+  "original_actual571": {
+    "normalized_sha256": "e1ced77a361cfaccf27d39fac8122d1be3b8e485cc9ff1eb7a809ed9c3f6f3cc",
+    "child_sha256": "5045356f72d6425031f4ae7e9855c12dffa5cff2d1098028ff4b971fffbd7bd5",
+    "results": 0,
+    "operations": 23,
+    "retained_origin": [
+      "FINITE_APP_WRITE_PROTOCOL",
+      "effect-wrong-root",
+      "INTENDED_SOURCE_GUARD_REQUIRED"
+    ],
+    "SQLSTATE_ACK_records_client_exit_complete_cause": "UNOBSERVED",
+    "after_failure_complete42_state": "NOT_OBSERVED",
+    "new_actual_attempt": "NOT_RUN"
+  },
+  "preservation": {
+    "App408_manifest_sha256": "60c0afd336444a9bef8f488b037656f0c0ec7a4378422cb2dae77f9ad13cd3b7",
+    "INSTALL370_manifest_sha256": "ae8e66f965d09071ef49626f55312800512ab8ff8d03a561f12cc3e7644e598e",
+    "all22_SQL_all_grants_32_worker_ACL_canonical5ae_June_unchanged": true
+  },
+  "limits": [
+    "Exactly two existing app SQL criteria; no assertion/case/94/451 promotion.",
+    "No result-link database guard, production owner/API/provider behavior, other28 writes or worker loop claim.",
+    "All new review gates remain PENDING. Root publication, fresh pin/literal and execution approval are separate.",
+    "No Git/Docker/database/network/SQL execution or resource creation performed by author."
+  ],
+  "plain_english": "The checker now looks for the first real guard and remembers which step failed. It saves only safe check results, closes the connection, and waits for a separate review before another run."
+}

@@ -1,0 +1,52 @@
+    def flush(self,text):
+        from pglast import parse_sql,ast as pgast,enums
+        w=self.world
+        if text.startswith('BEGIN ISOLATION LEVEL READ COMMITTED;'):
+            parsed=parse_sql(text);assert isinstance(parsed[0].stmt,pgast.TransactionStmt) and parsed[0].stmt.kind==enums.TransactionStmtKind.TRANS_STMT_BEGIN
+            self.in_transaction=True;w.events.append(('capture',self.role))
+            if w.capture_failure:raise OSError(CANARY)
+            backend={'login':self.role,'current_user':self.role,'database':w.n['DB'],'isolation':'read committed','pid':str(8100+self.number),'xid':str(900000+self.number),'started':'2026-11-18 00:00:00+00'};self.stdout.feed('WA_WORKER_COORDINATOR_TUPLE|'+json.dumps(backend)+'\n');return
+        if text.startswith('ROLLBACK;') or text.startswith('\\q'):
+            self.in_transaction=False;w.events.append(('close',self.role));self.exit(0);return
+        token=re.search(r"SELECT '(WA_WORKER_COORDINATOR_ACK\|[0-9a-f]+)';",text)
+        if token is None:raise AssertionError('UNMODELED_WORKER_SEND')
+        ack=token[1];parsed=parse_sql(text);transaction_kinds=[];markers=[];pending_customer=False;pending_schedule=False
+        for statement in parsed:
+            node=statement.stmt
+            if isinstance(node,pgast.TransactionStmt):
+                transaction_kinds.append(node.kind.name)
+                if node.kind==enums.TransactionStmtKind.TRANS_STMT_BEGIN:
+                    if self.in_transaction:self.stderr.feed('WARNING:  there is already a transaction in progress\n')
+                    self.in_transaction=True
+                elif node.kind==enums.TransactionStmtKind.TRANS_STMT_COMMIT:
+                    if not self.in_transaction:
+                        self.stderr.feed('WARNING:  there is no transaction in progress\n');w.events.append(('extra_commit_warning',self.role))
+                    else:
+                        self.in_transaction=False
+                        if pending_customer:w.source_customer_committed=True
+                        if pending_schedule:w.source_schedule_committed=True
+                else:raise AssertionError('UNMODELED_TRANSACTION_CONTROL')
+            elif isinstance(node,pgast.InsertStmt):
+                pending_customer|=node.relation.schemaname=='app' and node.relation.relname=='customer_profiles'
+                pending_schedule|=node.relation.schemaname=='platform' and node.relation.relname=='runtime_work_item'
+            elif isinstance(node,pgast.SelectStmt) and node.targetList:
+                value=node.targetList[0].val
+                if isinstance(value,pgast.A_Const) and isinstance(value.val,pgast.String) and value.val.sval.startswith('WA_') and not value.val.sval.startswith('WA_WORKER_COORDINATOR_ACK|'):markers.append(value.val.sval)
+        w.emissions.append({'role':self.role,'text':text,'transactions':transaction_kinds})
+        if text.startswith("SELECT jsonb_build_object('clock',clock_timestamp());"):
+            rows=[json.dumps({'clock':'2026-11-18T05:00:00+00:00'})]
+        elif self.role=='wa_context_issuer':
+            w.events.append(('issuer_finish',self.role));rows=[json.dumps({'created_at':'2026-11-18T05:00:00.001+00:00','expires_at':'2026-11-18T05:05:00+00:00'})]
+        elif 'SELECT pg_current_xact_id()::text=' in text:
+            w.events.append(('same_xid',self.role));rows=['t']
+        else:
+            negative=not transaction_kinds;w.events.append(('negative_bind' if negative else 'bound_finish',self.role))
+            if negative or w.error is not None:
+                self.stderr.feed(w.binder_error() if negative else w.error);self.exit(3);return
+            if w.warning is not None:self.stderr.feed(w.warning)
+            if w.rows is not None:rows=w.rows
+            elif markers:rows=markers
+            elif 'visible_exact_root' in text:rows=[json.dumps({'visible_exact_root':1 if w.source_customer_committed else 0})]
+            else:rows=[]
+        for row in rows:self.stdout.feed(row+'\n')
+        self.stdout.feed(ack+'\n')

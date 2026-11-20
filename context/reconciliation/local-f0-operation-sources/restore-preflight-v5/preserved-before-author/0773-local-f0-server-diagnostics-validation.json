@@ -1,0 +1,152 @@
+{
+  "local_date": "2026-11-17",
+  "timezone": "America/New_York",
+  "scope": "BOUNDED_OWNED_POSTGRES_ERROR_DIAGNOSTICS_NO_APPLICATION_SQL_CHANGE",
+  "status": "SOURCE_REVIEWED_OFFLINE_PASS_FRESH_OPERATION_PENDING",
+  "historical_evidence": "context/reconciliation/local-f0-migration-48ecadc-execution.json",
+  "historical_limit": "0c observed zero application objects and one private canonical-checksum unfinished0step row; original SQL cause and NULL/EMPTY/NONEMPTY logs class remain UNOBSERVED. It is not retroactively classified by new evidence.",
+  "source_hypothesis": "Pinned Prisma engine uses cached connection for explicit-BEGIN migration and failed-step persistence; failure persistence is awaited before returning original error. A secondary aborted-transaction failure may mask the original. This remains a new testable source hypothesis until actually observed.",
+  "primary_sources": {
+    "engine_apply": "https://raw.githubusercontent.com/prisma/prisma-engines/d1b3f377ca835d73fd50954a5e22128b9ebdd6b8/schema-engine/commands/src/commands/apply_migrations.rs",
+    "engine_persistence": "https://raw.githubusercontent.com/prisma/prisma-engines/d1b3f377ca835d73fd50954a5e22128b9ebdd6b8/schema-engine/connectors/sql-schema-connector/src/sql_migration_persistence.rs",
+    "engine_cached_connection": "https://raw.githubusercontent.com/prisma/prisma-engines/d1b3f377ca835d73fd50954a5e22128b9ebdd6b8/schema-engine/connectors/sql-schema-connector/src/flavour/postgres.rs",
+    "postgres_logging": "https://www.postgresql.org/docs/17/runtime-config-logging.html",
+    "postgres_exact_version_formatter": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/error/elog.c"
+  },
+  "settings": {
+    "log_line_prefix": "WA_F0_DIAG|%e|%u|%d|",
+    "log_error_verbosity": "terse",
+    "lc_messages": "C",
+    "log_min_messages": "warning",
+    "log_statement": "none",
+    "log_min_error_statement": "panic",
+    "logging_collector": "off",
+    "log_destination": "stderr",
+    "debug_print_parse_rewritten_plan": "off"
+  },
+  "safe_channel": "Only exact created immutable containerID logs are read in memory. Before/after fixed counts bind actual wa_migrator/targetdatabase SQLSTATE42501 plus exact known SETROLE primary; secondary25P02 plus exact aborted-transaction primary. Unknown/malformed/forbidden messages never export. Counter coherence, no controls, no secret/raw fields, exact source/run/packet/CLI/migration/checksum binding. Prefix continuation cannot spoof a primary line because PG17.11 inserts tabs after message newlines.",
+  "negative_verdict": "Normal P3018/42501 and stored exact diagnostic path remains strict. Separately labeled masked path requires independently observed server42501/intended diagnostic1, secondary25P02>=1/no other errors, NULLunwritten logs, one unfinished/unrolled canonical0step row, zero appobjects, confirmed CLI closure/backend absence/original-grantor finalization. It makes no retained-P3018 or original CLI message claim.",
+  "recovery": "Actual proof remains PENDING until independent reviewer inspects source-bound server/ledger/zero-object evidence. Standard resolve only; exact temporary original-grantor rearm, same immutableSQL/checksum retry, finalization and no-op afterward.",
+  "independent_reviews": {
+    "module": "review_replay_paths: APPROVED frozen6d4d0836/cb3ded2e;15focusedtests independentlyPASS; counter-coherence finding corrected",
+    "external_integration": "review_replay_paths: APPROVED source delta; fresh pinned operational review remains mandatory"
+  },
+  "focused_counts": {
+    "parser": 15,
+    "external_operator": 14,
+    "constant_observer_SQL_queries": 7
+  },
+  "checks": {
+    "parser": {
+      "recorded_at": "2026-11-18T02:30:43.546375+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-migration-server-diagnostics.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.67,
+      "stdout": "",
+      "stderr": "test_constructor_cli_target_and_ledger_checksum_binding (__main__.Tests.test_constructor_cli_target_and_ledger_checksum_binding) ... ok\ntest_continuation_or_quoted_injected_prefix_is_not_a_server_line (__main__.Tests.test_continuation_or_quoted_injected_prefix_is_not_a_server_line) ... ok\ntest_controls_limits_types_and_extra_evidence_fields_reject (__main__.Tests.test_controls_limits_types_and_extra_evidence_fields_reject) ... ok\ntest_exact_guard_and_secondary_with_crlf_and_numeric_position (__main__.Tests.test_exact_guard_and_secondary_with_crlf_and_numeric_position) ... ok\ntest_failures_exclude_raw_process_and_secret_metadata (__main__.Tests.test_failures_exclude_raw_process_and_secret_metadata) ... ok\ntest_forbidden_details_or_malformed_channel_and_reset_reject (__main__.Tests.test_forbidden_details_or_malformed_channel_and_reset_reject) ... ok\ntest_impossible_or_nonmonotonic_classified_counts_reject (__main__.Tests.test_impossible_or_nonmonotonic_classified_counts_reject) ... ok\ntest_mask_requires_secondary_and_null_unwritten_logs (__main__.Tests.test_mask_requires_secondary_and_null_unwritten_logs) ... ok\ntest_normal_path_still_requires_cli_and_exact_ledger_diagnostics (__main__.Tests.test_normal_path_still_requires_cli_and_exact_ledger_diagnostics) ... ok\ntest_only_exact_immutable_id_and_fixed_process_boundary (__main__.Tests.test_only_exact_immutable_id_and_fixed_process_boundary) ... ok\ntest_proof_extra_raw_missing_flags_and_wrong_classification_reject (__main__.Tests.test_proof_extra_raw_missing_flags_and_wrong_classification_reject) ... ok\ntest_proof_strict_identity_and_fixed_protocol (__main__.Tests.test_proof_strict_identity_and_fixed_protocol) ... ok\ntest_unclosed_or_success_cli_and_nonrollback_state_reject (__main__.Tests.test_unclosed_or_success_cli_and_nonrollback_state_reject) ... ok\ntest_unrelated_error_or_duplicate_guard_rejects (__main__.Tests.test_unrelated_error_or_duplicate_guard_rejects) ... ok\ntest_wrong_code_message_role_database_and_suffix_do_not_prove_guard (__main__.Tests.test_wrong_code_message_role_database_and_suffix_do_not_prove_guard) ... ok\n\n----------------------------------------------------------------------\nRan 15 tests in 0.009s\n\nOK\n",
+      "scope": "OFFLINE_ALL_DOCKER_DATABASE_BOUNDARIES_MOCKED",
+      "report_sha256": "8f5367114ac0cc7d406255f7ab663a5a499f00ec19ae6f3aea3e3dd0ed7fbaf9"
+    },
+    "operator": {
+      "recorded_at": "2026-11-18T02:30:43.794595+00:00",
+      "command": [
+        "python",
+        "-B",
+        "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\check_migration_failure_observation.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.92,
+      "stdout": "",
+      "stderr": "test_absent_or_odd_ledger_preserves_catalog_and_never_reads_rows (__main__.FailureObservationTests.test_absent_or_odd_ledger_preserves_catalog_and_never_reads_rows) ... ok\ntest_bootstrap_logging_safety_is_mandatory_before_bootstrap_sql (__main__.FailureObservationTests.test_bootstrap_logging_safety_is_mandatory_before_bootstrap_sql) ... ok\ntest_completed_status_is_required_together_with_integer_zero (__main__.FailureObservationTests.test_completed_status_is_required_together_with_integer_zero) ... ok\ntest_diagnostic_source_hash_drift_stops_before_import_or_process (__main__.FailureObservationTests.test_diagnostic_source_hash_drift_stops_before_import_or_process) ... ok\ntest_every_success_phase_rejects_actual_exit_zero_with_stop_status (__main__.FailureObservationTests.test_every_success_phase_rejects_actual_exit_zero_with_stop_status) ... ok\ntest_expected_codes_return_observation_without_promotion_or_proof (__main__.FailureObservationTests.test_expected_codes_return_observation_without_promotion_or_proof) ... ok\ntest_ledger_row_read_failure_keeps_presence (__main__.FailureObservationTests.test_ledger_row_read_failure_keeps_presence) ... ok\ntest_nonfailure_result_never_reads_failed_ledger (__main__.FailureObservationTests.test_nonfailure_result_never_reads_failed_ledger) ... ok\ntest_owned_server_read_uses_created_id_and_retains_only_summary (__main__.FailureObservationTests.test_owned_server_read_uses_created_id_and_retains_only_summary) ... ok\ntest_real_proof_builder_binds_actual_pipeline_facts_without_raw_output (__main__.FailureObservationTests.test_real_proof_builder_binds_actual_pipeline_facts_without_raw_output) ... ok\ntest_rejected_format_closed_nonzero_observes_but_requires_server_proof (__main__.FailureObservationTests.test_rejected_format_closed_nonzero_observes_but_requires_server_proof) ... ok\ntest_retained_failure_metadata_has_no_unrestricted_cli_output (__main__.FailureObservationTests.test_retained_failure_metadata_has_no_unrestricted_cli_output) ... ok\ntest_unconfirmed_process_or_finalization_never_observes_or_recovers (__main__.FailureObservationTests.test_unconfirmed_process_or_finalization_never_observes_or_recovers) ... ok\ntest_unknown_codes_observed_after_closure_and_finalizer_before_stop (__main__.FailureObservationTests.test_unknown_codes_observed_after_closure_and_finalizer_before_stop) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 0.288s\n\nOK\n",
+      "scope": "OFFLINE_ALL_DOCKER_DATABASE_BOUNDARIES_MOCKED",
+      "report_sha256": "c6a1cd2d3f590a7c5ddaba3695677e25dfb39ffe5623902692fdc4e5b4004cb2"
+    }
+  },
+  "SQL_parser": {
+    "operator_source_sha256": "47514ed5e9d116db5ce112e5cbb677a703107dc2cd6c9bbc75fc571afac35cf6",
+    "constant_observer_queries": 7,
+    "parsed_statements": 7,
+    "database_contacted": false,
+    "SQL_executed": false
+  },
+  "files_sha256": {
+    "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+    "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163"
+  },
+  "operation_source_snapshots_sha256": {
+    "context/reconciliation/local-f0-operation-sources/server-diagnostics/build-operation-core.py.txt": "944956cb284d53da67364a3e37538d5e76d054d178312a6f54cea3aab2c88c00",
+    "context/reconciliation/local-f0-operation-sources/server-diagnostics/check-failure-observation.py.txt": "b325202ecfa15f79c42af327405a43d3bad14fb477e64a5df52b9102a80433d7",
+    "context/reconciliation/local-f0-operation-sources/server-diagnostics/operation-steps.py.txt": "47514ed5e9d116db5ce112e5cbb677a703107dc2cd6c9bbc75fc571afac35cf6",
+    "context/reconciliation/local-f0-operation-sources/server-diagnostics/operator-snapshot.py.txt": "d7159320e2ce040119e2377736dfc409c582a2c81d70d01c7a25adbbac0aecf2"
+  },
+  "preserved_sha256": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "prisma/schema.prisma": "4a75be42a8b26001c20aaf46a1bb0e5dd7d0984090c9712274c308668908eebf",
+    "prisma/migrations/20260602021702_phase_2_database_truth_layer/migration.sql": "5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055",
+    "package.json": "6a3a1c7ef64f84eab2e4ec74843eb1c45d907e19ab7f04b222ad8d0eb42a6d85",
+    "package-lock.json": "6b4e322549d6a6c14cd8542a21c1a6621a2625f88dbab5606174fd655dcdda1f",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f"
+  },
+  "regression_scope": "Unchanged canonicalSQL/A-D/worker32ACL/payload/fixtures: existing750predicates/501checks/75SQLmutations remain version-qualified; not rerun for this isolated host-observation change. Focused process/parser/SQL checks cover affected behavior.",
+  "replacement_checkpoint": "Containing Git commit; fresh external manifest pins full commit/tree and exact packet aggregate before reviewed execution.",
+  "database_posture": "D",
+  "actual_execution_this_correction": "NOT_RUN",
+  "hosted_contact_or_adoption": false,
+  "P0_D_authorized": false,
+  "selected94_and451": "NOT_PROMOTED",
+  "repository_checks": {
+    "context": {
+      "recorded_at": "2026-11-18T02:34:02.898775+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-context.py"
+      ],
+      "exit_code": 0,
+      "seconds": 22.22,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": "",
+      "scope": "OFFLINE_ALL_DOCKER_DATABASE_BOUNDARIES_MOCKED",
+      "report_sha256": "f29b155bac68cf26ee4a0ec6235926c732f63e2b1e7efbc4433d63a986451e5b"
+    },
+    "foundation": {
+      "recorded_at": "2026-11-18T02:33:49.306480+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-foundation.py"
+      ],
+      "exit_code": 0,
+      "seconds": 8.62,
+      "stdout": "{\n  \"errors\": [],\n  \"metrics\": {\n    \"contracts\": 132,\n    \"workflows\": 13,\n    \"cold_start_routes\": 6,\n    \"candidate_lanes\": 8,\n    \"authorized_parallel_lanes\": 0,\n    \"synchronous_contract_cycles\": [],\n    \"current_context_links_checked\": 2887,\n    \"feature_source_files_scanned\": 0,\n    \"specified_token_contrast_pairs\": 12,\n    \"dispositions\": {\n      \"EVOLVABLE_COMPATIBLY\": 119,\n      \"EXTERNALLY_GATED\": 13\n    }\n  },\n  \"token_contrast\": [\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"text\",\n        \"canvas\"\n      ],\n      \"ratio\": 17.93\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"mutedText\",\n        \"canvas\"\n      ],\n      \"ratio\": 7.81\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"onAction\",\n        \"action\"\n      ],\n      \"ratio\": 6.7\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"success\",\n        \"successSurface\"\n      ],\n      \"ratio\": 6.81\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"warning\",\n        \"warningSurface\"\n      ],\n      \"ratio\": 6.84\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"danger\",\n        \"dangerSurface\"\n      ],\n      \"ratio\": 5.91\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"text\",\n        \"canvas\"\n      ],\n      \"ratio\": 16.91\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"mutedText\",\n        \"canvas\"\n      ],\n      \"ratio\": 7.85\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"onAction\",\n        \"action\"\n      ],\n      \"ratio\": 10.98\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"success\",\n        \"successSurface\"\n      ],\n      \"ratio\": 10.62\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"warning\",\n        \"warningSurface\"\n      ],\n      \"ratio\": 10.39\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"danger\",\n        \"dangerSurface\"\n      ],\n      \"ratio\": 8.51\n    }\n  ],\n  \"scope\": \"Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_ALL_DOCKER_DATABASE_BOUNDARIES_MOCKED",
+      "report_sha256": "7e482c5fc478cbf61e7001fc863c5abb70012cbe974bd4989d3e79e20c1efa5c"
+    },
+    "phase0": {
+      "recorded_at": "2026-11-18T02:33:42.005259+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-phase0.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.33,
+      "stdout": "{\n  \"errors\": [],\n  \"nine_roles\": 9,\n  \"archived_files\": 21,\n  \"source_models\": 177,\n  \"database_posture\": \"D\",\n  \"status\": \"FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED\",\n  \"scope\": \"Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_ALL_DOCKER_DATABASE_BOUNDARIES_MOCKED",
+      "report_sha256": "e379c9d0918e72de98a2499ef07a8694f73e69c55978562cc4386165a527fd7b"
+    }
+  }
+}

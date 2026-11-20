@@ -1,0 +1,26 @@
+{
+  "schema": "workinants.restore980a-bound-evidence-v4-Root-implementation-ACK.v1",
+  "recorded_at_utc": "2026-11-20T05:00:02.777556+00:00",
+  "decision": "BOUNDED_V4_IMPLEMENTATION_AUTHORIZED_SOURCE_ONLY",
+  "plan_sha256": "0206011e81e463dab2cb365ac3b20753a34fbf19e01fd728da409abfaafcabd4",
+  "independent_plan_review_sha256": "a7fb9bbf5017214693d885944ef2d1c903361a582cbd20fe3a4802a186a6633e",
+  "new_five": [
+    "execute_local_f0_restore_20261119_bound_evidence_v4.py",
+    "local_f0_restore_operation_steps_bound_evidence_v4.py",
+    "prepare_local_f0_restore_plan_bound_evidence_v4.py",
+    "check_local_f0_restore_operation_bound_evidence_v4.py",
+    "pin_local_f0_restore_plan_20261119_bound_evidence_v4.py"
+  ],
+  "new_archive": "context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4",
+  "new_validation": "context/reconciliation/local-f0-restore-bound-evidence-v4-source-validation.json",
+  "implementation_clarifications": [
+    "Use statement-aware closed outer envelope; no string/comment/dollar-body false transaction matches. Bare optional one leading BEGIN and exactly one terminal COMMIT only, or no wrapper then append one. Reject intermediate/chained/prepared/ROLLBACK/ambiguous transaction forms. Existing pinned business statement bytes unchanged.",
+    "Do not add an unpinned runtime parser dependency. A bounded stdlib lexical envelope scanner may be reviewed with independent pglast offline cross-checks; fail closed on unsupported syntax. Existing67 source/25 artifacts remain byte-identical.",
+    "Keep strict empty stderr, source-bound diagnostics, typed exit/ACK/markers/full-state and closure. Emit only fixed safe envelope mode/count/Boolean metadata before assertion; warnings are not waived.",
+    "Use actual real main/initialize/preparer/source loader/pinner/comparators and Session; every OS/Docker/database boundary mocked, no production factory or proof injection. Real immutable closed980a before/native/oracle/ledger data may be explicit OFFLINE MOCK input, never fresh attestation.",
+    "All source gates PENDING until separate non-author code review+Root closure. No runtime/Git/network/hosted action by author. Protect activeINSTALL167 and Native303/current source/status/otherfrozenApp5/PrivV5 all811."
+  ],
+  "actual_old_warning_and_full_cause": "UNOBSERVED",
+  "Brain_acceptance": "PENDING",
+  "Posture": "D"
+}

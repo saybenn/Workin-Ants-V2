@@ -1,0 +1,10 @@
+from pathlib import Path
+import hashlib,importlib.util,json,socket,subprocess,time
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'worker-b42-evidence-adapter-v1-draft-20261120/future-root'
+spec=importlib.util.spec_from_file_location('worker_author',R/'scripts/local_f0_worker_recovery_evidence.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+start=time.monotonic()
+with patch.object(subprocess,'run',side_effect=AssertionError('PROCESS_FORBIDDEN')),patch.object(subprocess,'Popen',side_effect=AssertionError('PROCESS_FORBIDDEN')),patch.object(socket,'socket',side_effect=AssertionError('NETWORK_FORBIDDEN')):
+ blobs={p:(R/p).read_bytes()for p in m.PINS}
+ result=m.validate_bundle(blobs)
+ print(json.dumps({'status':'PASS_PURE_REAL_CLOSED_GRAPH','files':len(blobs),'claims':len(json.loads(result)['claims']),'seconds':time.monotonic()-start,'module_sha256':hashlib.sha256((R/'scripts/local_f0_worker_recovery_evidence.py').read_bytes()).hexdigest()}))

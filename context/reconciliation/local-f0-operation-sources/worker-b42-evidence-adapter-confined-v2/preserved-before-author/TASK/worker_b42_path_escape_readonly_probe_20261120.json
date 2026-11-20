@@ -1,0 +1,35 @@
+{
+  "schema": "workinants.worker-b42-closed-path-confinenment-probe.v1",
+  "status": "ACTUAL_PATH_ESCAPE_REPRODUCED",
+  "fixed_inputs": 654,
+  "escape_count": 2,
+  "escapes": [
+    {
+      "source_relative_path": "node_modules/@prisma/engines-version/package.json",
+      "bytes_match_reviewed_pin": true,
+      "resolved_outside_Root": true,
+      "link_ancestors": [
+        {
+          "relative": "node_modules",
+          "is_symlink": false,
+          "is_junction": true
+        }
+      ]
+    },
+    {
+      "source_relative_path": "node_modules/prisma/package.json",
+      "bytes_match_reviewed_pin": true,
+      "resolved_outside_Root": true,
+      "link_ancestors": [
+        {
+          "relative": "node_modules",
+          "is_symlink": false,
+          "is_junction": true
+        }
+      ]
+    }
+  ],
+  "Root_writes": false,
+  "process_network_Git_SQL": false,
+  "no_arbitrary_resolved_path_retained": true
+}

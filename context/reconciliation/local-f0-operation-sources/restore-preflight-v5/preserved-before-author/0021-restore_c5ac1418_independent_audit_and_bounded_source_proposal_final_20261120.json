@@ -1,0 +1,283 @@
+{
+  "schema": "workinants.restore-c5ac-independent-stopped-run-audit-and-proposal.v1",
+  "recorded_at_utc": "2026-11-20T10:20:56.386852+00:00",
+  "reviewer": "/root/restricted_controls_operator",
+  "decision": "PROPOSAL_FIRST_SOURCE_CORRECTION_AND_OBSERVABILITY_REQUIRED_NO_IDENTICAL_RETRY",
+  "lineage": "Reviewer did not author RestoreV4Fix3; Catalog authored that implementation. This is an independent closed-evidence/source audit, not implementation or execution approval.",
+  "bindings": {
+    "run_id": "c5ac1418-1340-480d-8897-58704f8a934e",
+    "source_commit": "c401d2f2503dee08ad5913fb6cf1fa944c5f3e5a",
+    "source_tree": "13aabf5061aaeac34462da38cf4e5110ee119c54",
+    "packet_files": 713,
+    "packet_sha256": "34f741fcd8525d878efae9459e75c85db1ea9506f8bafb960ea26cef298f3546",
+    "approved_manifest_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-restore-plan-c5ac1418\\operation-manifest.json",
+    "approved_manifest_sha256": "989ba4e50cf343388b6ed46488428cecea4fae9a933d5ea74442005b03195e65",
+    "raw_report_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-restore-c5ac1418\\run-evidence.json",
+    "raw_report_sha256": "f38cf5e54af60b51204dc3bdce6187712c384080ee4730e12ac515b612c0e3d0",
+    "external_five_sha256": {
+      "execute_local_f0_restore_20261119_bound_evidence_v4.py": "187108844d74827427a2ccfd2299d67c466c8ff474df4124c138bf34f92ccc36",
+      "local_f0_restore_operation_steps_bound_evidence_v4.py": "001aa98bb064d62fcc98f36ddc0b31d80aafc7a8b6a932843d6bb24da9d1e889",
+      "prepare_local_f0_restore_plan_bound_evidence_v4.py": "ac714d7e1966199c6036b5bba78e9f41160f30d8366eaddbd31b9ee39fa01752",
+      "check_local_f0_restore_operation_bound_evidence_v4.py": "e2e754d3e64610825367987c9c13c2564186ce1dbbe19c153034b38f7904a6f3",
+      "pin_local_f0_restore_plan_20261119_bound_evidence_v4.py": "a4d86ca6cd866fefcad980f2306976734acfe4af80932c09e693f4c0ccc6e6f6"
+    },
+    "backup_preflight_SQL_sha256": "7208371cdbc049fb1d41d8510c6764b46c7df3ed98ea828d4b6a4e839e8e0550",
+    "canonical_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "closed_OUT_files_sha256": {
+      "acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+      "catalog-comparison.json": "34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e",
+      "ledger-evidence.json": "76e549551d7561cc38391a0bdeca39c5df4614449322f226c3b40d640fdebdfc",
+      "ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+      "ledger-registration.json": "4fc0fc75092b5e9f579f27ffc3105adc9c7333c615b4c111e6bb6adfc9f34976",
+      "native-after-ledger.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+      "native-after-oracle.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+      "native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+      "oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+      "oracle-evidence.json": "c3e91a70099256f5edbce4678193c7d228bdcbbc7cd60c2c711887b773011bc3",
+      "oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+      "oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+      "run-evidence.json": "f38cf5e54af60b51204dc3bdce6187712c384080ee4730e12ac515b612c0e3d0",
+      "set-private-acl.ps1": "d5ef58e51c12b4371601557f027a44e9ca206b81444724f8aab65365bf9c057f",
+      "text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1"
+    },
+    "all_current713_source_and_external5_bytes_match_admitted": true,
+    "independent_cleanup_proof_sha256": "e0834dfe8573f11e93db7d36498c6f28d54b153e179be38f42ed1adbe1b7b4b1"
+  },
+  "observed": {
+    "status": "STOPPED_ATTEMPT_PRESERVED",
+    "primary_failure": {
+      "stage": "RESTORE_BACKUP_PREFLIGHT",
+      "code": "RESTORE_BACKUP_PREFLIGHT"
+    },
+    "evidence_complete": true,
+    "persistence_failure": false,
+    "backup_preflight_process": {
+      "stage": "RESTORE_BACKUP_PREFLIGHT",
+      "input_sha256": "7208371cdbc049fb1d41d8510c6764b46c7df3ed98ea828d4b6a4e839e8e0550",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    "preflight_following_global_closure": {
+      "stage": "RESTORE_BACKUP_PREFLIGHT",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    "all36_retained_backend_closures_confirmed": true,
+    "source_prerequisites": {
+      "installation_auth6_original_grantor_finalization": "PASS_AS_RETAINED",
+      "native_catalog": {
+        "PASS": 29089
+      },
+      "ledger_checks": 22,
+      "restore_authentication_controls": 17,
+      "committed_postgres_and_identity_transactions": [
+        {
+          "role": "postgres",
+          "operation_closed": true,
+          "commit_acknowledged": true,
+          "exit_code": 0
+        },
+        {
+          "role": "wa_identity_service_authority",
+          "operation_closed": true,
+          "commit_acknowledged": true,
+          "exit_code": 0
+        }
+      ],
+      "four_bound_operations": [
+        {
+          "grant_template": "source_customer",
+          "phase": "VERDICT_MATCHED",
+          "matched": true,
+          "operation_closed": true
+        },
+        {
+          "grant_template": "schedule",
+          "phase": "VERDICT_MATCHED",
+          "matched": true,
+          "operation_closed": true
+        },
+        {
+          "grant_template": "app",
+          "phase": "VERDICT_MATCHED",
+          "matched": true,
+          "operation_closed": true
+        },
+        {
+          "grant_template": "worker",
+          "phase": "VERDICT_MATCHED",
+          "matched": true,
+          "operation_closed": true
+        }
+      ],
+      "issuer21_field_proofs": 4,
+      "RESTORE_SOURCE": "PASS_SYNTHETIC_SQL_SUBSET_ONLY"
+    },
+    "cleanup_summary": {
+      "resource_absence_observation_completed": true,
+      "resource_presence_after": {
+        "wa-p0c-c5ac1418-restore-source": false,
+        "wa-p0c-c5ac1418-restore-staging": false,
+        "wa-p0c-c5ac1418-restore-target": false,
+        "wa-p0c-c5ac1418-restore-source-data": false,
+        "wa-p0c-c5ac1418-restore-target-data": false
+      },
+      "test_owned_secret_files_deleted": [
+        "ok-bootstrap-password"
+      ],
+      "private_directory_absent": true,
+      "image_removed": false,
+      "unrelated_resources_changed": false
+    },
+    "source_preservation_flags": {
+      "packet_unchanged_after_run": true,
+      "tool_source_data_unchanged_after_run": true,
+      "external_input_archives_and_fresh_history_unchanged_after_run": true,
+      "external_sources_unchanged_after_run": true,
+      "all_source_and_external_inputs_preserved_after_run": true
+    }
+  },
+  "historical_limits": {
+    "failed_boolean_or_shape_comparison": "UNOBSERVED",
+    "raw17_field_preflight_response": "NOT_RETAINED",
+    "raw_archive_command_display_or_effective_configuration": "UNOBSERVED",
+    "system_identifier_or_its_shape_at_failure": "UNOBSERVED",
+    "complete_historical_cause": "UNOBSERVED",
+    "physical_backup_pg_basebackup_verifybackup": "NOT_RUN",
+    "staging_restored_target_physical_parity_credential_rotation_generation": "NOT_RUN",
+    "privacy_reapplication": "NOT_RUN_REGISTERED_LATER_OWNER_PORT",
+    "restore_proof": "NOT_ESTABLISHED",
+    "reason": "fixed_json returned its parsed dict only in RAM; backup_preflight checks it as one conjunction and raises without recording fixed per-field outcomes. The process record proves successful SQL transport, not which value check failed."
+  },
+  "source_findings": [
+    {
+      "id": "RESTORE-C5AC-PREFLIGHT-01",
+      "kind": "PROVEN_SOURCE_CONTRADICTION_CONSISTENT_WITH_STOP",
+      "file": "review-output/restore-control-rehearsal/backup-preflight.sql",
+      "field": "no_recovery_or_archive_transport",
+      "fact": "The conjunction requires archive_mode off AND current_setting(archive_command) empty. Under exact PG17.11, off selects the nonempty fixed display sentinel (disabled). Other archive modes fail the explicit off conjunct. Thus this conjunction cannot pass its required mode.",
+      "historical_claim_limit": "This source proof does not retrofit an observed value for the lost historical response or exclude additional historical failures."
+    },
+    {
+      "id": "RESTORE-C5AC-PREFLIGHT-02",
+      "kind": "OBSERVABILITY_GAP",
+      "file": "local_f0_restore_operation_steps_bound_evidence_v4.py",
+      "function": "backup_preflight",
+      "line": 1407,
+      "fact": "One assertion combines exact field set,16 actual-True booleans and lower-hex64 system-ID hash shape; no comparison receipt is persisted before raising. The successful process leaves its failed individual check unknowable."
+    }
+  ],
+  "PG17_primary_references": [
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/include/catalog/pg_proc.dat",
+      "lines": [
+        6013,
+        6019
+      ],
+      "fact": "current_setting(text) maps to show_config_by_name."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/misc/guc_funcs.c",
+      "lines": [
+        753,
+        766
+      ],
+      "fact": "show_config_by_name obtains its text through GetConfigOptionByName."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/misc/guc.c",
+      "lines": [
+        5089,
+        5111,
+        5189,
+        5199
+      ],
+      "fact": "GetConfigOptionByName delegates to ShowGUCOption, whose string branch invokes a configured show hook."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/misc/guc_tables.c",
+      "lines": [
+        3743,
+        3749,
+        4659,
+        4665
+      ],
+      "fact": "archive_command is PGC_SIGHUP with an empty default and show_archive_command hook. archive_mode defaults to OFF."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/access/transam/xlog.c",
+      "lines": [
+        4450,
+        4458
+      ],
+      "fact": "show_archive_command returns the fixed display sentinel (disabled) while archiving is inactive."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/include/access/xlog.h",
+      "lines": [
+        88,
+        94
+      ],
+      "fact": "XLogArchivingActive is false for ARCHIVE_MODE_OFF."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/misc/guc_funcs.c",
+      "lines": [
+        551,
+        564,
+        656,
+        678
+      ],
+      "fact": "pg_settings.setting also uses ShowGUCOption, so substituting setting would retain the bug. Its string reset_val is copied directly from the underlying reset_val member rather than the display hook. context is separately exposed from the GUC context name."
+    }
+  ],
+  "pure_source_probe": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_c5ac1418_source_predicate_probe_20261120.json",
+    "sha256": "53aa6a61efbd1320c3f01c02af084ef8d15f384355fa7f0376d897e0bd1e38fa",
+    "seconds": 0.047,
+    "cases": 4,
+    "meaning": "Hypothetical exact-source show-hook inputs are evaluated against the actual emitted SQL AST and the actual frozen backup_preflight AST function. Old guard rejects all four; proposed semantics accepts only off plus genuinely empty raw configured command. This is not DB execution or observation of historical values."
+  },
+  "bounded_proposal": {
+    "status": "PLAN_ONLY_AWAITING_ROOT_ACK_AND_SEPARATE_REVIEW",
+    "recommended_source_semantics": [
+      "Preserve archive_mode=off exactly, all recovery/primary-slot/restore/archive-library/synchronous-standby and preload/subscription/foreign-server restrictions, all startup/config/source bindings and every other preflight predicate. Never change server settings to force this check.",
+      "Correct ONLY the archive_command observation in a new versioned packet. Require the exact PG17 disabled display under off mode AND a separate effective raw/reset empty proof through the single pg_settings archive_command row, with exact string/sighup metadata and no pending restart. The verified PG17 API exposes raw reset_val separately from its display hook; PGC_SIGHUP is not a SQL session-settable context. Missing/null/unknown metadata fails closed.",
+      "Do not accept arbitrary display strings, drop the mode check, substitute pg_settings.setting (also show-hook processed), or use boot_val as proof of the current configured value. A nonempty hidden configured command must reject even though its display is disabled.",
+      "Keep SELECT-only pg_catalog observation under the same existing postgres login; no permission/role/schema/image/mount/configuration/network/resource changes. Keep the other24 prepared-artifact semantics and canonical5ae/32 worker ACL/source fixtures and grants unchanged except necessary versioned source/provenance/hash closure."
+    ],
+    "required_safe_receipt": [
+      "Before raising the preflight assertion, persist a closed phase enum (BEFORE_BACKUP or AFTER_BACKUP), input source SQL SHA, response/object/exact-field-set checks, and one fixed entry for each of the16 named predicates. Each entry distinguishes missing, wrong type, actual false and actual true via present/type-valid flags and Boolean-or-null; no raw dictionary or arbitrary keys/values.",
+      "System identity retention is shape/match Booleans or an already validated64-hex hash only. Never export raw system identifiers, setting strings, commands, paths, credentials, handles, SQL output or exception text. Keep the post-backup same-cluster equality requirement exact.",
+      "Malformed/process-unavailable data must retain a fixed unavailable/parse classification where possible and stop; comparison persistence failure is sticky and cannot permit backup. Record the original safe failure before secondary close/write errors reorder it; preserve independent global closure and exact cleanup."
+    ],
+    "new_source_scope_before_any_implementation": [
+      "Root must choose and ACK an exclusive new source/packet namespace and closed operator/preparer/pinner/hash binding family, preserving old713/five/full OUT/approved manifest and all prior reviews. No edits to reviewed V4Fix3 or old proposal918/content275.",
+      "New generator/protocol/check/doc changes are limited to the source-correct observer, fixed comparison receipt, source-aware mocks and corresponding reproducible artifact/fingerprint/namespace bindings. All new gates begin PENDING.",
+      "Independent nonauthor source review, Root metadata closure/publication, fresh pin/literal/live preflight precede any authorized new attempt. No identical opaque retry. A fresh improved attempt may still stop without implying restore readiness."
+    ],
+    "focused_validation_required": [
+      "Use actual emitted SQL AST/projection, not an all-True dictionary oracle: off mode with empty raw reset passes corrected semantics; off with hidden nonempty raw command rejects; on/always, unknown display, missing/duplicate row, wrong context/type, null/nonempty reset or pending restart reject. Restore the old empty-display predicate and require the source regression to fail.",
+      "For each of16 fields plus exact-key/system-ID shapes, exercise actual backup_preflight failure receipt before original Stop. Canary values in unknown keys, setting/command strings and malformed responses never appear in retained evidence. Missing is not observed false.",
+      "Real quiesce/fixed_json/run_catalog_query command-boundary mocks must model SQL exit0 then a Boolean failure; all clients close before observations, backup/staging/target remain untouched, and controlled cleanup progresses despite persistent/transient evidence IO.",
+      "Preserve post-backup same-source hash control. Code/parser/byte-reproduction/whole prepare+pinner/source/current+committed and applicable existing boundary/cleanup tests must use actual new closed graph, physical snapshots and explicit synthetic review fixtures; no factory PASS injection.",
+      "Rerun only changes justified by actual source/namespace/observability delta, recording exact method counts/durations/limits; no status/case promotion from fixtures or source tests."
+    ]
+  },
+  "no_implementation_or_runtime_authority": true,
+  "no_Root_source_Git_Docker_DB_SQL_execution_or_resource_changes": true,
+  "Posture": "D",
+  "plain_english": "The backup check asks for an empty label, but PostgreSQL prints disabled when backups-by-archiving are off. The run stopped safely, but it did not save which check failed. Correct the reader and save safe yes/no results before another reviewed attempt.",
+  "supersedes_before_scope_count_clarification": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\restore_c5ac1418_independent_audit_and_bounded_source_proposal_20261120.json",
+    "sha256": "30ed93ed79f64964005919c225946bb1756461bd0f4de5dc9fe0d93db1c5892f",
+    "change": "Only clarify25 prepared leaves contain1 candidate observer change plus24 unchanged leaves; all audit facts/limits unchanged."
+  }
+}

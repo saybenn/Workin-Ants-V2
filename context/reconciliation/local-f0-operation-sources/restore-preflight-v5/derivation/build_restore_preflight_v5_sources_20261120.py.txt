@@ -1,0 +1,22 @@
+"""Derive exclusive V5 source copies. Never executes a process/database."""
+from pathlib import Path
+import json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+oldroot=('scripts/prepare-restore-control-rehearsal.py','scripts/check-restore-control-rehearsal.py','review-output/restore-control-rehearsal/README.md')
+newroot=('scripts/prepare-restore-control-rehearsal-v5.py','scripts/check-restore-control-rehearsal-v5.py','scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md')
+oldfive=('execute_local_f0_restore_20261119_bound_evidence_v4.py','local_f0_restore_operation_steps_bound_evidence_v4.py','prepare_local_f0_restore_plan_bound_evidence_v4.py','check_local_f0_restore_operation_bound_evidence_v4.py','pin_local_f0_restore_plan_20261119_bound_evidence_v4.py')
+newfive=('execute_local_f0_restore_preflight_v5_20261120.py','local_f0_restore_preflight_v5_operation_steps.py','prepare_local_f0_restore_preflight_v5_plan.py','check_local_f0_restore_preflight_v5_operation.py','pin_local_f0_restore_preflight_v5_plan_20261120.py')
+pairs=list(zip(oldroot,newroot))+list(zip(oldfive,newfive))+[
+ ('review-output/restore-control-rehearsal','review-output/restore-control-rehearsal-v5'),
+ ('context/reconciliation/local-f0-operation-sources/restore-bound-evidence-v4','context/reconciliation/local-f0-operation-sources/restore-preflight-v5'),
+ ('context/reconciliation/local-f0-restore-bound-evidence-v4-source-validation.json','context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json'),
+ ('LOCAL_F0_RESTORE_REHEARSAL','LOCAL_F0_RESTORE_PREFLIGHT_V5_REHEARSAL'),
+ ('APPROVED_LOCAL_F0_RESTORE_ATTEMPT','APPROVED_LOCAL_F0_RESTORE_PREFLIGHT_V5_ATTEMPT')]
+for base,olds,news in ((R,oldroot,newroot),(T,oldfive,newfive)):
+ for a,b in zip(olds,news):
+  destination=base/b
+  text=(base/a).read_text(encoding='utf8')
+  for before,after in pairs:text=text.replace(before,after)
+  if destination.exists():assert destination.read_bytes()==text.encode(),destination
+  else:destination.write_bytes(text.encode())
+print(json.dumps({'Root_sources':newroot,'external_five':newfive,'runtime':False}))

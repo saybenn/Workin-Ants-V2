@@ -1,0 +1,83 @@
+from pathlib import Path
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+gate='''
+def preflight_v5_source_admission(read_source,approved_required,proposal,all_five):
+    """Data-only, exact V5 admission. No project code executes in this gate."""
+    prefix='context/reconciliation/local-f0-operation-sources/restore-preflight-v5/'
+    child_path='context/reconciliation/local-f0-restore-preflight-v5-source-validation.json'
+    owned_path='context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json'
+    sources={'scripts/prepare-restore-control-rehearsal-v5.py','scripts/check-restore-control-rehearsal-v5.py','scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md'}
+    def decode(raw):
+        def pairs(items):
+            result={}
+            for key,value in items:
+                need(key not in result,'V5_DUPLICATE_METADATA_KEY');result[key]=value
+            return result
+        return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'V5_NONFINITE_METADATA'))
+    def pins(value):
+        need(type(value) is dict and value and all(type(k) is str and type(v) is str and re.fullmatch('[0-9a-f]{64}',v) and not Path(k).is_absolute() and ':' not in k and chr(92) not in k and all(p not in ('','.','..') for p in k.split('/')) for k,v in value.items()),'V5_EXACT_PIN_MAP')
+        return value
+    child=decode(read_source(child_path));owned=decode(read_source(owned_path))
+    need(type(approved_required) is bool and type(child) is dict and type(owned) is dict,'V5_METADATA_OBJECTS')
+    need(child.get('schema')=='workinants.restore-preflight-v5-child-source-validation.v1' and owned.get('schema')=='workinants.restore-preflight-v5-owned-source-validation.v1','V5_METADATA_SCHEMAS')
+    need(set(pins(child.get('sources_sha256')))==sources and child['sources_sha256']=={k:proposal['source_files_sha256'][k] for k in sources},'V5_CHILD_EXACT_THREE_SOURCES')
+    need(child.get('packet_source_files_sha256')==proposal['source_files_sha256'] and child.get('prepared_files_sha256')==proposal['prepared_files_sha256'],'V5_CHILD_CLOSED_PACKET')
+    need(type(all_five) is dict and len(all_five)==5 and owned.get('all_five_sources_sha256')==all_five,'V5_OWNED_EXACT_FIVE')
+    archive=pins(owned.get('archive_files_sha256'))
+    need(child.get('archive_files_sha256')==archive and all(k.startswith(prefix) for k in archive),'V5_EXACT_SHARED_ARCHIVE')
+    disk=ROOT/prefix
+    need(disk.is_dir() and not disk.is_symlink() and not any(p.is_symlink() for p in disk.rglob('*')),'V5_ARCHIVE_NO_SYMLINK')
+    need({p.relative_to(ROOT).as_posix() for p in disk.rglob('*') if p.is_file()}==set(archive),'V5_ARCHIVE_EXACT_FILE_SET')
+    result={child_path:hashlib.sha256(read_source(child_path)).hexdigest(),owned_path:hashlib.sha256(read_source(owned_path)).hexdigest()}
+    for relative,expected in archive.items():
+        need(hashlib.sha256(read_source(relative)).hexdigest()==expected,'V5_ARCHIVED_BYTE_DRIFT');result[relative]=expected
+    for name,expected in all_five.items():
+        need(type(name) is str and Path(name).name==name and type(expected) is str and re.fullmatch('[0-9a-f]{64}',expected),'V5_PHYSICAL_SOURCE_MAP')
+        need(hashlib.sha256((TASK/name).read_bytes()).hexdigest()==expected and archive.get(prefix+name+'.txt')==expected,'V5_PHYSICAL_FIVE_SNAPSHOT_DRIFT')
+    for name,expected in child['sources_sha256'].items():
+        need(hashlib.sha256(read_source(name)).hexdigest()==expected and archive.get(prefix+'root-sources/'+name+'.txt')==expected,'V5_CHILD_SOURCE_SNAPSHOT_DRIFT')
+    for meta in (child,owned):
+        need(meta.get('source_review_status') in ('PENDING','SOURCE_APPROVED'),'V5_DECLARED_SOURCE_REVIEW_STATE')
+        review=meta.get('independent_source_review')
+        need(type(review) is dict and set(review)=={'decision','path','sha256'} and review['decision'] in ('PENDING','SOURCE_APPROVED'),'V5_INDEPENDENT_REVIEW_STATE')
+        if approved_required:
+            need(meta['source_review_status']=='SOURCE_APPROVED' and review['decision']=='SOURCE_APPROVED','V5_SEPARATE_SOURCE_REVIEW_REQUIRED')
+            relative=review['path'];expected=review['sha256']
+            need(type(relative) is str and relative.startswith(prefix+'reviews/') and type(expected) is str and re.fullmatch('[0-9a-f]{64}',expected) and archive.get(relative)==expected,'V5_REVIEW_ARCHIVE_BINDING')
+            body=decode(read_source(relative))
+            need(type(body) is dict and body.get('decision')=='SOURCE_APPROVED','V5_REVIEW_DECISION_REQUIRED')
+        elif review['decision']=='PENDING':
+            need(review['path'] is None and review['sha256'] is None,'V5_PENDING_REVIEW_HAS_NO_AUTHORITY')
+    for name,expected in pins(proposal['source_files_sha256']).items():
+        need(hashlib.sha256(read_source(name)).hexdigest()==expected,'V5_PACKET_SOURCE_DRIFT');result[name]=expected
+    for name,expected in pins(proposal['prepared_files_sha256']).items():
+        need(Path(name).name==name,'V5_ARTIFACT_LEAF_REQUIRED')
+        relative='review-output/restore-control-rehearsal-v5/'+name
+        need(hashlib.sha256(read_source(relative)).hexdigest()==expected,'V5_PREPARED_ARTIFACT_DRIFT');result[relative]=expected
+    return result
+
+'''
+
+p=TASK/'prepare_local_f0_restore_preflight_v5_plan.py';s=p.read_text()
+s=s.replace('def prepare(baseline_path,baseline_sha,run_id=None):',gate+'def prepare(baseline_path,baseline_sha,run_id=None):',1)
+s=s.replace("    for artifact in baseline['catalog']['assets'].values():", "    all_five={name:sha((TASK/name).read_bytes()) for name in (*EXTERNAL_FILES,'pin_local_f0_restore_preflight_v5_plan_20261120.py')}\n    admitted=preflight_v5_source_admission(source_blob,False,proposal,all_five)\n    for artifact in baseline['catalog']['assets'].values():",1)
+s=s.replace("inventory=set(HELPER_FILES)|", "inventory=set(admitted)|set(HELPER_FILES)|",1)
+p.write_bytes(s.encode())
+
+p=TASK/'pin_local_f0_restore_preflight_v5_plan_20261120.py';s=p.read_text()
+s=s.replace('def validate_filesystem(path):',gate+'def validate_filesystem(path):',1)
+s=s.replace("len(proposal['source_files_sha256'])==67", "len(proposal['source_files_sha256'])==68",1)
+start=s.index('    validation_raw=source_path(VALIDATION).read_bytes();')
+end=s.index("    plan=value['migration_targets']['ok'];parent=path.parent",start)
+s=s[:start]+"    exact_five={**FROZEN,SELF:sha(Path(__file__).read_bytes())}\n    files.update(preflight_v5_source_admission(lambda relative:source_path(relative).read_bytes(),True,proposal,exact_five))\n"+s[end:]
+p.write_bytes(s.encode())
+
+p=TASK/'local_f0_restore_preflight_v5_operation_steps.py';s=p.read_text()
+start=s.index("    validation=unique_json(read_pinned(")
+end=s.index("    need(MANIFEST['wrapper_sha256']",start)
+s=s[:start]+"    raw=read_pinned(RESTORE_PACKET+'/proposal.json');need(hashlib.sha256(raw).hexdigest()==RESTORE_PROPOSAL_SHA,'RESTORE_PROPOSAL_DRIFT')\n    proposal=unique_json(raw)\n    expected_five={name:hashlib.sha256((TASK/name).read_bytes()).hexdigest() for name in (*EXTERNAL_FILES,'pin_local_f0_restore_preflight_v5_plan_20261120.py')}\n    preflight_v5_source_admission(read_pinned,True,proposal,expected_five)\n"+s[end:]
+s=s.replace('def verify_common_packet():',gate+'def verify_common_packet():',1)
+p.write_bytes(s.encode())
+print('PATCHED_NEW_V5_ADMISSION_ONLY')

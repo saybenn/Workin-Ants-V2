@@ -1,0 +1,235 @@
+{
+  "schema": "workinants.restore-bound-evidence-v4-fix2-author-source-review.v1",
+  "recorded_at_utc": "2026-11-20T06:51:50.242217+00:00",
+  "author": "/root/catalog_v4_review",
+  "decision": "TRANSACTION_OPTIONS_FIX2_AUTHORED_OFFLINE_PASS_PENDING_SAME_NONAUTHOR_AND_ROOT_REVIEW",
+  "authorship": "Author of this NEW V4 implementation and inherited Owner/App test-base lineage; not an independent approval.",
+  "authorization": {
+    "Root_plan_sha256": "0206011e81e463dab2cb365ac3b20753a34fbf19e01fd728da409abfaafcabd4",
+    "Track_independent_plan_sha256": "a7fb9bbf5017214693d885944ef2d1c903361a582cbd20fe3a4802a186a6633e",
+    "Root_implementation_ACK_sha256": "13ad95baee2df9164a88d34c694ed269407a0cb45f841ab0cd5244a7d8411b36",
+    "Fix2_Root_ACK_sha256": "6961dc75736afd7c3ae3fb47c465e520159eeab1d130cf0b6d61a79d6a2de55b"
+  },
+  "five_sha256": {
+    "execute_local_f0_restore_20261119_bound_evidence_v4.py": "187108844d74827427a2ccfd2299d67c466c8ff474df4124c138bf34f92ccc36",
+    "local_f0_restore_operation_steps_bound_evidence_v4.py": "a185177d3990866dfdf9fdfc32196698e4c7f558c09877c67efec488c21344ea",
+    "prepare_local_f0_restore_plan_bound_evidence_v4.py": "ac714d7e1966199c6036b5bba78e9f41160f30d8366eaddbd31b9ee39fa01752",
+    "check_local_f0_restore_operation_bound_evidence_v4.py": "e2e754d3e64610825367987c9c13c2564186ce1dbbe19c153034b38f7904a6f3",
+    "pin_local_f0_restore_plan_20261119_bound_evidence_v4.py": "34ae69373277b8374d52757455d9f577fd066ce84a0583e00d83b4e0d045c68a"
+  },
+  "source_validation": {
+    "path": "context/reconciliation/local-f0-restore-bound-evidence-v4-source-validation.json",
+    "sha256": "6bd02ec1cef344739a8f6f6929e76658bc3d18830e5a7054b6813f32a95b1f66",
+    "archive_files": 270,
+    "all_four_gates": "PENDING"
+  },
+  "actual_offline_checks": {
+    "current_unique_methods": 48,
+    "runs": {
+      "restore-v4-fix2-focused-20261120.log": {
+        "methods": 41,
+        "seconds": 9.18,
+        "sha256": "2ada6daa857c90d698be6d3604f88c0497b263f439d191fbd41438627ebc0d88",
+        "status": "PASS",
+        "exit_code": 0
+      },
+      "restore-v4-fix2-source-gates-20261120.log": {
+        "methods": 6,
+        "seconds": 58.384,
+        "sha256": "91d2fe92e575401ae346fba7b03a11e49e602b8086df138c9c18ae1acb23d945",
+        "status": "PASS",
+        "exit_code": 0
+      },
+      "restore-v4-fix2-composed-20261120.log": {
+        "methods": 1,
+        "seconds": 42.117,
+        "sha256": "81c1d3c800c09199e99f640fc7dc9fa7758d8e9945e516cc16ae3374606847d2",
+        "status": "PASS",
+        "exit_code": 0
+      }
+    },
+    "counts_are_version_qualified_not_added_to_prior_V4_or_V3_suites": true,
+    "syntax_compile_files": 5,
+    "actual_methods_and_comparators": true,
+    "all_external_process_boundaries_mocked": true,
+    "unmocked_process_network_database_forbidden": true
+  },
+  "bounded_delta": {
+    "Core_Preparer_Pinner_function_AST": "IDENTICAL_AFTER_NEW_NAMESPACE_BINDINGS",
+    "Steps_changed_functions": [
+      "bound_operation",
+      "bound_outcome"
+    ],
+    "Steps_added_functions": [
+      "normalize_bound_envelope"
+    ],
+    "checker": "Inherited physical5 checker is byte-identical to held candidate; dedicated41/6/1 source checks in current closed archive.",
+    "canonical_business_SQL_guards_permissions_physical_backup_mounts_quarantine_rotation_cleanup": "UNCHANGED",
+    "normalizer": "Bounded stdlib lexical statement envelope; optional one leading bare BEGIN removed, one existing final bare COMMIT retained or absent COMMIT appended. Business statement bytes/order preserved. Comments, escaped strings, quoted identifiers, nested comments and dollar bodies do not become transaction statements.",
+    "rejected_envelopes": [
+      "intermediate or repeated BEGIN/COMMIT",
+      "ROLLBACK/ABORT/END/START/SAVEPOINT/RELEASE/PREPARE",
+      "chained/prepared/work/transaction-option variants",
+      "unterminated/empty/unsupported client commands or lexical shapes",
+      "terminal trivia/case unsupported by the unchanged literal-terminal Session API"
+    ],
+    "safe_evidence": "Fixed mode/count/Boolean envelope and stderr/completion comparisons saved before verdict assertion; no raw stderr/body/handle/credential retained. Empty stderr, exact exit/ACK/markers/state/source diagnostic and independent closure stay mandatory."
+  },
+  "source_derived_parse_and_reproduction": [
+    {
+      "file": "source-customer.sql",
+      "source_sha256": "9110445ab6d188d9796d2d495b9e9574874bbc018658a0fed82267378ec71ba6",
+      "source_statements": 8,
+      "expected_normalization_mode": "TERMINAL_COMMIT_RETAINED",
+      "source_BEGIN_count": 0,
+      "source_COMMIT_count": 1,
+      "emitted_COMMIT_count": 1,
+      "business_AST_and_bytes_preserved_offline": true
+    },
+    {
+      "file": "schedule.sql",
+      "source_sha256": "8b0c6731118f70c528703a2de1ce6a4418017e22182f547d9ebd01af138d527c",
+      "source_statements": 3,
+      "expected_normalization_mode": "TERMINAL_COMMIT_RETAINED",
+      "source_BEGIN_count": 0,
+      "source_COMMIT_count": 1,
+      "emitted_COMMIT_count": 1,
+      "business_AST_and_bytes_preserved_offline": true
+    },
+    {
+      "file": "app-read.sql",
+      "source_sha256": "c76984507b9fa82f26b5ed9550828fd627eb2cf5859b8e627a29840930b2736d",
+      "source_statements": 1,
+      "expected_normalization_mode": "NO_WRAPPER_APPEND_COMMIT",
+      "source_BEGIN_count": 0,
+      "source_COMMIT_count": 0,
+      "emitted_COMMIT_count": 1,
+      "business_AST_and_bytes_preserved_offline": true
+    }
+  ],
+  "transaction_state_regressions": {
+    "actual_frozen_WorkerSession": "Capture/login/issuer COMMIT/same-xid/finish/close/global absence exercised with process-only queues.",
+    "independent_state_machine": "Offline pglast classifies the actual emitted top-level transaction statements and models active/inactive state; a second COMMIT independently emits a warning with exit0 and ACK.",
+    "restored_exact_V3_method_sha256": "dd909a5698e41b95d7fad339e3307330c39ac9d4568333cb453b6a99e1aa9a42",
+    "restored_method_outcome": "Expected STOP with exit0, ACKtrue, markertrue, stderr_emptyfalse, matchedfalse and closuretrue. Modeled business may already be committed; no rollback inferred.",
+    "malformed_warning_marker_source_frame_IO_closure_stop_checks": "PASS_CURRENT41"
+  },
+  "real_entry_composition": {
+    "method": "Actual pure prepare, actual current+modeled-committed pinner, actual copied physical5 Core.initialize/launch/main, native pipeline and restricted source Sessions. No production factory or handmade proof-global injection.",
+    "source_approval_boundary": "Explicit isolated private mock metadata only; live V4 all-four PENDING unchanged.",
+    "external_processes": "Docker/psql/Prisma/PowerShell/read-only Git are modeled, all other OS/network process boundaries forbidden.",
+    "first_install_count": 1,
+    "native_comparison_PASS_checks": 29089,
+    "expression_oracle_records": 416,
+    "private_ledger_checks": 22,
+    "native_oracle_ledger_values": "Exact seven sanitized immutable980a assets are hash-closed OFFLINE MOCK responses; actual comparators generate all PASS verdicts.",
+    "restricted_source_operations": 4,
+    "source_fixtures_step": "PASS_SYNTHETIC_SQL_SUBSET_ONLY_IN_MODEL",
+    "physical_boundary": "Deliberate process-boundary failure at first pg_conf_load_time before physical backup; actual main stops later steps and cleans its exact created source1C1V/private.",
+    "final_main_status": "STOPPED_NOT_PHYSICAL_RESTORE_PASS",
+    "all_source_external_tool_archives_preserved": "PASS",
+    "full_physical_success_or_complete42_restored_parity": "NOT_EXERCISED_BY_THIS_COMPOSITION"
+  },
+  "preservation": {
+    "original137_snapshots": "PASS_EXACT",
+    "completed_preservation_sha256": "5e365c112ffe42a9583e3440d0f4c97566cfc257a8dc3cbb81118d1331448cc4",
+    "protected_unique_current_paths": 1410,
+    "Native303_AUDIT3_Priv820_App_approved76_and_fives": "PASS_EXACT",
+    "old_V3_archive100_five_and_validation": "UNCHANGED_AND_COPIED_UNDER_NEW_PRESERVED_NAMESPACE",
+    "source67_recipe25": "PASS_EXACT",
+    "canonical_SQL_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "worker_ACL32": "UNCHANGED",
+    "Root_metadata_authorized_exceptions": "App approvedf1d217/a80aded captured; INSTALL/Worker/Six later metadata changes have no protected1410 intersection.",
+    "Fix2_before_author_sha256": "c801840c3eefae738a2fe8f0f2d2d18dab41ed014031572f7a13c7657e2fe858",
+    "Fix2_physical_snapshots_verified": 464,
+    "held312_and_live5_old129_and_reviews": "PASS_EXACT",
+    "held129_copy_in_current_Root_archive": "preserved-held-v4-fix1",
+    "protected1410": "PASS_EXACT_AFTER_FIX2"
+  },
+  "old_actual_attempt_limits": {
+    "record_sha256": "e1f7a02c3e0d8607629bffa7930d736454971e704d0c9f8c6ba2f65a95333a98",
+    "raw_sha256": "334c78715aca97d5d0d9a260a5867944fb45e495313d436233f054c4d7b2e156",
+    "cleanup_sha256": "8b1a24d0e28c59f3280fbc199be63ba91c7ca770146d8f717b52e5884ef2f364",
+    "exit0_ACKtrue_markertrue_unlisted_nonempty_stderr": true,
+    "complete_Customer_state": "NOT_OBSERVED_NOT_QUALIFIED",
+    "exact_original_stderr_and_complete_cause": "UNOBSERVED",
+    "source_double_COMMIT": "PROVEN_SOURCE_DEFECT_CONSISTENT_WITH_STOP_NOT_PROOF_OF_ORIGINAL_WARNING",
+    "backup_restore_parity_rotation": "NOT_RUN",
+    "historical_records_unchanged": true
+  },
+  "fresh_pending_plan": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-restore-plan-13f2778b\\operation-manifest.json",
+    "sha256": "b4069cb622207555351a1fb6e32cf89f398ef5b7eba7d7499d250d8106b4548f",
+    "run_id": "13f2778b-3bb4-4582-a87b-abee4ce5a44c",
+    "prepared_source_inventory_paths": 152,
+    "prepared_inventory_is_full_executable_packet": false,
+    "source_archive_sha256": "2e07d102fa613614e4721e5b185c0cf9072ceaaaa3257c4dd076bf35b2cad559",
+    "source_files": 7,
+    "commit_tree_packet": "TO_BE_PINNED",
+    "review_status": "PENDING_OPERATIONAL_REVIEW",
+    "OUT_absent": true
+  },
+  "limits": {
+    "runtime_from_V4": "NOT_RUN",
+    "Posture": "D",
+    "independent_code_and_Root_review": "PENDING",
+    "actual_execution_source_pin_literal_and_Brain_review_required": true,
+    "full_RESTORE01_or_Privacy_owner_adapter_production_qualification": false,
+    "94_451_replay": "NOT_PROMOTED",
+    "hosted_migration_adoption_or_production_changes": false,
+    "Docker_DB_SQL_network_Git_or_resource_actions_by_author": false
+  },
+  "plain_english": "The checker now catches the reviewed ways to change transaction settings, while keeping ordinary search-path settings. Pretend-process tests pass. Real restore tests have not run, and the same separate reviewer must approve these exact files.",
+  "source_version": "bound-evidence-v4-fix2",
+  "fix2_delta_against_held": {
+    "finding": "RESTORE-V4-TRANSACTION-OPTIONS-01",
+    "held_review_sha256": "23698acc74ce85e0095b339ff1de115c90c7235f3c4d2a055642e8843dce26e6",
+    "held_probe74_sha256": "832e93e7659bb4132687c41bf1fadc1662c5184ab922f6a0f66f8d2630a7fa81",
+    "only_runtime_function_changed": [
+      "normalize_bound_envelope"
+    ],
+    "Core_Preparer_Checker_bytes": "EXACT",
+    "pinner_change": "Only FROZEN Step hash; all pinner function AST unchanged",
+    "identifier_tokens": "Quoted identifier names retained only in bounded in-memory lexical tokens, never exported. Six exact names match case-insensitively; dotted custom parameter names stay distinct.",
+    "SET_control": "Optional bare/LOCAL/SESSION scope, comment-separated tokens, TRANSACTION and SESSION CHARACTERISTICS AS TRANSACTION plus the six aliases.",
+    "RESET_control": "Reject six exact quoted/unquoted aliases. Explicit RESET ALL rejects because it resets transaction defaults too. Other RESET targets remain business.",
+    "six_aliases": [
+      "transaction_isolation",
+      "transaction_read_only",
+      "transaction_deferrable",
+      "default_transaction_isolation",
+      "default_transaction_read_only",
+      "default_transaction_deferrable"
+    ],
+    "preserved_business": "Ordinary unquoted/quoted SET LOCAL search_path, other unrelated SET/RESET targets and transaction words solely in strings/dollar bodies/comments/quoted business identifiers retain exact bytes.",
+    "semantic_function_analysis": false,
+    "runtime_parser_dependency_added": false,
+    "strict_stderr_one_bare_COMMIT_isolation_source_guards_physical_behavior": "UNCHANGED"
+  },
+  "fix2_closure_checks": {
+    "independent74": {
+      "parse_valid": 74,
+      "required_reject_and_now_rejected": 68,
+      "required_accept_and_accepted": 6,
+      "raw_probe_immutable": true
+    },
+    "restoring_only_old_if_predicate": {
+      "other_fixed_lexer_and_helpers_preserved": true,
+      "unsupported_forms_admitted": 58,
+      "each_current_rejects_and_old_restoration_tripwire_fails": true
+    },
+    "additional_SET_matrix": "36 uppercase/quoted scope+comment forms rejected with offline parse cross-check",
+    "additional_RESET_matrix": "18 quoted/unquoted/case aliases plus2 RESET ALL comment variants reject with offline parse cross-check",
+    "business_controls": 11,
+    "actual_bound_option": "Reject before business finish; no later case, exact Session and global closure preserved",
+    "all_old35_focused_methods": "PASS_CURRENT41_RUN"
+  },
+  "prior_held_version": {
+    "delivery_sha256": "6935ff067a38c4eecda590a630c5b2c99237f45afe74ab9297abbc28d72759d8",
+    "author_report_sha256": "b033737deb21874bcaede77654f5dc61b63935df0087dbad0aea63893081eb7e",
+    "freeze312_sha256": "7e29837b6973b82fcda74fa916e6aad961b38a1aa66052a9d282671577478619",
+    "validation129_sha256": "2b1a871644ba5bf704798da3f663d7851c55f3f1e30ac3e492533cc9f220ed3a",
+    "author42_and_independent17_passes": "RETAINED_HELD_VERSION_RESULTS_NOT_CURRENT_SOURCE_APPROVAL",
+    "finding_limit": "None of the three pinned positive programs contains the discovered forms. No actual runtime/permission failure or old warning cause inferred."
+  }
+}

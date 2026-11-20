@@ -1,0 +1,67 @@
+"""Root admits reviewed additive Worker adapter and runs the real complete status CLI."""
+from pathlib import Path
+import ast,datetime,hashlib,json,runpy,subprocess,sys,time
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'worker-b42-evidence-adapter-v1-draft-20261120';F=D/'future-root'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+db=(D/'author-review.json').read_bytes();assert sha(db)=='254dd49815df20cfd3b9b0769adb7ff4d609ef14554cba3da6cd467855140ae2';d=json.loads(db)
+pp=T/'worker_b42_evidence_adapter_independent_source_review_20261120.json';pb=pp.read_bytes();assert sha(pb)=='050d113bfb7920ca888d53c41afdad97a3e414161d95932bfa6e2a6f2fdf71a4';peer=json.loads(pb)
+assert peer['decision']=='SOURCE_APPROVED' and peer['findings']==[] and peer['author_delivery']['sha256']==sha(db)
+files=d['proposed_Root_files_sha256'];assert len(files)==35 and files==peer['exact_proposed_Root_files_sha256']
+for n,h in files.items():assert sha((F/n).read_bytes())==h
+builder='scripts/prepare-local-f0-status.py';assert sha((R/builder).read_bytes())=='c99712e7836f65dd8c4ad97b73d9f1e5e29f64abc8e52af4040acec26289d80a'
+assert (F/'context/reconciliation/local-f0-operation-sources/worker-b42-evidence-adapter-v1/builder-before-c997.py.txt').read_bytes()==(R/builder).read_bytes()
+W=T/'worker-b42-Root-real671-build-20261120';assert not W.exists();W.mkdir()
+lp=R/'context/reconciliation/local-f0-assertion-evidence.json';sp=R/'context/reconciliation/local-f0-qualification-status.json';lb=lp.read_bytes();sb=sp.read_bytes();old=json.loads(lb);before=json.loads(sb)
+assert sha(lb)=='50ea0011abb0f30730a5c4f3ff7f3dd56a13b664378ec7254646835b042c4d61' and sha(sb)=='6e00f4388e29ad7043950050b6094855beaa47b0412ce19147e4b7f19a2808fa'
+for n,b in [('before656-ledger.json',lb),('before625-status.json',sb),('before-c997-builder.py.txt',(R/builder).read_bytes()),('before-status-checker.py.txt',(R/'scripts/check-local-f0-status.py').read_bytes())]:put(W/n,b)
+for n,h in files.items():
+ target=R/n
+ if n!=builder:assert not target.exists()
+ target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((F/n).read_bytes());assert sha(target.read_bytes())==h
+vn='context/reconciliation/local-f0-worker-b42-evidence-adapter-source-validation.json';vb=(R/vn).read_bytes();v=json.loads(vb)
+assert v['source_review']=='PENDING' and v['Root_admission']=='NOT_RUN' and v['actual_Root_unmocked_full_build']=='NOT_RUN'
+A=R/'context/reconciliation/local-f0-operation-sources/worker-b42-evidence-adapter-v1'
+root={'schema':'workinants.worker-b42-pure-adapter-Root-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','peer_sha256':sha(pb),'source_code_unchanged_after_peer':True,'exact_default_changing_assertions':16,'appended_rows':15,'upgraded_PARTIAL_with_complete_prior_row':1,'unchanged_old_PARTIAL_corroboration':1,'current_INSTALL_Six_Native_and_all_unrelated_rows':'MUST_BE_PRESERVED','source_counts':'Author14 version-qualified plus independent final14PASS214.703s; not additional runtime cases.','limits':'Raw per-case42 rowsets and complete global producer sequence were not retained. Qualification uses exact hash-admitted immutable source comparison receipts, typed role/stage/order/currentness and exact bounded prior outcomes. Four source ceilings stay PARTIAL. No production loop, entire94/451 or blanket vector promotion.','Root_actual_full671_build':'PENDING','Posture':'D'}
+extras={'validation-before-Root-source-closure.json':vb,'independent-PrivMount-source-review.json':pb,'frozen-author-delivery.json':db,'Root-source-closure.json':enc(root),'Root-source-admission-and-build-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in extras.items():put(A/'reviews'/n,b)
+peerpath=(A/'reviews/independent-PrivMount-source-review.json').relative_to(R).as_posix();rootpath=(A/'reviews/Root-source-closure.json').relative_to(R).as_posix()
+v.update(status='SOURCE_APPROVED_PENDING_ROOT_ACTUAL671_BUILD',source_review='SOURCE_APPROVED',independent_worker_evidence_adapter_review={'decision':'SOURCE_APPROVED','reviewer':'/root/privilege_mount_v2_review','path':peerpath,'sha256':sha(pb)},Root_source_review={'decision':'SOURCE_APPROVED','path':rootpath,'sha256':sha(enc(root))});(R/vn).write_bytes(enc(v))
+ns=runpy.run_path(str(R/'scripts/local_f0_worker_recovery_evidence.py'),run_name='_Root_reviewed_pure_Worker_proposal')
+derived=json.loads((R/ns['DERIVED']).read_bytes());baseline=json.loads((R/ns['BASELINE']).read_bytes());new=ns['propose_ledger_delta'](old,derived,baseline);candidate=enc(new)
+expected={k:ns['CLAIM_STATUSES'][k]for k in ns['LEDGER_CHANGES']};assert len(expected)==16
+om={(r['case_id'],r['assertion_id']):r for r in old['assertions']};nm={(r['case_id'],r['assertion_id']):r for r in new['assertions']}
+assert len(om)==656 and len(nm)==len(new['assertions'])==671 and set(om)<=set(nm)
+assert {k for k in om if om[k]!=nm[k]}==set(expected)&set(om) and len(set(expected)&set(om))==1 and len(set(nm)-set(om))==15
+for k,row in om.items():
+ if k not in expected:assert nm[k]==row
+for k,status in expected.items():assert nm[k]['status']==status
+assert new['executions'][:-1]==old['executions']
+put(W/'proposed671-ledger.json',candidate);lp.write_bytes(candidate)
+proof={'schema':'workinants.worker-b42-Root-actual671-build.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'actual_command':[sys.executable,'-B','scripts/prepare-local-f0-status.py'],'no_factory_parser_or_source_mocking':True,'prior656_sha256':sha(lb),'candidate671_sha256':sha(candidate),'exact16_assertion_keys':sorted(expected),'prior_unrelated656_rows_and_executions_preserved':True,'Posture':'D'}
+started=time.monotonic();ok=False
+try:
+ result=subprocess.run(proof['actual_command'],cwd=R,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=1500,shell=False)
+ proof.update(known_exit_code=result.returncode,seconds=round(time.monotonic()-started,3),stderr_present=bool(result.stderr),unrestricted_stderr_retained=False)
+ assert result.returncode==0
+ actualraw=sp.read_bytes();actual=json.loads(actualraw);stdout=json.loads(result.stdout)
+ for k in stdout:assert stdout[k]==actual[k]
+ of={(c['id'],a['id']):a['status']for c in before['cases']for a in c['assertions']};nf={(c['id'],a['id']):a['status']for c in actual['cases']for a in c['assertions']}
+ assert set(of)==set(nf) and {k for k in of if of[k]!=nf[k]}==set(expected) and all(nf[k]==s for k,s in expected.items())
+ want=dict(before['assertion_status_counts'])
+ for k,s in expected.items():want[of[k]]-=1;want[s]+=1
+ assert actual['assertion_status_counts']==want and sum(want.values())==1034 and actual['selected_cases']==94 and lp.read_bytes()==candidate
+ proof.update(status='PASS_ACTUAL_UNMOCKED671_BUILDER_EXACT16_ADMISSION',actual_assertion_status_counts=actual['assertion_status_counts'],actual_case_status_counts=actual['case_status_counts'],actual_status_sha256=sha(actualraw),ledger_sha256=sha(candidate),only16_assertion_status_changes=True)
+ put(W/'actual-derived-status.json',actualraw);put(W/'actual-builder-stdout-summary.json',enc(stdout));ok=True
+except Exception:
+ proof.update(status='HELD_ACTUAL671_BUILD_UNVERIFIED_OLD656_LEDGER_STATUS_RESTORED',seconds=round(time.monotonic()-started,3))
+ if sp.exists():put(W/'rejected-status-observed-bytes.json.txt',sp.read_bytes())
+ lp.write_bytes(lb);sp.write_bytes(sb)
+put(W/'actual-build-proof.json',enc(proof))
+source_inventory={n:sha((R/n).read_bytes())for n in files}
+source_inventory.update({p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()})
+put(T/'worker_b42_Root_source_admitted_actual671_result_20261120.json',enc({'files_sha256':dict(sorted(source_inventory.items())),'files':len(source_inventory),'actual_build_proof_sha256':sha((W/'actual-build-proof.json').read_bytes()),'actual_result':proof,'accepted_after_complete_actual_cli':ok,'Posture':'D'}))
+print(json.dumps({k:v for k,v in proof.items()if k in('status','known_exit_code','seconds','actual_assertion_status_counts','actual_case_status_counts','actual_status_sha256','ledger_sha256','Posture')}),flush=True)
+raise SystemExit(0 if ok else 1)

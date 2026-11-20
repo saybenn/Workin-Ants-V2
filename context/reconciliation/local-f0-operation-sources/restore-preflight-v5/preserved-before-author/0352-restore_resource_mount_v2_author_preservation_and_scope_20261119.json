@@ -1,0 +1,666 @@
+{
+  "schema": "workinants.restore-resource-mount-v2-author-preservation-and-scope.v1",
+  "author": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T22:28:29.539392+00:00",
+  "before_manifest_sha256": "966c635421f80250a2a82d8b40ce4c7ef1aa25713e504ea0607db11f3c751801",
+  "top65_rehashed_unchanged": true,
+  "pinned884_Root_files_rehashed_unchanged": true,
+  "INSTALL_extra_two_unchanged": true,
+  "old_five_and_held_validation_unchanged": true,
+  "source_plan_sha256": "0338969cfaa30cffa08f39e4cd86c8ad0c1b56bad86e03a07a9c46410015efc3",
+  "Root_ACK_sha256": "d323304ef2b1d7c2e003f694cdba42aa8211309c6001d1055cd02efb8aa4d1a5",
+  "all_five_sources_sha256": {
+    "execute_local_f0_restore_20261119_resource_mount_v2.py": "b94ac751379d6b6ff204c5fe2324cc1593355f2ec65a316e62de7ee74a8d876d",
+    "local_f0_restore_operation_steps_resource_mount_v2.py": "1a0eb4881497b43eb8c05f7d296c722dbd8eda90c3b3844c51e2552022fd6c3e",
+    "prepare_local_f0_restore_plan_resource_mount_v2.py": "df1aa97ca6cd0026503dbf42cf1d8c9e3ae62290d07f7858360e7d36a201d2b2",
+    "check_local_f0_restore_operation_resource_mount_v2.py": "cb8d20a01c6086527a963333995f012dca830c1b9f0f4818811ea8d9cb961bbf",
+    "pin_local_f0_restore_plan_20261119_resource_mount_v2.py": "01eb4ddcf000bee96136a50e62fcc146aa5c8acba34b5051ccef98c3a96dfdff"
+  },
+  "normalization": {
+    "execute_local_f0_restore_20261119_safety_sql_v1.py": "execute_local_f0_restore_20261119_resource_mount_v2.py",
+    "local_f0_restore_operation_steps_safety_sql_v1.py": "local_f0_restore_operation_steps_resource_mount_v2.py",
+    "prepare_local_f0_restore_plan_safety_sql_v1.py": "prepare_local_f0_restore_plan_resource_mount_v2.py",
+    "check_local_f0_restore_operation_safety_sql_v1.py": "check_local_f0_restore_operation_resource_mount_v2.py",
+    "pin_local_f0_restore_plan_20261119_safety_sql_v1.py": "pin_local_f0_restore_plan_20261119_resource_mount_v2.py",
+    "restore-physical-safety-sql-v1": "restore-physical-resource-mount-v2",
+    "local-f0-restore-safety-sql-v1-source-validation.json": "local-f0-restore-resource-mount-v2-source-validation.json"
+  },
+  "actual_AST_delta": {
+    "execute_local_f0_restore_20261119_resource_mount_v2.py": {
+      "changed_definitions": [
+        "create_resources"
+      ],
+      "added_definitions": [],
+      "removed_definitions": [],
+      "exact_text_after_namespace": false
+    },
+    "local_f0_restore_operation_steps_resource_mount_v2.py": {
+      "changed_definitions": [
+        "inspect_restore"
+      ],
+      "added_definitions": [
+        "verify_running_restore_secret_tmpfs"
+      ],
+      "removed_definitions": [],
+      "exact_text_after_namespace": false
+    },
+    "prepare_local_f0_restore_plan_resource_mount_v2.py": {
+      "changed_definitions": [],
+      "added_definitions": [],
+      "removed_definitions": [],
+      "exact_text_after_namespace": true
+    },
+    "check_local_f0_restore_operation_resource_mount_v2.py": {
+      "changed_definitions": [
+        "RestoreOperationTests"
+      ],
+      "added_definitions": [],
+      "removed_definitions": [],
+      "exact_text_after_namespace": false
+    },
+    "pin_local_f0_restore_plan_20261119_resource_mount_v2.py": {
+      "changed_definitions": [],
+      "added_definitions": [],
+      "removed_definitions": [],
+      "exact_text_after_namespace": false
+    }
+  },
+  "Core_exact_two_hooks_after_removal_all_AST_matches": [
+    "Call(func=Name(id='inspect_restore', ctx=Load()), args=[Name(id='name', ctx=Load()), Constant(value='source')], keywords=[keyword(arg='running', value=Constant(value=False))])",
+    "Call(func=Name(id='inspect_restore', ctx=Load()), args=[Name(id='name', ctx=Load()), Constant(value='source')], keywords=[])"
+  ],
+  "checker_changed_only_default_resource_fixture": true,
+  "common_safety_SQL_roles_backup_PGDATA_AuthV5_stage_rotation_parity_cleanup_main_unchanged": true,
+  "new_kernel_script_matches_accepted_Owner_except_Restore_token": "Asserted by passing dedicated AST/safety scope check. No Owner resource/behavior semantics copied.",
+  "source_line_evidence": {
+    "execute_local_f0_restore_20261119_resource_mount_v2.py": {
+      "initialize": {
+        "start": 22,
+        "end": 54
+      },
+      "Stop": {
+        "start": 56,
+        "end": 57
+      },
+      "need": {
+        "start": 59,
+        "end": 60
+      },
+      "save": {
+        "start": 62,
+        "end": 71
+      },
+      "mark_evidence_incomplete": {
+        "start": 76,
+        "end": 86
+      },
+      "evidence_is_complete": {
+        "start": 88,
+        "end": 90
+      },
+      "confirmed_path_absent": {
+        "start": 92,
+        "end": 94
+      },
+      "best_effort_save": {
+        "start": 96,
+        "end": 98
+      },
+      "record_failure": {
+        "start": 100,
+        "end": 108
+      },
+      "best_effort_event": {
+        "start": 110,
+        "end": 112
+      },
+      "finish_report": {
+        "start": 114,
+        "end": 125
+      },
+      "event": {
+        "start": 128,
+        "end": 133
+      },
+      "command": {
+        "start": 135,
+        "end": 136
+      },
+      "docker": {
+        "start": 138,
+        "end": 138
+      },
+      "json_ok": {
+        "start": 140,
+        "end": 142
+      },
+      "inventory": {
+        "start": 144,
+        "end": 148
+      },
+      "owned": {
+        "start": 150,
+        "end": 150
+      },
+      "inspect_container": {
+        "start": 152,
+        "end": 157
+      },
+      "inspect_volume": {
+        "start": 159,
+        "end": 164
+      },
+      "safe_error": {
+        "start": 166,
+        "end": 175
+      },
+      "psql_args": {
+        "start": 177,
+        "end": 178
+      },
+      "sql": {
+        "start": 180,
+        "end": 197
+      },
+      "observe": {
+        "start": 199,
+        "end": 201
+      },
+      "secure_private_directory": {
+        "start": 203,
+        "end": 224
+      },
+      "preflight": {
+        "start": 226,
+        "end": 235
+      },
+      "ensure_image": {
+        "start": 237,
+        "end": 248
+      },
+      "create_resources": {
+        "start": 252,
+        "end": 285
+      },
+      "_required_safety_evidence_complete": {
+        "start": 291,
+        "end": 293
+      },
+      "_required_safety_save": {
+        "start": 294,
+        "end": 296
+      },
+      "_required_safety_event": {
+        "start": 297,
+        "end": 298
+      },
+      "_required_safety_failure": {
+        "start": 299,
+        "end": 303
+      },
+      "_required_safety_first_exception": {
+        "start": 304,
+        "end": 305
+      },
+      "_required_safety_barrier": {
+        "start": 315,
+        "end": 316
+      },
+      "_required_safety_text": {
+        "start": 319,
+        "end": 331
+      },
+      "_required_safety_decode": {
+        "start": 334,
+        "end": 356
+      },
+      "_required_safety_sql": {
+        "start": 359,
+        "end": 378
+      },
+      "_required_zero_backends": {
+        "start": 381,
+        "end": 388
+      },
+      "closed_backends": {
+        "start": 391,
+        "end": 392
+      },
+      "_RequiredSafetyBoundary": {
+        "start": 395,
+        "end": 408
+      },
+      "finalize": {
+        "start": 411,
+        "end": 434
+      },
+      "secret_scan": {
+        "start": 437,
+        "end": 444
+      },
+      "cleanup": {
+        "start": 446,
+        "end": 503
+      },
+      "launch": {
+        "start": 505,
+        "end": 520
+      }
+    },
+    "local_f0_restore_operation_steps_resource_mount_v2.py": {
+      "validate_archive": {
+        "start": 4,
+        "end": 12
+      },
+      "read_target_manifest": {
+        "start": 14,
+        "end": 17
+      },
+      "verify_common_packet": {
+        "start": 20,
+        "end": 58
+      },
+      "bootstrap_all": {
+        "start": 60,
+        "end": 80
+      },
+      "provision_migration_tools": {
+        "start": 82,
+        "end": 108
+      },
+      "migrate": {
+        "start": 110,
+        "end": 129
+      },
+      "migrate_success": {
+        "start": 131,
+        "end": 134
+      },
+      "canonical": {
+        "start": 177,
+        "end": 178
+      },
+      "digest": {
+        "start": 181,
+        "end": 182
+      },
+      "exact": {
+        "start": 185,
+        "end": 186
+      },
+      "unique_json": {
+        "start": 189,
+        "end": 196
+      },
+      "read_pinned": {
+        "start": 199,
+        "end": 206
+      },
+      "verify_tool_data": {
+        "start": 209,
+        "end": 219
+      },
+      "verify_catalog_packet": {
+        "start": 222,
+        "end": 262
+      },
+      "metadata_allowlist": {
+        "start": 265,
+        "end": 301
+      },
+      "generated_identifier": {
+        "start": 304,
+        "end": 323
+      },
+      "filter_metadata": {
+        "start": 326,
+        "end": 348
+      },
+      "metadata_vocabulary_diagnostics": {
+        "start": 356,
+        "end": 395
+      },
+      "row_shapes": {
+        "start": 398,
+        "end": 410
+      },
+      "write_safe": {
+        "start": 413,
+        "end": 418
+      },
+      "safe_rejection": {
+        "start": 421,
+        "end": 431
+      },
+      "run_catalog_query": {
+        "start": 438,
+        "end": 455
+      },
+      "successful_query": {
+        "start": 459,
+        "end": 461
+      },
+      "records": {
+        "start": 464,
+        "end": 468
+      },
+      "collect_native": {
+        "start": 471,
+        "end": 487
+      },
+      "observe_public_baseline": {
+        "start": 490,
+        "end": 499
+      },
+      "oracle_records": {
+        "start": 502,
+        "end": 536
+      },
+      "acl_compatibility_preflight": {
+        "start": 539,
+        "end": 549
+      },
+      "text_compatibility_preflight": {
+        "start": 552,
+        "end": 562
+      },
+      "catalog_experiment": {
+        "start": 565,
+        "end": 634
+      },
+      "load_reviewed_helper": {
+        "start": 660,
+        "end": 684
+      },
+      "source_text": {
+        "start": 687,
+        "end": 689
+      },
+      "verify_restore_packet": {
+        "start": 692,
+        "end": 725
+      },
+      "raw_sql": {
+        "start": 728,
+        "end": 733
+      },
+      "session": {
+        "start": 736,
+        "end": 740
+      },
+      "committed": {
+        "start": 743,
+        "end": 755
+      },
+      "private_timestamp": {
+        "start": 758,
+        "end": 762
+      },
+      "generation_number": {
+        "start": 765,
+        "end": 771
+      },
+      "issue": {
+        "start": 774,
+        "end": 800
+      },
+      "bound_operation": {
+        "start": 803,
+        "end": 831
+      },
+      "fixed_json": {
+        "start": 834,
+        "end": 836
+      },
+      "fixture_observers": {
+        "start": 839,
+        "end": 840
+      },
+      "typed_data": {
+        "start": 843,
+        "end": 847
+      },
+      "baselines": {
+        "start": 850,
+        "end": 868
+      },
+      "verify_running_restore_secret_tmpfs": {
+        "start": 899,
+        "end": 931
+      },
+      "inspect_restore": {
+        "start": 934,
+        "end": 1024
+      },
+      "private_input": {
+        "start": 1028,
+        "end": 1031
+      },
+      "write_hba": {
+        "start": 1034,
+        "end": 1037
+      },
+      "verify_hba": {
+        "start": 1040,
+        "end": 1043
+      },
+      "reload_hba": {
+        "start": 1046,
+        "end": 1054
+      },
+      "auth_denial_comparison": {
+        "start": 1057,
+        "end": 1098
+      },
+      "auth_control": {
+        "start": 1101,
+        "end": 1144
+      },
+      "source_authentication_preflight": {
+        "start": 1149,
+        "end": 1155
+      },
+      "source_fixtures": {
+        "start": 1158,
+        "end": 1177
+      },
+      "retention": {
+        "start": 1180,
+        "end": 1186
+      },
+      "grant_row_facts": {
+        "start": 1189,
+        "end": 1202
+      },
+      "retained_grants": {
+        "start": 1205,
+        "end": 1206
+      },
+      "backup_preflight": {
+        "start": 1209,
+        "end": 1211
+      },
+      "quiesce": {
+        "start": 1214,
+        "end": 1218
+      },
+      "guarded_tool": {
+        "start": 1221,
+        "end": 1226
+      },
+      "backup_archive": {
+        "start": 1229,
+        "end": 1247
+      },
+      "verify_archive_dacl": {
+        "start": 1250,
+        "end": 1264
+      },
+      "validate_backup_archive": {
+        "start": 1267,
+        "end": 1287
+      },
+      "create_extra_volume": {
+        "start": 1290,
+        "end": 1293
+      },
+      "create_extra_container": {
+        "start": 1296,
+        "end": 1304
+      },
+      "stage_restore": {
+        "start": 1307,
+        "end": 1329
+      },
+      "rotate_credentials": {
+        "start": 1332,
+        "end": 1340
+      },
+      "identity_recovery": {
+        "start": 1343,
+        "end": 1348
+      },
+      "after_probe": {
+        "start": 1351,
+        "end": 1364
+      },
+      "diagnostic_probes": {
+        "start": 1367,
+        "end": 1384
+      },
+      "restore_experiment": {
+        "start": 1387,
+        "end": 1394
+      },
+      "verify_external_input_preservation": {
+        "start": 1397,
+        "end": 1404
+      },
+      "main": {
+        "start": 1407,
+        "end": 1447
+      }
+    },
+    "prepare_local_f0_restore_plan_resource_mount_v2.py": {
+      "Refused": {
+        "start": 37,
+        "end": 37
+      },
+      "need": {
+        "start": 38,
+        "end": 39
+      },
+      "sha": {
+        "start": 40,
+        "end": 40
+      },
+      "data": {
+        "start": 41,
+        "end": 41
+      },
+      "source_blob": {
+        "start": 44,
+        "end": 49
+      },
+      "prepare": {
+        "start": 52,
+        "end": 128
+      },
+      "main": {
+        "start": 131,
+        "end": 138
+      }
+    },
+    "check_local_f0_restore_operation_resource_mount_v2.py": {
+      "namespace": {
+        "start": 28,
+        "end": 39
+      },
+      "archive_bytes": {
+        "start": 42,
+        "end": 51
+      },
+      "RestoreOperationTests": {
+        "start": 54,
+        "end": 463
+      },
+      "RuntimeClosureTests": {
+        "start": 465,
+        "end": 545
+      },
+      "FinallySafetyTests": {
+        "start": 551,
+        "end": 668
+      },
+      "AuthV5ProjectionTests": {
+        "start": 677,
+        "end": 809
+      }
+    },
+    "pin_local_f0_restore_plan_20261119_resource_mount_v2.py": {
+      "Held": {
+        "start": 35,
+        "end": 36
+      },
+      "need": {
+        "start": 37,
+        "end": 38
+      },
+      "sha": {
+        "start": 39,
+        "end": 39
+      },
+      "encoded": {
+        "start": 40,
+        "end": 40
+      },
+      "aggregate": {
+        "start": 41,
+        "end": 41
+      },
+      "unique_json": {
+        "start": 42,
+        "end": 47
+      },
+      "relative": {
+        "start": 48,
+        "end": 50
+      },
+      "source_path": {
+        "start": 51,
+        "end": 52
+      },
+      "external": {
+        "start": 53,
+        "end": 57
+      },
+      "file_sha": {
+        "start": 58,
+        "end": 62
+      },
+      "mapping": {
+        "start": 63,
+        "end": 66
+      },
+      "git_read": {
+        "start": 67,
+        "end": 70
+      },
+      "validate_filesystem": {
+        "start": 71,
+        "end": 137
+      },
+      "pin": {
+        "start": 138,
+        "end": 154
+      },
+      "main": {
+        "start": 155,
+        "end": 159
+      }
+    }
+  },
+  "source_metadata_old_literal_or_runtime_mutations": false,
+  "new_exclusive_author_files_only": true,
+  "status": "PASS"
+}

@@ -1,0 +1,72 @@
+"""Root nonauthor review/admission of fixed V2 metadata projection, then real complete CLI."""
+from pathlib import Path
+import ast,datetime,hashlib,json,re,subprocess,sys,time
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'worker-b42-evidence-adapter-confined-v2-draft-20261120';F=D/'future-root'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+db=(D/'author-review.json').read_bytes();assert sha(db)=='b03d40933323f8b2c47727bb7f8267ff52ddd222bffda7b69aa0308a4b4a1d95';d=json.loads(db)
+files=d['proposed_Root_files_sha256'];assert len(files)==111
+for n,h in files.items():assert sha((F/n).read_bytes())==h
+probe_path=T/'worker_v2_Root_independent_closed_graph_and16_probe_20261120.json';probe=probe_path.read_bytes();assert sha(probe)=='729a1d7476e002e95584779c25521b12e36ea86baf4fa376b91dc7329b8c38d8';proof=json.loads(probe)
+assert proof['decision']=='PASS_BOUNDED_NONAUTHOR_V2_SOURCE_AND_REAL_GRAPH_CHECKS' and proof['predicates']==33 and proof['real_candidate_rows_checked']==16 and proof['all_process_network_forbidden']is True and proof['original_junction_metadata_data_open_attempts']==0
+mp=F/'scripts/local_f0_worker_recovery_evidence_v2.py';module=mp.read_bytes();assert sha(module)==proof['module_sha256']=='b201bfa6a5b016d858ada96ebeb9f49cb85b5832037e5efb4c2d631cbcaec0a0'
+builder='scripts/prepare-local-f0-status.py';bb=(R/builder).read_bytes();assert sha(bb)=='715a5531158facc7bab071e3e21e08708601b42fc0a4d670d9d16612ba4c22d6'
+assert (F/builder).read_bytes()==bb.replace(b'from local_f0_worker_recovery_evidence import',b'from local_f0_worker_recovery_evidence_v2 import',1)
+for n in files:
+ if n.endswith('.py'):ast.parse((F/n).read_bytes())
+review={'schema':'workinants.worker-b42-confined-metadata-v2-Root-independent-source-review.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','reviewer':'/root','authorship_disclosure':'Root integrated V1 and operated the actual failed build; Track authored V1/V2 parser and tests. Root did not author V2 projection code. This review assesses only the new bounded V2 delta against separately independently approved V1 and accepted reader layers.','author_delivery_sha256':sha(db),'exact111_proposed_files_sha256':files,'findings':[],'independent_probe_sha256':sha(probe),'independent_checks':'33 predicates/44.641s: real original junction refusal, no original metadata data opens, actual654 capture/projection, exact proposed16 rows, final654 byte barrier, snapshot/missing/nested-tool mutants. Every process/network boundary forbidden.','static_review':{'change':'Only validate_bundle and two fixed projection/binding helpers change among existing functions; _read/capture/audit/batch/claim/delta/final-barrier ASTs exact. Builder only imports V2 explicitly.','projection':'Physical654 replaces exactly two ignored junction-backed tool JSON paths with fixed immutable tracked snapshots. The original654 logical map and other652 physical paths/hashes remain exact. No caller alias, fallback, path-confinement or reader relaxation. Physical exact-set/byte validation precedes pure original-name projection and source-semantic validation.','metadata':'Each copy hash additionally equals the actual nested immutable tool manifest and pinned closure. Retrospective tool metadata only; no current installation or executed Node proof.','scope':'Derived45489,17 ceilings/default16 changes/15 appended rows/one full-history PARTIAL upgrade/one unchanged PARTIAL corroboration and four PARTIAL ceilings stay unchanged. Every old unrelated656 row/execution must remain.','evidence_limits':'Unretained raw per-case42 rows and complete global producer reconstruction remain unobserved; exact immutable source-bound comparison receipts only. No blanket vector/wholecase/94/451/API/worker-loop/production qualification.','checks':'Author final21PASS280.568s plus earlier bounded3PASS7.778s under exact current hashes. V1 independent14 remains version-qualified; new Root33 repeated code/graph checks do not count as runtime cases. Original80425 error remains unretained; new pure PATH_ESCAPE/junction reproduction is distinct.'},'actual_Root_complete671_build':'PENDING','Posture':'D'}
+rp=T/'worker_b42_confined_v2_Root_independent_source_review_20261120.json';put(rp,enc(review));reviewraw=rp.read_bytes()
+for n,h in files.items():
+ target=R/n
+ if n!=builder:assert not target.exists()
+ target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((F/n).read_bytes());assert sha(target.read_bytes())==h
+vn='context/reconciliation/local-f0-worker-b42-evidence-adapter-confined-v2-source-validation.json';vb=(R/vn).read_bytes();v=json.loads(vb)
+assert v['independent_worker_confined_metadata_v2_review']=={'decision':'PENDING','reviewer':None,'path':None,'sha256':None} and v['Root_review']=={'decision':'PENDING'} and v['Root_admission']=='NOT_RUN'
+A=R/'context/reconciliation/local-f0-operation-sources/worker-b42-evidence-adapter-confined-v2'
+extra={'validation-before-Root-review.json':vb,'Root-independent-source-review.json':reviewraw,'Root-independent-probe.json':probe,'Root-independent-probe-helper.py.txt':(T/'probe_worker_v2_Root_independent_closed_graph_and16_20261120.py').read_bytes(),'frozen-author-delivery.json':db,'Root-source-admission-and-actual-build-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in extra.items():put(A/'reviews'/n,b)
+review_binding={'decision':'SOURCE_APPROVED','reviewer':'/root','path':(A/'reviews/Root-independent-source-review.json').relative_to(R).as_posix(),'sha256':sha(reviewraw)}
+v.update(status='SOURCE_APPROVED_PENDING_ROOT_ACTUAL671_BUILD',Root_admission='SOURCE_ONLY_ACTUAL_BUILD_PENDING',independent_worker_confined_metadata_v2_review=review_binding,Root_review=review_binding)
+(R/vn).write_bytes(enc(v))
+lp=R/'context/reconciliation/local-f0-assertion-evidence.json';sp=R/'context/reconciliation/local-f0-qualification-status.json';lb=lp.read_bytes();sb=sp.read_bytes();old=json.loads(lb);before=json.loads(sb)
+assert sha(lb)=='50ea0011abb0f30730a5c4f3ff7f3dd56a13b664378ec7254646835b042c4d61' and sha(sb)=='6e00f4388e29ad7043950050b6094855beaa47b0412ce19147e4b7f19a2808fa'
+candidate=(T/'worker-b42-Root-real671-build-20261120/proposed671-ledger.json').read_bytes();assert sha(candidate)=='8b7cd04a5681dc7d2b2996c20b896dc352af67e88f968f1ccc9250f9bdda0d64';new=json.loads(candidate)
+om={(r['case_id'],r['assertion_id']):r for r in old['assertions']};nm={(r['case_id'],r['assertion_id']):r for r in new['assertions']};assert len(om)==656 and len(nm)==671
+expected={k:r['status']for k,r in nm.items()if k not in om or r!=om[k]};assert len(expected)==16 and len(set(nm)-set(om))==15
+assert new['executions'][:-1]==old['executions']
+W=T/'worker-b42-v2-Root-real671-build-20261120';assert not W.exists();W.mkdir()
+for n,b in [('before656-ledger.json',lb),('before625-status.json',sb),('candidate671-ledger.json',candidate),('before-status-checker.py.txt',(R/'scripts/check-local-f0-status.py').read_bytes())]:put(W/n,b)
+lp.write_bytes(candidate);started=time.monotonic();ok=False
+outcome={'schema':'workinants.worker-b42-v2-Root-actual671-build.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'actual_command':[sys.executable,'-B','scripts/prepare-local-f0-status.py'],'no_factory_parser_or_source_mocking':True,'Root_independent_source_review_sha256':sha(reviewraw),'candidate671_sha256':sha(candidate),'Posture':'D'}
+try:
+ result=subprocess.run(outcome['actual_command'],cwd=R,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=1500,shell=False)
+ outcome.update(known_exit_code=result.returncode,seconds=round(time.monotonic()-started,3),stderr_present=bool(result.stderr),unrestricted_stderr_retained=False)
+ if result.returncode:
+  frames=[]
+  for match in re.finditer(r'^  File "([^"\r\n]+)", line ([1-9][0-9]{0,6}), in ([A-Za-z_][A-Za-z_0-9]{0,100}|<module>)$',result.stderr,re.M):
+   path=Path(match[1])
+   try:n=path.resolve().relative_to(R.resolve()).as_posix()
+   except(ValueError,OSError):continue
+   if n.startswith('scripts/')and path.suffix=='.py'and path.is_file():frames.append({'source':n,'sha256':sha(path.read_bytes()),'line':int(match[2]),'function':match[3]})
+  outcome['safe_offline_source_failure_frames']=frames
+ assert result.returncode==0
+ actualraw=sp.read_bytes();actual=json.loads(actualraw);stdout=json.loads(result.stdout)
+ for k in stdout:assert stdout[k]==actual[k]
+ of={(c['id'],a['id']):a['status']for c in before['cases']for a in c['assertions']};nf={(c['id'],a['id']):a['status']for c in actual['cases']for a in c['assertions']}
+ assert set(of)==set(nf)and {k for k in of if of[k]!=nf[k]}==set(expected)and all(nf[k]==s for k,s in expected.items())
+ want=dict(before['assertion_status_counts'])
+ for k,s in expected.items():want[of[k]]-=1;want[s]+=1
+ assert actual['assertion_status_counts']==want and sum(want.values())==1034 and actual['selected_cases']==94 and lp.read_bytes()==candidate
+ outcome.update(status='PASS_ACTUAL_UNMOCKED671_BUILDER_EXACT16_ADMISSION',actual_assertion_status_counts=actual['assertion_status_counts'],actual_case_status_counts=actual['case_status_counts'],actual_status_sha256=sha(actualraw),ledger_sha256=sha(candidate),only16_assertion_status_changes=True)
+ put(W/'actual-derived-status.json',actualraw);put(W/'actual-builder-stdout-summary.json',enc(stdout));ok=True
+except Exception:
+ outcome.update(status='HELD_V2_ACTUAL671_UNVERIFIED_OLD656_LEDGER_STATUS_RESTORED',seconds=round(time.monotonic()-started,3))
+ if sp.exists():put(W/'rejected-status-observed-bytes.json.txt',sp.read_bytes())
+ lp.write_bytes(lb);sp.write_bytes(sb)
+put(W/'actual-build-proof.json',enc(outcome))
+inventory={n:sha((R/n).read_bytes())for n in files};inventory.update({p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()})
+put(T/'worker_b42_confined_v2_Root_source_admitted_actual671_result_20261120.json',enc({'files_sha256':dict(sorted(inventory.items())),'files':len(inventory),'actual_build_proof_sha256':sha((W/'actual-build-proof.json').read_bytes()),'actual_result':outcome,'accepted_after_complete_actual_cli':ok,'Posture':'D'}))
+print(json.dumps({k:v for k,v in outcome.items()if k in('status','known_exit_code','seconds','actual_assertion_status_counts','actual_case_status_counts','actual_status_sha256','ledger_sha256','Posture','safe_offline_source_failure_frames')}),flush=True)
+raise SystemExit(0 if ok else 1)

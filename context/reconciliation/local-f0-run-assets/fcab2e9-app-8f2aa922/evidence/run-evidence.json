@@ -1,0 +1,2177 @@
+{
+  "run_id": "8f2aa922-6bb7-49a1-add6-4b15aa983b43",
+  "approved_commit": "fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f",
+  "approved_tree": "2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f",
+  "approved_packet_sha256": "a9b95a0bcf6bdffb3942f2ebd740929896c7df70f93ab1ed78a402aa2fd44824",
+  "started_at": "2026-11-20T11:29:29.937291+00:00",
+  "status": "STOPPED_ATTEMPT_PRESERVED",
+  "stage": "CONTROLLED_CLEANUP",
+  "evidence_complete": true,
+  "persistence_failure": false,
+  "output_complete": true,
+  "steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "PASS",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "PASS",
+    "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-TEXT-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-NATIVE": "PASS_OBSERVED_NOT_QUALIFIED",
+    "CATALOG-ORACLE": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "CATALOG-LEDGER": "PASS_SOURCE_BOUND_NATIVE_SUBSET",
+    "CATALOG-COMPARE": "PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY",
+    "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+    "CATALOG-CLEANUP": "PASS",
+    "APP-WRITE-TWO-REVIEW": "PASS_SOURCE_ADMISSION_ONLY",
+    "APP-WRITE-TWO-COMPONENT": "NOT_RUN"
+  },
+  "events": [
+    {
+      "stage": "SOURCE_VERIFICATION",
+      "status": "PASS",
+      "files": 240,
+      "packet_sha256": "a9b95a0bcf6bdffb3942f2ebd740929896c7df70f93ab1ed78a402aa2fd44824"
+    },
+    {
+      "stage": "LOCAL_PREFLIGHT",
+      "status": "PASS",
+      "all_created_names_absent": true,
+      "expected_resource_names": 2
+    },
+    {
+      "stage": "PINNED_IMAGE",
+      "status": "PASS",
+      "pulled": false,
+      "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "image_store_identity": "MANIFEST"
+    },
+    {
+      "stage": "APP_WRITE_TWO_RESOURCE_IDENTITY",
+      "status": "PASS",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "actual_image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "exact_mounts_and_private_namespaces": true
+    },
+    {
+      "stage": "APP_WRITE_TWO_RESOURCE_IDENTITY",
+      "status": "PASS",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "actual_image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "exact_mounts_and_private_namespaces": true
+    },
+    {
+      "stage": "RESOURCE_READY",
+      "status": "PASS",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "pgpass_owner_mode": "600:0:0"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "BOOTSTRAP_SETTINGS",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "e34a456e83b77f9da89457031948d474f3ce2e42395375ba65f90e141ca91945"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "034c8c93758257d9a9519909fca04ad4502780a4e576468bcfb15987fb4d414c"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "BOOTSTRAP",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "CREDENTIAL_PROVISION",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "EMPTY_APPLICATION_BASELINE",
+      "exit_code": 0,
+      "errors": [],
+      "client_exited": true,
+      "input_sha256": "0ad532c233732dd68c98710fcc791e6ebfecb4a1a8c4866a01caaf2290ba04fc"
+    },
+    {
+      "stage": "AUTHENTICATION_PREFLIGHT",
+      "status": "PASS",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "roles": 6
+    },
+    {
+      "stage": "LINUX_TOOL_COMPATIBILITY",
+      "status": "PASS",
+      "target": "wa-p0c-8f2aa922-appwrite2"
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "FINALIZATION_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "PRE_FINALIZATION_CONNECTION_OBSERVER",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "ORIGINAL_GRANTOR_FINALIZATION"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "ORIGINAL_GRANTOR_FINALIZATION",
+      "input_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "FINALIZATION_RESULT"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "FINALIZATION_OBSERVER",
+      "input_sha256": "a833d27aedd52cef2eaa2afce4f4206db6a2f19e2aa15a007a16a1ae87d2c53e",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "FINALIZATION",
+      "status": "PASS",
+      "target": "wa-p0c-8f2aa922-appwrite2"
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "NATIVE_CATALOG_REHEARSAL",
+      "status": "PASS_SUBSET_ONLY"
+    },
+    {
+      "stage": "APP_WRITE_TWO_RESOURCE_IDENTITY",
+      "status": "PASS",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "actual_image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "exact_mounts_and_private_namespaces": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "REQUIRED_SAFETY_SQL",
+      "status": "ATTEMPTED",
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "operation": "GLOBAL_BACKENDS"
+    },
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "role": "postgres",
+      "operation": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+      "input_sha256": "f9f401455fec70b7479ae6fe9f1d4b6b1f7294f1f572676361509133f7c65c2f",
+      "client_exited": true,
+      "exit_code": 0,
+      "response_fields_valid": true
+    },
+    {
+      "stage": "STOP",
+      "status": "NO_LATER_STEPS",
+      "failure": {
+        "stage": "FINITE_APP_WRITE_PROTOCOL",
+        "code": "EXACT_RECORD_COUNT"
+      }
+    },
+    {
+      "stage": "CONTROLLED_CLEANUP",
+      "status": "PASS",
+      "all_created_names_absent": true,
+      "expected_resource_names": 2,
+      "test_secret_files_absent": true
+    }
+  ],
+  "targets": {
+    "wa-p0c-8f2aa922-appwrite2": {
+      "container_id": "54cf84f67a23367b4a364aff76fb29e253cc23605c089e2fb9ce55367098d336",
+      "volume": "wa-p0c-8f2aa922-appwrite2-data",
+      "volume_created_at": "2026-11-20T11:30:06Z",
+      "labels": {
+        "workinants.rehearsal": "p0c-local-f0",
+        "workinants.rehearsal.run": "8f2aa922-6bb7-49a1-add6-4b15aa983b43"
+      },
+      "network_mode": "none",
+      "published_ports": false,
+      "mounts": [
+        {
+          "type": "volume",
+          "destination": "/var/lib/postgresql/data",
+          "rw": true,
+          "volume": "wa-p0c-8f2aa922-appwrite2-data"
+        },
+        {
+          "type": "bind",
+          "destination": "/run/bootstrap-password",
+          "rw": false
+        }
+      ],
+      "tmpfs": {
+        "/run/wa-secrets": "rw,nosuid,noexec,nodev,mode=0700"
+      },
+      "bootstrap": "PASS",
+      "application": "NOT_RUN",
+      "finalization": "PASS",
+      "server_settings": {
+        "auth": "scram-sha-256:postgres",
+        "safe": true,
+        "login": "postgres",
+        "superuser": true,
+        "diagnostics_safe": true
+      },
+      "pre_bootstrap_public_baseline": {
+        "public_acl": [
+          {
+            "role": "PUBLIC",
+            "grantor": "pg_database_owner",
+            "privilege": "USAGE",
+            "grant_option": false
+          },
+          {
+            "role": "pg_database_owner",
+            "grantor": "pg_database_owner",
+            "privilege": "CREATE",
+            "grant_option": false
+          },
+          {
+            "role": "pg_database_owner",
+            "grantor": "pg_database_owner",
+            "privilege": "USAGE",
+            "grant_option": false
+          }
+        ],
+        "public_owner": "pg_database_owner",
+        "event_triggers": 0,
+        "application_roles": 0
+      },
+      "baseline": {
+        "public_acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,wa_migrator=UC/pg_database_owner}",
+        "public_owner": "pg_database_owner",
+        "event_triggers": 0,
+        "public_relations": 0,
+        "application_relations": 0
+      },
+      "linux_tool_compatibility": {
+        "node": "v24.22.1",
+        "engine_commit": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
+        "preexec_hashes_verified": true
+      },
+      "connections_before_finalization": {
+        "migrator": 0,
+        "other_client_backends": 0
+      },
+      "finalization_observation": {
+        "auth": "scram-sha-256:postgres",
+        "grantor": "postgres",
+        "leaf_create": {
+          "wa_track_verifier": false,
+          "wa_customer_verifier": false,
+          "wa_private_helper_owner": false
+        },
+        "remaining_memberships": 0,
+        "active_install_connections": 0
+      },
+      "finalization_observation_status": "OBSERVED_NOT_QUALIFIED"
+    }
+  },
+  "unexpected": [
+    {
+      "stage": "FINITE_APP_WRITE_PROTOCOL",
+      "code": "EXACT_RECORD_COUNT"
+    }
+  ],
+  "cleanup": {
+    "wa-p0c-8f2aa922-appwrite2": {
+      "removed": true,
+      "verified_id": "54cf84f67a23367b4a364aff76fb29e253cc23605c089e2fb9ce55367098d336",
+      "name_and_both_labels_verified": true
+    },
+    "wa-p0c-8f2aa922-appwrite2-data": {
+      "removed": true,
+      "name_labels_creation_identity_verified": true
+    }
+  },
+  "limits": {
+    "posture": "D",
+    "451_register": "NOT_PROMOTED",
+    "94_selection": "NOT_PROMOTED",
+    "hosted_changes": false,
+    "migration_adoption": false,
+    "worker_loop": false,
+    "production_readiness": false
+  },
+  "app_write_two": {
+    "prepared_protocols": 14,
+    "selected_assertions": "NOT_PROMOTED_PENDING_EVIDENCE_REVIEW",
+    "whole_selected94_or451": "NOT_PROMOTED",
+    "owner_api_policy_qualified": false,
+    "component_report_reference": {
+      "artifact": "app-write-two-component/app-write-two-results.json",
+      "present": true,
+      "read_status": "RETAINED",
+      "closed_recheck_match": true,
+      "artifact_sha256": "bad5fd6cc1203823e8e581e40568ce27f4ebbfe5fae43a746fddb4a5dca8f0d2",
+      "bytes": 289199,
+      "integrity_recheck_match": true
+    },
+    "component_closure_attempted": true,
+    "component_closure_confirmed": true,
+    "component_stop_origin": {
+      "schema": "workinants.app-write-two-stopped-origin.v1",
+      "origin_kind": "DECLARED_CHILD_FAILURE",
+      "child_source_CID_fields_observed": true,
+      "external_outer_identity_context_bound": true,
+      "stage": "FINITE_APP_WRITE_PROTOCOL",
+      "case": "pending-work-next-attempt-update",
+      "code": "EXACT_RECORD_COUNT",
+      "subsequent_cases_stopped": true,
+      "evidence_complete": true,
+      "success_qualified": false,
+      "component_reference_sha256": "bad5fd6cc1203823e8e581e40568ce27f4ebbfe5fae43a746fddb4a5dca8f0d2",
+      "parent_global_closure_confirmed": true
+    }
+  },
+  "authorization": {
+    "scope": "STANDING_LOCAL_F0_APP_WRITE_TWO_GUARD_OBSERVATION_V2_REHEARSAL",
+    "packet_identity": "source_commit_tree_and_packet_sha256_fields",
+    "no_retry_on_unexpected": true
+  },
+  "source_verification": {
+    "commit": "fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f",
+    "tree": "2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f",
+    "packet_sha256": "a9b95a0bcf6bdffb3942f2ebd740929896c7df70f93ab1ed78a402aa2fd44824",
+    "files_sha256": {
+      "AGENTS.md": "ca0d1a667fb71a2490fc4662a605099ab0e5b23c149f016d92fed71ff3d4c4b1",
+      "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md": "1264589c05d92a40746ebf71de3b04368ce511755f538dc58e7bc3e80ede0853",
+      "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md": "9c9c86fc035b151c31060269a69342d80f729cebdcdd090747b2681de9ca7f3b",
+      "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md": "2b2281b86b3521023c25bee656dffbefd64a5cda34e1a45c9289f9fd175b8e29",
+      "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md": "9af7a7c3142fba550c13727f0143f9612b180d4ab6fd96975846d562d4ec17d5",
+      "context/context-map.md": "91ae472067d5336f0b0bf6d73c4a9e86b235df85aa2634adec74e93bf6f0ad6d",
+      "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+      "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+      "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+      "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+      "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+      "context/reconciliation/local-f0-app-write-two-guard-observation-v2-owned-source-validation.json": "181688e6c765104752ba520cb07ef18265a77d30ef13ce14967b6b95fe8f363b",
+      "context/reconciliation/local-f0-app-write-two-guard-observation-v2-source-validation.json": "6aec3691094fd370562c275736d2eec94d685f3e5cbdd6178640b08c8852780f",
+      "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+      "context/reconciliation/local-f0-catalog-eb2aae6-2e4f5d40-execution.json": "76923eea9f3a68cb6157a0ed23432662492d79c068a7b58be507309edbe3e452",
+      "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+      "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+      "context/reconciliation/local-f0-native-catalog-acl-correction.json": "017c9ee8c46de01c8a70ffbd68c0c80c27a1508cf4f1887fffaafcdba8d54f85",
+      "context/reconciliation/local-f0-native-catalog-metadata-diagnostics.json": "5acadf4bbcc01b6133ebc0c81cb72e806a2c3d6f3840fd8f752353bde9c1735d",
+      "context/reconciliation/local-f0-native-catalog-text-correction.json": "83766af0fc699b88a56081ccebd59eff59b6c850678506f6ffe67c3d04b38565",
+      "context/reconciliation/local-f0-native-catalog-validation.json": "cbc26b6d1935ced05a03b3d186658864cb687de6b49af888c92c551976279d75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-control-appwrite2-01-v2/independent-code-review.json": "7a74b9d8c499d31e7dd2c435253af8766e7231a5088b66c244083260a0d0926a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/child01/checks.json": "c82b83a791081640b256fa6faaef686ac250f3cbbf28ae9bc360b7746bd743c1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/child01/unittest.txt": "309e05da7d2131f5703f855417644987ef2b362eb254d74caf1f3f244b5b0b40",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childdelta02/checks.json": "65b62b7d89b87ea49c64163f1b6dd14c81b28b3f59b7148ad367cb953371e1f8",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childdelta02/unittest.txt": "b25a0b651bb193cec7bfbd926d2fa41e0357d402aca1e96b4871422748bf8422",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childfinal03/checks.json": "2a35916a0a5c056a8190d9678b09df30285c91dcc4a6f6b5c3f14992bc471bfa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childfinal03/unittest.txt": "ec53a1177d8902aed9c9ca25e08ec9213259a8b0580ddb7eaf2e880639351302",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedaffected03/checks.json": "e36b5afecaade35db6f52fcf0504fe8b16f1267a3d8b5a34b57375256e0a7ff3",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedaffected03/unittest.txt": "c59a627aedb980170d55cdf57403cc06ba8e7407503dc700d749de19e445066f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedfull02/checks.json": "066cf0cc2d4780258f06afdac747e065ef2fd9c54928ef0c629383d5f16f8fe1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedfull02/unittest.txt": "684aca68f267896de89a16c654a62212778b2bda76f7164a68b3e8690dac2afa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedsource01/checks.json": "5392a3db01e022307953f34ebd262c2f9c001c482840137c2d52e52996d74636",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedsource01/unittest.txt": "f8c6a786c191ccfaa33555c859e72a2e68eceb599c9e86935db8fa9243e9bf9a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/source01/checks.json": "79bdab59d30a0f5304bfcce5a9cd09b42fc6b9a070d1b64322b7093fd70760bc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/source01/unittest.txt": "e8e31a5dc55c6545c3a60e3c34a5ed5466fc5765123f50e251e1f82733515b4e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/sourcefinal04/checks.json": "9343a0aae8d1ccab4a7800bb6fd8041c04e96a565c1e2453e431545f3c1581f2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/sourcefinal04/unittest.txt": "c6a8c49c8a60b6df55441f362feb645cca4cb5cfae236e1362c3af0f327e1f70",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-audit-before-parser-input-fix/audit_app571_guard_observation_v2_source_derivation.py.txt": "538e98459000a9765336d09f98b05410caee27bfda00853b0f5b3f38975a57b0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-historical-outcome-compatibility/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "2b68109d94b29dbe78da2ab77da044f68753a9dedbcc7e951389286c70cdf228",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "4244e45de97f3a8780cf63e64bc5f9af1704ad939348600a16efbc1f51b349b1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/checks.json": "066cf0cc2d4780258f06afdac747e065ef2fd9c54928ef0c629383d5f16f8fe1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/unittest.txt": "684aca68f267896de89a16c654a62212778b2bda76f7164a68b3e8690dac2afa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "7b80b0f7a7daaa24a41f464390fce036af075c7bace52e67ac3cba46915b5c93",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/checks.json": "5392a3db01e022307953f34ebd262c2f9c001c482840137c2d52e52996d74636",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/unittest.txt": "f8c6a786c191ccfaa33555c859e72a2e68eceb599c9e86935db8fa9243e9bf9a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/000-app_write_two_guard_observation_v2_protocol.py.txt": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/001-check-app-write-two-guard-observation-v2-coordinator.py.txt": "7caad214017112963f0f1bfb423188ba12c8e9d9993136de5aaa5a31c492233f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/002-check-app-write-two-guard-observation-v2.py.txt": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/003-prepare-app-write-two-guard-observation-v2.py.txt": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/004-run-app-write-two-guard-observation-v2.py.txt": "499c26bc77a6cbe4f2dc15925bb5311a08bbbbba641471c2edaf6fec4a834bc5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/005-check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/006-execute_local_f0_app_write_two_guard_observation_v2_20261120.py.txt": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/007-local_f0_app_write_two_guard_observation_v2_operation_steps.py.txt": "8f8394033fba258bb345a46413d3087158ecd6637327376b88bf986c947f7c65",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/008-pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py.txt": "8ecd8c4c130dbf42dea46a963d690a930cad590d61d4db56957ac2d1acf01218",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/009-prepare_local_f0_app_write_two_guard_observation_v2_plan.py.txt": "24d53bf2175540d5f32a0b570e9b142c8acb9951ac7ea1df9e47b6af3f5891ba",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/010-complete-state-observe.sql": "a9250848d105577e4eeda0c68cddd158196186ffa5a1d6c2dfbf5f9f82e7e0ac",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/011-customer-existing-complete-revision-read.sql": "4da07134886ae7acfe6f8a71bae94a0bee849f1a632fe67f1248a4a3472793a6",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/012-customer-existing-missing-revision-read.sql": "c55812c1c4d0fed7aa8aa27c2f06681badf766661683ea933fec874e5866958e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/013-effect-coherence-observe.sql": "4efbc1743ab99e5fbf5fe7373a3e29a0838de3967fa31ebc7c254031a466a555",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/014-effect-missing-result-field.sql": "1e43123e5552e13cf2fbb5d0f3cbeba5f544db6758dab8cf02876bb05253d859",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/015-effect-stale-security.sql": "8d610ae4339b20d2e16c3f36e1543ec279abd8a61a1467a2c48361a01a62b5cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/016-effect-wrong-principal.sql": "626e3766477ad98df8465e75a4686b6d34424b1a22a1bd1c474182f6c4467d31",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/017-effect-wrong-purpose.sql": "812797e090324443dc798fdda1baea907d1b6364d668a45e1c8b8aa8e68af4db",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/018-effect-wrong-root.sql": "b60719b8426a1cddfab5f1816d1c7723cc5acaf8e1b0feb276034f2cdb1819a5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/019-exact-fixture-restore.sql": "d6ff439ae6b06d905410c3fc57858c9073a1ce4905258aafae5eda137f124156",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/020-fixtures.json": "62661a0cd45c4dc8d12cc5fb5d2111206abbcb86a1392d6579c309120acff7e7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/021-genuine-sh004-effect-insert.sql": "f056d0efdf8fbe70302c291b7d1d644fa069fb99fd926b7ec06eb5f2bacd8273",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/022-independent-user-fixtures.sql": "ce281631c3dcee36c6e1b8e24182cf8041bb86aae5b2caf8f8902d278bf0663a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/023-pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/024-README.md": "30f4a8b707146444068ab1064c07faeb30a2bd4ec70b7a7b4b4e567138e4ba25",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/025-schedule.sql": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/026-source-customer-observe.sql": "1e44be39b65dfa72d21c0ea8fec0c304332e66a5b888cde90683aa0808cbe89f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/027-user-coherence-observe.sql": "14000b439a0175ac3b458eb5d87d778013624b54d0f3b77d32202ca71ad87305",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/028-work-coherence-observe.sql": "3b97348358a0f6ecd3c60f4bf1c9a1f6ed7e68680e32a45a21adf15848324661",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/029-work-missing-revision.sql": "1c2abb32b1344c52dea7d0335128bfbf7cff9b5d2e668b65f4123e91595bbca7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/030-work-missing-update-field.sql": "649eb9ec9b06ef7596e2d7246e6f0b04050833ebe121d4f4584083409ff8a5f7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/031-work-stale-security.sql": "02129dbbfb77160226f10fe5be3133e34e49f174776caee0f20df53d96e64cec",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/032-work-wrong-purpose.sql": "545ae9c09a0b989b42b2e17698a8de22c563b43b114fa0155eecbd6cded9755d",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/033-work-wrong-root.sql": "11180a77cfb7f99e4e200e04b3e03bea4991711b03d23f14d386f3b6adbba9d0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/manifest.json": "3526b031eacd31691e844eca50d5893736b6838011a3dc164c158dc8227b7f52",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-test-binding-fix-20261120/check-app-write-two-guard-observation-v2-coordinator.py.txt": "ae8c20c355ec9c645a54554c4c4f39fa5b3fb9e0f107d1360c8f134050e44946",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-test-binding-fix-20261120/failed-check.json": "c9cea9bf73f605858b31def0cc2c9b3d7a5b2984e46cfdae0cdec501379663e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-review.json": "469d7bbad5afc05dc6b96cd47782e118b042b65ace0e0a91d35ac27fe5ac2f69",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/execute_local_f0_app_write_two_guard_observation_v2_20261120.py.txt": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/check_local_f0_app_write_two_owned_resource_v1_operation.py.txt": "31fd7030921eb8ea43b59839968a88a0f76282152dacdbaacf73ba9df513c549",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/execute_local_f0_app_write_two_owned_resource_v1_20261119.py.txt": "4b675aafbe270a4117b2406450369863c34c77c4850ba8b88d2fe47109c27f13",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/local_f0_app_write_two_owned_resource_v1_operation_steps.py.txt": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py.txt": "070731825d46b584d4ba1ef8652669538599922afdc2c5ee19cd9a1a66c7ad8e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/prepare_local_f0_app_write_two_owned_resource_v1_plan.py.txt": "c0582abf5f19a9f0f59a078283f524682699970fd6d4c4175a5a7b123e6e065c",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/history/held-v1-reader-source.py.txt": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/local_f0_app_write_two_guard_observation_v2_operation_steps.py.txt": "0f4a06fb9b414440e8a10b73f490896d45484042d470a67d1c0f5bf61be80eb0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py.txt": "f81b58eae6c40c5e475efa5c3d170864038e8ce152991c7d7421d51f458fbee2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/prepare_local_f0_app_write_two_guard_observation_v2_plan.py.txt": "8d15259367dacbb4906757595536b074e2c225fc84e22fdb2470b598ff5aee83",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/preservation/app571-before-guard-observation-v2-20261120.json": "60c0afd336444a9bef8f488b037656f0c0ec7a4378422cb2dae77f9ad13cd3b7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/preservation/app571-install370-preservation-20261120.json": "ae8e66f965d09071ef49626f55312800512ab8ff8d03a561f12cc3e7644e598e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/Root-source-closure-helper.py.txt": "e22d531c07a7055ea8acb418a2b8679ebd9c48487a1fdbbbe9289ecfc11ff002",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/Root-source-review.json": "c0d2d2c406b6254e4ee96dc658cd32e3264238c0a19882af22fe9ac5239832a7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-delivery.json": "966dfdee10960166a0cebccf06889709eb0b8308a6d51fa6f9d4f962a02da1ff",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-inventory.json": "b80611d549b888cf0dd838d21e4c9d462506d4621c2442def4c7d96fc44e01cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-report.json": "469d7bbad5afc05dc6b96cd47782e118b042b65ace0e0a91d35ac27fe5ac2f69",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/child-validation-before-Root.json": "6a413abab0117b285b0ea77eda8052e7675d9ee9dd1fab1cee24ca31e7819265",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/independent-Catalog-source-review.json": "c0beaa07639d2801202137afb7c51e03c064319d3dda0f2ba621fa37c2ccc3a0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/owned-validation-before-Root.json": "9c936e881b884193ba170f68a99b37e1cf4095ef8500393298ce7e0ab6dd3b31",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/README.md": "2b45306d3ae2bce70a01d3a8c5362c6a78cdeca6fc9b1e34496ce52c0c12f3f3",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-check-history/check-app-write-two-guard-observation-v2-coordinator.py.txt": "ae8c20c355ec9c645a54554c4c4f39fa5b3fb9e0f107d1360c8f134050e44946",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-check-history/failed-check.json": "c9cea9bf73f605858b31def0cc2c9b3d7a5b2984e46cfdae0cdec501379663e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-checks/app571_v2_AST_delta_20261120.json": "2798a14cf65e213e3f9a7ba35dcbb300a4cab806b21fef05aa48039e9108b94e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-checks/app571_v2_source_derivation_20261120.json": "b6b70447f271fdd7fc859f8ab327d1edc074ffb25f0c8921fd9ea864102749ef",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/app_write_two_control_protocol.py.txt": "525a84cc6e4acc3a732bdf1c351b2b85e4056857afcef939ab69e9c0b8ff55be",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/check-app-write-two-control-coordinator.py.txt": "66e5f78cb22bedfeb6eb6c95b5c502291b0c732080d93e91256aee78e09d57eb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/check-app-write-two-control-rehearsal.py.txt": "3ac4b9b48c3c3e8ebaf25e7b9e837380cdef22a84a0bf6e72449929b5a3ae3ab",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/prepare-app-write-two-control-rehearsal.py.txt": "ce6b5861a22e1e4463ba1a08755336d15a4b6b73bba7ff7c0702cdd919613a62",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/run-app-write-two-control-rehearsal.py.txt": "c947fe02f067e6cea4c97635f0dc9f96ab1db27bfbc9fe07ea4eeb5ad0e1ceb6",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical571/historical571-child.json": "5045356f72d6425031f4ae7e9855c12dffa5cff2d1098028ff4b971fffbd7bd5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical571/historical571-normalized.json": "e1ced77a361cfaccf27d39fac8122d1be3b8e485cc9ff1eb7a809ed9c3f6f3cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_fourteen_oracle_source_audit_20261120.json": "0347e3a12ed8495835696f69042482acfc6a6d43e6ffc46aa32a1a4af163e10d",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_guard_observation_v2_Root_independent_plan_ACK_20261120.json": "25708eb58b4dba54760d6752dfc9daa4440b2ef467a367bee78d8edebb8ff539",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_guard_observation_v2_source_plan_20261120.json": "971c1394021a1973452353bb4c83eeba815ed1563d4ac6eb1ffad898935fc9e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/qualified-history/child28/check-app-write-two-guard-observation-v2-coordinator.py.txt": "8a960ddf9dfa1535648abacfc34924c8f01ddddc81b46995ea715bed9672b1b1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/app_write_two_guard_observation_v2_protocol.py.txt": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/check-app-write-two-guard-observation-v2-coordinator.py.txt": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/check-app-write-two-guard-observation-v2.py.txt": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/prepare-app-write-two-guard-observation-v2.py.txt": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/run-app-write-two-guard-observation-v2.py.txt": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-owned-resource-v1/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/source-prefix-analysis.json": "b3931b71fe3d0560d6864ce20aa64cc88086563c4399a34e4b442ed108c4fc4d",
+      "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+      "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+      "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+      "context/reconciliation/platform-architecture-rulings.md": "a15e71747452980e74944b2b01e59d89b4d6bff95c3ac335b4acfdb3a8868f7b",
+      "context/shared/contracts/SH-004.md": "114d4269db29edf0946d01fa2f9ac21769b22244aca940fe8270445ddd33d1bd",
+      "context/shared/shared-operations.md": "6e4607e9fdaf6c25c8e5f87857b84d778f866a97c4dcd778e03b6e07b6fe8c67",
+      "contracts/database-review/foundation-payloads.v1.schema.json": "a9e7eb1e44fd0cce0bff97b906d0c3cb98c49f63f2f07b95560e0d7013105cfe",
+      "contracts/database-review/owner-mutation-evidence.v1.schema.json": "5b95ff84e970a9587b4c04f37f2730878164c8aa77e2311410556f7b8d3c99a2",
+      "contracts/shared/SH-004.v1.schema.json": "e7cd3008e84dce839f189ff882feb9bb68b42784e0f403981e652d239328667e",
+      "contracts/shared/types.v1.schema.json": "606d2f772bedf96ae59e82995831e741435dc573fdca477c8e735b5a63c30cf2",
+      "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+      "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+      "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+      "prisma/migrations/20260602021702_phase_2_database_truth_layer/migration.sql": "5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055",
+      "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+      "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+      "review-output/app-write-two-guard-observation-v2/README.md": "30f4a8b707146444068ab1064c07faeb30a2bd4ec70b7a7b4b4e567138e4ba25",
+      "review-output/app-write-two-guard-observation-v2/complete-state-observe.sql": "a9250848d105577e4eeda0c68cddd158196186ffa5a1d6c2dfbf5f9f82e7e0ac",
+      "review-output/app-write-two-guard-observation-v2/customer-existing-complete-revision-read.sql": "4da07134886ae7acfe6f8a71bae94a0bee849f1a632fe67f1248a4a3472793a6",
+      "review-output/app-write-two-guard-observation-v2/customer-existing-missing-revision-read.sql": "c55812c1c4d0fed7aa8aa27c2f06681badf766661683ea933fec874e5866958e",
+      "review-output/app-write-two-guard-observation-v2/effect-coherence-observe.sql": "4efbc1743ab99e5fbf5fe7373a3e29a0838de3967fa31ebc7c254031a466a555",
+      "review-output/app-write-two-guard-observation-v2/effect-missing-result-field.sql": "1e43123e5552e13cf2fbb5d0f3cbeba5f544db6758dab8cf02876bb05253d859",
+      "review-output/app-write-two-guard-observation-v2/effect-stale-security.sql": "8d610ae4339b20d2e16c3f36e1543ec279abd8a61a1467a2c48361a01a62b5cc",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-principal.sql": "626e3766477ad98df8465e75a4686b6d34424b1a22a1bd1c474182f6c4467d31",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-purpose.sql": "812797e090324443dc798fdda1baea907d1b6364d668a45e1c8b8aa8e68af4db",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-root.sql": "b60719b8426a1cddfab5f1816d1c7723cc5acaf8e1b0feb276034f2cdb1819a5",
+      "review-output/app-write-two-guard-observation-v2/exact-fixture-restore.sql": "d6ff439ae6b06d905410c3fc57858c9073a1ce4905258aafae5eda137f124156",
+      "review-output/app-write-two-guard-observation-v2/fixtures.json": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962",
+      "review-output/app-write-two-guard-observation-v2/genuine-sh004-effect-insert.sql": "f056d0efdf8fbe70302c291b7d1d644fa069fb99fd926b7ec06eb5f2bacd8273",
+      "review-output/app-write-two-guard-observation-v2/independent-user-fixtures.sql": "ce281631c3dcee36c6e1b8e24182cf8041bb86aae5b2caf8f8902d278bf0663a",
+      "review-output/app-write-two-guard-observation-v2/pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+      "review-output/app-write-two-guard-observation-v2/schedule.sql": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700",
+      "review-output/app-write-two-guard-observation-v2/source-customer-observe.sql": "1e44be39b65dfa72d21c0ea8fec0c304332e66a5b888cde90683aa0808cbe89f",
+      "review-output/app-write-two-guard-observation-v2/user-coherence-observe.sql": "14000b439a0175ac3b458eb5d87d778013624b54d0f3b77d32202ca71ad87305",
+      "review-output/app-write-two-guard-observation-v2/work-coherence-observe.sql": "3b97348358a0f6ecd3c60f4bf1c9a1f6ed7e68680e32a45a21adf15848324661",
+      "review-output/app-write-two-guard-observation-v2/work-missing-revision.sql": "1c2abb32b1344c52dea7d0335128bfbf7cff9b5d2e668b65f4123e91595bbca7",
+      "review-output/app-write-two-guard-observation-v2/work-missing-update-field.sql": "649eb9ec9b06ef7596e2d7246e6f0b04050833ebe121d4f4584083409ff8a5f7",
+      "review-output/app-write-two-guard-observation-v2/work-stale-security.sql": "02129dbbfb77160226f10fe5be3133e34e49f174776caee0f20df53d96e64cec",
+      "review-output/app-write-two-guard-observation-v2/work-wrong-purpose.sql": "545ae9c09a0b989b42b2e17698a8de22c563b43b114fa0155eecbd6cded9755d",
+      "review-output/app-write-two-guard-observation-v2/work-wrong-root.sql": "11180a77cfb7f99e4e200e04b3e03bea4991711b03d23f14d386f3b6adbba9d0",
+      "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+      "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+      "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+      "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+      "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+      "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+      "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+      "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+      "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+      "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+      "review-output/native-catalog/README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+      "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+      "review-output/native-catalog/expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+      "review-output/native-catalog/expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "review-output/native-catalog/public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+      "review-output/native-catalog/source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00",
+      "scripts/app_write_two_guard_observation_v2_protocol.py": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+      "scripts/check-app-write-two-guard-observation-v2-coordinator.py": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+      "scripts/check-app-write-two-guard-observation-v2.py": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+      "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+      "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+      "scripts/check-native-catalog-review.py": "05d39953bd26c61ef7d414a53bb5c0bc65cb2e59ec8513e17230ad5f7e4ef859",
+      "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+      "scripts/contract_schema.py": "27b91594ac3dc9e1345b5bde912b4a849f0a324e90819df56150f7e3d326bc8c",
+      "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+      "scripts/prepare-app-write-two-guard-observation-v2.py": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "scripts/prepare-customer-control-rehearsal.py": "6d67c52ab7c3cc95082c5c82cf007910fcb75a7721d832d3236fe213e3bba174",
+      "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+      "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+      "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+      "scripts/prepare-native-catalog-review.py": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+      "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+      "scripts/scoped_read_companion_protocol.py": "514327052c085a87348bfafc895baa321e631b32746090ca6ebe18652f10488f",
+      "scripts/sql-review/catalog-acl-preflight.sql": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+      "scripts/sql-review/catalog-text-preflight.sql": "f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823",
+      "scripts/sql-review/catalog_expression_oracle.py": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+      "scripts/sql-review/catalog_manifest.py": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+      "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+      "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+      "scripts/sql-review/compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+      "scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json": "996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+      "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+      "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+      "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604",
+      "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+      "scripts/sql-review/pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342",
+      "scripts/sql-review/prisma-ledger-proof.md": "05ed0aff941305f5e2800b49633f029a8a68ca05ec2b80171060632917577992",
+      "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+      "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+      "scripts/sql-review/run-app-write-two-guard-observation-v2.py": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+      "scripts/sql-review/run-context-control-rehearsal.py": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+      "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+      "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+      "scripts/sql-review/run-scoped-read-companion-rehearsal.py": "4160760bb319e4389182ed5cfcb6c0fae028480bd3d6d418be0130e8156a0f15",
+      "scripts/sql-review/test_catalog_collector_acl.py": "d9ac90cb8c335bd70b04056e422692c55bf73569ef109d3f8fb2bd73e9e1b57b",
+      "scripts/sql-review/test_catalog_collector_text.py": "fe7a29132b7d69b69213f61ccfda3e14a7339735c202f3cae1334c92dc6e24a7",
+      "scripts/sql-review/test_catalog_expression_oracle.py": "a758a17b8cd92922e7a599dc06679e6309dc107028c151387e533dcf8a5f5c85",
+      "scripts/sql-review/test_catalog_manifest.py": "633e4f8c8f3b93d7e44d7c8abff7aa5ca1f3caa063cc354d592d1913d4ba9750",
+      "scripts/sql-review/test_compare_native_catalog.py": "38d0e26ac030a1024c739c8ea79e0c653b3f0bf9aee54e9815bf314b8887ce37",
+      "scripts/sql-review/test_local_image_identity.py": "0edae319a544aaaa8ed112e2ec477fe7ac428b58a7970ca8cd0e33ff006abe93",
+      "scripts/sql-review/test_pg17_catalog_rules.py": "c6879cd715df8bb45b26bbeec90352189e339d87be2f37c869cf471e42cfbb4a",
+      "scripts/sql-review/test_prisma_ledger_proof.py": "62685fbff83d42cad600de2d1f387647737a42bd5cffc50c2240eb1c66006095",
+      "tests/contracts/shared/consumer-expectations.json": "cb5ba005ae8bfa161ec53c962e4be3cdfac03d32fad9657ef7c5830184a6519f"
+    },
+    "file_count": 240
+  },
+  "run_manifest": {
+    "purpose": "LOCAL_F0_APP_WRITE_TWO_GUARD_OBSERVATION_V2_REHEARSAL",
+    "authority": "context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md",
+    "run_id": "8f2aa922-6bb7-49a1-add6-4b15aa983b43",
+    "source_commit": "fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f",
+    "source_tree": "2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f",
+    "packet_files_sha256": {
+      "AGENTS.md": "ca0d1a667fb71a2490fc4662a605099ab0e5b23c149f016d92fed71ff3d4c4b1",
+      "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md": "1264589c05d92a40746ebf71de3b04368ce511755f538dc58e7bc3e80ede0853",
+      "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md": "9c9c86fc035b151c31060269a69342d80f729cebdcdd090747b2681de9ca7f3b",
+      "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md": "2b2281b86b3521023c25bee656dffbefd64a5cda34e1a45c9289f9fd175b8e29",
+      "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md": "9af7a7c3142fba550c13727f0143f9612b180d4ab6fd96975846d562d4ec17d5",
+      "context/context-map.md": "91ae472067d5336f0b0bf6d73c4a9e86b235df85aa2634adec74e93bf6f0ad6d",
+      "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+      "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+      "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+      "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+      "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+      "context/reconciliation/local-f0-app-write-two-guard-observation-v2-owned-source-validation.json": "181688e6c765104752ba520cb07ef18265a77d30ef13ce14967b6b95fe8f363b",
+      "context/reconciliation/local-f0-app-write-two-guard-observation-v2-source-validation.json": "6aec3691094fd370562c275736d2eec94d685f3e5cbdd6178640b08c8852780f",
+      "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+      "context/reconciliation/local-f0-catalog-eb2aae6-2e4f5d40-execution.json": "76923eea9f3a68cb6157a0ed23432662492d79c068a7b58be507309edbe3e452",
+      "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+      "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+      "context/reconciliation/local-f0-native-catalog-acl-correction.json": "017c9ee8c46de01c8a70ffbd68c0c80c27a1508cf4f1887fffaafcdba8d54f85",
+      "context/reconciliation/local-f0-native-catalog-metadata-diagnostics.json": "5acadf4bbcc01b6133ebc0c81cb72e806a2c3d6f3840fd8f752353bde9c1735d",
+      "context/reconciliation/local-f0-native-catalog-text-correction.json": "83766af0fc699b88a56081ccebd59eff59b6c850678506f6ffe67c3d04b38565",
+      "context/reconciliation/local-f0-native-catalog-validation.json": "cbc26b6d1935ced05a03b3d186658864cb687de6b49af888c92c551976279d75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-control-appwrite2-01-v2/independent-code-review.json": "7a74b9d8c499d31e7dd2c435253af8766e7231a5088b66c244083260a0d0926a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/child01/checks.json": "c82b83a791081640b256fa6faaef686ac250f3cbbf28ae9bc360b7746bd743c1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/child01/unittest.txt": "309e05da7d2131f5703f855417644987ef2b362eb254d74caf1f3f244b5b0b40",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childdelta02/checks.json": "65b62b7d89b87ea49c64163f1b6dd14c81b28b3f59b7148ad367cb953371e1f8",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childdelta02/unittest.txt": "b25a0b651bb193cec7bfbd926d2fa41e0357d402aca1e96b4871422748bf8422",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childfinal03/checks.json": "2a35916a0a5c056a8190d9678b09df30285c91dcc4a6f6b5c3f14992bc471bfa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childfinal03/unittest.txt": "ec53a1177d8902aed9c9ca25e08ec9213259a8b0580ddb7eaf2e880639351302",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedaffected03/checks.json": "e36b5afecaade35db6f52fcf0504fe8b16f1267a3d8b5a34b57375256e0a7ff3",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedaffected03/unittest.txt": "c59a627aedb980170d55cdf57403cc06ba8e7407503dc700d749de19e445066f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedfull02/checks.json": "066cf0cc2d4780258f06afdac747e065ef2fd9c54928ef0c629383d5f16f8fe1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedfull02/unittest.txt": "684aca68f267896de89a16c654a62212778b2bda76f7164a68b3e8690dac2afa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedsource01/checks.json": "5392a3db01e022307953f34ebd262c2f9c001c482840137c2d52e52996d74636",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedsource01/unittest.txt": "f8c6a786c191ccfaa33555c859e72a2e68eceb599c9e86935db8fa9243e9bf9a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/source01/checks.json": "79bdab59d30a0f5304bfcce5a9cd09b42fc6b9a070d1b64322b7093fd70760bc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/source01/unittest.txt": "e8e31a5dc55c6545c3a60e3c34a5ed5466fc5765123f50e251e1f82733515b4e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/sourcefinal04/checks.json": "9343a0aae8d1ccab4a7800bb6fd8041c04e96a565c1e2453e431545f3c1581f2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/sourcefinal04/unittest.txt": "c6a8c49c8a60b6df55441f362feb645cca4cb5cfae236e1362c3af0f327e1f70",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-audit-before-parser-input-fix/audit_app571_guard_observation_v2_source_derivation.py.txt": "538e98459000a9765336d09f98b05410caee27bfda00853b0f5b3f38975a57b0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-historical-outcome-compatibility/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "2b68109d94b29dbe78da2ab77da044f68753a9dedbcc7e951389286c70cdf228",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "4244e45de97f3a8780cf63e64bc5f9af1704ad939348600a16efbc1f51b349b1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/checks.json": "066cf0cc2d4780258f06afdac747e065ef2fd9c54928ef0c629383d5f16f8fe1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/unittest.txt": "684aca68f267896de89a16c654a62212778b2bda76f7164a68b3e8690dac2afa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "7b80b0f7a7daaa24a41f464390fce036af075c7bace52e67ac3cba46915b5c93",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/checks.json": "5392a3db01e022307953f34ebd262c2f9c001c482840137c2d52e52996d74636",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/unittest.txt": "f8c6a786c191ccfaa33555c859e72a2e68eceb599c9e86935db8fa9243e9bf9a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/000-app_write_two_guard_observation_v2_protocol.py.txt": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/001-check-app-write-two-guard-observation-v2-coordinator.py.txt": "7caad214017112963f0f1bfb423188ba12c8e9d9993136de5aaa5a31c492233f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/002-check-app-write-two-guard-observation-v2.py.txt": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/003-prepare-app-write-two-guard-observation-v2.py.txt": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/004-run-app-write-two-guard-observation-v2.py.txt": "499c26bc77a6cbe4f2dc15925bb5311a08bbbbba641471c2edaf6fec4a834bc5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/005-check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/006-execute_local_f0_app_write_two_guard_observation_v2_20261120.py.txt": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/007-local_f0_app_write_two_guard_observation_v2_operation_steps.py.txt": "8f8394033fba258bb345a46413d3087158ecd6637327376b88bf986c947f7c65",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/008-pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py.txt": "8ecd8c4c130dbf42dea46a963d690a930cad590d61d4db56957ac2d1acf01218",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/009-prepare_local_f0_app_write_two_guard_observation_v2_plan.py.txt": "24d53bf2175540d5f32a0b570e9b142c8acb9951ac7ea1df9e47b6af3f5891ba",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/010-complete-state-observe.sql": "a9250848d105577e4eeda0c68cddd158196186ffa5a1d6c2dfbf5f9f82e7e0ac",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/011-customer-existing-complete-revision-read.sql": "4da07134886ae7acfe6f8a71bae94a0bee849f1a632fe67f1248a4a3472793a6",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/012-customer-existing-missing-revision-read.sql": "c55812c1c4d0fed7aa8aa27c2f06681badf766661683ea933fec874e5866958e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/013-effect-coherence-observe.sql": "4efbc1743ab99e5fbf5fe7373a3e29a0838de3967fa31ebc7c254031a466a555",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/014-effect-missing-result-field.sql": "1e43123e5552e13cf2fbb5d0f3cbeba5f544db6758dab8cf02876bb05253d859",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/015-effect-stale-security.sql": "8d610ae4339b20d2e16c3f36e1543ec279abd8a61a1467a2c48361a01a62b5cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/016-effect-wrong-principal.sql": "626e3766477ad98df8465e75a4686b6d34424b1a22a1bd1c474182f6c4467d31",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/017-effect-wrong-purpose.sql": "812797e090324443dc798fdda1baea907d1b6364d668a45e1c8b8aa8e68af4db",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/018-effect-wrong-root.sql": "b60719b8426a1cddfab5f1816d1c7723cc5acaf8e1b0feb276034f2cdb1819a5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/019-exact-fixture-restore.sql": "d6ff439ae6b06d905410c3fc57858c9073a1ce4905258aafae5eda137f124156",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/020-fixtures.json": "62661a0cd45c4dc8d12cc5fb5d2111206abbcb86a1392d6579c309120acff7e7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/021-genuine-sh004-effect-insert.sql": "f056d0efdf8fbe70302c291b7d1d644fa069fb99fd926b7ec06eb5f2bacd8273",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/022-independent-user-fixtures.sql": "ce281631c3dcee36c6e1b8e24182cf8041bb86aae5b2caf8f8902d278bf0663a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/023-pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/024-README.md": "30f4a8b707146444068ab1064c07faeb30a2bd4ec70b7a7b4b4e567138e4ba25",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/025-schedule.sql": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/026-source-customer-observe.sql": "1e44be39b65dfa72d21c0ea8fec0c304332e66a5b888cde90683aa0808cbe89f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/027-user-coherence-observe.sql": "14000b439a0175ac3b458eb5d87d778013624b54d0f3b77d32202ca71ad87305",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/028-work-coherence-observe.sql": "3b97348358a0f6ecd3c60f4bf1c9a1f6ed7e68680e32a45a21adf15848324661",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/029-work-missing-revision.sql": "1c2abb32b1344c52dea7d0335128bfbf7cff9b5d2e668b65f4123e91595bbca7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/030-work-missing-update-field.sql": "649eb9ec9b06ef7596e2d7246e6f0b04050833ebe121d4f4584083409ff8a5f7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/031-work-stale-security.sql": "02129dbbfb77160226f10fe5be3133e34e49f174776caee0f20df53d96e64cec",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/032-work-wrong-purpose.sql": "545ae9c09a0b989b42b2e17698a8de22c563b43b114fa0155eecbd6cded9755d",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/033-work-wrong-root.sql": "11180a77cfb7f99e4e200e04b3e03bea4991711b03d23f14d386f3b6adbba9d0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/manifest.json": "3526b031eacd31691e844eca50d5893736b6838011a3dc164c158dc8227b7f52",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-test-binding-fix-20261120/check-app-write-two-guard-observation-v2-coordinator.py.txt": "ae8c20c355ec9c645a54554c4c4f39fa5b3fb9e0f107d1360c8f134050e44946",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-test-binding-fix-20261120/failed-check.json": "c9cea9bf73f605858b31def0cc2c9b3d7a5b2984e46cfdae0cdec501379663e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-review.json": "469d7bbad5afc05dc6b96cd47782e118b042b65ace0e0a91d35ac27fe5ac2f69",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/execute_local_f0_app_write_two_guard_observation_v2_20261120.py.txt": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/check_local_f0_app_write_two_owned_resource_v1_operation.py.txt": "31fd7030921eb8ea43b59839968a88a0f76282152dacdbaacf73ba9df513c549",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/execute_local_f0_app_write_two_owned_resource_v1_20261119.py.txt": "4b675aafbe270a4117b2406450369863c34c77c4850ba8b88d2fe47109c27f13",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/local_f0_app_write_two_owned_resource_v1_operation_steps.py.txt": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py.txt": "070731825d46b584d4ba1ef8652669538599922afdc2c5ee19cd9a1a66c7ad8e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/prepare_local_f0_app_write_two_owned_resource_v1_plan.py.txt": "c0582abf5f19a9f0f59a078283f524682699970fd6d4c4175a5a7b123e6e065c",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/history/held-v1-reader-source.py.txt": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/local_f0_app_write_two_guard_observation_v2_operation_steps.py.txt": "0f4a06fb9b414440e8a10b73f490896d45484042d470a67d1c0f5bf61be80eb0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py.txt": "f81b58eae6c40c5e475efa5c3d170864038e8ce152991c7d7421d51f458fbee2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/prepare_local_f0_app_write_two_guard_observation_v2_plan.py.txt": "8d15259367dacbb4906757595536b074e2c225fc84e22fdb2470b598ff5aee83",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/preservation/app571-before-guard-observation-v2-20261120.json": "60c0afd336444a9bef8f488b037656f0c0ec7a4378422cb2dae77f9ad13cd3b7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/preservation/app571-install370-preservation-20261120.json": "ae8e66f965d09071ef49626f55312800512ab8ff8d03a561f12cc3e7644e598e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/Root-source-closure-helper.py.txt": "e22d531c07a7055ea8acb418a2b8679ebd9c48487a1fdbbbe9289ecfc11ff002",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/Root-source-review.json": "c0d2d2c406b6254e4ee96dc658cd32e3264238c0a19882af22fe9ac5239832a7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-delivery.json": "966dfdee10960166a0cebccf06889709eb0b8308a6d51fa6f9d4f962a02da1ff",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-inventory.json": "b80611d549b888cf0dd838d21e4c9d462506d4621c2442def4c7d96fc44e01cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-report.json": "469d7bbad5afc05dc6b96cd47782e118b042b65ace0e0a91d35ac27fe5ac2f69",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/child-validation-before-Root.json": "6a413abab0117b285b0ea77eda8052e7675d9ee9dd1fab1cee24ca31e7819265",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/independent-Catalog-source-review.json": "c0beaa07639d2801202137afb7c51e03c064319d3dda0f2ba621fa37c2ccc3a0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/owned-validation-before-Root.json": "9c936e881b884193ba170f68a99b37e1cf4095ef8500393298ce7e0ab6dd3b31",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/README.md": "2b45306d3ae2bce70a01d3a8c5362c6a78cdeca6fc9b1e34496ce52c0c12f3f3",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-check-history/check-app-write-two-guard-observation-v2-coordinator.py.txt": "ae8c20c355ec9c645a54554c4c4f39fa5b3fb9e0f107d1360c8f134050e44946",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-check-history/failed-check.json": "c9cea9bf73f605858b31def0cc2c9b3d7a5b2984e46cfdae0cdec501379663e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-checks/app571_v2_AST_delta_20261120.json": "2798a14cf65e213e3f9a7ba35dcbb300a4cab806b21fef05aa48039e9108b94e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-checks/app571_v2_source_derivation_20261120.json": "b6b70447f271fdd7fc859f8ab327d1edc074ffb25f0c8921fd9ea864102749ef",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/app_write_two_control_protocol.py.txt": "525a84cc6e4acc3a732bdf1c351b2b85e4056857afcef939ab69e9c0b8ff55be",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/check-app-write-two-control-coordinator.py.txt": "66e5f78cb22bedfeb6eb6c95b5c502291b0c732080d93e91256aee78e09d57eb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/check-app-write-two-control-rehearsal.py.txt": "3ac4b9b48c3c3e8ebaf25e7b9e837380cdef22a84a0bf6e72449929b5a3ae3ab",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/prepare-app-write-two-control-rehearsal.py.txt": "ce6b5861a22e1e4463ba1a08755336d15a4b6b73bba7ff7c0702cdd919613a62",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/run-app-write-two-control-rehearsal.py.txt": "c947fe02f067e6cea4c97635f0dc9f96ab1db27bfbc9fe07ea4eeb5ad0e1ceb6",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical571/historical571-child.json": "5045356f72d6425031f4ae7e9855c12dffa5cff2d1098028ff4b971fffbd7bd5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical571/historical571-normalized.json": "e1ced77a361cfaccf27d39fac8122d1be3b8e485cc9ff1eb7a809ed9c3f6f3cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_fourteen_oracle_source_audit_20261120.json": "0347e3a12ed8495835696f69042482acfc6a6d43e6ffc46aa32a1a4af163e10d",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_guard_observation_v2_Root_independent_plan_ACK_20261120.json": "25708eb58b4dba54760d6752dfc9daa4440b2ef467a367bee78d8edebb8ff539",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_guard_observation_v2_source_plan_20261120.json": "971c1394021a1973452353bb4c83eeba815ed1563d4ac6eb1ffad898935fc9e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/qualified-history/child28/check-app-write-two-guard-observation-v2-coordinator.py.txt": "8a960ddf9dfa1535648abacfc34924c8f01ddddc81b46995ea715bed9672b1b1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/app_write_two_guard_observation_v2_protocol.py.txt": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/check-app-write-two-guard-observation-v2-coordinator.py.txt": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/check-app-write-two-guard-observation-v2.py.txt": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/prepare-app-write-two-guard-observation-v2.py.txt": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/run-app-write-two-guard-observation-v2.py.txt": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-owned-resource-v1/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/source-prefix-analysis.json": "b3931b71fe3d0560d6864ce20aa64cc88086563c4399a34e4b442ed108c4fc4d",
+      "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+      "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+      "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+      "context/reconciliation/platform-architecture-rulings.md": "a15e71747452980e74944b2b01e59d89b4d6bff95c3ac335b4acfdb3a8868f7b",
+      "context/shared/contracts/SH-004.md": "114d4269db29edf0946d01fa2f9ac21769b22244aca940fe8270445ddd33d1bd",
+      "context/shared/shared-operations.md": "6e4607e9fdaf6c25c8e5f87857b84d778f866a97c4dcd778e03b6e07b6fe8c67",
+      "contracts/database-review/foundation-payloads.v1.schema.json": "a9e7eb1e44fd0cce0bff97b906d0c3cb98c49f63f2f07b95560e0d7013105cfe",
+      "contracts/database-review/owner-mutation-evidence.v1.schema.json": "5b95ff84e970a9587b4c04f37f2730878164c8aa77e2311410556f7b8d3c99a2",
+      "contracts/shared/SH-004.v1.schema.json": "e7cd3008e84dce839f189ff882feb9bb68b42784e0f403981e652d239328667e",
+      "contracts/shared/types.v1.schema.json": "606d2f772bedf96ae59e82995831e741435dc573fdca477c8e735b5a63c30cf2",
+      "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+      "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+      "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+      "prisma/migrations/20260602021702_phase_2_database_truth_layer/migration.sql": "5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055",
+      "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+      "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+      "review-output/app-write-two-guard-observation-v2/README.md": "30f4a8b707146444068ab1064c07faeb30a2bd4ec70b7a7b4b4e567138e4ba25",
+      "review-output/app-write-two-guard-observation-v2/complete-state-observe.sql": "a9250848d105577e4eeda0c68cddd158196186ffa5a1d6c2dfbf5f9f82e7e0ac",
+      "review-output/app-write-two-guard-observation-v2/customer-existing-complete-revision-read.sql": "4da07134886ae7acfe6f8a71bae94a0bee849f1a632fe67f1248a4a3472793a6",
+      "review-output/app-write-two-guard-observation-v2/customer-existing-missing-revision-read.sql": "c55812c1c4d0fed7aa8aa27c2f06681badf766661683ea933fec874e5866958e",
+      "review-output/app-write-two-guard-observation-v2/effect-coherence-observe.sql": "4efbc1743ab99e5fbf5fe7373a3e29a0838de3967fa31ebc7c254031a466a555",
+      "review-output/app-write-two-guard-observation-v2/effect-missing-result-field.sql": "1e43123e5552e13cf2fbb5d0f3cbeba5f544db6758dab8cf02876bb05253d859",
+      "review-output/app-write-two-guard-observation-v2/effect-stale-security.sql": "8d610ae4339b20d2e16c3f36e1543ec279abd8a61a1467a2c48361a01a62b5cc",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-principal.sql": "626e3766477ad98df8465e75a4686b6d34424b1a22a1bd1c474182f6c4467d31",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-purpose.sql": "812797e090324443dc798fdda1baea907d1b6364d668a45e1c8b8aa8e68af4db",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-root.sql": "b60719b8426a1cddfab5f1816d1c7723cc5acaf8e1b0feb276034f2cdb1819a5",
+      "review-output/app-write-two-guard-observation-v2/exact-fixture-restore.sql": "d6ff439ae6b06d905410c3fc57858c9073a1ce4905258aafae5eda137f124156",
+      "review-output/app-write-two-guard-observation-v2/fixtures.json": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962",
+      "review-output/app-write-two-guard-observation-v2/genuine-sh004-effect-insert.sql": "f056d0efdf8fbe70302c291b7d1d644fa069fb99fd926b7ec06eb5f2bacd8273",
+      "review-output/app-write-two-guard-observation-v2/independent-user-fixtures.sql": "ce281631c3dcee36c6e1b8e24182cf8041bb86aae5b2caf8f8902d278bf0663a",
+      "review-output/app-write-two-guard-observation-v2/pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+      "review-output/app-write-two-guard-observation-v2/schedule.sql": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700",
+      "review-output/app-write-two-guard-observation-v2/source-customer-observe.sql": "1e44be39b65dfa72d21c0ea8fec0c304332e66a5b888cde90683aa0808cbe89f",
+      "review-output/app-write-two-guard-observation-v2/user-coherence-observe.sql": "14000b439a0175ac3b458eb5d87d778013624b54d0f3b77d32202ca71ad87305",
+      "review-output/app-write-two-guard-observation-v2/work-coherence-observe.sql": "3b97348358a0f6ecd3c60f4bf1c9a1f6ed7e68680e32a45a21adf15848324661",
+      "review-output/app-write-two-guard-observation-v2/work-missing-revision.sql": "1c2abb32b1344c52dea7d0335128bfbf7cff9b5d2e668b65f4123e91595bbca7",
+      "review-output/app-write-two-guard-observation-v2/work-missing-update-field.sql": "649eb9ec9b06ef7596e2d7246e6f0b04050833ebe121d4f4584083409ff8a5f7",
+      "review-output/app-write-two-guard-observation-v2/work-stale-security.sql": "02129dbbfb77160226f10fe5be3133e34e49f174776caee0f20df53d96e64cec",
+      "review-output/app-write-two-guard-observation-v2/work-wrong-purpose.sql": "545ae9c09a0b989b42b2e17698a8de22c563b43b114fa0155eecbd6cded9755d",
+      "review-output/app-write-two-guard-observation-v2/work-wrong-root.sql": "11180a77cfb7f99e4e200e04b3e03bea4991711b03d23f14d386f3b6adbba9d0",
+      "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+      "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+      "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+      "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+      "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+      "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+      "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+      "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+      "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+      "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+      "review-output/native-catalog/README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+      "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+      "review-output/native-catalog/expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+      "review-output/native-catalog/expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "review-output/native-catalog/public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+      "review-output/native-catalog/source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00",
+      "scripts/app_write_two_guard_observation_v2_protocol.py": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+      "scripts/check-app-write-two-guard-observation-v2-coordinator.py": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+      "scripts/check-app-write-two-guard-observation-v2.py": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+      "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+      "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+      "scripts/check-native-catalog-review.py": "05d39953bd26c61ef7d414a53bb5c0bc65cb2e59ec8513e17230ad5f7e4ef859",
+      "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+      "scripts/contract_schema.py": "27b91594ac3dc9e1345b5bde912b4a849f0a324e90819df56150f7e3d326bc8c",
+      "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+      "scripts/prepare-app-write-two-guard-observation-v2.py": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "scripts/prepare-customer-control-rehearsal.py": "6d67c52ab7c3cc95082c5c82cf007910fcb75a7721d832d3236fe213e3bba174",
+      "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+      "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+      "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+      "scripts/prepare-native-catalog-review.py": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+      "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+      "scripts/scoped_read_companion_protocol.py": "514327052c085a87348bfafc895baa321e631b32746090ca6ebe18652f10488f",
+      "scripts/sql-review/catalog-acl-preflight.sql": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+      "scripts/sql-review/catalog-text-preflight.sql": "f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823",
+      "scripts/sql-review/catalog_expression_oracle.py": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+      "scripts/sql-review/catalog_manifest.py": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+      "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+      "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+      "scripts/sql-review/compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+      "scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json": "996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+      "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+      "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+      "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604",
+      "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+      "scripts/sql-review/pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342",
+      "scripts/sql-review/prisma-ledger-proof.md": "05ed0aff941305f5e2800b49633f029a8a68ca05ec2b80171060632917577992",
+      "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+      "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+      "scripts/sql-review/run-app-write-two-guard-observation-v2.py": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+      "scripts/sql-review/run-context-control-rehearsal.py": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+      "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+      "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+      "scripts/sql-review/run-scoped-read-companion-rehearsal.py": "4160760bb319e4389182ed5cfcb6c0fae028480bd3d6d418be0130e8156a0f15",
+      "scripts/sql-review/test_catalog_collector_acl.py": "d9ac90cb8c335bd70b04056e422692c55bf73569ef109d3f8fb2bd73e9e1b57b",
+      "scripts/sql-review/test_catalog_collector_text.py": "fe7a29132b7d69b69213f61ccfda3e14a7339735c202f3cae1334c92dc6e24a7",
+      "scripts/sql-review/test_catalog_expression_oracle.py": "a758a17b8cd92922e7a599dc06679e6309dc107028c151387e533dcf8a5f5c85",
+      "scripts/sql-review/test_catalog_manifest.py": "633e4f8c8f3b93d7e44d7c8abff7aa5ca1f3caa063cc354d592d1913d4ba9750",
+      "scripts/sql-review/test_compare_native_catalog.py": "38d0e26ac030a1024c739c8ea79e0c653b3f0bf9aee54e9815bf314b8887ce37",
+      "scripts/sql-review/test_local_image_identity.py": "0edae319a544aaaa8ed112e2ec477fe7ac428b58a7970ca8cd0e33ff006abe93",
+      "scripts/sql-review/test_pg17_catalog_rules.py": "c6879cd715df8bb45b26bbeec90352189e339d87be2f37c869cf471e42cfbb4a",
+      "scripts/sql-review/test_prisma_ledger_proof.py": "62685fbff83d42cad600de2d1f387647737a42bd5cffc50c2240eb1c66006095",
+      "tests/contracts/shared/consumer-expectations.json": "cb5ba005ae8bfa161ec53c962e4be3cdfac03d32fad9657ef7c5830184a6519f"
+    },
+    "packet_sha256": "a9b95a0bcf6bdffb3942f2ebd740929896c7df70f93ab1ed78a402aa2fd44824",
+    "evidence_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-guard-observation-v2-owned-8f2aa922",
+    "targets": [
+      {
+        "name": "wa-p0c-8f2aa922-appwrite2",
+        "volume": "wa-p0c-8f2aa922-appwrite2-data",
+        "kind": "ok"
+      }
+    ],
+    "migration_targets": {
+      "ok": {
+        "manifest_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-guard-observation-v2-owned-plan-8f2aa922\\ok-migration-manifest.json",
+        "manifest_sha256": "399d5e8aa88a7a572320f5afd79625ef7ee261aa9a659662fcc1aeac54a0ecdf",
+        "source_snapshot": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-guard-observation-v2-owned-plan-8f2aa922\\source-ok",
+        "source_files_sha256": {
+          "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+          "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+          "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+          "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+          "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+          "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+          "prisma/foundation/history-manifest.json": "5d1ea76bd5d79f93af2e6e93f35a1ae054ea3e91f685c6951d240dc2319545d0"
+        },
+        "source_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-guard-observation-v2-owned-plan-8f2aa922\\source-ok.tar.gz",
+        "source_archive_sha256": "60be5ccf4ea179c38527d33075875a831aaa8e67b3b3615368225821d090defd"
+      }
+    },
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "database": "wa_p0c_rehearsal",
+    "run_label": "p0c-local-f0",
+    "tool_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-linux-tooling-20261117\\pinned-prisma-tools.tar.gz",
+    "tool_archive_sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+    "wrapper_sha256": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+    "review_status": "APPROVED_LOCAL_F0_APP_WRITE_TWO_ATTEMPT",
+    "storage": {
+      "container": "wa-p0c-8f2aa922-appwrite2",
+      "volume": "wa-p0c-8f2aa922-appwrite2-data",
+      "network": "none",
+      "ports": [],
+      "mounts": "exactPGDATAvolume+readonlybootstrapbind+root0700secret-tmpfs",
+      "extra_mounts": false,
+      "host_namespaces": false,
+      "privileged": false
+    },
+    "cleanup": "Only exact created oneCID/name/bothrunlabels andvolume/name/CreatedAt. Delete only exact test-owned private/ok-bootstrap-password and empty private directory. Independently confirm bothresource names absent; retain cached image and unrelated resources.",
+    "source_history_rule": "One canonical integrated migrationID/checksum; no rawstructure duplicate, June edits, ledger writes, dbpush/reset or hosted/shadow targets. Per-target immutable snapshot metadata differs only targetmanifest identity; migrationSQL bytes identical.",
+    "status": "SOURCE_PREPARED_NOT_EXECUTED",
+    "server_diagnostics": {
+      "prefix": "WA_F0_DIAG|%e|%u|%d|",
+      "verbosity": "terse",
+      "lc_messages": "C",
+      "log_min_messages": "warning",
+      "log_statement": "none",
+      "log_min_error_statement": "panic",
+      "module_sha256": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+      "raw_log_retention": false
+    },
+    "catalog": {
+      "generator": "scripts/prepare-native-catalog-review.py",
+      "artifact_root": "review-output/native-catalog",
+      "assets": {
+        "source-pins.json": {
+          "path": "review-output/native-catalog/source-pins.json",
+          "sha256": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00"
+        },
+        "expected.json": {
+          "path": "review-output/native-catalog/expected.json",
+          "sha256": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976"
+        },
+        "expression-oracle-plan.json": {
+          "path": "review-output/native-catalog/expression-oracle-plan.json",
+          "sha256": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f"
+        },
+        "expression-oracle.sql": {
+          "path": "review-output/native-catalog/expression-oracle.sql",
+          "sha256": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2"
+        },
+        "public-schema-registration.json": {
+          "path": "review-output/native-catalog/public-schema-registration.json",
+          "sha256": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3"
+        },
+        "README.md": {
+          "path": "review-output/native-catalog/README.md",
+          "sha256": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388"
+        }
+      },
+      "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+      "public_schema_owner": "pg_database_owner",
+      "bootstrap_grantor": "postgres",
+      "tool_source_files_sha256": {
+        "node_modules/@prisma/engines-version/package.json": "2dd9793255d6bbb5c399a624ecbfb6323d39233860863d172946b7f750f528bd",
+        "node_modules/prisma/package.json": "6cdfef6df08d9a37f28908855797fe8bfc97a2d3d886a8d5cbe2e502d6848151"
+      },
+      "ledger_expectation": [
+        {
+          "path": "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql",
+          "migration_name": "20261117000100_f0_local_initial",
+          "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+          "state": "applied",
+          "count": 1
+        }
+      ]
+    },
+    "allowed_catalog_operations": [
+      "Fresh canonical Prisma installation and original-grantor finalization once; full native/oracle/ledger comparison before domain fixtures.",
+      "Only exact14 AppWrite2 protocols,15 issuer grants,two User prerequisite bypasses and two candidate SQL criteria. No OwnerAPI, result-link SQLguard, workerloop or other28 writes."
+    ],
+    "steps_sha256": "0f4a06fb9b414440e8a10b73f490896d45484042d470a67d1c0f5bf61be80eb0",
+    "app_write_two": {
+      "fixtures_sha256": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962",
+      "content_sha256": "43c3278d935cb437e35c91d2692f6543deb14d02c105578c18701f0bb6d1d4f6",
+      "coordinator_sha256": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+      "external_files_sha256": {
+        "execute_local_f0_app_write_two_guard_observation_v2_20261120.py": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+        "local_f0_app_write_two_guard_observation_v2_operation_steps.py": "0f4a06fb9b414440e8a10b73f490896d45484042d470a67d1c0f5bf61be80eb0",
+        "prepare_local_f0_app_write_two_guard_observation_v2_plan.py": "8d15259367dacbb4906757595536b074e2c225fc84e22fdb2470b598ff5aee83",
+        "check_local_f0_app_write_two_guard_observation_v2_operation.py": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+        "pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py": "f81b58eae6c40c5e475efa5c3d170864038e8ce152991c7d7421d51f458fbee2"
+      }
+    },
+    "prepared_source_file_inventory_sha256": {
+      "AGENTS.md": "ca0d1a667fb71a2490fc4662a605099ab0e5b23c149f016d92fed71ff3d4c4b1",
+      "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md": "1264589c05d92a40746ebf71de3b04368ce511755f538dc58e7bc3e80ede0853",
+      "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md": "9c9c86fc035b151c31060269a69342d80f729cebdcdd090747b2681de9ca7f3b",
+      "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md": "2b2281b86b3521023c25bee656dffbefd64a5cda34e1a45c9289f9fd175b8e29",
+      "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md": "9af7a7c3142fba550c13727f0143f9612b180d4ab6fd96975846d562d4ec17d5",
+      "context/context-map.md": "91ae472067d5336f0b0bf6d73c4a9e86b235df85aa2634adec74e93bf6f0ad6d",
+      "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+      "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+      "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+      "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+      "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+      "context/reconciliation/local-f0-app-write-two-guard-observation-v2-owned-source-validation.json": "181688e6c765104752ba520cb07ef18265a77d30ef13ce14967b6b95fe8f363b",
+      "context/reconciliation/local-f0-app-write-two-guard-observation-v2-source-validation.json": "6aec3691094fd370562c275736d2eec94d685f3e5cbdd6178640b08c8852780f",
+      "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+      "context/reconciliation/local-f0-catalog-eb2aae6-2e4f5d40-execution.json": "76923eea9f3a68cb6157a0ed23432662492d79c068a7b58be507309edbe3e452",
+      "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+      "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+      "context/reconciliation/local-f0-native-catalog-acl-correction.json": "017c9ee8c46de01c8a70ffbd68c0c80c27a1508cf4f1887fffaafcdba8d54f85",
+      "context/reconciliation/local-f0-native-catalog-metadata-diagnostics.json": "5acadf4bbcc01b6133ebc0c81cb72e806a2c3d6f3840fd8f752353bde9c1735d",
+      "context/reconciliation/local-f0-native-catalog-text-correction.json": "83766af0fc699b88a56081ccebd59eff59b6c850678506f6ffe67c3d04b38565",
+      "context/reconciliation/local-f0-native-catalog-validation.json": "cbc26b6d1935ced05a03b3d186658864cb687de6b49af888c92c551976279d75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-control-appwrite2-01-v2/independent-code-review.json": "7a74b9d8c499d31e7dd2c435253af8766e7231a5088b66c244083260a0d0926a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/child01/checks.json": "c82b83a791081640b256fa6faaef686ac250f3cbbf28ae9bc360b7746bd743c1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/child01/unittest.txt": "309e05da7d2131f5703f855417644987ef2b362eb254d74caf1f3f244b5b0b40",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childdelta02/checks.json": "65b62b7d89b87ea49c64163f1b6dd14c81b28b3f59b7148ad367cb953371e1f8",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childdelta02/unittest.txt": "b25a0b651bb193cec7bfbd926d2fa41e0357d402aca1e96b4871422748bf8422",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childfinal03/checks.json": "2a35916a0a5c056a8190d9678b09df30285c91dcc4a6f6b5c3f14992bc471bfa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/childfinal03/unittest.txt": "ec53a1177d8902aed9c9ca25e08ec9213259a8b0580ddb7eaf2e880639351302",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedaffected03/checks.json": "e36b5afecaade35db6f52fcf0504fe8b16f1267a3d8b5a34b57375256e0a7ff3",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedaffected03/unittest.txt": "c59a627aedb980170d55cdf57403cc06ba8e7407503dc700d749de19e445066f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedfull02/checks.json": "066cf0cc2d4780258f06afdac747e065ef2fd9c54928ef0c629383d5f16f8fe1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedfull02/unittest.txt": "684aca68f267896de89a16c654a62212778b2bda76f7164a68b3e8690dac2afa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedsource01/checks.json": "5392a3db01e022307953f34ebd262c2f9c001c482840137c2d52e52996d74636",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/ownedsource01/unittest.txt": "f8c6a786c191ccfaa33555c859e72a2e68eceb599c9e86935db8fa9243e9bf9a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/source01/checks.json": "79bdab59d30a0f5304bfcce5a9cd09b42fc6b9a070d1b64322b7093fd70760bc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/source01/unittest.txt": "e8e31a5dc55c6545c3a60e3c34a5ed5466fc5765123f50e251e1f82733515b4e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/sourcefinal04/checks.json": "9343a0aae8d1ccab4a7800bb6fd8041c04e96a565c1e2453e431545f3c1581f2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-checks/sourcefinal04/unittest.txt": "c6a8c49c8a60b6df55441f362feb645cca4cb5cfae236e1362c3af0f327e1f70",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-audit-before-parser-input-fix/audit_app571_guard_observation_v2_source_derivation.py.txt": "538e98459000a9765336d09f98b05410caee27bfda00853b0f5b3f38975a57b0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-historical-outcome-compatibility/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "2b68109d94b29dbe78da2ab77da044f68753a9dedbcc7e951389286c70cdf228",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "4244e45de97f3a8780cf63e64bc5f9af1704ad939348600a16efbc1f51b349b1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/checks.json": "066cf0cc2d4780258f06afdac747e065ef2fd9c54928ef0c629383d5f16f8fe1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-final-binding-fix/unittest.txt": "684aca68f267896de89a16c654a62212778b2bda76f7164a68b3e8690dac2afa",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "7b80b0f7a7daaa24a41f464390fce036af075c7bace52e67ac3cba46915b5c93",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/checks.json": "5392a3db01e022307953f34ebd262c2f9c001c482840137c2d52e52996d74636",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-owning-test-fixture-fix-20261120/unittest.txt": "f8c6a786c191ccfaa33555c859e72a2e68eceb599c9e86935db8fa9243e9bf9a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/000-app_write_two_guard_observation_v2_protocol.py.txt": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/001-check-app-write-two-guard-observation-v2-coordinator.py.txt": "7caad214017112963f0f1bfb423188ba12c8e9d9993136de5aaa5a31c492233f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/002-check-app-write-two-guard-observation-v2.py.txt": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/003-prepare-app-write-two-guard-observation-v2.py.txt": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/004-run-app-write-two-guard-observation-v2.py.txt": "499c26bc77a6cbe4f2dc15925bb5311a08bbbbba641471c2edaf6fec4a834bc5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/005-check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/006-execute_local_f0_app_write_two_guard_observation_v2_20261120.py.txt": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/007-local_f0_app_write_two_guard_observation_v2_operation_steps.py.txt": "8f8394033fba258bb345a46413d3087158ecd6637327376b88bf986c947f7c65",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/008-pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py.txt": "8ecd8c4c130dbf42dea46a963d690a930cad590d61d4db56957ac2d1acf01218",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/009-prepare_local_f0_app_write_two_guard_observation_v2_plan.py.txt": "24d53bf2175540d5f32a0b570e9b142c8acb9951ac7ea1df9e47b6af3f5891ba",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/010-complete-state-observe.sql": "a9250848d105577e4eeda0c68cddd158196186ffa5a1d6c2dfbf5f9f82e7e0ac",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/011-customer-existing-complete-revision-read.sql": "4da07134886ae7acfe6f8a71bae94a0bee849f1a632fe67f1248a4a3472793a6",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/012-customer-existing-missing-revision-read.sql": "c55812c1c4d0fed7aa8aa27c2f06681badf766661683ea933fec874e5866958e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/013-effect-coherence-observe.sql": "4efbc1743ab99e5fbf5fe7373a3e29a0838de3967fa31ebc7c254031a466a555",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/014-effect-missing-result-field.sql": "1e43123e5552e13cf2fbb5d0f3cbeba5f544db6758dab8cf02876bb05253d859",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/015-effect-stale-security.sql": "8d610ae4339b20d2e16c3f36e1543ec279abd8a61a1467a2c48361a01a62b5cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/016-effect-wrong-principal.sql": "626e3766477ad98df8465e75a4686b6d34424b1a22a1bd1c474182f6c4467d31",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/017-effect-wrong-purpose.sql": "812797e090324443dc798fdda1baea907d1b6364d668a45e1c8b8aa8e68af4db",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/018-effect-wrong-root.sql": "b60719b8426a1cddfab5f1816d1c7723cc5acaf8e1b0feb276034f2cdb1819a5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/019-exact-fixture-restore.sql": "d6ff439ae6b06d905410c3fc57858c9073a1ce4905258aafae5eda137f124156",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/020-fixtures.json": "62661a0cd45c4dc8d12cc5fb5d2111206abbcb86a1392d6579c309120acff7e7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/021-genuine-sh004-effect-insert.sql": "f056d0efdf8fbe70302c291b7d1d644fa069fb99fd926b7ec06eb5f2bacd8273",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/022-independent-user-fixtures.sql": "ce281631c3dcee36c6e1b8e24182cf8041bb86aae5b2caf8f8902d278bf0663a",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/023-pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/024-README.md": "30f4a8b707146444068ab1064c07faeb30a2bd4ec70b7a7b4b4e567138e4ba25",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/025-schedule.sql": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/026-source-customer-observe.sql": "1e44be39b65dfa72d21c0ea8fec0c304332e66a5b888cde90683aa0808cbe89f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/027-user-coherence-observe.sql": "14000b439a0175ac3b458eb5d87d778013624b54d0f3b77d32202ca71ad87305",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/028-work-coherence-observe.sql": "3b97348358a0f6ecd3c60f4bf1c9a1f6ed7e68680e32a45a21adf15848324661",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/029-work-missing-revision.sql": "1c2abb32b1344c52dea7d0335128bfbf7cff9b5d2e668b65f4123e91595bbca7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/030-work-missing-update-field.sql": "649eb9ec9b06ef7596e2d7246e6f0b04050833ebe121d4f4584083409ff8a5f7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/031-work-stale-security.sql": "02129dbbfb77160226f10fe5be3133e34e49f174776caee0f20df53d96e64cec",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/032-work-wrong-purpose.sql": "545ae9c09a0b989b42b2e17698a8de22c563b43b114fa0155eecbd6cded9755d",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/033-work-wrong-root.sql": "11180a77cfb7f99e4e200e04b3e03bea4991711b03d23f14d386f3b6adbba9d0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-primary-origin-latch-20261120/manifest.json": "3526b031eacd31691e844eca50d5893736b6838011a3dc164c158dc8227b7f52",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-test-binding-fix-20261120/check-app-write-two-guard-observation-v2-coordinator.py.txt": "ae8c20c355ec9c645a54554c4c4f39fa5b3fb9e0f107d1360c8f134050e44946",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-history/app571-v2-before-test-binding-fix-20261120/failed-check.json": "c9cea9bf73f605858b31def0cc2c9b3d7a5b2984e46cfdae0cdec501379663e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/author-review.json": "469d7bbad5afc05dc6b96cd47782e118b042b65ace0e0a91d35ac27fe5ac2f69",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/check_local_f0_app_write_two_guard_observation_v2_operation.py.txt": "fd857a3c6d73323bdbb4f87be96845b3f92d6bf7c612f5e492a9a45bf7a9cbf2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/execute_local_f0_app_write_two_guard_observation_v2_20261120.py.txt": "9a38e0a429a0905ea8be96ed427a738b6671d6debf7b43cac85f612857b90609",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/check_local_f0_app_write_two_owned_resource_v1_operation.py.txt": "31fd7030921eb8ea43b59839968a88a0f76282152dacdbaacf73ba9df513c549",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/execute_local_f0_app_write_two_owned_resource_v1_20261119.py.txt": "4b675aafbe270a4117b2406450369863c34c77c4850ba8b88d2fe47109c27f13",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/local_f0_app_write_two_owned_resource_v1_operation_steps.py.txt": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py.txt": "070731825d46b584d4ba1ef8652669538599922afdc2c5ee19cd9a1a66c7ad8e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/historical-owned-five/prepare_local_f0_app_write_two_owned_resource_v1_plan.py.txt": "c0582abf5f19a9f0f59a078283f524682699970fd6d4c4175a5a7b123e6e065c",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/history/held-v1-reader-source.py.txt": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/local_f0_app_write_two_guard_observation_v2_operation_steps.py.txt": "0f4a06fb9b414440e8a10b73f490896d45484042d470a67d1c0f5bf61be80eb0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/pin_local_f0_app_write_two_guard_observation_v2_plan_20261120.py.txt": "f81b58eae6c40c5e475efa5c3d170864038e8ce152991c7d7421d51f458fbee2",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/prepare_local_f0_app_write_two_guard_observation_v2_plan.py.txt": "8d15259367dacbb4906757595536b074e2c225fc84e22fdb2470b598ff5aee83",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/preservation/app571-before-guard-observation-v2-20261120.json": "60c0afd336444a9bef8f488b037656f0c0ec7a4378422cb2dae77f9ad13cd3b7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/preservation/app571-install370-preservation-20261120.json": "ae8e66f965d09071ef49626f55312800512ab8ff8d03a561f12cc3e7644e598e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/Root-source-closure-helper.py.txt": "e22d531c07a7055ea8acb418a2b8679ebd9c48487a1fdbbbe9289ecfc11ff002",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/Root-source-review.json": "c0d2d2c406b6254e4ee96dc658cd32e3264238c0a19882af22fe9ac5239832a7",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-delivery.json": "966dfdee10960166a0cebccf06889709eb0b8308a6d51fa6f9d4f962a02da1ff",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-inventory.json": "b80611d549b888cf0dd838d21e4c9d462506d4621c2442def4c7d96fc44e01cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/author-frozen-report.json": "469d7bbad5afc05dc6b96cd47782e118b042b65ace0e0a91d35ac27fe5ac2f69",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/child-validation-before-Root.json": "6a413abab0117b285b0ea77eda8052e7675d9ee9dd1fab1cee24ca31e7819265",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/independent-Catalog-source-review.json": "c0beaa07639d2801202137afb7c51e03c064319d3dda0f2ba621fa37c2ccc3a0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/reviews/owned-validation-before-Root.json": "9c936e881b884193ba170f68a99b37e1cf4095ef8500393298ce7e0ab6dd3b31",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/README.md": "2b45306d3ae2bce70a01d3a8c5362c6a78cdeca6fc9b1e34496ce52c0c12f3f3",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-check-history/check-app-write-two-guard-observation-v2-coordinator.py.txt": "ae8c20c355ec9c645a54554c4c4f39fa5b3fb9e0f107d1360c8f134050e44946",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-check-history/failed-check.json": "c9cea9bf73f605858b31def0cc2c9b3d7a5b2984e46cfdae0cdec501379663e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-checks/app571_v2_AST_delta_20261120.json": "2798a14cf65e213e3f9a7ba35dcbb300a4cab806b21fef05aa48039e9108b94e",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/author-checks/app571_v2_source_derivation_20261120.json": "b6b70447f271fdd7fc859f8ab327d1edc074ffb25f0c8921fd9ea864102749ef",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/app_write_two_control_protocol.py.txt": "525a84cc6e4acc3a732bdf1c351b2b85e4056857afcef939ab69e9c0b8ff55be",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/check-app-write-two-control-coordinator.py.txt": "66e5f78cb22bedfeb6eb6c95b5c502291b0c732080d93e91256aee78e09d57eb",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/check-app-write-two-control-rehearsal.py.txt": "3ac4b9b48c3c3e8ebaf25e7b9e837380cdef22a84a0bf6e72449929b5a3ae3ab",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/prepare-app-write-two-control-rehearsal.py.txt": "ce6b5861a22e1e4463ba1a08755336d15a4b6b73bba7ff7c0702cdd919613a62",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical-child-five/run-app-write-two-control-rehearsal.py.txt": "c947fe02f067e6cea4c97635f0dc9f96ab1db27bfbc9fe07ea4eeb5ad0e1ceb6",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical571/historical571-child.json": "5045356f72d6425031f4ae7e9855c12dffa5cff2d1098028ff4b971fffbd7bd5",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/historical571/historical571-normalized.json": "e1ced77a361cfaccf27d39fac8122d1be3b8e485cc9ff1eb7a809ed9c3f6f3cc",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_fourteen_oracle_source_audit_20261120.json": "0347e3a12ed8495835696f69042482acfc6a6d43e6ffc46aa32a1a4af163e10d",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_guard_observation_v2_Root_independent_plan_ACK_20261120.json": "25708eb58b4dba54760d6752dfc9daa4440b2ef467a367bee78d8edebb8ff539",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/plans/app571_guard_observation_v2_source_plan_20261120.json": "971c1394021a1973452353bb4c83eeba815ed1563d4ac6eb1ffad898935fc9e0",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/qualified-history/child28/check-app-write-two-guard-observation-v2-coordinator.py.txt": "8a960ddf9dfa1535648abacfc34924c8f01ddddc81b46995ea715bed9672b1b1",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/app_write_two_guard_observation_v2_protocol.py.txt": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/check-app-write-two-guard-observation-v2-coordinator.py.txt": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/check-app-write-two-guard-observation-v2.py.txt": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/prepare-app-write-two-guard-observation-v2.py.txt": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2/source-five/run-app-write-two-guard-observation-v2.py.txt": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+      "context/reconciliation/local-f0-operation-sources/app-write-two-owned-resource-v1/reviews/image-proof-independent-source.json": "b628b6d98ad22ea7def4dd7a51264025c50bde116451ae516f3e52f55ba9542a",
+      "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/source-prefix-analysis.json": "b3931b71fe3d0560d6864ce20aa64cc88086563c4399a34e4b442ed108c4fc4d",
+      "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+      "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+      "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+      "context/reconciliation/platform-architecture-rulings.md": "a15e71747452980e74944b2b01e59d89b4d6bff95c3ac335b4acfdb3a8868f7b",
+      "context/shared/contracts/SH-004.md": "114d4269db29edf0946d01fa2f9ac21769b22244aca940fe8270445ddd33d1bd",
+      "context/shared/shared-operations.md": "6e4607e9fdaf6c25c8e5f87857b84d778f866a97c4dcd778e03b6e07b6fe8c67",
+      "contracts/database-review/foundation-payloads.v1.schema.json": "a9e7eb1e44fd0cce0bff97b906d0c3cb98c49f63f2f07b95560e0d7013105cfe",
+      "contracts/database-review/owner-mutation-evidence.v1.schema.json": "5b95ff84e970a9587b4c04f37f2730878164c8aa77e2311410556f7b8d3c99a2",
+      "contracts/shared/SH-004.v1.schema.json": "e7cd3008e84dce839f189ff882feb9bb68b42784e0f403981e652d239328667e",
+      "contracts/shared/types.v1.schema.json": "606d2f772bedf96ae59e82995831e741435dc573fdca477c8e735b5a63c30cf2",
+      "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+      "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+      "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+      "prisma/migrations/20260602021702_phase_2_database_truth_layer/migration.sql": "5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055",
+      "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+      "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+      "review-output/app-write-two-guard-observation-v2/README.md": "30f4a8b707146444068ab1064c07faeb30a2bd4ec70b7a7b4b4e567138e4ba25",
+      "review-output/app-write-two-guard-observation-v2/complete-state-observe.sql": "a9250848d105577e4eeda0c68cddd158196186ffa5a1d6c2dfbf5f9f82e7e0ac",
+      "review-output/app-write-two-guard-observation-v2/customer-existing-complete-revision-read.sql": "4da07134886ae7acfe6f8a71bae94a0bee849f1a632fe67f1248a4a3472793a6",
+      "review-output/app-write-two-guard-observation-v2/customer-existing-missing-revision-read.sql": "c55812c1c4d0fed7aa8aa27c2f06681badf766661683ea933fec874e5866958e",
+      "review-output/app-write-two-guard-observation-v2/effect-coherence-observe.sql": "4efbc1743ab99e5fbf5fe7373a3e29a0838de3967fa31ebc7c254031a466a555",
+      "review-output/app-write-two-guard-observation-v2/effect-missing-result-field.sql": "1e43123e5552e13cf2fbb5d0f3cbeba5f544db6758dab8cf02876bb05253d859",
+      "review-output/app-write-two-guard-observation-v2/effect-stale-security.sql": "8d610ae4339b20d2e16c3f36e1543ec279abd8a61a1467a2c48361a01a62b5cc",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-principal.sql": "626e3766477ad98df8465e75a4686b6d34424b1a22a1bd1c474182f6c4467d31",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-purpose.sql": "812797e090324443dc798fdda1baea907d1b6364d668a45e1c8b8aa8e68af4db",
+      "review-output/app-write-two-guard-observation-v2/effect-wrong-root.sql": "b60719b8426a1cddfab5f1816d1c7723cc5acaf8e1b0feb276034f2cdb1819a5",
+      "review-output/app-write-two-guard-observation-v2/exact-fixture-restore.sql": "d6ff439ae6b06d905410c3fc57858c9073a1ce4905258aafae5eda137f124156",
+      "review-output/app-write-two-guard-observation-v2/fixtures.json": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962",
+      "review-output/app-write-two-guard-observation-v2/genuine-sh004-effect-insert.sql": "f056d0efdf8fbe70302c291b7d1d644fa069fb99fd926b7ec06eb5f2bacd8273",
+      "review-output/app-write-two-guard-observation-v2/independent-user-fixtures.sql": "ce281631c3dcee36c6e1b8e24182cf8041bb86aae5b2caf8f8902d278bf0663a",
+      "review-output/app-write-two-guard-observation-v2/pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+      "review-output/app-write-two-guard-observation-v2/schedule.sql": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700",
+      "review-output/app-write-two-guard-observation-v2/source-customer-observe.sql": "1e44be39b65dfa72d21c0ea8fec0c304332e66a5b888cde90683aa0808cbe89f",
+      "review-output/app-write-two-guard-observation-v2/user-coherence-observe.sql": "14000b439a0175ac3b458eb5d87d778013624b54d0f3b77d32202ca71ad87305",
+      "review-output/app-write-two-guard-observation-v2/work-coherence-observe.sql": "3b97348358a0f6ecd3c60f4bf1c9a1f6ed7e68680e32a45a21adf15848324661",
+      "review-output/app-write-two-guard-observation-v2/work-missing-revision.sql": "1c2abb32b1344c52dea7d0335128bfbf7cff9b5d2e668b65f4123e91595bbca7",
+      "review-output/app-write-two-guard-observation-v2/work-missing-update-field.sql": "649eb9ec9b06ef7596e2d7246e6f0b04050833ebe121d4f4584083409ff8a5f7",
+      "review-output/app-write-two-guard-observation-v2/work-stale-security.sql": "02129dbbfb77160226f10fe5be3133e34e49f174776caee0f20df53d96e64cec",
+      "review-output/app-write-two-guard-observation-v2/work-wrong-purpose.sql": "545ae9c09a0b989b42b2e17698a8de22c563b43b114fa0155eecbd6cded9755d",
+      "review-output/app-write-two-guard-observation-v2/work-wrong-root.sql": "11180a77cfb7f99e4e200e04b3e03bea4991711b03d23f14d386f3b6adbba9d0",
+      "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+      "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+      "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+      "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+      "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+      "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+      "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+      "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+      "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+      "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+      "review-output/native-catalog/README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+      "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+      "review-output/native-catalog/expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+      "review-output/native-catalog/expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "review-output/native-catalog/public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+      "review-output/native-catalog/source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00",
+      "scripts/app_write_two_guard_observation_v2_protocol.py": "c260f47a194f8b29f15032154ecf8827b00757255b4903c3d29c892fe57ed49b",
+      "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+      "scripts/check-app-write-two-guard-observation-v2-coordinator.py": "0b0ecadcb2c67139a4f279d1747d4d3e5ae9146deec3bdfa52ddfdd638b3a596",
+      "scripts/check-app-write-two-guard-observation-v2.py": "6c8a539c5e75903f82abaac024e354f6e2f5da2aa1914b135323b207aa011b75",
+      "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+      "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+      "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+      "scripts/check-native-catalog-review.py": "05d39953bd26c61ef7d414a53bb5c0bc65cb2e59ec8513e17230ad5f7e4ef859",
+      "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+      "scripts/contract_schema.py": "27b91594ac3dc9e1345b5bde912b4a849f0a324e90819df56150f7e3d326bc8c",
+      "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+      "scripts/prepare-app-write-two-guard-observation-v2.py": "11050f0aca2368e2919e42db349513a50a6c9199c78c5f863516415b98f6312f",
+      "scripts/prepare-customer-control-rehearsal.py": "6d67c52ab7c3cc95082c5c82cf007910fcb75a7721d832d3236fe213e3bba174",
+      "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+      "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+      "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+      "scripts/prepare-native-catalog-review.py": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+      "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+      "scripts/scoped_read_companion_protocol.py": "514327052c085a87348bfafc895baa321e631b32746090ca6ebe18652f10488f",
+      "scripts/sql-review/catalog-acl-preflight.sql": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+      "scripts/sql-review/catalog-text-preflight.sql": "f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823",
+      "scripts/sql-review/catalog_expression_oracle.py": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+      "scripts/sql-review/catalog_manifest.py": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+      "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+      "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+      "scripts/sql-review/compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+      "scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json": "996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+      "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+      "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+      "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604",
+      "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+      "scripts/sql-review/pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342",
+      "scripts/sql-review/prisma-ledger-proof.md": "05ed0aff941305f5e2800b49633f029a8a68ca05ec2b80171060632917577992",
+      "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+      "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+      "scripts/sql-review/run-app-write-two-guard-observation-v2.py": "7654ac952a63bf4ca75230f58657fce9c080ba9364cd2dd848762770ce7fb1df",
+      "scripts/sql-review/run-context-control-rehearsal.py": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+      "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+      "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+      "scripts/sql-review/run-scoped-read-companion-rehearsal.py": "4160760bb319e4389182ed5cfcb6c0fae028480bd3d6d418be0130e8156a0f15",
+      "scripts/sql-review/test_catalog_collector_acl.py": "d9ac90cb8c335bd70b04056e422692c55bf73569ef109d3f8fb2bd73e9e1b57b",
+      "scripts/sql-review/test_catalog_collector_text.py": "fe7a29132b7d69b69213f61ccfda3e14a7339735c202f3cae1334c92dc6e24a7",
+      "scripts/sql-review/test_catalog_expression_oracle.py": "a758a17b8cd92922e7a599dc06679e6309dc107028c151387e533dcf8a5f5c85",
+      "scripts/sql-review/test_catalog_manifest.py": "633e4f8c8f3b93d7e44d7c8abff7aa5ca1f3caa063cc354d592d1913d4ba9750",
+      "scripts/sql-review/test_compare_native_catalog.py": "38d0e26ac030a1024c739c8ea79e0c653b3f0bf9aee54e9815bf314b8887ce37",
+      "scripts/sql-review/test_local_image_identity.py": "0edae319a544aaaa8ed112e2ec477fe7ac428b58a7970ca8cd0e33ff006abe93",
+      "scripts/sql-review/test_pg17_catalog_rules.py": "c6879cd715df8bb45b26bbeec90352189e339d87be2f37c869cf471e42cfbb4a",
+      "scripts/sql-review/test_prisma_ledger_proof.py": "62685fbff83d42cad600de2d1f387647737a42bd5cffc50c2240eb1c66006095",
+      "tests/contracts/shared/consumer-expectations.json": "cb5ba005ae8bfa161ec53c962e4be3cdfac03d32fad9657ef7c5830184a6519f"
+    },
+    "guarded_history_helper_sha256": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "execution_hold": "Exact source commit/tree/full closed packet and external source/image proofs must be pinned and independently reviewed. This output cannot execute.",
+    "pin_helper_sha256": "f81b58eae6c40c5e475efa5c3d170864038e8ce152991c7d7421d51f458fbee2"
+  },
+  "run_manifest_sha256": "0754808b8e6425d472191f9c3519313f76c5894c6e0fe00a5be23f1342ffec65",
+  "catalog_preparation": {
+    "status": "SOURCE_REPRODUCED_NOT_RUN",
+    "assets_sha256": {
+      "README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+      "expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+      "expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+      "expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+      "source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00"
+    },
+    "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+    "closed_source_files": 16
+  },
+  "local_preflight": {
+    "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+    "server_version": "29.6.2",
+    "server_os": "linux",
+    "server_arch": "amd64",
+    "initial_resource_presence": {
+      "wa-p0c-8f2aa922-appwrite2": false,
+      "wa-p0c-8f2aa922-appwrite2-data": false
+    },
+    "unrelated_containers_untouched": 12,
+    "unrelated_volumes_untouched": 3
+  },
+  "image": {
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "manifest_content_hash_verified": true,
+    "pinned_repo_digest_verified": true,
+    "image_store_identity": "MANIFEST",
+    "os": "linux",
+    "architecture": "amd64",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pulled_this_run": false,
+    "removed": false
+  },
+  "credential_handling": {
+    "host_private_directory_owner_only_acl_verified": true,
+    "real_credentials_in_argv_env_or_evidence": false,
+    "container_pgpass": "root_owned_0600_tmpfs",
+    "independent_per_role_per_target": true
+  },
+  "resource_inspection_checks": [
+    {
+      "phase": "PRESTART",
+      "comparisons": {
+        "single_resource": true,
+        "container_shape": true,
+        "created_identity": true,
+        "isolation": true,
+        "no_published_ports": true,
+        "bounded_mount_list": true,
+        "mount_row_shape": true,
+        "data_mount": true,
+        "bootstrap_mount": true,
+        "logical_mount_set": true,
+        "host_tmpfs_key": true,
+        "exact_tmpfs_options": true,
+        "volume_identity": true
+      },
+      "mount_counts": {
+        "data": 1,
+        "bootstrap": 1,
+        "tmpfs_api": 0
+      },
+      "kernel_required": false,
+      "confirmed": true
+    },
+    {
+      "phase": "RUNNING",
+      "comparisons": {
+        "single_resource": true,
+        "container_shape": true,
+        "created_identity": true,
+        "isolation": true,
+        "no_published_ports": true,
+        "bounded_mount_list": true,
+        "mount_row_shape": true,
+        "data_mount": true,
+        "bootstrap_mount": true,
+        "logical_mount_set": true,
+        "host_tmpfs_key": true,
+        "exact_tmpfs_options": true,
+        "volume_identity": true
+      },
+      "mount_counts": {
+        "data": 1,
+        "bootstrap": 1,
+        "tmpfs_api": 0
+      },
+      "kernel_required": true,
+      "confirmed": true
+    },
+    {
+      "phase": "RUNNING",
+      "comparisons": {
+        "single_resource": true,
+        "container_shape": true,
+        "created_identity": true,
+        "isolation": true,
+        "no_published_ports": true,
+        "bounded_mount_list": true,
+        "mount_row_shape": true,
+        "data_mount": true,
+        "bootstrap_mount": true,
+        "logical_mount_set": true,
+        "host_tmpfs_key": true,
+        "exact_tmpfs_options": true,
+        "volume_identity": true
+      },
+      "mount_counts": {
+        "data": 1,
+        "bootstrap": 1,
+        "tmpfs_api": 0
+      },
+      "kernel_required": true,
+      "confirmed": true
+    }
+  ],
+  "resource_kernel_checks": [
+    {
+      "phase": "RUNNING_KERNEL_TMPFS",
+      "owned_identity": true,
+      "attempted": true,
+      "command_returned": true,
+      "integer_exit_zero": true,
+      "fixed_token": true,
+      "stderr_empty": true,
+      "confirmed": true
+    },
+    {
+      "phase": "RUNNING_KERNEL_TMPFS",
+      "owned_identity": true,
+      "attempted": true,
+      "command_returned": true,
+      "integer_exit_zero": true,
+      "fixed_token": true,
+      "stderr_empty": true,
+      "confirmed": true
+    }
+  ],
+  "authentication": [
+    {
+      "role": "postgres",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_migrator",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_context_issuer",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_app_runtime",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    },
+    {
+      "role": "wa_worker",
+      "transport": "TCP_127.0.0.1_5432",
+      "correct_password": "PASS_SCRAM",
+      "wrong_password": "PASS_REJECTED",
+      "wrong_password_exit_code": 2
+    }
+  ],
+  "effective_hba_selections": [
+    {
+      "role": "postgres",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "127.0.0.1",
+      "rule_number": 2,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "postgres",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_migrator",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_context_issuer",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_identity_service_authority",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_app_runtime",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    },
+    {
+      "role": "wa_worker",
+      "address": "::1",
+      "rule_number": 3,
+      "method": "scram-sha-256"
+    }
+  ],
+  "current_auth_role": "wa_worker",
+  "authentication_comparison": {
+    "json_parsed": true,
+    "object": true,
+    "fields": true,
+    "string_fields": true,
+    "login": true,
+    "scram_identity": true,
+    "database": true,
+    "client_loopback": true,
+    "server_loopback": true
+  },
+  "backend_closures": [
+    {
+      "stage": "APP_WRITE_TWO_AUTHENTICATION_PREFLIGHT",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "CATALOG_ACL_COMPATIBILITY",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "CATALOG_TEXT_COMPATIBILITY",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "NATIVE_BEFORE_ORACLE",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "EXPRESSION_ORACLE",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "NATIVE_AFTER_ORACLE",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "PRISMA_LEDGER_NATIVE",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "NATIVE_AFTER_LEDGER",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "APP_WRITE_TWO_PRE_COMPONENT",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    },
+    {
+      "stage": "APP_WRITE_TWO_POST_COMPONENT",
+      "scope": "ALL_DATABASES_ALL_ROLES_ALL_TAGS",
+      "observation_completed": true,
+      "counts_valid": true,
+      "migrator_zero": true,
+      "other_clients_zero": true,
+      "all_other_client_backends_absent": true
+    }
+  ],
+  "public_baseline_verification": {
+    "predeclared_owner_and_three_acl_rows_match": true,
+    "learned_post_install_baseline": false
+  },
+  "migration_operations": [
+    {
+      "target": "wa-p0c-8f2aa922-appwrite2",
+      "stage": "CATALOG_GENUINE_INITIAL_DEPLOY",
+      "schema": "workinants.local-f0-migrate-result.v2",
+      "operation": "deploy",
+      "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+      "exit_code": 0,
+      "prisma_codes": [],
+      "sqlstates": [],
+      "diagnostic_format": {
+        "text_valid": true,
+        "sgr_stripped": false,
+        "headers_valid": true,
+        "prisma_header_present": false,
+        "prisma_header_unique": false,
+        "database_header_present": false,
+        "database_header_unique": false
+      },
+      "no_pending_message_observed": false,
+      "raw_output_discarded": true,
+      "database_qualification_claimed": false,
+      "run_id": "8f2aa922-6bb7-49a1-add6-4b15aa983b43",
+      "container_id": "54cf84f67a23367b4a364aff76fb29e253cc23605c089e2fb9ce55367098d336",
+      "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "attestation_sha256": "cafaea79c6c7a6a0ce2b49a8e711f8fd7d8b42af486a9d3d123d481f4d272071"
+    }
+  ],
+  "ledger_registration_sha256": "c883e2b3a9b44fc5ae8924c8d4d402367a211232d2a97476f859623fd4f711f3",
+  "catalog_operations": [
+    {
+      "stage": "CATALOG_ACL_COMPATIBILITY",
+      "input_sha256": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "CATALOG_TEXT_COMPATIBILITY",
+      "input_sha256": "f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "NATIVE_BEFORE_ORACLE",
+      "input_sha256": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "EXPRESSION_ORACLE",
+      "input_sha256": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "NATIVE_AFTER_ORACLE",
+      "input_sha256": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "PRISMA_LEDGER_NATIVE",
+      "input_sha256": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    },
+    {
+      "stage": "NATIVE_AFTER_LEDGER",
+      "input_sha256": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "exit_code": 0,
+      "client_exited": true,
+      "sqlstates": [],
+      "unexpected_stderr": false,
+      "raw_output_discarded": true
+    }
+  ],
+  "acl_compatibility_preflight": {
+    "format": "workinants.catalog-acl-preflight.v1",
+    "read_only": true,
+    "collected_as": "postgres",
+    "server_version_num": 170011,
+    "collector_is_superuser": true,
+    "null_acl_has_zero_rows": true,
+    "empty_acl_guard_has_zero_rows": true,
+    "old_zero_dimensional_acl_rejected_exactly": true,
+    "sequence_default_has_exact_owner_privileges": true
+  },
+  "text_compatibility_preflight": {
+    "format": "workinants.catalog-text-preflight.v1",
+    "read_only": true,
+    "collected_as": "postgres",
+    "server_version_num": 170011,
+    "collector_is_superuser": true,
+    "identifier_limit_is_63": true,
+    "old_projection_type_is_name": true,
+    "corrected_projection_type_is_text": true,
+    "old_projection_truncates_long_value": true,
+    "corrected_projection_preserves_long_value": true
+  },
+  "native_snapshots": [
+    {
+      "stage": "NATIVE_BEFORE_ORACLE",
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "native_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+      "artifact": "native-before.json",
+      "artifact_sha256": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8"
+    },
+    {
+      "stage": "NATIVE_AFTER_ORACLE",
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "native_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+      "artifact": "native-after-oracle.json",
+      "artifact_sha256": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8"
+    },
+    {
+      "stage": "NATIVE_AFTER_LEDGER",
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "native_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+      "artifact": "native-after-ledger.json",
+      "artifact_sha256": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8"
+    }
+  ],
+  "oracle_records": [
+    {
+      "index": 0,
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "sha256": "cc90ff705264951fc3882e01113f3dfbece59224b9d40923b2882c80c9de3e17"
+    },
+    {
+      "index": 1,
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "sha256": "b51291d82cc20e606cfe7fed1bdec3c48d9137b2e8ca805be8f366dcc472e807"
+    },
+    {
+      "index": 2,
+      "status": "OBSERVED_NOT_QUALIFIED",
+      "sha256": "f7c5d2835733c597bc9b99e2c69db45e619e1ec12b634c5a1932d213f262fbe0"
+    }
+  ],
+  "ledger_observation_sha256": "ad782a8cd17870a8e1da1bbaecdf5eaa93b51a31b55d360f51e008df27786682",
+  "ledger_comparison": {
+    "status": "PASS",
+    "checks": [
+      {
+        "field": "source-bound-registration",
+        "status": "PASS",
+        "expected_sha256": "c883e2b3a9b44fc5ae8924c8d4d402367a211232d2a97476f859623fd4f711f3",
+        "actual_sha256": "c883e2b3a9b44fc5ae8924c8d4d402367a211232d2a97476f859623fd4f711f3"
+      },
+      {
+        "field": "same-run-collector-and-catalog-binding",
+        "status": "PASS",
+        "expected_sha256": "58a239c9646f853e20b7dcdd30e6900524be8ee39d4636b52b907af8e8d0ce0f",
+        "actual_sha256": "58a239c9646f853e20b7dcdd30e6900524be8ee39d4636b52b907af8e8d0ce0f"
+      },
+      {
+        "field": "complete-observation-fields",
+        "status": "PASS",
+        "expected_sha256": "9c0469cfcdcb88a1a8b4916dc2747e49604276c9ee9abbed1e4a683c7a65a65e",
+        "actual_sha256": "9c0469cfcdcb88a1a8b4916dc2747e49604276c9ee9abbed1e4a683c7a65a65e"
+      },
+      {
+        "field": "format",
+        "status": "PASS",
+        "expected_sha256": "696042fbe47a53b89d09bb0ca1eedddd1ea7d724bfb728c3a6d121baafbbcd34",
+        "actual_sha256": "696042fbe47a53b89d09bb0ca1eedddd1ea7d724bfb728c3a6d121baafbbcd34"
+      },
+      {
+        "field": "server_version_num",
+        "status": "PASS",
+        "expected_sha256": "9dd5c6c71f65902b0ee92bd4de57997b2a11aaadcbb24f825c2c9bf0c4467f40",
+        "actual_sha256": "9dd5c6c71f65902b0ee92bd4de57997b2a11aaadcbb24f825c2c9bf0c4467f40"
+      },
+      {
+        "field": "database",
+        "status": "PASS",
+        "expected_sha256": "4bcf3096a81c120d07c78b08b224e58b5839ec35466c98da2197e9a7582b2938",
+        "actual_sha256": "4bcf3096a81c120d07c78b08b224e58b5839ec35466c98da2197e9a7582b2938"
+      },
+      {
+        "field": "read_only",
+        "status": "PASS",
+        "expected_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "actual_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+      },
+      {
+        "field": "isolation",
+        "status": "PASS",
+        "expected_sha256": "658083cb363b5a7941c1c0163886e48baa63a67a161d63c9bc84279ade9275b4",
+        "actual_sha256": "658083cb363b5a7941c1c0163886e48baa63a67a161d63c9bc84279ade9275b4"
+      },
+      {
+        "field": "collected_as",
+        "status": "PASS",
+        "expected_sha256": "264c0424e4bd463a7d02b9db6896143e1a96cd1c52511119f839d2bc9c934241",
+        "actual_sha256": "264c0424e4bd463a7d02b9db6896143e1a96cd1c52511119f839d2bc9c934241"
+      },
+      {
+        "field": "session_user",
+        "status": "PASS",
+        "expected_sha256": "264c0424e4bd463a7d02b9db6896143e1a96cd1c52511119f839d2bc9c934241",
+        "actual_sha256": "264c0424e4bd463a7d02b9db6896143e1a96cd1c52511119f839d2bc9c934241"
+      },
+      {
+        "field": "collector_is_superuser",
+        "status": "PASS",
+        "expected_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "actual_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+      },
+      {
+        "field": "history_ids_unique",
+        "status": "PASS",
+        "expected_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "actual_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b"
+      },
+      {
+        "field": "exact-relations",
+        "status": "PASS",
+        "expected_sha256": "bbb5bf5338d48a59e95099e51188ae2972eb80f14b1fbda7f726c967faa5e0ba",
+        "actual_sha256": "bbb5bf5338d48a59e95099e51188ae2972eb80f14b1fbda7f726c967faa5e0ba"
+      },
+      {
+        "field": "exact-columns",
+        "status": "PASS",
+        "expected_sha256": "6c326beb4bb05d0948f1435b4c84164829525fb91683aca051f7f927406bd5c0",
+        "actual_sha256": "6c326beb4bb05d0948f1435b4c84164829525fb91683aca051f7f927406bd5c0"
+      },
+      {
+        "field": "exact-constraints",
+        "status": "PASS",
+        "expected_sha256": "a8383b1d73f2a3661faf15cf4f95a8687801b912e8063a463ee842f8379c6e22",
+        "actual_sha256": "a8383b1d73f2a3661faf15cf4f95a8687801b912e8063a463ee842f8379c6e22"
+      },
+      {
+        "field": "exact-indexes",
+        "status": "PASS",
+        "expected_sha256": "a2d38a8919cdde5b50d67b96fd8c0cd1c6981d215aaa083e224f13c1c257fd87",
+        "actual_sha256": "a2d38a8919cdde5b50d67b96fd8c0cd1c6981d215aaa083e224f13c1c257fd87"
+      },
+      {
+        "field": "exact-table_acl",
+        "status": "PASS",
+        "expected_sha256": "4ba930b6150a33836a90b936db3757f2c89015ec1a6bb37bc906cf8118a4cc4c",
+        "actual_sha256": "4ba930b6150a33836a90b936db3757f2c89015ec1a6bb37bc906cf8118a4cc4c"
+      },
+      {
+        "field": "exact-column_acl",
+        "status": "PASS",
+        "expected_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "actual_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "field": "exact-triggers_count",
+        "status": "PASS",
+        "expected_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "actual_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+      },
+      {
+        "field": "exact-policies_count",
+        "status": "PASS",
+        "expected_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "actual_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+      },
+      {
+        "field": "exact-rules_count",
+        "status": "PASS",
+        "expected_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "actual_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+      },
+      {
+        "field": "complete-source-checksum-and-state-history",
+        "status": "PASS",
+        "expected_sha256": "c9cf4432e8a5111f795c088a7958787c5427e4ed09f5a3729daad2e9765aa0da",
+        "actual_sha256": "c9cf4432e8a5111f795c088a7958787c5427e4ed09f5a3729daad2e9765aa0da"
+      }
+    ]
+  },
+  "catalog_comparison": {
+    "format": "workinants.catalog-comparison.v1",
+    "status": "PASS",
+    "case_id": "P0C-CATALOG-01",
+    "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+    "native_snapshot_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+    "check_counts": {
+      "PASS": 29089
+    },
+    "findings": [],
+    "database_contacted_by_comparator": false,
+    "database_posture": "D",
+    "pg17_rule_release": "REL_17_11",
+    "pg17_rule_sources": {
+      "foreign_key_inheritance_and_trigger_matrix": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/tablecmds.c",
+        "ranges": [
+          "9568-9619",
+          "11309-11463",
+          "11594-11794"
+        ],
+        "symbols": [
+          "addFkConstraint",
+          "transformFkeyCheckAttrs",
+          "CreateFKCheckTrigger",
+          "createForeignKeyActionTriggers"
+        ]
+      },
+      "index_constraint_inheritance_and_deferred_trigger": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/index.c",
+        "ranges": [
+          "1819-1864",
+          "1888-1914"
+        ],
+        "symbols": [
+          "index_constraint_create"
+        ]
+      },
+      "dependent_type_acl": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/pg_type.c",
+        "ranges": [
+          "315-325",
+          "383-394"
+        ],
+        "symbols": [
+          "TypeCreate"
+        ]
+      },
+      "type_acl_defaults_and_owner_flags": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/adt/acl.c",
+        "ranges": [
+          "816-820",
+          "840-861"
+        ],
+        "symbols": [
+          "acldefault"
+        ]
+      },
+      "array_effective_usage_delegation": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/aclchk.c",
+        "ranges": [
+          "2301-2316",
+          "3592-3617"
+        ],
+        "symbols": [
+          "ExecGrant_Type_check",
+          "pg_type_aclmask_ext"
+        ]
+      },
+      "user_constraint_trigger_catalog_row_and_internal_names": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/trigger.c",
+        "ranges": [
+          "754-803",
+          "813-868",
+          "978-1055"
+        ],
+        "symbols": [
+          "CreateTriggerFiringOn"
+        ]
+      },
+      "pinned_dependencies_are_omitted": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/pg_depend.c",
+        "ranges": [
+          "98-106"
+        ],
+        "symbols": [
+          "recordMultipleDependencies"
+        ]
+      },
+      "pinned_object_classification": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/catalog.c",
+        "ranges": [
+          "317-372"
+        ],
+        "symbols": [
+          "IsPinnedObject"
+        ]
+      },
+      "release_pinned_trigger_functions": {
+        "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/include/catalog/pg_proc.dat",
+        "ranges": [
+          "3743-3789"
+        ],
+        "symbols": [
+          "unique_key_recheck",
+          "RI_FKey_*"
+        ]
+      }
+    },
+    "limit": "Public owner baseline and genuine Prisma ledger require separate reviewed evidence; unresolved expression hashes remain INCOMPLETE. Array effective USAGE follows verified element ACL; generated-type rows compare the collector default-ACL projection."
+  },
+  "primary_failure": {
+    "stage": "FINITE_APP_WRITE_PROTOCOL",
+    "code": "EXACT_RECORD_COUNT"
+  },
+  "sanitization": {
+    "files_scanned": 18,
+    "actual_password_values_found": false,
+    "unrestricted_subprocess_output_persisted": false,
+    "raw_context_handles_persisted": false,
+    "coordinator_evidence_uses_reviewed_allowlist": true
+  },
+  "host_secret_cleanup": {
+    "deleted": [
+      "ok-bootstrap-password"
+    ],
+    "private_directory_absent": true
+  },
+  "cleanup_summary": {
+    "resource_presence_after": {
+      "wa-p0c-8f2aa922-appwrite2": false,
+      "wa-p0c-8f2aa922-appwrite2-data": false
+    },
+    "test_owned_secret_files_deleted": [
+      "ok-bootstrap-password"
+    ],
+    "private_directory_absent": true,
+    "image_removed": false,
+    "unrelated_resources_changed": false
+  },
+  "cleanup_actions_confirmed": true,
+  "packet_unchanged_after_run": true,
+  "tool_source_data_unchanged_after_run": true,
+  "external_sources_unchanged_after_run": true,
+  "external_inputs_unchanged_after_run": true,
+  "finished_at": "2026-11-20T11:34:10.915803+00:00"
+}

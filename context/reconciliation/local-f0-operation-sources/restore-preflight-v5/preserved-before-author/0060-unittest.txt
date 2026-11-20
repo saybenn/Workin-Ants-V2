@@ -1,0 +1,73 @@
+test_actual_initialize_raw_five_full_verifier_and_real_catalog_reproduction (<run_path>.SourceTests.test_actual_initialize_raw_five_full_verifier_and_real_catalog_reproduction) ... ok
+test_actual_initialize_rejects_duplicate_nonfinite_and_oversized_json (<run_path>.SourceTests.test_actual_initialize_rejects_duplicate_nonfinite_and_oversized_json) ... ok
+test_actual_missing_helper_and_historical_graph_reject_before_compile_or_process (<run_path>.SourceTests.test_actual_missing_helper_and_historical_graph_reject_before_compile_or_process) ... ok
+test_actual_pin_checks_committed_blobs_and_stays_pending_operation (<run_path>.SourceTests.test_actual_pin_checks_committed_blobs_and_stays_pending_operation) ... ok
+test_actual_pinner_rejects_committed_blob_drift_without_writing_pin (<run_path>.SourceTests.test_actual_pinner_rejects_committed_blob_drift_without_writing_pin) ... ok
+test_current_live_source_gate_is_PENDING (<run_path>.SourceTests.test_current_live_source_gate_is_PENDING) ... ok
+test_dormant_entry_help_and_no_flag (<run_path>.SourceTests.test_dormant_entry_help_and_no_flag) ... ok
+test_live_five_or_transitive_second_read_drift_rejects_without_echo (<run_path>.SourceTests.test_live_five_or_transitive_second_read_drift_rejects_without_echo) ... ok
+test_live_pending_source_metadata_rejects_before_source_import (<run_path>.SourceTests.test_live_pending_source_metadata_rejects_before_source_import) ... ok
+test_pending_operation_cannot_enter_source_or_create_evidence (<run_path>.SourceTests.test_pending_operation_cannot_enter_source_or_create_evidence) ... ok
+test_separate_after_producer_contains_no_install_or_domain_mutation_path (<run_path>.SourceTests.test_separate_after_producer_contains_no_install_or_domain_mutation_path) ... ok
+test_active_or_invalid_global_counts_block_actual_revoke (<run_path>.ReferenceSafetyTests.test_active_or_invalid_global_counts_block_actual_revoke) ... ERROR
+test_actual_absence_oversize_growth_duplicate_nonfinite_and_untrusted_values (<run_path>.ReferenceSafetyTests.test_actual_absence_oversize_growth_duplicate_nonfinite_and_untrusted_values) ... ok
+test_actual_bounded_stream_limit_and_fixed_marker_before_failed_io (<run_path>.ReferenceSafetyTests.test_actual_bounded_stream_limit_and_fixed_marker_before_failed_io) ... ok
+test_actual_reference_rejects_typed_size_links_symlink_and_growth (<run_path>.ReferenceSafetyTests.test_actual_reference_rejects_typed_size_links_symlink_and_growth) ... ok
+test_atomic_replace_accepts_common_version_and_stable_per_representation_ctime (<run_path>.ReferenceSafetyTests.test_atomic_replace_accepts_common_version_and_stable_per_representation_ctime) ... ok
+test_closed_actual571_origin_and_exact_minimized_failure_schemas (<run_path>.ReferenceSafetyTests.test_closed_actual571_origin_and_exact_minimized_failure_schemas) ... ok
+test_fresh_byte_recheck_and_restored_old_reader_tripwire (<run_path>.ReferenceSafetyTests.test_fresh_byte_recheck_and_restored_old_reader_tripwire) ... ERROR
+test_real_safety_sql_and_finalizer_progress_under_persistent_evidence_io (<run_path>.ReferenceSafetyTests.test_real_safety_sql_and_finalizer_progress_under_persistent_evidence_io) ... ERROR
+
+======================================================================
+ERROR: test_active_or_invalid_global_counts_block_actual_revoke (<run_path>.ReferenceSafetyTests.test_active_or_invalid_global_counts_block_actual_revoke)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_app_write_two_guard_observation_v2_operation.py", line 433, in test_active_or_invalid_global_counts_block_actual_revoke
+    n['preflight']();n['ensure_image']();n['create_resources']();n['bootstrap_all']();model.bad_global=count
+                                                                 ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\app-owned-offline-63bcwbhw\mirror\local_f0_app_write_two_guard_observation_v2_operation_steps.py", line 76, in bootstrap_all
+    source_authentication_preflight(name)
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\app-owned-offline-63bcwbhw\mirror\local_f0_app_write_two_guard_observation_v2_operation_steps.py", line 782, in source_authentication_preflight
+    load_reviewed_helper('scripts/sql-review/run-first-rehearsal.py')['authentication_preflight'](AuthEvidence(), created_containers[name])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\app-owned-offline-63bcwbhw\mirror\local_f0_app_write_two_guard_observation_v2_operation_steps.py", line 752, in load_reviewed_helper
+    blobs={name:APP_ADMITTED[name] for name in HELPER_FILES}
+                ~~~~~~~~~~~~^^^^^^
+KeyError: 'scripts/sql-review/run-app-write-two-guard-observation-v2.py'
+
+======================================================================
+ERROR: test_fresh_byte_recheck_and_restored_old_reader_tripwire (<run_path>.ReferenceSafetyTests.test_fresh_byte_recheck_and_restored_old_reader_tripwire)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_app_write_two_guard_observation_v2_operation.py", line 383, in test_fresh_byte_recheck_and_restored_old_reader_tripwire
+    n,fixed,_=self.reference();held=self.fixture.root/'context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned/preserved-held-v1'/(N[1]+'.txt');raw=held.read_bytes();self.assertEqual(sha(raw),'8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb');node=next(x for x in ast.parse(raw).body if isinstance(x,ast.FunctionDef)and x.name=='app_read_closed_reference');scope=dict(n);exec(compile(ast.Module(body=[node],type_ignores=[]),'HELD_V1_READER_ONLY','exec'),scope);original=Path.open
+                                                                                                                                                                                       ^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-owned-offline-63bcwbhw\\mirror\\workinants-correction-pass\\context\\reconciliation\\local-f0-operation-sources\\app-write-two-guard-observation-v2-owned\\preserved-held-v1\\local_f0_app_write_two_guard_observation_v2_operation_steps.py.txt'
+
+======================================================================
+ERROR: test_real_safety_sql_and_finalizer_progress_under_persistent_evidence_io (<run_path>.ReferenceSafetyTests.test_real_safety_sql_and_finalizer_progress_under_persistent_evidence_io)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_app_write_two_guard_observation_v2_operation.py", line 418, in test_real_safety_sql_and_finalizer_progress_under_persistent_evidence_io
+    n['preflight']();n['ensure_image']();n['create_resources']();n['bootstrap_all']()
+                                                                 ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\app-owned-offline-63bcwbhw\mirror\local_f0_app_write_two_guard_observation_v2_operation_steps.py", line 76, in bootstrap_all
+    source_authentication_preflight(name)
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\app-owned-offline-63bcwbhw\mirror\local_f0_app_write_two_guard_observation_v2_operation_steps.py", line 782, in source_authentication_preflight
+    load_reviewed_helper('scripts/sql-review/run-first-rehearsal.py')['authentication_preflight'](AuthEvidence(), created_containers[name])
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\app-owned-offline-63bcwbhw\mirror\local_f0_app_write_two_guard_observation_v2_operation_steps.py", line 752, in load_reviewed_helper
+    blobs={name:APP_ADMITTED[name] for name in HELPER_FILES}
+                ~~~~~~~~~~~~^^^^^^
+KeyError: 'scripts/sql-review/run-app-write-two-guard-observation-v2.py'
+
+----------------------------------------------------------------------
+Ran 19 tests in 118.476s
+
+FAILED (errors=3)

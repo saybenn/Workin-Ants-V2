@@ -1,0 +1,17 @@
+"""Current approved source metadata; unchanged real initialization/pinner cases."""
+from pathlib import Path
+import datetime,hashlib,importlib.util,json,time,unittest
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+p=T/'check_restore_bound_evidence_v3_source_gates_20261119.py'
+spec=importlib.util.spec_from_file_location('Root_current_restore_bound_v3_gates',p);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+suite=unittest.TestSuite([
+ m.RestoreBoundEvidenceSourceGateTests('test_actual_initializer_and_whole_verifier_populate_all_resource_globals'),
+ m.RestoreBoundEvidenceSourceGateTests('test_actual_pinner_full_current_and_committed_graph_keeps_execution_pending'),
+ m.RestoreBoundEvidenceSourceGateTests('test_explicit_PENDING_new_review_blocks_actual_pinner_and_runtime_before_process'),
+])
+started=time.perf_counter();result=unittest.TextTestRunner(verbosity=2).run(suite)
+record={'schema':'workinants.restore-bound-v3-approved-metadata-Root-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'elapsed_seconds':round(time.perf_counter()-started,3),'status':'PASS' if result.wasSuccessful() else 'FAIL','source_check_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'validation_sha256':hashlib.sha256((R/'context/reconciliation/local-f0-restore-bound-evidence-v3-source-validation.json').read_bytes()).hexdigest(),'scope':'Current approved metadata actual initializer/resource globals/whole-source graph and actual pinner/current+committed checks; explicit temporary new-PENDING gate rejects before commands. Every process/DB/Git/network boundary mocked.','no_frozen_test_or_production_code_changes':True,'runtime_or_actual_approval':False,'Posture':'D'}
+out=T/'restore_bound_v3_approved_metadata_Root_checks_20261119.json'
+with out.open('x',encoding='utf8') as f:json.dump(record,f,indent=2)
+print(json.dumps({'path':str(out),'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'status':record['status'],'methods':result.testsRun}))
+raise SystemExit(0 if result.wasSuccessful() else 1)

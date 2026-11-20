@@ -1,0 +1,41 @@
+"""Reproduce only the pure input-admission path from closed sanitized actual inputs."""
+from pathlib import Path
+import ast,contextlib,datetime,hashlib,io,json,re,runpy,socket,subprocess,time,traceback
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+outerpath=T/'local-f0-remaining-app-read13-owned-v1-plan-0b7c519e/operation-manifest.json';outerraw=outerpath.read_bytes();m=json.loads(outerraw)
+assert sha(outerraw)=='282a99e1cd2c376ba0b9408f39b73ae83953525d60d4800dff33d93156f0f4e4'
+out=Path(m['evidence_directory']);report_raw=(out/'run-evidence.json').read_bytes();assert sha(report_raw)=='9f1bd5efe63aa010d75cb5af8a38538037632c358715e535ac07aa18d77ebd6e'
+assert json.loads(report_raw)['cleanup_actions_confirmed']is True and not(out/'private').exists() and not(out/'read13-component').exists()
+planpath=out/'read13-run-plan.json';planraw=planpath.read_bytes();plan=json.loads(planraw)
+relative='scripts/sql-review/run-remaining-app-read13-rehearsal.py';path=R/relative;raw=path.read_bytes();assert sha(raw)==m['packet_files_sha256'][relative]
+pins=dict(m['packet_files_sha256']);assert plan['packet_files_sha256']==pins
+for n,h in pins.items():assert sha((R/n).read_bytes())==h
+allowed={node.args[1].value for node in ast.walk(ast.parse(raw)) if isinstance(node,ast.Call)and isinstance(node.func,ast.Name)and node.func.id=='need'and len(node.args)>1 and isinstance(node.args[1],ast.Constant)and isinstance(node.args[1].value,str)}
+calls=[]
+def forbidden(*args,**kwargs):calls.append('FORBIDDEN_BOUNDARY');raise AssertionError('ALL_PROCESS_NETWORK_FORBIDDEN')
+capture=io.StringIO();result={};started=time.monotonic()
+with patch.multiple(subprocess,run=forbidden,Popen=forbidden,check_output=forbidden,check_call=forbidden,call=forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden),contextlib.redirect_stdout(capture),contextlib.redirect_stderr(capture):
+ try:
+  ns=runpy.run_path(str(path),run_name='_Root_read13_pure_closed_input_admission')
+  ns['load_inputs'](plan)
+  result={'status':'PURE_LOAD_INPUTS_ACCEPTED','failure':None}
+ except BaseException as error:
+  code=getattr(error,'code',None)
+  if type(code)is not str or code not in allowed:code='NO_ALLOWLISTED_SOURCE_CODE'
+  frames=[]
+  for frame,line in traceback.walk_tb(error.__traceback__):
+   candidate=Path(frame.f_code.co_filename)
+   try:rel=candidate.resolve().relative_to(R.resolve()).as_posix()
+   except(ValueError,OSError):continue
+   if rel in pins:
+    name=frame.f_code.co_name
+    frames.append({'source':rel,'source_sha256':pins[rel],'function':name if re.fullmatch('[A-Za-z_][A-Za-z_0-9]{0,100}|<module>',name)else'OTHER_SOURCE_FUNCTION','line':line})
+  result={'status':'PURE_LOAD_INPUTS_REJECTED','failure':{'exception_class':type(error).__name__,'allowlisted_code':code,'source_frames':frames,'exception_text_raw_output_locals_discarded':True}}
+assert not calls and capture.getvalue()==''
+assert not(out/'read13-component').exists() and not(out/'private').exists() and planpath.read_bytes()==planraw and (out/'run-evidence.json').read_bytes()==report_raw
+for n,h in pins.items():assert sha((R/n).read_bytes())==h
+receipt={'schema':'workinants.read13-closed-actual-input-pure-probe.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_commit':m['source_commit'],'source_tree':m['source_tree'],'packet_sha256':m['packet_sha256'],'actual_report_sha256':sha(report_raw),'actual_child_plan_sha256':sha(planraw),'coordinator_sha256':sha(raw),'source_files':len(pins),'result':result,'seconds':round(time.monotonic()-started,3),'all_process_network_boundaries_forbidden':True,'source_actual_reports_preserved':True,'new_database_contacts':0,'original_actual_complete_cause':'UNOBSERVED_NOT_RETROACTIVELY_ESTABLISHED_BY_PURE_REPRODUCTION','Posture':'D'}
+rp=T/'read13_closed_actual_load_inputs_pure_probe_20261120.json'
+with rp.open('xb')as f:f.write((json.dumps(receipt,indent=2,allow_nan=False)+'\n').encode())
+print(json.dumps({'receipt':str(rp),'sha256':sha(rp.read_bytes()),'result':result,'seconds':receipt['seconds']}))

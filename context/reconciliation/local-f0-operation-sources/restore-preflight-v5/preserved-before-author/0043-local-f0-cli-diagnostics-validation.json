@@ -1,0 +1,192 @@
+{
+  "local_date": "2026-11-17",
+  "timezone": "America/New_York",
+  "scope": "BOUNDED_PRISMA_CLI_DIAGNOSTICS_AND_PRE_ORACLE_STATE_RETENTION",
+  "historical_evidence": "context/reconciliation/local-f0-migration-7406805-partial-execution.json",
+  "historical_limit": "Actual2afac3f7 raw CLI output discarded; ANSI vulnerability is source-proven, not a proven actual failure cause. Failure DB cause/rollback remain unobserved.",
+  "protocol": "workinants.local-f0-migrate-result.v2; historical v1 records unchanged",
+  "diagnostics": "Only complete seven-bit SGR sequences stripped in memory, CRLF normalized. Other controls/malformed or duplicate headers reject claims. Retain only7closed Boolean format flags and allowlisted unique anchored Prisma/SQLSTATE headers. No raw text/message/SQL/password/arguments retained.",
+  "environment": "Rebuilt child environment fixes NO_COLOR=1,NODE_DISABLE_COLORS=1,TERM=dumb; no inherited FORCE_COLOR or secret/config overrides.",
+  "failure_observation": "After confirmed CLI nonzero exit and original-grantor finalization, save pg_catalog ledger presence/regular/expectedowner/appcounts/activebackend before row read; absent/odd ledger keeps rows:null/unobserved and stops. Save bounded ledger rows before exact-code oracle; unexpected codes/formats cannot authorize proof or recovery.",
+  "independent_review": {
+    "reviewer": "review_track_ports",
+    "status": "APPROVED_SOURCE_AND_FOCUSED_REGRESSIONS_FRESH_OPERATION_REVIEW_REQUIRED"
+  },
+  "checks": {
+    "migration-python": {
+      "exit_code": 0,
+      "seconds": 1.12,
+      "report_sha256": "6882b0089a182a2e9c199416562d41c675b8bab873fd9949dc42ed16cde4d368",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-local-f0-migrate.py"
+      ],
+      "stdout": "",
+      "stderr": "test_bootstrap_and_wrong_cut_refuse_even_with_matching_hash (__main__.HistoryTests.test_bootstrap_and_wrong_cut_refuse_even_with_matching_hash) ... ok\ntest_bootstrap_secret_path_is_absolute_task_owned_and_external (__main__.HistoryTests.test_bootstrap_secret_path_is_absolute_task_owned_and_external) ... ok\ntest_exact_integrated_migration_is_only_a_byte_plan (__main__.HistoryTests.test_exact_integrated_migration_is_only_a_byte_plan) ... ok\ntest_manifest_and_sources_must_match_exactly (__main__.HistoryTests.test_manifest_and_sources_must_match_exactly) ... ok\ntest_no_explicit_source_hash_refuses (__main__.HistoryTests.test_no_explicit_source_hash_refuses) ... ok\ntest_rejects_other_target_history_tools_and_unknown_fields (__main__.HistoryTests.test_rejects_other_target_history_tools_and_unknown_fields) ... ok\ntest_actual_image_and_entrypoint_drift_refuse_before_copied_code (__main__.LauncherTests.test_actual_image_and_entrypoint_drift_refuse_before_copied_code) ... ok\ntest_coordinator_mocked_all_processes_and_exact_immutable_id (__main__.LauncherTests.test_coordinator_mocked_all_processes_and_exact_immutable_id) ... ok\ntest_no_execution_without_opt_in (__main__.LauncherTests.test_no_execution_without_opt_in) ... ok\ntest_no_raw_exception_output (__main__.LauncherTests.test_no_raw_exception_output) ... ok\ntest_observed_desktop_translation_matches_only_exact_manifest_path (__main__.LauncherTests.test_observed_desktop_translation_matches_only_exact_manifest_path) ... ok\ntest_realistic_unpublished_expose_is_allowed (__main__.LauncherTests.test_realistic_unpublished_expose_is_allowed) ... ok\ntest_recovery_requires_bound_reviewed_evidence (__main__.LauncherTests.test_recovery_requires_bound_reviewed_evidence) ... ok\ntest_runtime_metadata_guards (__main__.LauncherTests.test_runtime_metadata_guards) ... ok\ntest_closure_failure_keeps_status_separate_from_output_format (__main__.ResultProtocolTests.test_closure_failure_keeps_status_separate_from_output_format) ... ok\ntest_exact_v2_has_only_fixed_flags_and_bounded_codes (__main__.ResultProtocolTests.test_exact_v2_has_only_fixed_flags_and_bounded_codes) ... ok\ntest_header_ambiguity_and_missing_presence_fail_closed (__main__.ResultProtocolTests.test_header_ambiguity_and_missing_presence_fail_closed) ... ok\ntest_invalid_text_flags_cannot_claim_codes_no_pending_or_cli_success (__main__.ResultProtocolTests.test_invalid_text_flags_cannot_claim_codes_no_pending_or_cli_success) ... ok\ntest_no_pending_requires_clean_unique_deploy_success_without_headers (__main__.ResultProtocolTests.test_no_pending_requires_clean_unique_deploy_success_without_headers) ... ok\n\n----------------------------------------------------------------------\nRan 19 tests in 0.413s\n\nOK\n"
+    },
+    "migration-node": {
+      "exit_code": 0,
+      "seconds": 0.28,
+      "report_sha256": "482880e7099e2b3822f6d72e2a4dda0439d69efb569deb8b1e79ad2e3a9c7d0b",
+      "command": [
+        "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-node\\node.exe",
+        "scripts/sql-review/check-local-f0-migrate-guard.mjs"
+      ],
+      "stdout": "{\"status\":\"PASS_ENVIRONMENT_FREE_ONLY\",\"checks\":76,\"database_contacted\":false,\"process_executed\":false}\n",
+      "stderr": ""
+    },
+    "failure-observer-final": {
+      "exit_code": 0,
+      "seconds": 0.64,
+      "report_sha256": "87748bbb4cab77b585112441c4daea62e83669582533a46f6fc28030f7cd8c51",
+      "command": [
+        "python",
+        "-B",
+        "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\check_migration_failure_observation.py"
+      ],
+      "stdout": "",
+      "stderr": "test_absent_or_odd_ledger_preserves_catalog_and_never_reads_rows (__main__.FailureObservationTests.test_absent_or_odd_ledger_preserves_catalog_and_never_reads_rows) ... ok\ntest_completed_status_is_required_together_with_integer_zero (__main__.FailureObservationTests.test_completed_status_is_required_together_with_integer_zero) ... ok\ntest_every_success_phase_rejects_actual_exit_zero_with_stop_status (__main__.FailureObservationTests.test_every_success_phase_rejects_actual_exit_zero_with_stop_status) ... ok\ntest_expected_codes_return_observation_without_promotion_or_proof (__main__.FailureObservationTests.test_expected_codes_return_observation_without_promotion_or_proof) ... ok\ntest_ledger_row_read_failure_keeps_presence (__main__.FailureObservationTests.test_ledger_row_read_failure_keeps_presence) ... ok\ntest_nonfailure_result_never_reads_failed_ledger (__main__.FailureObservationTests.test_nonfailure_result_never_reads_failed_ledger) ... ok\ntest_rejected_format_closed_nonzero_observes_but_never_qualifies (__main__.FailureObservationTests.test_rejected_format_closed_nonzero_observes_but_never_qualifies) ... ok\ntest_retained_failure_metadata_has_no_unrestricted_cli_output (__main__.FailureObservationTests.test_retained_failure_metadata_has_no_unrestricted_cli_output) ... ok\ntest_unconfirmed_process_or_finalization_never_observes_or_recovers (__main__.FailureObservationTests.test_unconfirmed_process_or_finalization_never_observes_or_recovers) ... ok\ntest_unknown_codes_observed_after_closure_and_finalizer_before_stop (__main__.FailureObservationTests.test_unknown_codes_observed_after_closure_and_finalizer_before_stop) ... ok\n\n----------------------------------------------------------------------\nRan 10 tests in 0.156s\n\nOK\n"
+    },
+    "context": {
+      "exit_code": 0,
+      "seconds": 18.39,
+      "report_sha256": "513bf7ef7705c63a78bb6d5258c7160cabfa7cad510662a0ca8b45deb1d62734",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-context.py"
+      ],
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": ""
+    },
+    "foundation": {
+      "exit_code": 0,
+      "seconds": 8.34,
+      "report_sha256": "dd37400b37c2a3f558ce655542fea7cb422039b3f054cd130aa4d711b1d9cf63",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-foundation.py"
+      ],
+      "stdout": "{\n  \"errors\": [],\n  \"metrics\": {\n    \"contracts\": 132,\n    \"workflows\": 13,\n    \"cold_start_routes\": 6,\n    \"candidate_lanes\": 8,\n    \"authorized_parallel_lanes\": 0,\n    \"synchronous_contract_cycles\": [],\n    \"current_context_links_checked\": 2882,\n    \"feature_source_files_scanned\": 0,\n    \"specified_token_contrast_pairs\": 12,\n    \"dispositions\": {\n      \"EVOLVABLE_COMPATIBLY\": 119,\n      \"EXTERNALLY_GATED\": 13\n    }\n  },\n  \"token_contrast\": [\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"text\",\n        \"canvas\"\n      ],\n      \"ratio\": 17.93\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"mutedText\",\n        \"canvas\"\n      ],\n      \"ratio\": 7.81\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"onAction\",\n        \"action\"\n      ],\n      \"ratio\": 6.7\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"success\",\n        \"successSurface\"\n      ],\n      \"ratio\": 6.81\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"warning\",\n        \"warningSurface\"\n      ],\n      \"ratio\": 6.84\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"danger\",\n        \"dangerSurface\"\n      ],\n      \"ratio\": 5.91\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"text\",\n        \"canvas\"\n      ],\n      \"ratio\": 16.91\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"mutedText\",\n        \"canvas\"\n      ],\n      \"ratio\": 7.85\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"onAction\",\n        \"action\"\n      ],\n      \"ratio\": 10.98\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"success\",\n        \"successSurface\"\n      ],\n      \"ratio\": 10.62\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"warning\",\n        \"warningSurface\"\n      ],\n      \"ratio\": 10.39\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"danger\",\n        \"dangerSurface\"\n      ],\n      \"ratio\": 8.51\n    }\n  ],\n  \"scope\": \"Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification.\"\n}\n",
+      "stderr": ""
+    },
+    "phase0": {
+      "exit_code": 0,
+      "seconds": 0.78,
+      "report_sha256": "32bdd8aebec776d0b7d47d160274bb1f1bb52daa2636280f49ca4eedaaf40fb0",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-phase0.py"
+      ],
+      "stdout": "{\n  \"errors\": [],\n  \"nine_roles\": 9,\n  \"archived_files\": 21,\n  \"source_models\": 177,\n  \"database_posture\": \"D\",\n  \"status\": \"FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED\",\n  \"scope\": \"Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.\"\n}\n",
+      "stderr": ""
+    }
+  },
+  "files_sha256": {
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+    "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+    "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14"
+  },
+  "external_operation_sources_sha256": {
+    "context/reconciliation/local-f0-operation-sources/cli-diagnostics-v2/check-failure-observation.py.txt": "2fc9f4e5eceefda8964e39116c7a9ec77bb0c738b5f0997bf7c3c37285cc5553",
+    "context/reconciliation/local-f0-operation-sources/cli-diagnostics-v2/operation-steps.py.txt": "4a62beb145319bbb27d30b40c78a1a9ae8cfb77f9eea83a27cb8698841037540"
+  },
+  "preserved_sha256": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+    "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e"
+  },
+  "replacement_checkpoint": "Containing Git commit; fresh external manifest pins full commit/tree and actual file map before execution.",
+  "database_posture": "D",
+  "database_execution_for_this_correction": "NOT_RUN",
+  "canonical_sql_or_worker_acl_changes": false,
+  "root_aliases": "UNCHANGED_BLOCKED",
+  "selected94": "NOT_PROMOTED",
+  "success_status_requirement": "All5success phases require exact completed status plus integer exit0 before advancing. Independent review caught the old exit0-only call sites;10external mocks now include exit0+outputrejected rejection at each phase and source call-boundary coverage.",
+  "focused_counts": {
+    "node": 76,
+    "python": 19,
+    "external_operator": 10
+  },
+  "post_context_update_checks": {
+    "context-final": {
+      "recorded_at": "2026-11-18T01:52:38.005324+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-context.py"
+      ],
+      "exit_code": 1,
+      "seconds": 16.39,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nERRORS: check-phase0.py: Database candidate review: Candidate artifact fingerprint changed: context/reconciliation/phase0-foundation-status.json\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks FAILED; semantic readiness is a separate gate.\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "83890939e0ddb25801f9c570b389d74ca0253b055e660ed02cfa8149975709af"
+    },
+    "phase0-final": {
+      "recorded_at": "2026-11-18T01:52:22.716076+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-phase0.py"
+      ],
+      "exit_code": 1,
+      "seconds": 1.11,
+      "stdout": "{\n  \"errors\": [\n    \"Database candidate review: Candidate artifact fingerprint changed: context/reconciliation/phase0-foundation-status.json\"\n  ],\n  \"nine_roles\": 9,\n  \"archived_files\": 21,\n  \"source_models\": 177,\n  \"database_posture\": \"D\",\n  \"status\": \"FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED\",\n  \"scope\": \"Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "d4f42bea377bd992c10755c629e2c99c72c2bed0a9ac227901b2ece1680bafc4"
+    },
+    "foundation-final": {
+      "recorded_at": "2026-11-18T01:52:28.295584+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-foundation.py"
+      ],
+      "exit_code": 0,
+      "seconds": 6.69,
+      "stdout": "{\n  \"errors\": [],\n  \"metrics\": {\n    \"contracts\": 132,\n    \"workflows\": 13,\n    \"cold_start_routes\": 6,\n    \"candidate_lanes\": 8,\n    \"authorized_parallel_lanes\": 0,\n    \"synchronous_contract_cycles\": [],\n    \"current_context_links_checked\": 2884,\n    \"feature_source_files_scanned\": 0,\n    \"specified_token_contrast_pairs\": 12,\n    \"dispositions\": {\n      \"EVOLVABLE_COMPATIBLY\": 119,\n      \"EXTERNALLY_GATED\": 13\n    }\n  },\n  \"token_contrast\": [\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"text\",\n        \"canvas\"\n      ],\n      \"ratio\": 17.93\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"mutedText\",\n        \"canvas\"\n      ],\n      \"ratio\": 7.81\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"onAction\",\n        \"action\"\n      ],\n      \"ratio\": 6.7\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"success\",\n        \"successSurface\"\n      ],\n      \"ratio\": 6.81\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"warning\",\n        \"warningSurface\"\n      ],\n      \"ratio\": 6.84\n    },\n    {\n      \"theme\": \"light\",\n      \"pair\": [\n        \"danger\",\n        \"dangerSurface\"\n      ],\n      \"ratio\": 5.91\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"text\",\n        \"canvas\"\n      ],\n      \"ratio\": 16.91\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"mutedText\",\n        \"canvas\"\n      ],\n      \"ratio\": 7.85\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"onAction\",\n        \"action\"\n      ],\n      \"ratio\": 10.98\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"success\",\n        \"successSurface\"\n      ],\n      \"ratio\": 10.62\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"warning\",\n        \"warningSurface\"\n      ],\n      \"ratio\": 10.39\n    },\n    {\n      \"theme\": \"dark\",\n      \"pair\": [\n        \"danger\",\n        \"dangerSurface\"\n      ],\n      \"ratio\": 8.51\n    }\n  ],\n  \"scope\": \"Static ownership/workflow/context/schema and executable wire/reference assertions. No real producer/consumer, framework, database, RLS, provider, Privacy executor or full rendered UI proof. Empty feature-source inventory is reported explicitly, not runtime boundary certification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "1759de9fe480ce99209839679da71b8159b745a1b0d94ec26e42628d7c59640e"
+    },
+    "phase0-status-fingerprint": {
+      "recorded_at": "2026-11-18T01:53:24.795273+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-phase0.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.91,
+      "stdout": "{\n  \"errors\": [],\n  \"nine_roles\": 9,\n  \"archived_files\": 21,\n  \"source_models\": 177,\n  \"database_posture\": \"D\",\n  \"status\": \"FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED\",\n  \"scope\": \"Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "f5cdf60eb0dc2a7538d737fcec3e14819788e03147dab4d3570e24be77a497ef"
+    },
+    "context-status-fingerprint": {
+      "recorded_at": "2026-11-18T01:53:49.031162+00:00",
+      "command": [
+        "python",
+        "-B",
+        "scripts/check-context.py"
+      ],
+      "exit_code": 0,
+      "seconds": 12.34,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "872a862b288fa51edfddeea932282300dd7c580f84ff30720e7e151e06228540"
+    }
+  },
+  "status_fingerprint_reconciliation": "Initial post-update context/Phase0 checks correctly rejected current phase0 status fingerprint drift. Only its current files_sha256 entry in database-candidate-manifest.json refreshed after reviewing actual status/evidence update; all preserved_source_sha256 entries unchanged. Final Phase0/context checks pass. Historical records unchanged."
+}

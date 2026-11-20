@@ -1,0 +1,973 @@
+{
+  "schema": "workinants.worker-b42-independent-assertion-mapping-proposal.v1",
+  "status": "PROPOSAL_ONLY_REQUIRES_BOUNDED_ROOT_ACK_BEFORE_ANY_ADAPTER_OR_ROOT_WRITE",
+  "run_id": "b42c35d5-f574-444e-b480-67670c56c7c5",
+  "source_commit": "5f189aa6262bd5ecbffda0940e404038993fce05",
+  "source_tree": "fd736f36633b28267602759c0da0d368bd625ef6",
+  "operation_packet_sha256": "13985c51d69a30f776bfa9c653bd507ae6f2634639b4d11151d67e5e239f0882",
+  "execution_record_path": "context/reconciliation/local-f0-worker-5f189aa-b42c35d5-execution.json",
+  "execution_record_sha256": "98f5171443e3377074c06b83fd9f84b66675b9cc7dcc943c3661510adb6a5582",
+  "independent_audit": {
+    "path": "worker_b42_independent_actual_evidence_audit_20261120.json",
+    "sha256": "858203dd9cacd8d1afca42ccb85a748462ccabc33050b0fa2f0e1748060b53c4",
+    "checks": 70
+  },
+  "cleanup_source_addendum": {
+    "path": "worker_b42_cleanup_source_contract_addendum_20261120.json",
+    "sha256": "4304deaba621361ba9920d1efba679b8aa39edc34e8801406cab2a585bb0b7dc",
+    "checks": 39
+  },
+  "immutable_ledger_baseline": {
+    "path": "worker_b42_baseline_653_ef0fbf8_assertion_evidence_20261120.json",
+    "sha256": "ef0fbf8b5dc0344b5a60c857e8067c03b047d9634102263768c83ba3f8b3e1e3",
+    "rows": 653,
+    "counts": {
+      "PASS": 621,
+      "PARTIAL": 32
+    }
+  },
+  "inventory_path": "context/reconciliation/local-f0-assertions.json",
+  "inventory_sha256": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+  "proposed_actions": [
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "a6fa5ebc458f7fdd9c47f92b203add0bab2695f8294a5cd3e999667d139b82f2",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-TrackSubscription",
+          "child_result_pointer": "/results/1",
+          "restricted_operation_pointer": "/operations/80",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackSubscription.sql",
+          "sql_sha256": "4b3b2076d8ff77ea88e578c6eab237f91804622dbadb8208efd58fa63e7a8904",
+          "expected_records_sha256": "61c3372a651672574696c730c4d598aaa612ae2e9749cd51c0a07091b9684856"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "app.track_subscriptions",
+        "fixed_source_policy_fields": [
+          "id",
+          "userId",
+          "planId",
+          "track",
+          "customerProfileId",
+          "candidateProfileId",
+          "professionalProfileId",
+          "status",
+          "provider",
+          "currentPeriodStart",
+          "currentPeriodEnd",
+          "endedAt",
+          "revision"
+        ],
+        "required_field_token_count": 13,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackSubscription.sql",
+        "query_sha256": "4b3b2076d8ff77ea88e578c6eab237f91804622dbadb8208efd58fa63e7a8904",
+        "policy_line": 3467,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "fa27da2ff4eed955ebc3d68ecda14ab2d4225b3b1a7d3f1891470b8120fbf98c",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-TrackEntitlementGrant",
+          "child_result_pointer": "/results/2",
+          "restricted_operation_pointer": "/operations/90",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackEntitlementGrant.sql",
+          "sql_sha256": "a40cf9c8dd3787d4405fc4a64c10bb8a3320cc374e65be5684e2378d36c6055f",
+          "expected_records_sha256": "09eb14761db156af7c9ecf236d36eff6efd38be350e1579e68a355afe5f0f687"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "app.track_entitlement_grants",
+        "fixed_source_policy_fields": [
+          "id",
+          "userId",
+          "subscriptionId",
+          "entitlementId",
+          "track",
+          "customerProfileId",
+          "candidateProfileId",
+          "professionalProfileId",
+          "status",
+          "valueType",
+          "booleanValue",
+          "intValue",
+          "decimalValue",
+          "stringValue",
+          "startsAt",
+          "expiresAt",
+          "revokedAt",
+          "sourcePlanId",
+          "sourceEventId",
+          "revision"
+        ],
+        "required_field_token_count": 20,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackEntitlementGrant.sql",
+        "query_sha256": "a40cf9c8dd3787d4405fc4a64c10bb8a3320cc374e65be5684e2378d36c6055f",
+        "policy_line": 3477,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-RuntimeCommandReceipt",
+          "child_result_pointer": "/results/3",
+          "restricted_operation_pointer": "/operations/100",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeCommandReceipt.sql",
+          "sql_sha256": "1a72a47fc56d983c03ffae7a19bbd16c7eacad525d1ecb98d4b22c9bb45fe5c3",
+          "expected_records_sha256": "4588446537dc61ee1f0d1df8ed9ff989fa8fa12611b53ac7f3aff41812727e62"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "platform.runtime_command_receipt",
+        "fixed_source_policy_fields": [
+          "id",
+          "ownerModuleId",
+          "operation",
+          "subjectScope",
+          "semanticKey",
+          "fingerprint",
+          "state",
+          "sourceRevision",
+          "resultSchemaId",
+          "resultSchemaVersion",
+          "resultDigest",
+          "resultBody",
+          "createdAt",
+          "mutationTransactionId"
+        ],
+        "required_field_token_count": 14,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeCommandReceipt.sql",
+        "query_sha256": "1a72a47fc56d983c03ffae7a19bbd16c7eacad525d1ecb98d4b22c9bb45fe5c3",
+        "policy_line": 3515,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.update",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "a2a49dadabe1b0ad46f03851fde4f4b8456075d305a88b5238d6bac9e59ffd2a",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "additional_operation_pointer": "/operations/52",
+      "qualified_scope": "Actual wa_worker changes the new handler RuntimeCommandReceipt from pending to committed with the reviewed foundation result body/digest as part of the same source/evidence/Track/effect/inbox/attempt group. SET CONSTRAINTS ALL IMMEDIATE, linked-effect/still-leased observations and the final COMMIT all succeed with guards enabled.",
+      "qualification_limit": "Registered foundation SQL command-result update only; the complete supplied SQL result is not owner API/SH result-codec qualification and is not a standalone arbitrary command update."
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-RuntimeOutboxMessage",
+          "child_result_pointer": "/results/4",
+          "restricted_operation_pointer": "/operations/110",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeOutboxMessage.sql",
+          "sql_sha256": "e007d3a0f146d750cffeedf9a62815f1226fccabff30bd09180aeadb9dbffdb6",
+          "expected_records_sha256": "ff2a4684693c44d20cde20ceeaa4692c5b0be25b0fa015034016f39a8863e577"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "platform.runtime_outbox_message",
+        "fixed_source_policy_fields": [
+          "id",
+          "commandReceiptId",
+          "kind",
+          "producerOwner",
+          "aggregateKind",
+          "aggregateId",
+          "sourceRevision",
+          "sourceGeneration",
+          "ordinal",
+          "name",
+          "schemaVersion",
+          "payloadSchemaId",
+          "payloadHash",
+          "payload",
+          "correlationId",
+          "causationId",
+          "correctionOfId",
+          "occurredAt",
+          "effectiveAt",
+          "createdAt",
+          "mutationTransactionId"
+        ],
+        "required_field_token_count": 21,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeOutboxMessage.sql",
+        "query_sha256": "e007d3a0f146d750cffeedf9a62815f1226fccabff30bd09180aeadb9dbffdb6",
+        "policy_line": 3525,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-RuntimeEffectReceipt",
+          "child_result_pointer": "/results/5",
+          "restricted_operation_pointer": "/operations/120",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeEffectReceipt.sql",
+          "sql_sha256": "afba370911c790aaee513d5c26cc055da2d7b19049614d27647232b9a4be65f9",
+          "expected_records_sha256": "b41c178b6bfa817d53a8490a5fe92b001fd96060f18bc3a2afe3ff9bd13f35f8"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "platform.runtime_effect_receipt",
+        "fixed_source_policy_fields": [
+          "id",
+          "commandReceiptId",
+          "ownerModuleId",
+          "operation",
+          "subjectScope",
+          "semanticEffectKey",
+          "fingerprint",
+          "state",
+          "sourceRevision",
+          "fence",
+          "resultSchemaId",
+          "resultHash",
+          "committedAt",
+          "createdAt",
+          "mutationTransactionId"
+        ],
+        "required_field_token_count": 15,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeEffectReceipt.sql",
+        "query_sha256": "afba370911c790aaee513d5c26cc055da2d7b19049614d27647232b9a4be65f9",
+        "policy_line": 3533,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-RuntimeAttempt",
+          "child_result_pointer": "/results/6",
+          "restricted_operation_pointer": "/operations/130",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeAttempt.sql",
+          "sql_sha256": "3bea82b4bb39949ee06c47c707ed4147633aeafa29ebf307c6561edd54af17b7",
+          "expected_records_sha256": "c13f0cca9738a2122cba7ccdd961a341a708f93afd8acd08ec599f6ec81d7037"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "platform.runtime_attempt",
+        "fixed_source_policy_fields": [
+          "id",
+          "workItemId",
+          "attemptNumber",
+          "fence",
+          "workerId",
+          "result",
+          "reasonCode",
+          "startedAt",
+          "finishedAt",
+          "createdAt",
+          "mutationTransactionId"
+        ],
+        "required_field_token_count": 11,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeAttempt.sql",
+        "query_sha256": "3bea82b4bb39949ee06c47c707ed4147633aeafa29ebf307c6561edd54af17b7",
+        "policy_line": 3553,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-RuntimeInboxReceipt",
+          "child_result_pointer": "/results/7",
+          "restricted_operation_pointer": "/operations/140",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeInboxReceipt.sql",
+          "sql_sha256": "3d58a5ff45fccb706b6fe5d8df1af32bb9362bd1b06c98ab5e606f7696bc09c0",
+          "expected_records_sha256": "531234783edebe379933ed83f0f6e918e06d042ed7f30113e6a53f3eef7ada57"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "platform.runtime_inbox_receipt",
+        "fixed_source_policy_fields": [
+          "id",
+          "outboxMessageId",
+          "consumerOwner",
+          "handlerName",
+          "payloadHash",
+          "effectReceiptId",
+          "createdAt",
+          "mutationTransactionId"
+        ],
+        "required_field_token_count": 8,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-RuntimeInboxReceipt.sql",
+        "query_sha256": "3d58a5ff45fccb706b6fe5d8df1af32bb9362bd1b06c98ab5e606f7696bc09c0",
+        "policy_line": 3561,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ded4c97825f56317e93032a643be07727b6d86ccf6eb6b7103aa9156c32f6d2c",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-OwnerMutationEvidence",
+          "child_result_pointer": "/results/8",
+          "restricted_operation_pointer": "/operations/150",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-OwnerMutationEvidence.sql",
+          "sql_sha256": "6564f05eb002b44ae136888173dc5f290482c211b1ce9099edaff3f08c123a77",
+          "expected_records_sha256": "718c6f7c9e0668e2ed6740fff084ce5777d2e6ea65d621a03f3bd1c5ae6838fe"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "platform.owner_mutation_evidence",
+        "fixed_source_policy_fields": [
+          "id",
+          "commandReceiptId",
+          "ownerModuleId",
+          "aggregateKind",
+          "aggregateId",
+          "previousRevision",
+          "committedRevision",
+          "action",
+          "decisionRef",
+          "evidenceSchemaId",
+          "evidenceSchemaVersion",
+          "evidenceDigest",
+          "createdAt",
+          "evidenceBody",
+          "mutationTransactionId"
+        ],
+        "required_field_token_count": 15,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-OwnerMutationEvidence.sql",
+        "query_sha256": "6564f05eb002b44ae136888173dc5f290482c211b1ce9099edaff3f08c123a77",
+        "policy_line": 3581,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "5088366ac64fccbdd822d3f449706de774343545337ef1949eb00f74a1913357",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-TrackBaseSelection",
+          "child_result_pointer": "/results/9",
+          "restricted_operation_pointer": "/operations/160",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackBaseSelection.sql",
+          "sql_sha256": "33003bf9982621468611374a17471d7de31eb8e5e0ae5f6ec4558c864dd46549",
+          "expected_records_sha256": "e34bd9b9fde5a69a31184e13504364e456d2f1510fe83b677d3f773749f9d6a5"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "app.track_base_selection",
+        "fixed_source_policy_fields": [
+          "id",
+          "userId",
+          "track",
+          "customerProfileId",
+          "candidateProfileId",
+          "professionalProfileId",
+          "subscriptionId",
+          "revision",
+          "sourceGeneration"
+        ],
+        "required_field_token_count": 9,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackBaseSelection.sql",
+        "query_sha256": "33003bf9982621468611374a17471d7de31eb8e5e0ae5f6ec4558c864dd46549",
+        "policy_line": 3595,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+      "assertion_id": "positive.wa_worker.select",
+      "expected_assertion": "Actual intended role completes this declared permitted operation with exact context/capabilities/prerequisite reads and every applicable source/proof/terminal guard.",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "complete_source_assertion_sha256": "ec84fa997dd0d305dfd212c3dc5e89b962f107c158a8d929c0d3eee7ac1ec97f",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "current-worker-read-TrackEnrollmentReceipt",
+          "child_result_pointer": "/results/10",
+          "restricted_operation_pointer": "/operations/170",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackEnrollmentReceipt.sql",
+          "sql_sha256": "802fafc51c41f4d5a575f1c4179bcbf7e725785dab4c787e3e076502f99dc9e2",
+          "expected_records_sha256": "8a9a71bf417c853e9d3a422f9e35aba7a0e8cbe8af17b2d78ffea7fd99812500"
+        },
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "source_policy": {
+        "table": "app.track_enrollment_receipt",
+        "fixed_source_policy_fields": [
+          "id",
+          "userId",
+          "track",
+          "profileId",
+          "sourceOwner",
+          "sourceCreationRevision",
+          "selectionId",
+          "selectionRevision",
+          "semanticKey",
+          "fingerprint",
+          "resultCode",
+          "effectReceiptId"
+        ],
+        "required_field_token_count": 12,
+        "query_path": "review-output/worker-recovery-control-rehearsal/current-worker-read-TrackEnrollmentReceipt.sql",
+        "query_sha256": "802fafc51c41f4d5a575f1c4179bcbf7e725785dab4c787e3e076502f99dc9e2",
+        "policy_line": 3605,
+        "scope_limit": "The result observes exact target1/foreign0 row visibility, not payload decoding or a broader query/API contract. The source policy independently requires its full fixed field-cap list even for this count query."
+      },
+      "qualified_scope": "Actual wa_worker current A1 processing context reads the exact genuinely committed registered-handler target (1), while the complete foreign B target is hidden (0), with independently current service/lease, separate issuer COMMIT and full row/field/revision capabilities.",
+      "qualification_limit": "Finite F0 SQL SELECT row-visibility branch only; no owner API/codec, production worker loop, all denial permutations, app-role operation, or whole table case qualification."
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.preserve_valid_selection",
+      "expected_assertion": "Existing valid Free/paid selection and original semantic receipt survive delayed/duplicate Free handling without new history/grants.",
+      "expected_assertion_sha256": "fcc59cf00a5b4882b1b10701c6d6a9cc770ad2e5edd2dfe5ef10ec10ca114468",
+      "complete_source_assertion_sha256": "99f43554db65beb91d46063b03a861a090e5260dac723366c5e657a969346016",
+      "maximum_from_frozen_source": "PARTIAL",
+      "observations": [
+        {
+          "case": "valid-current-Free-selection-survives-duplicate-attempt",
+          "child_result_pointer": "/results/16",
+          "restricted_operation_pointer": "/operations/242",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/valid-current-Free-selection-survives-duplicate-attempt.sql",
+          "sql_sha256": "023ddfb0cc510d2b8d4d1e935456b65f2341346aef5437015304bbbf78816e69",
+          "expected_records_sha256": "9fbd90e36a23d3d0153f4a67b557534465329fb9b01e3b4f8d647077a1261684"
+        },
+        {
+          "case": "original-effect-completes-once-without-reenrollment",
+          "child_result_pointer": "/results/20",
+          "restricted_operation_pointer": "/operations/282",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/original-effect-completes-once-without-reenrollment.sql",
+          "sql_sha256": "32d642307910e59e247b7479bebef98470db671f2dd4ec20af2b1a74aea64f00",
+          "expected_records_sha256": "95de2486a595b57b05cbfc8e1dcabbe631e068888b0330eb99b77836b994810f"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PARTIAL",
+      "action": "APPEND_PARTIAL",
+      "qualified_scope": "The attempted duplicate insertion is rejected at the exact fixed Track binding P0001/bodyline7, with the current Free selection, original semantic outcome and all non-grant42-table hashes preserved. Subsequent original-effect completion succeeds.",
+      "qualification_limit": "No paid-selection/delayed-source matrix or legitimate owner already-selected no-op/result path is proved. Do not attribute the error to later RLS or to a particular inner composite binding predicate."
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.lease_transitions",
+      "expected_assertion": "Current-secret claim/renew/attach/complete succeeds; expiry, stale fence, copied hash, relink, attempt-only mutation and foreign receipt deny.",
+      "expected_assertion_sha256": "df9e9f2c60b682774fdd018332716e082e50412579b2df0db9d78c1b98a2b929",
+      "complete_source_assertion_sha256": "24a94f52d75792ebdeb4ff4a09d200b883c92ad3e77a08b093b9dfa7bfe73a3a",
+      "maximum_from_frozen_source": "PARTIAL",
+      "observations": [
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        },
+        {
+          "case": "copied-readable-hash-is-not-preimage",
+          "child_result_pointer": "/results/11",
+          "restricted_operation_pointer": "/operations/185",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/copied-readable-hash-is-not-preimage.sql",
+          "sql_sha256": "36c352e1ed3af780d2a41864f799b643bb6b47199c3a080f7fa080d59352ae3c",
+          "expected_records_sha256": "bb6235a1adab1af6ef490ead05467d49122ba3f4a663fe7588a5d6d8941bb7e4"
+        },
+        {
+          "case": "nonnull-effect-relink-denied",
+          "child_result_pointer": "/results/12",
+          "restricted_operation_pointer": "/operations/195",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/nonnull-effect-relink-denied.sql",
+          "sql_sha256": "ee445e3db3db75ce268ae08f26f4df5b142b4fc6b331764b00d2ae3f0bba7734",
+          "expected_records_sha256": "438eeb49ee8c5dda23ea77fa390d7ca8892c79a1c1df90c532e2ffcd31b295b6"
+        },
+        {
+          "case": "null-pointer-foreign-same-fence-effect-denied",
+          "child_result_pointer": "/results/13",
+          "restricted_operation_pointer": "/operations/205",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/null-pointer-foreign-same-fence-effect-denied.sql",
+          "sql_sha256": "f120869be0b97479656f3fbcd052f97da366511cd3028efde36162020dee2aed",
+          "expected_records_sha256": "fcec9698a9e1bbadcc8d0812e8d2deb9d6d86681c84e4d603cc2d9b7d4936694"
+        },
+        {
+          "case": "real-higher-fence-reclaim-with-retained-effect",
+          "child_result_pointer": "/results/14",
+          "restricted_operation_pointer": "/operations/217",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/real-higher-fence-reclaim-with-retained-effect.sql",
+          "sql_sha256": "209573486f766bdaff8bbf3db278d0fae0a5cdc1c28313b7dff85b7bd3453c5b",
+          "expected_records_sha256": "d67bd82d2fe84ba2a6611cea7a66db3701aed16965d9a6b8529384e9465d76e7"
+        },
+        {
+          "case": "fresh-processing-old-fence-denied",
+          "child_result_pointer": "/results/17",
+          "restricted_operation_pointer": "/operations/252",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/fresh-processing-old-fence-denied.sql",
+          "sql_sha256": "5e0eac9a4ef7006358ee65a30154ab4cfc48e783766ae1f42bbcb349122d4ca3",
+          "expected_records_sha256": "e78bc8307c99d9cc061b06200aa584fce0ee16c027b3dd76a75b1d03d634d7ff"
+        },
+        {
+          "case": "fresh-processing-old-preimage-denied",
+          "child_result_pointer": "/results/18",
+          "restricted_operation_pointer": "/operations/262",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/fresh-processing-old-preimage-denied.sql",
+          "sql_sha256": "9e02fcbd6259f05352952584282b69a4142ca6cb21ad1e03b02b297006d91680",
+          "expected_records_sha256": "76692d0080a86a44b98e4cdfd90517dffbf294f93d94fed0f56a2123780462e9"
+        },
+        {
+          "case": "terminal-work-trigger-denial-rolls-back-completion",
+          "child_result_pointer": "/results/19",
+          "restricted_operation_pointer": "/operations/272",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/terminal-work-trigger-denial-rolls-back-completion.sql",
+          "sql_sha256": "0f6691aba7f8c4abb4f42011f224b4273a79fa47e18b7d5d2079e74a62e1ade1",
+          "expected_records_sha256": "89331f6057817f36d23d19b4a1f6d9a4933d511480b386c83a6019b147e7c4f2"
+        },
+        {
+          "case": "original-effect-completes-once-without-reenrollment",
+          "child_result_pointer": "/results/20",
+          "restricted_operation_pointer": "/operations/282",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/original-effect-completes-once-without-reenrollment.sql",
+          "sql_sha256": "32d642307910e59e247b7479bebef98470db671f2dd4ec20af2b1a74aea64f00",
+          "expected_records_sha256": "95de2486a595b57b05cbfc8e1dcabbe631e068888b0330eb99b77836b994810f"
+        }
+      ],
+      "current_status": "PARTIAL",
+      "proposed_status": "PARTIAL",
+      "action": "CORROBORATE_EXISTING_PARTIAL_KEEP_OLD_LEDGER_ROW_UNCHANGED",
+      "qualified_scope": "New actual evidence corroborates and extends the already-partial finite claim/attach/complete, expiry/reclaim, copied-hash, stale tuple, exact effect-link and rollback observations.",
+      "qualification_limit": "Renew remains unrun in this Worker packet; a separate attempt-only mutation and the complete foreign job/customer/plan/operation matrix are not established. The compound requirement stays PARTIAL. Keep the prior row and its version-qualified provenance unchanged; record this corroboration separately.",
+      "complete_previous_ledger_row": {
+        "case_id": "P0C-TRACK-01",
+        "assertion_id": "control.lease_transitions",
+        "status": "PARTIAL",
+        "expected_assertion_sha256": "df9e9f2c60b682774fdd018332716e082e50412579b2df0db9d78c1b98a2b929",
+        "source_commit": "b8f6b1039c743706f70278dd8b598cab6cbcd9db",
+        "source_tree": "b0dd6288af19b0ae2d524e0332245922f5b25ca2",
+        "packet_sha256": "d2582c07eb74f3c010e8b42cbecad9abd81a8380d37cde1a855b1fdfde6e31fa",
+        "run_id": "f161d454-13dd-453f-a9ee-6e92f95ea8d6",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "evidence_path": "context/reconciliation/local-f0-restricted-b8f6b10-f161d454-execution.json",
+        "evidence_sha256": "9a090022c11f150cb133617af11cb9c6afafba1624313673ee3a5237ae637232",
+        "json_pointer": "/sanitized_report/control_packets/worker",
+        "qualification_scope": "Actual evidence exists for the stated finite branch, not the complete compound requirement.",
+        "qualification_limit": "Claim/attach/complete exercised; renew/expiry/stale-fence/relink/attempt-only and complete foreign-receipt matrix unrun."
+      },
+      "previous_ledger_row_canonical_sha256": "c485635e402a6766617e19c20404e1c357f3b03fec6679c7ccc24fb4d3ddf6d1"
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.concurrent_fence",
+      "expected_assertion": "Real concurrent sessions demonstrate current-holder fencing and reclaim, without implementing a production worker loop.",
+      "expected_assertion_sha256": "62bbedc11d137fc78e0173ee84039a04db8c2e7f99fa4c1186c60d72868736f0",
+      "complete_source_assertion_sha256": "70fa72a0cb056b98f9e727b3642e2294bb23620e18fa92ed9458abfffb3995f8",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "real-higher-fence-reclaim-with-retained-effect",
+          "child_result_pointer": "/results/14",
+          "restricted_operation_pointer": "/operations/217",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/real-higher-fence-reclaim-with-retained-effect.sql",
+          "sql_sha256": "209573486f766bdaff8bbf3db278d0fae0a5cdc1c28313b7dff85b7bd3453c5b",
+          "expected_records_sha256": "d67bd82d2fe84ba2a6611cea7a66db3701aed16965d9a6b8529384e9465d76e7"
+        },
+        {
+          "case": "fresh-holder-recognizes-original-lower-fence-effect",
+          "child_result_pointer": "/results/15",
+          "restricted_operation_pointer": "/operations/232",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/fresh-holder-recognizes-original-lower-fence-effect.sql",
+          "sql_sha256": "c0822de9e41bc7aacb3cd7bcab2f5add89f6f88ef8b8a6a72e50df396b6b54d5",
+          "expected_records_sha256": "9afcbc767d9c2aa391ec9a0dd497b06a92b31b90adb97651f233dda0f8911362"
+        },
+        {
+          "case": "fresh-processing-old-fence-denied",
+          "child_result_pointer": "/results/17",
+          "restricted_operation_pointer": "/operations/252",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/fresh-processing-old-fence-denied.sql",
+          "sql_sha256": "5e0eac9a4ef7006358ee65a30154ab4cfc48e783766ae1f42bbcb349122d4ca3",
+          "expected_records_sha256": "e78bc8307c99d9cc061b06200aa584fce0ee16c027b3dd76a75b1d03d634d7ff"
+        },
+        {
+          "case": "fresh-processing-old-preimage-denied",
+          "child_result_pointer": "/results/18",
+          "restricted_operation_pointer": "/operations/262",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/fresh-processing-old-preimage-denied.sql",
+          "sql_sha256": "9e02fcbd6259f05352952584282b69a4142ca6cb21ad1e03b02b297006d91680",
+          "expected_records_sha256": "76692d0080a86a44b98e4cdfd90517dffbf294f93d94fed0f56a2123780462e9"
+        },
+        {
+          "case": "original-effect-completes-once-without-reenrollment",
+          "child_result_pointer": "/results/20",
+          "restricted_operation_pointer": "/operations/282",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/original-effect-completes-once-without-reenrollment.sql",
+          "sql_sha256": "32d642307910e59e247b7479bebef98470db671f2dd4ec20af2b1a74aea64f00",
+          "expected_records_sha256": "95de2486a595b57b05cbfc8e1dcabbe631e068888b0330eb99b77836b994810f"
+        }
+      ],
+      "current_status": "PARTIAL",
+      "proposed_status": "PASS",
+      "action": "UPGRADE_PARTIAL_TO_PASS_PRESERVE_COMPLETE_PRIOR_ROW",
+      "ordering_pointer": "/operations/226",
+      "qualified_scope": "The entire exact finite assertion is observed: a live bound original worker remains in its original PID/start/xid transaction; actual clock expiry precedes a distinct overlapping worker reclaim COMMIT; fence/attempt advances1 to2 with the original effect retained; the still-current/unrevoked/unexpired old grant cannot change the protected row; the new current holder recognizes and completes the original outcome. Exactly those two workers are independently observed; no production loop is involved.",
+      "qualification_limit": "Finite controlled local concurrent SQL scenario only. No production scheduling, cross-process orchestration, or complete lease-transition matrix.",
+      "complete_previous_ledger_row": {
+        "case_id": "P0C-TRACK-01",
+        "assertion_id": "control.concurrent_fence",
+        "status": "PARTIAL",
+        "expected_assertion_sha256": "62bbedc11d137fc78e0173ee84039a04db8c2e7f99fa4c1186c60d72868736f0",
+        "source_commit": "da5ad66cfc2bcb8aa64a453d10e29baeedb74a65",
+        "source_tree": "6c28cd218487cac448805dee8a407f78056a0e22",
+        "packet_sha256": "244bf11660a17697af91921f6d26e8c39fb3f4c98aaaaaa267e816d57c65302c",
+        "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "run_id": "a560e05b-7683-4780-9f59-a427b8f22edc",
+        "evidence_path": "context/reconciliation/local-f0-lease-da5ad66-a560e05b-qualified-evidence.json",
+        "evidence_sha256": "33a356710320b9ec5381085354b3ed0199e146685d12364c618e27cd7e9772bc",
+        "json_pointer": "/claims/3",
+        "qualification_scope": "Finite lease exact independently reviewed assertion only; Exact recorded zero-row current-context attribution only; no full-current-holder/processing commit or full higher-fence qualification.; Live/expired clock-poll facts overwritten in final current; preserve that evidence limit."
+      },
+      "previous_ledger_row_canonical_sha256": "99febf1fb617330cd6c1821a9cc8eb601c7f9f2239d8e45d2eceab95b5a63bb9"
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-ATTACH.adversarial",
+      "expected_assertion": "Copy readable stored hash as secret, attach unrelated effect with identical fence, relink nonnull pointer, or use another job/customer/plan revision",
+      "expected_assertion_sha256": "ff9f55cfcae17010e4bb2e3746e991851085727e3fa27bb5cb3481cc842b4cc2",
+      "complete_source_assertion_sha256": "dc674216603b425a515a4f49235ea3dc6e7fa57f1e89c6fc055596f37d1b1f18",
+      "maximum_from_frozen_source": "PARTIAL",
+      "observations": [
+        {
+          "case": "copied-readable-hash-is-not-preimage",
+          "child_result_pointer": "/results/11",
+          "restricted_operation_pointer": "/operations/185",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/copied-readable-hash-is-not-preimage.sql",
+          "sql_sha256": "36c352e1ed3af780d2a41864f799b643bb6b47199c3a080f7fa080d59352ae3c",
+          "expected_records_sha256": "bb6235a1adab1af6ef490ead05467d49122ba3f4a663fe7588a5d6d8941bb7e4"
+        },
+        {
+          "case": "nonnull-effect-relink-denied",
+          "child_result_pointer": "/results/12",
+          "restricted_operation_pointer": "/operations/195",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/nonnull-effect-relink-denied.sql",
+          "sql_sha256": "ee445e3db3db75ce268ae08f26f4df5b142b4fc6b331764b00d2ae3f0bba7734",
+          "expected_records_sha256": "438eeb49ee8c5dda23ea77fa390d7ca8892c79a1c1df90c532e2ffcd31b295b6"
+        },
+        {
+          "case": "null-pointer-foreign-same-fence-effect-denied",
+          "child_result_pointer": "/results/13",
+          "restricted_operation_pointer": "/operations/205",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/null-pointer-foreign-same-fence-effect-denied.sql",
+          "sql_sha256": "f120869be0b97479656f3fbcd052f97da366511cd3028efde36162020dee2aed",
+          "expected_records_sha256": "fcec9698a9e1bbadcc8d0812e8d2deb9d6d86681c84e4d603cc2d9b7d4936694"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PARTIAL",
+      "action": "APPEND_PARTIAL",
+      "qualified_scope": "Actual readable stored hash is used only as a deliberate false-preimage negative; lease validity is false and protected change count0. Nonnull relink and null-pointer foreign same-fence effect attachment each hit exact protected-attachment source guards with no persisted protected changes.",
+      "qualification_limit": "These are the observed copied-hash/relink/foreign same-fence cases; independent foreign job/customer/plan-revision substitutions and the complete compound matrix remain unrun."
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-RECOVERY.positive",
+      "expected_assertion": "Reclaimed current holder recognizes original exact already-committed effect/inbox and completes without another business mutation",
+      "expected_assertion_sha256": "74fca856225d96ba81572ab58913202f07a2e705f04bdef191b11aecba12679f",
+      "complete_source_assertion_sha256": "9072d3a2c0d59809d7d53951d240adbd9cd766ef69fd7ec9dce4e59d188c3291",
+      "maximum_from_frozen_source": "PASS",
+      "observations": [
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        },
+        {
+          "case": "real-higher-fence-reclaim-with-retained-effect",
+          "child_result_pointer": "/results/14",
+          "restricted_operation_pointer": "/operations/217",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/real-higher-fence-reclaim-with-retained-effect.sql",
+          "sql_sha256": "209573486f766bdaff8bbf3db278d0fae0a5cdc1c28313b7dff85b7bd3453c5b",
+          "expected_records_sha256": "d67bd82d2fe84ba2a6611cea7a66db3701aed16965d9a6b8529384e9465d76e7"
+        },
+        {
+          "case": "fresh-holder-recognizes-original-lower-fence-effect",
+          "child_result_pointer": "/results/15",
+          "restricted_operation_pointer": "/operations/232",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/fresh-holder-recognizes-original-lower-fence-effect.sql",
+          "sql_sha256": "c0822de9e41bc7aacb3cd7bcab2f5add89f6f88ef8b8a6a72e50df396b6b54d5",
+          "expected_records_sha256": "9afcbc767d9c2aa391ec9a0dd497b06a92b31b90adb97651f233dda0f8911362"
+        },
+        {
+          "case": "original-effect-completes-once-without-reenrollment",
+          "child_result_pointer": "/results/20",
+          "restricted_operation_pointer": "/operations/282",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/original-effect-completes-once-without-reenrollment.sql",
+          "sql_sha256": "32d642307910e59e247b7479bebef98470db671f2dd4ec20af2b1a74aea64f00",
+          "expected_records_sha256": "95de2486a595b57b05cbfc8e1dcabbe631e068888b0330eb99b77836b994810f"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PASS",
+      "action": "APPEND_PASS",
+      "qualified_scope": "After reclaim under current fence2, the actual worker recognizes the exact linked originally committed fence1 effect/inbox and completes the original work. The only later declared business changes are the current audit attempt and terminal work state; original Track enrollment/history/grants/receipt/effect/inbox remain unchanged under complete42 comparisons.",
+      "qualification_limit": "This is the named positive recovery branch, not the entire paired adversarial vector or new-effect INSERT matrix; no owner API replay/worker-loop qualification."
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-RECOVERY.adversarial",
+      "expected_assertion": "Recognize same-fence receipt from a different semantic key/operation/customer or missing exact inbox",
+      "expected_assertion_sha256": "409ea4629efc4a62c5079f803a05c1d24cfc8d47d8324ab0942e9b95864d05f8",
+      "complete_source_assertion_sha256": "a417945f84f353622b06bf46f262e8ce94cf5ee15ffea18ca08c9ef5d643fcad",
+      "maximum_from_frozen_source": "PARTIAL",
+      "observations": [
+        {
+          "case": "genuine-effect-committed-work-still-leased",
+          "child_result_pointer": "/results/0",
+          "restricted_operation_pointer": "/operations/67",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/genuine-effect-committed-work-still-leased.sql",
+          "sql_sha256": "1492d3a40be1fab0a2b5646805fd6ad4531110e38099c875c2ee3b0d14768c00",
+          "expected_records_sha256": "62aae8f6ec705b14be208cb4183927328629ed93078d09d5a1af2236c6a8d7e5"
+        },
+        {
+          "case": "null-pointer-foreign-same-fence-effect-denied",
+          "child_result_pointer": "/results/13",
+          "restricted_operation_pointer": "/operations/205",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/null-pointer-foreign-same-fence-effect-denied.sql",
+          "sql_sha256": "f120869be0b97479656f3fbcd052f97da366511cd3028efde36162020dee2aed",
+          "expected_records_sha256": "fcec9698a9e1bbadcc8d0812e8d2deb9d6d86681c84e4d603cc2d9b7d4936694"
+        },
+        {
+          "case": "terminal-work-trigger-denial-rolls-back-completion",
+          "child_result_pointer": "/results/19",
+          "restricted_operation_pointer": "/operations/272",
+          "sql_path": "review-output/worker-recovery-control-rehearsal/terminal-work-trigger-denial-rolls-back-completion.sql",
+          "sql_sha256": "0f6691aba7f8c4abb4f42011f224b4273a79fa47e18b7d5d2079e74a62e1ade1",
+          "expected_records_sha256": "89331f6057817f36d23d19b4a1f6d9a4933d511480b386c83a6019b147e7c4f2"
+        }
+      ],
+      "current_status": "NOT_RUN",
+      "proposed_status": "PARTIAL",
+      "action": "APPEND_PARTIAL",
+      "qualified_scope": "The genuine source group first observes missing exact inbox rejection and then exact inbox recognition; a different Customer/job same-fence effect cannot attach, and terminal-attempt denial rolls back a temporarily staged completion.",
+      "qualification_limit": "No independent same-Customer operation mismatch, semantic-key-only substitution, or full missing-inbox acknowledgement matrix is established. Do not promote the whole adversarial vector."
+    }
+  ],
+  "summary": {
+    "source_ceilings": 17,
+    "maximum_statuses": {
+      "PASS": 13,
+      "PARTIAL": 4
+    },
+    "new_ledger_rows_if_approved": 15,
+    "new_PASS_rows": 12,
+    "new_PARTIAL_rows": 3,
+    "existing_PARTIAL_upgrades": 1,
+    "existing_PARTIAL_corroboration_with_unchanged_old_row": 1,
+    "conditional_assertion_status_delta": {
+      "PASS": 13,
+      "PARTIAL": 2,
+      "NOT_RUN": -15
+    },
+    "conditional_ledger_rows": 668,
+    "conditional_ledger_counts": {
+      "PASS": 634,
+      "PARTIAL": 34
+    },
+    "whole_case_counts": "NOT_PROPOSED_NO_AUTOMATIC_WHOLE_CASE_OR94_451_PROMOTION"
+  },
+  "future_adapter_constraints": [
+    "Root must first approve the exact mapping, then independently review a bounded pure source/evidence validator and parser integration. This audit/proposal is not an adapter or status change.",
+    "Require exact whole run/source601/42asset/record/tool/ignored-data/external-five graph, normalized record and actual safe receipts; no generic PASS label, unchecked helper dictionary, or regex-only SQLSTATE acceptance.",
+    "Bind each expectation and complete assertion SHA; reject changed inventory, malformed types, duplicate/nonfinite JSON, forged pointers, mismatched source or artifact hashes, and missing closure/currentness/native/oracle/private-ledger prerequisites.",
+    "Preserve the complete old concurrent-fence PARTIAL row/history if upgrading it. Leave the existing lease-transitions PARTIAL provenance unchanged when this run merely corroborates that compound requirement.",
+    "No production loop, owner API/result codec, hosted adoption, new permission/SQL recipe, future adapter, or complete adversarial-vector qualification.",
+    "Retain immutable6282 old-cause UNOBSERVED and case17 exact early Track-binding attribution.",
+    "Perform closed same-byte input admission/final rechecks before any future status output; do not inherit the Read13 reference-reader finding into a new adapter."
+  ],
+  "source_reapproval": false,
+  "Root_files_written": false,
+  "parser_written": false,
+  "actual_qualification_changed": false
+}

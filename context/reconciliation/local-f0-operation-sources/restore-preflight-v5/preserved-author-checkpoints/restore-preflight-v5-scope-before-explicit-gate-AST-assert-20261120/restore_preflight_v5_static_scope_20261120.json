@@ -1,0 +1,91 @@
+{
+  "schema": "workinants.restore-preflight-v5-static-scope.v1",
+  "normalized_function_deltas": {
+    "execute_local_f0_restore_preflight_v5_20261120.py": {
+      "changed_functions": [],
+      "removed_functions": [],
+      "added_functions": [],
+      "unchanged_functions": 51
+    },
+    "local_f0_restore_preflight_v5_operation_steps.py": {
+      "changed_functions": [
+        "verify_common_packet",
+        "backup_preflight",
+        "quiesce",
+        "restore_experiment"
+      ],
+      "removed_functions": [],
+      "added_functions": [
+        "observe_backup_preflight",
+        "preflight_v5_source_admission",
+        "preflight_v5_source_admission.decode",
+        "preflight_v5_source_admission.decode.pairs",
+        "preflight_v5_source_admission.pins"
+      ],
+      "unchanged_functions": 89
+    },
+    "prepare_local_f0_restore_preflight_v5_plan.py": {
+      "changed_functions": [
+        "prepare"
+      ],
+      "removed_functions": [],
+      "added_functions": [
+        "preflight_v5_source_admission",
+        "preflight_v5_source_admission.decode",
+        "preflight_v5_source_admission.decode.pairs",
+        "preflight_v5_source_admission.pins"
+      ],
+      "unchanged_functions": 5
+    },
+    "check_local_f0_restore_preflight_v5_operation.py": {
+      "changed_functions": [
+        "RestoreOperationTests.bound_session_mock",
+        "RestoreOperationTests.bound_session_mock.boundary",
+        "RestoreOperationTests.test_plan_preparation_creates_only_new_source_files_and_keeps_execution_unpinned",
+        "RuntimeClosureTests.full_fixture",
+        "RuntimeClosureTests.full_fixture.common",
+        "RuntimeClosureTests.test_preparer_rejects_drifted_worker_before_history_compile_or_file_creation",
+        "RuntimeClosureTests.test_mid_preparation_worker_drift_cannot_emit_an_inconsistent_held_plan"
+      ],
+      "removed_functions": [],
+      "added_functions": [
+        "PreflightV5MainSafetyTests.test_preflight_false_and_persistent_receipt_io_keep_origin_cleanup_and_no_backup",
+        "PreflightV5SourceGraphTests.test_actual_full_pinner_synthetic_review_current_inventory_and_real_snapshots",
+        "PreflightV5SourceGraphTests.test_actual_pure_prepare_and_pinner_pending_refusal_no_compile_or_OUT",
+        "PreflightV5Tests.good",
+        "PreflightV5Tests.last",
+        "PreflightV5Tests.test_actual_new_source_gate_function_is_identical_in_three_entrypoints",
+        "PreflightV5Tests.test_after_backup_exact_source_hash_required_and_observed_match_is_typed",
+        "PreflightV5Tests.test_exact_keys_and_system_identity_shape_never_retain_unknown_values",
+        "PreflightV5Tests.test_pending_source_gates_refuse_before_helper_compile_or_runtime",
+        "PreflightV5Tests.test_persistent_comparison_io_latches_incomplete_and_never_passes",
+        "PreflightV5Tests.test_process_or_parse_unavailable_has_null_comparisons_and_original_safe_origin",
+        "PreflightV5Tests.test_real_quiesce_fixed_json_query_command_closes_before_false_verdict",
+        "PreflightV5Tests.test_real_quiesce_fixed_json_query_command_closes_before_false_verdict.command",
+        "PreflightV5Tests.test_sixteen_fields_preserve_missing_type_false_and_true_before_original_stop"
+      ],
+      "unchanged_functions": 96
+    },
+    "pin_local_f0_restore_preflight_v5_plan_20261120.py": {
+      "changed_functions": [
+        "validate_filesystem"
+      ],
+      "removed_functions": [],
+      "added_functions": [
+        "preflight_v5_source_admission",
+        "preflight_v5_source_admission.decode",
+        "preflight_v5_source_admission.decode.pairs",
+        "preflight_v5_source_admission.pins"
+      ],
+      "unchanged_functions": 15
+    }
+  },
+  "only_changed_prepared_leaf": [
+    "backup-preflight.sql"
+  ],
+  "other_prepared_leaves_byte_exact": 24,
+  "original_preserved_files": 930,
+  "source_gate_functions_identical_AST": true,
+  "all_runtime": "NOT_RUN",
+  "database_SQL_or_project_execution": false
+}
