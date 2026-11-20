@@ -1,0 +1,142 @@
+{
+  "schema": "workinants.local-f0-c401-privilege-version-qualified-stopped-execution-record.v1",
+  "recorded_at_utc": "2026-11-20T10:10:12.546106+00:00",
+  "run_id": "086c453e-b533-4677-83d3-05456feef377",
+  "source_commit": "c401d2f2503dee08ad5913fb6cf1fa944c5f3e5a",
+  "source_tree": "13aabf5061aaeac34462da38cf4e5110ee119c54",
+  "operation_packet_sha256": "397c193d1cc78cf0e8e1a0a6f88d66fb7959604eb1a8085563ee8f2741d65ffd",
+  "operation_manifest_sha256": "045856b72cc1fa7ee3efadb09f59c98d209a3b5f50e37b520016aeaf8b49c8f6",
+  "known_executor_exit": {
+    "session": 9374,
+    "exit_code": 1
+  },
+  "started_at_utc": "2026-11-20T09:53:07.245699+00:00",
+  "finished_at_utc": "2026-11-20T10:02:34.449686+00:00",
+  "actual_wrapper_status": "STOPPED_ATTEMPT_PRESERVED",
+  "actual_steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "PASS",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "PASS",
+    "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-TEXT-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-NATIVE": "PASS_OBSERVED_NOT_QUALIFIED",
+    "CATALOG-ORACLE": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "CATALOG-LEDGER": "PASS_SOURCE_BOUND_NATIVE_SUBSET",
+    "CATALOG-COMPARE": "PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY",
+    "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+    "CATALOG-CLEANUP": "PASS",
+    "PRIVILEGE-CEILING-REVIEW": "PASS_SOURCE_ADMISSION_ONLY",
+    "PRIVILEGE-CEILING-COMPONENT": "NOT_RUN",
+    "NATIVE-PROVIDER-PREINSTALL": "PASS_LOCAL_SIMULATION_ONLY",
+    "NATIVE-PROVIDER-POSTINSTALL": "PASS_NINE_SOURCE_REVOKES_OBSERVED"
+  },
+  "raw_evidence_sha256": "9c644fc323a1660078e90a7a4bc4ef65d2482d8ac42c2abb175cfb022f473bd3",
+  "raw_child_file_sha256": "e7159c9b26fccf7302a63f283a1b0d528fcec88e5b647ff4640944dfa629b9c6",
+  "raw_reports_unchanged": true,
+  "independent_cleanup_sha256": "4124c18130075ccf1e29d590f62f76701450443bb0af1663b10f1c4195ecda92",
+  "facts": {
+    "schema": "workinants.privilege086c-closed-observed-prefix-origin-reconciliation.v1",
+    "recorded_at_utc": "2026-11-20T10:10:12.546106+00:00",
+    "completed_negative_protocols": 34,
+    "last_completed_negative": "GRANT-wa_app_runtime-DELETE",
+    "operations": 78,
+    "current_unqualified_case": "CREATE-wa_app_runtime-app",
+    "actual_original_failure": {
+      "phase": "VERDICT",
+      "classification": "SOURCE_HELD_FAILURE",
+      "code": "INTENDED_PRIVILEGE_GUARD_NOT_PROVEN"
+    },
+    "actual_operation_minimum": {
+      "exit_code": 3,
+      "acknowledgement": false,
+      "exact_empty_output": true,
+      "intended_diagnostic_proof": "NOT_MATCHED",
+      "safe_SQLSTATE_only": "42501",
+      "raw_primary_location_caret_frame": "NOT_RETAINED_UNOBSERVED",
+      "complete_original_cause": "UNOBSERVED"
+    },
+    "actual_safety_observations": {
+      "closed_before_observers": true,
+      "operation_backend_absence_and_global_closure_confirmed": true,
+      "all100_trigger_functions_restored": true,
+      "post_case_data_and_native_unchanged": true,
+      "native_fixture_validity_controls": 40,
+      "definer_metadata": 16,
+      "completed_issuer_protocols": 2,
+      "global_client_boundaries": 185,
+      "physical1C1V_private_cleanup_independent": "PASS_IMAGE_RETAINED"
+    },
+    "finally_labels_preserved": {
+      "child_current_stage": "SOURCE_QUALIFIED_NATIVE_CATALOG",
+      "outer_unexpected": [
+        {
+          "stage": "PRIVILEGE_CEILING_COMPONENT",
+          "code": "PRIVILEGE_CEILING_COMPONENT_NOT_QUALIFIED"
+        },
+        {
+          "stage": "REQUIRED_GLOBAL_BACKEND_CLOSURE",
+          "code": "PRIVILEGE_CEILING_COMPONENT_NOT_QUALIFIED"
+        }
+      ],
+      "interpretation": "Original failure is VERDICT/intended diagnostic not proven. Finally SOURCE_QUALIFIED_NATIVE_CATALOG and outer REQUIRED_GLOBAL_BACKEND_CLOSURE labels are not evidence of failed global closure."
+    },
+    "source_question": "Independent source audit investigates single-line BEGIN/SET/CREATE/ROLLBACK template versus physical-line-only source-position matcher. Separately proven source counterexample may explain stop but cannot reconstruct discarded actual message/location. No identical retry or SQL/permission repair.",
+    "unexecuted": "165 subsequent negative protocols and the third service issuer protocol NOT_RUN. The current CREATE protocol was attempted, returned42501, and remains UNQUALIFIED because exact intended diagnostic was not proven; it is not an unexecuted SQL body.34 earlier finite contrasts completed. No assertion/wholecase promotion.",
+    "Posture": "D",
+    "coverage_counts": {
+      "qualified_negative_protocols": 34,
+      "attempted_but_unqualified_negative_protocols": 1,
+      "unexecuted_negative_protocols": 165,
+      "total_prepared_negative_protocols": 200
+    }
+  },
+  "assets_sha256": {
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/catalog-comparison.json": "9107fb1c023f63c4cd5b2eb12eb1642fac0dca46c9f30324bcd0e3cdae76f2c2",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/ledger-evidence.json": "c9277c7f98baad5bfb008d1a0d4e3601d9314ee2b0f1ddf17286f84c9807e392",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/ledger-registration.json": "2f16af69629d0216dd549175b893cc2e38a3f3158340f7f4fb5432627392ac63",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/native-after-ledger.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/native-after-oracle.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/native-before.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/oracle-evidence.json": "bda360a485bcbca59d4eeef1e703fd74f7d902bbc7974c45039f4ed2358714ba",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/privilege-ceiling-native-attestation.json": "273bd8f73e692d79e26bae3745466d7b48c75e2c137c6dfb645038e623cac35a",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/privilege-ceiling-run-plan.json": "8ce9a99ab36cb92dbbd92c83ddcd4c57281a9baacab368c01587d9fd3f4b067d",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/provider-preinstall-proof.json": "f37406ca7387df5009cae1f700c174f0126c698376dbd5c3daced59d38f76ece",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/run-evidence.json": "9c644fc323a1660078e90a7a4bc4ef65d2482d8ac42c2abb175cfb022f473bd3",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/set-private-acl.ps1.txt": "802c8f04cf13b8ccd44a89c9458dd596f0ef3f2f29d8529efa7833a78ef31eb2",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/evidence/privilege-ceiling-component/privilege-ceiling-results.json": "e7159c9b26fccf7302a63f283a1b0d528fcec88e5b647ff4640944dfa629b9c6",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/manifest/ok-migration-manifest.json": "c17547ef47de1deb70142b334dc1e3c3ae4e4f12602c5891a78b8ee9647e1657",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/manifest/operation-manifest-before-operational-review.json": "3fa8d0a93ac33ee0b1933fd5b695d3781c51d9264cb03b67ddcaf2e75442b86d",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/manifest/operation-manifest-before-source-pin.json": "ce5344079e3f533d1a50d0ad34270da84efe348899a9be609181c0b5e27fb231",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/manifest/operation-manifest.json": "045856b72cc1fa7ee3efadb09f59c98d209a3b5f50e37b520016aeaf8b49c8f6",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/manifest/migration-ok.json": "c17547ef47de1deb70142b334dc1e3c3ae4e4f12602c5891a78b8ee9647e1657",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/independent-cleanup.json": "4124c18130075ccf1e29d590f62f76701450443bb0af1663b10f1c4195ecda92",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/independent-literal-review.json": "f7959db5f16f639e6f243111135f5406ec063639e02426dececfba07cbbfdea5",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/Root-literal-approval.json": "02a8750152adb12dc8c5eead9bd30dd52ce112d19fb9400d1f7014d0c8c46958",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/Root-cleanup-helper.py.txt": "48b74f68de45634714166cbddd2e772c64af2efe81b8e5a7ce449f6c72182c9b",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/audit/observed-prefix-origin-reconciliation.json": "c2cbeed6dc68f83ac9b7677f6892507b9864d87defbcb4276295176f9b964086",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/audit/Root-preservation-helper.py.txt": "e5864ea444da8f76189954a7102182688f8ad213ee15efbd606528ec395ec655",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/audit/coverage-clarification-history/normalization-before-coverage-wording-clarification.json": "fe5adf8b985bb4166c621d33fd8bcc315fa4564bb8405b3928fd107ddeba2327",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/audit/coverage-clarification-history/facts-before-coverage-wording-clarification.json": "93bf3b60f35e80858c1a9fafbcb83b47a149986e04184d12d132217d7cd7ea12",
+    "context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/audit/coverage-clarification-history/Root-wording-clarification-helper.py.txt": "6281803b69bd4aa70b6b8816678bf32650d912bb3769fbefc5dfd8af4884dfb1"
+  },
+  "source_preservation": {
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true,
+    "external_sources_unchanged_after_run": true,
+    "external_inputs_unchanged_after_run": true
+  },
+  "qualification_status": "STOPPED_PREFIX_PRESERVED_NO_ASSERTION_PROMOTION",
+  "Posture": "D",
+  "normalization_clarification": {
+    "recorded_at_utc": "2026-11-20T11:08:18.779615+00:00",
+    "prior_record_sha256": "fe5adf8b985bb4166c621d33fd8bcc315fa4564bb8405b3928fd107ddeba2327",
+    "reason": "Correct166unrun wording to1attemptedunqualified+165unexecuted; all raw historical evidence/source/failure/cleanup unchanged."
+  }
+}

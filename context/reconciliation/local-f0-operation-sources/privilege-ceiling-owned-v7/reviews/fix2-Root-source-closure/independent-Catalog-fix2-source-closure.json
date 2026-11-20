@@ -1,0 +1,85 @@
+{
+  "schema": "workinants.privilege-v7-independent-source-review-fix2.v1",
+  "utc": "2026-11-20T13:22:28.640168+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "SOURCE_APPROVED",
+  "source4_sha256": {
+    "scripts/privilege_ceiling_control_protocol_v7.py": "7f20d136bb3eed707e08887212dea9defde5537b357442a421aa5e4cabc94864",
+    "scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py": "571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f",
+    "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v7.py": "5ceb4255a72d110510ddc0e2f1eb220446741543e5683ddb03ad036e196065d5",
+    "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-V7.md": "52ff274504b9cd3b916b7babf737d8e37d6faf5692356663040eb7eb43b57ad2"
+  },
+  "operator_sources_sha256": {
+    "execute_local_f0_privilege_ceiling_v7_20261120.py": "58d44455767e11a79d13aea4883016b9a00fc8a2044ab7f8231e897fcfd6aee2",
+    "local_f0_privilege_ceiling_v7_operation_steps.py": "c50fe30028313b9f5f400e9ced3f6dd2d30651075951ccbdf7a303d9f7e09544",
+    "prepare_local_f0_privilege_ceiling_v7_plan.py": "057f86eb2825b350504d0baca62638129cf9387de07842ea6a63a5f1204394c3",
+    "check_local_f0_privilege_ceiling_v7_operation.py": "c9c1bd77c9a40e57439b3e4e29c64d37ed098cb15777666596f3b97c16a56f86",
+    "pin_local_f0_privilege_ceiling_v7_plan_20261120.py": "32694fb7b44bc15ed931c589969f375e019cd08f5fd15711d7d32a14223e3c02"
+  },
+  "delivery": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_v7_frozen_source_plan_fix2_20261120.json",
+    "sha256": "204cbca387eabc521cd1f30d3061a6050dcdc9cf40f453ef170eaa9b79b2c2b3"
+  },
+  "freeze": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege-v7-source-author-freeze-fix2-20261120\\freeze-manifest.json",
+    "sha256": "0a778667ec4b83c70d0b2255aaf1489d207ed202d6cb2dd53eaa415865ddb7e6",
+    "files": 839
+  },
+  "author_review": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_v7_source_author_review_fix2_20261120.json",
+    "sha256": "3c2711bb1f51b11cad29ac0a4e270da9156375ad6b5f033346f9f9246074383c"
+  },
+  "finding": {
+    "id": "V7-FINAL-REFERENCE-POSTCHECK-01",
+    "status": "CLOSED",
+    "prior_HOLD_sha256": "30d105a807fe05a051dca08475bb7806bb909c4406e99098112aac50be5bc24a",
+    "production_delta": "Only Steps.main adds final bounded original-reference integrity barrier after cleanup and all packet/tool/external/archive postchecks and their record writes. Earlier barrier retained. Other8 code files byte-identical; non-main module AST unchanged.",
+    "expected_identity": "Original artifact SHA256 and original byte length remain immutable; no refreshing of the accepted reference to changed bytes.",
+    "fixed_vs_held_main_only": "The same original independent actual-main/reader mechanism accepts no-change both versions. Same-size/mtime-restored tool-postcheck mutation rejects fixedmain, while restoring only heldmain reproduces PASS with a mismatched retained artifact.",
+    "first_failure_and_IO": "Focused actual-method replay retains stopped child primary origin, sticky evidence-incomplete behavior, eligible finalizer/exactcleanup and every source postcheck even when late reference failure and persistent bookkeeping IO occur."
+  },
+  "focused_checks": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_v7_fix2_independent_catalog_focused_20261120.json",
+    "sha256": "bb9fee1eac20801dafe5e8862b7b61b1fa3fc9bbf1becfb41a3828f979e4f204",
+    "schema": "workinants.privilege-v7-fix2-independent-focused-checks.v1",
+    "PASS": true,
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 12.656,
+    "log_sha256": "847cdb4b69f9a3940999fa2cb9216367962e29460ebc7cf01073b314efedf24c",
+    "all_actual_process_network_forbidden": true,
+    "scope": "Actual main/readers/postchecks/cleanup with frozen200/244 producer replay; prior domain/resource qualification isolated; not a full domain repeat or runtime result.",
+    "reviewer_runner_history": "Prior inline runner had SyntaxError before imports/tests/source reads; zero tests executed; corrected selector spacing only."
+  },
+  "same_reviewer_original_probe": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_v7_fix2_independent_original_mechanism_20261120.json",
+    "sha256": "94a2505e65a570f39ad3024deb3613cc5a22993f3ce49e4ac86a56d95566260d",
+    "helper": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\probe_privilege_v7_fix2_independent_original_mechanism_20261120.py",
+    "helper_sha256": "320cb83ba19f045bf53d51b5c39163bc8adadccc5087253fa6897697fa6ba479",
+    "vectors": 4,
+    "seconds": 0.89
+  },
+  "inventory": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege_v7_fix2_independent_catalog_inventory_20261120.json",
+    "sha256": "758ab78ad0bb18992a6035386bf53a81bf414018a7a2ab5247d7a183e51c640a",
+    "current_and_saved_snapshots": 839,
+    "old_saved_snapshots_unchanged": 779,
+    "source_gates": "All5 current gate decisions PENDING, reviewer did not modify gates.",
+    "archive_files": 235
+  },
+  "prior_independent_scope": "Earlier independent source review covered eight fixed CREATE diagnostics, finite safe receipts, first origin, closed-reader/source admission/cache isolation and source gate controls; original16PASS40.453s and original HOLD/probes/history remain preserved. No repeated unchanged200-domain suite.",
+  "lineage_disclosure": "Reviewed earlier V6/plan sources but did not author new V7 source9 or this main-only correction. Historical original authoring in other families does not constitute runtime evidence.",
+  "limits": [
+    "Source approval only; actual operation requires independently pinned literal/current-remote/source guards and Root execution.",
+    "Actual-main focused probes isolate prior domains or replay immutable genuine200/244 producer bytes; they establish evidence ordering and cleanup semantics, not fresh/full domain or database qualification.",
+    "Earlier unretained actual exception causes remain UNOBSERVED.",
+    "No wholecase/451/replay/production or permission expansion."
+  ],
+  "findings": [],
+  "source_gate_writes": false,
+  "Git_Docker_database_SQL_network_or_resource_actions": false,
+  "runtime": "NOT_RUN",
+  "Posture": "D",
+  "plain_English": "The final check now catches a changed saved note before saying the run passed. The old check still misses it, so the small repair fixes the proved gap."
+}

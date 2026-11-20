@@ -1,0 +1,72 @@
+"""Freeze V7 only after named final checks PASS; never approve or run it."""
+from pathlib import Path
+import ast,datetime,hashlib,json,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+encoded=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+ackpath=T/'privilege_v7_CREATE_projection_Root_bounded_implementation_ACK_20261120.json';ack=json.loads(ackpath.read_bytes());ns=ack['authorized_new_namespace'];archive=R/ns['archive']
+checks=[]
+for name in sys.argv[1:]:
+ p=T/name;v=json.loads(p.read_bytes());assert v['status']=='PASS' and v['source_sha256_before']==v['source_sha256_after'],name
+ assert sha(Path(v['source']))==v['source_sha256_after'],name
+ checks.append({'record_path':str(p),'record_sha256':sha(p),**v})
+assert len(checks)>=3 and sum(v['tests_run']for v in checks)>=11,'FINAL_COMPOSITIONS_AND_GATES_REQUIRED'
+assert any('full_entry_composed' in v['source'] for v in checks)
+assert any(v['source'].endswith('check_local_f0_privilege_ceiling_v7_operation.py')and v['tests_run']>=8 for v in checks)
+source4={p:sha(R/p)for p in ns['child_sources']};five={p:sha(T/p)for p in ns['external_five']}
+childpath=R/ns['child_validation'];ownedpath=R/ns['owned_validation'];child=json.loads(childpath.read_bytes());owned=json.loads(ownedpath.read_bytes())
+assert child['source4_sha256']==source4 and child['review_gate']=='PENDING'
+assert all(child[k]['decision']=='PENDING'for k in('independent_source_review','Root_source_review'))
+assert owned['operator_sources_sha256']==five and all(owned[k]['decision']=='PENDING'for k in('independent_safety_sql_review','independent_projection_review','Root_source_review'))
+pm_path=T/'privilege-v7-before-author-preservation-20261120/manifest.json';pm=json.loads(pm_path.read_bytes())
+assert all(sha(Path(row['path']))==row['sha256']for row in pm['files'])
+def copy(p,d):
+ d.parent.mkdir(parents=True,exist_ok=True)
+ if d.exists():assert d.read_bytes()==p.read_bytes(),str(d)
+ else:d.write_bytes(p.read_bytes())
+artifacts=set()
+for pattern in('privilege_v7_*_20261120.json','privilege_v7_*_20261120.log','privilege-v7-full-entry-*.py.txt','privilege-v7-*-source-*.py.txt'):
+ artifacts.update(p for p in T.glob(pattern)if p.is_file())
+for name in('run_privilege_v7_author_checks_20261120.py','check_privilege_v7_full_entry_composed_20261120.py','privilege_v7_model_CID_boundary_probe_20261120.py','privilege_v7_closed_reader_save_control_20261120.py','privilege_v7_source_preservation_audit_20261120.py','privilege_v7_refresh_source_graph_20261120.py','privilege_v7_author_checkpoint_20261120.py','privilege_v7_finalize_author_delivery_20261120.py'):
+ artifacts.add(T/name)
+for p in sorted(artifacts):copy(p,archive/'author-checks'/(p.name+'.txt'if p.suffix=='.py'else p.name))
+for prefix in('privilege-v7-author-history-','privilege-v7-OFFLINE-cli-capture-'):
+ for directory in sorted(T.glob(prefix+'*')):
+  if directory.is_dir():
+   for p in directory.rglob('*'):
+    if p.is_file():copy(p,archive/'preserved-author-history'/directory.name/p.relative_to(directory))
+oldnormal=R/'context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/audit/coverage-clarification-history/normalization-before-coverage-wording-clarification.json';newnormal=R/'context/reconciliation/local-f0-privilege-c401d2f-086c453e-execution.json'
+assert sha(oldnormal)=='fe5adf8b985bb4166c621d33fd8bcc315fa4564bb8405b3928fd107ddeba2327'
+assert sha(newnormal)=='0701bab0f50831cfb05c35dc6671214b0a461a6a81cf7fda8392564bae4ed1da'
+fixture_paths=[oldnormal,newnormal,R/'scripts/sql-review/test_run_native_table_denials_v3.py',T/'check_local_f0_app_write_two_owned_resource_v1_operation.py',R/'context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/native-before.json',R/'context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/catalog-comparison.json']
+record=json.loads(oldnormal.read_bytes())
+for leaf in('native-before','ledger-observation','oracle-preflight','oracle-results','oracle-closure','acl-preflight','text-preflight'):
+ names=[n for n in record['assets_sha256']if n.endswith('/evidence/'+leaf+'.json')];assert len(names)==1
+ p=R/names[0];assert sha(p)==record['assets_sha256'][names[0]];fixture_paths.append(p)
+fixtures={}
+for i,p in enumerate(fixture_paths):
+ d=archive/'OFFLINE-fixture-inputs'/(f'{i:02d}-'+p.name+('.txt'if p.suffix=='.py'else''));copy(p,d);fixtures[str(p)]={'sha256':sha(p),'archive':d.relative_to(R).as_posix()}
+lineage={'scope':'HISTORICAL_OFFLINE_MOCK_ONLY_NEVER_RUNTIME_ATTESTATION','test_only_projection':'Fresh mock UUID prefix and immutable mockCID projected into the process fixture; production factories/verifiers/authority proofs unchanged.','inputs':fixtures,'old_actual086c_complete_cause':'UNOBSERVED'}
+lineagepath=T/'privilege_v7_OFFLINE_fixture_lineage_20261120.json'
+with lineagepath.open('xb')as f:f.write(encoded(lineage))
+copy(lineagepath,archive/'OFFLINE-fixture-inputs/lineage.json')
+owned['archive_files_sha256']={p.relative_to(R).as_posix():sha(p)for p in sorted(archive.rglob('*'))if p.is_file()};ownedpath.write_bytes(encoded(owned))
+freeze=T/'privilege-v7-source-author-freeze-20261120';freeze.mkdir(exist_ok=False)
+paths={Path(row['path'])for row in pm['files']}|{R/p for p in source4}|{T/p for p in five}|{childpath,ownedpath,lineagepath}|artifacts|set(fixture_paths)|{p for p in archive.rglob('*')if p.is_file()}
+rows=[]
+for i,p in enumerate(sorted(paths,key=str)):
+ raw=p.read_bytes();leaf=f'items/{i:04d}.bin';d=freeze/leaf;d.parent.mkdir(exist_ok=True);d.write_bytes(raw);rows.append({'path':str(p),'snapshot':leaf,'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)})
+manifest=freeze/'freeze-manifest.json';manifest.write_bytes(encoded({'schema':'workinants.privilege-v7-immutable-author-freeze.v1','decision':'FROZEN_FOR_NONAUTHOR_SOURCE_REVIEW','files':rows}))
+def lines(p,names):
+ return {n.name:{'start':n.lineno,'end':n.end_lineno}for n in ast.walk(ast.parse(p.read_bytes()))if isinstance(n,ast.FunctionDef)and n.name in names}
+report={'schema':'workinants.privilege-v7-source-author-review.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'author':'/root/install_outer_review','decision':'REQUEST_INDEPENDENT_NONAUTHOR_SOURCE_REVIEW','Root_ACK_sha256':sha(ackpath),'source4_sha256':source4,'operator_sources_sha256':five,'validation_files_sha256':{ns['child_validation']:sha(childpath),ns['owned_validation']:sha(ownedpath)},'archive_files_sha256':owned['archive_files_sha256'],'freeze':{'path':str(manifest),'sha256':sha(manifest),'files':len(rows)},'preservation':{'manifest_path':str(pm_path),'sha256':sha(pm_path),'original_files':len(pm['files']),'all_current_match':True,'source122_SQL200_artifacts202_unchanged':True},'final_checks':checks,'prior_check_records_and_failures':{str(p):sha(p)for p in sorted(artifacts)if p.suffix in('.json','.log')},'line_evidence':{str(R/ns['child_sources'][0]):lines(R/ns['child_sources'][0],{'create_projection_binding','create_position_matches','diagnostic_with_receipt'}),str(R/ns['child_sources'][1]):lines(R/ns['child_sources'][1],{'load_inputs','negative','remember_original_origin','main'}),str(T/ns['external_five'][1]):lines(T/ns['external_five'][1],{'privilege_source_review_preflight','privilege_stopped_origin','privilege_read_closed_reference','privilege_reference_integrity_barrier','privilege_ceiling_experiment','main','verify_privilege_result'})},'fixed_scope':{'CREATE_cases':8,'other_unchanged_diagnostics':192,'SQL':200,'artifacts':202,'source_inputs':122,'success_operations':244,'native_controls':40,'source_definers':16,'issuer_protocols':3,'native_catalog_checks':29089,'oracle_expressions':416,'ledger_checks':22},'limitations':['All process/Docker/database/network boundaries mocked or forbidden; no actual SQL execution.','Historical fixture bytes are OFFLINE only; real runtime must independently produce fresh first-install proofs.','Original086c complete diagnostic mismatch cause remains UNOBSERVED.','No assertion promotion, source approval, publication, pin, literal approval or runtime authority supplied by this author record.','Separate nonauthor review and Root metadata closure remain required.'],'all_new_source_gates':'PENDING','runtime':'NOT_RUN','assertion_status_changes':'NONE','Posture':'D'}
+report['final_whole_entry_qualification']={'methods':3,'independent_CLI_invocations':4,'modes':['normal complete200/244','wrong CREATE caret','wrong CREATE caret plus persistent parent evidence replace failure','normal complete200/244 plus late cleanup reference mutation'],'authority':'OFFLINE_PROCESS_MOCK_ONLY','production_factory_or_verifier_replaced':False,'current_source9_verified':True}
+report['version_qualification']='Final11 selected methods ran against the current nine code hashes. Earlier unit/child/reader results are separately preserved with their own source hashes and are not claimed to be complete final-graph checks. The only real Windows save control reproduces a possible observer hazard; the unretained192-stop exception remains UNOBSERVED.'
+report['test_metadata_projection']='Only isolated private fixtures receive clearly marked synthetic future source reviews and mocked Git responses. Live source gates remain PENDING. The full CLI derives first-install proofs through actual comparators and the actual child; unit-loader attestation fixtures are not used as full CLI RAM proof.'
+report['final_archive_graph_confirmation']='New proof/history members are admitted by the closed archive map here; an exclusive post-freeze source-prepare/pinner confirmation follows as a separate immutable addendum without modifying these frozen bytes.'
+reportpath=T/'privilege_v7_source_author_review_20261120.json'
+with reportpath.open('xb')as f:f.write(encoded(report))
+delivery={'schema':'workinants.privilege-v7-frozen-source-plan.v1','decision':'FROZEN_FOR_INDEPENDENT_NONAUTHOR_SOURCE_REVIEW','author_review':{'path':str(reportpath),'sha256':sha(reportpath)},'freeze':report['freeze'],'source4_sha256':source4,'operator_sources_sha256':five,'validation_files_sha256':report['validation_files_sha256'],'archive_files':len(owned['archive_files_sha256']),'all_new_source_gates':'PENDING','runtime':'NOT_RUN','Posture':'D'}
+deliverypath=T/'privilege_v7_frozen_source_plan_20261120.json'
+with deliverypath.open('xb')as f:f.write(encoded(delivery))
+print(json.dumps({'delivery':str(deliverypath),'sha256':sha(deliverypath),'author_review_sha256':sha(reportpath),'freeze_sha256':sha(manifest),'archive_files':len(owned['archive_files_sha256']),'frozen_files':len(rows)},indent=2))

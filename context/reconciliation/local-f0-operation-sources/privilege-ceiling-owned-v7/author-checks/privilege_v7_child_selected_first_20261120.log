@@ -1,0 +1,62 @@
+test_real_whole_source_loader_precedes_any_process (<run_path>.PrivilegeCoordinatorTests.test_real_whole_source_loader_precedes_any_process) ... ERROR
+test_full_finite_sql_protocol (<run_path>.PrivilegeCoordinatorTests.test_full_finite_sql_protocol) ... ERROR
+test_unconfirmed_operation_backend_never_runs_data_observer (<run_path>.PrivilegeCoordinatorTests.test_unconfirmed_operation_backend_never_runs_data_observer) ... ERROR
+
+======================================================================
+ERROR: test_real_whole_source_loader_precedes_any_process (<run_path>.PrivilegeCoordinatorTests.test_real_whole_source_loader_precedes_any_process)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 360, in test_real_whole_source_loader_precedes_any_process
+    plan=plans(world,Path(temporary));original=list(__import__('sys').path);loaded=M['load_inputs'](plan)
+                                                                                   ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\run-privilege-ceiling-control-rehearsal-v7.py", line 155, in load_inputs
+    native_packet,native_blobs,snapshot,api,host=native['load_inputs'](native_plan)
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-loader-_m2ea814\workinants-correction-pass\scripts\sql-review\run-native-table-denials-v3.py", line 326, in load_inputs
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-loader-_m2ea814\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 66, in validate_manifest
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-loader-_m2ea814\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 53, in validate_bootstrap_secret_path
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-loader-_m2ea814\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 36, in require
+<native-deny-verified-helper>.HeldFailure: TASK_OWNED_EXTERNAL_SECRET_PATH_REQUIRED
+
+======================================================================
+ERROR: test_full_finite_sql_protocol (<run_path>.PrivilegeCoordinatorTests.test_full_finite_sql_protocol)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 365, in test_full_finite_sql_protocol
+    failure,data,world,memory,runner=self.exercise()
+                                     ^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 346, in exercise
+    plan=plans(world,Path(temporary));loaded=M['load_inputs'](plan)
+                                             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\run-privilege-ceiling-control-rehearsal-v7.py", line 155, in load_inputs
+    native_packet,native_blobs,snapshot,api,host=native['load_inputs'](native_plan)
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-offline-a9zo0bih\workinants-correction-pass\scripts\sql-review\run-native-table-denials-v3.py", line 326, in load_inputs
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-offline-a9zo0bih\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 66, in validate_manifest
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-offline-a9zo0bih\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 53, in validate_bootstrap_secret_path
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-offline-a9zo0bih\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 36, in require
+<native-deny-verified-helper>.HeldFailure: TASK_OWNED_EXTERNAL_SECRET_PATH_REQUIRED
+
+======================================================================
+ERROR: test_unconfirmed_operation_backend_never_runs_data_observer (<run_path>.PrivilegeCoordinatorTests.test_unconfirmed_operation_backend_never_runs_data_observer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 412, in test_unconfirmed_operation_backend_never_runs_data_observer
+    failure,data,world,_,_=self.exercise('backend-live',action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 346, in exercise
+    plan=plans(world,Path(temporary));loaded=M['load_inputs'](plan)
+                                             ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\run-privilege-ceiling-control-rehearsal-v7.py", line 155, in load_inputs
+    native_packet,native_blobs,snapshot,api,host=native['load_inputs'](native_plan)
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-offline-90nux__4\workinants-correction-pass\scripts\sql-review\run-native-table-denials-v3.py", line 326, in load_inputs
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-offline-90nux__4\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 66, in validate_manifest
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-offline-90nux__4\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 53, in validate_bootstrap_secret_path
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-offline-90nux__4\workinants-correction-pass\scripts\prepare-local-f0-history.py", line 36, in require
+<native-deny-verified-helper>.HeldFailure: TASK_OWNED_EXTERNAL_SECRET_PATH_REQUIRED
+
+----------------------------------------------------------------------
+Ran 3 tests in 11.176s
+
+FAILED (errors=3)

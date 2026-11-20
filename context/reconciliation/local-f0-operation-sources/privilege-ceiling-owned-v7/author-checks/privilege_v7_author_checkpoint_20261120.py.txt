@@ -1,0 +1,13 @@
+from pathlib import Path
+import hashlib,json,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+ack=json.loads((T/'privilege_v7_CREATE_projection_Root_bounded_implementation_ACK_20261120.json').read_bytes())
+ns=ack['authorized_new_namespace']
+paths=[R/p for p in ns['child_sources']]+[T/p for p in ns['external_five']]+[R/ns[p]for p in('child_validation','owned_validation')]
+label=sys.argv[1];assert label and all(c.isalnum()or c in '-_'for c in label)
+d=T/('privilege-v7-author-history-'+label+'-20261120');d.mkdir(exist_ok=False);rows=[]
+for i,p in enumerate(paths):
+ if not p.exists():continue
+ raw=p.read_bytes();leaf=f'{i:02d}.bin';(d/leaf).write_bytes(raw);rows.append({'path':str(p),'snapshot':leaf,'sha256':hashlib.sha256(raw).hexdigest()})
+out=d/'manifest.json';out.write_text(json.dumps({'schema':'workinants.privilege-v7-author-draft-history.v1','label':label,'files':rows},indent=2)+'\n',encoding='utf8')
+print(json.dumps({'path':str(out),'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'files':len(rows)}))

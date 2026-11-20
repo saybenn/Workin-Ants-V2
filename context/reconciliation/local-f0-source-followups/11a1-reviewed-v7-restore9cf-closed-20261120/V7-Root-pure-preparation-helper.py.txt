@@ -1,0 +1,22 @@
+"""Use unchanged V7 prepare/complete filesystem admission with all process/network boundaries forbidden."""
+from pathlib import Path
+import datetime,hashlib,json,runpy,socket,subprocess,time,uuid
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+raw=(T/'privilege_v7_fix2_source_approved_committable_inventory_20261120.json').read_bytes();assert sha(raw)=='5fb22d2960bb37d94a785e5fd45a40a5d969214eace372e6fad8dc2f8d528b68';inventory=json.loads(raw)
+for n,h in inventory['files_sha256'].items():assert sha((R/n).read_bytes())==h
+names=('execute_local_f0_privilege_ceiling_v7_20261120.py','local_f0_privilege_ceiling_v7_operation_steps.py','prepare_local_f0_privilege_ceiling_v7_plan.py','check_local_f0_privilege_ceiling_v7_operation.py','pin_local_f0_privilege_ceiling_v7_plan_20261120.py');before={n:sha((T/n).read_bytes())for n in names}
+baseline=T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';baseline_sha='92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5';assert sha(baseline.read_bytes())==baseline_sha
+calls=[]
+def forbidden(*a,**kw):calls.append('FORBIDDEN_PROCESS_NETWORK');raise AssertionError('ALL_PROCESS_NETWORK_FORBIDDEN')
+run=str(uuid.uuid4());started=time.monotonic()
+with patch.multiple(subprocess,run=forbidden,Popen=forbidden,check_output=forbidden,check_call=forbidden,call=forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden):
+ prep=runpy.run_path(str(T/'prepare_local_f0_privilege_ceiling_v7_plan.py'),run_name='_Root_reviewed_v7_fix2_prepare');result=prep['prepare'](baseline,baseline_sha,run)
+ path=Path(result['operation_manifest']);pin=runpy.run_path(str(T/'pin_local_f0_privilege_ceiling_v7_plan_20261120.py'),run_name='_Root_reviewed_v7_fix2_full_filesystem_admission');checked=pin['validate'](path)
+assert not calls;value=json.loads(path.read_bytes());assert value['run_id']==run and value['review_status']=='PENDING_OPERATIONAL_REVIEW'and value['source_commit']==value['source_tree']==value['packet_sha256']=='TO_BE_PINNED'and not Path(value['evidence_directory']).exists()
+for n,h in before.items():assert sha((T/n).read_bytes())==h
+for n,h in inventory['files_sha256'].items():assert sha((R/n).read_bytes())==h
+receipt={'schema':'workinants.privilege-v7-fix2-actual-approved-prepare-filesystem-validation.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_ACTUAL_UNCHANGED_PREPARER_AND_FULL_FILESYSTEM_VALIDATOR','run_id':run,'manifest':str(path),'manifest_sha256':sha(path.read_bytes()),'all_five_and_reviewed_inventory_unchanged':True,'all_process_network_boundaries_forbidden':True,'seconds':round(time.monotonic()-started,3),'review_status':value['review_status'],'runtime':'NOT_RUN','Posture':'D'}
+out=T/'privilege_v7_fix2_actual_approved_prepare_validate_20261120.json'
+with out.open('x',encoding='utf-8')as f:json.dump(receipt,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({**receipt,'receipt_sha256':sha(out.read_bytes())}))

@@ -1,0 +1,24 @@
+test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup (<run_path>.V7FullEntryTests.test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup) ... FAIL
+
+======================================================================
+FAIL: test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup (<run_path>.V7FullEntryTests.test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_privilege_v7_full_entry_composed_20261120.py", line 140, in test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup
+    code,model,report,_=self.composed()
+                        ^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_privilege_v7_full_entry_composed_20261120.py", line 121, in composed
+    path,fixture=self.fresh();core=runpy.run_path(str(self.task/OWN['CLOSURE_CORE']));model=V7ProcessModel(fixture,path,mode);model.n=core['launch'].__globals__;output=io.StringIO();real_replace=Path.replace;faults=[]
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_privilege_v7_full_entry_composed_20261120.py", line 42, in __init__
+    self.vm=self.child['World']();self.vm.coordinator=None;self.catalog=historical_catalog();self.vm.native=deepcopy(self.catalog['native-before']);self.mode=mode;self.providers_created=False;self.provider_credentials=False
+                                                                        ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_privilege_v7_full_entry_composed_20261120.py", line 29, in historical_catalog
+    assert sha(rp.read_bytes())=='fe5adf8b985bb4166c621d33fd8bcc315fa4564bb8405b3928fd107ddeba2327'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+----------------------------------------------------------------------
+Ran 1 test in 26.976s
+
+FAILED (failures=1)

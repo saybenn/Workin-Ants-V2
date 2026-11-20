@@ -1,3 +1,17 @@
+## Local F0 continuation — cleaned restore stop and reviewed privilege correction (2026-11-20)
+
+Coverage remains638PASS/33PARTIAL/324NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED across1034assertions;94cases remain5PASS/78PARTIAL/11NOT_RUN, with671evidence rows. Published11a1fa1f5747877270ac85d260ed5d410c04f999/tree27c8900c2ab20d1050776bdc6580b1c7399cb431 was independently verified after normal fast-forward.
+
+Fresh RestoreV5 run9cf passed its16 safe backup-preflight comparisons and source pg_verifybackup process, then stopped when protected archived HBA bytes failed exact source equality. No artifact metadata/archived difference was retained; backup/verify milestones and later staging, restored parity and generation steps stayNOT_RUN. The source1C1V was removed; all3C2V proposed names/private/archive are independently absent, image retained. A separate actual Windows public-HBA probe proves held text stdin changes445LFbytes to457CRLFbytes; binary control preserves445. This proves a source transport defect consistent with the stop, without reconstructing the deleted archive or complete original cause. No identical retry or relaxed equality is authorized.
+
+V7 final-reference Fix2 is independently source-approved and Root-closed, with fresh unchanged pure preparation/validation PASS. It preserves all200SQL/202artifacts/122source inputs and32ACL rows. Publication, exact committed pin, separate literal review and fresh live preflight must precede actual200-case execution. ReadV2, INSTALL missing-phase and App diagnostic-only replacements remain source work; old failures and partial results stay historical. CanonicalSQL/June/A-D/1034requirements/451register are unchanged; no wholecase/runtime promotion from offline checks. PostureD and Brain final acceptance remain.
+
+Plain English: The backup test stopped because its saved rule file did not match exactly. The test boxes and secrets are gone. A small Windows copy test found changed line endings, so we will fix the copying and keep the strict check. The scoreboard has not gained any passing points from this stopped run.
+
+Current detailed evidence: `context/reconciliation/local-f0-11a1-restore9cf-stop-reviewed-v7-progress-20261120.json`, SHA-256 `e9d0960c55735411adcfa7ee269ae73ffa9deca73b5f04e8db91d4f450df8533`. Earlier sections remain version-qualified history.
+
+---
+
 ## Local F0 continuation —638 accepted assertions and reviewed recovery source (2026-11-20)
 
 The actual unmocked671-row builder passed in390.344s, followed by13 integration regressions in332.414s. Exactly16 Worker assertion links change: twelve newPASS,onePARTIAL-to-PASS with its complete prior fence evidence preserved,and three newPARTIAL. The671-row ledger preserves all other655 old rows and old executions. Coverage is638PASS/33PARTIAL/324NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED across1034assertions;94cases remain5PASS/78PARTIAL/11NOT_RUN. Four Worker source ceilings remainPARTIAL, including one unchanged historical corroboration. No production worker loop or blanket case promotion.

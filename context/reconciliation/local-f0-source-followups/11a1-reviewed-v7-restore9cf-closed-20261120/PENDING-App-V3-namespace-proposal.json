@@ -1,0 +1,70 @@
+{
+  "schema": "workinants.app-unexpected-diagnostic-v3-private-namespace-clarification.v1",
+  "decision": "REQUEST_BOUNDED_ROOT_NAMESPACE_ACK_BEFORE_CODE",
+  "finding": "APP8F2A-UNEXPECTED-DIAGNOSTIC-01",
+  "Root_existing_ACK_sha256": "66a503d23836eb15220bcf91fd3b42facaa4453caa71701c96009417d8a7ae7f",
+  "preservation": {
+    "manifest": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-unexpected-diagnostic-v3-before-author-20261120\\manifest.json",
+    "sha256": "101cdaeaba4a454e42d0ce4efde95a2e56560e7b6cf5714f227f11ad0c607533",
+    "verified_source_packet_files": 240,
+    "all_files": 279,
+    "completed_cases": 13,
+    "SQL_leaves": 22,
+    "all_artifacts": 24
+  },
+  "private_parent": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-unexpected-diagnostic-v3-private-20261120",
+  "namespace_issue": "Existing fixtures.json embeds SHA/path bindings to all five existing V2 child sources, including the SQL generator. Renaming/re-hashing that generator would change the fixture bytes even when business SQL is untouched. To obey the explicit no-fixture-change boundary, retain the original V2 generator/protocol and entire24-file packet byte-exact, separately admit the new runtime protocol/coordinator/tests/doc alongside original59 closure. No generator alias to new protocol.",
+  "proposed_new_child_five": [
+    "scripts/app_write_two_unexpected_diagnostic_v3_protocol.py",
+    "scripts/sql-review/run-app-write-two-unexpected-diagnostic-v3.py",
+    "scripts/check-app-write-two-unexpected-diagnostic-v3.py",
+    "scripts/check-app-write-two-unexpected-diagnostic-v3-coordinator.py",
+    "scripts/sql-review/APP-WRITE-TWO-UNEXPECTED-DIAGNOSTIC-V3.md"
+  ],
+  "proposed_new_external_five": [
+    "execute_local_f0_app_write_two_unexpected_diagnostic_v3_20261120.py",
+    "local_f0_app_write_two_unexpected_diagnostic_v3_operation_steps.py",
+    "prepare_local_f0_app_write_two_unexpected_diagnostic_v3_plan.py",
+    "check_local_f0_app_write_two_unexpected_diagnostic_v3_operation.py",
+    "pin_local_f0_app_write_two_unexpected_diagnostic_v3_plan_20261120.py"
+  ],
+  "proposed_validation": [
+    "context/reconciliation/local-f0-app-write-two-unexpected-diagnostic-v3-source-validation.json",
+    "context/reconciliation/local-f0-app-write-two-unexpected-diagnostic-v3-owned-source-validation.json"
+  ],
+  "proposed_archives": [
+    "context/reconciliation/local-f0-operation-sources/app-write-two-unexpected-diagnostic-v3",
+    "context/reconciliation/local-f0-operation-sources/app-write-two-unexpected-diagnostic-v3-owned"
+  ],
+  "source_graph_changes": "New mandatory PENDING review maps/physical new5+5 snapshots and original V2 source59+24 artifacts all admitted before compilation. The new child-five contains a source doc instead of a duplicate generator; original generator remains separately pinned. Source/packet paths remain V2 for immutable generation; executable protocol/coordinator and strict evidence schema are V3.",
+  "new_evidence_schema": "workinants.app-write-two-unexpected-diagnostic-evidence.v3",
+  "outcome_delta": "Add one exact typed unexpected_diagnostic field; current V2 OUTCOME_FIELDS actually has14 fields and becomes15. Intended diagnostic field/verdict/count/markers/exit/ACK unchanged. Positive BUSINESS errors retain finite safe projection only after closure/global closure.",
+  "SQLSTATE_allowlist": [
+    "42501",
+    "42703",
+    "P0001",
+    "P0002",
+    "23503",
+    "23505",
+    "23514",
+    "22012",
+    "25P02",
+    "0A000",
+    "57014",
+    "25P03",
+    "57P05"
+  ],
+  "optional_source_frame": "Exactly one fully qualified no-argument frame from a small declared application-source allowlist (command_state_guard, guard_customerprofile, guard_runtimeworkitem, runtime_transition). Verify admitted canonical application SHA/body hash and bounded line; omit all unknown/ambiguous/unchecked frame metadata. No column metadata is necessary initially. No helper dictionary or raw message/SQL/args/handles/secrets emitted.",
+  "unchanged": [
+    "All22 SQL plusfixture/README24 bytes",
+    "R02 business recipe and caps14cases15grants/2claims",
+    "Canonical5ae and32workerACL",
+    "Role/guard/timeout/claim ceilings",
+    "Actual13 completed protocols/stopped raw cause UNOBSERVED",
+    "Current AppV2 and closed V7 sources/metadata"
+  ],
+  "runtime": "NOT_RUN",
+  "live_Root_files_changed": false,
+  "code_written_yet": false,
+  "Posture": "D"
+}

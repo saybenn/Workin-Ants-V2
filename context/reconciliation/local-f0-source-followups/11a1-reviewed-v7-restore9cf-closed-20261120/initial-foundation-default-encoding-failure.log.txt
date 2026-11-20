@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\check-foundation.py", line 183, in <module>
+    result=inspect();print(json.dumps(result,indent=2));raise SystemExit(bool(result['errors']))
+           ^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\check-foundation.py", line 61, in inspect
+    c=read('context/shared/contracts/contract-catalog.json')['contracts'];by={x['id']:x for x in c};workflows=read('context/workflows/platform-workflows.json')['workflows'];wf={w['id']:w for w in workflows};lanes=read('context/reconciliation/parallel-lane-manifest.json');qual=read('context/reconciliation/shared-operation-contract-status.json')['contracts']
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\check-foundation.py", line 55, in <lambda>
+    read=lambda p:json.loads((root/p).read_text());errors=[];metrics={}
+                             ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1028, in read_text
+    return f.read()
+           ^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x9d in position 793540: character maps to <undefined>

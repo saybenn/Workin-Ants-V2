@@ -1,0 +1,14 @@
+test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup (<run_path>.V7FullEntryTests.test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup) ... FAIL
+
+======================================================================
+FAIL: test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup (<run_path>.V7FullEntryTests.test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_privilege_v7_full_entry_composed_20261120.py", line 168, in test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup
+    self.assertEqual(code,0,(report.get('primary_failure'),getattr(model,'last_mock_fault',None),report.get('unexpected'),model.safe_exception_trace,model.child_minimum))
+AssertionError: 1 != 0 : ({'stage': 'REQUIRED_GLOBAL_BACKEND_CLOSURE', 'code': 'PRIVILEGE_CEILING_COMPONENT_NOT_QUALIFIED'}, {'class': 'AssertionError', 'fixed_code': 'UNCLASSIFIED_MODEL_BOUNDARY'}, [{'stage': 'PRIVILEGE_CEILING_COMPONENT_REFERENCE', 'code': 'PRIVILEGE_CEILING_COMPONENT_REFERENCE_UNCONFIRMED'}, {'stage': 'REQUIRED_GLOBAL_BACKEND_CLOSURE', 'code': 'PRIVILEGE_CEILING_COMPONENT_NOT_QUALIFIED'}], [{'class': 'GeneratorExit', 'function': '<genexpr>', 'line': 43}, {'class': 'GeneratorExit', 'function': '<genexpr>', 'line': 235}, {'class': 'GeneratorExit', 'function': '<genexpr>', 'line': 236}, {'class': 'Stop', 'function': 'need', 'line': 59}, {'class': 'Stop', 'function': 'privilege_stopped_origin', 'line': 921}, {'class': 'Stop', 'function': 'privilege_ceiling_experiment', 'line': 1057}, {'class': 'Stop', 'function': 'privilege_ceiling_experiment', 'line': 1070}, {'class': 'Stop', 'function': 'main', 'line': 1097}], {'status': 'STOPPED_PARTIAL_EVIDENCE_PRESERVED', 'failure': {'stage': 'SOURCE_QUALIFIED_NATIVE_CATALOG', 'code': 'UNEXPECTED_PRIVILEGE_CONTROL_FAILURE'}, 'original_failure': None, 'current_stage': 'SOURCE_QUALIFIED_NATIVE_CATALOG', 'current_case': None, 'run_id': '744953d9-3821-47b7-9414-5c46951d10ed', 'source_commit': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'source_tree': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'operation_packet_sha256': '37b82d5e4ff9b35964bd72ae08b5a9a0ac5976c4c90f368a9d18229aa594f2f6', 'run_plan_sha256': '991cd6c94ff1cb4130fa326a9b7c9b23b864c9a4e578e05a57f9d8a1c9066542'})
+
+----------------------------------------------------------------------
+Ran 1 test in 117.443s
+
+FAILED (failures=1)

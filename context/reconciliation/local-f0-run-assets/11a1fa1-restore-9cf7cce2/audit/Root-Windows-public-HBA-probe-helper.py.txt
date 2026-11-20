@@ -1,0 +1,15 @@
+"""Actual non-Docker Windows byte-sink reproducer, using only public pinned HBA bytes."""
+from pathlib import Path
+import ast,datetime,hashlib,json,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+core=T/'execute_local_f0_restore_preflight_v5_20261120.py';raw=core.read_bytes();assert sha(raw)=='64c96f9a085abeae6c5155e51b69db3fb899b20fc3b5b8676f139f2d304ecb35'
+source=R/'review-output/restore-control-rehearsal-v5/source-backup.pg_hba.conf';hba=source.read_bytes();assert b'\r'not in hba and b'\n'in hba
+node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef)and n.name=='command');ns={'subprocess':subprocess,'ROOT':R};exec(compile(ast.Module(body=[node],type_ignores=[]),str(core),'exec'),ns)
+sink="import sys,hashlib,json; b=sys.stdin.buffer.read(); print(json.dumps({'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'CRLF':b.count(bytes([13,10])),'LF':b.count(bytes([10])),'CR':b.count(bytes([13]))}))"
+result=ns['command']([sys.executable,'-c',sink],hba.decode('utf-8'));assert result.returncode==0 and not result.stderr;observed=json.loads(result.stdout)
+expected_crlf=hba.replace(b'\n',b'\r\n');assert observed=={'bytes':len(expected_crlf),'sha256':sha(expected_crlf),'CRLF':hba.count(b'\n'),'LF':hba.count(b'\n'),'CR':hba.count(b'\n')}
+binary=subprocess.run([sys.executable,'-c',sink],input=hba,capture_output=True,timeout=60,cwd=R);assert binary.returncode==0 and not binary.stderr;unchanged=json.loads(binary.stdout);assert unchanged=={'bytes':len(hba),'sha256':sha(hba),'CRLF':0,'LF':hba.count(b'\n'),'CR':0}
+receipt={'schema':'workinants.restore-v5-Windows-text-stdin-public-HBA-probe.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_PROVEN_TEXT_STDIN_LF_TO_CRLF_SOURCE_DEFECT','host_platform':sys.platform,'host_python':sys.version.split()[0],'actual_held_command_function_SHA256':sha(ast.get_source_segment(raw.decode(),node).encode()),'pinned_Core_sha256':sha(raw),'public_source_HBA':source.relative_to(R).as_posix(),'public_source_HBA_sha256':sha(hba),'public_source_HBA_bytes':len(hba),'actual_text_transport_sink':observed,'binary_exact_control_sink':unchanged,'SQL_verifier_source_analysis':'HBA write and later SQL string equality both use the same text-mode stdin translation, so equality may pass on CRLF bytes while archive validator compares against unmodified pinned LF source bytes.','historical_actual_limits':'9cf archive bytes/hash/difference were not retained and archive was deleted by controlled cleanup. This fresh non-Docker public-byte reproducer establishes source transport behavior; it does not reconstruct the historical archive or prove its complete cause.','Docker_database_SQL_network_called':False,'credentials_private_archive_or_unrestricted_output_read':False,'Posture':'D'}
+p=T/'restore_v5_9cf_Windows_text_stdin_public_HBA_probe_20261120.json'
+with p.open('x',encoding='utf-8')as f:json.dump(receipt,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({**receipt,'receipt_sha256':sha(p.read_bytes())}))

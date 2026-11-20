@@ -1,0 +1,18 @@
+"""Reconcile the newly completed independent source plan without changing any reviewed executable byte."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';F='context/reconciliation/local-f0-source-followups/11a1-reviewed-v7-restore9cf-closed-20261120';A=R/'context/reconciliation/local-f0-11a1-reviewed-v7-restore9cf-publication-admission-20261120.json';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+raw=A.read_bytes();assert sha(raw)=='1b48b2d889dca215671f58c182e3a4f87add369645d49583f935ccac7b757e13';v=json.loads(raw);files=v['admitted_files_sha256'];assert len(files)==513
+for n,h in files.items():assert sha((R/n).read_bytes())==h
+rp=T/'restore9cf_independent_actual_audit_and_HBA_v6_source_plan_review_20261120.json';rb=rp.read_bytes();assert sha(rb)=='3bac9c5844f1377497b21d92a23947725c45ec71cb8525f102c56e30e82d70c8';peer=json.loads(rb);assert peer['decision']=='SOURCE_PLAN_APPROVED'and peer['findings']==[]and peer['new_V6_source_or_runtime']=='NOT_IMPLEMENTED_NOT_APPROVED'
+probe=T/'review_restore9cf_public_hba_transport_probe_20261120/independent-probe.json';pb=probe.read_bytes();assert sha(pb)=='84ff56bd2d0f8d092202de9cc233d1bd8183da7a688138cf230803d379f08669'
+extras={'admission-before-new-plan-review.json':raw,'independent-Restore9cf-actual-and-V6-plan-review.json':rb,'independent-Windows-public-HBA-probe.json':pb,'Root-V6-bounded-implementation-ACK.json':(T/'restore_hba_bytes_v6_Root_bounded_implementation_ACK_20261120.json').read_bytes(),'Root-plan-reconciliation-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in extras.items():
+ assert b'\0'not in b;b.decode('utf-8-sig')
+ if n.endswith('.json'):json.loads(b)
+ put(R/F/n,b);files[F+'/'+n]=sha(b)
+v['recorded_at_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat();v['admitted_files_sha256']=dict(sorted(files.items()));v['newer_source_plan_reconciliation']={'independent_plan_review':'SOURCE_PLAN_APPROVED','review_sha256':sha(rb),'finding':'RESTORE9CF-HBA-TEXT-TRANSPORT-01','true_actual_origin':'Host archive HBA equality after recorded verifier exit0; last stage label is not verifier-process failure.','code_status':'New V6 code not implemented/source-approved; author ACK recorded. Source/offline only, no runtime.','all_reviewed_executable_files_unchanged':True,'earlier_progress_record_pending_plan_text':'Retained as timestamped pre-review state; this later admission record records the completed plan review.','Posture':'D'};v['outgoing_scan']['new_plan_followup_files']=5;A.write_bytes(enc(v))
+out=T/'11a1_reviewed_v7_restore9cf_admission_plan_reconciled_20261120.json';put(out,enc({'admission_sha256':sha(A.read_bytes()),'files_excluding_admission':len(files),'prior513_files_unchanged':True,'new_V6_code_admitted':False,'Posture':'D'}));print(out.read_text())

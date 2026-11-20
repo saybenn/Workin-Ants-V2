@@ -1,0 +1,138 @@
+"""Actual main/closed readers/postchecks/cleanup; prior domains are REPLAYED.
+
+Frozen real 200/244 process-mock producer data are replayed byte-exact. This
+tests finalization order only. It never mints fresh runtime authority, replaces
+a production verifier with PASS, or claims a repeated full domain execution.
+"""
+from pathlib import Path
+from contextlib import redirect_stdout
+from copy import deepcopy
+from unittest.mock import patch
+import ast,hashlib,io,json,os,runpy,tempfile,types,unittest
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+CORE=T/'execute_local_f0_privilege_ceiling_v7_20261120.py';STEPS=T/'local_f0_privilege_ceiling_v7_operation_steps.py'
+FREEZE=T/'privilege-v7-source-author-freeze-20261120/freeze-manifest.json'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+encoded=lambda value:(json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+CANARY='FIX2_BOOKKEEPING_SECRET_NEVER_EXPORTED'
+
+class V7FinalReferenceFix2Tests(unittest.TestCase):
+ @classmethod
+ def setUpClass(cls):
+  assert sha(FREEZE.read_bytes())=='34349fb3e916aac4b2a2374dfe281effb97604165ee9aca072e7622f71af3260'
+  cls.rows={Path(row['path']):row for row in json.loads(FREEZE.read_bytes())['files']}
+  def frozen(path):
+   row=cls.rows[path];raw=(FREEZE.parent/row['snapshot']).read_bytes();assert sha(raw)==row['sha256'];return raw
+  cls.frozen=staticmethod(frozen);cls.fixtures={}
+  for path in cls.rows:
+   if path.name!='OFFLINE-MOCK-LINEAGE.json'or not path.parent.name.startswith('privilege-v7-OFFLINE-cli-capture-'):continue
+   marker=json.loads(frozen(path));mode=marker.get('mode');projection=marker.get('closed_final_memory_projection',{})
+   if marker.get('source')!='0a0eecc209ca81712487b38753de9b03c03a46867f6dce9f050ae97cf8af15d7':continue
+   if mode=='normal'and projection.get('status')=='PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY':key='normal'
+   elif mode=='wrong-caret'and marker.get('write_fault')is False:key='stopped'
+   else:continue
+   raw=frozen(path.parent/'privilege-ceiling-results.json');parent=json.loads(frozen(path.parent/'run-evidence.json'));value=json.loads(raw)
+   assert sha(raw)==marker['retained_sha256']['privilege-ceiling-component/privilege-ceiling-results.json']
+   cls.fixtures[key]=(raw,value,parent)
+  assert set(cls.fixtures)=={'normal','stopped'}
+  raw,value,parent=cls.fixtures['normal'];assert len(value['results'])==200 and len(value['operations'])==244 and len(value['native_controls'])==40 and len(value['definer_metadata'])==16 and len(value['issuer_protocols'])==3
+  assert parent['catalog_comparison']['check_counts']=={'PASS':29089}and len(parent['ledger_comparison']['checks'])==22 and parent['privilege_ceiling']['component_report_reference']['artifact_sha256']==sha(raw)
+  cls.held_steps=frozen(STEPS)
+
+ def exercise(self,phase='none',*,primary=False,io_failure=False,old_placement=False,unknown_reference=False):
+  raw,child,parent=self.fixtures['stopped'if primary else'normal'];raw=bytes(raw);original_sha=sha(raw)
+  with tempfile.TemporaryDirectory(prefix='v7-fix2-order-',dir=T/'test-tmp')as directory:
+   base=Path(directory);root=base/'source';root.mkdir();out=base/'out';fixed=out/'privilege-ceiling-component/privilege-ceiling-results.json';events=[];state={'containers':{},'volumes':{},'mutated':False,'source_writes':0,'component_started':False}
+   n=runpy.run_path(str(CORE))['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+   if old_placement:
+    held=next(node for node in ast.parse(self.held_steps).body if isinstance(node,ast.FunctionDef)and node.name=='main')
+    exec(compile(ast.Module(body=[held],type_ignores=[]),'HELD_MAIN_ONLY_RESTORATION','exec'),n)
+   resource=child['resource'];name=resource['container_name'];volume=resource['volume_name'];cid=resource['container_id'];labels=resource['labels'];reference={'artifact':'privilege-ceiling-component/privilege-ceiling-results.json','present':None,'read_status':'UNAVAILABLE'}
+   packet=root/'packet-source.txt';packet.write_bytes(self.held_steps)
+   external=base/'external-source.txt';external.write_bytes(CORE.read_bytes())
+   tools={}
+   for relative in n['TOOL_DATA']:
+    data=(R/relative).read_bytes();target=root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data);tools[relative]=sha(data)
+   closure_name='context/reconciliation/local-f0-tooling/prisma-tools-closure.json';closure=root/closure_name;closure.parent.mkdir(parents=True);closure.write_bytes(encoded({'tools_files_sha256':tools}))
+   nested=base/'target.json';nested.write_bytes(encoded({'tools':{'files_sha256':tools}}));archive=base/'source-archive.bin';archive.write_bytes(self.held_steps);toolarchive=base/'tool-archive.bin';toolarchive.write_bytes(CORE.read_bytes());snapshot=base/'snapshot';snapshot.mkdir();(snapshot/'source.txt').write_bytes(self.held_steps)
+   plan={'manifest_path':str(nested),'manifest_sha256':sha(nested.read_bytes()),'source_archive':str(archive),'source_archive_sha256':sha(archive.read_bytes()),'source_snapshot':str(snapshot),'source_files_sha256':{'source.txt':sha(self.held_steps)}}
+   manifest={'review_status':'APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT','privilege_ceiling':{'external_files_sha256':{external.name:sha(external.read_bytes())}},'catalog':{'tool_source_files_sha256':tools},'packet_files_sha256':{closure_name:sha(closure.read_bytes())},'migration_targets':{'ok':plan},'tool_archive':str(toolarchive),'tool_archive_sha256':sha(toolarchive.read_bytes())}
+   n.update(TASK=base,ROOT=root,OUT=out,PRIVATE=out/'private',MANIFEST=manifest,RUN_ID=child['run_id'],LABEL='p0c-local-f0',TARGETS=[{'name':name,'volume':volume,'kind':'ok'}],RESOURCE_CONTAINERS=(name,),RESOURCE_VOLUMES=(volume,),report={'stage':'ISOLATED_FROZEN_DOMAIN_REPLAY_ONLY','status':'IN_PROGRESS','steps':{},'targets':{},'events':[],'unexpected':[],'cleanup':{},'privilege_ceiling':{},'source_verification':{'files_sha256':{'packet-source.txt':sha(packet.read_bytes())}}},created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),secret_paths=[],all_secrets=[CANARY])
+   for method in('privilege_source_review_preflight','verify_privilege_ceiling_packet','preflight','ensure_image','provision_migration_tools','provider_preinstall','catalog_experiment'):
+    n[method]=lambda method=method:events.append('ISOLATED_PRIOR_PHASE:'+method)
+   def create():
+    events.append('ISOLATED_PRIOR_RESOURCE_CREATION');n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths'].append(secret)
+    state['containers'][name]={'Id':cid,'Name':'/'+name,'Config':{'Labels':labels}};state['volumes'][volume]={'Name':volume,'CreatedAt':'REPLAY_CREATED','Labels':labels}
+    n['created_containers'][name]=cid;n['created_volumes'][volume]='REPLAY_CREATED';n['attempted_containers'].add(name);n['attempted_volumes'].add(volume)
+   n['create_resources']=create;n['bootstrap_all']=lambda:n['bootstrap_attempted'].add(name)
+   def finalize(target):events.append('ISOLATED_PRIOR_FINALIZER:'+target);n['finalization_attempted'].add(target);n['finalized'].add(target)
+   n['finalize']=finalize
+   def mutate():
+    if state['mutated']:return
+    before=fixed.stat();changed=raw.replace(b'workinants.privilege-ceiling-evidence.v1',b'workinants.privilege-ceiling-evidence.v2',1);assert len(changed)==len(raw)and changed!=raw
+    fixed.write_bytes(changed);os.utime(fixed,ns=(before.st_atime_ns,before.st_mtime_ns));state['mutated']=True;events.append('SAME_SIZE_MTIME_RESTORED_MUTATION:'+phase)
+   def docker(args,input=None,timeout=60):
+    if args==['container','rm','-f',cid]:state['containers'].clear();events.append('ACTUAL_CLEANUP_CONTAINER');return types.SimpleNamespace(returncode=0,stdout=cid,stderr='')
+    if args==['volume','rm',volume]:state['volumes'].clear();events.append('ACTUAL_CLEANUP_VOLUME');return types.SimpleNamespace(returncode=0,stdout=volume,stderr='')
+    if args==['container','ls','-a','--format','{{.Names}}']:return types.SimpleNamespace(returncode=0,stdout='\n'.join(state['containers']),stderr='')
+    if args==['volume','ls','--format','{{.Name}}']:
+     if phase=='cleanup':mutate()
+     return types.SimpleNamespace(returncode=0,stdout='\n'.join(state['volumes']),stderr='')
+    raise AssertionError('UNDECLARED_PROCESS_MODEL')
+   n.update(docker=docker,inspect_container=lambda target:state['containers'].get(target),inspect_volume=lambda target:state['volumes'].get(target))
+   real_reader=n['privilege_read_closed_reference'];real_barrier=n['privilege_reference_integrity_barrier'];real_save=n['save'];real_persist=n['persist_best_effort'];real_read=Path.read_bytes
+   def component():
+    events.append('REPLAY_GENUINE_FROZEN_PRODUCER_'+('STOPPED'if primary else'200_244'));fixed.parent.mkdir();fixed.write_bytes(raw);value=real_reader(reference);assert sha(raw)==original_sha and value==child;n['PRIVILEGE_LAST_REFERENCE']=None if unknown_reference else reference;state['component_started']=True
+    if primary:
+     origin=child['original_failure'];n['report']['stage']=origin['stage'];raise n['Stop'](origin['code'])
+   n['privilege_ceiling_experiment']=component
+   def barrier(value):events.append('ACTUAL_REFERENCE_BARRIER');return real_barrier(value)
+   n['privilege_reference_integrity_barrier']=barrier
+   def save():
+    if io_failure and state['component_started']:events.append('INJECTED_PERSISTENT_BOOKKEEPING_IO');raise OSError(CANARY)
+    return real_save()
+   n['save']=save
+   def persist(stage):
+    result=real_persist(stage)
+    if stage=='SOURCE_PRESERVATION_RECORD':
+     state['source_writes']+=1;events.append('POSTCHECK_WRITE:'+str(state['source_writes']))
+     if phase=='last-postcheck-write'and state['source_writes']==5:mutate()
+    return result
+   n['persist_best_effort']=persist
+   def read(path):
+    data=real_read(path)
+    if state['component_started']:
+     point='packet'if path==packet else'tool'if path==root/next(iter(tools))else'external'if path==external else'archive'if path==archive else None
+     if point:events.append('ACTUAL_POSTCHECK:'+point)
+     if point==phase:mutate()
+    return data
+   with patch.object(Path,'read_bytes',read),redirect_stdout(io.StringIO()):code=n['main']()
+   result={'scope':'ACTUAL_MAIN_READERS_POSTCHECKS_CLEANUP_WITH_ISOLATED_PRIOR_PHASES_AND_FROZEN_PRODUCER_REPLAY','phase':phase,'old_placement':old_placement,'primary':primary,'io_failure':io_failure,'exit_code':code,'status':n['report']['status'],'reference_check_flag':n['report'].get('component_report_reference_unchanged'),'original_reference_sha256':original_sha,'reference_sha256':reference['artifact_sha256'],'final_bytes_sha256':sha(fixed.read_bytes()),'original_reference_length':len(raw),'reference_length':reference['bytes'],'all_postchecks_attempted':all('ACTUAL_POSTCHECK:'+p in events for p in('packet','tool','external','archive')),'exact_cleanup_confirmed':n['report']['cleanup_actions_confirmed']is True and state['containers']=={}and state['volumes']=={}and not n['PRIVATE'].exists(),'primary_failure':n['report'].get('primary_failure'),'evidence_complete':n['report']['evidence_complete'],'source_writes':state['source_writes'],'events':events}
+   self.assertEqual(reference['artifact_sha256'],original_sha);self.assertEqual(reference['bytes'],len(raw));self.assertTrue(result['exact_cleanup_confirmed']);self.assertTrue(result['all_postchecks_attempted']);self.assertEqual(state['source_writes'],5);self.assertNotIn(CANARY,json.dumps(n['report']))
+   return result
+
+ def test_genuine_frozen200_replay_nochange_actual_main_reader_postchecks_cleanup(self):
+  r=self.exercise();self.assertEqual(r['exit_code'],0);self.assertTrue(r['reference_check_flag']);self.assertEqual(r['original_reference_sha256'],r['final_bytes_sha256']);self.assertEqual(r['events'].count('ACTUAL_REFERENCE_BARRIER'),2)
+ def test_cleanup_mutation_still_stops(self):
+  r=self.exercise('cleanup');self.assertEqual(r['exit_code'],1);self.assertFalse(r['reference_check_flag'])
+ def test_all_later_postcheck_and_last_write_same_size_mtime_mutations_stop(self):
+  for phase in('packet','tool','external','archive','last-postcheck-write'):
+   with self.subTest(phase=phase):
+    r=self.exercise(phase);self.assertEqual(r['exit_code'],1);self.assertFalse(r['reference_check_flag']);self.assertNotEqual(r['original_reference_sha256'],r['final_bytes_sha256']);self.assertEqual(r['events'][-1],'ACTUAL_REFERENCE_BARRIER')
+ def test_first_child_origin_survives_final_reference_failure_and_persistent_IO(self):
+  for failed_io in(False,True):
+   with self.subTest(io=failed_io):
+    r=self.exercise('archive',primary=True,io_failure=failed_io);origin=self.fixtures['stopped'][1]['original_failure'];self.assertEqual(r['exit_code'],1);self.assertEqual(r['primary_failure'],{k:origin[k]for k in('stage','code')});self.assertFalse(r['reference_check_flag'])
+    if failed_io:self.assertFalse(r['evidence_complete'])
+ def test_unknown_reference_cannot_pass(self):
+  r=self.exercise(unknown_reference=True);self.assertEqual(r['exit_code'],1);self.assertFalse(r['reference_check_flag'])
+ def test_restoring_only_old_placement_reproduces_late_postcheck_acceptance(self):
+  for phase in('tool','external','archive','last-postcheck-write'):
+   with self.subTest(phase=phase):
+    r=self.exercise(phase,old_placement=True);self.assertEqual(r['exit_code'],0);self.assertTrue(r['reference_check_flag']);self.assertNotEqual(r['original_reference_sha256'],r['final_bytes_sha256'])
+ def test_main_AST_delta_is_only_the_added_final_barrier(self):
+  old=next(n for n in ast.parse(self.held_steps).body if isinstance(n,ast.FunctionDef)and n.name=='main');new=next(n for n in ast.parse(STEPS.read_bytes()).body if isinstance(n,ast.FunctionDef)and n.name=='main')
+  final=next(n for n in ast.walk(new)if isinstance(n,ast.Try)and any(isinstance(v,ast.Constant)and v.value=='PRIVILEGE_CEILING_FINAL_REFERENCE_UNCONFIRMED'for v in ast.walk(n))and len(n.handlers)==1 and len(n.handlers[0].body)==2)
+  outer=next(n for n in new.body if isinstance(n,ast.Try));outer.finalbody.remove(final);self.assertEqual(ast.dump(old,include_attributes=False),ast.dump(new,include_attributes=False))
+
+if __name__=='__main__':unittest.main(verbosity=2)

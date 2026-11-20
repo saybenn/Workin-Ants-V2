@@ -1,0 +1,114 @@
+{
+  "schema": "workinants.privilege-v7-final-reference-order-independent-probe.v1",
+  "decision": "CONFIRMED_FINAL_REFERENCE_BARRIER_PRECEDES_LATER_POSTCHECKS",
+  "source_core_sha256": "58d44455767e11a79d13aea4883016b9a00fc8a2044ab7f8231e897fcfd6aee2",
+  "source_steps_sha256": "16ad7c49c15c2f4786ecba7c6fd60f4785e4252a707be98b34754c7cefa5e199",
+  "vectors": [
+    {
+      "mutation_phase": "none",
+      "exit_code": 0,
+      "status": "PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY",
+      "reference_sha256": "acaa4c3d90c37cb939ec5d5ad96b6006be95292b399097659b2589c6ca4e5647",
+      "retained_file_sha256": "acaa4c3d90c37cb939ec5d5ad96b6006be95292b399097659b2589c6ca4e5647",
+      "same_size": true,
+      "reference_check_flag": true,
+      "all_source_flags": {
+        "packet_unchanged_after_run": true,
+        "tool_source_data_unchanged_after_run": true,
+        "external_sources_unchanged_after_run": true,
+        "external_inputs_unchanged_after_run": true
+      },
+      "cleanup_attempted": true,
+      "events": [
+        "privilege_source_review_preflight",
+        "verify_privilege_ceiling_packet",
+        "preflight",
+        "ensure_image",
+        "create_resources",
+        "bootstrap_all",
+        "provision_migration_tools",
+        "provider_preinstall",
+        "catalog_experiment",
+        "ACTUAL_INITIAL_CLOSED_READER",
+        "secret_scan",
+        "cleanup",
+        "ACTUAL_REFERENCE_BARRIER",
+        "tool-postcheck",
+        "verify_external_input_preservation"
+      ]
+    },
+    {
+      "mutation_phase": "cleanup",
+      "exit_code": 1,
+      "status": "STOPPED_ATTEMPT_PRESERVED",
+      "reference_sha256": "acaa4c3d90c37cb939ec5d5ad96b6006be95292b399097659b2589c6ca4e5647",
+      "retained_file_sha256": "376af26d498b9c2bdd6aa1bb62e9c72dbcf0a6419e8aa350391c676a239c8370",
+      "same_size": true,
+      "reference_check_flag": false,
+      "all_source_flags": {
+        "packet_unchanged_after_run": true,
+        "tool_source_data_unchanged_after_run": true,
+        "external_sources_unchanged_after_run": true,
+        "external_inputs_unchanged_after_run": true
+      },
+      "cleanup_attempted": true,
+      "events": [
+        "privilege_source_review_preflight",
+        "verify_privilege_ceiling_packet",
+        "preflight",
+        "ensure_image",
+        "create_resources",
+        "bootstrap_all",
+        "provision_migration_tools",
+        "provider_preinstall",
+        "catalog_experiment",
+        "ACTUAL_INITIAL_CLOSED_READER",
+        "secret_scan",
+        "cleanup",
+        "SAME_SIZE_MTIME_RESTORED_MUTATION",
+        "ACTUAL_REFERENCE_BARRIER",
+        "tool-postcheck",
+        "verify_external_input_preservation"
+      ]
+    },
+    {
+      "mutation_phase": "tool-postcheck",
+      "exit_code": 0,
+      "status": "PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY",
+      "reference_sha256": "acaa4c3d90c37cb939ec5d5ad96b6006be95292b399097659b2589c6ca4e5647",
+      "retained_file_sha256": "376af26d498b9c2bdd6aa1bb62e9c72dbcf0a6419e8aa350391c676a239c8370",
+      "same_size": true,
+      "reference_check_flag": true,
+      "all_source_flags": {
+        "packet_unchanged_after_run": true,
+        "tool_source_data_unchanged_after_run": true,
+        "external_sources_unchanged_after_run": true,
+        "external_inputs_unchanged_after_run": true
+      },
+      "cleanup_attempted": true,
+      "events": [
+        "privilege_source_review_preflight",
+        "verify_privilege_ceiling_packet",
+        "preflight",
+        "ensure_image",
+        "create_resources",
+        "bootstrap_all",
+        "provision_migration_tools",
+        "provider_preinstall",
+        "catalog_experiment",
+        "ACTUAL_INITIAL_CLOSED_READER",
+        "secret_scan",
+        "cleanup",
+        "ACTUAL_REFERENCE_BARRIER",
+        "tool-postcheck",
+        "SAME_SIZE_MTIME_RESTORED_MUTATION",
+        "verify_external_input_preservation"
+      ]
+    }
+  ],
+  "scope": "Actual unchanged owning main and closed reader/barrier. Prior source/domain/resource qualification methods deliberately isolated; this proves finalization ordering only, no real or full mocked domain qualification.",
+  "actual_process_network_forbidden": true,
+  "production_source_gate_or_file_edits": false,
+  "seconds": 0.453,
+  "runtime_result_claim": "NONE"
+}

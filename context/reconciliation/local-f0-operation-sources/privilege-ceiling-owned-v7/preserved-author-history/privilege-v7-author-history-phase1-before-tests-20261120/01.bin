@@ -1,0 +1,909 @@
+"""Dormant finite privilege coordinator. Never provisions resources/credentials.
+
+Import/help uses stdlib only. Execution requires a reviewed external same-run
+Native/oracle/ledger PASS attestation, exact full source pins and an owned CID.
+"""
+import argparse
+import builtins
+import contextlib
+from copy import deepcopy
+import datetime
+import hashlib
+import io
+import ipaddress
+import json
+import os
+from pathlib import Path
+import queue
+import re
+import runpy
+import secrets
+import subprocess
+import sys
+import threading
+import time
+import types
+import uuid
+
+ROOT=Path(__file__).resolve().parents[2];TASK=ROOT.parent
+SELF='scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py'
+METADATA_TEST='scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v7.py'
+METADATA_DOC='scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-V7.md'
+PROTOCOL='scripts/privilege_ceiling_control_protocol_v7.py'
+LEGACY_PROTOCOL='scripts/privilege_ceiling_control_protocol.py'
+SOURCE_VALIDATION='context/reconciliation/privilege-ceiling-v7-source-validation.json'
+GENERATOR='scripts/prepare-privilege-ceiling-control-rehearsal.py'
+PACKET='review-output/privilege-ceiling-control-rehearsal'
+NATIVE='scripts/sql-review/run-native-table-denials-v3.py'
+NATIVE_SHA='6e74115cc7a77e626c4379c5a5744efdede1257d04b206fc339e62a23fd49cd3'
+CTX='scripts/sql-review/run-context-control-rehearsal.py'
+CTX_SHA='5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33'
+NATIVE_PACKET_SHA='8044d43f25c4a449f662bbb467183aac86d6a619836aae0988458098d59e0b69'
+APPLICATION_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+EXPECTED_NATIVE='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433'
+DATABASE='wa_p0c_rehearsal'
+
+
+class Held(Exception):
+    def __init__(self,code):self.code=code;super().__init__(code)
+
+
+def need(value,code):
+    if not value:raise Held(code)
+
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)
+def digest(value):return sha(canonical(value).encode())
+def quote(value):return "'"+str(value).replace("'","''")+"'"
+def unique_json(raw):
+    def pairs(items):
+        result={}
+        for key,value in items:need(key not in result,'DUPLICATE_JSON_KEY');result[key]=value
+        return result
+    return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(Held('NONFINITE_JSON')))
+
+
+def person_binding_comparison(rows,ack,errors):
+    """Return only fixed Boolean checks; raw scalar rows never enter evidence."""
+    checks={'acknowledged':ack is True,'stderr_empty':type(errors)is str and errors=='','rows_list':type(rows)is list,'one_row':False,'row_text_bounded':False,'json_parsed':False,'object':False,'exact_fields':False,'boolean_fields':False,'allowed':False,'owner_subject':False,'same_tuple':False}
+    if type(rows)is not list:return checks
+    checks['one_row']=len(rows)==1
+    if not checks['one_row']or type(rows[0])is not str:return checks
+    try:checks['row_text_bounded']=len(rows[0].encode('utf8'))<=4096
+    except UnicodeError:return checks
+    if not checks['row_text_bounded']:return checks
+    try:value=unique_json(rows[0])
+    except Exception:return checks
+    checks['json_parsed']=True;checks['object']=type(value)is dict
+    if not checks['object']:return checks
+    checks['exact_fields']=set(value)=={'allowed','subject','same_tuple'}
+    checks['boolean_fields']=checks['exact_fields']and all(type(value[k])is bool for k in('allowed','subject','same_tuple'))
+    checks['allowed']=value.get('allowed')is True;checks['owner_subject']=value.get('subject')is True;checks['same_tuple']=value.get('same_tuple')is True
+    return checks
+
+
+def source_path(name):
+    need(type(name)is str and not Path(name).is_absolute()and'\\'not in name and':'not in name and all(part not in('','.','..')for part in name.split('/')),'SOURCE_PATH')
+    path=(ROOT/name).resolve();need(path.is_relative_to(ROOT.resolve()),'SOURCE_PATH_ESCAPE');return path
+
+
+def external_path(value):
+    path=Path(value);need(path.is_absolute(),'EXTERNAL_ABSOLUTE_PATH');path=path.resolve()
+    need(path.is_relative_to(TASK.resolve())and not path.is_relative_to(ROOT.resolve())and path!=TASK.resolve(),'EXTERNAL_TASK_PATH');return path
+
+
+def read_asset(item):
+    need(type(item)is dict and set(item)=={'path','sha256'}and type(item['sha256'])is str and re.fullmatch('[0-9a-f]{64}',item['sha256']),'ASSET_REFERENCE_FIELDS')
+    raw=external_path(item['path']).read_bytes();need(sha(raw)==item['sha256'],'EXTERNAL_ASSET_DRIFT');return raw
+
+
+def compile_closed(blobs,path,cache):
+    """Only same prehashed bytes; no project module may fall through to disk."""
+    need(path in blobs,'MODULE_NOT_ADMITTED')
+    if path in cache:return cache[path]
+    allowed_stdlib={name:sys.modules[name]for name in('argparse','builtins','contextlib','copy','datetime','hashlib','io','ipaddress','json','os','pathlib','queue','re','runpy','secrets','subprocess','sys','threading','time','types','uuid')}
+    def imported(name,globals=None,locals=None,fromlist=(),level=0):
+        if name=='privilege_ceiling_control_protocol'and level==0:
+            # The unchanged generator must import the unchanged faf protocol.
+            values=compile_closed(blobs,LEGACY_PROTOCOL,cache);module=types.ModuleType(name);module.__dict__.update(values);return module
+        need(level==0 and name in allowed_stdlib,'UNAPPROVED_SOURCE_IMPORT')
+        if name=='sys'and path==GENERATOR:return types.SimpleNamespace(path=list(sys.path),argv=list(sys.argv))
+        return allowed_stdlib[name]
+    value={'__name__':'_verified_privilege_source','__file__':str(ROOT/path),'__builtins__':{**vars(builtins),'__import__':imported}}
+    output=io.StringIO()
+    from contextlib import redirect_stdout,redirect_stderr
+    with redirect_stdout(output),redirect_stderr(output):exec(compile(blobs[path],str(ROOT/path),'exec'),value)
+    need(not output.getvalue(),'SOURCE_MODULE_OUTPUT_REFUSED');cache[path]=value;return value
+
+
+def load_inputs(plan):
+    fields={'schema','scope','run_id','source_commit','source_tree','packet_sha256','packet_files_sha256','fixtures_sha256','content_sha256','native_plan','prerequisite_attestation'}
+    need(type(plan)is dict and set(plan)==fields and plan['schema']=='workinants.privilege-ceiling-run.v1'and plan['scope']=='FINITE_EXISTING_PRIVILEGE_CEILINGS_ONLY','PLAN_SCOPE')
+    need(type(plan['run_id'])is str and str(uuid.UUID(plan['run_id']))==plan['run_id']and uuid.UUID(plan['run_id']).version==4 and all(type(plan[key])is str and re.fullmatch('[0-9a-f]{40}',plan[key])for key in('source_commit','source_tree')),'SOURCE_RUN_IDENTITY')
+    pins=plan['packet_files_sha256'];need(type(pins)is dict and bool(pins)and all(type(wanted)is str and re.fullmatch('[0-9a-f]{64}',wanted)for wanted in pins.values()),'FULL_SOURCE_HASH_MAP')
+    need(sha(''.join(name+'\0'+pins[name]+'\n'for name in sorted(pins)).encode())==plan['packet_sha256'],'FULL_SOURCE_AGGREGATE')
+    required={SELF,METADATA_TEST,METADATA_DOC,PROTOCOL,LEGACY_PROTOCOL,SOURCE_VALIDATION,GENERATOR,NATIVE,CTX,PACKET+'/fixtures.json'}
+    need(required<=set(pins),'REQUIRED_SOURCE_CLOSURE_MISSING')
+    blobs={name:source_path(name).read_bytes()for name in pins}
+    need(all(sha(raw)==pins[name]for name,raw in blobs.items()),'FULL_SOURCE_DRIFT')
+    validation=unique_json(blobs[SOURCE_VALIDATION]);source4={name:pins[name]for name in(SELF,METADATA_TEST,METADATA_DOC,PROTOCOL)}
+    need(validation.get('review_gate')=='SOURCE_APPROVED' and validation.get('source4_sha256')==source4,'V7_SOURCE_REVIEW_REQUIRED')
+    for key in('independent_source_review','Root_source_review'):
+        review=validation.get(key);need(type(review)is dict and review.get('decision')=='SOURCE_APPROVED' and review.get('source4_sha256')==source4,'V7_SOURCE_REVIEW_REQUIRED')
+        path=review.get('path');need(type(path)is str and path in blobs and sha(blobs[path])==review.get('sha256'),'V7_SOURCE_REVIEW_BYTES_REQUIRED')
+    need(sha(blobs[NATIVE])==NATIVE_SHA and sha(blobs[CTX])==CTX_SHA,'EXACT_REVIEWED_TRANSPORTS')
+    raw=blobs[PACKET+'/fixtures.json'];need(sha(raw)==plan['fixtures_sha256'],'FIXTURE_SOURCE_IDENTITY');packet=unique_json(raw)
+    need(packet['schema']=='workinants.privilege-ceiling-fixtures.v1'and packet['status']=='NOT_RUN'and packet['database_posture']=='D'and len(packet['cases'])==200 and len(packet['source_definers'])==16,'FINITE_PRIVILEGE_SCOPE')
+    need(packet['source_only_packet_sha256']==plan['content_sha256']==digest({key:packet[key]for key in('source_files_sha256','prepared_files_sha256')}),'FINITE_CONTENT_AGGREGATE')
+    for name,wanted in packet['source_files_sha256'].items():need(name in blobs and pins[name]==wanted,'PACKET_SOURCE_NOT_ADMITTED')
+    for name,wanted in packet['prepared_files_sha256'].items():
+        need(Path(name).name==name and name.endswith('.sql'),'FINITE_SQL_NAME');relative=PACKET+'/'+name
+        need(relative in blobs and pins[relative]==wanted,'PACKET_SQL_NOT_ADMITTED')
+    need(pins.get('review-output/foundation-application.review.sql')==APPLICATION_SHA and pins.get('review-output/native-table-denials-v2/packet.json')==NATIVE_PACKET_SHA,'CANONICAL_UNCHANGED_INPUTS')
+    # All source/SQL inputs are admitted before the first helper compile. The
+    # source factory reproduces byte-for-byte and cannot select a prior packet.
+    validate_metadata_descriptors(packet,blobs)
+    cache={};protocol=compile_closed(blobs,PROTOCOL,cache);generator=compile_closed(blobs,GENERATOR,cache)
+    files,reproduced=generator['generate'](ROOT)
+    need(reproduced==packet and all(PACKET+'/'+name in blobs and blobs[PACKET+'/'+name]==value for name,value in files.items()),'EXACT_SOURCE_PACKET_REPRODUCTION')
+    native=compile_closed(blobs,NATIVE,cache);ctx=compile_closed(blobs,CTX,cache)
+    native_plan=plan['native_plan']
+    need(type(native_plan)is dict and native_plan.get('run_id')==plan['run_id']and native_plan.get('source_commit')==plan['source_commit']and native_plan.get('source_tree')==plan['source_tree']and native_plan.get('packet_sha256')==NATIVE_PACKET_SHA,'SAME_RUN_NATIVE_PLAN')
+    need(set(native_plan.get('source_modules_sha256',{}))==set(native['MODULES'])and all(name in blobs and pins[name]==wanted for name,wanted in native_plan['source_modules_sha256'].items()),'NATIVE_HELPER_FULL_PACKET_BINDING')
+    native_packet,native_blobs,snapshot,api,host=native['load_inputs'](native_plan)
+    proof=unique_json(read_asset(plan['prerequisite_attestation']))
+    wanted={'schema':'workinants.privilege-ceiling-native-attestation.v1','run_id':plan['run_id'],'container_id':native_plan['immutable_container_id'],'source_commit':plan['source_commit'],'source_tree':plan['source_tree'],'operation_packet_sha256':plan['packet_sha256'],'native_sql_packet_sha256':NATIVE_PACKET_SHA,'application_sql_sha256':APPLICATION_SHA,'source_expected_sha256':EXPECTED_NATIVE,'native_snapshot_sha256':digest(snapshot),'native_comparison_file_sha256':native_plan['native_comparison']['sha256'],'genuine_prisma_one_applied_migration':True,'original_grantor_finalized':True,'native_expression_oracle_and_private_ledger_pass':True,'all_other_client_backends_absent':True,'provider_preinstall_source_proven':True,'posture':'D','whole_case_promotion':False}
+    need(canonical(proof)==canonical(wanted),'FULL_NATIVE_ORACLE_LEDGER_PREREQUISITE')
+    return packet,blobs,protocol,native,ctx,native_packet,native_blobs,snapshot,api,host
+
+
+# Exact source-plan descriptors; generated data only, never caller-supplied SQL.
+METADATA_DESCRIPTORS = {
+    'ISSUER-ConsentLog-INSERT': {'sql_sha256': '371ac79d0459777a6c01b915c79630f36dca14ecbce762e47d41a2f94aaf2efc', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.consent_logs', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'type', 'version', 'accepted_at', 'ip_hash', 'user_agent', 'created_at', 'acceptance_key', 'fingerprint', 'action_owner', 'action', 'context_kind', 'context_id', 'context_owner', 'presentation_hash', 'content_revision_id', 'presentation_id', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_logs'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentLog-UPDATE': {'sql_sha256': '9cb4a932bef174f37357001b87e2aa0bc7d8388379afb7d1f2c99a444d972cb7', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.consent_logs', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_logs'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentLog-DELETE': {'sql_sha256': '7ec1da0ecb0ad8e3f6b54c7be52cfd5e68ed624a30ebab2582104c4a0c66b15b', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.consent_logs', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_logs'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyRequest-INSERT': {'sql_sha256': '3537088e960358df7ff43f7c543033b8134c1def195a5bfa3726ec59c9c96b17', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.privacy_requests', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'type', 'status', 'requested_at', 'verified_at', 'due_at', 'completed_at', 'rejection_reason', 'admin_note', 'created_at', 'updated_at', 'revision', 'privacy_generation', 'instruction_generation', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_requests'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyRequest-UPDATE': {'sql_sha256': '977d70c8aebf5beca2b029eb2fe1ecdf7f4a4279fe5f064f8c04bb422b3b1535', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.privacy_requests', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_requests'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyRequest-DELETE': {'sql_sha256': 'fd83f552e0299c6330928a43753804f340ea5a98db6d680f4fd18d6166044e48', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.privacy_requests', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_requests'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AgeGateAttempt-INSERT': {'sql_sha256': '2bd6a830ea3b5227e69567124b8c10126c886cebfbde1a920f91ce57ca6770b0', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.age_gate_attempts', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'ip_hash', 'device_hash', 'region', 'result', 'birth_year', 'age_band', 'blocked_until', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'age_gate_attempts'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AgeGateAttempt-UPDATE': {'sql_sha256': '10ed9183d2dbf3297fc4492f63a5b7324a569eae38567564c3d4e05ee08cabe4', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.age_gate_attempts', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'age_gate_attempts'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AgeGateAttempt-DELETE': {'sql_sha256': '42f8cd55bcd6709efc2b34a387dcd46a001d776efb438c53801edd098ac7abf5', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.age_gate_attempts', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'age_gate_attempts'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AgeGateBlock-INSERT': {'sql_sha256': '98d6b5b97b55d703349dbd52bb00ab80159188c0f46138951c172408f4bf5872', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.age_gate_blocks', 'operation': 'INSERT', 'write_columns': ['id', 'ip_hash', 'device_hash', 'reason', 'blocked_until', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'age_gate_blocks'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AgeGateBlock-UPDATE': {'sql_sha256': 'ba1b20b71759d8dbab373dbeec6bd57d29830b3f4de95ab8817660f198a96c4f', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.age_gate_blocks', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'age_gate_blocks'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AgeGateBlock-DELETE': {'sql_sha256': '0214e0fe7f999bff3cfa77ed8fa12bf11956493e132ff5b502e10f336eb71cab', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.age_gate_blocks', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'age_gate_blocks'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AccessAuditLog-INSERT': {'sql_sha256': 'd52596d7724ffbdbcc5554e6401480b3a8238bc0bc4b534096100245bd2a40b0', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.access_audit_logs', 'operation': 'INSERT', 'write_columns': ['id', 'actor_user_id', 'target_type', 'target_id', 'action', 'sensitivity', 'access_decision', 'request_id', 'ip_hash', 'user_agent', 'previous_hash', 'entry_hash', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'access_audit_logs'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AccessAuditLog-UPDATE': {'sql_sha256': 'ab61f168057e46ff0e8358c699034bcc9b95854413be5e166d4933d46cf5b798', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.access_audit_logs', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'access_audit_logs'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AccessAuditLog-DELETE': {'sql_sha256': '0fd94c4c1b441b1da983fccbea390c23dfadbbc6a31c012d7d8fc53103b98332', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.access_audit_logs', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'access_audit_logs'}, 'role': 'wa_context_issuer'},
+    'ISSUER-User-INSERT': {'sql_sha256': '3d79577cfb60a28b55f7caacb74dc0cb22dc5985fc96b3720617dcfa9db49ff9', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.users', 'operation': 'INSERT', 'write_columns': ['id', 'email', 'handle', 'display_name', 'avatar_url', 'bio', 'city', 'state', 'country', 'is_public', 'created_at', 'updated_at', 'privacy_erased_at', 'privacy_erasure_status', 'revision', 'privacy_generation', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'users'}, 'role': 'wa_context_issuer'},
+    'ISSUER-User-UPDATE': {'sql_sha256': 'e8aec05767fe14d76980ff41a09938f89d3cb0321c968c3a2a51bae2f3200c77', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.users', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'users'}, 'role': 'wa_context_issuer'},
+    'ISSUER-User-DELETE': {'sql_sha256': '0797eda71f808180eb79577c399fb7daa9d825d272518e703522fbe4924486bf', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.users', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'users'}, 'role': 'wa_context_issuer'},
+    'ISSUER-UserRole-INSERT': {'sql_sha256': '0f27044c6b1ce5ce8eb4b87b8452b0d073e37d78eaefd8e97d3ff189703af402', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.user_roles', 'operation': 'INSERT', 'write_columns': ['user_id', 'role', 'created_at', 'revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'user_roles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-UserRole-UPDATE': {'sql_sha256': '2fa69fb4b1cb9337b5025598c900f6ed531308d3530c3732325ccd7963cdd893', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.user_roles', 'operation': 'UPDATE', 'write_columns': ['user_id'], 'read_columns': ['user_id', 'role'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'user_roles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-UserRole-DELETE': {'sql_sha256': '61889d6a85a57ab4e0fae60285e369809607f3c3108e5a40ac33daecd0a7b67a', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.user_roles', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['user_id', 'role'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'user_roles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ProfessionalProfile-INSERT': {'sql_sha256': 'fc55712ad79026fda919cdab90cc3ade6677dfc05ba00af445c5292e62afe016', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.professional_profiles', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'slug', 'headline', 'bio', 'website_url', 'city', 'state', 'country', 'status', 'rating_average', 'rating_count', 'stripe_account_id', 'stripe_ready', 'onboarding_complete_at', 'default_currency', 'created_at', 'updated_at', 'suspended_for_moderation_at', 'trust_score', 'verified_at', 'verification_expires_at', 'revision', 'privacy_generation', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'professional_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ProfessionalProfile-UPDATE': {'sql_sha256': 'd423be6c9018865ae967c636cddede55d797e3ffe190678dfcb3509a75e71789', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.professional_profiles', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'professional_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ProfessionalProfile-DELETE': {'sql_sha256': 'f805731d520dbb9fcad7b41e1399b5aeb069bac3bb4b10c63048763e733dfc9f', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.professional_profiles', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'professional_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CustomerProfile-INSERT': {'sql_sha256': '52e8ed7cf3c94b407d02afefa5a3592865ea2d1c5eed6b1bb4652ac00b5f7fab', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.customer_profiles', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'status', 'display_name', 'avatar_media_id', 'city', 'state', 'country', 'created_at', 'updated_at', 'archived_at', 'revision', 'privacy_generation', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'customer_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CustomerProfile-UPDATE': {'sql_sha256': '5828f885d9799392c3d9bd2c226f8595275c9e2d07f542da8c8e0b3f373b1018', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.customer_profiles', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'customer_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CustomerProfile-DELETE': {'sql_sha256': 'b41fd8816349589112c98d8ac18c103fd3fa2279c3a95ae9272ea8d3dcd079ca', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.customer_profiles', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'customer_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CandidateProfile-INSERT': {'sql_sha256': '9e7de54d422d5c07f8222997da15cce5bc57a88180a0d4f629ed7f835dc1e254', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.candidate_profiles', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'headline', 'portfolio_url', 'availability', 'city', 'state', 'country', 'status', 'is_visible', 'created_at', 'updated_at', 'trust_score', 'verified_at', 'verification_expires_at', 'revision', 'privacy_generation', 'discovery_preference_revision', 'discovery_enabled_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'candidate_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CandidateProfile-UPDATE': {'sql_sha256': '02cc04956ffa6b453b8917e8038097f8f1a0f3fc1a09b638ad1180b745c8271b', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.candidate_profiles', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'candidate_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CandidateProfile-DELETE': {'sql_sha256': '9ebf19acfec59fb39d67d3a8c83cbf936e3c4c82cbd39a209d2732f59f361843', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.candidate_profiles', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'candidate_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AuditEvent-INSERT': {'sql_sha256': 'bbb63ced216fa583da37d5e8b53f8967dce973078ad6466fbcfb190e1efaeca2', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.audit_events', 'operation': 'INSERT', 'write_columns': ['id', 'actor_user_id', 'entity_type', 'entity_id', 'action', 'metadata', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'audit_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AuditEvent-UPDATE': {'sql_sha256': '6accdc2c78f30baf12c26e799b5a8e0259c2ff75069b99be139b1e63d2a3ab2c', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.audit_events', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'audit_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AuditEvent-DELETE': {'sql_sha256': '71aa72b48fbaf3c58f5398d709683e394b2cd85a6631c287dd7a40140aa0f05a', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.audit_events', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'audit_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-UserSecurityProfile-INSERT': {'sql_sha256': 'c7aa1cca1d36fe903dcf340cb3d8bed4a1f2e949e74f0612f6325414f2ff153d', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.user_security_profiles', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'security_tier', 'phone_number_encrypted', 'phone_number_hash', 'phone_verified_at', 'phone_last_changed_at', 'passkeys_enabled', 'sms_mfa_enabled', 'backup_password_configured', 'sensitive_action_mfa_required', 'last_step_up_at', 'last_sensitive_action_at', 'locked_until', 'lock_reason', 'created_at', 'updated_at', 'revision', 'security_generation', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'user_security_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-UserSecurityProfile-UPDATE': {'sql_sha256': 'f9ac0f784e9315f9dbb2aee813272a6c5d325577f7a197b72942e7545f75a22d', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.user_security_profiles', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'user_security_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-UserSecurityProfile-DELETE': {'sql_sha256': 'c2a53c65ffe40602e15b6f02e621c1a6304d6a51c1c299db47c887bcb2f3d819', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.user_security_profiles', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'user_security_profiles'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AuthProviderAccount-INSERT': {'sql_sha256': '8064aa16bcdb20ce53e58addef78f1deb8a81f6734071079f1448d6c68ab045d', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.auth_provider_accounts', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'security_profile_id', 'provider_type', 'provider_user_id', 'provider_account_id', 'email', 'email_verified_at', 'status', 'linked_at', 'last_used_at', 'revoked_at', 'created_at', 'updated_at', 'revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'auth_provider_accounts'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AuthProviderAccount-UPDATE': {'sql_sha256': '45cbe2b31bc6425c49274002eba4ecf42ba25d49f4d1238ebc25094a1b24bb84', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.auth_provider_accounts', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'auth_provider_accounts'}, 'role': 'wa_context_issuer'},
+    'ISSUER-AuthProviderAccount-DELETE': {'sql_sha256': '396741cc9864f6fb3c447f745e94551bc7a6eee25e7410a18ab4ac70bbe22f51', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.auth_provider_accounts', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'auth_provider_accounts'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackPlan-INSERT': {'sql_sha256': 'c2c5cec4c52ebfa4a1710bc74b40a9e22fd907c79347eb4fb85bb30002889064', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_plans', 'operation': 'INSERT', 'write_columns': ['id', 'track', 'key', 'name', 'status', 'billing_model', 'monthly_price_cents', 'currency', 'description', 'display_order', 'metadata', 'created_at', 'updated_at', 'revision', 'version', 'content_hash', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_plans'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackPlan-UPDATE': {'sql_sha256': '5a8506ab74af52aaca2c852cbae508c2ac4ddf7025db66850a63ec1bc1610cd9', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_plans', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_plans'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackPlan-DELETE': {'sql_sha256': 'f2c5aaff4acbd34d1c0f7732b8e2d446705cd4bcae5804a5cbaccdff7ddeb704', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_plans', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_plans'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEntitlementDefinition-INSERT': {'sql_sha256': '983fd0bed19c85c126c141ac439af2b4e9358f27eee48bc9fd94253aa8544668', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_entitlement_definitions', 'operation': 'INSERT', 'write_columns': ['id', 'key', 'label', 'description', 'value_type', 'track', 'is_active', 'created_at', 'updated_at', 'revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_entitlement_definitions'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEntitlementDefinition-UPDATE': {'sql_sha256': '0ad75e995541563a8a108853a7168ed9415d772bffc8faa8120ef419b6577c61', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_entitlement_definitions', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_entitlement_definitions'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEntitlementDefinition-DELETE': {'sql_sha256': 'fc80be1022065b3191093775aaaef51c418ce5493accbfcaabcd5cef56daf5c0', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_entitlement_definitions', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_entitlement_definitions'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackPlanEntitlement-INSERT': {'sql_sha256': '162e34ac43f8c40d769bf46b0fe2293251620f2f7fa7914c3297c575595c4920', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_plan_entitlements', 'operation': 'INSERT', 'write_columns': ['id', 'plan_id', 'entitlement_id', 'value_type', 'boolean_value', 'int_value', 'decimal_value', 'string_value', 'json_value', 'usage_period', 'created_at', 'updated_at', 'revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_plan_entitlements'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackPlanEntitlement-UPDATE': {'sql_sha256': '77fea03d8e240cecd5f5542f5ca3932135e647d4228bfe90cbb79fd239bccb8b', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_plan_entitlements', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_plan_entitlements'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackPlanEntitlement-DELETE': {'sql_sha256': 'a08374c2fb708d8c7310f1d48e1e53f1dd2447bceba1bdd2f6149c06637b7646', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_plan_entitlements', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_plan_entitlements'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackSubscription-INSERT': {'sql_sha256': 'd0ae57e7f04616f50d792fd741045157d861ae6ceca89d2cd332cd1849c9f7da', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_subscriptions', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'plan_id', 'track', 'customer_profile_id', 'candidate_profile_id', 'professional_profile_id', 'status', 'provider', 'provider_customer_id', 'provider_subscription_id', 'provider_price_id', 'current_period_start', 'current_period_end', 'trial_ends_at', 'cancelled_at', 'ended_at', 'created_at', 'updated_at', 'revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_subscriptions'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackSubscription-UPDATE': {'sql_sha256': '46f306d0a2419c607c355c0ee8ce9982eea7cfb19fcce105e7e09c811ac07a43', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_subscriptions', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_subscriptions'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackSubscription-DELETE': {'sql_sha256': 'b8b1d5e3a2c7a3460f280863a7837e819c15be85a9580da2bb450588353037c0', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_subscriptions', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_subscriptions'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEntitlementGrant-INSERT': {'sql_sha256': '7beb2aa63bf2502967ee9b249673de7d3432c7b55f8df6cd28851cdf80e548f6', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_entitlement_grants', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'subscription_id', 'entitlement_id', 'track', 'customer_profile_id', 'candidate_profile_id', 'professional_profile_id', 'status', 'value_type', 'boolean_value', 'int_value', 'decimal_value', 'string_value', 'json_value', 'starts_at', 'expires_at', 'revoked_at', 'revoke_reason', 'source_plan_id', 'source_event_id', 'created_at', 'updated_at', 'revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_entitlement_grants'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEntitlementGrant-UPDATE': {'sql_sha256': '96d66f3502153bf708a519e8e59c95e0ddc0069ff5faf7f6b4c0cb844acd1ac3', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_entitlement_grants', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_entitlement_grants'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEntitlementGrant-DELETE': {'sql_sha256': 'd56da0b7e527c97a976f9af4d0f5278434773985e24c3119e71c15336e5c7347', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_entitlement_grants', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_entitlement_grants'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageEvent-INSERT': {'sql_sha256': '3fb88040ecf55624319653642ebf2be1707cf7a462260b8758cba6850b4a6c98', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_usage_events', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'subscription_id', 'entitlement_grant_id', 'entitlement_id', 'track', 'type', 'customer_profile_id', 'candidate_profile_id', 'professional_profile_id', 'target_type', 'target_id', 'quantity', 'occurred_at', 'metadata', 'semantic_effect_key', 'source_revision', 'source_owner', 'source_id', 'accepted_at', 'period_start', 'period_end', 'effect_receipt_id', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageEvent-UPDATE': {'sql_sha256': '86febdf7075dde63e0ce176ddba82d7575a8628e308c3754f9ec20df46863111', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_usage_events', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageEvent-DELETE': {'sql_sha256': 'a9dab612d70a502ffe1a543f530fd6cbdc09551348a1fe0b1578fc237f527962', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_usage_events', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageCounter-INSERT': {'sql_sha256': 'cbe686e2953c2e8df41bdc9b3f9c5d53e95cdccd5b84b86de1145e0cb2cb8efd', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_usage_counters', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'subscription_id', 'entitlement_grant_id', 'entitlement_id', 'track', 'period', 'customer_profile_id', 'candidate_profile_id', 'professional_profile_id', 'period_start', 'period_end', 'used_quantity', 'limit_quantity', 'updated_at', 'created_at', 'revision', 'source_revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_counters'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageCounter-UPDATE': {'sql_sha256': 'f3988abe81935c43bd7e326c4235bb6b146aeaf4d96507b7218b66af1c7d4a01', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_usage_counters', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_counters'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageCounter-DELETE': {'sql_sha256': 'aa4cea60973293a32e354cfa145a7b2f4424aea350a2a775fea4b7b596178c54', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_usage_counters', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_counters'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackSubscriptionEvent-INSERT': {'sql_sha256': '2ff788150abea2996b4fd5ea1c4c684aa5a3fd91d9d0faf02716f7c05db8e132', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_subscription_events', 'operation': 'INSERT', 'write_columns': ['id', 'subscription_id', 'plan_id', 'user_id', 'name', 'from_status', 'to_status', 'provider', 'provider_event_id', 'metadata', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_subscription_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackSubscriptionEvent-UPDATE': {'sql_sha256': '6844136f5900f80f06901fbb01e78d5de379c3c68fdf17988ce2f7aea3b734e1', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_subscription_events', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_subscription_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackSubscriptionEvent-DELETE': {'sql_sha256': '630c3e71e3815c8d3fec80465d7ca4516b3f86b870ec025e66c5b5655c37d919', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_subscription_events', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_subscription_events'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentContentRevision-INSERT': {'sql_sha256': '3b38bd2b0f60e1e825b12ad232f8ef5a43fd098a6d8ae5bddd31a246ccb3a841', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.consent_content_revision', 'operation': 'INSERT', 'write_columns': ['id', 'type', 'version', 'locale', 'jurisdiction_scope', 'content_text', 'content_hash', 'review_state', 'legal_approval_ref', 'effective_from', 'effective_until', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_content_revision'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentContentRevision-UPDATE': {'sql_sha256': 'ce9507ea0b533ca0272f569d554f8a83756a7251a363667b5b86c77c9572247c', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.consent_content_revision', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_content_revision'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentContentRevision-DELETE': {'sql_sha256': '06dd379118cd6aca522c8b3645fb41595b8ed0ade1ddd356690178cd472cbbc8', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.consent_content_revision', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_content_revision'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentPresentation-INSERT': {'sql_sha256': 'bccdf3cb494b70918ee037e690c96db53ecf8fbbd41e8b557ddfc4f83b57ca2c', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.consent_presentation', 'operation': 'INSERT', 'write_columns': ['id', 'content_revision_id', 'user_id', 'action_owner', 'action', 'render_version', 'rendered_text', 'rendered_hash', 'context_owner', 'context_kind', 'context_id', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_presentation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentPresentation-UPDATE': {'sql_sha256': '3fac6a8927b688e8dc03f39d9021d8d06accaf53083a4bb69eb141196c29ef18', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.consent_presentation', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_presentation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentPresentation-DELETE': {'sql_sha256': '767fbe0b8181e6e2d905bea1957438ef9066d5bb308b44616089959208ae42ad', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.consent_presentation', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_presentation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentDisposition-INSERT': {'sql_sha256': '70646b04616ffb1aeac09f132a3550cda20825ba9e132ab0fbaf9ab0008239dc', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.consent_disposition', 'operation': 'INSERT', 'write_columns': ['id', 'proof_id', 'user_id', 'presentation_id', 'kind', 'semantic_key', 'fingerprint', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_disposition'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentDisposition-UPDATE': {'sql_sha256': '064b394d21c615f15f534fcb425119039c5a844cad4894d36913583f0539a6f2', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.consent_disposition', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_disposition'}, 'role': 'wa_context_issuer'},
+    'ISSUER-ConsentDisposition-DELETE': {'sql_sha256': '25b9dccebba09b761d262d64218ff8117e97af4be8f134106862982824131b3d', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.consent_disposition', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'consent_disposition'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeCommandReceipt-INSERT': {'sql_sha256': 'd4e37bbfc0fbd210f7d768dad3ca1c2d1543e05163db33d753f96bbef1cab6d3', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.runtime_command_receipt', 'operation': 'INSERT', 'write_columns': ['id', 'owner_module_id', 'operation', 'subject_scope', 'semantic_key', 'fingerprint', 'state', 'source_revision', 'result_schema_id', 'result_schema_version', 'result_digest', 'result_body', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_command_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeCommandReceipt-UPDATE': {'sql_sha256': '46e107644c7e958e8b9b9e4cd3b37c0d3d39a8b70f62c921c245f1e1d6c1c94a', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_command_receipt', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_command_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeCommandReceipt-DELETE': {'sql_sha256': '9979d5c7d61d545954ee06d13be162b0bc4b1f59b498404f0cd73521a386ba31', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_command_receipt', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_command_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeOutboxMessage-INSERT': {'sql_sha256': '5bc30fd6549b4c69a3746458caf5507603e8c73bb33730708e04298e5e23f2fd', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.runtime_outbox_message', 'operation': 'INSERT', 'write_columns': ['id', 'command_receipt_id', 'kind', 'producer_owner', 'aggregate_kind', 'aggregate_id', 'source_revision', 'source_generation', 'ordinal', 'name', 'schema_version', 'payload_schema_id', 'payload_hash', 'payload', 'correlation_id', 'causation_id', 'correction_of_id', 'occurred_at', 'effective_at', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_outbox_message'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeOutboxMessage-UPDATE': {'sql_sha256': '10deabe335b8d79a29936b8133c8c29b905036af72ce7cfe681aad1dde1d18f5', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_outbox_message', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_outbox_message'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeOutboxMessage-DELETE': {'sql_sha256': '86d6cbdacbf8d8125520e78647d0a91162b9d0edbec6ce1afe737ae4c19a35dc', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_outbox_message', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_outbox_message'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeEffectReceipt-INSERT': {'sql_sha256': 'd0a2192b480167c44f686abad93d52775ce0623e7179b649217069e57cdf3f70', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.runtime_effect_receipt', 'operation': 'INSERT', 'write_columns': ['id', 'command_receipt_id', 'owner_module_id', 'operation', 'subject_scope', 'semantic_effect_key', 'fingerprint', 'state', 'source_revision', 'fence', 'result_schema_id', 'result_hash', 'committed_at', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_effect_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeEffectReceipt-UPDATE': {'sql_sha256': 'b873f5a06ef189b457034b76eb2d4a8335e1e0e6872959eb50ecf8cb69db02e3', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_effect_receipt', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_effect_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeEffectReceipt-DELETE': {'sql_sha256': 'b391e7a6ff341058ad3fee4141ae96982341e95c68d5658303471a570ab95a7f', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_effect_receipt', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_effect_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeWorkItem-INSERT': {'sql_sha256': 'fc57b2669db776fb18773bd4c6f4bf0ed45597f7f565d495faf5925532af6661', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.runtime_work_item', 'operation': 'INSERT', 'write_columns': ['id', 'outbox_message_id', 'handler_name', 'semantic_work_key', 'state', 'fence', 'lease_token_hash', 'lease_expires_at', 'attempt_count', 'next_attempt_at', 'effect_receipt_id', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_work_item'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeWorkItem-UPDATE': {'sql_sha256': '2acbeb07d4bef0e3c2f12a15136bc7a3b2d36ea85da23f1d8afc49a5e414fb1a', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_work_item', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_work_item'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeWorkItem-DELETE': {'sql_sha256': 'b6910a84454753946a6a6cb67785a438d45a5925331f8c5c4caefcb58e980526', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_work_item', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_work_item'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeAttempt-INSERT': {'sql_sha256': 'a78b0165d30824acb619504d9d963773c3ca3f6fb39a959db8d037aecd5a759d', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.runtime_attempt', 'operation': 'INSERT', 'write_columns': ['id', 'work_item_id', 'attempt_number', 'fence', 'worker_id', 'result', 'reason_code', 'started_at', 'finished_at', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_attempt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeAttempt-UPDATE': {'sql_sha256': 'b66c9896fa820eae75d65c4796533fb6e1f79f27b6852ce0a2f39c50809e4783', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_attempt', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_attempt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeAttempt-DELETE': {'sql_sha256': '3f9b42de5f56cf43ef57a8cebfbdcaf6e60102217157f4addc44cf146cc5dfe7', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_attempt', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_attempt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeInboxReceipt-INSERT': {'sql_sha256': '02ecfbc46cdd841335cc340b90375e17be3ceddde0afab5b9923662d573302c1', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.runtime_inbox_receipt', 'operation': 'INSERT', 'write_columns': ['id', 'outbox_message_id', 'consumer_owner', 'handler_name', 'payload_hash', 'effect_receipt_id', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_inbox_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeInboxReceipt-UPDATE': {'sql_sha256': '39b41f853cf0f5ab560049fbb41275545f87e4b12ef1cfcafd79cc2172cd0ce9', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_inbox_receipt', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_inbox_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeInboxReceipt-DELETE': {'sql_sha256': 'be6871adf8adacaf77b7c2dd01a9010d1e116f978ba5f09f5a79592403eb9eb8', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_inbox_receipt', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_inbox_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeReservation-INSERT': {'sql_sha256': 'bebc3845c6e555993417d83390bd41bb243cba2812b2121388c6baa95db2968c', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.runtime_reservation', 'operation': 'INSERT', 'write_columns': ['id', 'command_receipt_id', 'owner_module_id', 'resource_kind', 'resource_key', 'semantic_key', 'quantity', 'state', 'fence', 'effect_receipt_id', 'expires_at', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_reservation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeReservation-UPDATE': {'sql_sha256': 'e5e30cd97dc0b43d0acb062627319022b7357c5c5fcc94ebd43ac37b3b4ff548', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_reservation', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_reservation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-RuntimeReservation-DELETE': {'sql_sha256': 'af021ab67675f86d2d5fee500540093deb98f5a6084d5d8abe2b7145b72b3d87', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.runtime_reservation', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'runtime_reservation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-OwnerMutationEvidence-INSERT': {'sql_sha256': '09f6d1e2bc8ee35543cd75b2d60d7c931cd8476217f304d12fae63d48866f2b7', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.owner_mutation_evidence', 'operation': 'INSERT', 'write_columns': ['id', 'command_receipt_id', 'owner_module_id', 'aggregate_kind', 'aggregate_id', 'previous_revision', 'committed_revision', 'action', 'decision_ref', 'evidence_schema_id', 'evidence_schema_version', 'evidence_digest', 'created_at', 'evidence_body', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'owner_mutation_evidence'}, 'role': 'wa_context_issuer'},
+    'ISSUER-OwnerMutationEvidence-UPDATE': {'sql_sha256': 'be3534f269c63f68da8a88e5e0cdb12c80b22d6d9bd53cff34a222c27840d253', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.owner_mutation_evidence', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'owner_mutation_evidence'}, 'role': 'wa_context_issuer'},
+    'ISSUER-OwnerMutationEvidence-DELETE': {'sql_sha256': 'd3cc790cebf5686f2789ce745c0efa22d6f7c98022889bd7c73a55613d2c7c45', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.owner_mutation_evidence', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'owner_mutation_evidence'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CustomerProfileLifecycleEvent-INSERT': {'sql_sha256': 'e04a002ad2c34be1e34031827ed389359bef1b7d08fecade0a25fdad88bcb4d8', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.customer_profile_lifecycle_event', 'operation': 'INSERT', 'write_columns': ['id', 'customer_profile_id', 'command_receipt_id', 'source_revision', 'from_status', 'to_status', 'name', 'actor_user_id', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'customer_profile_lifecycle_event'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CustomerProfileLifecycleEvent-UPDATE': {'sql_sha256': '49118a0b4033a0dbdd82bef35d9ddbca5581d5fed6fc81e72e468ac64ab1673e', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.customer_profile_lifecycle_event', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'customer_profile_lifecycle_event'}, 'role': 'wa_context_issuer'},
+    'ISSUER-CustomerProfileLifecycleEvent-DELETE': {'sql_sha256': 'ffb15c530e56a24c93af2294e378d312170e305f809517151d745262f370ed9e', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.customer_profile_lifecycle_event', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'customer_profile_lifecycle_event'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackBaseSelection-INSERT': {'sql_sha256': '7cff715239af850577f47fac1957c8f7b3e07e4c572ba9bd3ab5bc9c088451c2', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_base_selection', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'track', 'customer_profile_id', 'candidate_profile_id', 'professional_profile_id', 'subscription_id', 'revision', 'source_generation', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_base_selection'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackBaseSelection-UPDATE': {'sql_sha256': '3db26696bc39e9d8dfbdcaafe3114b8e6c9124e2ee2e508f4305fb57c17040a3', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_base_selection', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_base_selection'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackBaseSelection-DELETE': {'sql_sha256': '499b31f2f416eae72974e8f44c874b35109e83c1b9aaa002b57eee9ae7de94c0', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_base_selection', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_base_selection'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEnrollmentReceipt-INSERT': {'sql_sha256': '26a26b68d25a1fdfe55721d936c56a7ce095a07813a73f4465bb7bff716249c6', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_enrollment_receipt', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'track', 'profile_id', 'source_owner', 'source_creation_revision', 'selection_id', 'selection_revision', 'semantic_key', 'fingerprint', 'result_code', 'effect_receipt_id', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_enrollment_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEnrollmentReceipt-UPDATE': {'sql_sha256': '199d45fd30d9118c5dc4f81ed0653236be5c63d32094c00c2cdabf1cb90a732d', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_enrollment_receipt', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_enrollment_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackEnrollmentReceipt-DELETE': {'sql_sha256': '2e3a02213b7e45dfacffb812c4ba66a24bb0153456e3fdd0b0da4f1ee58fd60d', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_enrollment_receipt', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_enrollment_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageReservation-INSERT': {'sql_sha256': '7ad9885e1a020d0fbb6b8716a4c82e6afbb376173f4781702be3e443ed499805', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.track_usage_reservation', 'operation': 'INSERT', 'write_columns': ['id', 'user_id', 'entitlement_id', 'period_start', 'period_end', 'quantity', 'semantic_key', 'reservation_id', 'accepted_source_owner', 'accepted_source_id', 'accepted_at', 'created_at', 'revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_reservation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageReservation-UPDATE': {'sql_sha256': '41235f772213f7a9db126139ffc40a581f329c9a1c6809ad023004761c21cce1', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_usage_reservation', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_reservation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-TrackUsageReservation-DELETE': {'sql_sha256': 'aaced57a3e726f304f77768cbdc2bcb66ac6e06a813ea154bc89eba113c840e4', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.track_usage_reservation', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'track_usage_reservation'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyTargetInstruction-INSERT': {'sql_sha256': '6b8741a896be5bf7c6aed3021adbc219424848b5c2b41bd0da5073d2a5c253f3', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.privacy_target_instruction', 'operation': 'INSERT', 'write_columns': ['id', 'privacy_request_id', 'owner_module_id', 'target_kind', 'source_id', 'source_revision', 'action', 'generation', 'field_map_version', 'executor_version', 'descriptor_hash', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_target_instruction'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyTargetInstruction-UPDATE': {'sql_sha256': '7f66a4cef105257ebd6453db285c6d4a29dcd7f6aadce2887ea8dd524d53df0e', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.privacy_target_instruction', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_target_instruction'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyTargetInstruction-DELETE': {'sql_sha256': '419e6b5d6af2cbf0d56966a5ce3b9375d44556fe6cafa11a37eb93c2cc839593', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.privacy_target_instruction', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_target_instruction'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyOwnerReceipt-INSERT': {'sql_sha256': '3974ff5824a32464abec619e1b32c1c4207daf38bfc0dd4e2d90401cc4073a08', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.privacy_owner_receipt', 'operation': 'INSERT', 'write_columns': ['id', 'instruction_id', 'generation', 'disposition', 'execution_receipt_ref', 'legal_basis_ref', 'artifact_digest', 'artifact_version', 'result_schema_version', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_owner_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyOwnerReceipt-UPDATE': {'sql_sha256': 'a086a2b292e25e4f29f4233a2cd6b5dc71152862c34d3f411d2a0a6915896649', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.privacy_owner_receipt', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_owner_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyOwnerReceipt-DELETE': {'sql_sha256': '661397a2b839e7178aa3cd7bc80cd8ede685695f776d09046bf7239604a1423f', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.privacy_owner_receipt', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_owner_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyRestoreMarker-INSERT': {'sql_sha256': 'b40ffdf4aae1fa1571e0a52d709d07778236912b7891daeb81304de89536d8e9', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'app.privacy_restore_marker', 'operation': 'INSERT', 'write_columns': ['id', 'owner_module_id', 'target_kind', 'source_id', 'generation', 'action', 'source_receipt_id', 'restore_point_ref', 'applied_at', 'created_at', 'revision', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_restore_marker'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyRestoreMarker-UPDATE': {'sql_sha256': '9e6221ae72f13ca44a409a7fca60d55e7c1e7228dc9708de19fe6265c217c238', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.privacy_restore_marker', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_restore_marker'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PrivacyRestoreMarker-DELETE': {'sql_sha256': 'f4ceeae70e56c247307ea6425fcae1b86ed2eb3501d6aa6a533840016e4bc115', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'app.privacy_restore_marker', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'privacy_restore_marker'}, 'role': 'wa_context_issuer'},
+    'ROLE-wa_app_runtime-wa_context_issuer': {'sql_sha256': '88dc3dd98878527f8ed6f6bd5d3562ee0bca9689496c5a3a5ed02f824a80ae5c', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_context_issuer'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_context_issuer'}, 'role': 'wa_app_runtime'},
+    'ROLE-wa_app_runtime-wa_private_helper_owner': {'sql_sha256': '4f4aa72d8e1b5921ef94d3b5ac65f26ff34e4a682a29bff7dd2031af795bb6f4', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_private_helper_owner'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_private_helper_owner'}, 'role': 'wa_app_runtime'},
+    'ROLE-wa_app_runtime-wa_customer_verifier': {'sql_sha256': '0534592a9753597999ee48f3ad7e69b69069d5a5c23d7d0810eadc7556091712', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_customer_verifier'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_customer_verifier'}, 'role': 'wa_app_runtime'},
+    'ROLE-wa_app_runtime-wa_track_verifier': {'sql_sha256': 'c68cd1f3ea2072acc8506dda8f6ccfdbfc131aa43b57ee510c7c07b5f457d81a', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_track_verifier'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_track_verifier'}, 'role': 'wa_app_runtime'},
+    'ROLE-wa_app_runtime-wa_schema_owner': {'sql_sha256': '7058a182d963d009a5b1ccd9f354813854be6a49ab664486cf811936cc0df59d', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_schema_owner'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_schema_owner'}, 'role': 'wa_app_runtime'},
+    'ROLE-wa_app_runtime-wa_migrator': {'sql_sha256': '302aa0e3a673db8312077f3feb7797c1e6a26ad370a8aac0ac0a310b02931f68', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_migrator'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_migrator'}, 'role': 'wa_app_runtime'},
+    'ROLE-wa_app_runtime-wa_identity_service_authority': {'sql_sha256': '01bb0a150029375bceeddd934315e3f99d760bbb9f40511cf5c73f3c0d272980', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_identity_service_authority'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_identity_service_authority'}, 'role': 'wa_app_runtime'},
+    'GRANT-wa_app_runtime-SELECT': {'sql_sha256': '01625e359233b87c5cb8122da5e9f0c9eef35628516c87a25e8fac3081898169', 'profile': 'COLUMN_REFERENCING_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'SELECT', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_app_runtime'},
+    'GRANT-wa_app_runtime-INSERT': {'sql_sha256': '1c81564d8693c5b5dca82e1d3ea21b1ddf06e25c1ce7a379918ab6aa34d6cbb4', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'INSERT', 'write_columns': ['id', 'token_hash', 'issuer_service', 'principal_user_id', 'service_principal', 'database_login_role', 'owner_module_id', 'action', 'purpose', 'target_kind', 'target_id', 'allowed_fields', 'policy_version', 'security_generation', 'source_generation', 'backend_pid', 'transaction_id', 'expires_at', 'revoked_at', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_app_runtime'},
+    'GRANT-wa_app_runtime-UPDATE': {'sql_sha256': '49882236b6c0c87ab02a63986c3d0efe54cc28b1cff4131a400c04b9915cdb69', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_app_runtime'},
+    'GRANT-wa_app_runtime-DELETE': {'sql_sha256': '5a2c9da2ef52decbbd40d4ea6edaca9e56e81e60f986ce09ec42695d4fc987b2', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_app_runtime'},
+    'CREATE-wa_app_runtime-app': {'sql_sha256': '7f501d14dbcc0400ed3d78a9842092ffc313d46c8fb85fad0a7f1f0beb7fb310', 'profile': 'SCHEMA_CREATE', 'requirement': {'schema': 'app'}, 'diagnostic': {'kind': 'SCHEMA_CREATE', 'schema': 'app'}, 'role': 'wa_app_runtime'},
+    'CREATE-wa_app_runtime-platform': {'sql_sha256': 'c629879fb15b7fdaecfb41b8a3f28d43685fd50c5e069e38d3dbcf7f59fbb2d2', 'profile': 'SCHEMA_CREATE', 'requirement': {'schema': 'platform'}, 'diagnostic': {'kind': 'SCHEMA_CREATE', 'schema': 'platform'}, 'role': 'wa_app_runtime'},
+    'CREATE-wa_app_runtime-platform_private': {'sql_sha256': 'e4bc54bfbf715687bfbf2632d32c386bbc70e9aaf5774a06a0cc71c24029847d', 'profile': 'SCHEMA_CREATE', 'requirement': {'schema': 'platform_private'}, 'diagnostic': {'kind': 'SCHEMA_CREATE', 'schema': 'platform_private'}, 'role': 'wa_app_runtime'},
+    'CREATE-wa_app_runtime-public': {'sql_sha256': '58db35534306fba3866397199cf5c8fa92c2b441ec3020a932d92552352d0c14', 'profile': 'SCHEMA_CREATE', 'requirement': {'schema': 'public'}, 'diagnostic': {'kind': 'SCHEMA_CREATE', 'schema': 'public'}, 'role': 'wa_app_runtime'},
+    'TRUNCATE-wa_app_runtime-platform.database_action_grant': {'sql_sha256': '2c284168a0a1afedfdf88f03b26077c62372041b8479fc99865e02c778f39a31', 'profile': 'MANDATORY_TABLE_TRUNCATE', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'TRUNCATE', 'write_columns': [], 'read_columns': [], 'mandatory_table_privileges': ['TRUNCATE'], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_app_runtime'},
+    'TRUNCATE-wa_app_runtime-app.customer_profiles': {'sql_sha256': '2a39eeaae604941b8ecdb88cf31c730c0599cc291fb824664a62342b4a5c856e', 'profile': 'MANDATORY_TABLE_TRUNCATE', 'requirement': {'table': 'app.customer_profiles', 'operation': 'TRUNCATE', 'write_columns': [], 'read_columns': [], 'mandatory_table_privileges': ['TRUNCATE'], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'customer_profiles'}, 'role': 'wa_app_runtime'},
+    'ROLE-wa_worker-wa_context_issuer': {'sql_sha256': '88dc3dd98878527f8ed6f6bd5d3562ee0bca9689496c5a3a5ed02f824a80ae5c', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_context_issuer'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_context_issuer'}, 'role': 'wa_worker'},
+    'ROLE-wa_worker-wa_private_helper_owner': {'sql_sha256': '4f4aa72d8e1b5921ef94d3b5ac65f26ff34e4a682a29bff7dd2031af795bb6f4', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_private_helper_owner'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_private_helper_owner'}, 'role': 'wa_worker'},
+    'ROLE-wa_worker-wa_customer_verifier': {'sql_sha256': '0534592a9753597999ee48f3ad7e69b69069d5a5c23d7d0810eadc7556091712', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_customer_verifier'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_customer_verifier'}, 'role': 'wa_worker'},
+    'ROLE-wa_worker-wa_track_verifier': {'sql_sha256': 'c68cd1f3ea2072acc8506dda8f6ccfdbfc131aa43b57ee510c7c07b5f457d81a', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_track_verifier'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_track_verifier'}, 'role': 'wa_worker'},
+    'ROLE-wa_worker-wa_schema_owner': {'sql_sha256': '7058a182d963d009a5b1ccd9f354813854be6a49ab664486cf811936cc0df59d', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_schema_owner'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_schema_owner'}, 'role': 'wa_worker'},
+    'ROLE-wa_worker-wa_migrator': {'sql_sha256': '302aa0e3a673db8312077f3feb7797c1e6a26ad370a8aac0ac0a310b02931f68', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_migrator'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_migrator'}, 'role': 'wa_worker'},
+    'ROLE-wa_worker-wa_identity_service_authority': {'sql_sha256': '01bb0a150029375bceeddd934315e3f99d760bbb9f40511cf5c73f3c0d272980', 'profile': 'ROLE_SET', 'requirement': {'target': 'wa_identity_service_authority'}, 'diagnostic': {'kind': 'SET_ROLE', 'target_role': 'wa_identity_service_authority'}, 'role': 'wa_worker'},
+    'GRANT-wa_worker-SELECT': {'sql_sha256': '01625e359233b87c5cb8122da5e9f0c9eef35628516c87a25e8fac3081898169', 'profile': 'COLUMN_REFERENCING_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'SELECT', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_worker'},
+    'GRANT-wa_worker-INSERT': {'sql_sha256': '1c81564d8693c5b5dca82e1d3ea21b1ddf06e25c1ce7a379918ab6aa34d6cbb4', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'INSERT', 'write_columns': ['id', 'token_hash', 'issuer_service', 'principal_user_id', 'service_principal', 'database_login_role', 'owner_module_id', 'action', 'purpose', 'target_kind', 'target_id', 'allowed_fields', 'policy_version', 'security_generation', 'source_generation', 'backend_pid', 'transaction_id', 'expires_at', 'revoked_at', 'created_at', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_worker'},
+    'GRANT-wa_worker-UPDATE': {'sql_sha256': '49882236b6c0c87ab02a63986c3d0efe54cc28b1cff4131a400c04b9915cdb69', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_worker'},
+    'GRANT-wa_worker-DELETE': {'sql_sha256': '5a2c9da2ef52decbbd40d4ea6edaca9e56e81e60f986ce09ec42695d4fc987b2', 'profile': 'MANDATORY_TABLE_DELETE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'DELETE', 'write_columns': [], 'read_columns': ['id'], 'mandatory_table_privileges': ['DELETE'], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_worker'},
+    'CREATE-wa_worker-app': {'sql_sha256': '7f501d14dbcc0400ed3d78a9842092ffc313d46c8fb85fad0a7f1f0beb7fb310', 'profile': 'SCHEMA_CREATE', 'requirement': {'schema': 'app'}, 'diagnostic': {'kind': 'SCHEMA_CREATE', 'schema': 'app'}, 'role': 'wa_worker'},
+    'CREATE-wa_worker-platform': {'sql_sha256': 'c629879fb15b7fdaecfb41b8a3f28d43685fd50c5e069e38d3dbcf7f59fbb2d2', 'profile': 'SCHEMA_CREATE', 'requirement': {'schema': 'platform'}, 'diagnostic': {'kind': 'SCHEMA_CREATE', 'schema': 'platform'}, 'role': 'wa_worker'},
+    'CREATE-wa_worker-platform_private': {'sql_sha256': 'e4bc54bfbf715687bfbf2632d32c386bbc70e9aaf5774a06a0cc71c24029847d', 'profile': 'SCHEMA_CREATE', 'requirement': {'schema': 'platform_private'}, 'diagnostic': {'kind': 'SCHEMA_CREATE', 'schema': 'platform_private'}, 'role': 'wa_worker'},
+    'CREATE-wa_worker-public': {'sql_sha256': '58db35534306fba3866397199cf5c8fa92c2b441ec3020a932d92552352d0c14', 'profile': 'SCHEMA_CREATE', 'requirement': {'schema': 'public'}, 'diagnostic': {'kind': 'SCHEMA_CREATE', 'schema': 'public'}, 'role': 'wa_worker'},
+    'TRUNCATE-wa_worker-platform.database_action_grant': {'sql_sha256': '2c284168a0a1afedfdf88f03b26077c62372041b8479fc99865e02c778f39a31', 'profile': 'MANDATORY_TABLE_TRUNCATE', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'TRUNCATE', 'write_columns': [], 'read_columns': [], 'mandatory_table_privileges': ['TRUNCATE'], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_worker'},
+    'TRUNCATE-wa_worker-app.customer_profiles': {'sql_sha256': '2a39eeaae604941b8ecdb88cf31c730c0599cc291fb824664a62342b4a5c856e', 'profile': 'MANDATORY_TABLE_TRUNCATE', 'requirement': {'table': 'app.customer_profiles', 'operation': 'TRUNCATE', 'write_columns': [], 'read_columns': [], 'mandatory_table_privileges': ['TRUNCATE'], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'customer_profiles'}, 'role': 'wa_worker'},
+    'PROVIDER-SCHEMA-anon-app': {'sql_sha256': '6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'app.users', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'users'}, 'role': 'anon'},
+    'PROVIDER-SCHEMA-anon-platform': {'sql_sha256': '9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'platform.database_action_grant', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'anon'},
+    'PROVIDER-SCHEMA-anon-platform_private': {'sql_sha256': '98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'platform_private.identity_service_authorization', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'anon'},
+    'PROVIDER-EXEC-anon-helper': {'sql_sha256': '1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.bind_request_context'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'anon'},
+    'PROVIDER-EXEC-anon-customer': {'sql_sha256': '31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.customer_current_for_track'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'anon'},
+    'PROVIDER-EXEC-anon-track': {'sql_sha256': 'efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.worker_lease_valid'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'anon'},
+    'PROVIDER-SCHEMA-authenticated-app': {'sql_sha256': '6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'app.users', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'users'}, 'role': 'authenticated'},
+    'PROVIDER-SCHEMA-authenticated-platform': {'sql_sha256': '9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'platform.database_action_grant', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'authenticated'},
+    'PROVIDER-SCHEMA-authenticated-platform_private': {'sql_sha256': '98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'platform_private.identity_service_authorization', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'authenticated'},
+    'PROVIDER-EXEC-authenticated-helper': {'sql_sha256': '1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.bind_request_context'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'authenticated'},
+    'PROVIDER-EXEC-authenticated-customer': {'sql_sha256': '31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.customer_current_for_track'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'authenticated'},
+    'PROVIDER-EXEC-authenticated-track': {'sql_sha256': 'efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.worker_lease_valid'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'authenticated'},
+    'PROVIDER-SCHEMA-service_role-app': {'sql_sha256': '6e89f7a24ba6613fe78b2665e815116bd11b50bc8b9e53e278c650ee5db4ab55', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'app.users', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'app', 'relation': 'users'}, 'role': 'service_role'},
+    'PROVIDER-SCHEMA-service_role-platform': {'sql_sha256': '9d3e1ff873a76576797a79c182dde3365128bdbc0a9eb02c489a4a9fba851cb4', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'platform.database_action_grant', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'service_role'},
+    'PROVIDER-SCHEMA-service_role-platform_private': {'sql_sha256': '98b6dbfa5a9ed661e3a9cd016a0f76d651231264dad23bae387e8699299e6597', 'profile': 'PROVIDER_SCHEMA_ONLY_TABLE_SELECT_ANY_COLUMN', 'requirement': {'table': 'platform_private.identity_service_authorization', 'SELECT_any_actual_column': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'service_role'},
+    'PROVIDER-EXEC-service_role-helper': {'sql_sha256': '1b956dd7350a75015640322aea14bdb695472fc447809a634b832f744953eaf8', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.bind_request_context'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'service_role'},
+    'PROVIDER-EXEC-service_role-customer': {'sql_sha256': '31b52e01291d016564d173645d728da09f90170ce7d6d2c3a9bb4d9344afad85', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.customer_current_for_track'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'service_role'},
+    'PROVIDER-EXEC-service_role-track': {'sql_sha256': 'efcdc26695c125d5bfe3e35b9574f12e67a5d4b8387474be402a8dc70fe11ef1', 'profile': 'PROVIDER_SCHEMA_ONLY_FUNCTION_CALL', 'requirement': {'actual_function_name': 'platform_private.worker_lease_valid'}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'service_role'},
+    'ISSUER-PRIVATE-identity_service_authorization-INSERT': {'sql_sha256': '28da4cc07642af47da2d8925c3ca947162e4c5656d77f79d1f3914ba201b861a', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform_private.identity_service_authorization', 'operation': 'INSERT', 'write_columns': ['service_principal', 'security_generation', 'revoked_at', 'identity_receipt_id', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PRIVATE-identity_service_authorization-UPDATE': {'sql_sha256': 'bcb3bf495f277e8cf4e0d0d31ac1cb2fafcc0a564e92bb46853da96a2bb0d76a', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform_private.identity_service_authorization', 'operation': 'UPDATE', 'write_columns': ['security_generation'], 'read_columns': ['service_principal'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_authorization'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PRIVATE-identity_service_receipt-INSERT': {'sql_sha256': '89e80e6a040354f6efbd708e4b67be44f30d5354db689690ec5c4ded9ec7dd50', 'profile': 'LITERAL_VALUES_INSERT', 'requirement': {'table': 'platform_private.identity_service_receipt', 'operation': 'INSERT', 'write_columns': ['id', 'service_principal', 'previous_generation', 'previous_receipt_id', 'security_generation', 'transition', 'revoked_at', 'identity_authorization_ref', 'mutation_transaction_id'], 'read_columns': [], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': False}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-PRIVATE-identity_service_receipt-UPDATE': {'sql_sha256': '94f6752bd9a9ee4ad7d3aef6470706acac82bfb7a5d013ab38deb66b78327486', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform_private.identity_service_receipt', 'operation': 'UPDATE', 'write_columns': ['security_generation'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform_private', 'relation': 'identity_service_receipt'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-id': {'sql_sha256': '25992126b222ae03f7616236402ce11780507c18fbebc2e22ea676c9a1fa5c49', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-token_hash': {'sql_sha256': 'd1fd0c6628929e7a2344d30709529504d6d191ac0b293d7a04a46efa204e5414', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['token_hash'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-issuer_service': {'sql_sha256': 'd3243aea79fc50683bd126080d372de1006ad5186f51680a9e2c26a7512fdb89', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['issuer_service'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-principal_user_id': {'sql_sha256': '39d71308549c27fa1651a177f6d4d907ed31e6d193d583001f000a2aa5d86371', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['principal_user_id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-service_principal': {'sql_sha256': '1591a65c8560cc45a935b3c702d71eaf115e33164bb7731253216322a3d09f22', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['service_principal'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-database_login_role': {'sql_sha256': '080151b2ca9af13de3657855d9f6b5c63af3905e186d239d321f6b04a3f481ab', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['database_login_role'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-owner_module_id': {'sql_sha256': '3ea6f64de627c32c762f0ba30c548f6dbde0bf590dc41e6d56c414148a95e371', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['owner_module_id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-action': {'sql_sha256': 'a1545fd3bc0c62b26037639d6acddaad773f79ebd04fabcf713870baf2996368', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['action'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-purpose': {'sql_sha256': 'd295640e18375cedc749df08a1231a3316ca79f4e636d5837570e3ed113e1712', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['purpose'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-target_kind': {'sql_sha256': 'ef4065fa6db53c2ea4ad0f2343934d016628d3072b4b98df630d54d6d76736c7', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['target_kind'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-target_id': {'sql_sha256': 'a7ee079b2c0577590663805071ee4fa38cf9d0d411be1fb224ad052310ced333', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['target_id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-allowed_fields': {'sql_sha256': 'd5adea00c3b40705147e93dd72ec220a1f3d3a9aefa0a4f68ab38906a966107a', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['allowed_fields'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-policy_version': {'sql_sha256': 'cef0930872f364e09db8a8aad301902c0c0f28a7e954464310a692059c5e9b49', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['policy_version'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-security_generation': {'sql_sha256': '2c737b557284d1d65dbb2a358760b3d7fe333622076b5badbb2b7edf67fb4fc7', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['security_generation'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-source_generation': {'sql_sha256': 'b0c5265281c23d3ee72d6bdbf99e02149d7d950fd6e82c64a1a4601e7810cf69', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['source_generation'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-backend_pid': {'sql_sha256': '4ec7fdbde39314786492bebf9b70d29d688a4253c3a3192558f016ececc441bf', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['backend_pid'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-transaction_id': {'sql_sha256': '1a401abc423bdf584ec001959489476a00391c9b000a9c78e41d1ffb6a890e2b', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['transaction_id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-expires_at': {'sql_sha256': 'b0e5f48e78b8e126644d35c83132c5914c0ca417620decf0cabbfd9a4e487ba3', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['expires_at'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-created_at': {'sql_sha256': '4498a663126e4456dc1e4f8ada621c7a3b03a36e8da872a833ff0d724aa7a195', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['created_at'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'ISSUER-IMMUTABLE-mutation_transaction_id': {'sql_sha256': '6ed7ce85f33b4dc3a7c76f31a450c9ca509439c4839673b08047b579a3db198f', 'profile': 'LITERAL_UPDATE_WITH_PREDICATE_SELECT', 'requirement': {'table': 'platform.database_action_grant', 'operation': 'UPDATE', 'write_columns': ['mutation_transaction_id'], 'read_columns': ['id'], 'mandatory_table_privileges': [], 'RETURNING_literal_1_adds_no_column_read': True}, 'diagnostic': {'kind': 'NATIVE_ACL', 'schema': 'platform', 'relation': 'database_action_grant'}, 'role': 'wa_context_issuer'},
+    'HELPER-wa_app_runtime-bound_grant': {'sql_sha256': '02a3c7a795523cf3f53a64ee76e7ce43d93ace801f3f2e6fd004c920e19b21a5', 'profile': 'FUNCTION_EXECUTE_WITH_SCHEMA', 'requirement': {'function': 'platform_private.bound_grant'}, 'diagnostic': {'kind': 'FUNCTION', 'schema': 'platform_private', 'function': 'bound_grant'}, 'role': 'wa_app_runtime'},
+    'HELPER-wa_worker-bound_grant': {'sql_sha256': '02a3c7a795523cf3f53a64ee76e7ce43d93ace801f3f2e6fd004c920e19b21a5', 'profile': 'FUNCTION_EXECUTE_WITH_SCHEMA', 'requirement': {'function': 'platform_private.bound_grant'}, 'diagnostic': {'kind': 'FUNCTION', 'schema': 'platform_private', 'function': 'bound_grant'}, 'role': 'wa_worker'},
+    'HELPER-wa_worker-worker_source_row_valid': {'sql_sha256': '8d7ade5914875af7a50299522f7b68200340b8fcdb7e92f0cd3bd00f72a8baf9', 'profile': 'FUNCTION_EXECUTE_WITH_SCHEMA', 'requirement': {'function': 'platform_private.worker_source_row_valid'}, 'diagnostic': {'kind': 'FUNCTION', 'schema': 'platform_private', 'function': 'worker_source_row_valid'}, 'role': 'wa_worker'},
+    'HELPER-wa_worker-worker_source_claim_valid': {'sql_sha256': 'd23c6cf7f0f9cb1533251953bdca6a4167be850eddd0129ad60373296f0a92e3', 'profile': 'FUNCTION_EXECUTE_WITH_SCHEMA', 'requirement': {'function': 'platform_private.worker_source_claim_valid'}, 'diagnostic': {'kind': 'FUNCTION', 'schema': 'platform_private', 'function': 'worker_source_claim_valid'}, 'role': 'wa_worker'},
+    'ISSUER-UNREVOKED-NULL-REVOKE': {'sql_sha256': '653570f7a22df134cbaa3436c16cdd55bee27a192b01f16a3d1146560ee3424a', 'profile': 'EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED', 'requirement': {'source_frame_required': True}, 'diagnostic': {'kind': 'IMMUTABLE_GRANT', 'body_line': 7, 'body_sha256': '6c8733d37dd7f8d7e071b02e4546bb27f74e358877369ff93eb56ba33a3a4fe1', 'application_sha256': '5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'}, 'role': 'wa_context_issuer'},
+    'ISSUER-REPEAT-REVOKE': {'sql_sha256': 'cdf9c39995a259a1759ffa484cef039a6d076751d36bc7a55e3cd6b3510c7ea7', 'profile': 'EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED', 'requirement': {'source_frame_required': True}, 'diagnostic': {'kind': 'IMMUTABLE_GRANT', 'body_line': 7, 'body_sha256': '6c8733d37dd7f8d7e071b02e4546bb27f74e358877369ff93eb56ba33a3a4fe1', 'application_sha256': '5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'}, 'role': 'wa_context_issuer'},
+    'ISSUER-UNREVOKE': {'sql_sha256': '653570f7a22df134cbaa3436c16cdd55bee27a192b01f16a3d1146560ee3424a', 'profile': 'EXACT_SOURCE_IMMUTABLE_GUARD_UNCHANGED', 'requirement': {'source_frame_required': True}, 'diagnostic': {'kind': 'IMMUTABLE_GRANT', 'body_line': 7, 'body_sha256': '6c8733d37dd7f8d7e071b02e4546bb27f74e358877369ff93eb56ba33a3a4fe1', 'application_sha256': '5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'}, 'role': 'wa_context_issuer'},
+}
+METADATA_SQLSTATES=frozenset({'22023','42501','42703','42P01','42883','42601','42804','22P02','57014','57P01'})
+METADATA_OUTPUT_LIMIT=16384
+
+
+def validate_metadata_descriptors(packet,blobs):
+    cases=packet['cases'];need(type(cases)is list and len(cases)==200 and {c['name']for c in cases}==set(METADATA_DESCRIPTORS),'METADATA_DESCRIPTOR_SET_REQUIRED')
+    for case in cases:
+        spec=METADATA_DESCRIPTORS[case['name']];path=PACKET+'/'+case['file']
+        need(case['sql_sha256']==spec['sql_sha256'] and case['diagnostic']==spec['diagnostic'] and case['role']==spec['role'] and path in blobs and sha(blobs[path])==spec['sql_sha256'],'METADATA_DESCRIPTOR_SQL_REQUIRED')
+
+
+def metadata_boolean_shape(value,expected):
+    if type(expected)is bool:return type(value)is bool
+    return type(expected)is dict and type(value)is dict and set(value)==set(expected)and all(metadata_boolean_shape(value[k],expected[k])for k in expected)
+
+
+def metadata_sqlstate(stderr):
+    """A state is diagnostic-only; no output, primary text or frame is retained."""
+    if type(stderr)is not str:return 'REDACTED',None
+    try:bounded=len(stderr.encode('utf8'))<=METADATA_OUTPUT_LIMIT
+    except UnicodeError:return 'REDACTED',None
+    text=stderr.replace('\r\n','\n')
+    if not bounded or any(not(c.isprintable()or c in '\n\t')for c in text):return 'REDACTED',None
+    if stderr=='':return 'NONE',None
+    rows=[x for x in text.split('\n')if x]
+    head=re.compile(r'(?:psql:<stdin>:[1-9][0-9]{0,8}: )?(?:ERROR|FATAL):\s+([0-9A-Z]{5}):\s+.*')
+    severity=re.compile(r'(?:(?:psql:<stdin>:[0-9]+: )?(?:ERROR|FATAL|PANIC|WARNING):\s+[0-9A-Z]{5}:)')
+    matches=[head.fullmatch(row)for row in rows];headers=[m for m in matches if m]
+    if not rows or not matches[0]or len(headers)!=1 or sum(len(list(severity.finditer(row)))for row in rows)!=1:return 'REDACTED',None
+    state=headers[0][1]
+    return ('ALLOWLISTED_SINGLE_HEADER',state)if state in METADATA_SQLSTATES else('REDACTED',None)
+
+
+def metadata_query_spec(case,native,right):
+    spec=METADATA_DESCRIPTORS.get(case['name']);need(type(spec)is dict and case['sql_sha256']==spec['sql_sha256']and case['diagnostic']==spec['diagnostic']and case['role']==spec['role'],'METADATA_DESCRIPTOR_SQL_REQUIRED')
+    role=case['role'];kind=case['diagnostic']['kind'];schema=case['diagnostic'].get('schema');d=spec['requirement'];profile=spec['profile'];expected={};sql={}
+    def add(key,value,text):expected[key]=value;sql[key]=text
+    def acl(kind,name,verb,col=None):return right(native,role,kind,name,verb,col)
+    def table(name,verb):return 'has_table_privilege('+quote(role)+','+quote(name)+','+quote(verb)+')'
+    def column(name,col,verb):
+        need(verb in('SELECT','INSERT','UPDATE','REFERENCES'),'VALID_COLUMN_PRIVILEGE_REQUIRED')
+        return 'has_column_privilege('+quote(role)+','+quote(name)+','+quote(col)+','+quote(verb)+')'
+    if kind=='IMMUTABLE_GRANT':return None,{},spec
+    if kind=='SET_ROLE':add('role_assumption_allowed',False,'pg_has_role('+quote(role)+','+quote(case['diagnostic']['target_role'])+",'SET')")
+    else:
+        add('schema_usage',acl('SCHEMA',schema,'USAGE'),'has_schema_privilege('+quote(role)+','+quote(schema)+",'USAGE')")
+        if kind=='SCHEMA_CREATE':
+            add('schema_create',acl('SCHEMA',schema,'CREATE'),'has_schema_privilege('+quote(role)+','+quote(schema)+",'CREATE')");need(expected['schema_create']is False,'SOURCE_NATIVE_METADATA_REQUIRED')
+        elif kind=='FUNCTION':
+            name=case['diagnostic']['function'];matches=[r for r in native['functions']if r['name']==schema+'.'+name];need(len(matches)==1,'SOURCE_NATIVE_METADATA_REQUIRED');identity=matches[0]['object'];add('function_execute',acl('FUNCTION',identity,'EXECUTE'),'has_function_privilege('+quote(role)+','+quote(identity)+",'EXECUTE')");need(expected['function_execute']is False,'SOURCE_NATIVE_METADATA_REQUIRED')
+        elif profile!='PROVIDER_SCHEMA_ONLY_FUNCTION_CALL':
+            name=d['table'];verb=d.get('operation','SELECT');writes=d.get('write_columns',[]);reads=d.get('read_columns',[])
+            add('table_privilege',acl('TABLE',name,verb),table(name,verb))
+            for key,cols,priv in(('write_columns',writes,verb),('read_columns',reads,'SELECT')):
+                if cols:
+                    add(key,{c:acl('TABLE',name,priv,c)for c in cols},'jsonb_build_object('+','.join(quote(c)+','+column(name,c,priv)for c in cols)+')')
+            if reads:add('read_table_privilege',acl('TABLE',name,'SELECT'),table(name,'SELECT'))
+            if d.get('SELECT_any_actual_column'):
+                cols=[r['name']for r in native['columns']if r['table_name']==name];need(bool(cols)and len(cols)==len(set(cols)),'SOURCE_NATIVE_METADATA_REQUIRED');add('any_column_select',any(acl('TABLE',name,'SELECT',c)for c in cols),'has_any_column_privilege('+quote(role)+','+quote(name)+",'SELECT')")
+    query='SELECT jsonb_build_object('+','.join(quote(key)+','+text for key,text in sql.items())+');'
+    return query,expected,spec
+
+
+def metadata_diagnostic_projection(expected,spec):
+    result=deepcopy(expected);d=spec['requirement'];profile=spec['profile'];missing=[]
+    write_missing=bool(d.get('write_columns'))and not(expected['table_privilege']or all(expected['write_columns'].values()))
+    read_missing=bool(d.get('read_columns'))and not(expected['read_table_privilege']or all(expected['read_columns'].values()))
+    if d.get('SELECT_any_actual_column'):read_missing=not expected['any_column_select']
+    table_missing=bool(d.get('mandatory_table_privileges'))and not expected['table_privilege']
+    for key,table_key in(('write_columns','table_privilege'),('read_columns','read_table_privilege')):
+        if key in expected and not expected[table_key]:missing.extend(c for c,v in expected[key].items()if v is False)
+    if 'table_privilege'in expected:
+        result['missing_referenced_columns']=list(dict.fromkeys(missing));result['required_permission_missing']=bool(write_missing or read_missing or table_missing)
+        if profile.startswith('PROVIDER_SCHEMA_ONLY_'):result['required_permission_missing']=False;result['missing_referenced_columns']=[]
+        result['permission_components_missing']={'write':bool(write_missing),'read':bool(read_missing),'mandatory_table':bool(table_missing)}
+        result['column_privilege_projection_matches_source']=True
+    result.pop('write_columns',None);result.pop('read_columns',None)
+    return result
+
+
+class Evidence:
+    def __init__(self,directory,packet):
+        directory.mkdir(parents=True,exist_ok=False);self.path=directory/'privilege-ceiling-results.json';self.failed=False
+        self.value={'schema':'workinants.privilege-ceiling-evidence.v1','status':'IN_PROGRESS','database_posture':'D','current_stage':'ENTRY','current_case':None,'current':{},'operations':[],'results':[],'authentication':[],'native_controls':[],'facets':[],'selected_cases':[],'selected_controls':deepcopy(packet['control_links']),'source_assertion_links':'NOT_PROMOTED','cleanup_required':True,'subsequent_cases_stopped':False,'evidence_complete':True,'limits':{'whole94_451':False,'hosted_parity':False,'NOLOGIN_startup_guard':False,'function_body_confidentiality':False,'shadow_object_resistance':False,'owner_API_positive':False,'worker_loop':False}}
+        self.save()
+    def save(self):
+        try:
+            temporary=self.path.with_suffix('.tmp')
+            with temporary.open('w',encoding='utf8',newline='\n')as stream:stream.write(json.dumps(self.value,indent=2,allow_nan=False)+'\n');stream.flush();os.fsync(stream.fileno())
+            temporary.replace(self.path)
+        except BaseException:self.failed=True;self.value['evidence_complete']=False;raise
+    def stage(self,value):self.value['current_stage']=value;self.save()
+
+
+def interactive_type(native):
+    class Interactive(native['Session']):
+        """Exact reviewed Native constructor/capture/reap/close; finite CTX call."""
+        def call(self,text):
+            need(self.process.poll()is None,'INTERACTIVE_SESSION_ENDED')
+            token='WA_PRIV_ACK|'+secrets.token_hex(16);self.send(text+'\nSELECT '+quote(token)+';\n')
+            rows=[];ack=False;deadline=time.monotonic()+15
+            while time.monotonic()<deadline:
+                try:line=self.queue.get(timeout=.1)
+                except queue.Empty:
+                    if self.process.poll()is not None:break
+                    continue
+                if line==token:ack=True;break
+                if line:rows.append(line)
+            if not ack:
+                self.process.wait(timeout=10)
+                for reader in self.readers:reader.join(timeout=5)
+                while not self.queue.empty():
+                    line=self.queue.get_nowait()
+                    if line:rows.append(line)
+            need(not self.invalid.is_set(),'INTERACTIVE_OUTPUT_INCOMPLETE')
+            return rows,ack,''.join(self.errors)
+    return Interactive
+
+
+def runner_type(native,ctx,protocol):
+    P=types.SimpleNamespace(**protocol)
+    Interactive=interactive_type(native)
+    class Runner(native['Coordinator']):
+        def __init__(self,plan,packet,blobs,native_packet,native_blobs,snapshot,api,host,evidence):
+            self.review_plan=plan;self.privileges_packet=packet;self.source_blobs=blobs
+            self.grants={};self.failed=False;self._fingerprinting=False
+            super().__init__(plan['native_plan'],native_packet,native_blobs,snapshot,api,host,evidence)
+            self.columns={}
+            for row in snapshot['columns']:self.columns.setdefault(row['table_name'],[]).append(row['name'])
+            self.person=None;self.context_instances=0
+
+        def persist(self):
+            try:
+                self.evidence.save()
+                if self.evidence.value.get('evidence_complete')is not True:self.failed=True
+                return not self.failed
+            except BaseException:self.failed=True;self.evidence.value['evidence_complete']=False;return False
+
+        def raw(self,role,text):
+            if self._fingerprinting and self.grants:
+                need(role=='postgres'and len(self.grants)<=2,'EXACT_DECLARED_GRANT_EXCLUSION')
+                needle='FROM "platform"."database_action_grant" t'
+                need(text.count(needle)==1,'SOURCE_FINGERPRINT_QUERY_IDENTITY')
+                identities=','.join(quote(identity)+'::uuid'for identity in self.grants)
+                text=text.replace(needle,'FROM (SELECT * FROM "platform"."database_action_grant" WHERE id NOT IN ('+identities+')) t')
+            return super().raw(role,text)
+
+        def fingerprint(self):
+            self._fingerprinting=True
+            try:return super().fingerprint()
+            finally:self._fingerprinting=False
+
+        def global_closed(self,label):
+            record={'stage':label,'attempted':True,'confirmed':False}
+            self.evidence.value.setdefault('global_client_boundaries',[]).append(record)
+            self.persist()
+            try:
+                value=self.json("SELECT jsonb_build_object('other_clients',(SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()));")
+                record['confirmed']=type(value)is dict and set(value)=={'other_clients'}and type(value['other_clients'])is int and value['other_clients']==0
+            finally:self.persist()
+            need(record['confirmed'],'GLOBAL_CLIENT_CLOSURE_UNCONFIRMED')
+            need(not self.failed and self.evidence.value['evidence_complete']is True,'EVIDENCE_INCOMPLETE')
+
+        def failure_metadata(self,error,phase):
+            value=native['session_failure_metadata'](error,phase)
+            fixed={'GLOBAL_CLIENT_CLOSURE_UNCONFIRMED','EVIDENCE_INCOMPLETE','INTENDED_PRIVILEGE_GUARD_NOT_PROVEN','PRIVATE_GRANT_STATE_MISMATCH','ISSUER_COMMIT_UNCONFIRMED','PRIVATE_CREATED_AT_REJECTED','INTERACTIVE_OUTPUT_UNCONFIRMED','SAME_APP_TUPLE_REQUIRED','OPERATION_BACKEND_CLOSURE_UNCONFIRMED','CURRENT_OWN_GRANT_REQUIRED','ISSUER_OWN_READ_REQUIRED','EXPECTED_FIRST_REVOKE_REQUIRED','GRANT_NOT_SOURCE_CURRENT','SOURCE_NATIVE_METADATA_REQUIRED','METADATA_QUERY_FAILED','UNRESOLVED_SQL_TEMPLATE','INTERACTIVE_OUTPUT_INCOMPLETE','INTERACTIVE_SESSION_ENDED'}
+            if isinstance(error,Held)and type(error.code)is str and error.code in fixed:value={'phase':phase,'classification':'SOURCE_HELD_FAILURE','code':error.code}
+            return value
+
+        def actor(self,role,record,interactive=False):
+            def observed(point,partial,error):
+                key='constructor_before_reap'if point=='BEFORE_REAP'else'constructor_after_reap'
+                record[key]=native['session_observation'](partial)
+                if error is not None:record.setdefault('original_operation_failure',self.failure_metadata(error,'CONSTRUCT'))
+                self.persist()
+            return (Interactive if interactive else native['Session'])(role,self.cid,self.api,self.raw,observed)
+
+        def close_actor(self,session,record):
+            record['session_before_close']=native['session_observation'](session);self.persist()
+            try:session.close();record['closed_before_observers']=True
+            except BaseException as error:
+                record['close_failure']=self.failure_metadata(error,'CLOSE');record['closed_before_observers']=False
+            finally:record['session_after_close']=native['session_observation'](session);self.persist()
+            return record['closed_before_observers']
+
+        def grants_unchanged(self,require_current=False):
+            # Complete values are compared by the server and stay in RAM/SQL.
+            # No returned grant, timestamp, token, backend tuple or ID is saved.
+            for instance in self.grants.values():
+                expected='jsonb_build_object('+','.join(quote(column)+','+instance['values'][column]for column in P.GRANT_COLUMNS)+')'
+                query="SELECT jsonb_build_object('count',count(*),'complete_row_matches',coalesce(bool_and(to_jsonb(g)="+expected+"),false),'unexpired',coalesce(bool_and(expires_at>clock_timestamp()),false)) FROM platform.database_action_grant g WHERE id="+quote(instance['id'])+'::uuid;'
+                value=self.json(query);good=type(value)is dict and set(value)=={'count','complete_row_matches','unexpired'}and type(value['count'])is int and value['count']==1 and value['complete_row_matches']is True and type(value['unexpired'])is bool
+                if require_current:good=good and value['unexpired']is True
+                observed=value.get('count')if type(value)is dict else None
+                self.evidence.value['current'].setdefault('private_grant_checks',[]).append({'expected_count':1,'observed_count':observed if type(observed)is int and 0<=observed<=1000000000 else None,'complete_known_row_matches':bool(good),'unexpired_required':require_current,'unexpired':value.get('unexpired')is True if type(value)is dict else False})
+                need(self.persist(),'EVIDENCE_INCOMPLETE');need(good,'PRIVATE_GRANT_STATE_MISMATCH')
+            total=self.json("SELECT jsonb_build_object('count',count(*)) FROM platform.database_action_grant;")
+            expected_total=self.setup_counts['platform.database_action_grant']+len(self.grants);good=type(total)is dict and set(total)=={'count'}and type(total['count'])is int and total['count']==expected_total
+            observed=total.get('count')if type(total)is dict else None
+            self.evidence.value['current']['grant_total_check']={'expected_count':expected_total,'observed_count':observed if type(observed)is int and 0<=observed<=1000000000 else None,'matches':bool(good)}
+            need(self.persist(),'EVIDENCE_INCOMPLETE');need(good,'PRIVATE_GRANT_STATE_MISMATCH')
+
+        def after_case(self,label,require_current=False):
+            self.global_closed(label);self.guards();self.fingerprint();self.grants_unchanged(require_current);self.catalog()
+
+        def metadata(self,case):
+            query,expected,spec=metadata_query_spec(case,self.native,P.expected_acl)
+            if query is None:return {}
+            record=self.evidence.value['current'];receipt={'schema':'workinants.privilege-metadata-receipt.v1','phase':'PRIVILEGE_METADATA_QUERY','query_sha256':sha(query.encode()),'process_result_received':False,'process_exit_class':'NOT_RECEIVED','exit_code':None,'stdout_bounded':False,'stderr_bounded':False,'stderr_empty':False,'json_parsed':False,'exact_boolean_shape':False,'source_comparison_matches':False,'sqlstate_class':'NONE','sqlstate':None,'failure_class':'NONE','closure_attempted':False,'closure_confirmed':False}
+            record['metadata_query_receipt']=receipt;primary=None;closure=None;projection=None
+            try:
+                need(self.persist(),'EVIDENCE_INCOMPLETE')
+                try:result=subprocess.run(self.api['psql']('postgres',self.cid),input=query,text=True,capture_output=True,timeout=60)
+                except BaseException as error:
+                    receipt['failure_class']='TIMEOUT'if isinstance(error,subprocess.TimeoutExpired)else'INTERRUPTED'if isinstance(error,KeyboardInterrupt)else'PROCESS_BOUNDARY_ERROR'
+                    raise Held('METADATA_QUERY_FAILED')from None
+                receipt['process_result_received']=True;receipt['process_exit_class']='INVALID';code=getattr(result,'returncode',None);stdout=getattr(result,'stdout',None);stderr=getattr(result,'stderr',None)
+                valid=type(code)is int and 0<=code<=255;receipt['exit_code']=code if valid else None;receipt['process_exit_class']=('ZERO'if code==0 else'NONZERO')if valid else'INVALID'
+                for key,value in(('stdout_bounded',stdout),('stderr_bounded',stderr)):
+                    try:receipt[key]=type(value)is str and len(value.encode('utf8'))<=METADATA_OUTPUT_LIMIT
+                    except UnicodeError:receipt[key]=False
+                receipt['stderr_empty']=type(stderr)is str and stderr=='';receipt['sqlstate_class'],receipt['sqlstate']=metadata_sqlstate(stderr)
+                if not(valid and code==0 and receipt['stdout_bounded']and receipt['stderr_bounded']and receipt['stderr_empty']):
+                    receipt['failure_class']='PROCESS_RESULT_REJECTED';self.persist();raise Held('METADATA_QUERY_FAILED')
+                need(self.persist(),'EVIDENCE_INCOMPLETE')
+                try:actual=unique_json(stdout.strip());receipt['json_parsed']=True
+                except BaseException:receipt['failure_class']='JSON_OR_SOURCE_REJECTED';raise Held('SOURCE_NATIVE_METADATA_REQUIRED')from None
+                receipt['exact_boolean_shape']=metadata_boolean_shape(actual,expected)
+                receipt['source_comparison_matches']=receipt['exact_boolean_shape']and canonical(actual)==canonical(expected)
+                if not receipt['source_comparison_matches']:receipt['failure_class']='JSON_OR_SOURCE_REJECTED';raise Held('SOURCE_NATIVE_METADATA_REQUIRED')
+                projection=metadata_diagnostic_projection(expected,spec);record['source_native_privilege_projection']=deepcopy(projection);need(self.persist(),'EVIDENCE_INCOMPLETE')
+            except BaseException as error:
+                primary=error;record.setdefault('original_metadata_failure',self.failure_metadata(error,'PRIVILEGE_METADATA'))
+                if receipt['failure_class']=='NONE':receipt['failure_class']='EVIDENCE_INCOMPLETE'if self.failed else'METADATA_REJECTED'
+                self.persist()
+            finally:
+                receipt['closure_attempted']=True
+                try:self.global_closed('AFTER_METADATA_'+case['name'])
+                except BaseException as error:closure=error;record['metadata_closure_failure']=self.failure_metadata(error,'PRIVILEGE_METADATA_CLOSURE')
+                finally:
+                    rows=self.evidence.value.get('global_client_boundaries',[]);receipt['closure_confirmed']=bool(rows and rows[-1].get('stage')=='AFTER_METADATA_'+case['name']and rows[-1].get('attempted')is True and rows[-1].get('confirmed')is True);self.persist()
+            if primary is not None:raise primary
+            if closure is not None:raise closure
+            need(receipt['closure_confirmed'],'GLOBAL_CLIENT_CLOSURE_UNCONFIRMED');need(not self.failed and self.evidence.value['evidence_complete']is True,'EVIDENCE_INCOMPLETE')
+            return projection
+
+        def template(self,case):return self.source_blobs[PACKET+'/'+case['file']].decode()
+
+        def unexpected_metadata(self,errors,record):
+            metadata=None
+            if type(errors)is str and len(errors)<=16384 and native['clean_text'](errors)is not None:
+                try:metadata=self.api['source_metadata'](errors)
+                except BaseException:pass
+            record['unexpected_operation_diagnostic']=native['unexpected_operation_metadata'](errors,self.native,APPLICATION_SHA,metadata,unique_json(self.blobs['__diagnostic_identifiers']))
+            self.persist()
+
+        def remember_original_origin(self,case,phase,error):
+            if 'original_failure'in self.evidence.value:return
+            known={row['name']for row in self.privileges_packet['cases']}
+            name=case.get('name')if type(case)is dict else None
+            if name not in known:return
+            try:code=getattr(error,'code',None)
+            except BaseException:code=None
+            if type(code)is not str or code not in SAFE_FAILURES:code='UNEXPECTED_PRIVILEGE_CONTROL_FAILURE'
+            phase=phase if phase in('METADATA','CONSTRUCT','CAPTURE','FINISH','VERDICT','CLOSE')else'UNAVAILABLE'
+            self.evidence.value['original_failure']={'stage':'PRIVILEGE_NEGATIVE_OPERATION','case':name,'phase':phase,'code':code}
+
+        def changed_grant_expression(self,column):
+            need(self.person is not None,'CURRENT_OWN_GRANT_REQUIRED')
+            original=self.person['values'];source=self.privileges_packet['person_grant']
+            old_pid=int(self.person['backend']['pid']);new_pid=1 if old_pid==2147483647 else old_pid+1
+            values={'id':str(uuid.uuid4()),'token_hash':sha(secrets.token_bytes(32)),'issuer_service':'wa_app_runtime','principal_user_id':self.packet['synthetic_facts']['delete-leaf/User']['app.users']['id'],'service_principal':self.privileges_packet['revoked_service_fixture']['service_principal'],'database_login_role':'wa_worker','owner_module_id':'platform_integration_owner','action':'runtime.claim_work.v1','purpose':'work.claim','target_kind':'User','target_id':source['principal_user_id'],'allowed_fields':['CustomerProfile/'+source['target_id']+'/SELECT/userId'],'policy_version':'privilege-ceiling.other.v1','security_generation':source['security_generation']+1,'source_generation':source['source_generation']+1,'backend_pid':new_pid,'transaction_id':str(int(self.person['backend']['xid'])+1),'mutation_transaction_id':str(int(self.person['issuer_xid'])+1)}
+            if column in('expires_at','created_at'):return '('+original[column]+")+interval '1 second'"
+            need(column in values,'UNRESOLVED_SQL_TEMPLATE')
+            return P.typed(values[column],self.privileges_packet['grant_column_types'][column])
+
+        def render(self,case,backend):
+            text=P.reviewed_text(self.template(case),self.review_plan['run_id'])
+            operation=case.get('operation')
+            if operation=='GRANT_INSERT':
+                source=self.privileges_packet['person_grant'];role=case['role']
+                need(backend['login']==backend['current_user']==role and role in P.APP_ROLES,'SAME_APP_TUPLE_REQUIRED')
+                values={'id':str(uuid.uuid4()),'token_hash':sha(secrets.token_bytes(32)),'issuer_service':role,'principal_user_id':source['principal_user_id'],'service_principal':None,'database_login_role':role,'owner_module_id':source['owner_module_id'],'action':source['action'],'purpose':source['purpose'],'target_kind':source['target_kind'],'target_id':source['target_id'],'allowed_fields':source['allowed_fields'],'policy_version':source['policy_version'],'security_generation':source['security_generation'],'source_generation':source['source_generation'],'backend_pid':int(backend['pid']),'transaction_id':backend['xid'],'expires_at':None,'revoked_at':None,'created_at':None,'mutation_transaction_id':backend['xid']}
+                for column in P.GRANT_COLUMNS:
+                    spec=self.privileges_packet['grant_column_types'][column];kind=spec['name']+('[]'if spec['array_dimensions']else'')
+                    needle="'__WA_"+column.upper()+"__'::"+kind;need(text.count(needle)==1,'UNRESOLVED_SQL_TEMPLATE')
+                    expression="clock_timestamp()+interval '300 seconds'"if column=='expires_at'else'clock_timestamp()'if column=='created_at'else P.typed(values[column],spec)
+                    text=text.replace(needle,expression)
+            elif operation=='GRANT_FIELD_UPDATE':
+                need(self.person is not None and self.person['revoked']is False,'CURRENT_OWN_GRANT_REQUIRED');column=case['field'];spec=self.privileges_packet['grant_column_types'][column]
+                needle="'__WA_CHANGED_VALUE__'::"+spec['name']+('[]'if spec['array_dimensions']else'');need(text.count(needle)==1,'UNRESOLVED_SQL_TEMPLATE')
+                text=text.replace(needle,self.changed_grant_expression(column))
+            if '__WA_OWN_GRANT_ID__'in text:
+                need(self.person is not None,'CURRENT_OWN_GRANT_REQUIRED')
+                if case.get('actual_revoked_own_grant_required'):need(self.person['revoked']is True,'CURRENT_OWN_GRANT_REQUIRED')
+                if case.get('actual_unrevoked_own_grant_required'):need(self.person['revoked']is False,'CURRENT_OWN_GRANT_REQUIRED')
+                text=text.replace('__WA_OWN_GRANT_ID__',self.person['id'])
+            need('__WA_'not in text,'UNRESOLVED_SQL_TEMPLATE');return text
+
+        def negative(self,case):
+            record={'name':case['name'],'role':case['role'],'source_template_sha256':case['sql_sha256'],'closed_before_observers':False}
+            record['diagnostic_match_receipt']=P.unavailable_match_receipt()
+            self.evidence.value['current']=record;self.evidence.value['current_case']=case['name'];self.evidence.value['current_stage']='PRIVILEGE_METADATA'
+            try:
+                need(self.persist(),'EVIDENCE_INCOMPLETE');self.global_closed('BEFORE_'+case['name']);metadata=self.metadata(case)
+            except BaseException as error:
+                record.setdefault('original_operation_failure',self.failure_metadata(error,'METADATA'));self.remember_original_origin(case,'METADATA',error)
+                self.evidence.value['operations'].append(record);self.persist();raise
+            actor=None;failure=None;phase='CONSTRUCT';matched=False
+            try:
+                actor=self.actor(case['role'],record);phase='CAPTURE';actor.capture();record['actual_login_context_absent']=True
+                text=self.render(case,actor.backend);need('__WA_'not in text,'UNRESOLVED_SQL_TEMPLATE');record['executed_sql_sha256']=sha(text.encode());phase='FINISH'
+                need(self.persist(),'EVIDENCE_INCOMPLETE');code,rows,ack,errors=actor.finish(native['captured_tail'](text))
+                record.update(exit_code=code if type(code)is int and -255<=code<=255 else None,acknowledgement=ack is True,exact_empty_output=type(rows)is list and rows==[])
+                binding=P.create_projection_binding(case,self.template(case),text,self.review_plan['run_id'])if case['diagnostic']['kind']=='SCHEMA_CREATE'else None
+                identity={'template_sha256':sha(self.template(case).encode()),'rendered_source_sha256':sha(text.encode())}
+                need(identity['template_sha256']==case['sql_sha256'],'UNRESOLVED_SQL_TEMPLATE')
+                verdict,receipt=P.diagnostic_with_receipt(errors,case['diagnostic'],metadata,text,P.source_position_matches,create_binding=binding,source_identity=identity);record['diagnostic']=verdict;record['diagnostic_match_receipt']=receipt
+                if verdict['matched']is not True:self.unexpected_metadata(errors,record)
+                phase='VERDICT';need(self.persist(),'EVIDENCE_INCOMPLETE');matched=type(code)is int and code==3 and ack is False and rows==[]and verdict['matched']is True
+                need(matched,'INTENDED_PRIVILEGE_GUARD_NOT_PROVEN')
+            except BaseException as error:
+                failure=error;record.setdefault('original_operation_failure',self.failure_metadata(error,phase));self.remember_original_origin(case,phase,error);self.persist()
+            finally:
+                self.evidence.value['current_stage']='CLOSE_'+case['name'];self.persist()
+                if actor is not None:self.close_actor(actor,record)
+                self.evidence.value['operations'].append(record);self.persist()
+                record['global_client_closure_confirmed']=False
+                try:self.global_closed('AFTER_OPERATION_'+case['name']);record['global_client_closure_confirmed']=True
+                except BaseException as error:
+                    record.setdefault('global_closure_failure',self.failure_metadata(error,'CLOSE'));self.persist()
+                    if failure is None:failure=error
+            if not record['closed_before_observers']:
+                self.remember_original_origin(case,'CLOSE',Held('OPERATION_BACKEND_CLOSURE_UNCONFIRMED'));raise Held('OPERATION_BACKEND_CLOSURE_UNCONFIRMED')from None
+            if not record['global_client_closure_confirmed']:
+                self.remember_original_origin(case,'CLOSE',Held('GLOBAL_CLIENT_CLOSURE_UNCONFIRMED'));raise Held('GLOBAL_CLIENT_CLOSURE_UNCONFIRMED')from None
+            if not self.failed:
+                try:self.after_case('AFTER_'+case['name'],case['family']in('ISSUER_COLUMN_CEILING','ISSUER_UNREVOKED_GUARD'))
+                except BaseException as error:
+                    record['post_case_state_verified']=False;record.setdefault('observation_failure',self.failure_metadata(error,'VERDICT'));self.remember_original_origin(case,'VERDICT',error);self.persist()
+                    if failure is None:failure=error
+                else:record['post_case_state_verified']=True
+            if self.failed:raise Held('EVIDENCE_INCOMPLETE')from None
+            if failure is not None:raise Held('INTENDED_PRIVILEGE_GUARD_NOT_PROVEN')from None
+            self.evidence.value['results'].append({'name':case['name'],'source_case_id':case['source_case_id'],'assertion_id':case['assertion_id'],'status':'PASS_FINITE_PRIVILEGE_CONTRAST_ONLY','closed_before_observers':True,'complete_state_unchanged':True,'diagnostic':record['diagnostic'],'whole_case_promoted':False});need(self.persist(),'EVIDENCE_INCOMPLETE')
+
+        def clock(self,session):
+            rows,ack,errors=session.call("SELECT jsonb_build_object('clock',CURRENT_TIMESTAMP::text);")
+            checks={'acknowledged':ack is True,'stderr_empty':errors=='','one_row':type(rows)is list and len(rows)==1,'exact_fields':False,'clock_format_and_timezone':False}
+            value=None
+            if checks['one_row']:
+                try:value=unique_json(rows[0])
+                except BaseException:pass
+            checks['exact_fields']=type(value)is dict and set(value)=={'clock'}
+            if checks['exact_fields']and type(value['clock'])is str and re.fullmatch(r'[0-9T:+. \-]{1,64}',value['clock']):
+                try:checks['clock_format_and_timezone']=datetime.datetime.fromisoformat(value['clock']).utcoffset()is not None
+                except BaseException:pass
+            record=self.evidence.value['current'];record['clock_comparison']=checks
+            if errors:self.unexpected_metadata(errors,record)
+            need(self.persist(),'EVIDENCE_INCOMPLETE');need(all(checks.values()),'INTERACTIVE_OUTPUT_UNCONFIRMED')
+            return value['clock']
+
+        def issue(self,template,backend,actors,record):
+            need(len(self.grants)<2,'CURRENT_OWN_GRANT_REQUIRED')
+            actor_record={'role':'wa_context_issuer','closed_before_observers':False};record['actors'].append(actor_record)
+            issuer=self.actor('wa_context_issuer',actor_record,True);actors.append((issuer,actor_record));issuer.capture();actor_record['actual_login_context_absent']=True;clock=self.clock(issuer)
+            identity=str(uuid.uuid4());secret=secrets.token_hex(32);token_hash=sha(bytes.fromhex(secret))
+            values=ctx['Coordinator'].grant_values(None,template,backend,{**issuer.backend,'clock':clock},identity,token_hash)
+            foreign=self.packet['synthetic_facts']['foreign-issuer-negative-only']['platform.database_action_grant']['id']
+            insert='INSERT INTO platform.database_action_grant('+','.join(P.GRANT_COLUMNS)+') VALUES ('+','.join(values[column]for column in P.GRANT_COLUMNS)+") RETURNING jsonb_build_object('created_at',created_at);"
+            own="SELECT jsonb_build_object('own',(SELECT count(*) FROM platform.database_action_grant WHERE id="+quote(identity)+"::uuid),'foreign',(SELECT count(*) FROM platform.database_action_grant WHERE id="+quote(foreign)+'::uuid)); COMMIT;'
+            record['issuer_statement_sha256']=sha((insert+own).encode());need(self.persist(),'EVIDENCE_INCOMPLETE')
+            rows,ack,errors=issuer.call(insert+'\n'+own)
+            if errors:self.unexpected_metadata(errors,record)
+            record.update(issuer_COMMIT_acknowledged=ack is True and errors=='',created_at_source_return_verified=False,issuer_return_count=len(rows)if type(rows)is list and len(rows)<=256 else None)
+            need(self.persist(),'EVIDENCE_INCOMPLETE')
+            need(ack is True and errors==''and len(rows)==2,'ISSUER_COMMIT_UNCONFIRMED')
+            actual=ctx['returned_created_at'](rows[:1],clock);need(canonical(unique_json(rows[1]))==canonical({'own':1,'foreign':0}),'ISSUER_OWN_READ_REQUIRED')
+            values['created_at']=quote(actual)+'::timestamptz'
+            instance={'id':identity,'secret':secret,'token_hash':token_hash,'values':values,'backend':deepcopy(backend),'issuer_xid':issuer.backend['xid'],'revoked':False,'login':template['database_login_role']}
+            self.grants[identity]=instance
+            record.update(issuer_COMMIT_acknowledged=True,created_at_source_return_verified=True,own_grant_visible=True,foreign_grant_hidden=True)
+            need(self.persist(),'EVIDENCE_INCOMPLETE')
+            need(self.close_actor(issuer,actor_record),'OPERATION_BACKEND_CLOSURE_UNCONFIRMED')
+            return instance
+
+        def interactive_case(self,label,role,behavior):
+            record={'name':label,'role':role,'source_case_id':'P0C-PRIV-01','assertion_id':'control.issuer_ceiling','actors':[],'closed_before_observers':False}
+            self.evidence.value['current']=record;self.evidence.value['current_case']=label;self.evidence.value['current_stage']=label
+            need(self.persist(),'EVIDENCE_INCOMPLETE');self.global_closed('BEFORE_'+label)
+            actors=[];failure=None;result=None;phase='CONSTRUCT'
+            try:
+                actor_record={'role':role,'closed_before_observers':False};record['actors'].append(actor_record)
+                actor=self.actor(role,actor_record,True);actors.append((actor,actor_record));phase='CAPTURE';actor.capture();actor_record['actual_login_context_absent']=True
+                phase='FINISH';result=behavior(actor,actors,record)
+            except BaseException as error:
+                failure=error;record.setdefault('original_operation_failure',self.failure_metadata(error,phase));self.persist()
+            finally:
+                self.evidence.value['current_stage']='CLOSE_'+label;self.persist()
+                for actor,actor_record in reversed(actors):
+                    if actor_record['closed_before_observers']is not True:self.close_actor(actor,actor_record)
+                record['closed_before_observers']=bool(record['actors'])and all(item['closed_before_observers']is True for item in record['actors'])
+                self.evidence.value['operations'].append(record);self.persist()
+                record['global_client_closure_confirmed']=False
+                try:self.global_closed('AFTER_OPERATION_'+label);record['global_client_closure_confirmed']=True
+                except BaseException as error:
+                    record.setdefault('global_closure_failure',self.failure_metadata(error,'CLOSE'));self.persist()
+                    if failure is None:failure=error
+            if not record['closed_before_observers']:raise Held('OPERATION_BACKEND_CLOSURE_UNCONFIRMED')from None
+            if not record['global_client_closure_confirmed']:raise Held('GLOBAL_CLIENT_CLOSURE_UNCONFIRMED')from None
+            if not self.failed:
+                try:self.after_case('AFTER_'+label)
+                except BaseException as error:
+                    record['post_case_state_verified']=False;record.setdefault('observation_failure',self.failure_metadata(error,'VERDICT'));self.persist()
+                    if failure is None:failure=error
+                else:record['post_case_state_verified']=True
+            if self.failed:raise Held('EVIDENCE_INCOMPLETE')from None
+            if failure is not None:raise Held('INTERACTIVE_OUTPUT_UNCONFIRMED')from None
+            self.evidence.value.setdefault('issuer_protocols',[]).append({'name':label,'status':'PASS_FINITE_ISSUER_PROTOCOL_ONLY','same_run_and_actual_logins':True,'all_operation_backends_closed_before_observation':True,'complete_state_verified':True,'whole_case_promoted':False});need(self.persist(),'EVIDENCE_INCOMPLETE')
+            return result
+
+        def person_binding(self):
+            template=self.privileges_packet['person_grant']
+            def behavior(app,actors,record):
+                instance=self.issue(template,app.backend,actors,record);self.person=instance
+                bind='SELECT platform_private.bind_request_context('+quote(instance['secret'])+');'
+                expression="SELECT jsonb_build_object('allowed',platform_private.context_allows("+','.join(quote(template[key])for key in('owner_module_id','action','target_kind','target_id','purpose'))+"),'subject',platform_private.context_subject_owner("+quote(template['principal_user_id'])+"::uuid,"+quote(template['owner_module_id'])+"),'same_tuple',pg_backend_pid()="+app.backend['pid']+' AND pg_current_xact_id()::text='+quote(app.backend['xid'])+');'
+                outcomes=[]
+                for path in ('pg_catalog','public,app,platform,platform_private,pg_catalog'):
+                    rows,ack,errors=app.call('SET LOCAL search_path='+path+';\n'+bind+'\n'+bind+'\n'+expression)
+                    checks=person_binding_comparison(rows,ack,errors);good=all(value is True for value in checks.values())
+                    outcomes.append(good);record['caller_path_comparisons']=list(outcomes);record.setdefault('caller_path_comparison_outcomes',[]).append(checks)
+                    need(self.persist(),'EVIDENCE_INCOMPLETE')
+                    if type(errors)is str and errors:self.unexpected_metadata(errors,record)
+                    need(good,'SAME_APP_TUPLE_REQUIRED')
+                rows,ack,errors=app.call('ROLLBACK;');need(ack is True and rows==[]and errors=='','INTERACTIVE_OUTPUT_UNCONFIRMED')
+                record['same_app_tuple_and_separate_issuer_COMMIT']=True
+            self.interactive_case('ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS','wa_app_runtime',behavior)
+
+        def revoke_person(self):
+            need(self.person is not None and self.person['revoked']is False,'CURRENT_OWN_GRANT_REQUIRED')
+            def behavior(issuer,actors,record):
+                clock=self.clock(issuer);text='UPDATE platform.database_action_grant SET revoked_at=clock_timestamp() WHERE id='+quote(self.person['id'])+"::uuid RETURNING jsonb_build_object('created_at',revoked_at); COMMIT;"
+                record['issuer_statement_sha256']=sha(text.encode());need(self.persist(),'EVIDENCE_INCOMPLETE');rows,ack,errors=issuer.call(text)
+                if errors:self.unexpected_metadata(errors,record)
+                record.update(first_revoke_COMMIT_acknowledged=ack is True and errors=='',source_mutated_timestamp_verified=False);need(self.persist(),'EVIDENCE_INCOMPLETE')
+                need(ack is True and errors==''and len(rows)==1,'EXPECTED_FIRST_REVOKE_REQUIRED');actual=ctx['returned_created_at'](rows,clock)
+                self.person['values']['revoked_at']=quote(actual)+'::timestamptz';self.person['values']['mutation_transaction_id']=quote(issuer.backend['xid']);self.person['revoked']=True
+                record.update(first_revoke_COMMIT_acknowledged=True,source_mutated_timestamp_verified=True)
+            self.interactive_case('ISSUER-LEGITIMATE-FIRST-ONE-WAY-REVOKE','wa_context_issuer',behavior)
+
+        def service_binding_denied(self):
+            fixture=self.privileges_packet['revoked_service_fixture'];work=self.packet['synthetic_facts']['baseline']['platform.runtime_work_item']
+            def behavior(worker,actors,record):
+                # A real stored, committed tuple targets this exact live worker.
+                # The known Identity authority row remains independently revoked.
+                template={'database_login_role':'wa_worker','principal_user_id':None,'service_principal':fixture['service_principal'],'owner_module_id':'platform_integration_owner','action':'runtime.claim_work.v1','purpose':'work.claim','target_kind':'RuntimeWorkItem','target_id':work['id'],'policy_version':'privilege-ceiling-fixture.v1','security_generation':fixture['security_generation'],'source_generation':0,'allowed_fields':['RuntimeWorkItem/'+work['id']+'/SELECT/id']}
+                instance=self.issue(template,worker.backend,actors,record)
+                value=self.json("SELECT jsonb_build_object('count',count(*),'revoked',coalesce(bool_and(revoked_at IS NOT NULL),false),'generation_matches',coalesce(bool_and(security_generation="+str(fixture['security_generation'])+"),false)) FROM platform_private.identity_service_authorization WHERE service_principal="+quote(fixture['service_principal'])+';')
+                good=canonical(value)==canonical({'count':1,'revoked':True,'generation_matches':True});record['known_revoked_identity_source_witness']=good;need(self.persist(),'EVIDENCE_INCOMPLETE');need(good,'GRANT_NOT_SOURCE_CURRENT')
+                text='SELECT platform_private.bind_request_context('+quote(instance['secret'])+');\nROLLBACK;';record['restricted_statement_sha256']=sha(text.encode())
+                code,rows,ack,errors=worker.finish(text)
+                verdict=P.diagnostic(errors,self.privileges_packet['bind_currentness_diagnostic'],{},text,P.source_position_matches);record['diagnostic']=verdict
+                if verdict['matched']is not True:self.unexpected_metadata(errors,record)
+                need(type(code)is int and code==3 and ack is False and rows==[]and verdict['matched']is True,'INTENDED_PRIVILEGE_GUARD_NOT_PROVEN')
+                record['issuer_did_not_manufacture_service_currentness']=True
+            self.interactive_case('ISSUER-STORED-SERVICE-GRANT-CANNOT-SELF-ATTEST-REVOKED-IDENTITY','wa_worker',behavior)
+
+        def metadata_preflight(self):
+            self.global_closed('PRIVILEGE_METADATA_PREFLIGHT');self.catalog()
+            outcomes=P.source_metadata_contract(self.native,self.privileges_packet['source_definers'])
+            self.evidence.value['definer_metadata']=outcomes;need(self.persist(),'EVIDENCE_INCOMPLETE')
+            need(len(outcomes)==16 and all(row['owner_body_definer_path_match']is True for row in outcomes),'SOURCE_NATIVE_METADATA_REQUIRED')
+            roles={row['name']:row for row in self.native['roles']}
+            leaves=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier');owners=('wa_schema_owner',*leaves)
+            fields=('rolcanlogin','rolinherit','rolsuper','rolcreaterole','rolcreatedb','rolreplication','rolbypassrls')
+            flags={name:type(roles.get(name))is dict and all(roles[name].get(key)is False for key in fields)for name in owners}
+            expected=[{'role':'wa_schema_owner','member':'wa_migrator','grantor':'postgres','admin':False,'inherit':False,'set':True}]
+            memberships=canonical(self.native['memberships'])==canonical(expected)
+            query='SELECT jsonb_build_object('+','.join(quote(name)+',has_schema_privilege('+quote(name)+",'platform_private','CREATE')"for name in leaves)+');'
+            actual=self.json(query);create=canonical(actual)==canonical(dict.fromkeys(leaves,False))
+            self.evidence.value['role_metadata']={'four_owner_roles_NOLOGIN_NOINHERIT_nonprivileged':flags,'exact_permanent_migrator_edge_and_zero_temporary_edges':memberships,'all_three_leaf_CREATE_false':create,'direct_NOLOGIN_startup_guard_exercised':False,'function_body_catalog_confidentiality_claimed':False}
+            need(self.persist(),'EVIDENCE_INCOMPLETE');need(all(flags.values())and memberships and create,'SOURCE_NATIVE_METADATA_REQUIRED')
+
+        def setup_facts(self):
+            self.preflight();self.global_closed('BEFORE_EXACT_NATIVE_FACT_SETUP')
+            self.operation('native-fact-setup','postgres',self.text('native-fact-setup.sql'),expected=[{'control':'all-native-fact-setup-triggers-restored','all_declared_user_triggers_restored':True}])
+            self.seeded=True;self.guards();self.baseline=self.fingerprint();self.catalog()
+            for case in self.packet['cases']:
+                self.evidence.value['current_case']=case['id'];text=self.text(case['native_controls'])
+                need('\nCOMMIT;'not in text and text.count('\nROLLBACK;')==1 and all(row['table']==case['table']for row in case['control_bypassed_user_triggers']),'EXACT_NATIVE_ROLLBACK_VALIDITY_REQUIRED')
+                expected=['t']*(2+len(case['native_update_control_columns']))+[{'control':'native-control-'+case['model'],'all_declared_user_triggers_restored':True}]
+                self.operation('native-control-'+case['model'],'postgres',text,expected=expected);self.after_case('AFTER_NATIVE_VALIDITY_'+case['model'])
+                self.evidence.value['native_controls'].append({'case_id':case['id'],'status':'NATIVE_FIXTURE_VALIDITY_ONLY_NO_OWNER_OR_CASE_QUALIFICATION','rolled_back':True,'all100_guards_restored':True,'native205_unchanged':True});need(self.persist(),'EVIDENCE_INCOMPLETE')
+
+        def run(self):
+            self.setup_facts();self.metadata_preflight();self.person_binding()
+            cases=self.privileges_packet['cases'];executed=[]
+            def group(family):
+                for case in cases:
+                    if case['family']==family:self.negative(case);executed.append(case['name'])
+            group('ISSUER_COLUMN_CEILING');group('ISSUER_UNREVOKED_GUARD');self.revoke_person();group('ISSUER_GRANT_GUARD')
+            group('RUNTIME_ESCALATION');group('HELPER_RESULT_CEILING');group('ISSUER_IDENTITY_SOURCE_CEILING');self.service_binding_denied()
+            group('ISSUER_BUSINESS_DML');group('PROVIDER_REACHABILITY')
+            need(len(executed)==200 and set(executed)=={case['name']for case in cases}and len(self.evidence.value['results'])==200,'EXACT_FINITE_CASE_SET_REQUIRED')
+            self.after_case('FINAL_PRIVILEGE_SOURCE_STATE')
+            for name,wanted in self.review_plan['packet_files_sha256'].items():need(sha(source_path(name).read_bytes())==wanted,'POST_RUN_SOURCE_DRIFT')
+            self.evidence.value.update(status='PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN',source_packet_unchanged_after=True,subsequent_cases_stopped=False)
+            self.evidence.stage('FINISHED')
+    return Runner
+
+
+SAFE_FAILURES=frozenset({'PLAN_SCOPE','SOURCE_RUN_IDENTITY','FULL_SOURCE_HASH_MAP','FULL_SOURCE_AGGREGATE','REQUIRED_SOURCE_CLOSURE_MISSING','FULL_SOURCE_DRIFT','EXACT_REVIEWED_TRANSPORTS','FIXTURE_SOURCE_IDENTITY','FINITE_PRIVILEGE_SCOPE','FINITE_CONTENT_AGGREGATE','PACKET_SOURCE_NOT_ADMITTED','FINITE_SQL_NAME','PACKET_SQL_NOT_ADMITTED','CANONICAL_UNCHANGED_INPUTS','SOURCE_MODULE_OUTPUT_REFUSED','MODULE_NOT_ADMITTED','EXACT_SOURCE_PACKET_REPRODUCTION','SAME_RUN_NATIVE_PLAN','NATIVE_HELPER_FULL_PACKET_BINDING','FULL_NATIVE_ORACLE_LEDGER_PREREQUISITE','GLOBAL_CLIENT_CLOSURE_UNCONFIRMED','EVIDENCE_INCOMPLETE','OPERATION_BACKEND_CLOSURE_UNCONFIRMED','INTENDED_PRIVILEGE_GUARD_NOT_PROVEN','INTERACTIVE_OUTPUT_UNCONFIRMED','PRIVATE_GRANT_STATE_MISMATCH','SOURCE_NATIVE_METADATA_REQUIRED','METADATA_QUERY_FAILED','METADATA_DESCRIPTOR_SET_REQUIRED','METADATA_DESCRIPTOR_SQL_REQUIRED','VALID_COLUMN_PRIVILEGE_REQUIRED','EXACT_FINITE_CASE_SET_REQUIRED','POST_RUN_SOURCE_DRIFT','EXACT_NATIVE_ROLLBACK_VALIDITY_REQUIRED','SOURCE_PATH','SOURCE_PATH_ESCAPE','ASSET_REFERENCE_FIELDS','EXTERNAL_ASSET_DRIFT','DUPLICATE_JSON_KEY','NONFINITE_JSON','EXTERNAL_ABSOLUTE_PATH','EXTERNAL_TASK_PATH'})
+
+
+SAFE_FAILURES=SAFE_FAILURES|frozenset({'V7_SOURCE_REVIEW_REQUIRED','V7_SOURCE_REVIEW_BYTES_REQUIRED'})
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--execute-reviewed-privilege-ceilings',action='store_true',required=True)
+    parser.add_argument('--run-plan',type=Path,required=True);parser.add_argument('--evidence-directory',type=Path,required=True)
+    args=parser.parse_args(argv);evidence=None
+    try:
+        directory=external_path(args.evidence_directory);need(not directory.exists(),'FRESH_EVIDENCE_DIRECTORY')
+        evidence=Evidence(directory,{'control_links':[]});evidence.stage('VERIFY_REVIEWED_INPUTS')
+        raw=external_path(args.run_plan).read_bytes();plan=unique_json(raw)
+        packet,blobs,protocol,native,ctx,native_packet,native_blobs,snapshot,api,host=load_inputs(plan)
+        evidence.value.update(run_id=plan['run_id'],source_commit=plan['source_commit'],source_tree=plan['source_tree'],operation_packet_sha256=plan['packet_sha256'],reviewed_privilege_content_sha256=packet['source_only_packet_sha256'],run_plan_sha256=sha(raw),selected_controls=deepcopy(packet['control_links']))
+        evidence.save();Runner=runner_type(native,ctx,protocol)
+        Runner(plan,packet,blobs,native_packet,native_blobs,snapshot,api,host,evidence).run();return 0
+    except BaseException as error:
+        if evidence is not None:
+            try:code=error.code if isinstance(error,Held)and type(error.code)is str and error.code in SAFE_FAILURES else'UNEXPECTED_PRIVILEGE_CONTROL_FAILURE'
+            except BaseException:code='UNEXPECTED_PRIVILEGE_CONTROL_FAILURE'
+            failure={'stage':evidence.value['current_stage'],'code':code}
+            origin=evidence.value.get('original_failure')
+            if type(origin)is dict and set(origin)=={'stage','case','phase','code'}:
+                failure={**origin,'final_stage':evidence.value['current_stage']}
+            evidence.value.update(status='STOPPED_PARTIAL_EVIDENCE_PRESERVED',subsequent_cases_stopped=True,failure=failure)
+            try:evidence.save()
+            except BaseException:evidence.value['evidence_complete']=False
+        return 2
+
+
+if __name__=='__main__':raise SystemExit(main())

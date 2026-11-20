@@ -1,0 +1,31 @@
+{
+  "schema": "workinants.restore-v5-Windows-text-stdin-public-HBA-probe.v1",
+  "recorded_at_utc": "2026-11-20T13:36:00.960435+00:00",
+  "status": "PASS_PROVEN_TEXT_STDIN_LF_TO_CRLF_SOURCE_DEFECT",
+  "host_platform": "win32",
+  "host_python": "3.12.10",
+  "actual_held_command_function_SHA256": "8cccc6ee25ccd08a4f16618c0668659bd8ab0eba15cb837bd5660b0dd9f22dfa",
+  "pinned_Core_sha256": "64c96f9a085abeae6c5155e51b69db3fb899b20fc3b5b8676f139f2d304ecb35",
+  "public_source_HBA": "review-output/restore-control-rehearsal-v5/source-backup.pg_hba.conf",
+  "public_source_HBA_sha256": "b0cb749bf4b0c893ad22f7c533b0d64e73047300e235e34fa12a9a3639ee243f",
+  "public_source_HBA_bytes": 445,
+  "actual_text_transport_sink": {
+    "bytes": 457,
+    "sha256": "cf7404698c3728b376d31b6189f008d449f3601ae13d0e9e128e88b3f963bfda",
+    "CRLF": 12,
+    "LF": 12,
+    "CR": 12
+  },
+  "binary_exact_control_sink": {
+    "bytes": 445,
+    "sha256": "b0cb749bf4b0c893ad22f7c533b0d64e73047300e235e34fa12a9a3639ee243f",
+    "CRLF": 0,
+    "LF": 12,
+    "CR": 0
+  },
+  "SQL_verifier_source_analysis": "HBA write and later SQL string equality both use the same text-mode stdin translation, so equality may pass on CRLF bytes while archive validator compares against unmodified pinned LF source bytes.",
+  "historical_actual_limits": "9cf archive bytes/hash/difference were not retained and archive was deleted by controlled cleanup. This fresh non-Docker public-byte reproducer establishes source transport behavior; it does not reconstruct the historical archive or prove its complete cause.",
+  "Docker_database_SQL_network_called": false,
+  "credentials_private_archive_or_unrestricted_output_read": false,
+  "Posture": "D"
+}
