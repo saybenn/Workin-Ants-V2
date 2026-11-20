@@ -1,0 +1,17 @@
+BEGIN;
+ALTER TABLE app.users DISABLE TRIGGER owner_commit;
+ALTER TABLE app.user_security_profiles DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_plans DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_entitlement_definitions DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_plan_entitlements DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_subscriptions DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_entitlement_grants DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_usage_events DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_usage_counters DISABLE TRIGGER owner_commit;
+ALTER TABLE app.consent_content_revision DISABLE TRIGGER owner_commit;
+ALTER TABLE app.consent_presentation DISABLE TRIGGER owner_commit;
+ALTER TABLE app.consent_disposition DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_usage_events DISABLE TRIGGER usage_adapter_gate;
+ALTER TABLE app.track_usage_counters DISABLE TRIGGER usage_adapter_gate;
+ALTER TABLE app.track_subscription_events DISABLE TRIGGER enrollment_commit;
+COMMIT;

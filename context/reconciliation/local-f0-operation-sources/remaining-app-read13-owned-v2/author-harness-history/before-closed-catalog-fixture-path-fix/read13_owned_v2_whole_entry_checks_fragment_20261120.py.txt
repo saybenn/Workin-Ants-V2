@@ -1,0 +1,99 @@
+"""Test fragment embedded in the new V2 checker; no actual services."""
+import ast as _v2_ast
+import inspect as _v2_inspect
+
+# Approved App-owned V1 primitive command/resource model only. Its constructor,
+# production code and App SQL model are not selected or executed.
+_v2_support=TASK/'check_local_f0_app_write_two_owned_resource_v1_operation.py'
+assert sha(_v2_support.read_bytes())=='31fd7030921eb8ea43b59839968a88a0f76282152dacdbaacf73ba9df513c549'
+_v2_node=next(n for n in _v2_ast.parse(_v2_support.read_bytes()).body if isinstance(n,_v2_ast.ClassDef)and n.name=='ProcessModel')
+exec(compile(_v2_ast.Module(body=[_v2_node],type_ignores=[]),'<approved-command-resource-model-only>','exec'),globals())
+_V2PrimitiveProcessModel=ProcessModel
+
+def v2_closed_catalog(root):
+ base=root/'context/reconciliation/local-f0-run-assets/fcab2e9-read13-0b7c519e/evidence'
+ names=('native-before','ledger-observation','oracle-preflight','oracle-results','oracle-closure','acl-preflight','text-preflight')
+ return {name:json.loads((base/(name+'.json')).read_bytes())for name in names}
+
+class V2Read13ProcessModel(_V2PrimitiveProcessModel):
+ def __init__(self,fixture,path,mode='normal'):
+  self.fixture=fixture;self.path=path;self.manifest=json.loads(path.read_bytes());self.n=None;self.calls=[];self.containers={};self.volumes={};self.running=False;self.finalized=False;self.deploys=0;self.fail_stage=None;self.bad_global=None;self.after_started=False;self.outer_after_component=False;self.mutate_cleanup_reference=False;self.cleanup_reference_mutated=False;self.mode=mode
+  self.child=runpy.run_path(str(fixture.root/'scripts/check-remaining-app-read13-coordinator.py'))
+  packet=json.loads((fixture.root/'review-output/remaining-app-read13-rehearsal/fixtures.json').read_bytes())
+  files={name:(fixture.root/'review-output/remaining-app-read13-rehearsal'/name).read_text()for name in packet['prepared_files_sha256']}
+  self.vm=self.child['Transport'](packet,files);self.catalog=v2_closed_catalog(fixture.root)
+  self.image='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1';self.md=self.image.split('@')[1];self.cd='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d';self.name=self.manifest['targets'][0]['name'];self.volume=self.manifest['targets'][0]['volume'];self.labels={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':self.manifest['run_id']};self.target=json.loads(Path(self.manifest['migration_targets']['ok']['manifest_path']).read_bytes())
+ def native(self):
+  value=deepcopy(self.catalog['native-before'])
+  for row in value['triggers']:
+   if(row['table_name'],row['name'])in self.vm.disabled:row['enabled']='D'
+  return value
+ def _process(self,args,**options):
+  # Read the child reference only after coordinate returned and cleanup removed
+  # both mock resources. Never poll a live writer's JSON on Windows.
+  if self.mode=='late-reference'and list(args)[3:5]==['volume','ls']and self.deploys==1 and not self.containers and not self.volumes and not self.cleanup_reference_mutated:
+   path=Path(self.manifest['evidence_directory'])/'read13-component/remaining-app-read13-results.json'
+   if path.exists():
+    raw=path.read_bytes();changed=raw.replace(b'PASS_FINITE_REMAINING13_APP_SELECT_SQL_SUBSET_ONLY',b'FAIL_FINITE_REMAINING13_APP_SELECT_SQL_SUBSET_ONLY',1);assert changed!=raw and len(changed)==len(raw);path.write_bytes(changed);self.cleanup_reference_mutated=True
+  return super()._process(args,**options)
+ def sql(self,args,text,options):
+  stage=self.n['report']['stage'];active=sum(not m.closed for m in self.vm.models)
+  if "'migrator'"in text and "'other_client_backends'"in text:
+   self.outer_after_component=self.outer_after_component or self.vm.coordinator is not None
+   return self.response({'migrator':0,'other_client_backends':active if self.bad_global is None else self.bad_global})
+  if text==self.n['_required_safety_text']('ORIGINAL_GRANTOR_FINALIZATION'):self.finalized=True;return self.response()
+  if "'remaining_memberships'"in text:return self.response({'grantor':'postgres','auth':'scram-sha-256:postgres','remaining_memberships':0 if self.finalized else 3,'leaf_create':dict.fromkeys(self.n['LEAVES'],not self.finalized),'active_install_connections':active})
+  if stage=='BOOTSTRAP_SETTINGS':return self.response({'login':'postgres','auth':'scram-sha-256:postgres','safe':True,'diagnostics_safe':True,'superuser':True})
+  if stage=='FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE':return self.response({'public_owner':'pg_database_owner','public_acl':[{'role':'pg_database_owner','privilege':p,'grantor':'pg_database_owner','grant_option':False}for p in('CREATE','USAGE')]+[{'role':'PUBLIC','privilege':'USAGE','grantor':'pg_database_owner','grant_option':False}],'application_roles':0,'event_triggers':0})
+  if stage in('BOOTSTRAP','CREDENTIAL_PROVISION'):return self.response()
+  if stage=='EMPTY_APPLICATION_BASELINE':return self.response({'public_owner':'pg_database_owner','public_acl':None,'event_triggers':0,'public_relations':0,'application_relations':0})
+  # Parent transport preflight differs from the actual child HOST projection.
+  # Every child auth/observer query is handled by the frozen source SQL model.
+  if self.vm.coordinator is None:
+   if 'pg_hba_file_rules'in text:return self.response([{'rule_number':i+1,'type':'host','database':['all'],'user_name':['all'],'address':a,'netmask':mask,'auth_method':'scram-sha-256','error':None}for i,(a,mask)in enumerate([('127.0.0.1','255.255.255.255'),('::1','ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')])])
+   if 'FROM pg_authid'in text:return self.response(dict.fromkeys(('postgres','wa_migrator','wa_app_runtime','wa_worker','wa_context_issuer','wa_identity_service_authority'),True))
+   role=args[args.index('-U')+1]
+   if 'PGPASSWORD'in args:return self.response('',2,'FATAL:  password authentication failed for user "'+role+'"\n')
+   if "'auth',system_user"in text:return self.response({'login':role,'auth':'scram-sha-256:'+role,'database':'wa_p0c_rehearsal','client':'127.0.0.1','server':'127.0.0.1'})
+  if 'workinants.native-catalog.v1'in text:assert self.deploys==1 and self.finalized;return self.response(self.native())
+  if 'workinants.expression-oracle-preflight.v1'in text:return self.response('\n'.join(json.dumps(self.catalog[k])for k in('oracle-preflight','oracle-results','oracle-closure')))
+  if 'workinants.prisma-ledger-native.v1'in text:return self.response(self.catalog['ledger-observation'])
+  if 'workinants.catalog-acl-preflight.v1'in text:return self.response(self.catalog['acl-preflight'])
+  if 'workinants.catalog-text-preflight.v1'in text:return self.response(self.catalog['text-preflight'])
+  return self.vm.raw(args,**options)
+ def check_output(self,args,**options):
+  result=self.process(args,**options)
+  if result.returncode!=0:raise subprocess.CalledProcessError(result.returncode,args,output=result.stdout,stderr=result.stderr)
+  return result.stdout if options.get('text')or options.get('encoding')else result.stdout.encode()
+
+class V2WholeEntryTests(Read13ColdEntryTests):
+ def fresh(self,wrong_namespace=False):
+  task,root,packet,five,path=self.clone_world()
+  if wrong_namespace:
+   prep=runpy.run_path(str(task/'prepare_local_f0_remaining_app_read13_owned_v2_plan.py'));child_path=prep['CHILD_VALIDATION'];owned_path=prep['OWNED_VALIDATION'];child=json.loads((root/child_path).read_bytes());owned=json.loads((root/owned_path).read_bytes());old=child['independent_source_review'];wrong=prep['OWNED_ARCHIVE']+'/reviews/OFFLINE-WRONG-OWNED-NAMESPACE.json';(root/wrong).write_bytes((root/old['path']).read_bytes());child['independent_source_review']={**old,'path':wrong};(root/child_path).write_bytes((json.dumps(child,indent=2)+'\n').encode());owned['archive_files_sha256']={p.relative_to(root).as_posix():sha(p.read_bytes())for p in(root/prep['OWNED_ARCHIVE']).rglob('*')if p.is_file()};(root/owned_path).write_bytes((json.dumps(owned,indent=2)+'\n').encode())
+   master=json.loads(path.read_bytes());baseline=json.loads((task/'offline-only-reviewed-baseline.json').read_bytes());master['prepared_source_file_inventory_sha256']=prep['source_inventory'](baseline['packet_files_sha256'],packet,five);path.write_bytes((json.dumps(master,indent=2)+'\n').encode())
+  pinner=runpy.run_path(str(task/'pin_local_f0_remaining_app_read13_owned_v2_plan_20261120.py'))
+  with patch.object(subprocess,'run',side_effect=lambda args,**kw:self.git_process(root,args,**kw)):pinner['pin'](path)
+  master=json.loads(path.read_bytes());master['review_status']='APPROVED_LOCAL_F0_REMAINING_APP_READ13_OWNED_V2_ATTEMPT';path.write_bytes((json.dumps(master,indent=2)+'\n').encode())
+  fixture=types.SimpleNamespace(root=root,task=task,git=lambda args,**kw:self.git_process(root,args,**kw));return path,fixture
+ def composed(self,mode='normal',writer_fault=False):
+  path,fixture=self.fresh(mode=='wrong-namespace');core=runpy.run_path(str(fixture.task/'execute_local_f0_remaining_app_read13_owned_v2_20261120.py'));model=V2Read13ProcessModel(fixture,path,mode);model.n=core['launch'].__globals__;replace=Path.replace;faults=[];output=io.StringIO()
+  def replacing(file,target):
+   call=model.n.get('report',{}).get('read13',{}).get('coordinator_call',{})
+   if writer_fault and call.get('exception_observed')is True and file==Path(model.manifest['evidence_directory'])/'run-evidence.json.tmp':faults.append(True);raise OSError(CANARY)
+   return replace(file,target)
+  with patch.object(subprocess,'run',side_effect=model.process),patch.object(subprocess,'check_output',side_effect=model.check_output),patch.object(subprocess,'check_call',side_effect=AssertionError('UNEXPECTED_CHECK_CALL')),patch.object(subprocess,'Popen',side_effect=model.vm.popen),patch.object(Path,'replace',replacing),redirect_stdout(output):code=core['launch'](['--execute-reviewed-remaining-app-read13-owned','--manifest',str(path)])
+  self.assertNotIn(CANARY,output.getvalue());self.assertNotIn(CANARY,json.dumps(model.n['report']));return code,model,faults
+ def test_actual_Core_child_coordinate_CTX82_parent_and_cleanup(self):
+  code,model,_=self.composed();report=model.n['report'];self.assertEqual(code,0,(report.get('primary_failure'),getattr(model,'last_mock_fault',None)));self.assertEqual(report['catalog_comparison']['check_counts'],{'PASS':29089});self.assertEqual(len(report['ledger_comparison']['checks']),22)
+  # Read only after the actual child returned and parent cleanup completed.
+  child=json.loads((Path(model.manifest['evidence_directory'])/'read13-component/remaining-app-read13-results.json').read_bytes());self.assertEqual(len(child['results']),82);self.assertEqual(sum(r['stage']=='ACTUAL_TRANSACTION'for r in child['operations']),99);self.assertEqual(sum(r['stage']=='SEPARATE_ISSUER_COMMIT'for r in child['operations']),79);self.assertEqual(model.deploys,1);self.assertFalse(model.vm.disabled);self.assertTrue(all(x.closed for x in model.vm.models));self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{});self.assertTrue(report['cleanup_actions_confirmed'])
+ def test_actual_wrong_prefix_before_child_evidence_and_persistent_parent_IO(self):
+  for io_failure in(False,True):
+   code,model,faults=self.composed('wrong-namespace',io_failure);report=model.n['report'];self.assertEqual(code,1);self.assertEqual(report['primary_failure']['code'],'READ13_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');call=report['read13']['coordinator_call'];self.assertEqual(call['failure_class'],'SOURCE_HELD');self.assertEqual(call['reported_entry_code'],'SOURCE_REVIEW_RECORD_ADMISSION');self.assertFalse(call['child_return_received']);self.assertTrue(report['read13']['component_closure_confirmed']);self.assertFalse((Path(model.manifest['evidence_directory'])/'read13-component').exists());self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{});self.assertTrue(report['cleanup_actions_confirmed']);self.assertNotIn('post_proof',report['read13'])
+   if io_failure:self.assertTrue(faults);self.assertFalse(report['evidence_complete'])
+ def test_actual_late_closed_reference_change_blocks_PASS(self):
+  code,model,_=self.composed('late-reference');self.assertEqual(code,1);self.assertTrue(model.cleanup_reference_mutated);self.assertTrue(model.n['report']['cleanup_actions_confirmed']);self.assertFalse(model.n['report']['evidence_complete']);self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{})
+
+for _v2_name in list(dir(Read13ColdEntryTests)):
+ if _v2_name.startswith('test_')and _v2_name not in V2WholeEntryTests.__dict__:setattr(V2WholeEntryTests,_v2_name,None)

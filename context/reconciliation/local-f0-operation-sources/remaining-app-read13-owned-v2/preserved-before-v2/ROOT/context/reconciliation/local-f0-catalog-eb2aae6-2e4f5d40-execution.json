@@ -1,0 +1,2071 @@
+{
+  "recorded_at": "2026-11-18T05:03:31.646070+00:00",
+  "session_local_date": "2026-11-17",
+  "timezone": "America/New_York",
+  "scope": "ONE_NATIVE_CATALOG_ATTEMPT_STOPPED_AFTER_GENUINE_INSTALL",
+  "status": "STOPPED_ATTEMPT_PRESERVED",
+  "source_commit": "eb2aae6e9f26ad9cf4caff2c5a4a9ca72f2b5a24",
+  "source_tree": "ba736e81a80a36cbb9937d834f6bf2bc40774de8",
+  "packet_sha256": "9e53690e0033dcd31716d6085b6f9441c48d4b35a6f574361b51657cbc550e3a",
+  "run_id": "2e4f5d40-8e1a-4cbb-891b-3780ce27999d",
+  "safe_raw_report_sha256": "5c0d5cbf8a9383a1b14bf54fbb0a67a8a2b79c04252d89d9adab818d1373ec33",
+  "source_snapshots_sha256": {
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/operation-manifest.json": "ade43e6dcb778ce0bbcf0abb2c6dd981e2cd3ce8b0279820d0538e03496845a6",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/operational-review.json": "268966a1200e856b0d06a9b8c55d39cb61d8f47fd32a6821549d3025d20024b3",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/ok-migration-manifest.json": "08de1bebc45bc50c5cda226d2de51c5dec75857833d0a1f1c16074223e034f05",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/ok-history-manifest.json": "3e067414ff1cb2014020c069b3ac7049e9f8197c6055c30c14f7b268e957eb2b",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/operator-snapshot.py.txt": "f0e8e1ca8f0ce6a70a1b01cd0474687aa2c53861a97f8425c6ccbce8ae3a494f",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/operation-steps.py.txt": "e00123a08a96042b911483f4dcdd9fc540e2ebf30408c0fcec87fa89546e3733",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/authentication-ok.json": "5892557a34d1a1af142a24a25c3006ada50852cea16aa16b7f38f0806b8208e0",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/ledger-registration.json": "fdae6e51be9bf20969cd9729946f73b34464f74114dd63ebb780b59017b1dfc6",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/source-prefix-analysis.json": "b3931b71fe3d0560d6864ce20aa64cc88086563c4399a34e4b442ed108c4fc4d"
+  },
+  "actual_outcomes": {
+    "setup_auth_tools": "PASS_SIX_CORRECT_SIX_WRONG_PASSWORD",
+    "genuine_canonical_deploy": "CLI_COMPLETED_EXIT0",
+    "original_grantor_finalization": "PASS",
+    "ACL_compatibility_control": "PASS_FOUR_FIXED_BOOLEAN_CONTROLS",
+    "collector": "PSQL_EXIT0_COMPLETE_JSON_REJECTED_BY_METADATA_STRING_ALLOWLIST",
+    "backend_closure_before_observation": "ZERO_MIGRATOR_ZERO_TAGGED_CLIENTS",
+    "oracle": "NOT_RUN",
+    "native_ledger_observation": "NOT_RUN",
+    "catalog_parity": "NOT_RUN",
+    "business_cases": "NOT_RUN",
+    "cleanup": "EXACT_CREATED_CONTAINER_VOLUME_SECRET_REMOVED_INDEPENDENT_ABSENCE",
+    "source_preservation": "73_PACKET_FILES_AND_TOOL_JSON_UNCHANGED"
+  },
+  "report_reconciliation": {
+    "actual_failure_origin": "NATIVE_BEFORE_ORACLE",
+    "raw_outer_stage": "NATIVE_BEFORE_ORACLE",
+    "explanation": "Stage restoration is corrected; catalog_operations retains actual collector exit0 and no stderr, while strict filter rejected an unallowlisted metadata string. No accepted snapshot/parity follows. Raw target.application NOT_RUN is a stale common-wrapper label: migration_operations retains actual guarded deploy CLIexit0; no catalog parity follows from that deploy."
+  },
+  "cause_limit": "New bounded diagnostics are complete:125sites/45hashes, allunknowns owner/nonownerACL.object, eachhash unambiguously matches first63UTF8bytes of approved sourcefunctionsignature. Prefix-analysis asset contains only full known source identities/hashes/counts. No rawunknown values/native snapshot accepted. NAME-firstUNION type-resolution explanation is source-inferred pending a fixed native control; no acceptance/permission broadening. Oldb65/e345 records remain immutable with their original limits.",
+  "sanitized_report": {
+    "run_id": "2e4f5d40-8e1a-4cbb-891b-3780ce27999d",
+    "approved_commit": "eb2aae6e9f26ad9cf4caff2c5a4a9ca72f2b5a24",
+    "approved_tree": "ba736e81a80a36cbb9937d834f6bf2bc40774de8",
+    "approved_packet_sha256": "9e53690e0033dcd31716d6085b6f9441c48d4b35a6f574361b51657cbc550e3a",
+    "started_at": "2026-11-18T04:57:49.192946+00:00",
+    "status": "STOPPED_ATTEMPT_PRESERVED",
+    "stage": "CONTROLLED_CLEANUP",
+    "steps": {
+      "CATALOG-SETUP": "PASS",
+      "CATALOG-AUTH": "PASS",
+      "CATALOG-TOOLS": "PASS",
+      "CATALOG-INSTALL": "PASS",
+      "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+      "CATALOG-NATIVE": "NOT_RUN",
+      "CATALOG-ORACLE": "NOT_RUN",
+      "CATALOG-LEDGER": "NOT_RUN",
+      "CATALOG-COMPARE": "NOT_RUN",
+      "CATALOG-SANITIZED_EXPORT": "PASS",
+      "CATALOG-CLEANUP": "PASS"
+    },
+    "events": [
+      {
+        "stage": "SOURCE_VERIFICATION",
+        "status": "PASS",
+        "files": 73,
+        "packet_sha256": "9e53690e0033dcd31716d6085b6f9441c48d4b35a6f574361b51657cbc550e3a"
+      },
+      {
+        "stage": "LOCAL_PREFLIGHT",
+        "status": "PASS",
+        "all_created_names_absent": true,
+        "expected_resource_names": 2
+      },
+      {
+        "stage": "PINNED_IMAGE",
+        "status": "PASS",
+        "pulled": false,
+        "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+      },
+      {
+        "stage": "RESOURCE_READY",
+        "status": "PASS",
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "pgpass_owner_mode": "600:0:0"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "BOOTSTRAP_SETTINGS",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "e34a456e83b77f9da89457031948d474f3ce2e42395375ba65f90e141ca91945"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "034c8c93758257d9a9519909fca04ad4502780a4e576468bcfb15987fb4d414c"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "BOOTSTRAP",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "CREDENTIAL_PROVISION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "EMPTY_APPLICATION_BASELINE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "0ad532c233732dd68c98710fcc791e6ebfecb4a1a8c4866a01caaf2290ba04fc"
+      },
+      {
+        "stage": "AUTHENTICATION_PREFLIGHT",
+        "status": "PASS",
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "roles": 6
+      },
+      {
+        "stage": "LINUX_TOOL_COMPATIBILITY",
+        "status": "PASS",
+        "target": "wa-p0c-2e4f5d40-catalog"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "PRE_FINALIZATION_CONNECTION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "5caad4b53d5a08a027eaf3316200e88fd220515298ea2e9e1e4eae9749390b7f"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "ORIGINAL_GRANTOR_FINALIZATION",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "FINALIZATION_OBSERVER",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "a833d27aedd52cef2eaa2afce4f4206db6a2f19e2aa15a007a16a1ae87d2c53e"
+      },
+      {
+        "stage": "FINALIZATION",
+        "status": "PASS",
+        "target": "wa-p0c-2e4f5d40-catalog"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "CATALOG_ACL_COMPATIBILITY_BACKEND_CLOSURE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "5caad4b53d5a08a027eaf3316200e88fd220515298ea2e9e1e4eae9749390b7f"
+      },
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "role": "postgres",
+        "operation": "NATIVE_BEFORE_ORACLE_BACKEND_CLOSURE",
+        "exit_code": 0,
+        "errors": [],
+        "client_exited": true,
+        "input_sha256": "5caad4b53d5a08a027eaf3316200e88fd220515298ea2e9e1e4eae9749390b7f"
+      },
+      {
+        "stage": "STOP",
+        "status": "NO_LATER_STEPS",
+        "failure": {
+          "stage": "NATIVE_BEFORE_ORACLE",
+          "code": "CATALOG_METADATA_STRING"
+        }
+      },
+      {
+        "stage": "CONTROLLED_CLEANUP",
+        "status": "PASS",
+        "all_created_names_absent": true,
+        "expected_resource_names": 2,
+        "test_secret_files_absent": true
+      }
+    ],
+    "targets": {
+      "wa-p0c-2e4f5d40-catalog": {
+        "container_id": "413871ccf40d4d4e105059ccb2f4f1375269f41d5b833e13cb0265f1777bf3f9",
+        "volume": "wa-p0c-2e4f5d40-catalog-data",
+        "volume_created_at": "2026-11-18T04:58:04Z",
+        "labels": {
+          "workinants.rehearsal": "p0c-local-f0",
+          "workinants.rehearsal.run": "2e4f5d40-8e1a-4cbb-891b-3780ce27999d"
+        },
+        "network_mode": "none",
+        "published_ports": false,
+        "mounts": [
+          {
+            "type": "volume",
+            "destination": "/var/lib/postgresql/data",
+            "rw": true,
+            "volume": "wa-p0c-2e4f5d40-catalog-data"
+          },
+          {
+            "type": "bind",
+            "destination": "/run/bootstrap-password",
+            "rw": false
+          }
+        ],
+        "tmpfs": {
+          "/run/wa-secrets": "rw,nosuid,noexec,nodev,mode=0700"
+        },
+        "bootstrap": "PASS",
+        "application": "NOT_RUN",
+        "finalization": "PASS",
+        "server_settings": {
+          "auth": "scram-sha-256:postgres",
+          "safe": true,
+          "login": "postgres",
+          "superuser": true,
+          "diagnostics_safe": true
+        },
+        "pre_bootstrap_public_baseline": {
+          "public_acl": [
+            {
+              "role": "PUBLIC",
+              "grantor": "pg_database_owner",
+              "privilege": "USAGE",
+              "grant_option": false
+            },
+            {
+              "role": "pg_database_owner",
+              "grantor": "pg_database_owner",
+              "privilege": "CREATE",
+              "grant_option": false
+            },
+            {
+              "role": "pg_database_owner",
+              "grantor": "pg_database_owner",
+              "privilege": "USAGE",
+              "grant_option": false
+            }
+          ],
+          "public_owner": "pg_database_owner",
+          "event_triggers": 0,
+          "application_roles": 0
+        },
+        "authentication_preflight": {
+          "status": "PASS",
+          "roles": 6,
+          "correct_password": 6,
+          "wrong_password_rejected": 6,
+          "evidence": "authentication-ok\\authentication-results-ok.json"
+        },
+        "baseline": {
+          "public_acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,wa_migrator=UC/pg_database_owner}",
+          "public_owner": "pg_database_owner",
+          "event_triggers": 0,
+          "public_relations": 0,
+          "application_relations": 0
+        },
+        "linux_tool_compatibility": {
+          "node": "v24.22.1",
+          "engine_commit": "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8",
+          "preexec_hashes_verified": true
+        },
+        "connections_before_finalization": {
+          "migrator": 0,
+          "tagged_other_clients": 0
+        },
+        "finalization_observation": {
+          "auth": "scram-sha-256:postgres",
+          "grantor": "postgres",
+          "leaf_create": {
+            "wa_track_verifier": false,
+            "wa_customer_verifier": false,
+            "wa_private_helper_owner": false
+          },
+          "remaining_memberships": 0,
+          "active_install_connections": 0
+        }
+      }
+    },
+    "unexpected": [
+      {
+        "stage": "NATIVE_BEFORE_ORACLE",
+        "code": "CATALOG_METADATA_STRING"
+      }
+    ],
+    "cleanup": {
+      "wa-p0c-2e4f5d40-catalog": {
+        "removed": true,
+        "verified_id": "413871ccf40d4d4e105059ccb2f4f1375269f41d5b833e13cb0265f1777bf3f9",
+        "name_and_both_labels_verified": true
+      },
+      "wa-p0c-2e4f5d40-catalog-data": {
+        "removed": true,
+        "name_labels_creation_identity_verified": true
+      }
+    },
+    "limits": {
+      "posture": "D",
+      "451_register": "NOT_PROMOTED",
+      "94_selection": "NOT_PROMOTED",
+      "hosted_changes": false,
+      "migration_adoption": false,
+      "worker_loop": false,
+      "production_readiness": false
+    },
+    "authorization": {
+      "scope": "STANDING_LOCAL_F0_NATIVE_CATALOG_REHEARSAL",
+      "packet_identity": "source_commit_tree_and_packet_sha256_fields",
+      "no_retry_on_unexpected": true
+    },
+    "source_verification": {
+      "commit": "eb2aae6e9f26ad9cf4caff2c5a4a9ca72f2b5a24",
+      "tree": "ba736e81a80a36cbb9937d834f6bf2bc40774de8",
+      "packet_sha256": "9e53690e0033dcd31716d6085b6f9441c48d4b35a6f574361b51657cbc550e3a",
+      "files_sha256": {
+        "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+        "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+        "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+        "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+        "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+        "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+        "context/reconciliation/local-f0-native-catalog-acl-correction.json": "017c9ee8c46de01c8a70ffbd68c0c80c27a1508cf4f1887fffaafcdba8d54f85",
+        "context/reconciliation/local-f0-native-catalog-metadata-diagnostics.json": "5acadf4bbcc01b6133ebc0c81cb72e806a2c3d6f3840fd8f752353bde9c1735d",
+        "context/reconciliation/local-f0-native-catalog-validation.json": "cbc26b6d1935ced05a03b3d186658864cb687de6b49af888c92c551976279d75",
+        "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+        "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+        "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+        "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+        "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+        "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+        "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+        "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+        "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+        "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+        "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+        "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+        "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+        "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+        "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+        "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+        "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+        "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+        "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+        "review-output/native-catalog/README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+        "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+        "review-output/native-catalog/expression-oracle-plan.json": "7c4a084d610ce8dab907188fb087146c9448148d626c8c6d28a14945aecb704e",
+        "review-output/native-catalog/expression-oracle.sql": "aafd109cb09b9baf5765175e8b8d81de58d1a338ad6161dfbca2cfde38d60b43",
+        "review-output/native-catalog/public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+        "review-output/native-catalog/source-pins.json": "8d0f9f7788e7277193705cc191ab057fa4350fb6eeb0d66cbf77ffa5aeabf64b",
+        "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+        "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+        "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+        "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+        "scripts/check-native-catalog-review.py": "05d39953bd26c61ef7d414a53bb5c0bc65cb2e59ec8513e17230ad5f7e4ef859",
+        "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+        "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+        "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+        "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+        "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+        "scripts/prepare-native-catalog-review.py": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+        "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+        "scripts/sql-review/catalog-acl-preflight.sql": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+        "scripts/sql-review/catalog_expression_oracle.py": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+        "scripts/sql-review/catalog_manifest.py": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+        "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+        "scripts/sql-review/collect_native_catalog.sql": "eac44a3c418220302b2eae9f37501d3e8453c1dacaa96cbcab625de68f4528dd",
+        "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+        "scripts/sql-review/compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+        "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+        "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+        "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+        "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+        "scripts/sql-review/pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342",
+        "scripts/sql-review/prisma-ledger-proof.md": "05ed0aff941305f5e2800b49633f029a8a68ca05ec2b80171060632917577992",
+        "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+        "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+        "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+        "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+        "scripts/sql-review/test_catalog_collector_acl.py": "d9ac90cb8c335bd70b04056e422692c55bf73569ef109d3f8fb2bd73e9e1b57b",
+        "scripts/sql-review/test_catalog_expression_oracle.py": "a758a17b8cd92922e7a599dc06679e6309dc107028c151387e533dcf8a5f5c85",
+        "scripts/sql-review/test_catalog_manifest.py": "633e4f8c8f3b93d7e44d7c8abff7aa5ca1f3caa063cc354d592d1913d4ba9750",
+        "scripts/sql-review/test_compare_native_catalog.py": "38d0e26ac030a1024c739c8ea79e0c653b3f0bf9aee54e9815bf314b8887ce37",
+        "scripts/sql-review/test_pg17_catalog_rules.py": "c6879cd715df8bb45b26bbeec90352189e339d87be2f37c869cf471e42cfbb4a",
+        "scripts/sql-review/test_prisma_ledger_proof.py": "62685fbff83d42cad600de2d1f387647737a42bd5cffc50c2240eb1c66006095"
+      },
+      "file_count": 73
+    },
+    "run_manifest": {
+      "purpose": "LOCAL_F0_NATIVE_CATALOG_REHEARSAL",
+      "authority": "context/reconciliation/directives/local-f0-standing-authority-2026-11-17.md",
+      "run_id": "2e4f5d40-8e1a-4cbb-891b-3780ce27999d",
+      "source_commit": "eb2aae6e9f26ad9cf4caff2c5a4a9ca72f2b5a24",
+      "source_tree": "ba736e81a80a36cbb9937d834f6bf2bc40774de8",
+      "packet_files_sha256": {
+        "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+        "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+        "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+        "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+        "context/reconciliation/local-f0-cli-diagnostics-validation.json": "8bf070ea0473fa41cd815737de96920f70ecf6896bf9188c52d90dbd42ed6e7b",
+        "context/reconciliation/local-f0-migration-tooling-validation.json": "83d079ae068a04aee70c2d307ba7352a58a20409aef47df4f6a8866c25c2ce33",
+        "context/reconciliation/local-f0-native-catalog-acl-correction.json": "017c9ee8c46de01c8a70ffbd68c0c80c27a1508cf4f1887fffaafcdba8d54f85",
+        "context/reconciliation/local-f0-native-catalog-metadata-diagnostics.json": "5acadf4bbcc01b6133ebc0c81cb72e806a2c3d6f3840fd8f752353bde9c1735d",
+        "context/reconciliation/local-f0-native-catalog-validation.json": "cbc26b6d1935ced05a03b3d186658864cb687de6b49af888c92c551976279d75",
+        "context/reconciliation/local-f0-server-diagnostics-validation.json": "560504eea761a06864edea01fba42e2e2a9a086ecfaab583309868f8f2f9c027",
+        "context/reconciliation/local-f0-tooling/linux-tooling-manifest.json": "e8fcce8f3ed4eaad0f7834e908166a0947b997e75513d589078f0d79c9a940d0",
+        "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+        "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+        "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+        "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+        "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+        "prisma/review/physical-candidate.prisma": "4be26783cd127f82163bb31a9e180549e32c1ba97ebd40e55c0c3adfdae9c8cb",
+        "review-output/first-rehearsal/diagnostic-identifiers.json": "204b7c9f5888fd253c338286cc5446e1a346fb02073930124ccaf097f6bd9bb2",
+        "review-output/first-rehearsal/fixtures.json": "df00d519f11cd0a443dba906d724216d0e9d4f16f3ccbd9a703f9d02d0f3b3be",
+        "review-output/first-rehearsal/fixtures.sql": "bf637caeba37917457e5fd478241bc63a5416e47cee4b2275106f8e8ebe5cdbe",
+        "review-output/first-rehearsal/missing-outbox-observe.sql": "98ce1d902133e1466e620379b3afef4d282b69b91e22e495af21fd9874c21d68",
+        "review-output/first-rehearsal/missing-outbox.sql": "94fd0787e51cdcc3c47834d3a35f5294e0b9bcdb0cf6ca90c8db993d7e6116c0",
+        "review-output/first-rehearsal/positive-observe.sql": "7541fb01e3f4ce3c50d61788e0a625a7fae140823ab81054d34a867541546487",
+        "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+        "review-output/first-rehearsal/wrong-person-observe.sql": "ba36174fd70332ac0fbf896c3ba82f0396afa07a14cffd1f2f9546ea90db9611",
+        "review-output/first-rehearsal/wrong-person.sql": "e9c7e17816bc17bf714a28ae0a215f09632ab5809c52117649d5c7748e1a2d42",
+        "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+        "review-output/foundation-structure.sql": "ccc737d7483070b00715dc8cf7e08cef4722f43d9ebad70aa90dcdaefcf973ae",
+        "review-output/native-catalog/README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+        "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+        "review-output/native-catalog/expression-oracle-plan.json": "7c4a084d610ce8dab907188fb087146c9448148d626c8c6d28a14945aecb704e",
+        "review-output/native-catalog/expression-oracle.sql": "aafd109cb09b9baf5765175e8b8d81de58d1a338ad6161dfbca2cfde38d60b43",
+        "review-output/native-catalog/public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+        "review-output/native-catalog/source-pins.json": "8d0f9f7788e7277193705cc191ab057fa4350fb6eeb0d66cbf77ffa5aeabf64b",
+        "scripts/assemble-foundation-sql-review.py": "136489b5fb966085020128bfbd7140dad5e0b340a2312319d346305311fc212f",
+        "scripts/check-first-rehearsal-mocks.py": "777d9d74788c37c9b20891196180708400e4f58991026075e60bb6bc74a96adf",
+        "scripts/check-local-f0-migrate.py": "59d890c145e1f14a62e296fba0139eaa22ab728b70fa76a7dbd7dc3883222a14",
+        "scripts/check-migration-server-diagnostics.py": "cb3ded2eaf6c1532691a41af241897b11072907c37aaeb2d3f2f1478da157163",
+        "scripts/check-native-catalog-review.py": "05d39953bd26c61ef7d414a53bb5c0bc65cb2e59ec8513e17230ad5f7e4ef859",
+        "scripts/check-trigger-row-shapes.py": "7e6c851630a65c9e07685138e03eca5d4fd5404e8a4bb2b36895e34069d52ce9",
+        "scripts/database-candidate-correction-rules.py": "6b79a14ffa77c450c3864ba5e2d930d61d5a427a6b0c11545e1afdd37ccaabb3",
+        "scripts/prepare-database-candidate-review-assets.py": "dcb1544afc39cffbd9a8b052749f544c7531ff3dee2ff9cc738fd38d8d3bc9ed",
+        "scripts/prepare-first-rehearsal.py": "b03f4b7fda4e60ff7bafc2b6a7463d7bb9a3ee7bffc9f4e6c8f840f99b4116ce",
+        "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+        "scripts/prepare-native-catalog-review.py": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+        "scripts/prepare-rehearsal-diagnostics.py": "598bc556999a16f303171003324be8763cb00a0fff2bb54de8a1195e1e7c852b",
+        "scripts/sql-review/catalog-acl-preflight.sql": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+        "scripts/sql-review/catalog_expression_oracle.py": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+        "scripts/sql-review/catalog_manifest.py": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+        "scripts/sql-review/check-local-f0-migrate-guard.mjs": "bf7c166a23eaf29ed2ac084def03115e30d308439566d2f29af10d5fd22496cc",
+        "scripts/sql-review/collect_native_catalog.sql": "eac44a3c418220302b2eae9f37501d3e8453c1dacaa96cbcab625de68f4528dd",
+        "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+        "scripts/sql-review/compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+        "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+        "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+        "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+        "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+        "scripts/sql-review/migration_server_diagnostics.py": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+        "scripts/sql-review/pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342",
+        "scripts/sql-review/prisma-ledger-proof.md": "05ed0aff941305f5e2800b49633f029a8a68ca05ec2b80171060632917577992",
+        "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+        "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+        "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+        "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+        "scripts/sql-review/test_catalog_collector_acl.py": "d9ac90cb8c335bd70b04056e422692c55bf73569ef109d3f8fb2bd73e9e1b57b",
+        "scripts/sql-review/test_catalog_expression_oracle.py": "a758a17b8cd92922e7a599dc06679e6309dc107028c151387e533dcf8a5f5c85",
+        "scripts/sql-review/test_catalog_manifest.py": "633e4f8c8f3b93d7e44d7c8abff7aa5ca1f3caa063cc354d592d1913d4ba9750",
+        "scripts/sql-review/test_compare_native_catalog.py": "38d0e26ac030a1024c739c8ea79e0c653b3f0bf9aee54e9815bf314b8887ce37",
+        "scripts/sql-review/test_pg17_catalog_rules.py": "c6879cd715df8bb45b26bbeec90352189e339d87be2f37c869cf471e42cfbb4a",
+        "scripts/sql-review/test_prisma_ledger_proof.py": "62685fbff83d42cad600de2d1f387647737a42bd5cffc50c2240eb1c66006095"
+      },
+      "packet_sha256": "9e53690e0033dcd31716d6085b6f9441c48d4b35a6f574361b51657cbc550e3a",
+      "evidence_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-catalog-v3-20261117-2e4f5d40",
+      "targets": [
+        {
+          "name": "wa-p0c-2e4f5d40-catalog",
+          "volume": "wa-p0c-2e4f5d40-catalog-data",
+          "kind": "ok"
+        }
+      ],
+      "migration_targets": {
+        "ok": {
+          "manifest_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-catalog-v3-plan-2e4f5d40\\ok-migration-manifest.json",
+          "manifest_sha256": "08de1bebc45bc50c5cda226d2de51c5dec75857833d0a1f1c16074223e034f05",
+          "source_snapshot": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-catalog-v3-plan-2e4f5d40\\source-ok",
+          "source_files_sha256": {
+            "prisma/foundation/history-manifest.json": "3e067414ff1cb2014020c069b3ac7049e9f8197c6055c30c14f7b268e957eb2b",
+            "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+            "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+            "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+            "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+            "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd"
+          },
+          "source_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-catalog-v3-plan-2e4f5d40\\source-ok.tar.gz",
+          "source_archive_sha256": "be4921c26379dbed1575f25955cdb3446e3ecbf1f362febba8e41f3551c2ca37"
+        }
+      },
+      "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "database": "wa_p0c_rehearsal",
+      "run_label": "p0c-local-f0",
+      "tool_archive": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-linux-tooling-20261117\\pinned-prisma-tools.tar.gz",
+      "tool_archive_sha256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+      "wrapper_sha256": "f0e8e1ca8f0ce6a70a1b01cd0474687aa2c53861a97f8425c6ccbce8ae3a494f",
+      "review_status": "APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT",
+      "storage": {
+        "PGDATA": "Exact run-created named volume:/var/lib/postgresql/data",
+        "bootstrap_password": "Exact readonly manifested owner-only host bind:/run/bootstrap-password",
+        "private_credentials": "root0700 tmpfs noexec,nosuid,nodev:/run/wa-secrets; pgpass+URL root0600",
+        "source_and_tools": "Exact hashed run-owned copied source/tool closure,root-owned, no symlinks/group-other writes",
+        "network": "none",
+        "ports": []
+      },
+      "cleanup": "Remove only the single exact created containerID/name/labels and named volume/name/labels/CreatedAt. Delete only its test-owned ok-bootstrap-password file and empty owner-only private directory. Independently confirm both resource names and secrets absent. Retain cached image, shared resources, all prior reports and source/tool snapshots.",
+      "source_history_rule": "One canonical integrated migrationID/checksum; no rawstructure duplicate, June edits, ledger writes, dbpush/reset or hosted/shadow targets. Per-target immutable snapshot metadata differs only targetmanifest identity; migrationSQL bytes identical.",
+      "status": "SOURCE_PREPARED_NOT_EXECUTED",
+      "server_diagnostics": {
+        "prefix": "WA_F0_DIAG|%e|%u|%d|",
+        "verbosity": "terse",
+        "lc_messages": "C",
+        "log_min_messages": "warning",
+        "log_statement": "none",
+        "log_min_error_statement": "panic",
+        "module_sha256": "6d4d08362f3f4527138fb166324f03b5720cf912a9c38d987a28164e3a54e54d",
+        "raw_log_retention": false
+      },
+      "catalog": {
+        "generator": "scripts/prepare-native-catalog-review.py",
+        "artifact_root": "review-output/native-catalog",
+        "assets": {
+          "source-pins.json": {
+            "path": "review-output/native-catalog/source-pins.json",
+            "sha256": "8d0f9f7788e7277193705cc191ab057fa4350fb6eeb0d66cbf77ffa5aeabf64b"
+          },
+          "expected.json": {
+            "path": "review-output/native-catalog/expected.json",
+            "sha256": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976"
+          },
+          "expression-oracle-plan.json": {
+            "path": "review-output/native-catalog/expression-oracle-plan.json",
+            "sha256": "7c4a084d610ce8dab907188fb087146c9448148d626c8c6d28a14945aecb704e"
+          },
+          "expression-oracle.sql": {
+            "path": "review-output/native-catalog/expression-oracle.sql",
+            "sha256": "aafd109cb09b9baf5765175e8b8d81de58d1a338ad6161dfbca2cfde38d60b43"
+          },
+          "public-schema-registration.json": {
+            "path": "review-output/native-catalog/public-schema-registration.json",
+            "sha256": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3"
+          },
+          "README.md": {
+            "path": "review-output/native-catalog/README.md",
+            "sha256": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388"
+          }
+        },
+        "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+        "public_schema_owner": "pg_database_owner",
+        "bootstrap_grantor": "postgres",
+        "tool_source_files_sha256": {
+          "node_modules/@prisma/engines-version/package.json": "2dd9793255d6bbb5c399a624ecbfb6323d39233860863d172946b7f750f528bd",
+          "node_modules/prisma/package.json": "6cdfef6df08d9a37f28908855797fe8bfc97a2d3d886a8d5cbe2e502d6848151"
+        },
+        "ledger_expectation": [
+          {
+            "path": "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql",
+            "migration_name": "20261117000100_f0_local_initial",
+            "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "state": "applied",
+            "count": 1
+          }
+        ]
+      },
+      "allowed_catalog_operations": [
+        "Bounded refusal-only metadata paths/hashes/classes; unchanged strict acceptance, no unknown values exported",
+        "Fixed reviewed read-only ACL compatibility preflight after install/finalize, before native collector",
+        "One actual guarded Prisma deploy as wa_migrator; original-grantor finalization after connection exit",
+        "Fixed read-only native catalog collector before/after Oracle and ledger",
+        "Exact source-derived empty TEMP expression compilation in one explicit BEGIN/ROLLBACK with no application data reads/writes",
+        "Catalog-only guarded private-ledger observation, predeclared one applied canonical migration; no baseline adoption or ledger writes",
+        "No business scenarios, worker loop, hosted contact or recovery commands"
+      ],
+      "steps_sha256": "e00123a08a96042b911483f4dcdd9fc540e2ebf30408c0fcec87fa89546e3733"
+    },
+    "run_manifest_sha256": "ade43e6dcb778ce0bbcf0abb2c6dd981e2cd3ce8b0279820d0538e03496845a6",
+    "catalog_preparation": {
+      "status": "SOURCE_REPRODUCED_NOT_RUN",
+      "assets_sha256": {
+        "README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+        "expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+        "expression-oracle-plan.json": "7c4a084d610ce8dab907188fb087146c9448148d626c8c6d28a14945aecb704e",
+        "expression-oracle.sql": "aafd109cb09b9baf5765175e8b8d81de58d1a338ad6161dfbca2cfde38d60b43",
+        "public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+        "source-pins.json": "8d0f9f7788e7277193705cc191ab057fa4350fb6eeb0d66cbf77ffa5aeabf64b"
+      },
+      "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+      "closed_source_files": 16
+    },
+    "local_preflight": {
+      "endpoint": "npipe:////./pipe/dockerDesktopLinuxEngine",
+      "server_version": "29.6.2",
+      "server_os": "linux",
+      "server_arch": "amd64",
+      "initial_resource_presence": {
+        "wa-p0c-2e4f5d40-catalog": false,
+        "wa-p0c-2e4f5d40-catalog-data": false
+      },
+      "unrelated_containers_untouched": 12,
+      "unrelated_volumes_untouched": 3
+    },
+    "image": {
+      "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "manifest_descriptor": {
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "digest": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+        "size": 3628
+      },
+      "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+      "manifest_content_hash_verified": true,
+      "repo_digests": [
+        "postgres@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1"
+      ],
+      "os": "linux",
+      "architecture": "amd64",
+      "pg_version": "17.11-1.pgdg13+2",
+      "pulled_this_run": false,
+      "retained_image_reused": true,
+      "removed": false
+    },
+    "credential_handling": {
+      "host_private_directory_owner_only_acl_verified": true,
+      "real_credentials_in_argv_env_or_evidence": false,
+      "container_pgpass": "root_owned_0600_tmpfs",
+      "independent_per_role_per_target": true
+    },
+    "public_baseline_verification": {
+      "predeclared_owner_and_three_acl_rows_match": true,
+      "learned_post_install_baseline": false
+    },
+    "migration_operations": [
+      {
+        "target": "wa-p0c-2e4f5d40-catalog",
+        "stage": "CATALOG_GENUINE_INITIAL_DEPLOY",
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "deploy",
+        "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+        "exit_code": 0,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": true,
+          "prisma_header_present": false,
+          "prisma_header_unique": false,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": false,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "2e4f5d40-8e1a-4cbb-891b-3780ce27999d",
+        "container_id": "413871ccf40d4d4e105059ccb2f4f1375269f41d5b833e13cb0265f1777bf3f9",
+        "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "attestation_sha256": "04ddce1e5fa76a8bc31b311d624904dee1d58c7552629ebb23665ce563d54b56"
+      }
+    ],
+    "ledger_registration_sha256": "84a23db27b1891cecf1dd8a150a779f8e9f6eb2750950dc1488495c3110ea36c",
+    "catalog_operations": [
+      {
+        "stage": "CATALOG_ACL_COMPATIBILITY",
+        "input_sha256": "7018c8f415923533dc461b212a0df0f9a0f4144457e410c4505c9322df4647f4",
+        "exit_code": 0,
+        "client_exited": true,
+        "sqlstates": [],
+        "unexpected_stderr": false,
+        "raw_output_discarded": true
+      },
+      {
+        "stage": "NATIVE_BEFORE_ORACLE",
+        "input_sha256": "eac44a3c418220302b2eae9f37501d3e8453c1dacaa96cbcab625de68f4528dd",
+        "exit_code": 0,
+        "client_exited": true,
+        "sqlstates": [],
+        "unexpected_stderr": false,
+        "raw_output_discarded": true
+      }
+    ],
+    "backend_closures": [
+      {
+        "stage": "CATALOG_ACL_COMPATIBILITY",
+        "migrator_zero": true,
+        "tagged_clients_zero": true
+      },
+      {
+        "stage": "NATIVE_BEFORE_ORACLE",
+        "migrator_zero": true,
+        "tagged_clients_zero": true
+      }
+    ],
+    "acl_compatibility_preflight": {
+      "format": "workinants.catalog-acl-preflight.v1",
+      "read_only": true,
+      "collected_as": "postgres",
+      "server_version_num": 170011,
+      "collector_is_superuser": true,
+      "null_acl_has_zero_rows": true,
+      "empty_acl_guard_has_zero_rows": true,
+      "old_zero_dimensional_acl_rejected_exactly": true,
+      "sequence_default_has_exact_owner_privileges": true
+    },
+    "rejected_observations": [
+      {
+        "stage": "NATIVE_BEFORE_ORACLE",
+        "status": "REJECTED_NOT_QUALIFIED",
+        "raw_sha256": "928047be06fde9cda3fcc373d261e62ec22fc9649d188c4010ce1ef8d04087aa",
+        "format": "workinants.native-catalog.v1",
+        "known_component_counts": {
+          "columns": 600,
+          "constraints": 255,
+          "default_acl": 153,
+          "default_acl_outside_registered_schemas": 0,
+          "enums": 29,
+          "extensions": 1,
+          "functions": 147,
+          "generated_type_acl": 226,
+          "indexes": 146,
+          "memberships": 1,
+          "nonowner_acl": 1981,
+          "owner_acl": 518,
+          "policies": 150,
+          "public_owned_relations": 1,
+          "public_schema_acl": 5,
+          "public_wa_schema_acl": 2,
+          "relations": 42,
+          "roles": 9,
+          "schemas": 3,
+          "triggers": 412,
+          "types": 142
+        },
+        "server_version_num": 170011,
+        "read_only": true,
+        "collector_is_superuser": true,
+        "collected_as": "postgres",
+        "metadata_vocabulary_review": {
+          "format": "workinants.catalog-metadata-refusal-diagnostics.v1",
+          "qualification": "NOT_QUALIFIED",
+          "visited_nodes": 62148,
+          "unknown_strings_seen": 125,
+          "unregistered_fields_omitted": 0,
+          "traversal_complete": true,
+          "entry_limit": 256,
+          "node_limit": 262144,
+          "entries_truncated": false,
+          "unknown_strings": [
+            {
+              "path": [
+                "nonowner_acl",
+                4,
+                "object"
+              ],
+              "value_sha256": "99af7721b7fd342600c11c24ddd280bd0423e842d7e845a684520b35dc5cc082",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                5,
+                "object"
+              ],
+              "value_sha256": "99af7721b7fd342600c11c24ddd280bd0423e842d7e845a684520b35dc5cc082",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                6,
+                "object"
+              ],
+              "value_sha256": "e7476e98a8afb54e230cecaa747d9754d8f35238a7397f16228e5429d5995bde",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                7,
+                "object"
+              ],
+              "value_sha256": "e7476e98a8afb54e230cecaa747d9754d8f35238a7397f16228e5429d5995bde",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                8,
+                "object"
+              ],
+              "value_sha256": "e7476e98a8afb54e230cecaa747d9754d8f35238a7397f16228e5429d5995bde",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                9,
+                "object"
+              ],
+              "value_sha256": "e7476e98a8afb54e230cecaa747d9754d8f35238a7397f16228e5429d5995bde",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                12,
+                "object"
+              ],
+              "value_sha256": "9957b87a86185ca3f8d79141d410f1c93dff2d8d81d25b432ff9bca43159b042",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                13,
+                "object"
+              ],
+              "value_sha256": "9957b87a86185ca3f8d79141d410f1c93dff2d8d81d25b432ff9bca43159b042",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                14,
+                "object"
+              ],
+              "value_sha256": "5216f8cc642204f3cbfa55eba795bed8643bc6602b7026d9f21f3d5622281389",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                15,
+                "object"
+              ],
+              "value_sha256": "4985e3d2986392278e75ab7682355cdbc80b767db065c11ccca14375cda8e825",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                16,
+                "object"
+              ],
+              "value_sha256": "4985e3d2986392278e75ab7682355cdbc80b767db065c11ccca14375cda8e825",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                29,
+                "object"
+              ],
+              "value_sha256": "38dbeb983f745d66acce2aaff8df796be3b7b8acdfcd4546921b269da3824be0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                30,
+                "object"
+              ],
+              "value_sha256": "38dbeb983f745d66acce2aaff8df796be3b7b8acdfcd4546921b269da3824be0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                31,
+                "object"
+              ],
+              "value_sha256": "650a97d9fc2e53c8da6a226f5c769df3043833b5834c9d312cb362296d5b0ec5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                32,
+                "object"
+              ],
+              "value_sha256": "650a97d9fc2e53c8da6a226f5c769df3043833b5834c9d312cb362296d5b0ec5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                33,
+                "object"
+              ],
+              "value_sha256": "62bc9f61da9e6c821a993716c7bb2d7dc611e56490fd5a06a396bf3f3328b2cd",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                34,
+                "object"
+              ],
+              "value_sha256": "62bc9f61da9e6c821a993716c7bb2d7dc611e56490fd5a06a396bf3f3328b2cd",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                35,
+                "object"
+              ],
+              "value_sha256": "1f28b0425324fada7a38851a3de70fc036b8df8fab9a6ae77b5b637c4b4af8a6",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                36,
+                "object"
+              ],
+              "value_sha256": "1f28b0425324fada7a38851a3de70fc036b8df8fab9a6ae77b5b637c4b4af8a6",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                39,
+                "object"
+              ],
+              "value_sha256": "08d58f27b7b16a87cd2c02d09511389a825c3559970c5db84f0fb1afb0f6d910",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                40,
+                "object"
+              ],
+              "value_sha256": "08d58f27b7b16a87cd2c02d09511389a825c3559970c5db84f0fb1afb0f6d910",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                41,
+                "object"
+              ],
+              "value_sha256": "016631a2ff87f69633fecd1df141c534101d11b38648b9db393e48f96eda0bb3",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                42,
+                "object"
+              ],
+              "value_sha256": "016631a2ff87f69633fecd1df141c534101d11b38648b9db393e48f96eda0bb3",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                43,
+                "object"
+              ],
+              "value_sha256": "f990f296b19bbe33a8ccc5e415647db742e4c13fe7aa3bd6fcc357eb777017a2",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                44,
+                "object"
+              ],
+              "value_sha256": "f990f296b19bbe33a8ccc5e415647db742e4c13fe7aa3bd6fcc357eb777017a2",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                45,
+                "object"
+              ],
+              "value_sha256": "9b7a9f3215722990a701cf4a0ed8bdaae0b34acee2d7924a1455a062ff76dc57",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                46,
+                "object"
+              ],
+              "value_sha256": "9b7a9f3215722990a701cf4a0ed8bdaae0b34acee2d7924a1455a062ff76dc57",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                47,
+                "object"
+              ],
+              "value_sha256": "6a19f4ea187b96256e515140c970645fe03b6b415f7a6d8e02ed81e0c6ceb9af",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                48,
+                "object"
+              ],
+              "value_sha256": "6a19f4ea187b96256e515140c970645fe03b6b415f7a6d8e02ed81e0c6ceb9af",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                49,
+                "object"
+              ],
+              "value_sha256": "2b2a3fe5eb59e62fbb46c5785d0001497eb57254000c7ed80169f3fe76091d35",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                50,
+                "object"
+              ],
+              "value_sha256": "2b2a3fe5eb59e62fbb46c5785d0001497eb57254000c7ed80169f3fe76091d35",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                53,
+                "object"
+              ],
+              "value_sha256": "e41f0014da9eed99817792ca703caabfa5613a87cf038c4cfe13781ea59ac8ed",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                54,
+                "object"
+              ],
+              "value_sha256": "e41f0014da9eed99817792ca703caabfa5613a87cf038c4cfe13781ea59ac8ed",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                55,
+                "object"
+              ],
+              "value_sha256": "a98f1c334110103af60cd35587c06cc8d690c5c8d1ad13d7fe59a1cff4075bf1",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                56,
+                "object"
+              ],
+              "value_sha256": "a98f1c334110103af60cd35587c06cc8d690c5c8d1ad13d7fe59a1cff4075bf1",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                57,
+                "object"
+              ],
+              "value_sha256": "7027a27e0e3fae372beafb9724dd16e14bb90e32e4712d576ee75d5851675f45",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                58,
+                "object"
+              ],
+              "value_sha256": "7027a27e0e3fae372beafb9724dd16e14bb90e32e4712d576ee75d5851675f45",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                61,
+                "object"
+              ],
+              "value_sha256": "ac7bedaaa7b634bf42c56fbac2cfdc6f68946a18c4ded1ac3fa379b2dc9983ce",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                62,
+                "object"
+              ],
+              "value_sha256": "ac7bedaaa7b634bf42c56fbac2cfdc6f68946a18c4ded1ac3fa379b2dc9983ce",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                63,
+                "object"
+              ],
+              "value_sha256": "a473018f778208b4a0036f67199c50bd140eaa8f5dc31767c05e5e838edcd2a5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                64,
+                "object"
+              ],
+              "value_sha256": "a473018f778208b4a0036f67199c50bd140eaa8f5dc31767c05e5e838edcd2a5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                65,
+                "object"
+              ],
+              "value_sha256": "9511114f521b6067559255555416683f6b701b8db3855e4a79629c686ca85998",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                66,
+                "object"
+              ],
+              "value_sha256": "9511114f521b6067559255555416683f6b701b8db3855e4a79629c686ca85998",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                67,
+                "object"
+              ],
+              "value_sha256": "13abbab4dcdb8ce1a041b15272fd267462d9343cc1562cc7f476cb11817335b5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                68,
+                "object"
+              ],
+              "value_sha256": "13abbab4dcdb8ce1a041b15272fd267462d9343cc1562cc7f476cb11817335b5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                69,
+                "object"
+              ],
+              "value_sha256": "29279a0ec00b0df2cfbe971a039fb57ae2985fb19a5bc736fa96f2ae33c77033",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                70,
+                "object"
+              ],
+              "value_sha256": "29279a0ec00b0df2cfbe971a039fb57ae2985fb19a5bc736fa96f2ae33c77033",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                71,
+                "object"
+              ],
+              "value_sha256": "6f101dee117e286b9da28a2474662da79799fec34a397c8b718403c520ebbdd0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                72,
+                "object"
+              ],
+              "value_sha256": "6f101dee117e286b9da28a2474662da79799fec34a397c8b718403c520ebbdd0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                73,
+                "object"
+              ],
+              "value_sha256": "447d637c7a45d3da651aee4fc49f8c3e8ce9471692e844123209a27839580136",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                74,
+                "object"
+              ],
+              "value_sha256": "447d637c7a45d3da651aee4fc49f8c3e8ce9471692e844123209a27839580136",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                75,
+                "object"
+              ],
+              "value_sha256": "a71cf96724bf47e2543e8eb800f88222b08880a381181e52006986fca5b27010",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                76,
+                "object"
+              ],
+              "value_sha256": "a71cf96724bf47e2543e8eb800f88222b08880a381181e52006986fca5b27010",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                77,
+                "object"
+              ],
+              "value_sha256": "25f9be4a8e004ca8c095a048beb6c5f0a2e5d8d00d67f5ef708c4dc711ea486a",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                78,
+                "object"
+              ],
+              "value_sha256": "25f9be4a8e004ca8c095a048beb6c5f0a2e5d8d00d67f5ef708c4dc711ea486a",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                79,
+                "object"
+              ],
+              "value_sha256": "fdc981604840e12ee0f4e38906669f2290117e395f4394fe92df1909558b359e",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                80,
+                "object"
+              ],
+              "value_sha256": "fdc981604840e12ee0f4e38906669f2290117e395f4394fe92df1909558b359e",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                83,
+                "object"
+              ],
+              "value_sha256": "4a60b3258d70efe119ebc10218779f414e6c353d0345a0ae42b570b0abaed205",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                84,
+                "object"
+              ],
+              "value_sha256": "4a60b3258d70efe119ebc10218779f414e6c353d0345a0ae42b570b0abaed205",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                85,
+                "object"
+              ],
+              "value_sha256": "a28b5270e0f289d5a1a92edf5a32e42f8dd6f2b577360444fe821f4877941d51",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                86,
+                "object"
+              ],
+              "value_sha256": "a28b5270e0f289d5a1a92edf5a32e42f8dd6f2b577360444fe821f4877941d51",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                87,
+                "object"
+              ],
+              "value_sha256": "6cd43f90e5f8b62318fe9d79be33db502b8ece68f3e27dac49a308fb8ba30bb8",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                88,
+                "object"
+              ],
+              "value_sha256": "6cd43f90e5f8b62318fe9d79be33db502b8ece68f3e27dac49a308fb8ba30bb8",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                89,
+                "object"
+              ],
+              "value_sha256": "fb36f468db42265390b06faf4b51cdd64f289c46805e335c6ed5016044e92d0d",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                90,
+                "object"
+              ],
+              "value_sha256": "fb36f468db42265390b06faf4b51cdd64f289c46805e335c6ed5016044e92d0d",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                91,
+                "object"
+              ],
+              "value_sha256": "e76a64cbe89702d897f676f0dca9fed4a212aaa7c2455a81a95d5273cedb4b03",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                92,
+                "object"
+              ],
+              "value_sha256": "e76a64cbe89702d897f676f0dca9fed4a212aaa7c2455a81a95d5273cedb4b03",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                93,
+                "object"
+              ],
+              "value_sha256": "0f0fcba38e28198c8c344013c137b55e59000936382886670c2c1cd915f164d0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                94,
+                "object"
+              ],
+              "value_sha256": "0f0fcba38e28198c8c344013c137b55e59000936382886670c2c1cd915f164d0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                99,
+                "object"
+              ],
+              "value_sha256": "05d695b16443175d81716460cecbb4c88165caf7a213f26e0c1022399f882d8b",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                100,
+                "object"
+              ],
+              "value_sha256": "05d695b16443175d81716460cecbb4c88165caf7a213f26e0c1022399f882d8b",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                111,
+                "object"
+              ],
+              "value_sha256": "afadeded0935eb9883b59a2f7400e4c18e82105beab982d6ddb16ac42338b52d",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                112,
+                "object"
+              ],
+              "value_sha256": "afadeded0935eb9883b59a2f7400e4c18e82105beab982d6ddb16ac42338b52d",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                113,
+                "object"
+              ],
+              "value_sha256": "afadeded0935eb9883b59a2f7400e4c18e82105beab982d6ddb16ac42338b52d",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                114,
+                "object"
+              ],
+              "value_sha256": "e7a2d84d6fe06a97dd8ba8b9c8cbe4c64a0e3730a8ef11942301f72a533e027c",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                115,
+                "object"
+              ],
+              "value_sha256": "f98438d69a92486206ff282174c796ef7a361a65c0b238346453619a3abd9951",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                116,
+                "object"
+              ],
+              "value_sha256": "6ad6626353e04f647cb1517af6bf7015038c4902eb68a7010003ccc832af37e2",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                117,
+                "object"
+              ],
+              "value_sha256": "e381f8111b285b63bdf2edeac187466c2dc66a0965f10c29c87159cc03b6e28e",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                118,
+                "object"
+              ],
+              "value_sha256": "9bf2f4de1ef618b9ddeebdbe8ecadcf647c20863274d0cb6bd6a1d8e7e5a05b5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "nonowner_acl",
+                119,
+                "object"
+              ],
+              "value_sha256": "66c7bc34a47d23627911a2d844628d0e2f4762cc2f8febbd1d1dc12747c757d4",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                3,
+                "object"
+              ],
+              "value_sha256": "99af7721b7fd342600c11c24ddd280bd0423e842d7e845a684520b35dc5cc082",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                32,
+                "object"
+              ],
+              "value_sha256": "e7476e98a8afb54e230cecaa747d9754d8f35238a7397f16228e5429d5995bde",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                34,
+                "object"
+              ],
+              "value_sha256": "9957b87a86185ca3f8d79141d410f1c93dff2d8d81d25b432ff9bca43159b042",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                36,
+                "object"
+              ],
+              "value_sha256": "5216f8cc642204f3cbfa55eba795bed8643bc6602b7026d9f21f3d5622281389",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                41,
+                "object"
+              ],
+              "value_sha256": "4985e3d2986392278e75ab7682355cdbc80b767db065c11ccca14375cda8e825",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                91,
+                "object"
+              ],
+              "value_sha256": "38dbeb983f745d66acce2aaff8df796be3b7b8acdfcd4546921b269da3824be0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                92,
+                "object"
+              ],
+              "value_sha256": "650a97d9fc2e53c8da6a226f5c769df3043833b5834c9d312cb362296d5b0ec5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                93,
+                "object"
+              ],
+              "value_sha256": "62bc9f61da9e6c821a993716c7bb2d7dc611e56490fd5a06a396bf3f3328b2cd",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                94,
+                "object"
+              ],
+              "value_sha256": "1f28b0425324fada7a38851a3de70fc036b8df8fab9a6ae77b5b637c4b4af8a6",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                96,
+                "object"
+              ],
+              "value_sha256": "08d58f27b7b16a87cd2c02d09511389a825c3559970c5db84f0fb1afb0f6d910",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                97,
+                "object"
+              ],
+              "value_sha256": "016631a2ff87f69633fecd1df141c534101d11b38648b9db393e48f96eda0bb3",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                98,
+                "object"
+              ],
+              "value_sha256": "f990f296b19bbe33a8ccc5e415647db742e4c13fe7aa3bd6fcc357eb777017a2",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                99,
+                "object"
+              ],
+              "value_sha256": "9b7a9f3215722990a701cf4a0ed8bdaae0b34acee2d7924a1455a062ff76dc57",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                100,
+                "object"
+              ],
+              "value_sha256": "6a19f4ea187b96256e515140c970645fe03b6b415f7a6d8e02ed81e0c6ceb9af",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                101,
+                "object"
+              ],
+              "value_sha256": "2b2a3fe5eb59e62fbb46c5785d0001497eb57254000c7ed80169f3fe76091d35",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                103,
+                "object"
+              ],
+              "value_sha256": "e41f0014da9eed99817792ca703caabfa5613a87cf038c4cfe13781ea59ac8ed",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                104,
+                "object"
+              ],
+              "value_sha256": "a98f1c334110103af60cd35587c06cc8d690c5c8d1ad13d7fe59a1cff4075bf1",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                105,
+                "object"
+              ],
+              "value_sha256": "7027a27e0e3fae372beafb9724dd16e14bb90e32e4712d576ee75d5851675f45",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                107,
+                "object"
+              ],
+              "value_sha256": "ac7bedaaa7b634bf42c56fbac2cfdc6f68946a18c4ded1ac3fa379b2dc9983ce",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                108,
+                "object"
+              ],
+              "value_sha256": "a473018f778208b4a0036f67199c50bd140eaa8f5dc31767c05e5e838edcd2a5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                109,
+                "object"
+              ],
+              "value_sha256": "9511114f521b6067559255555416683f6b701b8db3855e4a79629c686ca85998",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                110,
+                "object"
+              ],
+              "value_sha256": "13abbab4dcdb8ce1a041b15272fd267462d9343cc1562cc7f476cb11817335b5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                111,
+                "object"
+              ],
+              "value_sha256": "29279a0ec00b0df2cfbe971a039fb57ae2985fb19a5bc736fa96f2ae33c77033",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                112,
+                "object"
+              ],
+              "value_sha256": "6f101dee117e286b9da28a2474662da79799fec34a397c8b718403c520ebbdd0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                113,
+                "object"
+              ],
+              "value_sha256": "447d637c7a45d3da651aee4fc49f8c3e8ce9471692e844123209a27839580136",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                114,
+                "object"
+              ],
+              "value_sha256": "a71cf96724bf47e2543e8eb800f88222b08880a381181e52006986fca5b27010",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                115,
+                "object"
+              ],
+              "value_sha256": "25f9be4a8e004ca8c095a048beb6c5f0a2e5d8d00d67f5ef708c4dc711ea486a",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                116,
+                "object"
+              ],
+              "value_sha256": "fdc981604840e12ee0f4e38906669f2290117e395f4394fe92df1909558b359e",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                118,
+                "object"
+              ],
+              "value_sha256": "4a60b3258d70efe119ebc10218779f414e6c353d0345a0ae42b570b0abaed205",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                119,
+                "object"
+              ],
+              "value_sha256": "a28b5270e0f289d5a1a92edf5a32e42f8dd6f2b577360444fe821f4877941d51",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                120,
+                "object"
+              ],
+              "value_sha256": "6cd43f90e5f8b62318fe9d79be33db502b8ece68f3e27dac49a308fb8ba30bb8",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                121,
+                "object"
+              ],
+              "value_sha256": "fb36f468db42265390b06faf4b51cdd64f289c46805e335c6ed5016044e92d0d",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                122,
+                "object"
+              ],
+              "value_sha256": "e76a64cbe89702d897f676f0dca9fed4a212aaa7c2455a81a95d5273cedb4b03",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                123,
+                "object"
+              ],
+              "value_sha256": "0f0fcba38e28198c8c344013c137b55e59000936382886670c2c1cd915f164d0",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                126,
+                "object"
+              ],
+              "value_sha256": "05d695b16443175d81716460cecbb4c88165caf7a213f26e0c1022399f882d8b",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                134,
+                "object"
+              ],
+              "value_sha256": "76425202b7529de750c7845084ea7292dfb0bf1284b980b3379a3540d5dc4dc9",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                135,
+                "object"
+              ],
+              "value_sha256": "afadeded0935eb9883b59a2f7400e4c18e82105beab982d6ddb16ac42338b52d",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                137,
+                "object"
+              ],
+              "value_sha256": "e7a2d84d6fe06a97dd8ba8b9c8cbe4c64a0e3730a8ef11942301f72a533e027c",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                140,
+                "object"
+              ],
+              "value_sha256": "f98438d69a92486206ff282174c796ef7a361a65c0b238346453619a3abd9951",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                141,
+                "object"
+              ],
+              "value_sha256": "6ad6626353e04f647cb1517af6bf7015038c4902eb68a7010003ccc832af37e2",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                142,
+                "object"
+              ],
+              "value_sha256": "e381f8111b285b63bdf2edeac187466c2dc66a0965f10c29c87159cc03b6e28e",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                143,
+                "object"
+              ],
+              "value_sha256": "9bf2f4de1ef618b9ddeebdbe8ecadcf647c20863274d0cb6bd6a1d8e7e5a05b5",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                144,
+                "object"
+              ],
+              "value_sha256": "32b6714eb3ca91bd95b984cbbc8f617f819ece910fd755258d43800d9f87281d",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                145,
+                "object"
+              ],
+              "value_sha256": "4d98acfa9f4cbfee2081156ce87a11fcc71b939a0befc7b9f101f7eff0c5af39",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            },
+            {
+              "path": [
+                "owner_acl",
+                146,
+                "object"
+              ],
+              "value_sha256": "66c7bc34a47d23627911a2d844628d0e2f4762cc2f8febbd1d1dc12747c757d4",
+              "length_class": "TWO_TO_63",
+              "has_control_characters": false
+            }
+          ]
+        }
+      }
+    ],
+    "sanitization": {
+      "files_scanned": 5,
+      "actual_password_values_found": false,
+      "unrestricted_subprocess_output_persisted": false,
+      "raw_context_handles_persisted": false,
+      "coordinator_evidence_uses_reviewed_allowlist": true
+    },
+    "host_secret_cleanup": {
+      "deleted": [
+        "ok-bootstrap-password"
+      ],
+      "private_directory_absent": true
+    },
+    "cleanup_summary": {
+      "resource_presence_after": {
+        "wa-p0c-2e4f5d40-catalog": false,
+        "wa-p0c-2e4f5d40-catalog-data": false
+      },
+      "test_owned_secret_files_deleted": [
+        "ok-bootstrap-password"
+      ],
+      "private_directory_absent": true,
+      "image_removed": false,
+      "unrelated_resources_changed": false
+    },
+    "finished_at": "2026-11-18T05:00:30.398705+00:00",
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true
+  },
+  "posture": "D",
+  "94_or_451_promoted": false
+}

@@ -1,0 +1,59 @@
+"""Seal only the authorized new Read13 source namespace after offline checks."""
+from pathlib import Path
+import argparse,ast,hashlib,json,runpy,sys
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';sys.path.insert(0,str(ROOT/'scripts'))
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+def encoded(value):return (json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def load(path):return json.loads(path.read_bytes())
+def copy(source,target):
+ target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(source.read_bytes())
+def mapping(folder):return {p.relative_to(ROOT).as_posix():sha(p.read_bytes())for p in sorted(folder.rglob('*'))if p.is_file()}
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('--child',type=Path,required=True);parser.add_argument('--owned',type=Path,required=True);args=parser.parse_args()
+ g=runpy.run_path(str(ROOT/'scripts/prepare-remaining-app-read13-rehearsal.py'));files,packet=g['build']();builder=runpy.run_path(str(TASK/'build_remaining_app_read13_owned_v1_sources_20261120.py'))
+ child_sources={name:sha((ROOT/name).read_bytes())for name in g['NEW']};five={name:sha((TASK/name).read_bytes())for name in builder['NEW']};eleven={**child_sources,**five};monitor_keys={str(Path(name)):wanted for name,wanted in eleven.items()};assert len(monitor_keys)==11
+ records=[]
+ for path,mode,count in((args.child,'child',33),(args.owned,'owned',48)):
+  record=load(path);assert record['mode']==mode and record['result']=='PASS'and record['methods']==record['run']==count and record['failures']==record['errors']==0 and record['source_preserved']is True and record['entry_source_sha256']==record['exit_source_sha256']==monitor_keys
+  records.append({'path':path.name,'sha256':sha(path.read_bytes()),'methods':count,'seconds':record['seconds'],'source_preserved':True})
+ assert len(files)==103 and all((ROOT/'review-output/remaining-app-read13-rehearsal'/name).read_bytes()==text.encode()for name,text in files.items())
+ from pglast import parse_sql
+ sql_count=sum(len(parse_sql(text))for name,text in files.items()if name.endswith('.sql'));assert sql_count==529
+ for name in g['NEW']:
+  if name.endswith('.py'):ast.parse((ROOT/name).read_bytes())
+ for name in builder['NEW']:ast.parse((TASK/name).read_bytes())
+ before=load(TASK/'read13-source-before-implementation-20261120/protected-static-four-maps.json');assert len(before['packet_files_sha256'])==1424
+ assert all(sha((ROOT/name).read_bytes())==wanted for name,wanted in before['packet_files_sha256'].items())
+ physical=before['physical_external_sha256'];assert len(physical)==20 and all(sha((TASK/name).read_bytes())==wanted for name,wanted in physical.items())
+ child_archive=ROOT/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1';owned_archive=ROOT/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1'
+ histories=('read13-before-offline-grant-expression-cache-20261120','read13-before-finally-factor-20261120','read13-owned-before-cold-stop-diagnostics-20261120','read13-cold-82182-preserved-20261120','read13-before-native-fixture-mutation-key-fix-20261120')
+ for folder in histories:
+  for source in(TASK/folder).rglob('*'):
+   if source.is_file():
+    target=owned_archive/'preserved-author-prototypes'/folder/source.relative_to(TASK/folder)
+    if target.suffix=='.py':target=target.with_suffix('.py.txt')
+    copy(source,target)
+ for source in sorted(TASK.glob('read13_author_*_checks_*.json')):copy(source,owned_archive/'author-checks'/source.name)
+ for name in('read13_owned_author_checks_v1_20261120.json','read13_coordinator_author_checks_cache_v1_20261120.json','read13_60711_known_closed_success_receipt_20261120.json','read13_finally_factor_source_derivation_20261120.json','read13_owner_basis_metadata_closure_derivation_20261120.json'):
+  copy(TASK/name,owned_archive/'author-checks'/name)
+ for path in(args.child,args.owned):copy(path,child_archive/'author-checks'/path.name)
+ for path in(TASK/'run_read13_author_checks_final_20261120.py',TASK/'record_read13_basis_closure_derivation_20261120.py',Path(__file__)):
+  copy(path,owned_archive/'derivation'/(path.name+'.txt'))
+ report={'schema':'workinants.remaining-app-read13-frozen-author-source-report.v1','status':'AUTHOR_SOURCE_FROZEN_NOT_RUN_PENDING_INDEPENDENT_REVIEW','implementation_ACK_sha256':'465b368e5c7f68e91eaa7686a429464b52f0a4e9dd29006e49f32abacdef0154','plan_sha256':'90be6c449ca355c4b3b365e289696d93c4831c9270e00f372e15020734d478c0','source_files_sha256':child_sources,'operator_sources_sha256':five,'fixture_sha256':sha(files['fixtures.json'].encode()),'source_content_sha256':packet['source_only_packet_sha256'],'artifact_count':103,'parsed_SQL_statements':529,'finite_caps':packet['finite_caps'],'fixture_run_id':packet['fixture_run_id'],'offline_checks':records,'actual_runtime':'NOT_RUN','database_contacted':False,'source_or_SQL_executed_on_database':False,'independent_code_review':'PENDING','independent_owned_resource_review':'PENDING','independent_safety_sql_review':'PENDING','execution_authority':False,'protected_source_check':{'Root_files':1424,'external_physical_files':20,'all_preserved':True},'authority_limits':['At most thirteen SQL wa_app_runtime SELECT assertion links after independent actual evidence review.','Fixture setup does not qualify writes, owner APIs, result codecs, workers, enrollment, usage adapters, whole cases, the full94/451 inventory, hosted or production behavior.','Fifteen exact source-bound setup trigger exceptions are a dormant design, not actual bypass execution authority.','Historical native JSON is explicitly OFFLINE test data. Actual execution requires a new same-run/CID full native,416 expression and22 ledger proof.','All original failed and limited prototype outcomes remain historical, never final frozen-source authority.'],'draft_corrections':['Server-owned DEFAULT columns are omitted from restricted INSERT column lists.','The exact original finally body was factored into finish_component with AST proof for real restoration/IO tests.','The offline expression cache is per mock instance and keyed by the full grant-expression tuple; it cannot cache currentness/authorization verdicts.','Owner basis is admitted immutable source/review data only, while the actual new five physical files remain independently required.','Actual child evidence filename is matched to the parent closed reference.']}
+ raw=encoded(report);(TASK/'remaining_app_read13_frozen_author_report_20261120.json').write_bytes(raw)
+ (child_archive/'author-frozen-source-report.json').write_bytes(raw);(owned_archive/'author-frozen-owned-report.json').write_bytes(raw)
+ for kind,folder,filename in(('child',child_archive,'local-f0-remaining-app-read13-source-validation.json'),('owned',owned_archive,'local-f0-remaining-app-read13-owned-v1-source-validation.json')):
+  path=ROOT/'context/reconciliation'/filename;record=load(path);record['status']='AUTHOR_SOURCE_FROZEN_RUNTIME_NOT_RUN_REQUIRES_INDEPENDENT_REVIEW';record['author_state']='FROZEN_NOT_SELF_APPROVED';record['author_report_sha256']=sha(raw);record['archive_files_sha256']=mapping(folder);record['offline_checks']=records;record['execution_authority']=False
+  assert all(v['decision']=='PENDING'for k,v in record.items()if k.startswith('independent_')and type(v)is dict)
+  path.write_bytes(encoded(record))
+ proposed={}
+ for name in g['NEW']:proposed[name]=sha((ROOT/name).read_bytes())
+ for folder in(ROOT/'review-output/remaining-app-read13-rehearsal',child_archive,owned_archive):proposed.update(mapping(folder))
+ for filename in('local-f0-remaining-app-read13-source-validation.json','local-f0-remaining-app-read13-owned-v1-source-validation.json'):
+  path=ROOT/'context/reconciliation'/filename;proposed[path.relative_to(ROOT).as_posix()]=sha(path.read_bytes())
+ assert not(set(proposed)&set(before['packet_files_sha256']))
+ delivery={'schema':'workinants.remaining-app-read13-frozen-source-delivery.v1','status':'FROZEN_SOURCE_ONLY_PENDING_NONAUTHOR_REVIEW','author_report_path':str(TASK/'remaining_app_read13_frozen_author_report_20261120.json'),'author_report_sha256':sha(raw),'Root_files_sha256':dict(sorted(proposed.items())),'external_five_sha256':five,'source_inputs':len(packet['source_files_sha256']),'artifacts':103,'child_archive_files':len(mapping(child_archive)),'owned_archive_files':len(mapping(owned_archive)),'runtime':'NOT_RUN','database_contacted':False,'execution_authority':False}
+  # The delivery itself is external to the committable graph, avoiding hash cycles.
+ path=TASK/'remaining_app_read13_frozen_source_delivery_v1_20261120.json';content=encoded(delivery);path.write_bytes(content)
+ print(json.dumps({'delivery':str(path),'sha256':sha(content),'Root_files':len(proposed),'child_archive_files':delivery['child_archive_files'],'owned_archive_files':delivery['owned_archive_files'],'author_report_sha256':sha(raw),'external_five_sha256':five}))
+if __name__=='__main__':main()

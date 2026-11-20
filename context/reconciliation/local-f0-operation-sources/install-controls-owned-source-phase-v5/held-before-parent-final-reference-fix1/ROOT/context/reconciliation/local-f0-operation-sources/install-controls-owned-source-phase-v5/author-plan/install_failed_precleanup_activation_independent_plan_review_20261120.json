@@ -1,0 +1,44 @@
+{
+  "schema": "workinants.install-failed-precleanup-independent-plan-review.v1",
+  "recorded_at_utc": "2026-11-20T11:37:04.074372+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "APPROVED_BOUNDED_PLAN_WITH_REQUIRED_IMPLEMENTATION_CONTRACTS",
+  "proposal_sha256": "337b34cdf5eddec2160d9cb5056bf13005b3064243bd95fc2075c1c431b876b5",
+  "lineage_disclosure": "Reviewer did not author the proposed Root plan or current INSTALL Session.failure/ActivationGate implementation. Reviewer performed the actual4b35 independent rollback decision and earlier Watcher design/reviews; neither is implementation approval for the new phase.",
+  "source_files_sha256": {
+    "scripts/sql-review/run-install-control-rehearsal-v4.py": "8d679c737691b781978424a6743f03d1312b0b8a17264c07f55d4cfd0ad5127b",
+    "scripts/install_control_protocol_v2.py": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f",
+    "review-output/install-control-rehearsal-v4/authority-observe.sql": "b5791265492feb42a4e68b5538d41f33c1b3a77518e8b62f48ce3852b7f4b3e5",
+    "review-output/install-control-rehearsal-v4/inactive-observe.sql": "3c81794dce2ef746695500f7539313f27fefd0590f12275deb8f471aef8bb92f"
+  },
+  "exact_assertion": {
+    "case_id": "P0C-INSTALL-02",
+    "assertion_id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial",
+    "expected_assertion": "Inject a failure after function setup but before application COMMIT; attempt runtime activation before independent cleanup verification",
+    "expected_text_sha256": "34db5106a123525087e33083c3917fb0cf0065d6c20f3d2060b2e8de5e8c60e9",
+    "canonical_definition_sha256": "14d3d0aaa9959a0fd854caa73f98f67ea0ed70857725217ecc8e469dfb4363c2",
+    "current_scope": "Missing distinct post-failed-deploy/pre-finalization activation attempt remains unqualified; no waiver."
+  },
+  "proven_current_order": "Session.failure calls migrate (whose finally verifies all-client closure), then installed(False,True), then always finalize in finally, and only later inactive()/activation_attempt(False). Thus the existing preinstall and postcleanup checks do not exercise the required middle phase.",
+  "recommendation": {
+    "packet": "NEW version of the existing three-target suite, preserving both immutable failure variants and canonical bytes.",
+    "reason": "This is the smallest code/admission change with the currently reviewed closed three-target loader, outer identity, sealed recovery watch and cleanup contracts. A one-target packet would require new subset schemas, omitted recovery/activation routing and corresponding evidence aggregation; that can reduce runtime but is a larger trusted-source change. Prefer the existing coherent suite unless Root separately ACKs those explicit subset contracts.",
+    "actual_replay": "No implementation or new execution authority comes from this review. Fresh source approval/pin/literal/arming/live preflight remain mandatory."
+  },
+  "mandatory_implementation_contracts": [
+    "Place a uniquely named POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION phase inside failure() try, after migrate has returned with actual process/global closure and before entering its finally. Preserve finalization on every return/throw/IO failure. Never infer this phase from an existing before-install or after-cleanup outcome.",
+    "Before classifying it as a failed-deploy control, require the genuine typed nonzero CLI result/source hash and exact fresh server primary diagnostic delta (22012 division, or the existing42501 late-grant branch). Do not manufacture install failure merely by calling installed(False,True) on an otherwise unverified/successful CLI return. Full rollback/private-ledger checks may follow original-grantor finalization, but the new activation attempt must precede independent cleanup verification.",
+    "The actual unchanged ActivationGate must have install_closed_success=False, original_cleanup_verified=False, activated=False; call its real permit path and require INSTALL_RUNTIME_ACTIVATION_HELD. An unexpected permit must STOP before any runtime ALTER ROLE/PASSWORD SQL is constructed or sent. Keep bootstrap-only migrator credential provisioning distinct.",
+    "Retain a closed phase/source/run/CID/failure identity receipt, monotonic source order/closure facts and exact refusal. Record safe observed booleans/counts/allowlisted codes only; unknown/unreceived is not false. Persistence failure remains sticky and first safe failure stays primary.",
+    "After the phase-specific refusal and still before finalization, independently prove four runtime verifier NULLs/exact flags plus all four candidate startup rejections, exact3 temporary original-postgres memberships/options, permanent migrator edge and false leaf CREATE. Require all-client absence before every observation. Never remove/repair memberships during this phase.",
+    "Make gate/auth/authority/closure observations phase-unique append-only evidence; existing auth_<role>, authority and activation_gate_held dictionary keys currently overwrite older observations. New phase receipt must not overwrite or borrow earlier/later outcomes. The finalizer must still independently prove zero temporary memberships/leafCREATE after the new attempt.",
+    "Preserve canonical5ae, both immutable failure SQL hashesdd088/bb411, bootstrap/finalize, four initially inactive roles,32WorkerACL, source object rollback/ledger rules, sealed review protocol and original cleanup/ownership boundaries. No permission, password, schema or service-policy change is needed.",
+    "Source-aware process-boundary regressions must invoke real failure()/migrate()/ActivationGate ordering; restore omitted/old-order phase to fail. Include unexpected permit, accidental ALTER password send, missing/malformed credential/authority facts, open backend, source mismatch and persistence/observer throw with eligible finalizer/globalclosure/cleanup continuing. Do not replace protected paths with success factories."
+  ],
+  "claim_ceiling": "Only the exact missing phase obligation can be proposed after later independent actual audit; combine only genuinely source-compatible evidence for the complete mandatory assertion. No automatic wholeINSTALL case/94/451/production promotion; historical4b35 remains immutable.",
+  "runtime": "NOT_RUN",
+  "source_code_or_SQL_authored": false,
+  "Git_Docker_database_network_or_Root_status_changes": false,
+  "Posture": "D",
+  "plain_english": "Check the locked door after the install breaks, before the cleanup helper arrives. Save a new note for that exact moment, then always clean up."
+}

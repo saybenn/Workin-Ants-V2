@@ -1,0 +1,110 @@
+test_boolean_timeout_hash_and_uuid_do_not_coerce (<run_path>.Tests.test_boolean_timeout_hash_and_uuid_do_not_coerce) ... ok
+test_closed_file_map_caps_and_bytes_only (<run_path>.Tests.test_closed_file_map_caps_and_bytes_only) ... ok
+test_duplicate_nonfinite_nonutf8_and_noncanonical (<run_path>.Tests.test_duplicate_nonfinite_nonutf8_and_noncanonical) ... ok
+test_each_immutable_hash_is_required (<run_path>.Tests.test_each_immutable_hash_is_required) ... ok
+test_every_missing_extra_schema_and_type_field (<run_path>.Tests.test_every_missing_extra_schema_and_type_field) ... ok
+test_exact_closed_handoff (<run_path>.Tests.test_exact_closed_handoff) ... ok
+test_expected_checkpoint_and_all_three_cids (<run_path>.Tests.test_expected_checkpoint_and_all_three_cids) ... ok
+test_rehashed_extra_proof_plan_or_snapshot_fields_and_stopped_snapshot_are_rejected (<run_path>.Tests.test_rehashed_extra_proof_plan_or_snapshot_fields_and_stopped_snapshot_are_rejected) ... ok
+test_rehashed_snapshot_cannot_fake_zero_or_discard_failed_row (<run_path>.Tests.test_rehashed_snapshot_cannot_fake_zero_or_discard_failed_row) ... ok
+test_rehashed_wrong_run_cid_source_and_original_authority (<run_path>.Tests.test_rehashed_wrong_run_cid_source_and_original_authority) ... ok
+test_v5_namespace_only_runtime_AST_and_exact_closed_operator_admission (<run_path>.Tests.test_v5_namespace_only_runtime_AST_and_exact_closed_operator_admission) ... ok
+test_publish_fresh_refuses_existing_preserves_bytes_and_has_no_hardlink (<run_path>.Tests.test_publish_fresh_refuses_existing_preserves_bytes_and_has_no_hardlink) ... ok
+test_single_link_metadata_and_real_nonregular_are_rejected (<run_path>.Tests.test_single_link_metadata_and_real_nonregular_are_rejected) ... ok
+test_bounded_closed_immutable_reads_and_no_mutable_result_opens (<run_path>.Tests.test_bounded_closed_immutable_reads_and_no_mutable_result_opens) ... ok
+test_actual_watcher_cli_source_gate_returns_original_deadline_for_separate_explicit_review (<run_path>.Tests.test_actual_watcher_cli_source_gate_returns_original_deadline_for_separate_explicit_review) ... ok
+test_wrong_watcher_self_fingerprint_stops_before_any_source_compile (<run_path>.Tests.test_wrong_watcher_self_fingerprint_stops_before_any_source_compile) ... ok
+test_actual_coordinator_timeout_publishes_ready_last_after_completed_save_and_is_quiescent (<run_path>.Tests.test_actual_coordinator_timeout_publishes_ready_last_after_completed_save_and_is_quiescent) ... ok
+test_actual_coordinator_explicit_fixture_review_uses_unchanged_seven_fields (<run_path>.Tests.test_actual_coordinator_explicit_fixture_review_uses_unchanged_seven_fields) ... ok
+test_v5_dirty_or_malformed_saved_evidence_never_publishes_ready (<run_path>.Tests.test_v5_dirty_or_malformed_saved_evidence_never_publishes_ready) ... ok
+test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve (<run_path>.Tests.test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve) ... 
+  test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve (<run_path>.Tests.test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve) (mode='foreign_CID') ... ERROR
+  test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve (<run_path>.Tests.test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve) (mode='phase_order') ... ERROR
+  test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve (<run_path>.Tests.test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve) (mode='closure') ... ERROR
+test_v5_real_failed_install_source_rows_through_watcher_and_seven_field_review (<run_path>.Tests.test_v5_real_failed_install_source_rows_through_watcher_and_seven_field_review) ... ok
+test_invalid_reviewer_and_expired_deadline_never_publish_approval (<run_path>.Tests.test_invalid_reviewer_and_expired_deadline_never_publish_approval) ... ok
+test_expiring_during_fsync_still_refuses_atomic_approval_publication (<run_path>.Tests.test_expiring_during_fsync_still_refuses_atomic_approval_publication) ... ok
+test_failed_final_marker_publication_cannot_start_review_clock (<run_path>.Tests.test_failed_final_marker_publication_cannot_start_review_clock) ... ok
+test_actual_main_refuses_missing_wrong_outer_identity_before_coordinator_or_evidence (<run_path>.Tests.test_actual_main_refuses_missing_wrong_outer_identity_before_coordinator_or_evidence) ... ok
+
+======================================================================
+ERROR: test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve (<run_path>.Tests.test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve) (mode='foreign_CID')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\test_watch_install_independent_review_source_phase_v5.py", line 167, in test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve
+    with patch.dict(D,read_regular=reader),self.assertRaises((ValueError,OSError)):D['publish_explicit_approval'](self.out,P,A,expected,decision,220,monotonic=lambda:1)
+                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 84, in publish_explicit_approval
+    need(monotonic()<deadline and OPEN_HANDLES==0,'REVIEW_DEADLINE_OR_HANDLES');value,raws=read_handoff(out,p,expected);proof=value['proof'];identity={k:proof[k] for k in ('run_id','container_id','source_sql_sha256')};authority['require_recovery_review'](proof,decision,identity);raw=p['canonical'](decision)
+                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 51, in read_handoff
+    paths=handoff_paths(out,p);raws={name:read_regular(path,p['CAPS'][name]) for name,path in paths.items()};need(OPEN_HANDLES==0,'READER_HANDLES_OPEN');value=p['bindings'](raws,expected);validate_v2_handoff(out,p,value);return value,raws
+                                                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 60, in validate_v2_handoff
+    h['validate_receipts'](phase.get('failed_precleanup_activation'),expected,True);h['validate_closures'](phase.get('failed_precleanup_closures'),True)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\install_failed_precleanup_activation_v5.py", line 76, in validate_receipts
+    exact(row['identity'],expected,'INSTALL_PHASE_IDENTITY');need(row['kind']==KINDS[index],'INSTALL_PHASE_RECEIPT_ORDER');facts=row['facts']
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\install_failed_precleanup_activation_v5.py", line 41, in exact
+    def exact(value,wanted,code):need(canonical(value)==canonical(wanted),code)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\install_failed_precleanup_activation_v5.py", line 38, in need
+    if not value:raise Held(code)
+                 ^^^^^^^^^^^^^^^^
+<run_path>.Held: INSTALL_PHASE_IDENTITY
+
+======================================================================
+ERROR: test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve (<run_path>.Tests.test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve) (mode='phase_order')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\test_watch_install_independent_review_source_phase_v5.py", line 167, in test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve
+    with patch.dict(D,read_regular=reader),self.assertRaises((ValueError,OSError)):D['publish_explicit_approval'](self.out,P,A,expected,decision,220,monotonic=lambda:1)
+                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 84, in publish_explicit_approval
+    need(monotonic()<deadline and OPEN_HANDLES==0,'REVIEW_DEADLINE_OR_HANDLES');value,raws=read_handoff(out,p,expected);proof=value['proof'];identity={k:proof[k] for k in ('run_id','container_id','source_sql_sha256')};authority['require_recovery_review'](proof,decision,identity);raw=p['canonical'](decision)
+                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 51, in read_handoff
+    paths=handoff_paths(out,p);raws={name:read_regular(path,p['CAPS'][name]) for name,path in paths.items()};need(OPEN_HANDLES==0,'READER_HANDLES_OPEN');value=p['bindings'](raws,expected);validate_v2_handoff(out,p,value);return value,raws
+                                                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 60, in validate_v2_handoff
+    h['validate_receipts'](phase.get('failed_precleanup_activation'),expected,True);h['validate_closures'](phase.get('failed_precleanup_closures'),True)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\install_failed_precleanup_activation_v5.py", line 75, in validate_receipts
+    need(type(row)is dict and set(row)=={'phase','sequence','identity','kind','facts'}and row['phase']==PHASE and type(row['sequence'])is int and row['sequence']==index,'INSTALL_PHASE_RECEIPT_SHAPE')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\install_failed_precleanup_activation_v5.py", line 38, in need
+    if not value:raise Held(code)
+                 ^^^^^^^^^^^^^^^^
+<run_path>.Held: INSTALL_PHASE_RECEIPT_SHAPE
+
+======================================================================
+ERROR: test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve (<run_path>.Tests.test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve) (mode='closure')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\test_watch_install_independent_review_source_phase_v5.py", line 167, in test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve
+    with patch.dict(D,read_regular=reader),self.assertRaises((ValueError,OSError)):D['publish_explicit_approval'](self.out,P,A,expected,decision,220,monotonic=lambda:1)
+                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 84, in publish_explicit_approval
+    need(monotonic()<deadline and OPEN_HANDLES==0,'REVIEW_DEADLINE_OR_HANDLES');value,raws=read_handoff(out,p,expected);proof=value['proof'];identity={k:proof[k] for k in ('run_id','container_id','source_sql_sha256')};authority['require_recovery_review'](proof,decision,identity);raw=p['canonical'](decision)
+                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 51, in read_handoff
+    paths=handoff_paths(out,p);raws={name:read_regular(path,p['CAPS'][name]) for name,path in paths.items()};need(OPEN_HANDLES==0,'READER_HANDLES_OPEN');value=p['bindings'](raws,expected);validate_v2_handoff(out,p,value);return value,raws
+                                                                                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\watch-install-independent-review-source-phase-v5.py", line 60, in validate_v2_handoff
+    h['validate_receipts'](phase.get('failed_precleanup_activation'),expected,True);h['validate_closures'](phase.get('failed_precleanup_closures'),True)
+                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\install_failed_precleanup_activation_v5.py", line 96, in validate_closures
+    need(row['stage']==CLOSURES[index],'INSTALL_PHASE_CLOSURE_ORDER');exact(row['proof'],CLOSURE_PROOF,'INSTALL_PHASE_CLOSURE_SHAPE')
+                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\install_failed_precleanup_activation_v5.py", line 41, in exact
+    def exact(value,wanted,code):need(canonical(value)==canonical(wanted),code)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\install_failed_precleanup_activation_v5.py", line 38, in need
+    if not value:raise Held(code)
+                 ^^^^^^^^^^^^^^^^
+<run_path>.Held: INSTALL_PHASE_CLOSURE_SHAPE
+
+----------------------------------------------------------------------
+Ran 25 tests in 11.755s
+
+FAILED (errors=3)

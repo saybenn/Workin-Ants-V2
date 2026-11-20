@@ -1,0 +1,72 @@
+{
+  "schema": "workinants.install-v5-final-source-preservation.v1",
+  "utc": "2026-11-20T12:58:17.179156+00:00",
+  "all433_original_Root_and_before_and_future_base_bytes_exact": true,
+  "all5_original_external_and_before_bytes_exact": true,
+  "before_manifest_sha256": "c0bd370703855009125bb301433ea956b98e952d3fc3567bbc9e1ad686b34340",
+  "new_Root_paths_still_unoccupied": true,
+  "unchanged_SQL_artifacts_sha256": {
+    "canonical/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "division_failure/20261117000100_f0_local_initial/migration.sql": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+    "late_function_grant/20261117000100_f0_local_initial/migration.sql": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+    "bootstrap.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "authority-observe.sql": "b5791265492feb42a4e68b5538d41f33c1b3a77518e8b62f48ce3852b7f4b3e5",
+    "inactive-observe.sql": "3c81794dce2ef746695500f7539313f27fefd0590f12275deb8f471aef8bb92f",
+    "fresh-observe.sql": "674f92c95bbb627ba74abbc91dea0067ffd7cb25a01f1537487a21f354c09138",
+    "inventory.sql": "4364890304d7c112b69c1e25d20a6ccbbf99bf7b32c44183403bb216a5c7f453",
+    "ledger-observe.sql": "42ac58118727dbdc03c54e5ad6fb3cbedb3187f2ff2063eac4258336f0dfbb3c",
+    "rearm.sql": "40a2f1a0b2472a16af7b6b5544e330486b296c2265dba726c6264fd190f6b94b"
+  },
+  "parsed_SQL_statement_counts": {
+    "canonical/20261117000100_f0_local_initial/migration.sql": 1125,
+    "division_failure/20261117000100_f0_local_initial/migration.sql": 1126,
+    "late_function_grant/20261117000100_f0_local_initial/migration.sql": 1125,
+    "bootstrap.sql": 30,
+    "finalize.sql": 5,
+    "authority-observe.sql": 1,
+    "inactive-observe.sql": 1,
+    "fresh-observe.sql": 1,
+    "inventory.sql": 1,
+    "ledger-observe.sql": 9,
+    "rearm.sql": 3
+  },
+  "all13_artifacts_byte_reproduce_from32_sources": true,
+  "coordinator_modified_functions": [
+    "load_inputs",
+    "Evidence.__init__",
+    "Evidence.save",
+    "Coordinator.__init__",
+    "Coordinator.finalize",
+    "Coordinator.failure",
+    "Coordinator.review",
+    "Coordinator.run",
+    "main"
+  ],
+  "coordinator_added_functions": [
+    "Coordinator.failed_precleanup_phase",
+    "Coordinator.phase_append",
+    "Coordinator.phase_closed",
+    "Coordinator.phase_identity",
+    "Coordinator.phase_observe",
+    "Coordinator.require_failed_precleanup_phase",
+    "Evidence.remember_failure"
+  ],
+  "watcher_modified_functions": [
+    "load_sources",
+    "read_handoff"
+  ],
+  "watcher_added_functions": [
+    "validate_v2_handoff"
+  ],
+  "watcher_reader_publisher_deadline_reviewer_approval_functions_AST_exact": true,
+  "original_ActivationGate_protocol_sha256": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f",
+  "original_transport_and_watcher_preserved_in433": true,
+  "new_transported_operator_tuple_only_runtime_change": true,
+  "canonical_and_workerACL_source_bytes_preserved_in433": true,
+  "full3target_suite_preserved": "canonical/division_failure/late_function_grant plus reviewed division recovery; no subset framework",
+  "no_live_Root_or_Git_or_runtime_actions": true,
+  "Root_concurrent_qualification_advance": "Parent-authorized Worker671 advance; no such files edited by this author; none of the433 source/evidence inputs changed",
+  "runtime": "NOT_RUN",
+  "Posture": "D"
+}

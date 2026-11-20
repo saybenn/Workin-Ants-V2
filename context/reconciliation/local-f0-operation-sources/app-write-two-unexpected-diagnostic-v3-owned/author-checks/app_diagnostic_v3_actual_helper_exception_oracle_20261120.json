@@ -1,0 +1,67 @@
+{
+  "schema": "workinants.app-v3-real-helper-exception-oracle.v1",
+  "status": "PASS",
+  "vectors": [
+    {
+      "vector": "missing-receipt",
+      "rejected": true,
+      "actual_exception_class": "HeldFailure",
+      "outer_Stop_subclass": false,
+      "fixed_code": "EXACT_OPERATION_OUTCOME_FIELDS"
+    },
+    {
+      "vector": "extra-outcome",
+      "rejected": true,
+      "actual_exception_class": "HeldFailure",
+      "outer_Stop_subclass": false,
+      "fixed_code": "EXACT_OPERATION_OUTCOME_FIELDS"
+    },
+    {
+      "vector": "extra-receipt",
+      "rejected": true,
+      "actual_exception_class": "HeldFailure",
+      "outer_Stop_subclass": false,
+      "fixed_code": "TYPED_UNEXPECTED_DIAGNOSTIC_FIELDS"
+    },
+    {
+      "vector": "bool-header",
+      "rejected": true,
+      "actual_exception_class": "HeldFailure",
+      "outer_Stop_subclass": false,
+      "fixed_code": "TYPED_UNEXPECTED_HEADER_COUNT"
+    },
+    {
+      "vector": "float-header",
+      "rejected": true,
+      "actual_exception_class": "HeldFailure",
+      "outer_Stop_subclass": false,
+      "fixed_code": "TYPED_UNEXPECTED_HEADER_COUNT"
+    },
+    {
+      "vector": "unlisted-state",
+      "rejected": true,
+      "actual_exception_class": "HeldFailure",
+      "outer_Stop_subclass": false,
+      "fixed_code": "TYPED_UNEXPECTED_SQLSTATE"
+    },
+    {
+      "vector": "untyped-frame",
+      "rejected": true,
+      "actual_exception_class": "HeldFailure",
+      "outer_Stop_subclass": false,
+      "fixed_code": "REDACTED_UNEXPECTED_SOURCE_FRAME"
+    },
+    {
+      "vector": "unknown-enum",
+      "rejected": true,
+      "actual_exception_class": "HeldFailure",
+      "outer_Stop_subclass": false,
+      "fixed_code": "TYPED_UNEXPECTED_DIAGNOSTIC_ENUMS"
+    }
+  ],
+  "duration_seconds": 11.805,
+  "scope": "Actual Core initialize/admission/closed helper loader and actual operation_outcome+validate methods; prior resource/install/domain stages NOT executed. Private future-source-review fixture only.",
+  "runtime_qualification": false,
+  "test_source_sha256": "3dfacdba2f40bab0c5d4f1fd2393145324ac722a4448646f5c88be6949bba39a",
+  "current_pure_protocol_sha256": "de35a8d1908158c21edcfa76ce3c08c44aa6dfe527844e4b4436a935ebf583c7"
+}

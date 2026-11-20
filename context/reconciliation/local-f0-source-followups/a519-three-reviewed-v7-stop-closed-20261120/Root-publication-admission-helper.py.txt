@@ -1,0 +1,58 @@
+"""Curate only independently reviewed source families and cleaned V7 evidence; preserve unfinished work."""
+from pathlib import Path
+import datetime,hashlib,io,json,re,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';P='a519d61f678a48afa4bb0e38d74800ebf8000d67';B='refs/heads/codex/p0c-candidate-corrections-2026-10-31';F='context/reconciliation/local-f0-source-followups/a519-three-reviewed-v7-stop-closed-20261120';A='context/reconciliation/local-f0-a519-three-reviewed-privilege37-publication-admission-20261120.json';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def git(*a,cwd=R):return subprocess.check_output(['git','--no-optional-locks','-c','core.longpaths=true',*a],cwd=cwd,timeout=120)
+def remote():
+ assert git('remote','get-url','--push','origin').decode().strip()in('https://github.com/saybenn/Workin-Ants-V2.git','https://github.com/saybenn/Workin-Ants-V2');v=git('ls-remote','--refs','origin',B).decode().split();assert len(v)==2 and v[1]==B;return v[0]
+def blobs(files,ref):
+ raw=subprocess.check_output(['git','-c','core.longpaths=true','cat-file','--batch'],cwd=R,input=''.join(ref+':'+n+'\n'for n in sorted(files)).encode());s=io.BytesIO(raw)
+ for n in sorted(files):
+  h=s.readline().decode().split();assert len(h)==3 and h[1]=='blob',n;b=s.read(int(h[2]));assert s.read(1)==b'\n'and sha(b)==files[n]and sha((R/n).read_bytes())==files[n],n
+ assert not s.read()
+def admitted():
+ raw=(R/A).read_bytes();v=json.loads(raw);assert v['parent']==P;return v,{**v['admitted_files_sha256'],A:sha(raw)}
+if '--verify-commit'in sys.argv or '--after-push'in sys.argv:
+ v,files=admitted();c=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip();assert git('rev-parse','HEAD^').decode().strip()==P;blobs(files,c);changed=set(git('diff','--name-only','-z',P,c).decode().split('\0'))-{''};assert changed<=set(files)
+ for n in set(files)-changed:assert sha(git('show',P+':'+n))==files[n]
+ assert not git('diff','--cached','--name-only').strip();after='--after-push'in sys.argv;rh=remote();assert rh==(c if after else P)
+ proof={'schema':'workinants.three-reviewed-privilege37-full-commit-publication-proof.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'commit':c,'tree':tree,'direct_parent':P,'admitted_files':len(files),'changed_files':len(changed),'all_current_and_committed_SHA256_equal':True,'independent_fresh_ls_remote_full_hash':rh,'status':'PUBLISHED_VERIFIED_FULL_REMOTE_AND_BLOBS'if after else'COMMITTED_BLOBS_AND_FF_PARENT_VERIFIED','normal_fast_forward_only':True,'unfinished_V6_V8_source_excluded':True,'Posture':'D','continue_standing_assignment':True};out=T/('three_reviewed_privilege37_publication_full_commit_verification_20261120.json'if after else'three_reviewed_privilege37_before_push_full_commit_verification_20261120.json');put(out,enc(proof));print(json.dumps({**proof,'proof_sha256':sha(out.read_bytes())}));raise SystemExit(0)
+assert git('rev-parse','HEAD').decode().strip()==P and not git('diff','--cached','--name-only').strip()
+if '--stage'in sys.argv:
+ v,files=admitted();assert remote()==P
+ for n,h in files.items():assert sha((R/n).read_bytes())==h,n
+ path=T/'a519_three_reviewed_privilege37_exact_stage_paths_20261120.nul';put(path,('\0'.join(sorted(files))+'\0').encode());git('add','--pathspec-from-file='+str(path),'--pathspec-file-nul');staged=set(git('diff','--cached','--name-only','-z').decode().split('\0'))-{''};assert staged<=set(files);blobs(files,'')
+ for n in set(files)-staged:assert sha(git('show',P+':'+n))==files[n]
+ out=T/'a519_three_reviewed_privilege37_exact_staged_byte_proof_20261120.json';proof={'parent':P,'admitted_files':len(files),'staged_changes':len(staged),'unchanged_parent_files':len(files)-len(staged),'all_current_and_staged_SHA256_equal':True,'unfinished_WIP_staged':False,'Posture':'D'};put(out,enc(proof));print(json.dumps({**proof,'proof_sha256':sha(out.read_bytes())}));raise SystemExit(0)
+files={};families={}
+for family,name,wanted in [('ReadV2','read13_owned_v2_source_approved_committable_inventory_20261120.json','cb0a142747ab49d6aeef2c9784029f593d7392781cf332942e6f06cd43928af7'),('INSTALLV5','install_source_phase_v5_fix1_source_approved_committable_inventory_20261120.json','f314ad5aec49050b229b4baace3c3a877c5adfdcbd1f07e48a128cecb35211af'),('AppV3','app_unexpected_diagnostic_v3_source_approved_committable_inventory_20261120.json','5435b871453cc590ef9d87d70fe0c5d8bcbb639da7adcf57648cb12250b28d0e'),('Progress','a519_privilege37_three_reviewed_packets_progress_inventory_20261120.json','94d9812b3add15cb34c3c17479d180561ec91652a94c745f1626021bc6089589')]:
+ raw=(T/name).read_bytes();assert sha(raw)==wanted;v=json.loads(raw);m=v['files_sha256']
+ for n,h in m.items():assert n not in files;files[n]=h
+ families[family]={'inventory':name,'sha256':wanted,'files':len(m)}
+name='a519_privilege_9577_stopped_attempt_preserved_inventory_20261120.json';raw=(T/name).read_bytes();assert sha(raw)=='9342c82d454505aed06563b1d967919c63bafd64dda33d31326b721dfac36152';v=json.loads(raw)
+for n,h in {**v['assets_sha256'],v['record']:v['record_sha256']}.items():assert n not in files;files[n]=h
+families['V7Stop']={'inventory':name,'sha256':sha(raw),'files':len(v['assets_sha256'])+1}
+for n,h in files.items():assert sha((R/n).read_bytes())==h,n
+copies={'previous-a519-full-publication-proof.json':'reviewed_v7_restore9cf_publication_full_commit_verification_20261120.json','Root-progress-helper.py.txt':'record_a519_privilege37_three_reviewed_packets_progress_20261120.py','Root-ReadV2-admission-helper.py.txt':'admit_close_reviewed_read13_owned_v2_sources_20261120.py','Root-INSTALLV5-admission-helper.py.txt':'admit_close_reviewed_install_source_phase_v5_fix1_20261120.py','Root-AppV3-admission-helper.py.txt':'admit_close_app_unexpected_diagnostic_v3_sources_20261120.py','Root-ReadV2-pure-preparation-helper.py.txt':'prepare_validate_read13_owned_v2_actual_approved_sources_20261120.py','Root-INSTALLV5-pure-preparation-helper.py.txt':'prepare_install_phase_v5_fix1_actual_approved_sources_20261120.py','Root-AppV3-pure-preparation-helper.py.txt':'prepare_validate_app_unexpected_v3_actual_approved_sources_20261120.py','independent-exact-metadata-admission-schema-plan.json':'read13_v2_install_v5_Root_metadata_admission_plan_Catalog_20261120.json','PENDING-V8-Root-implementation-ACK.json':'privilege_public_acl_v8_Root_bounded_implementation_ACK_20261120.json','PENDING-V6-Root-implementation-ACK.json':'restore_hba_bytes_v6_Root_bounded_implementation_ACK_20261120.json','Root-publication-admission-helper.py.txt':Path(__file__).name,'context-check-UTF8.log.txt':'a519_three_reviewed_privilege37_context_check_20261120.log','foundation-check-UTF8.json':'a519_three_reviewed_privilege37_foundation_check_20261120.json'}
+assert b'Structural checks PASSED'in(T/copies['context-check-UTF8.log.txt']).read_bytes()and json.loads((T/copies['foundation-check-UTF8.json']).read_bytes())['errors']==[]
+for dest,source in copies.items():b=(T/source).read_bytes();put(R/F/dest,b);files[F+'/'+dest]=sha(b)
+pres=[]
+for label,path,expected,branch,status in [('original_windows',Path(r'C:\Users\elijr\source\WorkinAnts-Checkpoint010'),'8917e2035622017eccd14c99ad7fd2b55740163f','codex/p0c-candidate-corrections-2026-10-31',''),('original_onedrive',Path(r'C:\Users\elijr\OneDrive\Desktop\Coding\Personal Projects\workin-ants-v2'),'526bb1ab30480d66ca8b7da08d16badc6e613c1d','main','D context/project-overview-v3.md')]:
+ actual=(git('rev-parse','HEAD',cwd=path).decode().strip(),git('rev-parse','--abbrev-ref','HEAD',cwd=path).decode().strip(),git('status','--porcelain=v1','-uno',cwd=path).decode().strip());assert actual==(expected,branch,status);pres.append({'checkout':label,'HEAD':actual[0],'branch':actual[1],'tracked_status':actual[2],'checkout_mutated':False})
+put(R/F/'original-checkouts-preserved.json',enc({'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'checkouts':pres}));files[F+'/original-checkouts-preserved.json']=sha((R/F/'original-checkouts-preserved.json').read_bytes())
+vercel=(R/'vercel.json').read_bytes();assert sha(vercel)=='81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f'and json.loads(vercel)['git']['deploymentEnabled']['codex/p0c-candidate-corrections-2026-10-31']is False
+wf=R/'.github/workflows';assert not wf.exists()or not any(p.is_file()for p in wf.rglob('*'));common=Path(git('rev-parse','--git-common-dir').decode().strip());common=common if common.is_absolute()else(R/common).resolve();assert not any(p.is_file()and not p.name.endswith('.sample')for p in(common/'hooks').iterdir());hc=subprocess.run(['git','config','--get','core.hooksPath'],cwd=R,capture_output=True);assert hc.returncode==1 and not hc.stdout
+scan={'files':len(files),'bytes':0,'strict_JSON_files':0,'high_confidence_secret_findings':[]}
+for n,h in files.items():
+ p=R/n;assert p.resolve().is_relative_to(R.resolve())and not p.is_symlink();b=p.read_bytes();assert sha(b)==h and b'\0'not in b and len(b)<50*1024*1024;txt=b.decode('utf-8-sig');assert not re.search(rb'(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|AKIA[A-Z0-9]{16}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)',b),n;scan['bytes']+=len(b)
+ if n.endswith('.json'):
+  def pairs(items):
+   out={}
+   for k,x in items:assert k not in out;out[k]=x
+   return out
+  json.loads(txt,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')));scan['strict_JSON_files']+=1
+changed=set(git('diff','--name-only','-z').decode().split('\0'))-{''};assert changed<=set(files);rows=[x for x in git('status','--porcelain=v1','-z','--untracked-files=all').decode().split('\0')if x]
+record={'schema':'workinants.a519-three-reviewed-privilege37-publication-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'parent':P,'admitted_files_sha256':dict(sorted(files.items())),'source_families':families,'outgoing_scan':scan,'accepted_assertion_counts':{'PASS':638,'PARTIAL':33,'NOT_RUN':324,'DEPENDENCY_BLOCKED':32,'UNRESOLVED_SOURCE':7,'FAILED':0},'ledger_rows':671,'selected94_case_counts':{'PASS':5,'PARTIAL':78,'NOT_RUN':11},'source_packets':'ReadV2/INSTALLV5/AppV3 independently source-reviewed, Root metadata closed, unchanged pure preparation checks recorded. Every held plan remains PENDING/TO_BE_PINNED/NOT_RUN until exact publication/pin/literal/livepreflight. INSTALL actual recovery review remains separate.','V7_9577':'37 finite contrasts then public METADATA stop before business; missing individual response bits not reconstructed. Exact source/reference/restoration and independent cleanup preserved. No assertion promotion.','deployment_suppressed':True,'active_workflows_or_hooks':False,'original_checkouts_preserved':True,'preserved_unstaged_paths':sorted(x[3:]for x in rows if x[3:]not in files),'reviewed_tracked_changes':sorted(changed),'unreviewed_V6_V8_code_excluded':True,'normal_authenticated_fast_forward_only':True,'Posture':'D','continue_standing_assignment':True};put(R/A,enc(record));out=T/'a519_three_reviewed_privilege37_admission_prepared_20261120.json';put(out,enc({'admission':A,'sha256':sha((R/A).read_bytes()),'admitted_files_excluding_admission':len(files),'scan':scan,'no_Git_mutation':True,'Posture':'D'}));print(out.read_text())

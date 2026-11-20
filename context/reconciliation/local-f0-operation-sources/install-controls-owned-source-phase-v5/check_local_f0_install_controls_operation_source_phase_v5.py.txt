@@ -1,0 +1,512 @@
+"""Offline-only INSTALL owned outer checks; every process/network is mocked."""
+import ast,copy,hashlib,io,json,runpy,socket,subprocess,tempfile,types,unittest,uuid
+from contextlib import redirect_stdout
+from pathlib import Path
+from unittest.mock import Mock,patch
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';CORE=TASK/'execute_local_f0_install_controls_20261120_source_phase_v5.py';STEPS=TASK/'local_f0_install_controls_operation_steps_source_phase_v5.py';PREP=TASK/'prepare_local_f0_install_controls_plan_source_phase_v5.py';PIN=TASK/'pin_local_f0_install_controls_plan_20261120_source_phase_v5.py';CANARY='PRIVATE_INSTALL_OUTER_SECRET_AND_DIAGNOSTIC_CANARY'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def namespace():
+    n=runpy.run_path(str(CORE))['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+    n.update(ROOT=ROOT,TASK=TASK,RUN_ID='12345678-1234-4234-8234-123456789abc',COMMIT='a'*40,TREE='b'*40,PACKET='c'*64,DB='wa_p0c_rehearsal',CONNECTION_TAG='wa-install-test',ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),LEAVES=('wa_private_helper_owner','wa_customer_verifier','wa_track_verifier'),LABEL='p0c-local-f0',save=lambda:None,event=lambda *a,**kw:None,bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),passwords={},secret_paths=[],all_secrets=[])
+    n['TARGETS']=[{'name':'wa-p0c-12345678-install-'+suffix,'volume':'wa-p0c-12345678-install-'+suffix+'-data','kind':kind} for kind,suffix in [('canonical','good'),('division_failure','division'),('late_function_grant','order')]];n['RESOURCE_CONTAINERS']=tuple(t['name'] for t in n['TARGETS']);n['RESOURCE_VOLUMES']=tuple(t['volume'] for t in n['TARGETS']);n['created_containers']={t['name']:str(i+1)*64 for i,t in enumerate(n['TARGETS'])};n['report']={'stage':'TEST','steps':{},'targets':{t['name']:{} for t in n['TARGETS']},'install':{},'events':[],'unexpected':[],'cleanup':{}};return n
+class Tests(unittest.TestCase):
+    def setUp(self):
+        for name in ('run','Popen','check_call','check_output','call'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop);self.n=namespace()
+    def full_fixture(self):
+        temporary=tempfile.TemporaryDirectory(prefix='offline-install-whole-',dir=ROOT.parent);self.addCleanup(temporary.cleanup);base=Path(temporary.name);g=runpy.run_path(str(PREP));baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes())
+        for name in g['FILES']:(base/name).write_bytes((TASK/name).read_bytes())
+        directory,master,files=g['prepare'](ROOT,base,baseline,str(uuid.uuid4()));directory.mkdir()
+        for name,raw in files.items():p=directory/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
+        clone=base/'workinants-correction-pass';clone.mkdir();pins=master['packet_files_sha256']
+        validation='context/reconciliation/local-f0-install-controls-owned-source-phase-v5-source-validation.json'
+        v=json.loads((ROOT/validation).read_bytes());pins.update(v['archive_files_sha256']);pins[validation]=sha((ROOT/validation).read_bytes())
+        for name in set(pins)|set(master['catalog']['tool_source_files_sha256']):p=clone/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((ROOT/name).read_bytes())
+        source_root='context/reconciliation/local-f0-operation-sources/install-controls-owned-source-phase-v5'
+        for name,digest in master['operator_sources_sha256'].items():p=clone/source_root/(name+'.txt');p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((TASK/name).read_bytes());pins[p.relative_to(clone).as_posix()]=digest
+        master.update(source_commit='a'*40,source_tree='b'*40,packet_sha256=g['aggregate'](pins),prepared_source_file_inventory_sha256=dict(pins),prepared_source_files_aggregate_sha256=g['aggregate'](pins));path=directory/'operation-manifest.json';path.write_bytes(g['encoded'](master));n=runpy.run_path(str(CORE))['launch'].__globals__;n['initialize'](path);exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n);n['ROOT']=clone;n['save']=Mock();n['event']=Mock()
+        def common():
+            for name,digest in pins.items():self.assertEqual(sha((clone/name).read_bytes()),digest)
+            n['report']['source_verification']={'files_sha256':pins}
+        n['verify_common_packet']=Mock(side_effect=common,name='only_outer_Git_boundary');return n,n['MANIFEST'],clone,g
+    def test_help_import_and_unapproved_entry_are_process_and_helper_free(self):
+        for path in (CORE,PREP,PIN):
+            module=runpy.run_path(str(path));entry=module.get('launch',module.get('main'))
+            with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as found:entry(['--help'])
+            self.assertEqual(found.exception.code,0)
+            with redirect_stdout(io.StringIO()):self.assertEqual(entry([]),1)
+    def test_actual_full_verifier_real_four_seven_histories_and_five_snapshots(self):
+        n,master,clone,g=self.full_fixture();n['verify_packet']();n['verify_common_packet'].assert_called_once_with();self.assertEqual(set(n['INSTALL']['histories']),{'canonical','division_failure','late_function_grant','division_recovery'});self.assertEqual(len(n['INSTALL']['module_bytes']),13);self.assertEqual(n['report']['catalog_preparation']['closed_source_files'],16);self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertFalse(Path(master['evidence_directory']).exists());self.assertTrue(all(len(x['members'])==7 for x in n['INSTALL']['histories'].values()))
+    def test_emitted_actual_run_plan_is_admitted_by_frozen_coordinator_loader(self):
+        n,master,clone,g=self.full_fixture();n['verify_packet']();n['created_containers']={t['name']:format(i+1,'064x') for i,t in enumerate(n['TARGETS'])};n['PRIVATE'].mkdir(parents=True);bundle={t['kind']:{role:format(i*6+j+1,'064x') for j,role in enumerate(n['ROLES'])} for i,t in enumerate(n['TARGETS'])};(n['PRIVATE']/'install-role-passwords.json').write_text(json.dumps(bundle));plan=n['install_run_plan']();loaded=n['INSTALL']['module']['load_inputs'](plan)
+        self.assertEqual(loaded[0],n['INSTALL']['packet']);self.assertEqual(set(loaded[2]),set(master['install']['histories']));self.assertEqual(loaded[3],bundle);self.assertTrue(callable(loaded[4]['HOST']['coordinate']));self.assertFalse(any(row.get('bootstrap')=='PASS' for row in n['report']['targets'].values()));self.assertNotIn('qualified_result',n['INSTALL'])
+    def test_reduced_or_changed_all_four_tool_maps_stop_before_first_compile(self):
+        for change in ('reduced','critical'):
+            n,master,clone,g=self.full_fixture()
+            for key,binding in master['install']['histories'].items():
+                path=Path(binding['manifest']['path']);value=json.loads(path.read_bytes());tools=value['tools']['files_sha256']
+                if change=='reduced':tools.pop(next(p for p in tools if p.startswith('node_modules/') and p not in n['TOOL_DATA']))
+                else:tools['schema-engine']='0'*64
+                raw=g['encoded'](value);path.write_bytes(raw);binding['manifest']['sha256']=sha(raw)
+            with patch('builtins.compile',side_effect=AssertionError('NO_HELPER_BEFORE_TOOLS_ADMISSION')) as compile_,self.assertRaises(n['Stop']) as error:n['verify_packet']()
+            self.assertEqual(error.exception.code,'EXACT10300_ALL_FOUR_BEFORE_HELPER_COMPILE');compile_.assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_recovery_only_tool_map_discrepancy_stops_before_any_helper(self):
+        n,master,clone,g=self.full_fixture();binding=master['install']['histories']['division_recovery'];path=Path(binding['manifest']['path']);value=json.loads(path.read_bytes());value['tools']['files_sha256']['schema-engine']='0'*64;raw=g['encoded'](value);path.write_bytes(raw);binding['manifest']['sha256']=sha(raw)
+        with patch('builtins.compile',side_effect=AssertionError('NO_PROJECT_HELPER')) as compile_,self.assertRaises(n['Stop']) as error:n['verify_packet']()
+        self.assertEqual(error.exception.code,'EXACT10300_ALL_FOUR_BEFORE_HELPER_COMPILE');compile_.assert_not_called()
+    def test_drifted_transitive_module_and_snapshot_stop_before_compile(self):
+        for name in ('scripts/sql-review/run-context-control-rehearsal.py','scripts/sql-review/install_ledger_proof_v3.py'):
+            n,master,clone,g=self.full_fixture();(clone/name).write_bytes(('raise RuntimeError("'+CANARY+'")').encode());n['verify_common_packet']=Mock()
+            with patch('builtins.compile',side_effect=AssertionError('NO_PROJECT_HELPER')) as compile_,self.assertRaises(n['Stop']):n['verify_packet']()
+            compile_.assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+        n,master,clone,g=self.full_fixture();name=n['SOURCE_ROOT']+'/'+n['OPERATOR_FILES'][0]+'.txt';(clone/name).unlink();n['verify_common_packet']=Mock()
+        with patch('builtins.compile',side_effect=AssertionError('NO_HELPER')) as compile_,self.assertRaises(n['Stop']):n['verify_packet']()
+        compile_.assert_not_called()
+    def test_preparer_rejects_source_tool_closure_before_generator_compile(self):
+        g=runpy.run_path(str(PREP));baseline=json.loads((TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes());raw=Path(baseline['migration_targets']['ok']['manifest_path']).read_bytes();value=json.loads(raw);value['tools']['files_sha256']['schema-engine']='0'*64
+        with tempfile.TemporaryDirectory(dir=ROOT.parent) as directory:
+            path=Path(directory)/'bad.json';path.write_bytes(g['encoded'](value));baseline['migration_targets']['ok'].update(manifest_path=str(path),manifest_sha256=sha(path.read_bytes()))
+            with patch('builtins.compile',side_effect=AssertionError('NO_PROJECT_HELPER')) as compile_,self.assertRaises(g['Held']) as error:g['prepare'](ROOT,TASK,baseline)
+            self.assertEqual(str(error.exception),'EXACT10300_TOOLS_BEFORE_HELPER_COMPILE');compile_.assert_not_called()
+    def coordinator_fixture(self):
+        n=namespace();self.n=n;temporary=tempfile.TemporaryDirectory(prefix='offline-install-child-',dir=ROOT.parent);self.addCleanup(temporary.cleanup);n['OUT']=Path(temporary.name);n['PRIVATE']=n['OUT']/'private';n['PRIVATE'].mkdir();n['MANIFEST']={'install':{'histories':{},'credential_bundle':str(n['PRIVATE']/'install-role-passwords.json')},'packet_files_sha256':{p:'a'*64 for p in n['COOR_MODULES']},'operator_sources_sha256':{p:sha((TASK/p).read_bytes()) for p in n['OPERATOR_FILES']}};n['INSTALL']['module']={'main':lambda args:0}
+        p=runpy.run_path(str(ROOT/n['INSTALL_TRANSPORT']));disk=runpy.run_path(str(ROOT/n['INSTALL_WATCH']));n['INSTALL'].update(transport=p,review_io=dict(disk,read_handoff=lambda *a:({'identity':{'operator_sources_sha256':n['MANIFEST']['operator_sources_sha256']}},{p['READY']:b'ISOLATED_CHILD_REFERENCE_BOUNDARY'})),packet={'variants':{v:{'sha256':h} for v,h in p['SQL'].items()}})
+        self.events=[];n['closed_backends']=n['_required_zero_backends']=lambda name,stage:self.events.append(('closure',name));n['qualified_install_result']=lambda *a:self.events.append(('verdict',)) or {};return n
+    def test_actual_cli_reference_and_every_global_closure_precede_verdict(self):
+        n=self.coordinator_fixture()
+        def main(argv):
+            self.assertEqual(argv[:1],['--execute-reviewed-install-controls']);p=n['OUT']/'install-controls';p.mkdir();(p/'install-controls-results.json').write_text('{}');return 0
+        n['INSTALL']['module']['main']=main;n['install_coordinator_experiment']();self.assertEqual([x[0] for x in self.events],['closure']*3+['verdict']);self.assertTrue(n['report']['install']['coordinator_reference']['reference_qualified']);self.assertNotIn('child_bytes',n['INSTALL'])
+    def test_returned_or_throwing_coordinator_failure_still_closes_all_cids(self):
+        for raised in (False,True):
+            n=self.coordinator_fixture()
+            def entry(argv):
+                if raised:raise n['Stop']('ORIGINAL_FIXED_STOP')
+                return 2
+            n['INSTALL']['module']['main']=entry
+            with self.assertRaises(n['Stop']) as found:n['install_coordinator_experiment']()
+            if raised:self.assertEqual(found.exception.code,'ORIGINAL_FIXED_STOP')
+            self.assertEqual([x[0] for x in self.events],['closure']*3);self.assertNotIn('qualified_result',n['INSTALL']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_reference_read_stat_save_failure_or_oversize_never_skips_global_closure(self):
+        for defect in ('read','stat','save','oversize'):
+            n=self.coordinator_fixture();child=n['OUT']/'install-controls';child.mkdir();path=child/'install-controls-results.json';path.write_text('{}');original_read=Path.open;original_stat=Path.lstat
+            if defect=='oversize':
+                with path.open('wb') as f:f.truncate(16*1024*1024+1)
+            def open_(p,*a,**kw):
+                if p==path and defect=='read':raise OSError(CANARY)
+                return original_read(p,*a,**kw)
+            def stat_(p,*a,**kw):
+                if p==path and defect=='stat':raise OSError(CANARY)
+                return original_stat(p,*a,**kw)
+            count=[0]
+            def save():
+                count[0]+=1
+                if defect=='save' and 'coordinator_reference' in n['report']['install']:raise OSError(CANARY)
+            n['save']=save
+            with patch.object(Path,'open',open_),patch.object(Path,'lstat',stat_),self.assertRaises(n['Stop']):n['install_coordinator_experiment']()
+            self.assertEqual([x[0] for x in self.events],['closure']*3);self.assertNotIn(CANARY,json.dumps(n['report']));self.assertNotIn('qualified_result',n['INSTALL'])
+    def test_one_unconfirmed_global_observer_still_attempts_all_and_stops_verdict(self):
+        n=self.coordinator_fixture();p=n['OUT']/'install-controls';p.mkdir();(p/'install-controls-results.json').write_text('{}')
+        def close(name,stage):
+            self.events.append(('closure',name))
+            if name==n['TARGETS'][0]['name']:raise OSError(CANARY)
+        n['closed_backends']=n['_required_zero_backends']=close
+        with self.assertRaises((n['Stop'],OSError)):n['install_coordinator_experiment']()
+        self.assertEqual([x[0] for x in self.events],['closure']*3);self.assertNotIn('qualified_result',n['INSTALL'])
+    def test_native_qualification_calls_unchanged_comparator_with_exact_new_adapter_import(self):
+        n=self.n;original=__import__;called=[]
+        def comparator(*args,**kw):
+            import prisma_ledger_proof
+            return prisma_ledger_proof.marker
+        module=types.SimpleNamespace(compare_manifest=comparator);n['CATALOG']['tools']={'compare_native_catalog':module};adapter=types.SimpleNamespace(marker='EXACT_SOURCE_BOUND_INSTALL_ADAPTER');self.assertEqual(n['compare_with_install_ledger'](adapter,1),'EXACT_SOURCE_BOUND_INSTALL_ADAPTER');builtins_=comparator.__globals__['__builtins__'];self.assertIs(builtins_['__import__'] if isinstance(builtins_,dict) else builtins_.__import__,original)
+    def test_no_direct_deploy_or_bootstrap_all_bypass_in_outer_pipeline(self):
+        tree=ast.parse(STEPS.read_bytes());names={n.name for n in tree.body if isinstance(n,ast.FunctionDef)};self.assertNotIn('bootstrap_all',names);self.assertNotIn('migrate',names);main=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='main');called=[n.func.id for n in ast.walk(main) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name)];self.assertIn('install_coordinator_experiment',called);self.assertIn('qualify_install_catalog',called)
+    def test_eligible_cleanup_is_observed_without_duplicate_revoke_and_absent_is_not_claimed_sql(self):
+        n=self.n;name=n['TARGETS'][0]['name'];n['INSTALL']['qualified_result']={};n['closed_backends']=n['_required_zero_backends']=Mock();n['finalize']=Mock();values=iter([{'source_roles':4,'login':'postgres','auth':'scram-sha-256:postgres'},{'temporary_memberships':0,'leaf_create':False,'auth':'scram-sha-256:postgres','grantor':'postgres'}]);n['_required_safety_sql']=lambda *a:next(values);n['ensure_original_cleanup'](name);self.assertIn(name,n['finalized']);n['finalize'].assert_not_called()
+        name=n['TARGETS'][1]['name'];n['_required_safety_sql']=lambda *a:{'source_roles':0,'login':'postgres','auth':'scram-sha-256:postgres'};n['ensure_original_cleanup'](name);self.assertNotIn(name,n['finalized']);self.assertEqual(n['report']['targets'][name]['finalization'],'NOT_APPLICABLE_OBSERVED_NO_SOURCE_ROLES');n['finalize'].assert_not_called()
+    def test_outer_credentials_are_distinct_private_candidates_and_no_role_activation(self):
+        n=self.n;directory=tempfile.TemporaryDirectory(prefix='offline-install-credentials-',dir=ROOT.parent);self.addCleanup(directory.cleanup);n['OUT']=Path(directory.name);n['PRIVATE']=n['OUT']/'private';n['PRIVATE'].mkdir();n['passwords']={t['name']:{role:format(i*6+j+1,'064x') for j,role in enumerate(n['ROLES'])} for i,t in enumerate(n['TARGETS'])};n['all_secrets']=[v for row in n['passwords'].values() for v in row.values()];n['report']['credential_handling']={};recipe=json.loads((ROOT/'review-output/native-catalog/public-schema-registration.json').read_bytes());n['CATALOG']['public']=recipe;calls=[]
+        n['docker']=lambda args,**kw:calls.append((args,kw)) or types.SimpleNamespace(returncode=0,stdout='600:0:0\n',stderr='')
+        baseline={'public_owner':recipe['owner'],'public_acl':[{'role':r['grantee'],'grantor':r['grantor'],'privilege':r['privilege'],'grant_option':r['grant_option']} for r in recipe['baseline_acl']],'event_triggers':0,'application_roles':0};n['observe']=lambda *a:copy.deepcopy(baseline)
+        n['prepare_install_credentials_and_baselines']();self.assertEqual(len(calls),18);self.assertEqual(len(set(n['all_secrets'])),36);self.assertEqual(set(json.loads((n['PRIVATE']/'install-role-passwords.json').read_bytes())),{'canonical','division_failure','late_function_grant'})
+        for args,options in calls:
+            self.assertNotIn('ALTER ROLE',str(args));self.assertNotIn('PGPASSWORD',str(args))
+            for password in n['all_secrets']:self.assertNotIn(password,str(args));self.assertNotIn(password,json.dumps(n['report']))
+        self.assertIs(n['report']['credential_handling']['application_credentials_activated_by_outer'],False)
+    def test_malformed_cleanup_eligibility_never_executes_source_finalizer(self):
+        for value in ({'source_roles':False,'login':'postgres','auth':'scram-sha-256:postgres'},{'source_roles':4.0,'login':'postgres','auth':'scram-sha-256:postgres'},{'source_roles':2,'login':'postgres','auth':'scram-sha-256:postgres'},{'source_roles':4,'login':CANARY,'auth':'scram-sha-256:postgres'}):
+            n=namespace();n['_required_safety_sql']=lambda *a,value=value:value;n['finalize']=Mock();n['closed_backends']=Mock()
+            with self.assertRaises(n['Stop']):n['ensure_original_cleanup'](n['TARGETS'][0]['name'])
+            n['finalize'].assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_qualified_child_result_never_accepts_generic_pass_or_extra_top_fields(self):
+        n=self.n;n['INSTALL']['run_plan_file_sha256']='a'*64
+        for value in ({'status':'PASS'},{'schema':'workinants.install-controls-results.v1','status':'PASS_FINITE_INSTALL_PROTOCOLS_PENDING_FULL_NATIVE_COMPARISON','raw_error':CANARY}):
+            with self.assertRaises(n['Stop']):n['qualified_install_result'](value,{})
+            self.assertNotIn(CANARY,json.dumps(n['report']))
+
+class FinallySafetyTests(unittest.TestCase):
+    """Actual new main/cleanup/save bodies; every operation process is refused."""
+    def setUp(self):
+        from types import SimpleNamespace
+        self.Result=SimpleNamespace;self.guards=[]
+        for name in ('run','Popen','check_call','check_output','call'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('NO_REAL_PROCESS'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NO_NETWORK'));guard.start();self.addCleanup(guard.stop)
+        tmp=tempfile.TemporaryDirectory(prefix='offline-finally-v4-',dir=ROOT.parent);self.addCleanup(tmp.cleanup);self.base=Path(tmp.name)
+        n=runpy.run_path(str(CORE));self.n=n['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),self.n);self.lease=True;self.events=[]
+        n=self.n;n.update(ROOT=ROOT,TASK=TASK,OUT=self.base/'evidence',PRIVATE=self.base/'evidence/private',RUN_ID='550e8400-e29b-41d4-a716-446655440000',LABEL='p0c-local-f0',CONNECTION_TAG='wa-first-test',ROLES=('postgres','wa_migrator'),all_secrets=[],secret_paths=[],created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),RESOURCE_CONTAINERS=(),RESOURCE_VOLUMES=())
+        n['report']={'stage':'ENTRY','status':'IN_PROGRESS','unexpected':[],'events':[],'steps':{},'targets':{},'cleanup':{},'qualified_native_snapshot_sha256':'a'*64,'source_verification':{'files_sha256':{'AGENTS.md':hashlib.sha256((ROOT/'AGENTS.md').read_bytes()).hexdigest()}}}
+        external={CORE.name:hashlib.sha256(CORE.read_bytes()).hexdigest()};n['MANIFEST']={'review_status':'APPROVED_LOCAL_F0_INSTALL_OWNED_ATTEMPT' if self.lease else 'APPROVED_LOCAL_F0_RESTORE_ATTEMPT','operator_sources_sha256':external,'restore':{'external_files_sha256':external}}
+        n['TARGETS']=[];n['report']['install']={'native':{'canonical':{'native_sha256':'0'*64},'division_failure':{'native_sha256':'0'*64}}}
+        self.raw_save=n['save'];self.raw_cleanup=n['cleanup'];self.raw_event=n['event']
+        for name in ('verify_packet' if self.lease else 'verify_restore_packet','preflight','ensure_image','create_resources','prepare_install_credentials_and_baselines','provision_migration_tools','install_coordinator_experiment','qualify_install_catalog','install_cross_target_semantic_parity','ensure_original_cleanup'):
+            n[name]=lambda *args,name=name:self.events.append(name)
+        n['ensure_original_cleanup']=lambda name:self.events.append('finalize:'+name);n['secret_scan']=lambda:self.events.append('scan');n['cleanup']=lambda:self.events.append('cleanup');n['verify_tool_data']=lambda:self.events.append('tool-postcheck');n['verify_external_input_preservation']=lambda:self.events.append('archive-postcheck')
+        n['save']=lambda:None;n['event']=lambda *a,**k:None
+        # Mechanism-only baseline: retain genuine historical child bytes;
+        # source/domain SQL qualification above remains deliberately isolated.
+        def component():
+            path=n['OUT']/'install-controls/install-controls-results.json';path.parent.mkdir();path.write_bytes((ROOT/'context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json').read_bytes());n['retain_install_reference']();self.events.append('install_coordinator_experiment')
+        n['install_coordinator_experiment']=component
+    def invoke(self):
+        with redirect_stdout(io.StringIO()) as output:result=self.n['main']()
+        self.assertNotIn(CANARY,output.getvalue());self.assertNotIn(CANARY,json.dumps(self.n['report']));return result
+    def persistent_after_initial(self):
+        calls=[0]
+        def save():
+            calls[0]+=1
+            if calls[0]>1:raise OSError(CANARY)
+        self.n['save']=save
+    def test_actual_operational_stop_finalizer_and_persistent_save_do_not_skip_any_finally_branch(self):
+        n=self.n;n['bootstrap_attempted']={'first','second'};self.persistent_after_initial()
+        def stop():n['report']['stage']='ORIGINAL_OPERATION';raise n['Stop']('ORIGINAL_OPERATION_STOP')
+        n['verify_packet' if self.lease else 'verify_restore_packet']=stop
+        def finalize(name):
+            self.events.append('finalize:'+name)
+            if name=='first':raise OSError(CANARY)
+        n['ensure_original_cleanup']=finalize;self.assertEqual(self.invoke(),1)
+        for key in ('finalize:first','finalize:second','scan','cleanup','tool-postcheck','archive-postcheck'):self.assertIn(key,self.events)
+        self.assertEqual(n['report']['primary_failure'],{'stage':'ORIGINAL_OPERATION','code':'ORIGINAL_OPERATION_STOP'});self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_actual_scan_failure_and_persistent_save_still_attempt_cleanup_and_all_postchecks(self):
+        n=self.n;self.persistent_after_initial()
+        def scan():self.events.append('scan');raise OSError(CANARY)
+        n['secret_scan']=scan;self.assertEqual(self.invoke(),1)
+        for key in ('cleanup','tool-postcheck','archive-postcheck'):self.assertIn(key,self.events)
+        self.assertFalse(n['report']['evidence_complete'])
+    def test_stop_event_output_failure_cannot_skip_finally(self):
+        n=self.n;n['verify_packet' if self.lease else 'verify_restore_packet']=lambda:(_ for _ in ()).throw(n['Stop']('ORIGINAL_OPERATION_STOP'));n['event']=lambda *a,**k:(_ for _ in ()).throw(BrokenPipeError(CANARY))
+        self.assertEqual(self.invoke(),1);self.assertIn('cleanup',self.events);self.assertIn('archive-postcheck',self.events);self.assertEqual(n['report']['primary_failure']['code'],'ORIGINAL_OPERATION_STOP');self.assertFalse(n['report']['evidence_complete'])
+    def test_initial_evidence_failure_stops_before_preflight_or_creation(self):
+        n=self.n;n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));self.assertEqual(self.invoke(),1);self.assertNotIn('preflight',self.events);self.assertNotIn('create_resources',self.events);self.assertIn('cleanup',self.events)
+    def test_final_save_failure_cannot_return_or_emit_pass(self):
+        n=self.n;post=n['verify_external_input_preservation']
+        def arm_after_postcheck():
+            post();n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY))
+        n['verify_external_input_preservation']=arm_after_postcheck;self.assertEqual(self.invoke(),1);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(n['report']['evidence_complete']);self.assertTrue(n['report']['install']['coordinator_reference']['integrity_checks'][-1]['matched_original'])
+    def test_final_output_failure_is_sticky_nonzero_even_if_file_saving_recovers(self):
+        n=self.n
+        with patch('builtins.print',side_effect=BrokenPipeError(CANARY)):self.assertEqual(n['main'](),1)
+        self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+    def test_raw_operational_event_output_failure_marks_incomplete_before_main_handles_it(self):
+        n=self.n;n['OUT'].mkdir();n['event']=self.raw_event;n['save']=self.raw_save
+        with patch('builtins.print',side_effect=BrokenPipeError(CANARY)),self.assertRaises(BrokenPipeError):n['event']('SAFE_STAGE','ATTEMPTED')
+        self.assertFalse(n['evidence_is_complete']());n['save']();self.assertFalse(json.loads((n['OUT']/'run-evidence.json').read_bytes())['evidence_complete'])
+    def test_raw_save_failure_remains_sticky_after_a_later_real_save_succeeds(self):
+        n=self.n;n['OUT'].mkdir();n['save']=self.raw_save
+        with patch.object(Path,'open',side_effect=OSError(CANARY)),self.assertRaises(OSError):n['save']()
+        n['save']();self.assertFalse(n['evidence_is_complete']());value=json.loads((n['OUT']/'run-evidence.json').read_bytes());self.assertFalse(value['evidence_complete']);self.assertTrue(value['persistence_failure'])
+    def test_tool_and_archive_postchecks_run_after_packet_read_failure(self):
+        n=self.n;n['report']['source_verification']['files_sha256']={'not-a-current-source-file': '0'*64};self.assertEqual(self.invoke(),1);self.assertIn('tool-postcheck',self.events);self.assertIn('archive-postcheck',self.events);self.assertFalse(n['report']['packet_unchanged_after_run']);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
+    def test_archive_and_operator_postchecks_run_after_tool_postcheck_exception(self):
+        n=self.n;n['verify_tool_data']=lambda:(_ for _ in ()).throw(OSError(CANARY));self.assertEqual(self.invoke(),1);self.assertIn('archive-postcheck',self.events);self.assertTrue(n['report']['external_sources_unchanged_after_run'])
+    def test_unmodified_all_success_status_is_preserved(self):
+        self.assertEqual(self.invoke(),0);expected='PASS_FINITE_INSTALL_PROTOCOLS_AND_NATIVE_SUBSET_ONLY' if self.lease else 'PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN';self.assertEqual(self.n['report']['status'],expected);self.assertTrue(self.n['evidence_is_complete']())
+    def cleanup_fixture(self,mode):
+        n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();names=('good','division','order');volumes=('good-data','division-data','order-data');ids={name:format(i+1,'064x') for i,name in enumerate(names)};labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':n['RUN_ID']};present_c=set(names);present_v=set(volumes);calls=[]
+        n.update(RESOURCE_CONTAINERS=names,RESOURCE_VOLUMES=volumes,created_containers=ids,created_volumes={name:'FIXED_CREATED_AT' for name in volumes},attempted_containers=set(names),attempted_volumes=set(volumes));n['secret_paths']=[n['PRIVATE']/name for name in ('canonical-bootstrap-password','division_failure-bootstrap-password','late_function_grant-bootstrap-password','install-role-passwords.json')]
+        for path in n['secret_paths']:path.write_text('synthetic test bytes')
+        def container(name):
+            calls.append(('inspect-container',name))
+            if name==names[0] and mode=='inspection':raise OSError(CANARY)
+            return {'Id':'f'*64 if name==names[0] and mode=='foreign' else ids[name],'Name':'/'+name,'Config':{'Labels':labels}}
+        def volume(name):calls.append(('inspect-volume',name));return {'Name':name,'CreatedAt':'FIXED_CREATED_AT','Labels':labels}
+        def docker(args,**kwargs):
+            calls.append(tuple(args))
+            if args[:2]==['container','rm']:present_c.remove(next(name for name in ids if ids[name]==args[-1]))
+            if args[:2]==['volume','rm']:present_v.remove(args[-1])
+            return self.Result(returncode=0,stdout='',stderr='')
+        def inventory():
+            calls.append(('independent-absence',))
+            if mode=='absence':raise OSError(CANARY)
+            return present_c,present_v
+        n.update(inspect_container=container,inspect_volume=volume,docker=docker,inventory=inventory,cleanup=self.raw_cleanup);n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));return names,volumes,ids,calls
+    def test_cleanup_report_save_failure_does_not_skip_volumes_private_files_or_final_absence(self):
+        names,volumes,ids,calls=self.cleanup_fixture('save');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertTrue(all(('container','rm','-f',ids[name]) in calls for name in names));self.assertTrue(all(('volume','rm',name) in calls for name in volumes));self.assertFalse(n['PRIVATE'].exists());self.assertIn(('independent-absence',),calls);self.assertFalse(n['report']['evidence_complete']);self.assertNotEqual(n['report']['steps'].get('CATALOG-CLEANUP'),'PASS')
+    def test_cleanup_inspection_failure_and_failed_error_save_do_not_skip_other_resources(self):
+        names,volumes,ids,calls=self.cleanup_fixture('inspection');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertTrue(all(('container','rm','-f',ids[name]) in calls for name in names[1:]));self.assertTrue(all(('volume','rm',name) in calls for name in volumes));self.assertFalse(n['PRIVATE'].exists());self.assertIn(('independent-absence',),calls)
+    def test_cleanup_foreign_identity_is_not_deleted_despite_failed_bookkeeping(self):
+        names,volumes,ids,calls=self.cleanup_fixture('foreign');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertNotIn(('container','rm','-f','f'*64),calls);self.assertNotIn(('container','rm','-f',ids[names[0]]),calls);self.assertIn(('independent-absence',),calls);self.assertFalse(n['PRIVATE'].exists())
+    def test_private_metadata_read_error_never_claims_absence_and_still_observes_resources(self):
+        names,volumes,ids,calls=self.cleanup_fixture('metadata');n=self.n;original=Path.lstat
+        def lstat(path,*a,**k):
+            if path==n['PRIVATE']:raise PermissionError(CANARY)
+            return original(path,*a,**k)
+        with patch.object(Path,'lstat',lstat),self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertIn(('independent-absence',),calls);self.assertFalse(n['report']['host_secret_cleanup']['private_directory_absent']);self.assertFalse(n['report']['cleanup_summary']['private_directory_absent']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_cleanup_unknown_absence_retains_fixed_unconfirmed_flags(self):
+        names,volumes,ids,calls=self.cleanup_fixture('absence');n=self.n
+        with self.assertRaises(n['Stop']):n['cleanup']()
+        self.assertFalse(n['report']['cleanup_summary']['resource_absence_observation_completed']);self.assertIsNone(n['report']['cleanup_summary']['resource_presence_after']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_one_private_unlink_failure_does_not_skip_other_secret_or_absence(self):
+        names,volumes,ids,calls=self.cleanup_fixture('unlink');n=self.n;original=Path.unlink;first=n['secret_paths'][0]
+        def unlink(path,*a,**k):
+            if path==first:raise OSError(CANARY)
+            return original(path,*a,**k)
+        with patch.object(Path,'unlink',unlink),self.assertRaises(n['Stop']):n['cleanup']()
+        for path in n['secret_paths'][1:]:self.assertFalse(path.exists())
+        self.assertIn(('independent-absence',),calls);self.assertNotIn(CANARY,json.dumps(n['report']))
+
+
+    def test_parity_stop_is_primary_and_persistent_io_still_runs_all_cleanup_postchecks(self):
+        n=self.n;n['bootstrap_attempted']={'first','second'}
+        def parity():
+            n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));raise n['Stop']('INSTALL_PARITY_INTERNAL_SOURCE_FIELDS')
+        n['install_cross_target_semantic_parity']=parity;self.assertEqual(self.invoke(),1);self.assertIn('finalize:first',self.events);self.assertIn('finalize:second',self.events);self.assertIn('scan',self.events);self.assertIn('cleanup',self.events);self.assertIn('tool-postcheck',self.events);self.assertIn('archive-postcheck',self.events);self.assertEqual(n['report']['unexpected'][0]['code'],'INSTALL_PARITY_INTERNAL_SOURCE_FIELDS');self.assertFalse(n['evidence_is_complete']());self.assertNotEqual(n['report']['status'],'PASS_FINITE_INSTALL_PROTOCOLS_AND_NATIVE_SUBSET_ONLY')
+    def test_individual_qualification_stop_prevents_semantic_proof_and_success_summary(self):
+        n=self.n;n['install_cross_target_semantic_parity']=Mock()
+        def fail(*args):raise n['Stop']('NATIVE_CATALOG_COMPARISON_NOT_PASS')
+        n['qualify_install_catalog']=fail;self.assertEqual(self.invoke(),1);n['install_cross_target_semantic_parity'].assert_not_called();self.assertIn('cleanup',self.events);self.assertNotIn('semantic_parity',n['report']['install'])
+
+
+class ReviewReadySourceGateTests(unittest.TestCase):
+    setUp=Tests.setUp
+    full_fixture=Tests.full_fixture
+    def test_actual_outer_closed_plan_identity_enters_real_coordinator_source_gate_before_runtime(self):
+        n,master,clone,g=self.full_fixture();n['verify_packet']();n['created_containers']={t['name']:format(i+1,'064x') for i,t in enumerate(n['TARGETS'])};n['PRIVATE'].mkdir(parents=True);bundle={t['kind']:{role:format(i*6+j+1,'064x') for j,role in enumerate(n['ROLES'])} for i,t in enumerate(n['TARGETS'])};(n['PRIVATE']/'install-role-passwords.json').write_text(json.dumps(bundle));actual=n['INSTALL']['module']['main'];entered=[]
+        class StopBeforeRuntime:
+            def __init__(self,*args):entered.append(args)
+            def run(self):raise ValueError('FIXTURE_STOPS_BEFORE_ALL_PROCESS_BOUNDARIES')
+        n['INSTALL']['module']['main']=lambda argv:actual(argv,dependencies={'coordinator':StopBeforeRuntime});closures=[];n['_required_zero_backends']=lambda *a:closures.append(a)
+        with self.assertRaises(n['Stop']) as error:n['install_coordinator_experiment']()
+        self.assertEqual(error.exception.code,'INSTALL_COORDINATOR_STOPPED');self.assertEqual(len(entered),1);self.assertEqual(len(closures),3);self.assertNotIn('qualified_result',n['INSTALL']);p=n['INSTALL']['transport'];identity=p['decode']((n['OUT']/p['IDENTITY']).read_bytes(),True);self.assertEqual(identity['child_run_plan_sha256'],sha((n['OUT']/p['PLAN']).read_bytes()));self.assertFalse((n['OUT']/'install-controls'/p['READY']).exists());self.assertFalse((n['OUT']/'install-controls'/p['APPROVAL']).exists())
+    def test_each_of_four_real_runtime_gates_blocks_before_any_helper_or_command(self):
+        n,master,clone,g=self.full_fixture();validation='context/reconciliation/local-f0-install-controls-owned-source-phase-v5-source-validation.json';path=clone/validation;original=json.loads(path.read_bytes());tree=ast.parse(STEPS.read_bytes());node=next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='verify_common_packet');exec(compile(ast.Module(body=[node],type_ignores=[]),str(STEPS),'exec'),n);master['review_status']='APPROVED_LOCAL_F0_INSTALL_OWNED_ATTEMPT'
+        for gate in ('independent_source_review','independent_ledger_source_review','independent_safety_sql_review','independent_review_publication_source_review','independent_failed_precleanup_activation_source_review'):
+            value=copy.deepcopy(original)
+            for k in ('independent_source_review','independent_ledger_source_review','independent_safety_sql_review','independent_review_publication_source_review','independent_failed_precleanup_activation_source_review'):value[k]={'decision':'SOURCE_APPROVED' if k!=gate else 'PENDING'}
+            raw=g['encoded'](value);path.write_bytes(raw);master['packet_files_sha256'][validation]=sha(raw);n['command']=Mock(side_effect=AssertionError('NO_COMMAND_BEFORE_ALL_REVIEWS'))
+            with self.subTest(gate=gate),patch('builtins.compile',side_effect=AssertionError('NO_HELPER_BEFORE_ALL_REVIEWS')),self.assertRaises(n['Stop']) as error:n['verify_common_packet']()
+            self.assertEqual(error.exception.code,'INSTALL_ALL_SOURCE_REVIEWS_REQUIRED');n['command'].assert_not_called()
+    def test_real_pinner_pending_publication_gate_and_isolated_approved_clone_committed_graph(self):
+        n,master,clone,g=self.full_fixture();validation='context/reconciliation/local-f0-install-controls-owned-source-phase-v5-source-validation.json';path=clone/validation;value=json.loads(path.read_bytes());manifest=Path(n['MANIFEST_PATH']);p=runpy.run_path(str(PIN))['pin'].__globals__;p.update(ROOT=clone,TASK=clone.parent);p['git']=Mock(side_effect=AssertionError('NO_GIT_BEFORE_SOURCE_REVIEWS'))
+        for k in ('independent_source_review','independent_ledger_source_review','independent_safety_sql_review'):value[k]={'decision':'SOURCE_APPROVED'}
+        value['independent_review_publication_source_review']={'decision':'PENDING'}
+        path.write_bytes(g['encoded'](value))
+        with self.assertRaises(ValueError) as error:p['pin'](manifest)
+        self.assertEqual(str(error.exception),'INDEPENDENT_REVIEW_PUBLICATION_SOURCE_REVIEW_REQUIRED');p['git'].assert_not_called()
+        value['independent_review_publication_source_review']={'decision':'SOURCE_APPROVED'};raw=g['encoded'](value);path.write_bytes(raw);pins=master['packet_files_sha256'];pins[validation]=sha(raw);master.update(prepared_source_file_inventory_sha256=dict(pins),prepared_source_files_aggregate_sha256=g['aggregate'](pins));manifest.write_bytes(g['encoded'](master))
+        def committed(*args):
+            if args==('rev-parse','HEAD'):return ('a'*40+'\n').encode()
+            if args==('rev-parse','HEAD^{tree}'):return ('b'*40+'\n').encode()
+            if args[0]=='show':return (clone/args[1].split(':',1)[1]).read_bytes()
+            raise AssertionError('UNEXPECTED_GIT_BOUNDARY')
+        p['git']=committed;result=p['pin'](manifest);self.assertEqual(result['status'],'PINNED_STILL_HELD');self.assertEqual(json.loads(manifest.read_bytes())['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertFalse(Path(master['evidence_directory']).exists())
+
+
+class SemanticParityTests(unittest.TestCase):
+    """Closed b778 bytes are offline fixtures, never new runtime attestations."""
+    setUp=Tests.setUp
+    full_fixture=Tests.full_fixture
+    def source_inputs(self):
+        if not hasattr(type(self),'_closed_source_tools'):
+            generator_path=ROOT/'scripts/prepare-native-catalog-review.py';self.assertEqual(sha(generator_path.read_bytes()),self.n['GENERATOR_SHA'])
+            generator=runpy.run_path(str(generator_path));pins=json.loads((ROOT/'review-output/native-catalog/source-pins.json').read_bytes());tools=generator['load_catalog_tools'](ROOT,pins);expected=tools['catalog_manifest'].build_manifest(ROOT,pins);type(self)._closed_source_tools=(tools,expected)
+        tools,expected=type(self)._closed_source_tools;rules=tools['pg17_catalog_rules'];oracle=tools['catalog_expression_oracle']
+        self.assertEqual(sha((ROOT/'scripts/sql-review/pg17_catalog_rules.py').read_bytes()),'448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342')
+        closed=TASK/'local-f0-install-controls-20261119-b778f794';snapshots={}
+        for kind,prefix,pin in [('canonical','canonical-','e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8'),('division_failure','recovered-','24c5d8392ab622e1a0f27c5bca84c8dfa8c64fd9f372d8125ee37616a3178a72')]:
+            raw=(closed/(prefix+'native-before.json')).read_bytes();self.assertEqual(sha(raw),pin);snapshots[kind]=json.loads(raw)
+        return rules,oracle,expected,snapshots,closed
+    def view(self,snapshot):
+        rules,oracle,expected,_,_=self.source_inputs();return self.n['install_semantic_native_view'](snapshot,expected['expected'],rules)
+    def parity_fixture(self):
+        rules,oracle,expected,snapshots,closed=self.source_inputs();n=self.n;tmp=tempfile.TemporaryDirectory(prefix='offline-install-parity-',dir=ROOT.parent);self.addCleanup(tmp.cleanup);n['OUT']=Path(tmp.name)
+        old=json.loads((closed/'run-evidence.json').read_bytes());n['CATALOG'].update(expected=expected,tools={'compare_native_catalog':types.SimpleNamespace(pg17=rules),'catalog_expression_oracle':oracle});n['finalized']=set(n['created_containers']);n['INSTALL']['parity_inputs']={};n['report']['install']['native']=copy.deepcopy(old['install']['native']);self.closures=[];n['closed_backends']=lambda *a:self.closures.append(a)
+        for kind,prefix in [('canonical','canonical-'),('division_failure','recovered-')]:
+            native=snapshots[kind];comparison=json.loads((closed/(prefix+'catalog-comparison.json')).read_bytes());ledger={'status':'PASS','checks':copy.deepcopy(old['install']['native'][kind]['ledger_checks'])};proof=json.loads((closed/(prefix+'oracle-evidence.json')).read_bytes());name=next(t['name']for t in n['TARGETS']if t['kind']==kind)
+            n['INSTALL']['parity_inputs'][kind]={'native':native,'comparison':comparison,'ledger':ledger,'oracle':proof,'identity':{'run_id':n['RUN_ID'],'container_id':n['created_containers'][name],'source_commit':n['COMMIT'],'source_tree':n['TREE'],'packet_sha256':n['PACKET']},'original_grantor_finalized':True,'operation_backends_absent':True}
+            n['report']['install']['native'][kind]['catalog_check_counts']=comparison['check_counts']
+            for suffix,value in [('native-before.json',native),('catalog-comparison.json',comparison),('ledger-comparison.json',ledger)]:
+                raw=(closed/(prefix+suffix)).read_bytes()if suffix!='ledger-comparison.json'else(json.dumps(value,sort_keys=True,indent=2)+'\n').encode();(n['OUT']/(prefix+suffix)).write_bytes(raw)
+        return n
+    def test_actual312_generated_names_differ_but_source_semantics_match_without_rewriting(self):
+        rules,oracle,expected,snapshots,closed=self.source_inputs();before=copy.deepcopy(snapshots);a,an=self.view(snapshots['canonical']);b,bn=self.view(snapshots['division_failure']);self.assertEqual(a,b);self.assertEqual(len(an),312);self.assertEqual(len(a['external_triggers']),100);self.assertEqual(len(a['nontrigger_sections']),26);self.assertEqual(sum(an[k]!=bn[k]for k in an),312);self.assertEqual(snapshots,before)
+        with self.assertRaises(self.n['Stop'])as e:self.n['exact'](self.n['digest'](snapshots['canonical']),self.n['digest'](snapshots['division_failure']),'RECOVERED_NATIVE_DIFFERS_FROM_CANONICAL')
+        self.assertEqual(e.exception.code,'RECOVERED_NATIVE_DIFFERS_FROM_CANONICAL')
+    def test_name_prefix_is_source_function_specific_not_broad_RI_pattern(self):
+        *_,snapshots,closed=self.source_inputs();base=snapshots['canonical'];row=next(r for r in base['triggers']if r['internal']);wrong='a'if row['name'].startswith('RI_ConstraintTrigger_c_')else'c'
+        for bad in ['RI_ConstraintTrigger_'+wrong+'_123',row['name']+'x','RI_ConstraintTrigger_c_',CANARY,True,None]:
+            value=copy.deepcopy(base);next(r for r in value['triggers']if r['internal'])['name']=bad
+            with self.subTest(bad=bad),self.assertRaises(self.n['Stop']):self.view(value)
+    def test_all_source_valid_name_suffix_substitutions_pass_without_positional_matching(self):
+        *_,snapshots,closed=self.source_inputs();base=snapshots['canonical'];value=copy.deepcopy(base)
+        for i,row in enumerate(value['triggers']):
+            if row['internal']:row['name']=row['name'].rsplit('_',1)[0]+'_'+str(9000000+i)
+        value['triggers'].reverse();self.assertEqual(self.view(base)[0],self.view(value)[0]);self.assertNotEqual(self.n['digest'](base),self.n['digest'](value))
+    def test_every20_nonname_internal_fields_reject_even_if_identically_bad_both_targets(self):
+        *_,snapshots,closed=self.source_inputs();base=snapshots['canonical'];original=next(r for r in base['triggers']if r['internal'])
+        for field in set(original)-{'name'}:
+            value=copy.deepcopy(base);row=next(r for r in value['triggers']if r['internal']);v=row[field];row[field]=(not v)if type(v)is bool else v+1 if type(v)is int else []if type(v)is list else CANARY
+            with self.subTest(field=field),self.assertRaises(self.n['Stop']):self.view(value)
+    def test_malformed_internal_flags_and_unknown_extra_keys_reject(self):
+        *_,snapshots,closed=self.source_inputs()
+        for field,bad in [('internal',1),('internal',None),('type_bits',True),('function_release_builtin',1),('enabled',CANARY),('unknown',CANARY)]:
+            value=copy.deepcopy(snapshots['canonical']);next(r for r in value['triggers']if r['internal'])[field]=bad
+            with self.subTest(field=field,bad=bad),self.assertRaises(self.n['Stop']):self.view(value)
+    def test_missing_duplicate_extra_identity_and_duplicate_names_reject(self):
+        *_,snapshots,closed=self.source_inputs()
+        for defect in ['missing','duplicate','extra','name_collision','external_missing','constraint_duplicate']:
+            value=copy.deepcopy(snapshots['canonical']);i=next(i for i,r in enumerate(value['triggers'])if r['internal'])
+            if defect=='missing':value['triggers'].pop(i)
+            elif defect=='duplicate':value['triggers'].append(copy.deepcopy(value['triggers'][i]))
+            elif defect=='extra':r=copy.deepcopy(value['triggers'][i]);r['function']='pg_catalog.UNKNOWN';r['name']+='0';value['triggers'].append(r)
+            elif defect=='name_collision':value['triggers'][i]['name']=next(r['name']for r in value['triggers']if r['table_name']==value['triggers'][i]['table_name']and r['name']!=value['triggers'][i]['name'])
+            elif defect=='external_missing':value['triggers'].remove(next(r for r in value['triggers']if r['internal']is False))
+            else:value['constraints'].append(copy.deepcopy(value['constraints'][0]))
+            with self.subTest(defect=defect),self.assertRaises(self.n['Stop']):self.view(value)
+    def test_trigger_order_is_keyed_but_external_names_and_other_sections_remain_exact(self):
+        *_,snapshots,closed=self.source_inputs();a=copy.deepcopy(snapshots['canonical']);b=copy.deepcopy(a);b['triggers'].reverse();self.assertEqual(self.view(a)[0],self.view(b)[0])
+        for field in ['external_name','external_flags','roles','constraints','functions','public_schema_owner']:
+            b=copy.deepcopy(a)
+            if field=='external_name':next(r for r in b['triggers']if r['internal']is False)['name']=CANARY
+            elif field=='external_flags':next(r for r in b['triggers']if r['internal']is False)['enabled']='D'
+            elif field=='public_schema_owner':b[field]=CANARY
+            else:b[field]=[]
+            with self.subTest(field=field):
+                try:other=self.view(b)[0]
+                except self.n['Stop']:continue
+                self.assertNotEqual(self.view(a)[0],other)
+    def test_cross_target_requires_both_actual_comparator_oracle_ledger_source_and_closure_bindings(self):
+        for defect in ['missing','catalog_status','catalog_count_float','catalog_count_one','ledger_count','ledger_status','oracle_closed','source','cid','finalized','input_closed','snapshot','artifact']:
+            n=self.parity_fixture();item=n['INSTALL']['parity_inputs']['canonical']
+            if defect=='missing':n['INSTALL']['parity_inputs'].pop('division_failure')
+            elif defect=='catalog_status':item['comparison']['status']='INCOMPLETE'
+            elif defect=='catalog_count_float':item['comparison']['check_counts']['PASS']=29089.0
+            elif defect=='catalog_count_one':item['comparison']['check_counts']['PASS']=1
+            elif defect=='ledger_count':item['ledger']['checks'].pop()
+            elif defect=='ledger_status':item['ledger']['checks'][0]['status']='FAIL'
+            elif defect=='oracle_closed':item['oracle']['connection_closed_before_observation']=False
+            elif defect=='source':item['identity']['source_commit']='f'*40
+            elif defect=='cid':item['identity']['container_id']='f'*64
+            elif defect=='finalized':n['finalized'].clear()
+            elif defect=='input_closed':item['operation_backends_absent']=False
+            elif defect=='snapshot':item['native']['roles']=[]
+            else:(n['OUT']/'canonical-catalog-comparison.json').write_bytes(b'{}')
+            with self.subTest(defect=defect),self.assertRaises(n['Stop']):n['install_cross_target_semantic_parity']()
+            self.assertNotIn('semantic_parity',n['report']['install']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_closed_actual_fixture_passes_fixed_semantic_proof_with_distinct_raw_hashes(self):
+        n=self.parity_fixture();out=n['install_cross_target_semantic_parity']();self.assertEqual(len(self.closures),2);self.assertEqual(out['counts'],{'trigger_rows':412,'internal_rows':312,'external_rows':100,'other_sections':26,'generated_names_differed':312});self.assertNotEqual(*out['raw_snapshot_native_sha256'].values());self.assertEqual(*out['semantic_view_sha256'].values());self.assertEqual(out['individual_source_comparisons']['canonical'],{'catalog_PASS_checks':29089,'ledger_PASS_checks':22,'oracle_expressions':416});self.assertEqual(out['individual_source_comparisons']['division_failure'],{'catalog_PASS_checks':29090,'ledger_PASS_checks':23,'oracle_expressions':416})
+    def test_semantic_artifact_write_failure_and_unconfirmed_closure_never_qualify(self):
+        for defect in ['write','closure']:
+            n=self.parity_fixture()
+            if defect=='write':n['write_safe']=Mock(side_effect=OSError(CANARY))
+            else:n['closed_backends']=Mock(side_effect=n['Stop']('GLOBAL_BACKEND_CLOSURE_UNCONFIRMED'))
+            with self.assertRaises((n['Stop'],OSError)):n['install_cross_target_semantic_parity']()
+            self.assertNotIn('semantic_parity',n['report']['install']);self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_source_AST_delta_is_only_namespace_and_bounded_parity_pipeline(self):
+        oldroot=ROOT/'context/reconciliation/local-f0-operation-sources/install-controls-owned-parity-v4'
+        oldnames=('execute_local_f0_install_controls_20261120_owned_parity_v4.py','local_f0_install_controls_operation_steps_owned_parity_v4.py','prepare_local_f0_install_controls_plan_owned_parity_v4.py','check_local_f0_install_controls_operation_owned_parity_v4.py','pin_local_f0_install_controls_plan_20261120_owned_parity_v4.py')
+        newnames=tuple(x.replace('owned_parity_v4','source_phase_v5')for x in oldnames)
+        def nodes(text):return {x.name:ast.dump(x,include_attributes=False)for x in ast.parse(text).body if isinstance(x,(ast.FunctionDef,ast.ClassDef))}
+        for index in (0,1,2,4):
+            before=(oldroot/(oldnames[index]+'.txt')).read_text();after=(TASK/newnames[index]).read_text()
+            for old,new in zip(oldnames,newnames):after=after.replace(new,old)
+            after=after.replace('install-controls-owned-source-phase-v5','install-controls-owned-parity-v4').replace('install-control-rehearsal-v5','install-control-rehearsal-v4')
+            left,right=nodes(before),nodes(after);self.assertEqual(set(right)-set(left),{'read_closed_install_reference','verify_install_reference'}if index==1 else set());self.assertFalse(set(left)-set(right))
+            allowed={1:{'verify_common_packet','verify_packet','qualified_install_result','retain_install_reference','main'},2:{'prepare'},4:{'pin'}}.get(index,set())
+            for name in set(left)-allowed:self.assertEqual(left[name],right[name],name)
+    def test_real_initialization_full_admission_preserves_unmodified_child_and_actual_session_boundaries(self):
+        n,master,clone,g=self.full_fixture();n['verify_packet']();self.assertEqual(n['INSTALL']['module_bytes']['scripts/sql-review/run-install-control-rehearsal-v5.py'],(ROOT/'scripts/sql-review/run-install-control-rehearsal-v5.py').read_bytes());self.assertIn('host(inet_client_addr())',n['INSTALL']['module_bytes']['scripts/sql-review/run-first-rehearsal.py'].decode());self.assertFalse(Path(master['evidence_directory']).exists());self.assertEqual(len(n['INSTALL']['histories']),4);self.assertIs(n['INSTALL']['transport']['_phase'],n['INSTALL']['phase'])
+
+
+    def test_new_transport_watcher_coordinator_generator_are_exact_namespace_derivations(self):
+        # Accepted transport/watcher/gate remain exact, while V5's child adds
+        # only phase admission/receipts and narrowly required sticky-IO/finally.
+        self.assertEqual(sha((ROOT/'scripts/install_control_protocol_v2.py').read_bytes()),'6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f')
+        def methods(raw):
+            out={}
+            for n in ast.parse(raw).body:
+                if isinstance(n,ast.FunctionDef):out[n.name]=ast.dump(n,include_attributes=False)
+                elif isinstance(n,ast.ClassDef):
+                    for m in n.body:
+                        if isinstance(m,ast.FunctionDef):out[n.name+'.'+m.name]=ast.dump(m,include_attributes=False)
+            return out
+        old=methods((ROOT/'scripts/sql-review/run-install-control-rehearsal-v4.py').read_bytes());new=methods((ROOT/'scripts/sql-review/run-install-control-rehearsal-v5.py').read_bytes())
+        changed={'load_inputs','Evidence.__init__','Evidence.save','Coordinator.__init__','Coordinator.finalize','Coordinator.failure','Coordinator.review','Coordinator.run','main'}
+        self.assertEqual({n for n in old if old[n]!=new[n]},changed)
+        self.assertEqual(set(new)-set(old),{'Evidence.remember_failure','Coordinator.phase_identity','Coordinator.phase_append','Coordinator.phase_closed','Coordinator.phase_observe','Coordinator.require_failed_precleanup_phase','Coordinator.failed_precleanup_phase'})
+    def test_all11_SQL_bytes_reproduce_and_actual_histories_are_not_rewritten(self):
+        generator=runpy.run_path(str(ROOT/'scripts/prepare-install-control-rehearsal-v5.py'));files,packet=generator['build'](ROOT);self.assertEqual(len(files),13);self.assertEqual(sum(n.endswith('.sql')for n in files),11)
+        for name,body in files.items():
+            self.assertEqual(body,(ROOT/'review-output/install-control-rehearsal-v5'/name).read_bytes(),name)
+            if name.endswith('.sql'):self.assertEqual(body,(ROOT/'review-output/install-control-rehearsal-v3'/name).read_bytes(),name)
+        prior=json.loads((TASK/'install-owned-parity-v4-before-author-20261120/preservation.json').read_bytes())['files_sha256']
+        for name,pin in prior.items():prefix,rel=name.split('/',1);self.assertEqual(sha(((TASK if prefix=='TASK'else ROOT)/rel).read_bytes()),pin,name)
+    def test_real_unchanged_full_source_and_ledger_comparators_on_both_closed_fixtures(self):
+        rules,oracle,expected,natives,closed=self.source_inputs();tools=type(self)._closed_source_tools[0];n=self.n;n['CATALOG']['tools']=tools;ledger=runpy.run_path(str(ROOT/'scripts/sql-review/install_ledger_proof_v3.py'));protocol=runpy.run_path(str(ROOT/'scripts/install_control_protocol_v2.py'));blobs={p:(ROOT/p).read_bytes()for p in ledger['INPUTS']};pins={p:sha(b)for p,b in blobs.items()};recipe=json.loads((ROOT/'review-output/native-catalog/public-schema-registration.json').read_bytes())
+        for kind,prefix,count,ledger_count in [('canonical','canonical-',29089,22),('division_failure','recovered-',29090,23)]:
+            registration=json.loads((closed/(prefix+'ledger-registration.json')).read_bytes());evidence=json.loads((closed/(prefix+'ledger-evidence.json')).read_bytes());oracle_evidence=json.loads((closed/(prefix+'oracle-evidence.json')).read_bytes());adapter=ledger['make_adapter'](blobs,pins,protocol,registration['target_identity']);ledger_result=adapter.compare_proof(registration,evidence,natives[kind],bootstrap_grantor='postgres',source_expected_sha256=n['EXPECTED_SHA'],root=ROOT);self.assertEqual(ledger_result['status'],'PASS');self.assertEqual(len(ledger_result['checks']),ledger_count)
+            def compare(native):return n['compare_with_install_ledger'](adapter,expected,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=recipe['full_acl'],ledger_registration=registration,ledger_evidence=evidence,expression_oracle_evidence=oracle_evidence,oracle_database=n['DB'],root=ROOT)
+            result=compare(natives[kind]);self.assertEqual(result['status'],'PASS');self.assertEqual(result['check_counts'],{'PASS':count})
+            bad=copy.deepcopy(natives[kind]);bad['roles'][0]['rolsuper']=not bad['roles'][0]['rolsuper'];self.assertNotEqual(compare(bad)['status'],'PASS')
+    def test_retained_parity_artifact_is_bounded_before_read_and_never_qualifies_oversize(self):
+        n=self.parity_fixture();path=n['OUT']/'canonical-native-before.json'
+        with path.open('wb')as stream:stream.truncate(32*1024*1024+1)
+        opening=Path.open
+        def forbid(p,*args,**kw):
+            if p==path:raise AssertionError('OVERSIZE_MUST_REJECT_BEFORE_READ')
+            return opening(p,*args,**kw)
+        with patch.object(Path,'open',forbid),self.assertRaises(n['Stop'])as error:n['install_cross_target_semantic_parity']()
+        self.assertEqual(error.exception.code,'INSTALL_PARITY_RETAINED_ARTIFACT_BOUNDS');self.assertNotIn('semantic_parity',n['report']['install'])
+
+
+class ActualEntryCompositionTests(unittest.TestCase):
+    setUp=Tests.setUp
+    full_fixture=Tests.full_fixture
+    def test_actual_launch_initializes_real_sources_compiles_no_factories_and_stops_at_mock_endpoint(self):
+        n,master,clone,g=self.full_fixture();path=Path(n['MANIFEST_PATH']);vpath=clone/'context/reconciliation/local-f0-install-controls-owned-source-phase-v5-source-validation.json';value=json.loads(vpath.read_bytes())
+        for k in ('independent_source_review','independent_ledger_source_review','independent_safety_sql_review','independent_review_publication_source_review','independent_failed_precleanup_activation_source_review'):value[k]={'decision':'SOURCE_APPROVED','scope':'ISOLATED_OFFLINE_TEST_ONLY_NOT_ACTUAL_APPROVAL'}
+        vpath.write_bytes(g['encoded'](value));master['packet_files_sha256'][vpath.relative_to(clone).as_posix()]=sha(vpath.read_bytes());master['packet_sha256']=g['aggregate'](master['packet_files_sha256']);master['review_status']='APPROVED_LOCAL_F0_INSTALL_OWNED_ATTEMPT';path.write_bytes(g['encoded'](master));calls=[]
+        def process(args,**kw):
+            calls.append(args)
+            if args[0]=='git':
+                if args[-2:]==['rev-parse','HEAD']:return types.SimpleNamespace(returncode=0,stdout='a'*40,stderr='')
+                if args[-2:]==['rev-parse','HEAD^{tree}']:return types.SimpleNamespace(returncode=0,stdout='b'*40,stderr='')
+                if args[-2]=='show':return types.SimpleNamespace(returncode=0,stdout=(clone/args[-1].split(':',1)[1]).read_bytes(),stderr=b'')
+            if args[:3]==['docker','--context','desktop-linux']:
+                if args[3:]==['context','inspect','desktop-linux']:return types.SimpleNamespace(returncode=1,stdout='',stderr=CANARY)
+                if args[3:5]in (['container','ls'],['volume','ls']):return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+            raise AssertionError('UNDECLARED_MOCK_PROCESS_BOUNDARY')
+        subprocess.run.side_effect=process;entry=runpy.run_path(str(clone.parent/CORE.name))['launch']
+        with redirect_stdout(io.StringIO())as output:code=entry(['--execute-reviewed-install-owned','--manifest',str(path)])
+        self.assertEqual(code,1);record=json.loads((Path(master['evidence_directory'])/'run-evidence.json').read_bytes());self.assertEqual(record['source_verification']['file_count'],len(master['packet_files_sha256']));self.assertEqual(record['catalog_preparation']['closed_source_files'],16);self.assertTrue(record['all_source_and_external_inputs_preserved_after_run']);self.assertEqual(record['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertTrue(record['cleanup_summary']['resource_absence_observation_completed']);self.assertFalse(any(record['cleanup_summary']['resource_presence_after'].values()));self.assertFalse(any(a[3:5]==['container','create']for a in calls if a[0]=='docker'));self.assertNotIn(CANARY,json.dumps(record)+output.getvalue())
+    def test_actual_closed_coordinator_entry_uses_real_factory_and_process_failure_retains_closure(self):
+        n,master,clone,g=self.full_fixture();n['verify_packet']();n['OUT'].mkdir();n['PRIVATE'].mkdir();n['created_containers']={t['name']:format(i+1,'064x')for i,t in enumerate(n['TARGETS'])};bundle={t['kind']:{role:format(i*6+j+1,'064x')for j,role in enumerate(n['ROLES'])}for i,t in enumerate(n['TARGETS'])};(n['PRIVATE']/'install-role-passwords.json').write_bytes(g['encoded'](bundle));calls=[]
+        def process(args,**kw):
+            calls.append(args)
+            if args[:5]==['docker','--context','desktop-linux','context','inspect']:return types.SimpleNamespace(returncode=1,stdout='',stderr=CANARY)
+            if 'psql'in args:
+                self.assertIn("backend_type='client backend'",kw['input']);self.assertNotIn('datname=',kw['input'].split("'other_client_backends'",1)[1]);return types.SimpleNamespace(returncode=0,stdout=json.dumps({'migrator':0,'other_client_backends':0}),stderr='')
+            raise AssertionError('UNDECLARED_CHILD_PROCESS_BOUNDARY')
+        subprocess.run.side_effect=process
+        with self.assertRaises(n['Stop'])as error:n['install_coordinator_experiment']()
+        self.assertEqual(error.exception.code,'INSTALL_COORDINATOR_STOPPED');child=json.loads((n['OUT']/'install-controls/install-controls-results.json').read_bytes());self.assertEqual(child['status'],'STOPPED_UNEXPECTED_RESULT');self.assertTrue(child['subsequent_cases_stopped']);self.assertEqual(child['targets'],{});self.assertEqual(sum('psql'in a for a in calls),3);self.assertNotIn('qualified_result',n['INSTALL']);self.assertNotIn(CANARY,json.dumps(child)+json.dumps(n['report']));self.assertNotIn('semantic_parity',n['report']['install'])
+
+if __name__=='__main__':unittest.main(verbosity=2)

@@ -1,0 +1,397 @@
+{
+  "schema": "workinants.app-unexpected-diagnostic-v3-independent-source-review.v1",
+  "decision": "SOURCE_APPROVED",
+  "reviewer": "/root/review_track_ports",
+  "findings": [],
+  "authorship_disclosure": "I authored older shared CommonSafetySQL and CTX/source-admission lineage and the independent App8f2a audit/observability proposal. I did not author the App R01/R02 recipes, GuardObservationV2 or this new V3 child/owned implementation; this decision reviews the exact new V3 delta, not self-reapproval of inherited helper code.",
+  "input_bindings": {
+    "delivery": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_unexpected_diagnostic_v3_frozen_source_plan_20261120.json",
+      "sha256": "a8086be85724ecd993ba40d55e679653c650f006a0baf0a9d4988df81b712291"
+    },
+    "author_review": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_unexpected_diagnostic_v3_source_author_review_20261120.json",
+      "sha256": "48494e97e125681245778f7af6acc3525b23b870303dd119b608164cd3efed80"
+    },
+    "freeze": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-unexpected-diagnostic-v3-author-freeze-20261120\\freeze-manifest.json",
+      "sha256": "505ff9001ea81f0b0b34f2dd022bffd9db2e7b81382f8e525fb7bb32d9673700"
+    },
+    "source_closure": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_unexpected_diagnostic_v3_final_private_source_closure_20261120.json",
+      "sha256": "cc69b1465159376049ef83a41dd5679f56b1c84e9d2256ca0e06ffbe6ab315ee"
+    },
+    "Root_initial_ACK_sha256": "66a503d23836eb15220bcf91fd3b42facaa4453caa71701c96009417d8a7ae7f",
+    "Root_namespace_ACK_sha256": "52f510ef0d35bfc915ac58ff0d498519c4e7f7c9d373b1949195290abf47aa32",
+    "old_independent_actual_audit_sha256": "2c027bda0733d8db22977692cbd1aab42fd820bddab98b72a69681df38ee4ddb"
+  },
+  "root_sources_sha256": {
+    "scripts/app_write_two_unexpected_diagnostic_v3_protocol.py": "de35a8d1908158c21edcfa76ce3c08c44aa6dfe527844e4b4436a935ebf583c7",
+    "scripts/sql-review/run-app-write-two-unexpected-diagnostic-v3.py": "e42dc8f55a6244ad1b1c2146502be465e944bb14e012d6e351e157d4aa7e814e",
+    "scripts/check-app-write-two-unexpected-diagnostic-v3.py": "99896f9b1de5ccfbdea9d64388ca28a44027e1a160f8a947856df7dfe638bb91",
+    "scripts/check-app-write-two-unexpected-diagnostic-v3-coordinator.py": "012af8397809ba93c746416385eae04dc554c40476e1f8e9859d54181c76760b",
+    "scripts/sql-review/APP-WRITE-TWO-UNEXPECTED-DIAGNOSTIC-V3.md": "01b407c168ac850fe638ab25fe54433fe404fa64655d4872794961aed6c0854a"
+  },
+  "operator_sources_sha256": {
+    "execute_local_f0_app_write_two_unexpected_diagnostic_v3_20261120.py": "c26dfd6282b661320476a5a65fc79cc2bb903d38c869c43d89459edae03208ea",
+    "local_f0_app_write_two_unexpected_diagnostic_v3_operation_steps.py": "33cea65b0fcf40c1e3ac61a7a18e04dc9ed1d52c99753ee22aecc460e37803ca",
+    "prepare_local_f0_app_write_two_unexpected_diagnostic_v3_plan.py": "fcc71bdc5e36fd5df12a0715eb091d5b3ee09c344a5e8bd5b4b98e8ea39c4eeb",
+    "check_local_f0_app_write_two_unexpected_diagnostic_v3_operation.py": "3dfacdba2f40bab0c5d4f1fd2393145324ac722a4448646f5c88be6949bba39a",
+    "pin_local_f0_app_write_two_unexpected_diagnostic_v3_plan_20261120.py": "9bde24c48735abc44292bbd0063a32a5f7307eabb44486633736876f8c2f3787"
+  },
+  "coverage": {
+    "independent_distinct_final_source_methods_PASS": 15,
+    "initial_run": {
+      "session": 71519,
+      "exit": 1,
+      "testsRun": 15,
+      "PASS": 10,
+      "setup_errors": 5,
+      "seconds": 47.780999999988126,
+      "classification": "INDEPENDENT_HARNESS_NETWORK_GUARD_COLLISION; socket.socket replaced by outer reviewer guard while test setup tried socket.socket.connect; five methods did not enter. Preserved, not candidate failure or owning PASS."
+    },
+    "bounded_affected_rerun": {
+      "session": 53311,
+      "exit": 0,
+      "testsRun": 5,
+      "PASS": 5,
+      "seconds": 117.79699999999139,
+      "delta": "Only independent runner guard changed to socket.connect/connect_ex. Frozen candidate untouched. The two required final genuine owning methods plus three closed-reader methods now passed."
+    },
+    "actual_owning_entry": {
+      "Core_initialize_launch_and_whole_source_admission": true,
+      "current_committed_Git_boundary": "Actual reviewed pinner/source algorithms exercised against isolated mirror bytes at mocked Git process boundary, not a claim of private code committed to real Git.",
+      "native_qualifiers": "Real compiler/comparator/oracle/ledger algorithms; immutable explicitly OFFLINE historical sanitized process responses. Full source qualification29089/oracle416/ledger22 before child and distinct readonly after in normal path.",
+      "actual_child_coordinate_and_frozen_CTX_Session": true,
+      "process_boundaries_only": true,
+      "retained_outputs_read_only_after_CLI_return_and_all_sessions_closed": true,
+      "normal_and_late_error_required_gap": "CLOSED_BY_INDEPENDENT_FINAL_FROZEN_COMPOSITION",
+      "high_level_verifier_or_success_factory_injection": false
+    },
+    "author_two_owning_ERROR_history": "Retained/version-qualified; their deleted temporary outputs are not reconstructed or retroactively called PASS. The present separate final runs retain new closed outputs.",
+    "unchanged_inherited_suites": "Not broadly rerun or recounted; exact normalized AST and byte identity recorded separately.",
+    "process_network_database_runtime": "All real process/network boundaries prohibited; database NOT_RUN."
+  },
+  "static_proof": {
+    "frozen723_before_after_current_and_snapshots_exact": true,
+    "old279_current_and_snapshots_exact": true,
+    "original_V2_generator_protocol_source35_and_packet24_SQL22_unchanged": true,
+    "worker_acl32_and_canonical5ae_unchanged": true,
+    "runtime_four_frame_source_bodies_independently_rebound": [
+      {
+        "identity": "platform_private.command_state_guard()",
+        "sha256": "01c6a19be31eb4a29e8ca0e676b0b4d5314291a0196e895e7ebee10e36f658c8",
+        "body_lines": 13
+      },
+      {
+        "identity": "platform_private.guard_customerprofile()",
+        "sha256": "242bc33836b80f24cdcd22495d133678fd8b5d204f145ffa3f689308a91aba95",
+        "body_lines": 23
+      },
+      {
+        "identity": "platform_private.guard_runtimeworkitem()",
+        "sha256": "8fc8e42c9bdd07e4a8eb766b135e668ca8f75afd1ee6249b83e4f3471e2add4f",
+        "body_lines": 18
+      },
+      {
+        "identity": "platform_private.runtime_transition()",
+        "sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+        "body_lines": 72
+      }
+    ],
+    "normalized_AST": {
+      "execute_local_f0_app_write_two_unexpected_diagnostic_v3_20261120.py": {
+        "changed": [],
+        "added": [],
+        "removed": [],
+        "unchanged": [
+          "Stop",
+          "_RequiredSafetyBoundary",
+          "_required_safety_barrier",
+          "_required_safety_decode",
+          "_required_safety_event",
+          "_required_safety_evidence_complete",
+          "_required_safety_failure",
+          "_required_safety_first_exception",
+          "_required_safety_save",
+          "_required_safety_sql",
+          "_required_safety_text",
+          "_required_zero_backends",
+          "cleanup",
+          "closed_backends",
+          "command",
+          "create_resources",
+          "docker",
+          "emit_best_effort",
+          "ensure_image",
+          "event",
+          "event_best_effort",
+          "finalize",
+          "initialize",
+          "inspect_container",
+          "inspect_volume",
+          "inventory",
+          "json_ok",
+          "launch",
+          "need",
+          "observe",
+          "owned",
+          "persist_best_effort",
+          "preflight",
+          "psql_args",
+          "remember_failure",
+          "safe_error",
+          "save",
+          "secret_scan",
+          "secure_private_directory",
+          "sql"
+        ]
+      },
+      "local_f0_app_write_two_unexpected_diagnostic_v3_operation_steps.py": {
+        "changed": [
+          "source_review_gate",
+          "admit_app_write_two_sources",
+          "validate_app_result"
+        ],
+        "added": [],
+        "removed": [],
+        "unchanged": [
+          "acl_compatibility_preflight",
+          "app_after_data",
+          "app_after_proofs",
+          "app_data",
+          "app_expected_guard",
+          "app_expected_outcome",
+          "app_read_closed_reference",
+          "app_reference_integrity_barrier",
+          "app_stopped_collections",
+          "app_stopped_origin",
+          "app_trace",
+          "app_verdict",
+          "app_write_two_experiment",
+          "bootstrap_all",
+          "canonical",
+          "catalog_experiment",
+          "collect_native",
+          "digest",
+          "exact",
+          "filter_metadata",
+          "generated_identifier",
+          "inspect_owner",
+          "load_reviewed_helper",
+          "main",
+          "metadata_allowlist",
+          "metadata_vocabulary_diagnostics",
+          "migrate",
+          "migrate_success",
+          "observe_public_baseline",
+          "oracle_records",
+          "provision_migration_tools",
+          "read_pinned",
+          "read_target_manifest",
+          "records",
+          "row_shapes",
+          "run_catalog_query",
+          "safe_rejection",
+          "source_authentication_preflight",
+          "successful_query",
+          "text_compatibility_preflight",
+          "unique_json",
+          "validate_archive",
+          "verify_app_write_two_packet",
+          "verify_catalog_packet",
+          "verify_common_packet",
+          "verify_external_input_preservation",
+          "verify_running_secret_tmpfs",
+          "verify_tool_data",
+          "write_safe"
+        ]
+      },
+      "run-app-write-two-unexpected-diagnostic-v3.py": {
+        "changed": [
+          "load_inputs"
+        ],
+        "added": [],
+        "removed": [],
+        "unchanged": [
+          "Evidence",
+          "HeldFailure",
+          "canonical",
+          "checked_source",
+          "checked_sql",
+          "compiled",
+          "coordinate",
+          "coordinator_type",
+          "digest",
+          "external",
+          "main",
+          "need",
+          "quote",
+          "safe_code",
+          "sha",
+          "source_path",
+          "unique_json"
+        ]
+      },
+      "app_write_two_unexpected_diagnostic_v3_protocol.py": {
+        "changed": [
+          "operation_outcome",
+          "validate_operation_outcome"
+        ],
+        "added": [
+          "unexpected_business_diagnostic",
+          "validate_unexpected_diagnostic"
+        ],
+        "removed": [],
+        "unchanged": [
+          "HeldFailure",
+          "canonical",
+          "diagnostic",
+          "digest",
+          "exact",
+          "marker",
+          "need",
+          "operation_sql",
+          "quote",
+          "restoration_identity",
+          "sha",
+          "unique_json",
+          "verdict"
+        ]
+      }
+    },
+    "source_gate_status": {
+      "child_all_four": "PENDING",
+      "owned_all_four": "PENDING"
+    },
+    "child_archive": 34,
+    "owned_archive": 104,
+    "scope": "Exactly14 finite protocols,15 grants max,two existing claim ceilings; no recipe/SQL/fixture/guard/RLS/capability/ACL/timeout change."
+  },
+  "security_and_semantic_review": {
+    "unexpected_receipt": "Fixed six-key inert schema, finite13 SQLSTATE set, capped ASCII/control/header parsing and optional exact source-bound one-of-four noarg frame. Unknown/multiple/malformed/control/unlisted/source-drift input safely redacts. No raw primary/DETAIL/HINT/CONTEXT/SQL/handles/secret or unchecked helper dictionary retained.",
+    "original_verdict": "Intended diagnostic()/verdict()/operation_sql() AST byte-equivalent; receipt15 is validated before original fourteen-field success oracle. Positive success additionally requires EMPTY unexpected receipt. A known state or frame alone never supplies intended guard or success.",
+    "ordering": "Actual session close and global closure precede receipt persistence and unchanged count/verdict. Late-error receipt retains actual marker/count/ACK/exit and cannot infer later statement stage.",
+    "first_stop_IO_and_cleanup": "Core functions and coordinator operation/finally unchanged after bounded namespaces; normal and stopped compositions confirm parent global closure before parse/verdict/observers, no after proof on stop, exact cleanup and first EXACT_RECORD_COUNT origin.",
+    "closed_references": "Mandatory bounded regular/single-link/no-symlink closed reads, within-API ctime and fresh-byte rechecks, typed/duplicate/nonfinite/oversize/drift rejection, old-reader-only tripwire, immutable original reference SHA/length and final freshness after cleanup/postchecks preserved.",
+    "admission": "Both V2 generation and V3 runtime closures admitted separately before helper compilation; explicit exact current-five review body/hash gates in child, Steps and pinner. No generator alias or approval fallback."
+  },
+  "closed_offline_observations": [
+    {
+      "scope": "OFFLINE_PROCESS_MOCK_OUTPUT_NOT_RUNTIME_EVIDENCE",
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-unexpected-diagnostic-v3-private-20261120\\closed-offline-final-business-stop-6637c192-6161-44b8-81ff-34c32d7ea3f5",
+      "files_sha256": {
+        "run-evidence.json": "84437c9bb0f01134190705d8f728828690895cd1ee4f62e9cd977be05cfcda4e",
+        "app-write-two-results.json": "3b02fad4ea911ec94c3cd28879eb7a3fdf21281ef2a579521e36763210d81276"
+      },
+      "outer_status": "STOPPED_ATTEMPT_PRESERVED",
+      "child_status": "STOPPED_PARTIAL_EVIDENCE_PRESERVED",
+      "completed_protocols": 13,
+      "producer_operations": 212,
+      "restricted_transactions": 15,
+      "last_operation_outcome": {
+        "observed_stage": "BUSINESS",
+        "response_received": true,
+        "response_shape_valid": true,
+        "client_exit_received": true,
+        "client_exit": 3,
+        "client_exit_class": "KNOWN",
+        "acknowledged": false,
+        "record_count": 1,
+        "before_marker_matches": true,
+        "after_marker_matches": false,
+        "expected_sequence_matches": false,
+        "diagnostic": null,
+        "unexpected_diagnostic": {
+          "schema": "workinants.app-unexpected-business-diagnostic.v3",
+          "classification": "OBSERVED",
+          "sqlstate": "23514",
+          "header_count": 1,
+          "frame_status": "NOT_PRESENT",
+          "source_frame": null
+        },
+        "operation_closed": true,
+        "global_closure_confirmed": true
+      },
+      "cleanup_confirmed": true,
+      "child_fixture_restore": true,
+      "native_comparison_checks": {
+        "PASS": 29089
+      },
+      "after_readonly_proofs": null,
+      "first_failure": {
+        "stage": "FINITE_APP_WRITE_PROTOCOL",
+        "code": "EXACT_RECORD_COUNT"
+      }
+    },
+    {
+      "scope": "OFFLINE_PROCESS_MOCK_OUTPUT_NOT_RUNTIME_EVIDENCE",
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-unexpected-diagnostic-v3-private-20261120\\closed-offline-normal-df5fb646-39ba-48d2-aeed-9da28d168ea9",
+      "files_sha256": {
+        "run-evidence.json": "177e45461c0efe783770e37106928097f8031740612b171a02be0bf64e33c324",
+        "app-write-two-results.json": "e85fd8692b36b35e40317dae75cd8da8d0fcb0ab051fa41735bd149839d8dedb",
+        "after-oracle-evidence.json": "c3e91a70099256f5edbce4678193c7d228bdcbbc7cd60c2c711887b773011bc3",
+        "after-ledger-evidence.json": "9f18daa528b7998e6f1ad047d2e90fd15175b9ce217df8b76d5db49824895aa8"
+      },
+      "outer_status": "PASS_LOCAL_APP_WRITE_TWO_SQL_SUBSET_ONLY",
+      "child_status": "PASS_FINITE_TWO_APP_WRITE_CRITERIA_ONLY",
+      "completed_protocols": 14,
+      "producer_operations": 221,
+      "restricted_transactions": 15,
+      "last_operation_outcome": {
+        "observed_stage": "BUSINESS",
+        "response_received": true,
+        "response_shape_valid": true,
+        "client_exit_received": true,
+        "client_exit": 0,
+        "client_exit_class": "KNOWN",
+        "acknowledged": true,
+        "record_count": 3,
+        "before_marker_matches": true,
+        "after_marker_matches": true,
+        "expected_sequence_matches": true,
+        "diagnostic": null,
+        "unexpected_diagnostic": {
+          "schema": "workinants.app-unexpected-business-diagnostic.v3",
+          "classification": "EMPTY",
+          "sqlstate": null,
+          "header_count": 0,
+          "frame_status": "NOT_PRESENT",
+          "source_frame": null
+        },
+        "operation_closed": true,
+        "global_closure_confirmed": true
+      },
+      "cleanup_confirmed": true,
+      "child_fixture_restore": true,
+      "native_comparison_checks": {
+        "PASS": 29089
+      },
+      "after_readonly_proofs": {
+        "native_checks": 29089,
+        "oracle_expression_hashes": 416,
+        "private_ledger_checks": 22,
+        "full42_data_unchanged": true,
+        "same_first_install": true,
+        "second_install_attempted": false
+      },
+      "first_failure": null
+    }
+  ],
+  "artifacts_sha256": {
+    "app_unexpected_v3_independent_final_compositions_20261120.json": "f346b924c3153f22833cad202050f267451e3cb126518237018a2c6315c72208",
+    "app_unexpected_v3_independent_final_compositions_attempt2_20261120.json": "b264753c3ce1f0db7ee68604acfe90e235e5ff68c4f5e8b64b19bb4107eb8891",
+    "app_unexpected_v3_independent_static_source_checks_20261120.json": "9bb44bcff727606927659aa8d0f82d27c3855510394a99fa874a2fbe38fdc7bb",
+    "review_app_unexpected_v3_final_compositions_20261120.py": "c5f83387de67fcd26f065adf3cbcf30b9e256c37c95142fde3a9d3e96d496be1",
+    "review_app_unexpected_v3_final_compositions_attempt2_20261120.py": "b75a7984038e8c8ec94c08fc257b55000e281a4ee71087b4e3df9ff7109f443e"
+  },
+  "historical_limits": [
+    "Actual App8f2a complete database cause and SQLSTATE remain UNOBSERVED; synthetic23514 here is only an offline test stimulus.",
+    "No R01/R02 actual success, database guard, owner API, worker loop, whole case, global94/451 or production qualification follows from source/process mocks.",
+    "All eight real candidate gates remain PENDING; Root must separately review/admit metadata, publish/pin/fresh-literal-review before any actual run."
+  ],
+  "reviewer_mutations": "Only new TASK runners/results/retained closed offline mock outputs/review artifacts; no frozen source/validation/gate/liveRoot/SQL/Git/literal/status/ledger modification.",
+  "active_heavy_processes": "NONE;71519 and53311 known CLOSED",
+  "runtime": "NOT_RUN",
+  "Posture": "D"
+}

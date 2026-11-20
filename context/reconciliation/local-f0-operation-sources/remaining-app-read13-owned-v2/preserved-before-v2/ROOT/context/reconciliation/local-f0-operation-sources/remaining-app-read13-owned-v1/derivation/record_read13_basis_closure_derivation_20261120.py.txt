@@ -1,0 +1,17 @@
+from pathlib import Path
+import ast,hashlib,json
+TASK=Path(__file__).resolve().parent
+before=TASK/'read13-cold-82182-preserved-20261120/local_f0_remaining_app_read13_owned_v1_operation_steps.py.txt'
+after=TASK/'local_f0_remaining_app_read13_owned_v1_operation_steps.py'
+old,new=ast.parse(before.read_bytes()),ast.parse(after.read_bytes())
+functions=lambda tree:{node.name:ast.dump(node,include_attributes=False)for node in tree.body if isinstance(node,(ast.FunctionDef,ast.ClassDef))}
+a,b=functions(old),functions(new);changed=[name for name in a if a[name]!=b[name]]
+assert changed==['admit_read13_sources']and a.keys()==b.keys()
+constants=lambda tree:{node.targets[0].id:ast.dump(node.value,include_attributes=False)for node in tree.body if isinstance(node,ast.Assign)and len(node.targets)==1 and isinstance(node.targets[0],ast.Name)}
+c,d=constants(old),constants(new);changed_constants=[name for name in c if c[name]!=d[name]];assert changed_constants==['COMPONENT_ARTIFACT']
+helper_node=next(node for node in new.body if isinstance(node,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='HELPER_FILES'for t in node.targets));helpers=ast.literal_eval(helper_node.value)
+assert len(helpers)==9 and not any('owner_read'in name for name in helpers)
+admission=ast.get_source_segment(after.read_text(),next(node for node in new.body if isinstance(node,ast.FunctionDef)and node.name=='admit_read13_sources'))
+assert '(TASK/name).read_bytes()'not in admission
+record={'schema':'workinants.remaining-app-read13-owned-entry-derivation.v1','status':'AUTHOR_STATIC_PROOF_PENDING_INDEPENDENT_REVIEW','before_steps_sha256':hashlib.sha256(before.read_bytes()).hexdigest(),'after_steps_sha256':hashlib.sha256(after.read_bytes()).hexdigest(),'changed_functions':changed,'changed_constants':changed_constants,'all_other_function_class_AST_identical':True,'closed_runtime_helpers':list(helpers),'Owner_basis_role':'Data-only admitted original45-file archive, exact five .py.txt snapshots and original source/review hashes. No Owner operator is in the executable helper allowlist.','new_physical_five_binding':'All actual new TASK files are independently hash-checked against admitted .py.txt snapshots and exact new review map.','entry_OUT_limit':'Inherited main may create its fresh evidence directory and initial fixed report before source admission; no project helper or ordinary resource phase precedes admission. Mandatory cleanup may perform independent inventory observations after a source refusal.','old_cold_complete_error_cause':'Generic UNEXPECTED_READ13_WRAPPER_FAILURE only was retained; the undeclared metadata read is separately source-demonstrated. The corrected cold entry passes.','runtime':'NOT_RUN','database_contacted':False}
+raw=(json.dumps(record,indent=2)+'\n').encode();path=TASK/'read13_owner_basis_metadata_closure_derivation_20261120.json';path.write_bytes(raw);print(json.dumps({'path':str(path),'sha256':hashlib.sha256(raw).hexdigest()}))

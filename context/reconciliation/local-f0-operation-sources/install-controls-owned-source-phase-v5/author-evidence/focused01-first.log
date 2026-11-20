@@ -1,0 +1,44 @@
+test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts (__main__.PhaseTests.test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts) ... 
+  test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts (__main__.PhaseTests.test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts) (variant='division_failure') ... ERROR
+  test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts (__main__.PhaseTests.test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts) (variant='late_function_grant') ... ERROR
+
+======================================================================
+ERROR: test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts (__main__.PhaseTests.test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts) (variant='division_failure')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\check-install-failed-precleanup-phase-v5.py", line 115, in test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts
+    co,e,w=self.world();verdict=co.failure(variant);target=e.value['targets'][variant]
+                                ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\run-install-control-rehearsal-v5.py", line 349, in failure
+    self.bootstrap(variant);self.activation_attempt(variant,False);self.stage_history(variant);before=self.server(variant);self.record(variant,'server_before',before)
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\run-install-control-rehearsal-v5.py", line 259, in stage_history
+    need(type(result.returncode) is int and result.returncode==0 and result.stdout==b'' and result.stderr==b'','SOURCE_ARCHIVE_STAGE_FAILED');self.closed(variant,'STAGE_'+key)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\run-install-control-rehearsal-v5.py", line 48, in need
+    if not ok:raise HeldFailure(code)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+<run_path>.HeldFailure: SOURCE_ARCHIVE_STAGE_FAILED
+
+======================================================================
+ERROR: test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts (__main__.PhaseTests.test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts) (variant='late_function_grant')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\check-install-failed-precleanup-phase-v5.py", line 115, in test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts
+    co,e,w=self.world();verdict=co.failure(variant);target=e.value['targets'][variant]
+                                ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\run-install-control-rehearsal-v5.py", line 349, in failure
+    self.bootstrap(variant);self.activation_attempt(variant,False);self.stage_history(variant);before=self.server(variant);self.record(variant,'server_before',before)
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\run-install-control-rehearsal-v5.py", line 259, in stage_history
+    need(type(result.returncode) is int and result.returncode==0 and result.stdout==b'' and result.stderr==b'','SOURCE_ARCHIVE_STAGE_FAILED');self.closed(variant,'STAGE_'+key)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\install-failed-precleanup-activation-v5-author-20261120\future-root\scripts\sql-review\run-install-control-rehearsal-v5.py", line 48, in need
+    if not ok:raise HeldFailure(code)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+<run_path>.HeldFailure: SOURCE_ARCHIVE_STAGE_FAILED
+
+----------------------------------------------------------------------
+Ran 1 test in 5.357s
+
+FAILED (errors=2)

@@ -1,0 +1,51 @@
+"""Independent frozen-source review checks; offline mocked processes only."""
+from pathlib import Path
+import contextlib,hashlib,io,json,runpy,socket,subprocess,time,unittest
+from unittest.mock import patch
+
+T=Path(__file__).resolve().parent
+delivery=T/'app_unexpected_diagnostic_v3_frozen_source_plan_20261120.json'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+d=json.loads(delivery.read_bytes())
+assert sha(delivery.read_bytes())=='a8086be85724ecd993ba40d55e679653c650f006a0baf0a9d4988df81b712291'
+C=Path(d['candidate']);R=Path(d['source_root'])
+freeze=Path(d['physical_freeze']['path']);f=json.loads(freeze.read_bytes())
+assert sha(freeze.read_bytes())==d['physical_freeze']['sha256']
+assert len(f['files'])==723
+def verify():
+ for row in f['files']:
+  raw=Path(row['path']).read_bytes()
+  assert sha(raw)==row['sha256']==sha((freeze.parent/row['snapshot']).read_bytes())
+ for base,key in ((C,'operator_sources_sha256'),(R,'root_sources_sha256')):
+  for name,wanted in d[key].items():assert sha((base/name).read_bytes())==wanted
+verify()
+before={p.name for p in C.glob('closed-offline-*') if p.is_dir()}
+def forbidden(*a,**kw):raise AssertionError('INDEPENDENT_REAL_PROCESS_OR_NETWORK_FORBIDDEN')
+owning=runpy.run_path(str(C/'check_local_f0_app_write_two_unexpected_diagnostic_v3_operation.py'))
+child=runpy.run_path(str(R/'scripts/check-app-write-two-unexpected-diagnostic-v3-coordinator.py'))
+pure=runpy.run_path(str(R/'scripts/check-app-write-two-unexpected-diagnostic-v3.py'))
+selections=[
+ (owning,'UnexpectedOwnedTests',[
+  'test_actual_parent_normal_pipeline_new15_and_separate_readonly_after',
+  'test_actual_parent_closed_child_diagnostic_origin_and_cleanup']),
+ (owning,'ReferenceSafetyTests',[
+  'test_actual_reference_rejects_typed_size_links_symlink_and_growth',
+  'test_fresh_byte_recheck_and_restored_old_reader_tripwire',
+  'test_actual_absence_oversize_growth_duplicate_nonfinite_and_untrusted_values']),
+]
+suite=unittest.TestSuite(ns[cls](name) for ns,cls,names in selections for name in names)
+start=time.monotonic();trace=io.StringIO()
+with patch.object(subprocess,'run',forbidden),patch.object(subprocess,'Popen',forbidden),patch.object(subprocess,'call',forbidden),patch.object(subprocess,'check_call',forbidden),patch.object(subprocess,'check_output',forbidden),patch.object(socket.socket,'connect',forbidden),patch.object(socket.socket,'connect_ex',forbidden),patch.object(socket,'create_connection',forbidden):
+ result=unittest.TextTestRunner(stream=trace,verbosity=2).run(suite)
+elapsed=time.monotonic()-start
+verify()
+closed=[]
+for p in sorted(C.glob('closed-offline-*')):
+ if p.is_dir() and p.name not in before:
+  marker=json.loads((p/'OFFLINE_ONLY.json').read_bytes());assert marker['known_CLI_returned'] is True and marker['runtime_database_contacted'] is False
+  for name,wanted in marker['files_sha256'].items():assert sha((p/name).read_bytes())==wanted
+  closed.append({'path':str(p),'scope':marker['scope'],'files_sha256':marker['files_sha256'],'OFFLINE_ONLY_sha256':sha((p/'OFFLINE_ONLY.json').read_bytes())})
+out={'schema':'workinants.app-unexpected-v3-independent-frozen-compositions.v1','runtime':'NOT_RUN_OFFLINE_PROCESS_MOCKS_ONLY','delivery_sha256':sha(delivery.read_bytes()),'freeze_sha256':sha(freeze.read_bytes()),'script_sha256':sha(Path(__file__).read_bytes()),'root_sources_sha256':d['root_sources_sha256'],'operator_sources_sha256':d['operator_sources_sha256'],'testsRun':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'successful':result.wasSuccessful(),'seconds':elapsed,'selection':[{ 'class':cls,'methods':names}for _,cls,names in selections],'trace':trace.getvalue(),'retained_closed_offline_producers':closed,'frozen723_current_and_snapshots_before_and_after_exact':True,'no_real_process_or_network_allowed':True}
+dest=T/'app_unexpected_v3_independent_final_compositions_attempt2_20261120.json';dest.write_text(json.dumps(out,indent=2)+'\n',encoding='utf8',newline='\n')
+print(json.dumps({'path':str(dest),'sha256':sha(dest.read_bytes()),'testsRun':result.testsRun,'successful':result.wasSuccessful(),'failures':len(result.failures),'errors':len(result.errors),'seconds':elapsed,'closed_producers':len(closed)}))
+if not result.wasSuccessful():print(trace.getvalue());raise SystemExit(1)

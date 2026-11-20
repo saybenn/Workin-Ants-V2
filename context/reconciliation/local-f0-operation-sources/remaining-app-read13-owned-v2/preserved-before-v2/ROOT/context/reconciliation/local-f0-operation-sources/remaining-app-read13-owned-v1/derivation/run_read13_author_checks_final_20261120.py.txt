@@ -1,0 +1,24 @@
+"""Offline exact-source monitor. It never invokes an operator or a resource."""
+from pathlib import Path
+import hashlib,importlib.util,json,sys,time,unittest
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+FILES=[ROOT/p for p in('scripts/prepare-remaining-app-read13-rehearsal.py','scripts/remaining_app_read13_protocol.py','scripts/check-remaining-app-read13-rehearsal.py','scripts/check-remaining-app-read13-coordinator.py','scripts/sql-review/run-remaining-app-read13-rehearsal.py','scripts/sql-review/REMAINING-APP-READ13-REHEARSAL.md')]+[TASK/p for p in('execute_local_f0_remaining_app_read13_owned_v1_20261120.py','local_f0_remaining_app_read13_owned_v1_operation_steps.py','prepare_local_f0_remaining_app_read13_owned_v1_plan.py','check_local_f0_remaining_app_read13_owned_v1_operation.py','pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py')]
+def hashes():return {str(p.relative_to(ROOT)if p.is_relative_to(ROOT)else p.name):hashlib.sha256(p.read_bytes()).hexdigest()for p in FILES}
+def module(path,name):
+ spec=importlib.util.spec_from_file_location(name,path);value=importlib.util.module_from_spec(spec);sys.modules[name]=value;spec.loader.exec_module(value);return value
+def main():
+ mode=sys.argv[1];before=hashes();suite=unittest.TestSuite();loader=unittest.TestLoader();started=time.monotonic()
+ if mode in('source','child'):
+  source=module(ROOT/'scripts/check-remaining-app-read13-rehearsal.py','_read13_source_checks');suite.addTests(loader.loadTestsFromModule(source))
+  if mode=='child':suite.addTests(loader.loadTestsFromModule(module(ROOT/'scripts/check-remaining-app-read13-coordinator.py','_read13_coordinator_checks')))
+ else:
+  checks=module(TASK/'check_local_f0_remaining_app_read13_owned_v1_operation.py','_read13_owned_checks')
+  if mode=='cold':suite.addTests(loader.loadTestsFromTestCase(checks.Read13ColdEntryTests))
+  elif mode=='qualifiers':suite.addTests(loader.loadTestsFromTestCase(checks.Read13RealQualifierTests))
+  elif mode=='owned':suite.addTests(loader.loadTestsFromModule(checks))
+  elif mode=='basis':suite.addTest(checks.Read13SourceEntryTests('test_all_owner_basis_five_and_review_bytes_are_admitted_before_helpers'))
+  else:raise SystemExit('UNKNOWN_CLOSED_MODE')
+ count=suite.countTestCases();result=unittest.TextTestRunner(verbosity=2).run(suite);after=hashes()
+ record={'schema':'workinants.remaining-app-read13-offline-author-checks.v1','mode':mode,'result':'PASS'if result.wasSuccessful()and before==after else'FAIL','methods':count,'run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':round(time.monotonic()-started,3),'entry_source_sha256':before,'exit_source_sha256':after,'source_preserved':before==after,'database_contacted':False,'actual_runtime':'NOT_RUN','independent_review':'PENDING'}
+ target=TASK/('read13_author_'+mode+'_checks_'+str(time.time_ns())+'.json');raw=(json.dumps(record,indent=2)+'\n').encode();target.write_bytes(raw);print(json.dumps({'receipt':str(target),'sha256':hashlib.sha256(raw).hexdigest(),'result':record['result'],'methods':count,'seconds':record['seconds']}));return 0 if record['result']=='PASS'else 1
+if __name__=='__main__':raise SystemExit(main())

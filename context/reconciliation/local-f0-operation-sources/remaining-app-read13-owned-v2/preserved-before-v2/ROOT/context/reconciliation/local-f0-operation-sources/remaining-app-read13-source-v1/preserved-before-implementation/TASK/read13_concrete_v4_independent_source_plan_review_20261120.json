@@ -1,0 +1,131 @@
+{
+  "schema": "workinants.read13-concrete-v4-independent-source-plan-review.v1",
+  "recorded_at_utc": "2026-11-20T06:50:01.950821+00:00",
+  "reviewer": "/root/restricted_controls_operator",
+  "author": "/root/review_track_ports",
+  "decision": "CHANGES_REQUIRED_BEFORE_ROOT_PLAN_ACK_OR_IMPLEMENTATION",
+  "reviewed_plan": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_concrete_fixture_recipe_source_supplement_v4_20261120.json",
+    "sha256": "17f80ae2671bdc37f97d71e16421caf3b29a9bcb632e5b93512bb7c52947d9cb",
+    "bytes": 663671,
+    "status_unchanged": "PROPOSED_FULL13_EXACT15_PENDING_SEPARATE_SOURCE_REVIEW_AND_ROOT_ACK"
+  },
+  "lineage_disclosure": "I authored earlier high-level Read13 planning and the root-versus-child generation clarification. I did not author this new concrete Track fixture graph/recipes/15-bypass proposal. This review judges the new concrete supplement; it does not independently reapprove my own high-level lineage.",
+  "findings": [
+    {
+      "id": "READ13-PLAN-SH004-KEY-01",
+      "priority": "P1_PLAN_CONSTRUCTION_BLOCKER",
+      "status": "CONFIRMED_SOURCE_ONLY_NO_RUNTIME_CAUSE_CLAIM",
+      "location": [
+        "fixture_rows[A/Command].values.result_body.value.receipt.semanticKey",
+        "fixture_rows[B/Command].values.result_body.value.receipt.semanticKey",
+        "setup_recipe_sequence/G2",
+        "all_fixture_table_guard_review/all_CHECKs/platform.runtime_command_receipt/result_json_boundary"
+      ],
+      "problem": "Both committed SH004 response receipts use read13/<preview-runUUID>/<A_or_B>/customer-provision/v1. Receipt.semanticKey references shared Key, which permits only ^[A-Za-z0-9][A-Za-z0-9._:-]*$ and length1..128. The slash values fail that pattern. Canonical json_sh004_result contains the same exact Key predicate, and result_json_boundary applies it to the declared nonnull SH004 body. Rendering a real timestamp and PostgreSQL storage digest cannot make this body valid.",
+      "source_proof": [
+        {
+          "path": "contracts/shared/types.v1.schema.json",
+          "line": 11,
+          "sha256": "606d2f772bedf96ae59e82995831e741435dc573fdca477c8e735b5a63c30cf2",
+          "meaning": "Key.pattern excludes slash; Receipt.semanticKey references Key at line1146."
+        },
+        {
+          "path": "review-output/foundation-application.review.sql",
+          "line": 1910,
+          "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+          "meaning": "json_sh004_result enforces this same regex on value.receipt.semanticKey."
+        },
+        {
+          "path": "review-output/foundation-application.review.sql",
+          "line": 4699,
+          "meaning": "runtime_command_receipt/result_json_boundary requires json_sh004_result for the G2 declared SH004 body."
+        }
+      ],
+      "required_bounded_correction": "Preserve17f80a and produce a new concrete plan revision with a source-legal fresh command receipt semantic key. Keep every dependent actual SH004 receipt/command/committed-effect/usage source semantic-key occurrence and PostgreSQL body-digest template coherent. Review Reservation.semantic_key linkage as part of the same exact graph. Do not change canonical SQL, Key schema, grants, codec, RLS, trigger scope or any claim.",
+      "important_distinction": "Do not blindly replace every slash-separated key. The Customer CommandOutbox assignDefaultFreeTrack payload semanticKey is a distinct source-required customer_buyer_profile/<CustomerID>/default-free-enrollment/v1 convention; it correctly retains slashes. Pending command bodies are NULL and do not by themselves prove a nonnull response codec.",
+      "required_regression": "A pure source-schema/AST-driven plan check must reject this original response Key and every copied original body in digest templates. A corrected source-legal Key must satisfy the exact known Key rule while preserving command/effect/receipt coherence. Old17f80a restoration must fail. Dynamic timestamps/digests and actual database predicates remain NOT_RUN.",
+      "effect_on_scope": "The finding affects the G2 prerequisite of the full13 and conditional12 plans. It does not require dropping an obligation or adding a dependency; no automatic fallback is authorized."
+    }
+  ],
+  "verified_nonblocking_source_boundaries": {
+    "hash_admission": "All38 declared current source file hashes match; the exact reviewed663671-byte plan is unchanged.",
+    "graph": "48 unique-ID fixture rows,24 labels per A/B pair,21 physical tables. All78 nonnull direct FK occurrences resolve to exactly one same-side row; the independently derived map equals the plan map. All required nonnull/default-column presence and literal enum labels match source. These static checks are not INSERT or CHECK execution.",
+    "constraint_inventory": "All57 exact CHECK identity/expression hashes match source. Their rendering/digest/clock evaluation remains future evidence, and the SH004 Key assessment requires the finding above to be corrected.",
+    "triggers": "All100 source restoration definitions and bodies match the pinned expected catalog. The21 fixture tables have54 trigger instances/23 deferred; the exact15 proposed bypasses consist of12 owner_commit,2 unconditional usage_adapter_gate and the single SubscriptionEvent enrollment_commit. Their definitions/body AST hashes/owners/security-definer flags match source;13 disabled deferred instances leave the exact10 deferred obligations active.",
+    "fifteenth_gate": "track_subscription_events has no owner_commit. Canonical track_enrollment_commit raises for a non-worker event insert, while its retained Subscription/Grant instances explicitly returnNULL for the original-grantor path. The exact event-only setup bypass is source-necessary for the full13 seed. It creates no worker, enrollment-history write or owner/API qualification.",
+    "bypass_acceptance_limit": "I found no additional source/security objection to the exact15 setup-only identities or unchanged full100 restoration design, contingent on correction of the graph and Root separately ACKing this exact scope. This is not operational approval, permission to execute, or an approval of unimplemented restoration code.",
+    "contexts": "All26 read contexts and10 setup contexts use registered exact role/verb/field tokens; every declared prerequisite read has full field caps. The only6 non-revision special tokens are the exact proposed ConsentPresentation/contentRevision and ConsentDisposition/presentation relationships. No arbitrary parent or foreign-owner policy is invented.",
+    "scope": "Source protected_scope starts with same-model root ID exclusion. Actual Customer SH004 child routes, RuntimeReservation command child, Work scheduler-only scope and exact Track SH003 root routes support the declared positive/zero-row recipes. Disposition cannot directly read Content; Work scheduler cannot read Customer Outbox; a Track root cannot read another Track root merely by adding field caps. Separate privileged observers are appropriate.",
+    "generations": "row_allowed compares g.source_generation only when model and row key are the actual target and row_revision is nonnull. Effect own fence and Customer source generation are distinct; exact own revision tokens still apply to every nonnull selected revision/fence. The plan explicitly requires offline distinct7/0/19 witnesses and excludes old same-write-xid convention; source clocks/preimages remain actual future observations.",
+    "currentness": "Source bound_grant NULL gives RLS zero rows. The3 shared exact42501 controls explicitly bind/rebind and require the source-bound exact stale-context diagnostic. A generation mismatch is not an Identity authority transition. Initial bind takes no action lock, so separate revoke COMMIT can precede the rebind; no selected row/negative after expected binder failure.",
+    "recipe_counts": "82 unique provisional recipes consist of26 A/B positives plus ordinary denials/currentness controls;13 unbound recipes require no grant, leaving69 read-control grants plus10 setup grants=79. These are scenario counts, not82 assertion links.",
+    "synthetic_usage": "OTHER is an existing stored enum. The proposed A/B same-user Customer/Subscription/Grant/Definition/effect FKs, integer10 fixture grant/counterlimit and1 event sum are internally consistent as synthetic SQL rows. Genuine SH004 effect is a source FK/result fact only; it does not manufacture an SH006 usage producer, quota authorization, Candidate success, period adapter, provider/owner API or business result. The two always-raising usage gates must be restored before read qualification.",
+    "restoration_and_evidence": "The plan requires fullsource/native/oracle/ledger prerequisites, obligation before first DDL/lost ACK, exact flags-only O/D exceptions, deferred-event flush before enable, all-database/all-role client closure before observers/ALTER eligibility, unchanged internal312 identities on the same target, full100 O/bodies and all42 state/source parity, and sticky-IO/firstSTOP with independent eligible cleanup. These are mandatory future code-review/test contracts, not implemented or executed proof.",
+    "alternative": "The12-model/46-row/76-scenario/74-grant/14-bypass alternative is honestly conditional, excludes SubscriptionEvent and nulls its optional Grant source_event_id. It is not selected or silently substituted and still needs the G2 Key correction."
+  },
+  "independent_offline_checks": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_concrete_v4_independent_static_checks_v2_20261120.json",
+    "sha256": "4d5f26d691e68468c602af403f39bfad38bbc34edab477edec184ce72c3bf6e7",
+    "checks": 30,
+    "passed": 30,
+    "failed": 0,
+    "meaning": "Static hash/FK/column/enum/source/AST/capability checks, including positive reproduction of the confirmed invalid Key. No database condition or behavioral result is called PASS.",
+    "history": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_concrete_v4_independent_static_checks_20261120.json",
+      "sha256": "65ab916638f7acd2d01212541f0886fb7170fbc97592c9c8c2f8fc5254910d4d",
+      "correction": "Initial reviewer assumed24 physical tables rather than24 labels, and treated expected.enums rows as lists rather than labels maps. Both were reviewer-only errors; original bytes preserved. No reviewed source/plan changed.",
+      "optional_full_JSONSchema_validation": "NOT_RUN: jsonschema is not installed in offline-python; no package install/network fallback attempted. Exact source Key regex and canonical helper branch independently establish the finding."
+    }
+  },
+  "required_next_step": "Author preserve17f80a then submit bounded corrected concrete plan for independent delta review and Root ACK before any implementation. No code/SQL/generator/packet may change under this review. Future implementation must prove all existing source-aware process/stop/IO/closure/currentness/restoration and exact count regressions with every process/DB/network boundary mocked.",
+  "unchanged_source_sha256": {
+    "context/context-map.md": "91ae472067d5336f0b0bf6d73c4a9e86b235df85aa2634adec74e93bf6f0ad6d",
+    "context/architecture.md": "308869aecd19249ac56ca9886dec816afb64d7241de0dbde64ff545cb007ca44",
+    "context/build-plan.md": "6dddb6b5584bb47251d9794158c65520b04e82ed7c4061334e96e0b9064cdb87",
+    "context/workflows/WF-01.md": "d4aed154df1f762ae10e70b77d6ba5a5a744a492cc419f19e56aab8b1a4d3f5a",
+    "context/workflows/WF-02.md": "1cf6d5e54cdc48e35ee4b8af7923f8cc091c87a15f3cda05026d194bf5e91142",
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context/shared/contracts/SH-003.md": "493a3524f33224cfd774192535789ad95cb04c56e1e0e15a11ae5e067c7bf1b2",
+    "context/shared/contracts/SH-004.md": "114d4269db29edf0946d01fa2f9ac21769b22244aca940fe8270445ddd33d1bd",
+    "context/shared/contracts/SH-005.md": "6f94d9689bc68816696a9c0f3e0c580ed7e40c1d5dd49c7166fbb9b047b99c19",
+    "context/shared/contracts/SH-006.md": "03a0d200d623ec421fb3611bc102e08768094ff28e88718fd89489fb92fbc401",
+    "context/shared/contracts/SH-044.md": "25ec251bb07bc39958c8e1a7d174197856a4dc9e7f0ac9ed7a2fbf5d2a4fe6ad",
+    "context/shared/contracts/SH-046.md": "2b29a053816ea57aab3b73e5bbcebc056f566f410d8258a071f958ab267fd49d",
+    "context/shared/contracts/SH-056.md": "4ecd1b0f3edbb3a7cb2f606c25df03c08eafceed29ee98481dad43c18a97db68",
+    "context/clusters/identity, authority, & consent/identity-authority-consent-architecture.md": "99a8e63720d2a4dd93645453638d00fadaa9dca60f9a79ad93805b548b72a6bf",
+    "context/clusters/identity, authority, & consent/identity-authority-consent-build-plan.md": "c0efa3ed8c817779411cea0d3feb0db8aa74a28a4bc20c6f238cfdebce023246",
+    "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-module-architecture.md": "6675a6cbe9c10f48d07c6933c6a0f72fe7b7ffeafee24186749cba3b99d3784b",
+    "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-implementation-plan.md": "c89880cf98e7b41470687b7be805a9a24fe9cf4802fe212980d5fbfdf07935f8",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md": "9c9c86fc035b151c31060269a69342d80f729cebdcdd090747b2681de9ca7f3b",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md": "1264589c05d92a40746ebf71de3b04368ce511755f538dc58e7bc3e80ede0853",
+    "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md": "9af7a7c3142fba550c13727f0143f9612b180d4ab6fd96975846d562d4ec17d5",
+    "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md": "2b2281b86b3521023c25bee656dffbefd64a5cda34e1a45c9289f9fd175b8e29",
+    "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md": "a99147effb732761118bb4959bfee4810239a88359660f68cea434e7f4609e52",
+    "contracts/shared/types.v1.schema.json": "606d2f772bedf96ae59e82995831e741435dc573fdca477c8e735b5a63c30cf2",
+    "contracts/shared/SH-056.v1.schema.json": "ebbd2374232d586f627187fe78fa0c0b5ff4c50acfd88eea9ce293e460845d7d",
+    "contracts/shared/SH-006.v1.schema.json": "14ec4df649cb2b14b78ecefa0c238e998a16498ffa669d90ed672f9946831b27",
+    "review-output/first-rehearsal/positive.sql": "1641b0501892abc2c64e95d2a80bc94e9f9ed3b109976a0e4abd1599980a4405",
+    "review-output/context-control-rehearsal/source-customer.sql": "9110445ab6d188d9796d2d495b9e9574874bbc018658a0fed82267378ec71ba6",
+    "review-output/app-write-two-control-rehearsal/genuine-sh004-effect-insert.sql": "f056d0efdf8fbe70302c291b7d1d644fa069fb99fd926b7ec06eb5f2bacd8273",
+    "review-output/app-write-two-control-rehearsal/schedule.sql": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700",
+    "context/reconciliation/local-f0-app-write-two-control-source-validation.json": "36389e123689caa7b6f6cadc147aae5bc29b8a7fe896793b0f7935fee3c711a4",
+    "contracts/shared/SH-004.v1.schema.json": "e7cd3008e84dce839f189ff882feb9bb68b42784e0f403981e652d239328667e",
+    "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+    "review-output/worker-control-rehearsal/enroll.sql": "a0b06b24cfed2779918833b3fc33c5c1429c6d0791ec3355b41403f55b81cf20",
+    "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-implementation-plan.md": "2cf19c6e2e06972bd403dc747de28a42af99c7c6fea8ae191ca1de0e8fc4aa9d",
+    "contracts/shared/SH-005.v1.schema.json": "403d9ee8f555ba859ed3b3f91419fa4330750d86a774d5a2cd1e5456ffadb490"
+  },
+  "no_actions": {
+    "Git_Docker_DB_network_SQL_execution_credentials_resources": true,
+    "reviewed_plan_code_gate_status_register_changed": false,
+    "TASK_only_review_records_created": true,
+    "Posture": "D",
+    "runtime": "NOT_RUN",
+    "owner_API_worker_enrollment_SH003_DTO_SH006_adapter_wholecase_or94_or451_promotion": false
+  },
+  "plain_english": "The pretend data is linked together correctly, but one receipt uses a slash in a name where the rules allow only letters, numbers, dots, dashes and colons. Fix that name everywhere it belongs. Keep the different enrollment name unchanged, because that one is supposed to have slashes."
+}

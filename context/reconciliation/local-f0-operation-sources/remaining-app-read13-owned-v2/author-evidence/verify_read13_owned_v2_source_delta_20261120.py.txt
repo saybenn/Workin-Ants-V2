@@ -1,0 +1,40 @@
+"""Pure AST/full-text derivation; does not import project code."""
+from pathlib import Path
+import ast,copy,hashlib,json
+T=Path(__file__).resolve().parent
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+P=T/'read13-owned-v2-before-author-20261120'
+pres=json.loads((P/'preservation.json').read_bytes())
+der=json.loads((T/'read13_owned_v2_private_static_derivation_20261120.json').read_bytes())
+oldfive=tuple(pres['old_five']);newfive=tuple(name.replace('owned_v1','owned_v2')for name in oldfive)
+oldfixture=json.loads((P/'ROOT/review-output/remaining-app-read13-rehearsal/fixtures.json').read_bytes())
+inverse={**dict(zip(newfive,oldfive)),'remaining-app-read13-owned-v2':'remaining-app-read13-owned-v1','REMAINING_APP_READ13_OWNED_V2':'REMAINING_APP_READ13_OWNED_V1',der['new_fixtures_sha256']:H((P/'ROOT/review-output/remaining-app-read13-rehearsal/fixtures.json').read_bytes()),der['new_content_sha256']:oldfixture['source_only_packet_sha256']}
+def normalize(text):
+ for new,old in inverse.items():text=text.replace(new,old)
+ return text
+def tree(text):return ast.parse(text)
+def dumped(node):return ast.dump(node,include_attributes=False)
+class StripReceipt(ast.NodeTransformer):
+ def visit_Assign(self,node):
+  if any(isinstance(target,ast.Subscript)and isinstance(target.value,ast.Name)and target.value.id=='details'and isinstance(target.slice,ast.Constant)and target.slice.value=='coordinator_call'for target in node.targets):return None
+  return self.generic_visit(node)
+ def visit_Expr(self,node):
+  call=node.value
+  if isinstance(call,ast.Call)and isinstance(call.func,ast.Name)and call.func.id=='persist_best_effort'and call.args and isinstance(call.args[0],ast.Constant)and call.args[0].value=='READ13_COORDINATOR_CALL_FAILURE_RECORD':return None
+  return self.generic_visit(node)
+ def visit_ExceptHandler(self,node):
+  self.generic_visit(node)
+  if node.name=='error'and any(isinstance(n,ast.Constant)and n.value=='READ13_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED'for statement in node.body for n in ast.walk(statement)):node.name=None
+  return node
+out={}
+for index in(0,2,4):
+ old=(T/oldfive[index]).read_text();new=(T/newfive[index]).read_text();assert normalize(new)==old
+ out[newfive[index]]={'mechanical_full_text_exact':True,'sha256':H((T/newfive[index]).read_bytes())}
+old=tree((T/oldfive[1]).read_text());new=tree(normalize((T/newfive[1]).read_text()))
+def removed(node):
+ return isinstance(node,ast.FunctionDef)and node.name=='read13_coordinator_call_observation'or isinstance(node,ast.Assign)and any(isinstance(target,ast.Name)and target.id=='READ13_ENTRY_FAILURE_CODES'for target in node.targets)
+new.body=[node for node in new.body if not removed(node)]
+new=StripReceipt().visit(new);assert dumped(new)==dumped(old)
+out[newfive[1]]={'mechanical_AST_exact_after_removing_only_declared_receipt':True,'original_top_level_functions_preserved':len([n for n in old.body if isinstance(n,ast.FunctionDef)]),'unchanged_cleanup_and_SafetySQL_and_native_and_verdict_criteria':True,'sha256':H((T/newfive[1]).read_bytes())}
+record={'schema':'workinants.read13-owned-v2-source-derivation-proof.v1','status':'PASS','four_production_files':out,'checker':'NEW_FOCUSED_TESTS_ONLY; final checker SHA bound separately','six_child_source_files_byte_exact':der['six_child_source_files_byte_exact'],'SQL_business_semantics':'UNCHANGED_BY_DECLARED_49_ID_NORMALIZATION','all_new_gates':'PENDING','actual_runtime':'NOT_RUN'}
+path=T/'read13_owned_v2_source_delta_proof_20261120.json';assert not path.exists();path.write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({'record':path.name,'sha256':H(path.read_bytes()),'status':'PASS'}))

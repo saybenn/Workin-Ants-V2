@@ -1,0 +1,114 @@
+{
+  "schema": "workinants.read13-two-evidence-fix-same-reviewer-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T10:49:34.214281+00:00",
+  "decision": "SOURCE_APPROVED",
+  "scope": "Bounded closure of READ13-OBSERVATION-01 and READ13-REFERENCE-02 in the exact frozen source; source-only approval, no operational or database execution authority.",
+  "reviewer": "/root/restricted_controls_operator",
+  "lineage": {
+    "reviewer_authored_earlier_high_level_plan": true,
+    "reviewer_did_not_author_original_Read13_implementation_or_this_correction": true,
+    "original_implementation_author": "/root/review_track_ports",
+    "correction_author": "/root/catalog_v4_review",
+    "same_original_review": "787c216f2b579a005fc4a57aaa951297e393390a5f74adf30a4e998f08a960cc",
+    "original_counterexamples": "844f38d8af6d579684293bea6479eba3e9a5ea0a21b1040acc6a4d83914e5041",
+    "Root_bounded_ACK": "bfa9e647751b25b6e681780af7863a77a0fac944b269a567e4fe6e1fc5dac616"
+  },
+  "frozen_delivery_sha256": "6ca42410b92058249094ad6cdc7c08d3d470f0858bdca8f189f25ce201eebd7c",
+  "frozen_author_report_sha256": "b5abf40c8c172c790261aedb42825fef749e8d2c797a14ee3454a107aa677c55",
+  "exact_eleven_source_sha256": {
+    "scripts/prepare-remaining-app-read13-rehearsal.py": "6c583c9d2435fbea0f57b4bcd70a05234c6ad5995493f8ecdd160ce9ebf97499",
+    "scripts/remaining_app_read13_protocol.py": "7343104bf2dd70003d2a68ff0911ac2bab80e8aec47e8c1d5aa3524f0ca8fe0c",
+    "scripts/check-remaining-app-read13-rehearsal.py": "b8270da9f6933f9b1ace817d2f10825ffcba942fba1c380bdf20d9c3b602cbe8",
+    "scripts/check-remaining-app-read13-coordinator.py": "c05855164262bb48c81c1aeb43ba42e423410c23fc7be56a0b33048aeba03c26",
+    "scripts/sql-review/run-remaining-app-read13-rehearsal.py": "815bf499bbed3c967091739ed3c2e02d2a12e5c6848f480ca94c88792a2c95bf",
+    "scripts/sql-review/REMAINING-APP-READ13-REHEARSAL.md": "0c50b7b05151fce09c28a24e004649b5f8f2af212ba52e6b3fe2c045bba3e241",
+    "execute_local_f0_remaining_app_read13_owned_v1_20261120.py": "37bd25e444ffe8cd57eaf9dff332f85d1addd5a4c3232c2d09850840a61c58e2",
+    "local_f0_remaining_app_read13_owned_v1_operation_steps.py": "6381a581906c3f619cf9745d46bcc270b60006ddbe34148e28e0a72e36d4ef15",
+    "prepare_local_f0_remaining_app_read13_owned_v1_plan.py": "2302c781a6095874de7768d56e27f0949e1eb28c9b1920c0ffd41b9f2e988b84",
+    "check_local_f0_remaining_app_read13_owned_v1_operation.py": "b41f6a7dce75caacbe664804f446fa90ef4d9f3f7a574d9e1e62ea46851780fe",
+    "pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py": "1dbf9ff23ce7a8dedd24b8554efe559c19ef315f925aa23c0f2c1f3ef3ad6cb7"
+  },
+  "verified_inventory": {
+    "Root_files_entry_exit": 398,
+    "external_five_entry_exit": 5,
+    "original_preserved_files": 344,
+    "SQL_leaves_byte_exact": 101,
+    "archives": {
+      "context/reconciliation/local-f0-remaining-app-read13-source-validation.json": {
+        "sha256": "97e3ab796c43af0bd02a69cb5d4fb7020c957685bf2307d96cdd4295c2386300",
+        "files": 106,
+        "exact_recursive_set": true,
+        "review": "PENDING_UNCHANGED"
+      },
+      "context/reconciliation/local-f0-remaining-app-read13-owned-v1-source-validation.json": {
+        "sha256": "10353251d0ae2e5633df6e487a37b376632910d76e334e5be0f3767fe7980c98",
+        "files": 181,
+        "exact_recursive_set": true,
+        "review": "PENDING_UNCHANGED"
+      }
+    },
+    "Core_byte_exact": true,
+    "pinner_AST_exact_after_only_coordinator_SHA_normalization": true,
+    "canonical_SQL_5ae_and_access_f9d_exact": true
+  },
+  "closed_findings": [
+    {
+      "id": "READ13-OBSERVATION-01",
+      "status": "CLOSED",
+      "evidence": "Actual CTX stdin.write fails during BUSINESS after valid bind; fresh phase BUSINESS/received false/shape false and ACK/count/error null replace the old stale bind response. Original safe unexpected operation is first even with receipt IO, modeled session/global closure complete, no result promoted. Strict producer/consumer typing, known exit classes and exact terminal stages preserved."
+    },
+    {
+      "id": "READ13-REFERENCE-02",
+      "status": "CLOSED",
+      "evidence": "Actual old same-size/mtime-restored mutation rejects without a retained SHA. Two bounded closed reads compare common path/handle identity/size/mtime and within-representation ctime; fresh bytes agree. Original admitted hash/length survive rechecks around validation/read-only proof and after cleanup/source postchecks before final PASS. Metadata-stable mutation, Windows ctime representation, late mutation and old-reader/final-barrier omission tripwires pass."
+    }
+  ],
+  "independent_checks": [
+    {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_two_evidence_fix_focused_independent_restricted_20261120.json",
+      "sha256": "61497497dfe96c773956efe975c8081ff4fd9cba322c36631d4723fb020ff088"
+    },
+    {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_two_evidence_fix_independent_counterexamples_20261120.json",
+      "sha256": "cee22042998ef6e7ad16b6357483e16efc6f9f71492ecea7c41dc3419f10700d"
+    },
+    {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_two_evidence_fix_independent_actual_child_parent_20261120.json",
+      "sha256": "3e57cb6e1307e9c6cc06f7f051e1e6f1d1cd0f0ee6b8d3261914d770d44a2250"
+    },
+    {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13_two_evidence_fix_independent_source_scope_20261120.json",
+      "sha256": "2546a8d995b382663e3c04d51c4c66c9c0cd6cca01e043e3b51f114f2494f09d"
+    }
+  ],
+  "check_outcomes": {
+    "focused_methods": 14,
+    "focused_seconds": 3.844,
+    "actual_original_counterexamples": 2,
+    "counterexample_and_graph_seconds": 1.922,
+    "actual_child_to_parent_composition_methods": 1,
+    "composition_seconds": 150.89,
+    "composition_model": "Actual reviewed CTX/Session source fixture setup and82 finite protocols, actual parent validator; command/process boundaries mocked. Valid, after-validator, read-only, cleanup and omitted-final barrier paths exercised.",
+    "counts_not_additive": "Original counterexamples and mutant branches overlap focused methods; author suites remain author/version-qualified, not independent reruns."
+  },
+  "review_harness_history": {
+    "initial_static_scope_probe": "KeyError from reviewer using child metadata key on distinct owned metadata shape; no source failure. Corrected to exact independent_owned_resource_review and preserved in independent source-scope receipt.",
+    "source_or_gate_edits": false
+  },
+  "no_additional_confirmed_blocker": true,
+  "limits": [
+    "All actual Read13 runtime cases and13 possible app SELECT claims remain NOT_RUN.",
+    "No owner write/API/provider/worker/SH006 adapter qualification or wider selected94/451 promotion.",
+    "No SQL/fixture48/FK78/bypass15/grant79/case82/transaction99/role/32workerACL/timeout/mount/configuration change.",
+    "Closed-reference integrity is bounded to observed read/finalization windows, not perpetual filesystem atomicity.",
+    "Historical original probes proved misleading observability and stale reference, not an actual false runtime PASS or failed cleanup.",
+    "Purepreparer/pinner review gates remain PENDING; whole Core initial OUT/evidence before verifier remains the explicitly accepted design."
+  ],
+  "next_gate": "Root may preserve this source review, close exact metadata, publish normally, pin current+committed inventory and obtain separate fresh literal/live preflight approval. This record does not authorize runtime.",
+  "source_gates_edited": false,
+  "all_process_network_database_boundaries_mocked_or_forbidden": true,
+  "Git_Docker_database_SQL_network_resources_credentials_invoked": false,
+  "runtime_approval": false,
+  "Posture": "D",
+  "plain_english": "Each step now gets its own answer. The saved report is checked again before it can count as a pass. The database has not been tested by this review."
+}

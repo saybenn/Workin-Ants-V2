@@ -1,0 +1,47 @@
+"""Root-only reviewed byte admission. Refuse all writes until V7's independently confirmed cleanup."""
+from pathlib import Path
+import ast,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+# This is a hard prerequisite, not an elapsed-time or approval assumption.
+clean=json.loads((T/'a519_PrivilegeV7_9577e42a_independent_cleanup_20261120.json').read_bytes());assert clean['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'and clean['known_executor_session']==20084 and clean['known_executor_exit']in(0,1)and clean['private_directory_absent']is True
+v7=T/'local-f0-privilege-ceiling-9577e42a/run-evidence.json';assert sha(v7.read_bytes())==clean['run_evidence_sha256']
+dp=T/'read13_owned_v2_frozen_private_source_delivery_20261120.json';db=dp.read_bytes();assert sha(db)=='d732fbe34f41a74e808830dbacfaa744357ce039851d9dc1b319b5113092205b';d=json.loads(db);P=Path(d['private_ROOT']);assert P.resolve().is_relative_to(T.resolve())and not P.resolve().is_relative_to(R.resolve())
+pp=T/'read13_owned_v2_independent_Catalog_code_data_source_review_20261120.json';pb=pp.read_bytes();assert sha(pb)=='28c5e9ef80d12e89cfab23a35be4c989062be6515cea98ec7e30585eb1c66574';peer=json.loads(pb)
+assert peer['decision']==peer['code_review']==peer['fresh_data_review']=='SOURCE_APPROVED'and peer['findings']==[]and peer['delivery']['sha256']==sha(db)
+assert peer['operator_sources_sha256']==peer['all_five_sources_sha256']==d['external_five_sha256']and peer['fixture_sha256']==d['fixtures_sha256']=='d6fb661f68f763aafcf00c5b89b0a908e831a81adf06b2a8e3f2bec16da581f1'and peer['content_sha256']==d['content_sha256']=='af77afa4afdb6f0306edf49379eee0959b0fa7c8874b876d885bd480e387d1e9'and peer['fresh_run_id']==d['fresh_run_id']=='d848e852-f857-4c03-8288-4893e2e8aa0c'
+incoming=d['candidate_Root_new_or_changed_files_sha256'];assert len(incoming)==915
+for n,h in incoming.items():assert(P/n).resolve().is_relative_to(P.resolve())and not(P/n).is_symlink()and sha((P/n).read_bytes())==h,n
+for n,h in peer['source_files_sha256'].items():assert sha((P/n).read_bytes())==h,n
+for n,h in peer['six_child_source_sha256'].items():assert sha((P/n).read_bytes())==sha((R/n).read_bytes())==h,n
+for n,h in d['external_five_sha256'].items():assert sha((T/n).read_bytes())==h;ast.parse((T/n).read_bytes())
+cn='context/reconciliation/local-f0-remaining-app-read13-source-validation.json';on='context/reconciliation/local-f0-remaining-app-read13-owned-v2-source-validation.json';cb=(P/cn).read_bytes();ob=(P/on).read_bytes();assert sha(cb)==d['child_source_validation_sha256']and sha(ob)==d['owned_source_validation_sha256'];c=json.loads(cb);o=json.loads(ob)
+assert not{cn,on}.intersection(peer['source_files_sha256'])
+assert c['schema']=='workinants.remaining-app-read13-source-validation.v1'and o['schema']=='workinants.remaining-app-read13-owned-v2-source-validation.v1'and c['runtime_status']==o['runtime_status']=='NOT_RUN'
+for meta,keys in((c,('independent_source_review','Root_source_review')),(o,('independent_owned_resource_review','independent_safety_sql_review'))):
+ for key in keys:assert meta[key]=={'decision':'PENDING'}
+CA=R/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1';OA=R/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v2';before={n:(R/n).read_bytes()for n in incoming if(R/n).exists()};assert len(before)==97
+pres=T/'Root-read13-owned-v2-before-admission-20261120';assert not pres.exists()
+for n,b in before.items():assert(R/n).is_file()and not(R/n).is_symlink();put(pres/'Root'/n,b)
+put(pres/'preservation.json',enc({'source_delivery_sha256':sha(db),'existing_Root_files_sha256':{n:sha(b)for n,b in before.items()},'physical_five_sha256':d['external_five_sha256'],'no_runtime_qualification':True}))
+for n,h in incoming.items():
+ if n in before:assert(R/n).read_bytes()==before[n];(R/n).write_bytes((P/n).read_bytes())
+ else:put(R/n,(P/n).read_bytes())
+for n,h in incoming.items():assert sha((R/n).read_bytes())==h,n
+reviewpath='context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1/reviews/independent-Catalog-owned-v2-code-data-review.json';assert peer['required_admitted_review_path']==reviewpath;put(R/reviewpath,pb)
+root={'schema':'workinants.read13-owned-v2-Root-code-data-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','reviewer':'/root','independent_source_review_sha256':sha(pb),'source_files_sha256':peer['source_files_sha256'],'six_child_source_sha256':peer['six_child_source_sha256'],'operator_sources_sha256':d['external_five_sha256'],'all_five_sources_sha256':d['external_five_sha256'],'fixture_sha256':d['fixtures_sha256'],'content_sha256':d['content_sha256'],'fresh_run_id':d['fresh_run_id'],'code_review':'SOURCE_APPROVED','fresh_data_review':'SOURCE_APPROVED','review':'New five admit exact fresh data and immutable old child six; fixed exact-class/finite-code entry receipt only, unknown exceptions redacted. First origin, sticky IO, final original reference barrier, operation closure and exact cleanup preserved. Actual five-contrast independent load_inputs plus independent receipt/data tests and49-ID byte proof cover this delta. Historical9d8b and original0b7c cause are not reconstructed or used as fresh approval. Runtime82/13claims remain NOT_RUN until published/pinned/literal/livepreflight/actual.','runtime':'NOT_RUN','Posture':'D'}
+rootpath='context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1/reviews/Root-owned-v2-code-data-source-closure.json';put(R/rootpath,enc(root))
+extras={'child-validation-before-Root-closure.json':cb,'owned-validation-before-Root-closure.json':ob,'frozen-delivery-before-closure.json':db,'Root-admission-helper.py.txt':Path(__file__).read_bytes(),'Root-live-before-admission-preservation.json':(pres/'preservation.json').read_bytes()}
+for n,b in extras.items():put(OA/'Root-source-closure'/n,b)
+for n,b in before.items():put(OA/'Root-source-closure/preserved-existing-Root'/n,b)
+for key in('independent_source_review','Root_source_review'):c[key]={'decision':'SOURCE_APPROVED','reviewer':'/root'if key=='Root_source_review'else peer['reviewer'],'path':rootpath if key=='Root_source_review'else reviewpath,'sha256':sha(enc(root))if key=='Root_source_review'else sha(pb)}
+for key in('independent_owned_resource_review','independent_safety_sql_review'):o[key]={'decision':'SOURCE_APPROVED','reviewer':peer['reviewer'],'path':reviewpath,'sha256':sha(pb),'operator_sources_sha256':d['external_five_sha256']}
+ca={p.relative_to(R).as_posix():sha(p.read_bytes())for p in CA.rglob('*')if p.is_file()};oa={p.relative_to(R).as_posix():sha(p.read_bytes())for p in OA.rglob('*')if p.is_file()};c['archive_files_sha256']=ca;o['archive_files_sha256']=oa;c['status']=o['status']='SOURCE_APPROVED_RUNTIME_NOT_RUN_PIN_AND_LITERAL_REQUIRED'
+(R/cn).write_bytes(enc(c));(R/on).write_bytes(enc(o))
+files={**incoming,**ca,**oa,cn:sha((R/cn).read_bytes()),on:sha((R/on).read_bytes())}
+for n,h in files.items():assert sha((R/n).read_bytes())==h,n
+for n,h in peer['source_files_sha256'].items():assert sha((R/n).read_bytes())==h,n
+receipt={'schema':'workinants.read13-owned-v2-source-approved-final-inventory.v1','files_sha256':dict(sorted(files.items())),'files':len(files),'child_archive_files':len(ca),'owned_archive_files':len(oa),'preserved_existing_Root_files':97,'independent_source_review_sha256':sha(pb),'Root_source_closure_sha256':sha(enc(root)),'reviewed_source_and_fresh_data_bytes_unchanged':True,'four_source_gates':'SOURCE_APPROVED','runtime':'NOT_RUN','Posture':'D'}
+out=T/'read13_owned_v2_source_approved_committable_inventory_20261120.json';put(out,enc(receipt));print(json.dumps({'inventory':out.name,'sha256':sha(out.read_bytes()),'files':len(files),'child_archive':len(ca),'owned_archive':len(oa),'runtime':'NOT_RUN'}))

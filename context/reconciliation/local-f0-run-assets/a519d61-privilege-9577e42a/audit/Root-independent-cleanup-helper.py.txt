@@ -1,0 +1,25 @@
+"""Independent exact local absence proof, only after the executor's known exit; no resource mutation."""
+from pathlib import Path
+import argparse,datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+p=argparse.ArgumentParser();p.add_argument('--known-executor-session',type=int,required=True);p.add_argument('--known-exit',type=int,required=True);a=p.parse_args();assert a.known_executor_session==20084 and a.known_exit in(0,1)
+mp=T/'local-f0-privilege-ceiling-plan-9577e42a/operation-manifest.json';mb=mp.read_bytes();assert sha(mb)=='28e196791cb9b3da604e5d20d895164f3fc5c55b9954480a05dc356c1cafbeb9';m=json.loads(mb);assert m['run_id']=='9577e42a-1a55-43e6-8784-80b23d4c7653'and m['source_commit']=='a519d61f678a48afa4bb0e38d74800ebf8000d67'and m['source_tree']=='0f2a26f12b654fb17d865d4ae563419c09069a39'
+out=Path(m['evidence_directory']);assert out.resolve().is_relative_to(T.resolve())and not out.resolve().is_relative_to(R.resolve());raw=(out/'run-evidence.json').read_bytes();r=json.loads(raw);assert r['run_id']==m['run_id']
+def docker(*args):return subprocess.run(['docker','--context','desktop-linux',*args],capture_output=True,text=True,timeout=30,shell=False)
+def absent(path):
+ try:path.lstat()
+ except FileNotFoundError:return True
+ return False
+c=docker('context','inspect','desktop-linux');assert c.returncode==0;contexts=json.loads(c.stdout);assert len(contexts)==1 and contexts[0]['Name']=='desktop-linux';endpoint=contexts[0]['Endpoints']['docker']['Host'];assert endpoint=='npipe:////./pipe/dockerDesktopLinuxEngine'
+s=docker('version','--format','{{json .Server}}');assert s.returncode==0;server=json.loads(s.stdout);assert server['Os']=='linux'and server['Arch']=='amd64'
+names=[('container','wa-p0c-9577e42a-privilege'),('volume','wa-p0c-9577e42a-privilege-data')];observations={}
+for kind,n in names:
+ result=docker(kind,'inspect',n);expected='Error response from daemon: No such container: '+n if kind=='container'else'Error response from daemon: get '+n+': no such volume'
+ observations[n]={'kind':kind,'absent_exact_known_diagnostic':result.returncode==1 and result.stdout.strip()=='[]'and result.stderr.strip()==expected,'raw_output_retained':False}
+i=docker('image','inspect',m['image']);assert i.returncode==0;hp='scripts/sql-review/local_image_identity.py';hb=(R/hp).read_bytes();assert sha(hb)==m['packet_files_sha256'][hp]=='a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604'
+ns={'__name__':'_Root_independent_privilege_cleanup_image_identity','__file__':str(R/hp)};exec(compile(hb,str(R/hp),'exec'),ns);identity=ns['validate_cached_image'](json.loads(i.stdout),(R/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes());assert identity['reference']==m['image']
+ok=all(v['absent_exact_known_diagnostic']for v in observations.values())and absent(out/'private');assert(out/'run-evidence.json').read_bytes()==raw
+proof={'schema':'workinants.a519-privilege-v7-exact-independent-physical-cleanup.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_INDEPENDENT_PHYSICAL_CLEANUP'if ok else'UNCONFIRMED_PHYSICAL_CLEANUP','run_id':m['run_id'],'manifest_sha256':sha(mb),'run_evidence_sha256':sha(raw),'source_commit':m['source_commit'],'source_tree':m['source_tree'],'packet_sha256':m['packet_sha256'],'known_executor_session':a.known_executor_session,'known_executor_exit':a.known_exit,'actual_wrapper_status':r.get('status'),'raw_wrapper_finished_at_present':bool(r.get('finished_at')),'endpoint':endpoint,'server':{k:server[k]for k in('Version','Os','Arch')},'exact_name_observations':observations,'private_directory_absent':absent(out/'private'),'pinned_image_retained_and_validated':identity,'wrapper_cleanup_claim':r.get('cleanup_actions_confirmed'),'wrapper_evidence_complete':r.get('evidence_complete'),'wrapper_persistence_failure':r.get('persistence_failure'),'no_resource_mutation_or_SQL':True,'Posture':'D'}
+pp=T/'a519_PrivilegeV7_9577e42a_independent_cleanup_20261120.json'
+with pp.open('x',encoding='utf-8')as f:json.dump(proof,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'proof':pp.name,'sha256':sha(pp.read_bytes()),'status':proof['status'],'run_evidence_sha256':sha(raw),'wrapper_status':r.get('status')}));raise SystemExit(0 if ok else 2)

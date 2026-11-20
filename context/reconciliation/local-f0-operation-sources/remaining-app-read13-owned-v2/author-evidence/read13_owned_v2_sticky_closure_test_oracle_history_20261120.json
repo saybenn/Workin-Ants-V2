@@ -1,0 +1,10 @@
+{
+  "schema": "workinants.read13-sticky-IO-closure-test-oracle-correction.v1",
+  "failed_session": 23178,
+  "known_exit": 1,
+  "actual_test_failed_at": "EXPECTED_TRUE_COMPONENT_CONFIRMATION_UNDER_PERSISTENT_IO",
+  "source_analysis": "closed_backends unconditionally runs _required_zero_backends and retains fixed typed-zero observation, then _required_safety_barrier refuses confirmation because persistence is unconfirmed",
+  "correction": "Require component_closure_attempted True, component_closure_confirmed False, exact fixed global-scope typed-zero RAM receipt, original STOP, subsequent proofs absent and eligible cleanup",
+  "production_four_or_child_six_changed": false,
+  "actual_runtime": "NOT_RUN"
+}

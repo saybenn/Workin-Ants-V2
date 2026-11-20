@@ -1,0 +1,24 @@
+test_real_prepare_pinner_and_cold_Core_common_catalog_recipe_order (<run_path>.Read13ColdEntryTests.test_real_prepare_pinner_and_cold_Core_common_catalog_recipe_order) ... ERROR
+
+======================================================================
+ERROR: test_real_prepare_pinner_and_cold_Core_common_catalog_recipe_order (<run_path>.Read13ColdEntryTests.test_real_prepare_pinner_and_cold_Core_common_catalog_recipe_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 592, in test_real_prepare_pinner_and_cold_Core_common_catalog_recipe_order
+    task,root,packet,five,path=self.clone_world();pinner=runpy.run_path(str(task/'pin_local_f0_remaining_app_read13_owned_v2_plan_20261120.py'))
+                               ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 563, in clone_world
+    raw=(ROOT/name).read_bytes();self.assertEqual(sha(raw),wanted);target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13-owned-v2-private-candidate-20261120\\workinants-correction-pass\\node_modules\\@prisma\\engines-version\\package.json'
+
+----------------------------------------------------------------------
+Ran 1 test in 18.016s
+
+FAILED (errors=1)

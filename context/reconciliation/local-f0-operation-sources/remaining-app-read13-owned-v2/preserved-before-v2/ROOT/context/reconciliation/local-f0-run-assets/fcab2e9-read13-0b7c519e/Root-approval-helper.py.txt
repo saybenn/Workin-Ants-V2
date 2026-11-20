@@ -1,0 +1,55 @@
+"""Fresh read-only preflight and flag-only action for the separate Read13 literal decision."""
+from pathlib import Path
+import datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+C='fcab2e9b6cf86f93e4966e7ce9ee15ae06a7cd8f';TREE='2f49e5eb6b5172c2b4be9d54034bc1b3f680fd6f'
+PENDING='7fb4a554ae8ff81631dd46be0671b058253c960f9cbdc92fd5a9a638f0643ab4';REVIEW='3de0c24671092261441858cff24e73799abc502d9ef3cad085f2afaf964c267f'
+path=T/'local-f0-remaining-app-read13-owned-v1-plan-0b7c519e/operation-manifest.json'
+raw=path.read_bytes();assert sha(raw)==PENDING;m=json.loads(raw)
+reviewpath=T/'read13_0b7c519e_independent_operational_literal_review_20261120.json';rr=reviewpath.read_bytes();assert sha(rr)==REVIEW;review=json.loads(rr)
+assert review['decision']=='SOURCE_APPROVED_OPERATIONAL_LITERAL' and review['findings']==[] and review['reviewer']=='/root/privilege_mount_v2_review'
+assert review['pending_literal']=={'path':str(path),'sha256':PENDING,'run_id':m['run_id']}
+assert m['run_id']=='0b7c519e-68be-4c44-ac42-83adcfe0def4' and m['review_status']=='PENDING_OPERATIONAL_REVIEW'
+assert review['source']['commit']==m['source_commit']==C and review['source']['tree']==m['source_tree']==TREE
+pins=m['packet_files_sha256'];assert len(pins)==review['source']['full_current_and_committed_files']==667
+for n,h in pins.items():assert sha((R/n).read_bytes())==h
+aggregate=sha(''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode())
+assert aggregate==m['packet_sha256']==review['source']['packet_sha256']=='8b2c8493f8403eec9416934d7c86a975889e8e9a370c478891a9306ccbdc928e'
+five=m['read13']['external_files_sha256'];assert len(five)==5 and five==review['source']['external5_sha256']
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+approved='APPROVED_LOCAL_F0_REMAINING_APP_READ13_OWNED_V1_ATTEMPT'
+assert review['Root_flag_only_action_after_fresh_preflight']=={'review_status':approved,'all_other_manifest_fields_and_pins_must_remain_identical':True,'fresh_live_endpoint_platform_image_exact_name_absence_required':True}
+assert "MANIFEST['review_status']=='"+approved+"'" in (T/'local_f0_remaining_app_read13_owned_v1_operation_steps.py').read_text()
+def git(*a):return subprocess.check_output(['git','--no-optional-locks','-c','core.longpaths=true',*a],cwd=R,timeout=60).decode().strip()
+assert git('rev-parse','HEAD')==C and git('rev-parse','HEAD^{tree}')==TREE
+assert git('ls-remote','--exit-code','origin','refs/heads/codex/p0c-candidate-corrections-2026-10-31').split()==[C,'refs/heads/codex/p0c-candidate-corrections-2026-10-31']
+def docker(*a):return subprocess.run(['docker','--context','desktop-linux',*a],cwd=R,capture_output=True,text=True,timeout=30,shell=False)
+c=docker('context','inspect','desktop-linux');assert c.returncode==0;contexts=json.loads(c.stdout)
+assert len(contexts)==1 and contexts[0]['Name']=='desktop-linux';endpoint=contexts[0]['Endpoints']['docker']['Host'];assert endpoint=='npipe:////./pipe/dockerDesktopLinuxEngine'
+s=docker('version','--format','{{json .Server}}');assert s.returncode==0;server=json.loads(s.stdout);assert server['Os']=='linux' and server['Arch']=='amd64'
+i=docker('image','inspect',m['image']);assert i.returncode==0
+helper='scripts/sql-review/local_image_identity.py';hb=(R/helper).read_bytes();assert sha(hb)==pins[helper]=='a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604'
+ns={'__name__':'_Root_reviewed_pure_image_identity','__file__':str(R/helper)};exec(compile(hb,str(R/helper),'exec'),ns)
+identity=ns['validate_cached_image'](json.loads(i.stdout),(R/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes());assert identity['reference']==m['image']
+names=[('container',t['name'])for t in m['targets']]+[('volume',t['volume'])for t in m['targets']]
+assert names==[('container','wa-p0c-0b7c519e-read13'),('volume','wa-p0c-0b7c519e-read13-data')]
+observations={}
+for kind,n in names:
+ r=docker(kind,'inspect',n);expected='Error response from daemon: No such container: '+n if kind=='container' else 'Error response from daemon: get '+n+': no such volume'
+ assert r.returncode==1 and r.stdout.strip()=='[]' and r.stderr.strip()==expected
+ observations[n]={'kind':kind,'absent_exact_known_diagnostic':True,'raw_output_retained':False}
+out=Path(m['evidence_directory']);assert out.resolve().is_relative_to(T.resolve()) and not out.resolve().is_relative_to(R.resolve())
+for p in (out,out/'private'):
+ try:p.lstat()
+ except FileNotFoundError:pass
+ else:raise AssertionError('FRESH_EVIDENCE_OR_PRIVATE_PATH_CONFLICT')
+assert path.read_bytes()==raw and git('rev-parse','HEAD')==C
+with path.with_name('operation-manifest-before-operational-review.json').open('xb') as f:f.write(raw)
+m['review_status']=approved;assert {k for k in m if m[k]!=json.loads(raw)[k]}=={'review_status'}
+temp=path.with_name('operation-manifest-reviewed.tmp')
+with temp.open('xb') as f:f.write((json.dumps(m,indent=2,allow_nan=False)+'\n').encode())
+temp.replace(path)
+v={'schema':'workinants.fcab-Read13-Root-exact-literal-approval.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_commit':C,'source_tree':TREE,'run_id':m['run_id'],'review_path':str(reviewpath),'review_sha256':REVIEW,'pending_manifest_sha256':PENDING,'approved_manifest_sha256':sha(path.read_bytes()),'changed_keys':['review_status'],'packet_sha256':aggregate,'packet_files':len(pins),'fresh_preflight':{'endpoint':endpoint,'server':{k:server[k]for k in('Version','Os','Arch')},'image_identity':identity,'exact_names':observations,'OUT_private_absent':True},'runtime':'NOT_RUN_AT_APPROVAL','Posture':'D'}
+rp=T/'fcab_Read13_0b7c519e_Root_literal_approval_receipt_20261120.json'
+with rp.open('xb') as f:f.write((json.dumps(v,indent=2,allow_nan=False)+'\n').encode())
+print(json.dumps({'receipt':str(rp),'receipt_sha256':sha(rp.read_bytes()),'approved_manifest_sha256':v['approved_manifest_sha256'],'status':'APPROVED_EXACT_FLAG_ONLY_AFTER_FRESH_LOCAL_PREFLIGHT','runtime':'NOT_RUN_AT_APPROVAL'}))

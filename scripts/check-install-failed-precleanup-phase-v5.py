@@ -1,0 +1,180 @@
+"""Source-aware process-boundary mocks for the new failed/precleanup phase.
+
+Real failure/migrate/bootstrap/finalize/ActivationGate/Evidence paths run. Only
+Docker/psql/Node/database responses are modelled. No runtime services execute.
+"""
+from pathlib import Path
+from copy import deepcopy
+from contextlib import ExitStack
+from types import SimpleNamespace,MethodType
+from unittest.mock import patch,Mock
+import ast,hashlib,json,runpy,socket,subprocess,tempfile,unittest
+
+ROOT=Path(__file__).resolve().parents[1];TASK=ROOT.parent
+L=runpy.run_path(str(ROOT/'scripts/check-install-control-rehearsal-v5.py'))
+C=L['C'];P=L['P'];H=L['PHASE'];sha=L['sha'];CANARY='PRIVATE_V5_PASSWORD_HANDLE_ERROR_CANARY'
+
+class BoundaryWorld:
+    def __init__(self,co,options=None):
+        self.co=co;self.options=options or {};self.events=[];self.runtime_password_sql=[];self.finalizers=[];self.logs={v:[]for v in P['VARIANTS']};self.booted=set();self.members={v:0 for v in P['VARIANTS']};self.active={v:{r:r=='postgres'for r in P['LOGIN_ROLES']}for v in P['VARIANTS']};self.open_once=False
+        self.host=co.ctx['HOST'];self.context={'Name':'desktop-linux','Endpoints':{'docker':{'Host':self.host['ENDPOINT']}}}
+    def result(self,out='',code=0,err=''):return SimpleNamespace(returncode=code,stdout=out,stderr=err)
+    def variant(self,args):
+        for v,target in self.co.plan['targets'].items():
+            if target['name']in args or target['container_id']in args or target['volume']in args:return v
+        raise AssertionError('UNREGISTERED_BOUNDARY_TARGET')
+    def phase(self):return self.co.e.value['current_stage'].startswith(H['PHASE'])
+    def target_objects(self,v):
+        target=self.co.target(v);m=self.co.histories[v]['manifest'];image='sha256:'+'f'*64
+        container={'Id':target['container_id'],'Image':image,'Name':'/'+target['name'],'Platform':'linux','Config':{'Image':m['target']['image'],'Labels':deepcopy(m['target']['labels'])},'State':{'Running':True},'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],'Tmpfs':{'/run/wa-secrets':'rw,noexec,nosuid,nodev,mode=0700,size=16m'}},'NetworkSettings':{'Ports':{'5432/tcp':None}},'Mounts':[{'Type':'volume','Name':target['volume'],'Destination':'/var/lib/postgresql/data','RW':True},{'Type':'bind','Source':m['target']['bootstrap_secret_host_path'],'Destination':'/run/bootstrap-password','RW':False}]}
+        volume={'Name':target['volume'],'Driver':'local','Options':None,'Scope':'local','Labels':deepcopy(m['target']['labels'])}
+        return container,volume,{'Id':image,'Os':'linux','Architecture':'amd64','RepoDigests':[m['target']['image']]}
+    def auth_rejection(self,v,role):
+        self.logs[v].append('WA_F0_DIAG|28P01|'+role+'|wa_p0c_rehearsal|FATAL:  password authentication failed for user "'+role+'"')
+        self.events.append(('startup-rejected',v,role,self.members[v]))
+        return self.result('',2,'psql: error: FATAL:  password authentication failed for user "'+role+'"\n')
+    def psql(self,v,args,query):
+        role=args[args.index('-U')+1]
+        if any('wrong-'in x for x in args):return self.auth_rejection(v,role)
+        if role in H['RUNTIME']and not self.active[v][role]:
+            if not(self.phase()and self.options.get('login_success')==role):return self.auth_rejection(v,role)
+        if not self.active[v].get(role,False)and role not in H['RUNTIME']:return self.auth_rejection(v,role)
+        if query.startswith("SELECT count(*) FROM pg_stat_activity WHERE backend_type='client backend'"):
+            self.events.append(('global-closure',v,self.co.e.value['current_stage']))
+            if self.phase()and self.options.get('open_backend_once')and not self.open_once:self.open_once=True;return self.result('1\n')
+            return self.result('0\n')
+        if query==self.co.text('bootstrap.sql'):
+            self.booted.add(v);self.members[v]=3;self.events.append(('bootstrap',v));return self.result()
+        if query==self.co.text('finalize.sql'):
+            if role!='postgres':raise AssertionError('ORIGINAL_GRANTOR_REQUIRED')
+            self.finalizers.append(v);self.events.append(('finalizer',v,self.members[v]));self.members[v]=0;return self.result()
+        if query.startswith('ALTER ROLE wa_migrator PASSWORD '):self.active[v]['wa_migrator']=True;self.events.append(('migrator-credential-only',v));return self.result()
+        if 'ALTER ROLE'in query:
+            self.runtime_password_sql.append((v,role));raise AssertionError('NO_RUNTIME_PASSWORD_SQL_ALLOWED')
+        if "current_setting('log_line_prefix')"in query:return self.result(json.dumps(dict.fromkeys(('prefix','terse','no_statements','no_error_statements','locale','passwords','version'),True)))
+        if query==self.co.text('fresh-observe.sql'):return self.result(json.dumps(dict.fromkeys(('no_existing_application_namespaces','no_existing_application_roles','ledger_absent'),v not in self.booted)))
+        if query==self.co.text('authority-observe.sql'):
+            value={**H['AUTHORITY'],'temporary_memberships':self.members[v]}
+            if self.phase()and self.options.get('authority_bad'):value['exact_temporary_options']=False
+            self.events.append(('authority',v,self.members[v]));return self.result(json.dumps(value))
+        if query==self.co.text('inactive-observe.sql'):
+            if self.phase()and self.options.get('observer_throw'):raise OSError(CANARY)
+            value=dict(H['INACTIVE'])
+            if self.phase()and self.options.get('verifier_active'):value['all_null_verifiers']=False
+            if self.phase()and self.options.get('verifier_float'):value['runtime_roles']=4.0
+            self.events.append(('inactive-verifiers',v,self.members[v]));return self.result(json.dumps(value))
+        if query==self.co.text('inventory.sql'):return self.result(json.dumps(dict.fromkeys(('relations','functions','types','enums','other_clients'),0)))
+        if query==self.co.text('ledger-observe.sql'):return self.result(json.dumps({'rows':[L['row'](self.co.packet['variants'][v]['sha256'],False)],'ids_unique':True}))
+        if query=='SELECT 1;\n':return self.result('1\n')
+        if "jsonb_build_object('login'"in query:return self.result(json.dumps({'login':role,'auth':'scram-sha-256:'+role,'database':'wa_p0c_rehearsal','client':'127.0.0.1','server':'127.0.0.1'}))
+        raise AssertionError('UNMODELLED_PSQL_BOUNDARY')
+    def __call__(self,args,**kwargs):
+        assert args[:3]==['docker','--context','desktop-linux']and kwargs.get('shell')is not True
+        if args[3:6]==['context','inspect','desktop-linux']:return self.result(json.dumps([self.context]))
+        if args[3:5]==['image','inspect']:
+            v=next(iter(self.booted),self.co.packet['variants'].get('division_failure')and'division_failure');return self.result(json.dumps([self.target_objects(v)[2]]))
+        v=self.variant(args);container,volume,image=self.target_objects(v)
+        if args[3]=='inspect':return self.result(json.dumps([container]))
+        if args[3:5]==['volume','inspect']:return self.result(json.dumps([volume]))
+        if args[3]=='logs':self.events.append(('server-log-observation',v));return self.result('\n'.join(self.logs[v])+'\n')
+        if '/usr/bin/sha256sum'in args:
+            m=self.co.histories[v]['manifest'];hashes={self.host['TOOLS_ROOT']+'/node/bin/node':m['tools']['files_sha256']['node/bin/node'],**{self.host['SOURCE_ROOT']+'/'+name:sha(self.co.histories[v]['members'][name])for name in C['RUNTIME']}}
+            return self.result(''.join(hashes[path]+'  '+path+'\n'for path in args[7:]))
+        if 'psql'in args:return self.psql(v,args,kwargs['input'])
+        if any(x.endswith('/local-f0-migrate-runner.mjs')for x in args):
+            attestation=json.loads(kwargs['input']);m=attestation['planned'];observed=attestation['observed'];state,message=P['PRIMARY'][v]
+            if self.options.get('wrong_diagnostic'):state,message='42703','foreign unlisted diagnostic'
+            self.logs[v].extend(['WA_F0_DIAG|'+state+'|wa_migrator|wa_p0c_rehearsal|ERROR:  '+message,'WA_F0_DIAG|25P02|wa_migrator|wa_p0c_rehearsal|ERROR:  '+P['ABORTED']])
+            if self.options.get('foreign_diagnostic'):self.logs[v].append('WA_F0_DIAG|22012|foreign_role|wa_p0c_rehearsal|ERROR:  division by zero')
+            value={'schema':'workinants.local-f0-migrate-result.v2','operation':'deploy','status':'CLI_OUTPUT_REJECTED_STOP_AND_INSPECT','exit_code':1,'prisma_codes':[],'sqlstates':[],'diagnostic_format':{'text_valid':True,'sgr_stripped':False,'headers_valid':False,'prisma_header_present':True,'prisma_header_unique':True,'database_header_present':False,'database_header_unique':False},'no_pending_message_observed':False,'raw_output_discarded':True,'database_qualification_claimed':False,'run_id':m['run_id'],'container_id':observed['container_id'],'source_sql_sha256':m['source']['integrated_sql_sha256'],'attestation_sha256':sha(kwargs['input'].encode())}
+            if self.options.get('cli_zero'):
+                value.update(status='CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS',exit_code=0);value['diagnostic_format'].update(headers_valid=True,prisma_header_present=False,prisma_header_unique=False)
+            if self.options.get('foreign_cli'):value['container_id']='f'*64
+            self.events.append(('genuine-node-result',v,value['exit_code']));return self.result(json.dumps(value),0 if value['exit_code']==0 else 1,CANARY)
+        if 'sh'in args and kwargs.get('input')==self.co.histories[v]['archive']:return self.result(b'',0,b'')
+        raise AssertionError('UNMODELLED_PROCESS_BOUNDARY')
+
+class PhaseTests(unittest.TestCase):
+    def setUp(self):
+        self.legacy=L['Tests']();self.legacy.setUp();self.addCleanup(self.legacy.stack.close)
+        self.temp=tempfile.TemporaryDirectory(prefix='install-v5-phase-',dir=TASK);self.addCleanup(self.cleanup_temp)
+        self.directory=Path(self.temp.name)
+    def cleanup_temp(self):
+        assert Path(self.temp.name).resolve().is_relative_to(TASK.resolve());self.temp.cleanup()
+    def world(self,options=None):
+        plan=self.legacy.fixture_plan(self.directory);loaded=self.legacy.load_plan(plan);e=C['Evidence'](self.directory/'results')
+        co=C['Coordinator'](plan,*loaded[:4],loaded[4],loaded[5],e)
+        world=BoundaryWorld(co,options);co.process=world;return co,e,world
+    def stop(self,call):
+        with self.assertRaises(BaseException)as caught:call()
+        self.assertNotIn(CANARY,str(caught.exception))
+    def test_01_real_failure_migrate_gate_two_variants_and_immutable_receipts(self):
+        for variant in H['VARIANTS']:
+            with self.subTest(variant=variant):
+                if (self.directory/'results').exists():self.cleanup_temp();self.temp=tempfile.TemporaryDirectory(prefix='install-v5-phase-',dir=TASK);self.directory=Path(self.temp.name)
+                co,e,w=self.world();verdict=co.failure(variant);target=e.value['targets'][variant]
+                self.assertEqual(verdict['primary_sqlstate'],P['PRIMARY'][variant][0]);self.assertEqual(verdict['delta']['registered'],6)
+                H['validate_receipts'](target['failed_precleanup_activation'],co.phase_identity(variant),True);H['validate_closures'](target['failed_precleanup_closures'],True)
+                self.assertEqual(target['failed_precleanup_activation'][0]['facts']['diagnostic_delta']['registered'],2)
+                self.assertEqual(target['failed_precleanup_activation'][1]['facts'],H['FALSE_GATE']);self.assertEqual(target['failed_precleanup_activation'][8]['facts'],H['AUTHORITY'])
+                self.assertEqual(target['authority']['temporary_memberships'],0);self.assertEqual(w.finalizers,[variant]);self.assertEqual(w.runtime_password_sql,[])
+                node=next(i for i,x in enumerate(w.events)if x[0]=='genuine-node-result');final=next(i for i,x in enumerate(w.events)if x[0]=='finalizer')
+                phase_auth=[i for i,x in enumerate(w.events)if x[0]=='startup-rejected'and i>node and i<final];self.assertEqual(len(phase_auth),4)
+                self.assertNotIn(CANARY,json.dumps(e.value));self.assertIsNone(e.value['first_failure'])
+    def test_02_zero_foreign_cli_and_wrong_or_foreign_primary_stop_before_gate(self):
+        for option in('cli_zero','foreign_cli','wrong_diagnostic','foreign_diagnostic'):
+            with self.subTest(option=option):
+                co,e,w=self.world({option:True});self.stop(lambda:co.failure('division_failure'));self.assertNotIn('COMPLETE',[r['kind']for r in e.value['targets']['division_failure'].get('failed_precleanup_activation',[])])
+                self.assertEqual(w.finalizers,['division_failure']);self.assertEqual(w.runtime_password_sql,[])
+                self.cleanup_temp();self.temp=tempfile.TemporaryDirectory(prefix='install-v5-phase-',dir=TASK);self.directory=Path(self.temp.name)
+    def test_03_unexpected_gate_return_stops_without_password_sql(self):
+        co,e,w=self.world();gate_class=type(co.gates['division_failure']);original=gate_class.permit
+        def wrong(gate):
+            if co.e.value['current_stage'].startswith(H['PHASE']):return True
+            return original(gate)
+        with patch.object(gate_class,'permit',wrong):self.stop(lambda:co.failure('division_failure'))
+        self.assertEqual(w.finalizers,['division_failure']);self.assertEqual(w.runtime_password_sql,[])
+        self.assertEqual(e.value['first_failure']['code'],'INSTALL_PHASE_EXPECTED_GATE_REFUSAL')
+    def test_04_verifier_shape_startup_success_and_authority_bad_reject(self):
+        for options in({'verifier_active':True},{'verifier_float':True},{'login_success':'wa_app_runtime'},{'authority_bad':True},{'open_backend_once':True}):
+            with self.subTest(options=options):
+                co,e,w=self.world(options);self.stop(lambda:co.failure('division_failure'));self.assertEqual(w.finalizers,['division_failure']);self.assertEqual(w.runtime_password_sql,[])
+                self.assertNotIn(CANARY,json.dumps(e.value));self.cleanup_temp();self.temp=tempfile.TemporaryDirectory(prefix='install-v5-phase-',dir=TASK);self.directory=Path(self.temp.name)
+    def test_05_missing_old_phase_restoration_is_rejected_before_recovery(self):
+        co,e,w=self.world();old=(ROOT/'scripts/sql-review/run-install-control-rehearsal-v4.py').read_bytes();node=next(n for c in ast.parse(old).body if isinstance(c,ast.ClassDef)and c.name=='Coordinator'for n in c.body if isinstance(n,ast.FunctionDef)and n.name=='failure');namespace=dict(C)
+        exec(compile(ast.Module(body=[node],type_ignores=[]),'<only-old-failure-restoration>','exec'),namespace);co.failure=MethodType(namespace['failure'],co)
+        co.failure('division_failure');self.assertNotIn('failed_precleanup_activation',e.value['targets']['division_failure']);self.stop(lambda:co.require_failed_precleanup_phase('division_failure'))
+    def test_06_real_observer_error_persistent_IO_finalizes_and_stops_later_cases(self):
+        co,e,w=self.world({'observer_throw':True});co.successful_install=Mock();co.recovery=Mock();original=Path.open
+        def failed(path,*args,**kwargs):
+            if path==e.directory/'install-controls-results.tmp'and e.required_cleanup:raise OSError(CANARY)
+            return original(path,*args,**kwargs)
+        with patch.object(Path,'open',failed):self.stop(co.run)
+        co.recovery.assert_not_called();self.assertEqual(w.finalizers,['division_failure']);self.assertTrue(e.value['persistence_failure']);self.assertFalse(e.value['evidence_complete']);self.assertEqual(e.value['first_failure']['code'],'INSTALL_PHASE_UNEXPECTED_RESPONSE');self.assertNotIn(CANARY,json.dumps(e.value))
+    def test_07_old_save_and_finalizer_IO_skip_counterexample(self):
+        co,e,w=self.world({'observer_throw':True});co.successful_install=Mock();co.recovery=Mock();old=(ROOT/'scripts/sql-review/run-install-control-rehearsal-v4.py').read_bytes();tree=ast.parse(old);namespace=dict(C)
+        selected=[n for c in tree.body if isinstance(c,ast.ClassDef)for n in c.body if isinstance(n,ast.FunctionDef)and(c.name,n.name)in(('Evidence','save'),('Coordinator','finalize'))]
+        exec(compile(ast.Module(body=selected,type_ignores=[]),'<only-old-save-finalizer-restoration>','exec'),namespace);e.save=MethodType(namespace['save'],e);co.finalize=MethodType(namespace['finalize'],co);original=Path.open
+        def failed(path,*args,**kwargs):
+            if path==e.directory/'install-controls-results.tmp'and(e.required_cleanup or e.value.get('first_failure')is not None):raise OSError(CANARY)
+            return original(path,*args,**kwargs)
+        with patch.object(Path,'open',failed):self.stop(co.run)
+        self.assertEqual(w.finalizers,[]);co.recovery.assert_not_called()
+    def test_08_first_intended_prefix_failure_survives_secondary_writer_failure(self):
+        co,e,w=self.world({'wrong_diagnostic':True});co.successful_install=Mock();co.recovery=Mock();original=Path.open
+        def failed(path,*args,**kwargs):
+            if path==e.directory/'install-controls-results.tmp'and e.required_cleanup:raise OSError(CANARY)
+            return original(path,*args,**kwargs)
+        with patch.object(Path,'open',failed):self.stop(co.run)
+        self.assertEqual(e.value['first_failure']['code'],'INSTALL_PHASE_EXACT_PRIMARY_DIAGNOSTIC');self.assertTrue(e.value['persistence_failure']);self.assertEqual(w.finalizers,['division_failure']);co.recovery.assert_not_called()
+    def test_09_phase_receipt_missing_duplicate_foreign_and_gate_types_reject(self):
+        co,e,w=self.world();co.failure('division_failure');row=e.value['targets']['division_failure'];base=row['failed_precleanup_activation'];identity=co.phase_identity('division_failure')
+        for mutate in(lambda x:x.pop(),lambda x:x.append(deepcopy(x[-1])),lambda x:x[0]['identity'].update(container_id='f'*64),lambda x:x[1]['facts'].update(install_closed_success=0),lambda x:x[3]['facts'].update(runtime_roles=True),lambda x:x[4]['facts'].update(exit_code=2.0),lambda x:x[8]['facts'].update(temporary_memberships=0)):
+            changed=deepcopy(base);mutate(changed);self.stop(lambda:H['validate_receipts'](changed,identity,True))
+        changed=deepcopy(row['failed_precleanup_closures']);changed[0]['proof']['observation_completed']=False;self.stop(lambda:H['validate_closures'](changed,True))
+    def test_10_original_gate_protocol_sql_and_old_evidence_unchanged(self):
+        before=TASK/'before/ROOT';preserved=json.loads((TASK/'before-preservation.json').read_bytes())
+        for name in('scripts/install_control_protocol_v2.py','review-output/foundation-application.review.sql','review-output/install-control-rehearsal-v4/division_failure/'+P['MIGRATION']+'/migration.sql','review-output/install-control-rehearsal-v4/late_function_grant/'+P['MIGRATION']+'/migration.sql'):
+            self.assertEqual((ROOT/name).read_bytes(),(before/name).read_bytes());self.assertEqual(sha((ROOT/name).read_bytes()),preserved['Root_files_sha256'][name])
+
+if __name__=='__main__':unittest.main(verbosity=2)

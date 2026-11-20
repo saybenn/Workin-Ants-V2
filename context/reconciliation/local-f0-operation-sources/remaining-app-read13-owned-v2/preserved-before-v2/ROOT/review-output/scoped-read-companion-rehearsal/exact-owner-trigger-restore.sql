@@ -1,0 +1,10 @@
+BEGIN;
+ALTER TABLE app.auth_provider_accounts ENABLE TRIGGER owner_commit;
+ALTER TABLE app.audit_events ENABLE TRIGGER owner_commit;
+ALTER TABLE app.user_roles ENABLE TRIGGER owner_commit;
+ALTER TABLE app.access_audit_logs ENABLE TRIGGER owner_commit;
+ALTER TABLE app.age_gate_blocks ENABLE TRIGGER owner_commit;
+ALTER TABLE app.age_gate_attempts ENABLE TRIGGER owner_commit;
+ALTER TABLE app.user_security_profiles ENABLE TRIGGER owner_commit;
+ALTER TABLE app.users ENABLE TRIGGER owner_commit;
+COMMIT;

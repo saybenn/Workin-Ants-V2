@@ -1,0 +1,5 @@
+SELECT jsonb_build_object('read13_marker','RuntimeCommandReceipt/purpose'::text,'position','BEFORE'::text);
+SELECT jsonb_build_object('model','CustomerProfile','ids',coalesce(jsonb_agg(observed.id::text ORDER BY observed.id::text COLLATE "C"),'[]'::jsonb)) FROM (SELECT id,user_id,status,revision,privacy_generation,display_name,avatar_media_id,city,country,created_at,updated_at,archived_at,state,mutation_transaction_id FROM app.customer_profiles WHERE id IN ('76b7a107-ed42-5471-9d24-946e10c38a4f'::uuid)) observed;
+SELECT jsonb_build_object('model','RuntimeCommandReceipt','ids',coalesce(jsonb_agg(observed.id::text ORDER BY observed.id::text COLLATE "C"),'[]'::jsonb)) FROM (SELECT id,owner_module_id,operation,subject_scope,semantic_key,fingerprint,state,source_revision,result_schema_id,result_schema_version,result_digest,result_body,created_at,mutation_transaction_id FROM platform.runtime_command_receipt WHERE id IN ('7282489a-b97c-5bc4-8a52-dd343c7d4646'::uuid,'6d1b5813-44bc-5ece-9c35-db327f128bd7'::uuid)) observed;
+SET CONSTRAINTS ALL IMMEDIATE;
+SELECT jsonb_build_object('read13_marker','RuntimeCommandReceipt/purpose'::text,'position','AFTER'::text);

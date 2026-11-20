@@ -1,0 +1,17 @@
+BEGIN;
+ALTER TABLE app.track_subscription_events ENABLE TRIGGER enrollment_commit;
+ALTER TABLE app.track_usage_counters ENABLE TRIGGER usage_adapter_gate;
+ALTER TABLE app.track_usage_events ENABLE TRIGGER usage_adapter_gate;
+ALTER TABLE app.consent_disposition ENABLE TRIGGER owner_commit;
+ALTER TABLE app.consent_presentation ENABLE TRIGGER owner_commit;
+ALTER TABLE app.consent_content_revision ENABLE TRIGGER owner_commit;
+ALTER TABLE app.track_usage_counters ENABLE TRIGGER owner_commit;
+ALTER TABLE app.track_usage_events ENABLE TRIGGER owner_commit;
+ALTER TABLE app.track_entitlement_grants ENABLE TRIGGER owner_commit;
+ALTER TABLE app.track_subscriptions ENABLE TRIGGER owner_commit;
+ALTER TABLE app.track_plan_entitlements ENABLE TRIGGER owner_commit;
+ALTER TABLE app.track_entitlement_definitions ENABLE TRIGGER owner_commit;
+ALTER TABLE app.track_plans ENABLE TRIGGER owner_commit;
+ALTER TABLE app.user_security_profiles ENABLE TRIGGER owner_commit;
+ALTER TABLE app.users ENABLE TRIGGER owner_commit;
+COMMIT;

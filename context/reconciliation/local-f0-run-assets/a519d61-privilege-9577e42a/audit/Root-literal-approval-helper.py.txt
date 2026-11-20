@@ -1,0 +1,43 @@
+"""Fresh actual local preflight after exact independent review; external review_status flag only."""
+from pathlib import Path
+import argparse,datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+C='a519d61f678a48afa4bb0e38d74800ebf8000d67';TREE='0f2a26f12b654fb17d865d4ae563419c09069a39';RUN='9577e42a-1a55-43e6-8784-80b23d4c7653';PENDING='25fc64e80094e2227b7a0a81f0cde4b6ff8a4a2ffd1128e85de56b7a442dd14a';REVIEW='41f98a5392b9d1ad62c935402b4569037a90b24e16ca8bb5a354b38b00a44f61';PACKET='d9a2eb23ae3cd4390c4364605c908d6d5fdd616d54934baa694c2d3c458b3051';APPROVED='APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT'
+p=argparse.ArgumentParser();p.add_argument('--all-heavy-known-closed',action='store_true');args=p.parse_args();assert args.all_heavy_known_closed
+path=T/'local-f0-privilege-ceiling-plan-9577e42a/operation-manifest.json';raw=path.read_bytes();assert sha(raw)==PENDING;m=json.loads(raw)
+rp=T/'privilege_v7_9577e42a_independent_operational_literal_review_20261120.json';rb=rp.read_bytes();assert sha(rb)==REVIEW;review=json.loads(rb);assert review['schema']=='workinants.privilege-v7-9577-independent-pending-operational-literal-review.v1'and review['reviewer']=='/root/review_track_ports'and review['decision']=='OPERATIONAL_LITERAL_APPROVED_CONDITIONAL_FRESH_ROOT_LIVE_PREFLIGHT'and review['findings']==[]
+assert review['pending_manifest']=={'path':str(path),'sha256':PENDING,'run_id':RUN,'source_commit':C,'source_tree':TREE,'packet_sha256':PACKET,'packet_files':649}
+next_=review['Root_only_next_action'];assert next_['permitted_single_manifest_field']=='review_status'and next_['from']=='PENDING_OPERATIONAL_REVIEW'and next_['to']==APPROVED and next_['no_other_change_authorized']is True
+assert m['review_status']=='PENDING_OPERATIONAL_REVIEW'and m['run_id']==RUN and m['source_commit']==C and m['source_tree']==TREE
+av=review['actual_verification'];assert av['Core_initialize_and_actual_whole_verify_privilege_ceiling_packet']is True and av['current649_and_committed649_actual_bytes_exact']is True and av['actual_git_show_count']==649 and av['final_reference_barrier_after_all_source_tool_external_postchecks']is True
+pins=m['packet_files_sha256'];assert len(pins)==649
+for n,h in pins.items():assert sha((R/n).read_bytes())==h,n
+aggregate=sha(''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode());assert aggregate==m['packet_sha256']==PACKET
+five=m['privilege_ceiling']['external_files_sha256'];assert len(five)==5 and five==review['operator_sources_sha256']
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+def git(*a):return subprocess.check_output(['git','--no-optional-locks','-c','core.longpaths=true',*a],cwd=R,timeout=90).decode().strip()
+assert git('rev-parse','HEAD')==C and git('rev-parse','HEAD^{tree}')==TREE and not git('diff','--cached','--name-only')
+assert git('ls-remote','--exit-code','origin','refs/heads/codex/p0c-candidate-corrections-2026-10-31').split()==[C,'refs/heads/codex/p0c-candidate-corrections-2026-10-31']
+def docker(*a):return subprocess.run(['docker','--context','desktop-linux',*a],cwd=R,capture_output=True,text=True,timeout=30,shell=False)
+c=docker('context','inspect','desktop-linux');assert c.returncode==0;contexts=json.loads(c.stdout);assert len(contexts)==1 and contexts[0]['Name']=='desktop-linux';endpoint=contexts[0]['Endpoints']['docker']['Host'];assert endpoint=='npipe:////./pipe/dockerDesktopLinuxEngine'
+s=docker('version','--format','{{json .Server}}');assert s.returncode==0;server=json.loads(s.stdout);assert server['Os']=='linux'and server['Arch']=='amd64'
+i=docker('image','inspect',m['image']);assert i.returncode==0;hp='scripts/sql-review/local_image_identity.py';hb=(R/hp).read_bytes();assert sha(hb)==pins[hp]=='a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604'
+ns={'__name__':'_Root_exact_reviewed_cached_image_identity','__file__':str(R/hp)};exec(compile(hb,str(R/hp),'exec'),ns);identity=ns['validate_cached_image'](json.loads(i.stdout),(R/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes());assert identity['reference']==m['image']
+names=[('container',t['name'])for t in m['targets']]+[('volume',t['volume'])for t in m['targets']];assert names==[('container','wa-p0c-9577e42a-privilege'),('volume','wa-p0c-9577e42a-privilege-data')];observations={}
+for kind,n in names:
+ result=docker(kind,'inspect',n);expected='Error response from daemon: No such container: '+n if kind=='container'else'Error response from daemon: get '+n+': no such volume'
+ assert result.returncode==1 and result.stdout.strip()=='[]'and result.stderr.strip()==expected;observations[n]={'kind':kind,'absent_exact_known_diagnostic':True,'raw_output_retained':False}
+out=Path(m['evidence_directory']);assert out.resolve().is_relative_to(T.resolve())and not out.resolve().is_relative_to(R.resolve())
+for x in(out,out/'private'):
+ try:x.lstat()
+ except FileNotFoundError:pass
+ else:raise AssertionError('FRESH_EVIDENCE_OR_PRIVATE_PATH_CONFLICT')
+assert path.read_bytes()==raw and git('rev-parse','HEAD')==C
+with path.with_name('operation-manifest-before-operational-review.json').open('xb')as f:f.write(raw)
+m['review_status']=APPROVED;assert{k for k in m if m[k]!=json.loads(raw)[k]}=={'review_status'};temp=path.with_name('operation-manifest-reviewed.tmp')
+with temp.open('xb')as f:f.write((json.dumps(m,indent=2,allow_nan=False)+'\n').encode())
+temp.replace(path)
+receipt={'schema':'workinants.a519-privilege-v7-Root-exact-literal-approval.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'run_id':RUN,'source_commit':C,'source_tree':TREE,'packet_sha256':PACKET,'packet_files':649,'review_sha256':REVIEW,'pending_manifest_sha256':PENDING,'approved_manifest_sha256':sha(path.read_bytes()),'changed_keys':['review_status'],'fresh_preflight':{'endpoint':endpoint,'server':{k:server[k]for k in('Version','Os','Arch')},'image_identity':identity,'exact_name_observations':observations,'OUT_private_absent':True},'all_heavy_known_closed':True,'runtime':'NOT_RUN_AT_APPROVAL','Posture':'D'}
+op=T/'a519_PrivilegeV7_9577e42a_Root_literal_approval_receipt_20261120.json'
+with op.open('x',encoding='utf-8')as f:json.dump(receipt,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'receipt':op.name,'receipt_sha256':sha(op.read_bytes()),'approved_manifest_sha256':receipt['approved_manifest_sha256'],'live_identity_and_exact_names':'PASS','runtime':'NOT_RUN_AT_APPROVAL'}))

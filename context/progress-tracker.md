@@ -1,3 +1,19 @@
+## Local F0 continuation — cleaned37-contrast stop and three reviewed packets (2026-11-20)
+
+Accepted coverage remains638PASS/33PARTIAL/324NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED;671ledgerrows and94cases5PASS/78PARTIAL/11NOT_RUN. Publisheda519d61f678a48afa4bb0e38d74800ebf8000d67/tree0f2a26f12b654fb17d865d4ae563419c09069a39 was independently verified after normal fast-forward.
+
+FreshV7 run9577 completed37finite contrasts, including3corrected actualCREATE denials, then stopped before publicCREATE at a source/native metadata comparison. Its query exited0 with exactBoolean shape and sourcecomparisonfalse; individual returned bits were not retained. The independent source audit proves publicACL is stored separately from the list the oracle reads. RegisteredPUBLIC USAGE is preserved; no permissions were changed. PublicCREATE and162later negative bodies are unexecuted. Early/finalreference barriers, source preservation and exactowned1C1V/private cleanup passed. No assertion or wholecase promotion.
+
+ReadOwnedV2, INSTALL missing-phase/parent-referenceV5Fix1 and diagnostic-onlyAppV3 are independently source-approved and Root-closed. Fresh unmodified preparation validates1400Read files and301App files; INSTALL preparation/pinner filesystem prefix reaches the first readonlyGit boundary without pinning. All held plans stayPENDING/TO_BE_PINNED/NOT_RUN pending normal publication, exactcurrent+committed pin, separateliteral/livepreflight and boundedactual. App independent15final checks close the normal/late-error composition gap; preserved author/runnerERROR histories are not relabeled. Original24App artifacts/22SQL,6Read child sources and11INSTALL child sources/13artifacts stayexact.
+
+The new privateV8 public-only oracle correction and RestoreV6 exact-byteHBA correction remain source work. Canonical5aeSQL/June/A-D/32workerACL/1034requirements/451register remain unchanged. OriginalWindow/OneDrive work and all historical stops are preserved. PostureD and Brain final stage acceptance remain; continue after publication.
+
+Plain English: Thirty-seven small checks finished, then the checker missed a separate permission list and stopped. The test box and secrets are gone. Three reviewed test packets are ready to be saved and checked for their next real runs. The scoreboard has not gained new passing points from these stopped or pretend runs.
+
+Current detailed evidence: `context/reconciliation/local-f0-a519-privilege37-three-reviewed-packets-progress-20261120.json`, SHA-256 `194fc6a85a55096392f13f577407687f674a026d8eb17625c89ebaed3766132b`. Earlier sections remain version-qualified history.
+
+---
+
 ## Local F0 continuation — cleaned restore stop and reviewed privilege correction (2026-11-20)
 
 Coverage remains638PASS/33PARTIAL/324NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED across1034assertions;94cases remain5PASS/78PARTIAL/11NOT_RUN, with671evidence rows. Published11a1fa1f5747877270ac85d260ed5d410c04f999/tree27c8900c2ab20d1050776bdc6580b1c7399cb431 was independently verified after normal fast-forward.

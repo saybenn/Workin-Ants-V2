@@ -1,0 +1,910 @@
+"""Offline owned-operator mocks. Every process/network boundary is forbidden."""
+from contextlib import redirect_stdout
+from copy import deepcopy
+import hashlib
+import io
+import json
+from pathlib import Path
+import runpy
+import shutil
+import socket
+import subprocess
+import tempfile
+import types
+import unittest
+from unittest.mock import Mock,patch
+
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+CORE=TASK/'execute_local_f0_scoped_reads_owned_resource_v1_20261119.py';STEPS=TASK/'local_f0_scoped_reads_owned_resource_v1_operation_steps.py'
+BASELINE=TASK/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json'
+CID='a'*64;RUN='550e8400-e29b-41d4-a716-446655440000';NAME='wa-p0c-550e8400-scopedreads';VOLUME=NAME+'-data'
+MD='sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1';CD='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d'
+CANARY='SCOPED_READ_PRIVATE_PASSWORD_CONTEXT_OR_STDERR_CANARY'
+
+def namespace():
+ n=runpy.run_path(str(CORE))['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+ n.update(TASK=TASK,ROOT=ROOT,RUN_ID=RUN,DB='wa_p0c_rehearsal',LABEL='p0c-local-f0',IMAGE='docker.io/library/postgres:17.11@'+MD,CONFIG=CD,CONNECTION_TAG='wa-owner-mock',TARGETS=[{'name':NAME,'volume':VOLUME,'kind':'ok'}],RESOURCE_CONTAINERS=(NAME,),RESOURCE_VOLUMES=(VOLUME,),report={'stage':'TEST','events':[],'steps':{},'targets':{},'unexpected':[],'cleanup':{},'scoped_read':{}},save=lambda:None,event=lambda *a,**k:None,created_containers={NAME:CID},created_volumes={VOLUME:'CREATED'},attempted_containers={NAME},attempted_volumes={VOLUME},bootstrap_attempted=set(),finalization_attempted=set(),finalized=set(),passwords={},secret_paths=[],all_secrets=[])
+ return n
+
+class OwnerOperationTests(unittest.TestCase):
+ def setUp(self):
+  for name in ('run','Popen','call','check_call','check_output'):
+   guard=patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  guard=patch.object(socket.socket,'connect',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+  temp=tempfile.TemporaryDirectory(prefix='offline-owner-operator-',dir=TASK);self.addCleanup(temp.cleanup);self.directory=Path(temp.name);self.n=namespace();self.n.update(OUT=self.directory/'out',PRIVATE=self.directory/'out/private')
+ def image(self,kind='MANIFEST'):
+  return {'Id':MD if kind=='MANIFEST' else CD,'Os':'linux','Architecture':'amd64','RepoDigests':['postgres@'+MD],'Descriptor':{'digest':MD,'mediaType':'application/vnd.oci.image.manifest.v1+json','size':3628},'Config':{'Env':['PG_VERSION=17.11-1.pgdg13+1']}}
+ def image_docker(self,value,manifest=None):
+  calls=[];raw=(ROOT/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes() if manifest is None else manifest
+  def docker(args,input=None,timeout=60):
+   calls.append(args)
+   if args==['image','inspect',self.n['IMAGE']]:return types.SimpleNamespace(returncode=0,stdout=json.dumps([value]),stderr='')
+   if args==['buildx','imagetools','inspect','--raw',self.n['IMAGE']]:return types.SimpleNamespace(returncode=0,stdout=raw.decode(),stderr='')
+   raise AssertionError('UNREGISTERED_IMAGE_PROCESS')
+  self.n['docker']=docker;return calls
+ def resource(self,kind='MANIFEST'):
+  n=self.n;labels={'workinants.rehearsal':n['LABEL'],'workinants.rehearsal.run':RUN};value={'Id':CID,'Name':'/'+NAME,'Config':{'Image':n['IMAGE'],'Labels':labels},'Image':MD if kind=='MANIFEST' else CD,'Platform':'linux','State':{'Running':True},'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],'Links':None,'Tmpfs':{'/run/wa-secrets':'rw,nosuid,noexec,nodev,mode=0700'}},'NetworkSettings':{'Ports':{'5432/tcp':None}},'Mounts':[{'Type':'volume','Name':VOLUME,'Destination':'/var/lib/postgresql/data','RW':True},{'Type':'bind','Source':str(n['PRIVATE']/'ok-bootstrap-password'),'Destination':'/run/bootstrap-password','RW':False}]};volume={'Name':VOLUME,'CreatedAt':'CREATED','Labels':labels,'Driver':'local','Options':{},'Scope':'local'}
+  n['report']['image']={'image_id':value['Image']};n['inspect_container']=lambda name:value;n['inspect_volume']=lambda name:volume
+  def kernel(args,input=None,timeout=60):
+   self.assertEqual(args,['exec','-i',CID,'sh','-ceu',n['OWNER_SECRET_TMPFS_SCRIPT']]);self.assertEqual(timeout,30);self.assertIsNone(input)
+   return types.SimpleNamespace(returncode=0,stdout=n['OWNER_SECRET_TMPFS_TOKEN']+'\n',stderr='')
+  n['docker']=kernel;return value,volume
+ def test_import_and_help_do_not_read_helpers_or_launch_processes(self):
+  for file in (CORE,TASK/'prepare_local_f0_scoped_reads_owned_resource_v1_plan.py',TASK/'pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py'):
+   module=runpy.run_path(str(file));entry=module.get('launch',module.get('main'))
+   with redirect_stdout(io.StringIO()),self.assertRaises(SystemExit) as found:entry(['--help'])
+   self.assertEqual(found.exception.code,0)
+   if 'pin_local_' not in file.name:
+    with redirect_stdout(io.StringIO()):self.assertEqual(entry([]),1)
+ def test_image_guard_admits_manifest_store_and_keeps_config_independent(self):
+  calls=self.image_docker(self.image());self.n['ensure_image']();self.assertEqual(self.n['report']['image']['image_id'],MD);self.assertEqual(self.n['report']['image']['config_digest'],CD);self.assertEqual(len(calls),2);self.assertFalse(any('pull' in c for c in calls))
+ def test_classic_config_store_id_also_requires_independent_manifest(self):
+  value=self.image('CONFIG');value.pop('Descriptor');self.image_docker(value);self.n['ensure_image']();self.assertEqual(self.n['report']['image']['image_store_identity'],'CONFIG')
+ def test_wrong_descriptor_platform_version_or_store_id_stops_without_creation(self):
+  for field,bad in [('Id','sha256:'+'f'*64),('Architecture','arm64'),('Os','windows'),('Descriptor',None),('Config',{'Env':['PG_VERSION=17.10']})]:
+   value=self.image();value[field]=bad;calls=self.image_docker(value)
+   with self.subTest(field=field),self.assertRaises(self.n['Stop']):self.n['ensure_image']()
+   self.assertEqual(len(calls),2)
+ def test_wrong_manifest_bytes_stop_and_no_raw_text_is_retained(self):
+  self.image_docker(self.image(),CANARY.encode())
+  with self.assertRaises(self.n['Stop']):self.n['ensure_image']()
+  self.assertNotIn(CANARY,json.dumps(self.n['report']))
+ def test_shared_image_module_is_compiled_from_same_hash_checked_bytes(self):
+  self.image_docker(self.image());actual=Path.read_bytes
+  def read(path):return CANARY.encode() if path==ROOT/'scripts/sql-review/local_image_identity.py' else actual(path)
+  with patch.object(Path,'read_bytes',read),self.assertRaisesRegex(self.n['Stop'],'IMAGE_IDENTITY_MODULE_DRIFT'):self.n['ensure_image']()
+  self.assertNotIn(CANARY,json.dumps(self.n['report']))
+ def test_exact_resource_accepts_actual_admitted_manifest_or_config_id(self):
+  for kind in ('MANIFEST','CONFIG'):
+   self.resource(kind);self.n['inspect_owner'](NAME)
+ def test_resource_rejects_foreign_id_mount_labels_ports_or_namespaces(self):
+  for change in ('id','name','image','volume','secret','extra','ports','privileged','pid','ipc','devices','created'):
+   value,volume=self.resource();bad=deepcopy(value);disk=deepcopy(volume)
+   if change=='id':bad['Id']='b'*64
+   elif change=='name':bad['Name']='/foreign'
+   elif change=='image':bad['Image']=CD
+   elif change=='volume':bad['Mounts'][0]['Name']='foreign'
+   elif change=='secret':bad['Mounts'][1]['RW']=True
+   elif change=='extra':bad['Mounts'].append({'Type':'bind','Source':'C:/outside','Destination':'/outside','RW':False})
+   elif change=='ports':bad['HostConfig']['PortBindings']={'5432/tcp':[{'HostPort':'5432'}]}
+   elif change=='privileged':bad['HostConfig']['Privileged']=True
+   elif change=='pid':bad['HostConfig']['PidMode']='host'
+   elif change=='ipc':bad['HostConfig']['IpcMode']='host'
+   elif change=='devices':bad['HostConfig']['Devices']=[{'PathOnHost':'/dev/sda'}]
+   else:disk['CreatedAt']='FOREIGN'
+   self.n['inspect_container']=lambda name,bad=bad:bad;self.n['inspect_volume']=lambda name,disk=disk:disk
+   with self.subTest(change=change),self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME)
+ def test_nested_manifest_second_read_drift_stops_before_helper_or_tools(self):
+  raw=b'{"tools":{"files_sha256":{}}}';plan={'manifest_path':str(self.directory/'nested.json'),'manifest_sha256':hashlib.sha256(raw).hexdigest()};self.n['MANIFEST']={'migration_targets':{'ok':plan}};docker=Mock();helpers=Mock();self.n['docker']=docker;self.n['load_reviewed_helper']=helpers
+  with patch.object(Path,'read_bytes',side_effect=[raw,CANARY.encode()]):
+   self.assertEqual(self.n['read_target_manifest'](plan),raw)
+   with self.assertRaises(self.n['Stop']):self.n['migrate']({'kind':'ok','name':NAME},'deploy','TEST')
+  docker.assert_not_called();helpers.assert_not_called()
+ def test_transitive_module_drift_is_rejected_before_any_exec(self):
+  self.n['MANIFEST']={'packet_files_sha256':{name:'0'*64 for name in self.n['HELPER_FILES']}};out=io.StringIO()
+  with patch.object(Path,'read_bytes',return_value=CANARY.encode()),redirect_stdout(out),self.assertRaises(self.n['Stop']):self.n['load_reviewed_helper'](self.n['SCOPED_COORDINATOR'])
+  self.assertNotIn(CANARY,out.getvalue())
+ def test_owner_packet_source_drift_stops_before_helpers(self):
+  self.n['COMMIT']='a'*40;self.n['TREE']='b'*40;self.n['PACKET']='c'*64;self.n['MANIFEST']={'packet_files_sha256':{}};self.n['verify_catalog_packet']=Mock(side_effect=AssertionError('NO_CATALOG_COMPILE'));self.n['read_pinned']=Mock(side_effect=AssertionError('NO_SOURCE_READ'))
+  with self.assertRaises(self.n['Stop']):self.n['verify_scoped_read_packet']()
+  self.n['read_pinned'].assert_not_called();self.n['verify_catalog_packet'].assert_not_called()
+ def test_bootstrap_and_finalizer_keep_exact_pinned_sql_reads(self):
+  import ast
+  tree=ast.parse(STEPS.read_bytes());bootstrap=ast.get_source_segment(STEPS.read_text(),next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='bootstrap_all'))
+  self.assertIn("read_pinned('review-output/foundation-bootstrap.review.sql')",bootstrap);self.assertIn('source_authentication_preflight(name)',bootstrap)
+  tree=ast.parse(CORE.read_bytes());functions={node.name:node for node in tree.body if isinstance(node,ast.FunctionDef)}
+  finalize=functions['finalize'];calls=[node for node in ast.walk(finalize) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id=='_required_safety_sql']
+  self.assertEqual([node.args[1].value for node in calls],['FINALIZATION_BACKENDS','ORIGINAL_GRANTOR_FINALIZATION','FINALIZATION_RESULT'])
+  source=ast.get_source_segment(CORE.read_text(),functions['_required_safety_text']);self.assertIn('read_pinned(_SAFETY_FINALIZER)',source);self.assertEqual(self.n['_SAFETY_FINALIZER'],'review-output/foundation-bootstrap-finalize.review.sql');self.assertEqual(self.n['_SAFETY_FINALIZER_SHA'],hashlib.sha256((ROOT/self.n['_SAFETY_FINALIZER']).read_bytes()).hexdigest())
+ def test_no_restore_or_recovery_behavior_is_present(self):
+  import ast
+  functions={node.name for node in ast.parse(STEPS.read_bytes()).body if isinstance(node,ast.FunctionDef)};self.assertFalse(functions&{'backup_archive','stage_restore','rotate_credentials','identity_recovery','diagnostic_probes','restore_experiment'})
+ def test_pipeline_failure_stops_coordinator_and_still_attempts_cleanup(self):
+  n=self.n;events=[];n.update(OUT=self.directory/'fresh-out',MANIFEST={'review_status':'APPROVED_LOCAL_F0_SCOPED_READ_COMPANION_OWNED_RESOURCE_V1_ATTEMPT','scoped_read':{'external_files_sha256':{}}})
+  for name in ('verify_scoped_read_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','scoped_read_experiment','secret_scan','cleanup','verify_tool_data','verify_external_input_preservation'):n[name]=lambda name=name:events.append(name)
+  n['catalog_experiment']=lambda:(_ for _ in ()).throw(n['Stop']('MOCK_NATIVE_NOT_PASS'))
+  self.assertEqual(n['main'](),1);self.assertNotIn('scoped_read_experiment',events);self.assertIn('cleanup',events);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertNotIn('qualified_native_snapshot_sha256',n['report'])
+ def test_cleanup_deletes_only_exact_created_container_volume_and_testsecret(self):
+  n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret];value,volume=self.resource();containers={NAME:value};volumes={VOLUME:volume};commands=[]
+  n['inspect_container']=lambda name:containers.get(name);n['inspect_volume']=lambda name:volumes.get(name);n['inventory']=lambda:(set(containers)|{'unrelated'},set(volumes)|{'unrelated-data'})
+  def docker(args,input=None,timeout=60):
+   commands.append(args)
+   if args==['container','rm','-f',CID]:containers.pop(NAME)
+   elif args==['volume','rm',VOLUME]:volumes.pop(VOLUME)
+   else:raise AssertionError('UNDECLARED_CLEANUP')
+   return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+  n['docker']=docker;n['cleanup']();self.assertEqual(len(commands),2);self.assertFalse(n['PRIVATE'].exists());self.assertFalse(n['report']['cleanup_summary']['image_removed'])
+ def test_foreign_cleanup_identity_is_preserved_and_inventory_uncertainty_rejects(self):
+  n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();value,volume=self.resource();value['Id']='f'*64;n['docker']=Mock();n['inventory']=lambda:({NAME},{VOLUME})
+  with self.assertRaises(n['Stop']):n['cleanup']()
+  self.assertFalse(any(call.args[0][:2]==['container','rm'] for call in n['docker'].call_args_list));self.assertTrue(n['report']['unexpected'])
+
+
+
+ def setup_main(self):
+  n=self.n;events=[];file='scripts/sql-review/local_image_identity.py';wanted=hashlib.sha256((ROOT/file).read_bytes()).hexdigest();n.update(OUT=self.directory/'fresh-main',MANIFEST={'review_status':'APPROVED_LOCAL_F0_SCOPED_READ_COMPANION_OWNED_RESOURCE_V1_ATTEMPT','scoped_read':{'external_files_sha256':{}}})
+  def verify():events.append('verify');n['report']['source_verification']={'files_sha256':{file:wanted}}
+  n['verify_scoped_read_packet']=verify
+  for name in ('preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','catalog_experiment','scoped_read_experiment','verify_tool_data','verify_external_input_preservation'):n[name]=lambda name=name:events.append(name)
+  n['secret_scan']=lambda:events.append('scan')
+  def cleanup():events.append('cleanup');n['report']['cleanup_actions_confirmed']=True
+  n['cleanup']=cleanup;return n,events
+ def test_operational_stop_finalizer_and_persistent_save_failure_do_not_skip_finally(self):
+  n,events=self.setup_main();n['bootstrap_attempted']={NAME,'second-declared-target'};broken={'value':False}
+  def operation():broken['value']=True;raise n['Stop']('MOCK_ORIGINAL_OPERATION_STOP')
+  def save():
+   if broken['value']:raise OSError(CANARY)
+  def finalize(name):
+   events.append('finalize:'+name);n['finalization_attempted'].add(name)
+   if name==sorted(n['bootstrap_attempted'])[0]:raise OSError(CANARY)
+  n['scoped_read_experiment']=operation;n['save']=save;n['finalize']=finalize
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertEqual([x for x in events if x.startswith('finalize:')],['finalize:'+x for x in sorted(n['bootstrap_attempted'])]);self.assertIn('scan',events);self.assertIn('cleanup',events);self.assertIn('verify_tool_data',events);self.assertIn('verify_external_input_preservation',events);self.assertFalse(n['report']['evidence_complete']);self.assertEqual(n['report']['primary_failure']['code'],'MOCK_ORIGINAL_OPERATION_STOP');self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_scan_and_persistent_save_failure_still_attempt_cleanup_and_each_postcheck(self):
+  n,events=self.setup_main();broken={'value':False}
+  def scan():events.append('scan');broken['value']=True;raise RuntimeError(CANARY)
+  def save():
+   if broken['value']:raise OSError(CANARY)
+  n['secret_scan']=scan;n['save']=save;n['verify_tool_data']=lambda:(events.append('verify_tool_data'),(_ for _ in ()).throw(RuntimeError(CANARY)))[1]
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertIn('cleanup',events);self.assertIn('verify_tool_data',events);self.assertIn('verify_external_input_preservation',events);self.assertFalse(n['report']['evidence_complete']);self.assertFalse(n['report']['tool_source_data_unchanged_after_run']);self.assertTrue(n['report']['external_inputs_unchanged_after_run']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_initial_evidence_failure_prevents_all_behavior_but_still_runs_finally(self):
+  n,events=self.setup_main();n['save']=Mock(side_effect=OSError(CANARY))
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertNotIn('verify',events);self.assertNotIn('preflight',events);self.assertNotIn('create_resources',events);self.assertIn('scan',events);self.assertIn('cleanup',events);self.assertIn('verify_external_input_preservation',events);self.assertFalse(n['report']['evidence_complete'])
+ def test_final_save_failure_cannot_return_or_emit_pass(self):
+  n,events=self.setup_main();output=io.StringIO()
+  def save():
+   if 'finished_at' in n['report']:raise OSError(CANARY)
+  n['save']=save
+  with redirect_stdout(output):self.assertEqual(n['main'](),1)
+  self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('PASS_LOCAL_SCOPED_READ_SQL_SUBSET_ONLY',output.getvalue());self.assertNotIn(CANARY,output.getvalue())
+ def test_stop_event_stdout_failure_cannot_skip_cleanup_or_change_primary_failure(self):
+  n,events=self.setup_main();n['scoped_read_experiment']=lambda:(_ for _ in ()).throw(n['Stop']('MOCK_ORIGINAL_OPERATION_STOP'))
+  with patch('builtins.print',side_effect=OSError(CANARY)):self.assertEqual(n['main'](),1)
+  self.assertIn('cleanup',events);self.assertIn('verify_external_input_preservation',events);self.assertEqual(n['report']['primary_failure']['code'],'MOCK_ORIGINAL_OPERATION_STOP');self.assertFalse(n['report']['output_complete']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_recovered_persistence_does_not_erase_sticky_evidence_failure(self):
+  n,events=self.setup_main();calls=[]
+  def save():
+   calls.append('save')
+   if len(calls)==1:raise OSError(CANARY)
+  n['save']=save
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertGreater(len(calls),1);self.assertFalse(n['report']['evidence_complete']);self.assertTrue(n['report']['persistence_failure']);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertNotIn('preflight',events)
+ def test_cleanup_write_failure_after_removal_does_not_skip_volume_secret_or_absence(self):
+  n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret];value,volume=self.resource();containers={NAME:value};volumes={VOLUME:volume};events=[];n['inspect_container']=lambda name:containers.get(name);n['inspect_volume']=lambda name:volumes.get(name)
+  def inventory():events.append('absence');return set(containers),set(volumes)
+  def docker(args,input=None,timeout=60):
+   events.append(tuple(args))
+   if args==['container','rm','-f',CID]:containers.pop(NAME)
+   elif args==['volume','rm',VOLUME]:volumes.pop(VOLUME)
+   else:raise AssertionError('UNDECLARED_RESOURCE_MUTATION')
+   return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+  n['inventory']=inventory;n['docker']=docker;n['save']=Mock(side_effect=OSError(CANARY))
+  with redirect_stdout(io.StringIO()):n['cleanup']()
+  self.assertIn(('container','rm','-f',CID),events);self.assertIn(('volume','rm',VOLUME),events);self.assertIn('absence',events);self.assertFalse(secret.exists());self.assertFalse(n['PRIVATE'].exists());self.assertFalse(n['report']['evidence_complete']);self.assertEqual(n['report']['steps']['CATALOG-CLEANUP'],'UNCONFIRMED_EVIDENCE');self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_cleanup_inspection_failure_and_bad_writer_still_attempt_remaining_owned_parts(self):
+  n=self.n;n['OUT'].mkdir();n['PRIVATE'].mkdir();secret=n['PRIVATE']/'ok-bootstrap-password';secret.write_text(CANARY);n['secret_paths']=[secret];_,volume=self.resource();events=[];n['inspect_container']=Mock(side_effect=OSError(CANARY));n['inspect_volume']=lambda name:volume;n['save']=Mock(side_effect=OSError(CANARY));n['inventory']=lambda:(events.append('absence') or {NAME},set())
+  def docker(args,input=None,timeout=60):events.append(tuple(args));return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+  n['docker']=docker
+  with self.assertRaises(n['Stop']):n['cleanup']()
+  self.assertIn(('volume','rm',VOLUME),events);self.assertIn('absence',events);self.assertFalse(secret.exists());self.assertFalse(n['PRIVATE'].exists());self.assertFalse(n['report'].get('cleanup_actions_confirmed',False));self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_external_preservation_attempts_archives_and_snapshot_after_prior_failures(self):
+  n=self.n;root=self.directory/'inputs';root.mkdir();(root/'snapshot').mkdir();(root/'snapshot/a').write_bytes(b'a');tool=root/'tools';archive=root/'source';tool.write_bytes(b'tools');archive.write_bytes(b'source');n['MANIFEST']={'tool_archive':str(tool),'tool_archive_sha256':'0'*64,'migration_targets':{'ok':{'source_archive':str(archive),'source_archive_sha256':hashlib.sha256(b'source').hexdigest(),'source_snapshot':str(root/'snapshot'),'source_files_sha256':{'a':hashlib.sha256(b'a').hexdigest()}}}};n['read_target_manifest']=Mock(side_effect=OSError(CANARY));actual=Path.read_bytes;reads=[]
+  def read(path):reads.append(path);return actual(path)
+  with patch.object(Path,'read_bytes',read),self.assertRaises(n['Stop']):n['verify_external_input_preservation']()
+  n['read_target_manifest'].assert_called_once();self.assertIn(tool,reads);self.assertIn(archive,reads);self.assertIn(root/'snapshot/a',reads)
+
+ def test_unconfirmed_cleanup_return_cannot_pass_and_postchecks_still_run(self):
+  n,events=self.setup_main();n['cleanup']=lambda:events.append('cleanup-without-proof')
+  with redirect_stdout(io.StringIO()):self.assertEqual(n['main'](),1)
+  self.assertIn('verify_external_input_preservation',events);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(n['report'].get('cleanup_actions_confirmed',False))
+
+
+ def test_actual_two_mount_prestart_and_old_predicate_regression(self):
+  import ast
+  value,_=self.resource();value['State']['Running']=False;n=self.n;n['docker']=Mock(side_effect=AssertionError('NO_PRESTART_EXEC'))
+  self.assertEqual(len(value['Mounts']),2);n['inspect_owner'](NAME,running=False);n['docker'].assert_not_called();self.assertTrue(n['report']['resource_inspection_checks'][-1]['confirmed'])
+  node=next(x for x in ast.parse(STEPS.read_bytes()).body if isinstance(x,ast.FunctionDef)and x.name=='inspect_owner')
+  old=ast.get_source_segment(STEPS.read_text(),node).replace('2<=len(mounts)<=3','len(mounts)==3').replace("counts['tmpfs_api']in(0,1)","counts['tmpfs_api']==1")
+  exec(compile(old,'_restored_API_tmpfs_required_predicate','exec'),n)
+  with self.assertRaises(n['Stop'])as stopped:n['inspect_owner'](NAME,running=False)
+  self.assertEqual(stopped.exception.code,'SCOPED_READ_EXACT_MOUNT_SET');n['docker'].assert_not_called()
+
+ def test_optional_one_exact_tmpfs_API_row_and_mode_spelling(self):
+  for mode in('mode=0700','mode=700'):
+   for optional in(False,True):
+    with self.subTest(mode=mode,optional=optional):
+     value,_=self.resource();value['HostConfig']['Tmpfs']['/run/wa-secrets']='rw,nosuid,noexec,nodev,'+mode
+     if optional:value['Mounts'].append({'Type':'tmpfs','Destination':'/run/wa-secrets','RW':True})
+     self.n['inspect_owner'](NAME);self.assertTrue(self.n['report']['resource_kernel_checks'][-1]['confirmed'])
+
+ def test_exact_host_tmpfs_multiset_rejects_missing_extra_duplicate_conflicting_tokens(self):
+  options=['','rw,nosuid,noexec,mode=0700','rw,nosuid,noexec,nodev,mode=0700,ro','rw,nosuid,noexec,nodev,mode=0700,exec','rw,nosuid,noexec,nodev,mode=0700,suid','rw,nosuid,noexec,nodev,mode=0700,dev','rw,nosuid,noexec,nodev,mode=0700,rw','rw,nosuid,noexec,nodev,mode=0700,mode=700','rw,nosuid,noexec,nodev,mode=700,','rw,nosuid,noexec,nodev,mode=0777',None,True]
+  for option in options:
+   with self.subTest(option=option):
+    value,_=self.resource();value['State']['Running']=False;value['HostConfig']['Tmpfs']['/run/wa-secrets']=option;command=Mock();self.n['docker']=command
+    with self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+    command.assert_not_called();self.assertFalse(self.n['report']['resource_inspection_checks'][-1]['confirmed'])
+  for change in('missing','extra','wrongkey'):
+   value,_=self.resource();value['State']['Running']=False
+   if change=='missing':value['HostConfig']['Tmpfs']={}
+   elif change=='extra':value['HostConfig']['Tmpfs']['/outside']='rw'
+   else:value['HostConfig']['Tmpfs']={'/outside':'rw,nosuid,noexec,nodev,mode=0700'}
+   with self.subTest(change=change),self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+
+ def test_API_mount_missing_duplicate_unknown_or_bad_tmpfs_row_rejects(self):
+  for change in('missing-data','missing-bind','duplicate-data','duplicate-bind','duplicate-tmpfs','wrong-tmpfs-target','readonly-tmpfs','unknown','malformed'):
+   value,_=self.resource();value['State']['Running']=False
+   if change=='missing-data':value['Mounts'].pop(0)
+   elif change=='missing-bind':value['Mounts'].pop()
+   elif change=='duplicate-data':value['Mounts'].append(deepcopy(value['Mounts'][0]))
+   elif change=='duplicate-bind':value['Mounts'].append(deepcopy(value['Mounts'][1]))
+   elif change=='duplicate-tmpfs':value['Mounts'] +=[{'Type':'tmpfs','Destination':'/run/wa-secrets','RW':True}]*2
+   elif change=='wrong-tmpfs-target':value['Mounts'].append({'Type':'tmpfs','Destination':'/outside','RW':True})
+   elif change=='readonly-tmpfs':value['Mounts'].append({'Type':'tmpfs','Destination':'/run/wa-secrets','RW':False})
+   elif change=='unknown':value['Mounts'].append({'Type':'nfs','Destination':'/run/wa-secrets','RW':True,'Source':CANARY})
+   else:value['Mounts'][0]=CANARY
+   with self.subTest(change=change),self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+   self.assertNotIn(CANARY,json.dumps(self.n['report']))
+
+ def kernel_model(self,args,input=None,timeout=60,entries=None,stat_value='directory:700:0:0'):
+  n=self.n;self.assertEqual(args,['exec','-i',CID,'sh','-ceu',n['OWNER_SECRET_TMPFS_SCRIPT']]);self.assertIsNone(input);self.assertEqual(timeout,30)
+  script=args[-1]
+  for fixed in('done < /proc/mounts','[ "$count" -eq 1 ]',"stat -c '%F:%a:%u:%g' -- /run/wa-secrets","'directory:700:0:0'",'ro|exec|suid|dev','set -f'):
+   self.assertIn(fixed,script)
+  for flag in('rw','noexec','nosuid','nodev'):self.assertIn('[ "$seen_'+flag+'" -eq 1 ]',script)
+  rows=entries if entries is not None else[{'target':'/run/wa-secrets','filesystem':'tmpfs','options':'rw,nosuid,nodev,noexec,relatime,size=65536k,mode=700'}]
+  selected=[r for r in rows if r['target']=='/run/wa-secrets'];good=len(selected)==1
+  if good:
+   row=selected[0];options=row['options'].split(',');good=row['filesystem']=='tmpfs'and all(options.count(flag)==1 for flag in('rw','noexec','nosuid','nodev'))and not any(flag in options for flag in('ro','exec','suid','dev'))and all(options)
+  good=good and stat_value=='directory:700:0:0'
+  return types.SimpleNamespace(returncode=0 if good else 24,stdout=n['OWNER_SECRET_TMPFS_TOKEN']+'\n'if good else'',stderr='')
+
+ def test_real_kernel_helper_fixed_script_model_checks_fs_flags_directory_and_owner(self):
+  self.resource();self.n['docker']=self.kernel_model;self.n['inspect_owner'](NAME)
+  cases=[([], 'directory:700:0:0'),([{'target':'/elsewhere','filesystem':'tmpfs','options':'rw,noexec,nosuid,nodev'}],'directory:700:0:0')]
+  for filesystem,options in[('ext4','rw,noexec,nosuid,nodev'),('tmpfs','rw,nosuid,nodev'),('tmpfs','rw,noexec,nodev'),('tmpfs','rw,noexec,nosuid'),('tmpfs','ro,noexec,nosuid,nodev'),('tmpfs','rw,noexec,nosuid,nodev,exec'),('tmpfs','rw,noexec,nosuid,nodev,suid'),('tmpfs','rw,noexec,nosuid,nodev,dev'),('tmpfs','rw,rw,noexec,nosuid,nodev')]:cases.append(([{'target':'/run/wa-secrets','filesystem':filesystem,'options':options}],'directory:700:0:0'))
+  cases.append(([{'target':'/run/wa-secrets','filesystem':'tmpfs','options':'rw,noexec,nosuid,nodev'}]*2,'directory:700:0:0'))
+  for state in('regular file:700:0:0','symbolic link:700:0:0','directory:777:0:0','directory:700:1:0','directory:700:0:1',CANARY):cases.append((None,state))
+  for index,(entries,state)in enumerate(cases):
+   with self.subTest(index=index):
+    self.n['docker']=lambda args,input=None,timeout=60,entries=entries,state=state:self.kernel_model(args,input,timeout,entries,state)
+    with self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME)
+    self.assertFalse(self.n['report']['resource_kernel_checks'][-1]['confirmed']);self.assertNotIn(CANARY,json.dumps(self.n['report']))
+
+ def test_kernel_probe_strict_output_exit_types_timeout_and_transport_are_sanitized(self):
+  self.resource();n=self.n;token=n['OWNER_SECRET_TMPFS_TOKEN']+'\n'
+  bad=[types.SimpleNamespace(returncode=False,stdout=token,stderr=''),types.SimpleNamespace(returncode=True,stdout=token,stderr=''),types.SimpleNamespace(returncode=0.0,stdout=token,stderr=''),types.SimpleNamespace(returncode=3,stdout=token,stderr=''),types.SimpleNamespace(returncode=0,stdout=token+'\n',stderr=''),types.SimpleNamespace(returncode=0,stdout=token.rstrip(),stderr=''),types.SimpleNamespace(returncode=0,stdout=CANARY,stderr=''),types.SimpleNamespace(returncode=0,stdout=token,stderr=CANARY),types.SimpleNamespace(returncode=0,stdout=token.encode(),stderr=''),types.SimpleNamespace(returncode=0,stdout=token,stderr=None),subprocess.TimeoutExpired(CANARY,30,output=CANARY,stderr=CANARY),UnicodeError(CANARY),RuntimeError(CANARY)]
+  for item in bad:
+   with self.subTest(kind=type(item).__name__):
+    n['docker']=Mock(side_effect=item)if isinstance(item,BaseException)else Mock(return_value=item)
+    with self.assertRaises(n['Stop'])as stopped:n['inspect_owner'](NAME)
+    self.assertEqual(stopped.exception.code,'SCOPED_READ_SECRET_TMPFS_KERNEL_UNCONFIRMED');self.assertNotIn(CANARY,json.dumps(n['report']));self.assertFalse(n['report']['resource_kernel_checks'][-1]['confirmed'])
+  n['docker']=Mock()
+  with self.assertRaises(n['Stop']):n['verify_running_secret_tmpfs'](NAME,'f'*64)
+  n['docker'].assert_not_called()
+
+ def creation_world(self,kernel_bad=False):
+  n=self.n;value,volume=self.resource();n['OUT'].mkdir();containers={};volumes={};trace=[];running=False
+  # All real APIs, including Docker and Windows ACL, terminate at this one
+  # command transport mock. Core creation/inspection/readiness/cleanup are real.
+  n=namespace();self.n=n;n.update(OUT=self.directory/'out',PRIVATE=self.directory/'out/private',RUN_ID=RUN,TARGETS=[{'name':NAME,'volume':VOLUME,'kind':'ok'}],RESOURCE_CONTAINERS=(NAME,),RESOURCE_VOLUMES=(VOLUME,),ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),passwords={},secret_paths=[],all_secrets=[],save=lambda:None,event=lambda *a,**k:None)
+  n['report']['image']={'image_id':value['Image']};value['State']['Running']=False
+  def command(args,input=None,timeout=60):
+   nonlocal running
+   if args[0]=='powershell.exe':trace.append('OWNER_DACL');return types.SimpleNamespace(returncode=0,stdout='OWNER_ONLY_VERIFIED\n',stderr='')
+   self.assertEqual(args[:3],['docker','--context','desktop-linux']);parts=args[3:];code=0;stdout=''
+   if parts==['container','ls','-a','--format','{{.Names}}']:stdout='\n'.join(containers)
+   elif parts==['volume','ls','--format','{{.Name}}']:stdout='\n'.join(volumes)
+   elif parts[:2]==['volume','create']:volumes[VOLUME]=deepcopy(volume);trace.append('CREATE_VOLUME')
+   elif parts[:2]==['container','create']:containers[NAME]=deepcopy(value);trace.append('CREATE_CONTAINER')
+   elif parts==['container','inspect',NAME]:
+    trace.append('INSPECT_RUNNING'if running else'INSPECT_PRESTART');stdout=json.dumps([containers[NAME]])if NAME in containers else'';code=0 if NAME in containers else 1
+   elif parts==['volume','inspect',VOLUME]:stdout=json.dumps([volumes[VOLUME]])if VOLUME in volumes else'';code=0 if VOLUME in volumes else 1
+   elif parts==['container','start',CID]:running=True;containers[NAME]['State']['Running']=True;trace.append('START')
+   elif parts==['exec','-i',CID,'sh','-ceu',n['OWNER_SECRET_TMPFS_SCRIPT']]:
+    trace.append('KERNEL_PROOF');self.assertEqual(timeout,30);self.assertIsNone(input);code=24 if kernel_bad else 0;stdout=''if kernel_bad else n['OWNER_SECRET_TMPFS_TOKEN']+'\n'
+   elif parts[:3]==['exec',CID,'pg_isready']:trace.append('READINESS')
+   elif parts[:5]==['exec','-i',CID,'sh','-ceu']and 'cat > /run/wa-secrets/pgpass'in parts[5]:trace.append('PGPASS');stdout='600:0:0\n'
+   elif parts==['container','rm','-f',CID]:containers.pop(NAME);trace.append('REMOVE_CONTAINER')
+   elif parts==['volume','rm',VOLUME]:volumes.pop(VOLUME);trace.append('REMOVE_VOLUME')
+   else:raise AssertionError('UNMODELED_COMMAND_BOUNDARY')
+   return types.SimpleNamespace(returncode=code,stdout=stdout,stderr='')
+  n['command']=command;return trace,containers,volumes
+
+ def test_actual_core_creation_order_kernel_before_pgpass_with_two_API_mounts(self):
+  trace,containers,volumes=self.creation_world();n=self.n
+  with patch.object(n['secrets'],'token_hex',side_effect=[CANARY+str(i)for i in range(6)]):n['create_resources']()
+  self.assertLess(trace.index('INSPECT_PRESTART'),trace.index('START'));self.assertLess(trace.index('START'),trace.index('KERNEL_PROOF'));self.assertLess(trace.index('KERNEL_PROOF'),trace.index('READINESS'));self.assertLess(trace.index('READINESS'),trace.index('PGPASS'));self.assertEqual(len(containers[NAME]['Mounts']),2)
+  n['cleanup']();self.assertFalse(containers);self.assertFalse(volumes);self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertNotIn(CANARY,json.dumps(n['report']))
+
+ def test_actual_core_kernel_failure_stops_credentials_and_cleanup_survives_persistent_IO(self):
+  trace,containers,volumes=self.creation_world(kernel_bad=True);n=self.n
+  def save():
+   if 'KERNEL_PROOF'in trace:raise OSError(CANARY)
+  n['save']=save
+  with patch.object(n['secrets'],'token_hex',side_effect=[CANARY+str(i)for i in range(6)]),self.assertRaises(BaseException):n['create_resources']()
+  self.assertNotIn('READINESS',trace);self.assertNotIn('PGPASS',trace)
+  n['cleanup']();self.assertIn('REMOVE_CONTAINER',trace);self.assertIn('REMOVE_VOLUME',trace);self.assertFalse(containers);self.assertFalse(volumes);self.assertFalse(n['report']['evidence_complete']);self.assertFalse(n['PRIVATE'].exists());self.assertNotIn(CANARY,json.dumps(n['report']))
+
+
+# Actual immutable child transport composition; no factory substitution.
+"""Offline accepted SixRead child composition at subprocess boundaries only.
+
+The accepted coordinate/load_inputs/coordinator and frozen CTX Session methods
+are never replaced. This is a source-derived transport model, not DB proof.
+No historical runtime OUT, credentials or raw output is used as a fixture.
+"""
+
+from collections import Counter
+
+from contextlib import ExitStack
+
+from copy import deepcopy
+
+import hashlib
+
+import json
+
+from pathlib import Path
+
+import queue
+
+import re
+
+import runpy
+
+import socket
+
+import subprocess
+
+import sys
+
+import tempfile
+
+import threading
+
+import time
+
+import types
+
+import unittest
+
+from unittest.mock import patch
+
+TASK=Path(__file__).resolve().parent
+
+ROOT=TASK/'workinants-correction-pass'
+
+CHILD='scripts/sql-review/run-scoped-read-companion-rehearsal.py'
+
+CHILD_SHA='4160760bb319e4389182ed5cfcb6c0fae028480bd3d6d418be0130e8156a0f15'
+
+PACKET_PATH='review-output/scoped-read-companion-rehearsal/fixtures.json'
+
+PACKET_SHA='7f5bd6e713a1f0eaf330c2acf0267cd45aa2e8f47467e03d6f4c4c6dc754420c'
+
+ACK='WA_CTX01_ACK|'
+
+TUPLE='WA_CTX01_TUPLE|'
+
+CID='a'*64
+
+CANARY='SIX_READ_PROCESS_PRIVATE_CANARY'
+
+STAMP='2026-11-19 12:00:00+00'
+
+RETURN_STAMP='2026-11-19T12:00:00.001+00:00'
+
+EXPECTED_STAGES={'GLOBAL_BACKEND_CLOSURE':152,'IMMUTABLE_ISSUER_RETENTION':213,
+ 'EXACT_EIGHT_TRIGGER_RESTORATION':74,'BOUND_OPERATION':71,'SEPARATE_ISSUER_COMMIT':71,
+ 'PRE_FIXTURE_NATIVE_PARITY':1,'POST_FIXTURE_NATIVE_PARITY':1,
+ 'FINAL_NATIVE_PARITY':1,'FINALLY_FULL_NATIVE_PARITY':1,
+ 'SYNTHETIC_EXISTING_ROWS_ONLY':1}
+
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+
+def digest(value):return sha(canonical(value).encode())
+
+def forbid_actual_runtime():
+ def audit(event,args):
+  if event in {'subprocess.Popen','os.system','os.posix_spawn','os.spawn','socket.connect','socket.connect_ex','socket.bind','socket.getaddrinfo'}:
+   raise AssertionError('ACTUAL_PROCESS_NETWORK_FORBIDDEN')
+ sys.addaudithook(audit)
+
+def admitted_child():
+ raw=(ROOT/CHILD).read_bytes()
+ if sha(raw)!=CHILD_SHA:raise AssertionError('ACCEPTED_CHILD_DRIFT')
+ return runpy.run_path(str(ROOT/CHILD))
+
+def fixture_packet():
+ raw=(ROOT/PACKET_PATH).read_bytes()
+ if sha(raw)!=PACKET_SHA:raise AssertionError('ACCEPTED_PACKET_DRIFT')
+ return json.loads(raw)
+
+def literal(value):
+ found=re.match(r"'((?:[^']|'')*)'",value)
+ if not found:raise AssertionError('EXPECTED_SQL_LITERAL')
+ return found[1].replace("''", "'")
+
+def split_sql(value):
+ result=[];start=0;depth=0;quoted=False;i=0
+ while i<len(value):
+  char=value[i]
+  if quoted:
+   if char=="'":
+    if i+1<len(value) and value[i+1]=="'":i+=1
+    else:quoted=False
+  elif char=="'":quoted=True
+  elif char in '([':depth+=1
+  elif char in ')]':depth-=1
+  elif char==',' and depth==0:result.append(value[start:i].strip());start=i+1
+  i+=1
+ if quoted or depth:raise AssertionError('UNBALANCED_SQL_TRANSPORT_INPUT')
+ result.append(value[start:].strip());return result
+
+class OutputPipe:
+ """Bounded line/chunk queues consumed by the actual CTX reader threads."""
+ def __init__(self):self.items=queue.Queue();self.closed=False
+ def feed(self,text):
+  if text:self.items.put(text)
+ def finish(self):
+  if not self.closed:self.closed=True;self.items.put(None)
+ def readline(self,size=-1):
+  item=self.items.get(timeout=5)
+  if item is None:self.items.put(None);return ''
+  return item
+ def read(self,size=-1):return self.readline(size)
+
+class InputPipe:
+ def __init__(self,process):self.process=process;self.buffer='';self.closed=False
+ def write(self,text):
+  if self.closed:raise ValueError('CLOSED_STDIN')
+  self.buffer+=text;return len(text)
+ def flush(self):
+  text=self.buffer;self.buffer=''
+  if text:self.process.exchange(text)
+ def close(self):
+  if not self.closed:self.flush();self.closed=True
+
+class Process:
+ def __init__(self,world,args,**options):
+  if options.get('shell') is not False or not options.get('text'):raise AssertionError('PROCESS_CONTRACT')
+  self.world=world;self.args=list(args);self.role=world.role(args)
+  self.number=len(world.processes)+1;self.pid=4000+self.number
+  self.returncode=None;self.done=threading.Event();self.stdout=OutputPipe();self.stderr=OutputPipe();self.stdin=InputPipe(self)
+  self.backend={'login':self.role,'current_user':self.role,'database':'wa_p0c_rehearsal',
+   'isolation':'read committed','pid':str(self.pid),'xid':str(10000+self.number),'started':STAMP,'clock':STAMP}
+  self.bound=None;self.active=False;self.closed_observed=False;world.processes.append(self)
+  world.events.append({'kind':'popen','role':self.role,'ordinal':self.number})
+ def poll(self):return self.returncode
+ def wait(self,timeout=None):
+  if not self.done.wait(min(timeout or 5,5)):raise subprocess.TimeoutExpired('MOCK_PSQL',timeout)
+  return self.returncode
+ def finish(self,code):
+  self.returncode=code;self.stdout.finish();self.stderr.finish();self.done.set()
+ def terminate(self):self.finish(143)
+ def kill(self):self.finish(137)
+ def exchange(self,text):
+  self.world.events.append({'kind':'session_input','role':self.role,'ordinal':self.number,'shape':self.world.shape(text)})
+  if '\\q' in text:self.active=False;self.finish(0);return
+  match=re.search(r"\nSELECT '(WA_CTX01_ACK\|[0-9a-f]{32})';\n\Z",text)
+  if not match:raise AssertionError('ACTUAL_SESSION_ACK_CONTRACT')
+  body=text[:match.start()];ack=match[1];rows=[]
+  if body.startswith('BEGIN ISOLATION LEVEL '):self.active=True
+  elif TUPLE in body:rows=[TUPLE+canonical(self.backend)]
+  elif body.startswith('INSERT INTO platform.database_action_grant '):
+   row=self.world.insert(body,self);rows=[canonical({'created_at':RETURN_STAMP})]
+  elif body.startswith('SELECT pg_current_xact_id()::text='):
+   rows=['t' if literal(body.split('=',1)[1])==self.backend['xid'] else 'f']
+  elif body.startswith("SELECT 'WA_SRC_BIND_"):rows=re.findall(r"SELECT '([^']+)';",body)
+  elif body.startswith('SELECT platform_private.bind_request_context('):
+   secret=re.fullmatch(r"SELECT platform_private\.bind_request_context\('([0-9a-f]{64})'\);",body)[1]
+   token=sha(bytes.fromhex(secret));self.bound=self.world.grants.get(token)
+   if self.bound is None:raise AssertionError('BIND_BEFORE_ACTUAL_ISSUER_INSERT')
+   value=self.bound['values'];principal=literal(value['principal_user_id'])
+   if principal==self.world.packet['ids']['User'][1] and value['security_generation']=='0':
+    self.stderr.feed(self.world.binder_diagnostic());self.finish(3);return
+  elif body.startswith("SELECT 'WA_SRC_BEFORE_"):
+   name=re.search(r"SELECT 'WA_SRC_BEFORE_([^']+)';",body)[1]
+   self.world.read_ordinal+=1
+   if self.world.fail_read_ordinal==self.world.read_ordinal:
+    self.stdout.feed('WA_SRC_BEFORE_'+name+'\n');self.stderr.feed(CANARY);self.finish(3);return
+   rows=self.world.project(body,self.bound)
+  elif 'DISABLE TRIGGER owner_commit;' in body or 'ENABLE TRIGGER owner_commit;' in body:
+   self.world.fixture_transaction(body)
+  else:raise AssertionError('UNREGISTERED_SESSION_SQL')
+  if body.rstrip().endswith('COMMIT;'):self.active=False
+  for row in rows:self.stdout.feed(row+'\n')
+  self.stdout.feed(ack+'\n')
+
+class World:
+ """Models SQL result transport from source facts and actual received SQL.
+
+ No coordinator object, factory, private instances, expected case counts or
+ expected verdicts is read by this model. The case packet only supplies source
+ declarations (model maps, fixture IDs and prepared SQL bindings).
+ """
+ def __init__(self,plan,native,packet=None):
+  self.plan=deepcopy(plan);self.native=deepcopy(native);self.packet=deepcopy(packet or fixture_packet())
+  self.processes=[];self.events=[];self.grants={};self.seeded=False;self.disabled=False;self.read_ordinal=0;self.fail_read_ordinal=None
+  self.acl=json.loads((ROOT/'context/reconciliation/foundation-sql-draft-access.json').read_bytes())
+  self.application=(ROOT/'review-output/foundation-application.review.sql').read_text(encoding='utf8')
+  self.sql={name:(ROOT/'review-output/scoped-read-companion-rehearsal'/name).read_text(encoding='utf8') for name in self.packet['prepared_files_sha256']}
+  self.protocol=runpy.run_path(str(ROOT/'scripts/scoped_read_companion_protocol.py'))
+  self.container,self.volume,self.context,self.image=self.inspect_facts()
+ def shape(self,text):
+  if 'INSERT INTO platform.database_action_grant ' in text:return 'ISSUER_INSERT21'
+  if 'bind_request_context(' in text:return 'BINDER'
+  if 'WA_SRC_BEFORE_' in text:return 'READ_PROJECTION'
+  if 'DISABLE TRIGGER owner_commit;' in text:return 'FIXTURE'
+  if 'ENABLE TRIGGER owner_commit;' in text:return 'RESTORE'
+  if TUPLE in text:return 'CAPTURE'
+  if '\\q' in text:return 'CLOSE'
+  if text.startswith('BEGIN ISOLATION'):return 'BEGIN'
+  if 'WA_SRC_BIND_' in text:return 'BIND_MARKER'
+  if 'pg_current_xact_id()' in text:return 'SAME_XID'
+  return 'FIXED_RAW'
+ def role(self,args):
+  if 'psql' not in args or '-U' not in args:raise AssertionError('PSQL_ONLY_PROCESS')
+  if self.plan['immutable_container_id'] not in args:raise AssertionError('IMMUTABLE_CID_REQUIRED')
+  return args[args.index('-U')+1]
+ def inspect_facts(self):
+  target=self.plan['target_manifest']['target'];image_id='sha256:'+'f'*64
+  container={'Id':self.plan['immutable_container_id'],'Name':'/'+target['container_name'],'Image':image_id,
+   'Config':{'Image':target['image'],'Labels':target['labels']},'Platform':'linux','State':{'Running':True},
+   'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],
+    'Tmpfs':{'/run/wa-secrets':'rw,noexec,nosuid,nodev,mode=0700'}},'NetworkSettings':{'Ports':{}},
+   'Mounts':[{'Type':'volume','Name':target['volume_name'],'Destination':'/var/lib/postgresql/data','RW':True},
+    {'Type':'bind','Source':target['bootstrap_secret_host_path'],'Destination':'/run/bootstrap-password','RW':False}]}
+  volume={'Name':target['volume_name'],'Driver':'local','Options':{},'Scope':'local','Labels':target['labels']}
+  context={'Name':'desktop-linux','Endpoints':{'docker':{'Host':'npipe:////./pipe/dockerDesktopLinuxEngine'}}}
+  image={'Id':image_id,'Os':'linux','Architecture':'amd64','RepoDigests':[target['image']]}
+  return container,volume,context,image
+ def popen(self,args,**options):return Process(self,args,**options)
+ def result(self,value,code=0,stderr=''):
+  return types.SimpleNamespace(returncode=code,stdout=value if isinstance(value,str) else canonical(value),stderr=stderr)
+ def run(self,args,**options):
+  if options.get('shell',False) is not False:raise AssertionError('NO_SHELL_BOUNDARY')
+  args=list(args)
+  if 'psql' not in args:
+   if args[:5]==['docker','--context','desktop-linux','context','inspect']:value=self.context
+   elif args[3]=='inspect' or 'container' in args and 'inspect' in args:value=self.container
+   elif 'volume' in args and 'inspect' in args:value=self.volume
+   elif 'image' in args and 'inspect' in args:value=self.image
+   else:raise AssertionError('UNREGISTERED_DOCKER_READ_BOUNDARY')
+   self.events.append({'kind':'inspect','object':args[3]});return self.result([value])
+  role=self.role(args);text=options.get('input','');self.events.append({'kind':'raw','role':role,'shape':self.shape(text)})
+  if 'PGPASSWORD' in args:return self.result('',2,'psql: error: connection to server at "127.0.0.1", port 5432 failed: FATAL:  password authentication failed for user "'+role+'"\n')
+  if 'pg_hba_file_rules' in text:
+   return self.result([{'rule_number':n,'type':'host','database':['all'],'user_name':['all'],'address':ip,'netmask':mask,'auth_method':'scram-sha-256','error':None}
+    for n,ip,mask in [(1,'127.0.0.1','255.255.255.255'),(2,'::1','ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')]])
+  if 'pg_authid' in text:return self.result({r:True for r in ('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')})
+  if "'auth',system_user" in text:return self.result({'login':role,'auth':'scram-sha-256:'+role,'database':'wa_p0c_rehearsal','client':'127.0.0.1','server':'127.0.0.1'})
+  if "'other_clients'" in text:return self.result({'other_clients':sum(p.poll() is None for p in self.processes)})
+  if text.startswith('SELECT count(*) FROM pg_stat_activity WHERE pid='):
+   pid=int(re.search(r'WHERE pid=([0-9]+)',text)[1]);found=next((p for p in self.processes if p.pid==pid),None)
+   if found is None:raise AssertionError('UNKNOWN_EXACT_BACKEND')
+   found.closed_observed=found.poll() is not None;return self.result('0' if found.closed_observed else '1')
+  if "'issuer_owned'" in text:return self.result(self.retention(text))
+  if text==self.sql['complete-state-observe.sql']:return self.result(self.state())
+  if text==self.sql['fixture-coherence-observe.sql']:return self.result({'users':2 if self.seeded else 0,'coherent':self.seeded})
+  if text==self.sql['exact-trigger-observe.sql']:return self.result({'owner_count':8,'physical_count':8,'all_enabled':not self.disabled})
+  if 'workinants.native-catalog.v1' in text:
+   value=deepcopy(self.native)
+   if self.disabled:
+    for row in value.get('triggers',[]):
+     if row.get('table_name') in self.protocol['FIXTURE_TABLES'] and row.get('name')=='owner_commit':row['enabled']='D'
+   return self.result(value)
+  if text.startswith('SELECT current_setting(') or text.startswith('SELECT NOT EXISTS('):return self.result('t')
+  raise AssertionError('UNREGISTERED_RAW_SQL')
+ def insert(self,text,process):
+  match=re.fullmatch(r'INSERT INTO platform\.database_action_grant \(([^)]+)\) VALUES \((.*)\) RETURNING pg_catalog\.jsonb_build_object\(\x27created_at\x27,created_at\); COMMIT;',text,re.S)
+  if not match:raise AssertionError('ISSUER_INSERT_SQL_SHAPE')
+  columns=[x.strip() for x in match[1].split(',')];values=split_sql(match[2])
+  if len(columns)!=21 or len(values)!=21 or len(set(columns))!=21:raise AssertionError('ISSUER_COLUMN21_CLOSURE')
+  row=dict(zip(columns,values));token=literal(row['token_hash'])
+  if token in self.grants or literal(row['issuer_service'])!=process.role:raise AssertionError('ISSUER_INSERT_IDENTITY')
+  # This is the source-pinned grant_guard's returned clock_timestamp projection.
+  row['created_at']="'"+RETURN_STAMP+"'::timestamptz"
+  self.grants[token]={'values':row,'issuer':process.role,'issuer_process':process,'committed':True}
+  return row
+ def retention(self,text):
+  parts=text.split(' FROM (',1)[1].rsplit(') observed;',1)[0].split(' UNION ALL ')
+  count=0;exact=True;issuer=True;unrevoked=True
+  for part in parts:
+   identity=re.search(r'WHERE g.id=(.+)\Z',part)[1]
+   found=[g for g in self.grants.values() if g['values']['id']==identity]
+   if len(found)!=1:exact=False;continue
+   grant=found[0];value=grant['values'];count+=1
+   comparisons=re.findall(r'g\.([a-z_]+) IS NOT DISTINCT FROM \((.*?)\)(?= AND g\.|\) AS exact)',part,re.S)
+   exact=exact and len(comparisons)==21 and len({k for k,v in comparisons})==21 and all(value.get(k)==v for k,v in comparisons)
+   issuer=issuer and grant['issuer']=='wa_context_issuer' and grant['committed'] and grant['issuer_process'].poll()==0
+   unrevoked=unrevoked and value['revoked_at']=='NULL::timestamptz'
+  return {'count':count,'exact':bool(exact),'issuer_owned':bool(issuer),'unrevoked':bool(unrevoked),'unexpired':True}
+ def fixture_transaction(self,text):
+  if 'DISABLE TRIGGER owner_commit;' in text:
+   if text.count('DISABLE TRIGGER owner_commit;')!=8 or text.count('ENABLE TRIGGER owner_commit;')!=8:raise AssertionError('FIXTURE_EXACT_EIGHT')
+   self.disabled=True;self.seeded=True
+  if text.count('ENABLE TRIGGER owner_commit;')==8:self.disabled=False
+  if not text.rstrip().endswith('COMMIT;'):raise AssertionError('FIXTURE_COMMIT_REQUIRED')
+ def state(self):
+  return {table:{'count':len(self.grants) if table=='platform.database_action_grant' else wanted if self.seeded else 0,
+   'rows_sha256':digest(sorted(g['values']['id'] for g in self.grants.values())) if table=='platform.database_action_grant' else
+    digest({'table':table,'fixture_sql_sha256':self.packet['prepared_files_sha256']['existing-scoped-read-fixtures.sql'],'seeded':self.seeded,'count':wanted if self.seeded else 0})}
+   for table,wanted in self.packet['expected_counts'].items()}
+ def binder_diagnostic(self):
+  body=re.search(r'CREATE FUNCTION platform_private\.bind_request_context\(secret text\).*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',self.application,re.S)[2]
+  line=next(i for i,x in enumerate(body.split('\n'),1) if "RAISE EXCEPTION 'invalid, stale or unsupported context'" in x)
+  return 'ERROR:  42501: invalid, stale or unsupported context\nCONTEXT:  PL/pgSQL function platform_private.bind_request_context(text) line '+str(line)+' at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3911\n'
+ def project(self,text,bound):
+  if bound is None or not bound['committed'] or bound['issuer_process'].poll()!=0:raise AssertionError('READ_BEFORE_CLOSED_ISSUER')
+  projections=re.findall(r"'([^']+)',\(SELECT count\(\*\) FROM ([a-z_]+\.[a-z_]+) WHERE (?:id=|user_id::text\|\|':'\|\|role::text=)'([0-9a-z:-]+)'\)",text)
+  if not projections:raise AssertionError('ACTUAL_SQL_PROJECTION_REQUIRED')
+  value=bound['values'];caps=re.findall(r"'((?:[^']|'')*)'",value['allowed_fields']);root=literal(value['target_kind']);root_id=literal(value['target_id'])
+  registered=root in dict(self.protocol['SPECS']) and literal(value['owner_module_id'])==self.packet['models'][root]['owner'] and literal(value['action'])=='SH-003.v1' and literal(value['purpose'])=='owner:queryOwnerFacts'
+  result={}
+  for label,table,key in projections:
+   model=next(m for m,meta in self.packet['models'].items() if meta['object']==table)
+   fields=next(row['fields'] for row in self.acl if (row['role'],row['model'],row['operation'])==('wa_app_runtime',model,'SELECT'))
+   visible=self.seeded and registered and model==root and key==root_id and all(model+'/'+key+'/SELECT/'+field in caps for field in fields)
+   if model in self.protocol['REVISION_MODELS']:visible=visible and model+'/'+key+'/revision/0' in caps and value['source_generation']=='0'
+   result[label]=int(bool(visible))
+  markers=re.findall(r"SELECT '(WA_SRC_(?:BEFORE|AFTER)_[^']+)';",text)
+  if len(markers)!=2:raise AssertionError('ACTUAL_READ_MARKERS_REQUIRED')
+  return [markers[0],canonical(result),markers[1]]
+ def boundaries(self):
+  stack=ExitStack();stack.enter_context(patch.object(subprocess,'run',side_effect=self.run));stack.enter_context(patch.object(subprocess,'Popen',side_effect=self.popen))
+  for name in ('call','check_call','check_output'):stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('FORBIDDEN_UNMODELED_PROCESS')))
+  stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('FORBIDDEN_NETWORK')));return stack
+ def run_child(self,freshdir):
+  module=admitted_child()
+  with self.boundaries():return module['coordinate'](deepcopy(self.plan),Path(freshdir))
+ def assert_closed(self):
+  if not all(p.poll() in (0,3) and p.closed_observed and p.stdout.closed and p.stderr.closed for p in self.processes):raise AssertionError('PROCESS_BACKEND_CLOSURE_REQUIRED')
+
+def child_only_native():
+ """Minimal declared native transport fixture; NOT a 29089-check proof.
+
+ Parent owning harness must provide its independently source-derived full native
+ catalog. The accepted child binds the supplied comparator/attestation; this
+ small fixture only makes the child transport standalone and explicit.
+ """
+ protocol=runpy.run_path(str(ROOT/'scripts/scoped_read_companion_protocol.py'))
+ return {'format':'workinants.native-catalog.v1','server_version_num':170011,'read_only':True,
+  'collected_as':'postgres','collector_is_superuser':True,
+  'triggers':[{'table_name':table,'name':name,'enabled':'O','internal':False,'function_identity':'source-only.'+name+'()'}
+   for table in protocol['FIXTURE_TABLES'] for name in ('owner_commit','physical_guard')]}
+
+def historical_owner_native():
+ """Explicitly authorized, immutable historical offline mock data only.
+
+ No current run proof is inferred. Both the execution record's asset binding
+ and retained native bytes must match before JSON decoding.
+ """
+ relative='context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/native-before.json'
+ expected='e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8'
+ record=json.loads((ROOT/'context/reconciliation/local-f0-owner-da5ad66-72934689-execution.json').read_bytes())
+ if record['assets_sha256'].get(relative)!=expected:raise AssertionError('HISTORICAL_NATIVE_RECORD_BINDING')
+ raw=(ROOT/relative).read_bytes()
+ if sha(raw)!=expected:raise AssertionError('HISTORICAL_NATIVE_FIXTURE_DRIFT')
+ return json.loads(raw)
+
+def standalone_plan(directory,native=None):
+ directory=Path(directory);packet=fixture_packet();module=admitted_child();native=deepcopy(native or child_only_native())
+ pins=dict(packet['source_files_sha256']);pins[PACKET_PATH]=PACKET_SHA
+ for name,value in packet['prepared_files_sha256'].items():pins['review-output/scoped-read-companion-rehearsal/'+name]=value
+ for path,value in pins.items():
+  if sha((ROOT/path).read_bytes())!=value:raise AssertionError('SOURCE_CLOSURE_DRIFT')
+ history=runpy.run_path(str(ROOT/'scripts/prepare-local-f0-history.py'))
+ run='550e8400-e29b-41d4-a716-446655440000'
+ target={'schema':'workinants.local-f0-run.v1','run_id':run,'purpose':'LOCAL_F0_MIGRATION_REHEARSAL',
+  'target':{'container_name':'wa-p0c-source-only-sixread','volume_name':'wa-p0c-source-only-sixread-data','database':'wa_p0c_rehearsal','image':history['IMAGE'],'network':'none',
+   'labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run},'bootstrap_secret_host_path':str(directory/'bootstrap-password')},
+  'source':{'integrated_sql_sha256':module['APPLICATION_SHA'],'foundation_schema_sha256':'f'*64,'runtime_files_sha256':{p:'a'*64 for p in history['RUNTIME_FILES']}},
+  'migration':{'id':'20261117000100_f0_local_initial','history':history['HISTORY']},
+  'tools':{'node_version':'v24.22.1','prisma_version':'7.10.1','engine_commit':'d1b3f377ca835d73fd50954a5e22128b9ebdd6b8',
+   'files_sha256':{p:'a'*64 for p in ('node/bin/node','schema-engine','node_modules/prisma/build/index.js','node_modules/prisma/build/cli.js','node_modules/prisma/config.js','node_modules/prisma/package.json')}}}
+ plan={'schema':'workinants.scoped-read-companion-run.v1','scope':'REVIEWED_SELECTED94_SCOPED_READ_COMPANION_SQL_SUBSET_ONLY',
+  'run_id':run,'source_commit':'b'*40,'source_tree':'c'*40,'packet_sha256':sha(''.join(p+'\0'+pins[p]+'\n' for p in sorted(pins)).encode()),'packet_files_sha256':pins,
+  'reviewed_packet_sha256':PACKET_SHA,'reviewed_content_sha256':packet['source_only_packet_sha256'],'target_manifest':target,'immutable_container_id':CID,
+  'scenario_names':[c['name'] for c in packet['cases']]}
+ comparison={'format':'workinants.catalog-comparison.v1','status':'PASS','source_expected_sha256':module['EXPECTED_CATALOG'],'native_snapshot_sha256':digest(native),'findings':[],'check_counts':{'PASS':29089}}
+ def bind(key,value):
+  path=directory/(key+'.json');path.write_text(canonical(value),encoding='utf8');plan[key]={'path':str(path),'sha256':sha(path.read_bytes())}
+ bind('native_snapshot',native);bind('native_comparison',comparison)
+ attestation={'schema':'workinants.scoped-read-companion-native-attestation.v1','run_id':run,'container_id':CID,
+  'source_commit':plan['source_commit'],'source_tree':plan['source_tree'],'packet_sha256':plan['packet_sha256'],
+  'collector_sha256':pins[module['COLLECTOR']],'source_expected_sha256':module['EXPECTED_CATALOG'],'native_snapshot_sha256':digest(native),
+  'native_comparison_file_sha256':plan['native_comparison']['sha256'],'original_grantor_finalized':True,'operation_backends_absent':True,'comparison_status':'PASS'}
+ bind('native_attestation',attestation);return plan,native,packet
+
+def assert_complete(result,world):
+ assert result['status']=='PASS_FINITE_SCOPED_READ_COMPANION_SQL_SUBSET_ONLY',result.get('unexpected')
+ assert result['evidence_complete'] is True and result['source_packet_unchanged_after'] is True
+ assert len(result['results'])==71 and len(result['operations'])==586
+ assert Counter(x['stage'] for x in result['operations'])==Counter(EXPECTED_STAGES),dict(Counter(x['stage'] for x in result['operations']))
+ prefix=['GLOBAL_BACKEND_CLOSURE','GLOBAL_BACKEND_CLOSURE','PRE_FIXTURE_NATIVE_PARITY','GLOBAL_BACKEND_CLOSURE',
+  'EXACT_EIGHT_TRIGGER_RESTORATION','GLOBAL_BACKEND_CLOSURE','SYNTHETIC_EXISTING_ROWS_ONLY','GLOBAL_BACKEND_CLOSURE',
+  'EXACT_EIGHT_TRIGGER_RESTORATION','GLOBAL_BACKEND_CLOSURE','POST_FIXTURE_NATIVE_PARITY','GLOBAL_BACKEND_CLOSURE']
+ group=['BOUND_OPERATION','SEPARATE_ISSUER_COMMIT','IMMUTABLE_ISSUER_RETENTION','GLOBAL_BACKEND_CLOSURE',
+  'IMMUTABLE_ISSUER_RETENTION','GLOBAL_BACKEND_CLOSURE','IMMUTABLE_ISSUER_RETENTION','EXACT_EIGHT_TRIGGER_RESTORATION']
+ suffix=['GLOBAL_BACKEND_CLOSURE','FINAL_NATIVE_PARITY','GLOBAL_BACKEND_CLOSURE','EXACT_EIGHT_TRIGGER_RESTORATION','GLOBAL_BACKEND_CLOSURE','FINALLY_FULL_NATIVE_PARITY']
+ assert [x['stage'] for x in result['operations']]==prefix+group*71+suffix
+ for index,case in enumerate(world.packet['cases']):
+  observed=result['operations'][12+8*index:20+8*index]
+  assert observed[0]['case']==case['name'] and observed[0]['operation_closed'] is True
+  assert observed[0]['terminal_exit']==(3 if case['kind']=='binder-denial' else 0)
+  assert observed[1]['operation_closed'] is True and observed[1]['created_at_return_verified'] is True
+  assert observed[2]['instances']==observed[4]['instances']==1 and observed[6]['instances']==index+1
+  assert observed[2]['unexpired_required'] is observed[4]['unexpired_required'] is True
+  assert observed[6]['unexpired_required'] is False and observed[6]['current_unexpired_match'] is None
+ assert sum(x['query_stage_reached'] for x in result['results'])==65
+ assert sum(x['diagnostic'] is not None for x in result['results'])==6
+ assert len(result['authentication'])==6 and all(x['correct_password']=='PASS_SCRAM' and x['wrong_password']=='PASS_REJECTED' for x in result['authentication'])
+ assert len(world.grants)==71 and all(len(x['values'])==21 for x in world.grants.values())
+ assert all(r['issued_grants']==i for i,r in enumerate(result['results'],1))
+ world.assert_closed()
+ retained=canonical(result)
+ assert CANARY not in retained
+ for token,grant in world.grants.items():assert token not in retained and literal(grant['values']['id']) not in retained
+
+class ChildCompositionTests(unittest.TestCase):
+ def test_real_whole_child_586_stages_no_factories_or_session_substitution(self):
+  with tempfile.TemporaryDirectory(prefix='sixread-owned-child-',dir=TASK) as temp:
+   plan,native,packet=standalone_plan(temp);world=World(plan,native,packet)
+   result=world.run_child(Path(temp)/'component');assert_complete(result,world)
+ def test_real_session_unexpected_read_exit_stops_later_cases_and_closes(self):
+  with tempfile.TemporaryDirectory(prefix='sixread-owned-child-stop-',dir=TASK) as temp:
+   plan,native,packet=standalone_plan(temp);world=World(plan,native,packet);world.fail_read_ordinal=2
+   result=world.run_child(Path(temp)/'component')
+   self.assertEqual(result['status'],'STOPPED_PARTIAL_EVIDENCE_PRESERVED');self.assertEqual(len(result['results']),1)
+   self.assertEqual(world.read_ordinal,2);self.assertEqual(len(world.grants),2);self.assertTrue(result['subsequent_cases_stopped'])
+   self.assertTrue(result['source_packet_unchanged_after']);world.assert_closed();self.assertNotIn(CANARY,canonical(result))
+ def test_actual_load_inputs_rejects_forged_native_binding_before_any_process(self):
+  with tempfile.TemporaryDirectory(prefix='sixread-owned-child-admission-',dir=TASK) as temp:
+   plan,native,packet=standalone_plan(temp);plan['native_snapshot']['sha256']='0'*64;world=World(plan,native,packet)
+   with world.boundaries(),self.assertRaises(Exception):admitted_child()['load_inputs'](plan)
+   self.assertEqual(world.events,[])
+
+
+
+class ScopedOwnedGateTests(unittest.TestCase):
+ def setUp(self):
+  self.temp=tempfile.TemporaryDirectory(prefix='sixread-owned-gates-',dir=TASK);self.addCleanup(self.temp.cleanup);self.directory=Path(self.temp.name)
+  self.n=namespace();self.n.update(COMMIT='b'*40,TREE='c'*40,OUT=self.directory,PRIVATE=self.directory/'private',ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'))
+  archive=ROOT/self.n['OWNED_ARCHIVE'];raw=(archive/'reviews/six_read_owned_resource_v1_child_composed_trace_v1_20261119.json').read_bytes()
+  self.assertEqual(sha(raw),'de3a807a052c5a22fd9f55e502e174976fd8d4891121ccef388736290702c1b1');self.value=json.loads(raw)
+  self.n.update(PACKET=self.value['packet_sha256'],SCOPED_FIXTURES=fixture_packet())
+  self.native_sha=next(x['native_sha256']for x in self.value['operations']if 'native_sha256'in x);self.plan={}
+  for method in('run','Popen','call','check_call','check_output'):
+   item=patch.object(subprocess,method,side_effect=AssertionError('UNMODELED_PROCESS_FORBIDDEN'));item.start();self.addCleanup(item.stop)
+ def gate(self,value=None):return self.n['validate_scoped_component'](self.value if value is None else value,self.plan,self.native_sha)
+ def test_actual_trace_all71_586_closed_schemas_pass_exact_gate(self):
+  self.assertIs(self.gate(),self.value)
+  prefix=[x for x in self.value['operations']if x['stage']=='IMMUTABLE_ISSUER_RETENTION'and x['unexpired_required']is False]
+  self.assertEqual([x['instances']for x in prefix],list(range(1,72)));self.assertTrue(all(x['current_unexpired_match']is None for x in prefix))
+ def test_top_unknown_keys_boolean_float_identity_and_whole_case_labels_reject(self):
+  for key,bad in(('extra',CANARY),('status','PASS'),('run_id','f'*36),('container_id','f'*64),('source_commit','f'*40),('packet_sha256','f'*64),('evidence_complete',1),('fixture_owner_bypass_restored',1),('subsequent_cases_stopped',0),('current_case','prefix'),('sanitization',{'context_secrets_or_hashes_found':False,'raw_stderr_statement_bodies_or_handles_retained':False,'raw':CANARY})):
+   with self.subTest(key=key):
+    value=deepcopy(self.value);value[key]=bad
+    with self.assertRaises(self.n['Stop']):self.gate(value)
+ def test_typed_case_counts_marker_order_coverage_and_source_diagnostics_reject(self):
+  mutations=[lambda v:v['results'][0]['counts'].update(root=True),lambda v:v['results'][0]['counts'].update(root=1.0),lambda v:v['results'][0].update(tables_observed=42.0),lambda v:v['results'][0].update(issued_grants=True),lambda v:v['results'][0].update(actual_login='postgres'),lambda v:v['results'][0]['stage_markers'].update(after=1),lambda v:v['results'].reverse(),lambda v:v['results'].pop(),lambda v:v['results'][0].update(noop=True),lambda v:next(x for x in v['results']if x['diagnostic'])['diagnostic'].update(sqlstate='22012'),lambda v:next(x for x in v['results']if x['diagnostic'])['diagnostic'].update(source_body_line=7.0)]
+  for index,mutation in enumerate(mutations):
+   with self.subTest(index=index):
+    value=deepcopy(self.value);mutation(value)
+    with self.assertRaises(self.n['Stop']):self.gate(value)
+ def test_every_operation_field_type_order_and_retention_ceiling_is_closed(self):
+  mutations=[lambda v:v['operations'].append(v['operations'][-1]),lambda v:v['operations'].pop(),lambda v:v['operations'][12].update(terminal_exit=False),lambda v:v['operations'][13].update(created_at_return_verified=1),lambda v:v['operations'][14].update(instances=True),lambda v:v['operations'][16].update(current_unexpired_match=False),lambda v:v['operations'][18].update(instances=0),lambda v:v['operations'][18].update(unexpired_required=True),lambda v:v['operations'][18].update(current_unexpired_match=True),lambda v:v['operations'][0].update(other_clients_zero=1),lambda v:v['operations'][4].update(owner_and_physical_enabled=False),lambda v:v['operations'][12].update(extra=CANARY),lambda v:v['operations'][12].update(case='whole-case')]
+  for index,mutation in enumerate(mutations):
+   with self.subTest(index=index):
+    value=deepcopy(self.value);mutation(value)
+    with self.assertRaises(self.n['Stop']):self.gate(value)
+ def test_auth_baseline_and_sanitization_are_typed_and_complete(self):
+  for mutation in(lambda v:v['authentication'][0].update(wrong_password_exit_code=2.0),lambda v:v['authentication'].reverse(),lambda v:v['effective_hba_selections'][0].update(rule_number=True),lambda v:v['authentication_comparison'].update(login=1),lambda v:v['baseline']['tables'][next(iter(v['baseline']['tables']))].update(count=True),lambda v:v['baseline'].update(sha256='0'*64)):
+   value=deepcopy(self.value);mutation(value)
+   with self.assertRaises(self.n['Stop']):self.gate(value)
+ def test_source_principalB_and_other_existing_root_positive_controls_preserved(self):
+  cases=self.n['SCOPED_FIXTURES']['cases'];self.gate()
+  selected=[(c,r)for c,r in zip(cases,self.value['results'])if 'principal-b'in c['name']or 'other-existing-root'in c['name']or 'principalB'in c['name']]
+  self.assertTrue(selected)
+  for case,row in selected:self.assertEqual(row['counts'],case['expected'])
+ def test_closed_reference_reads_same_bounded_bytes_and_rejects_duplicate_nonfinite(self):
+  fixed=self.directory/'component.json';fixed.write_text(json.dumps(self.value));reference={'present':None,'read_status':'UNAVAILABLE'}
+  self.assertEqual(self.n['bounded_component_reference'](fixed,reference),self.value);self.assertEqual(reference['read_status'],'CLOSED_BOUNDED_BYTES');self.assertEqual(reference['sha256'],sha(fixed.read_bytes()))
+  for raw in(b'{"a":1,"a":2}',b'{"a":NaN}',b'[]\nMALFORMED'):
+   fixed.write_bytes(raw);reference={'present':None,'read_status':'UNAVAILABLE'}
+   with self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,reference)
+   self.assertEqual(reference['read_status'],'UNAVAILABLE_OR_REJECTED')
+ def test_reference_absent_nonregular_symlink_hardlink_typed_size_and_oversize_reject(self):
+  fixed=self.directory/'reference';reference={}
+  with self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,reference)
+  self.assertEqual(reference,{'present':False,'read_status':'ABSENT'})
+  fixed.mkdir()
+  with self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,{})
+  fixed.rmdir();fixed.write_bytes(b'{}');original=Path.lstat
+  metadata=original(fixed)
+  for changes in({'st_nlink':2},{'st_size':True},{'st_size':-1},{'st_size':16*1024*1024+1},{'st_mode':0o120777}):
+   fields={name:getattr(metadata,name)for name in('st_dev','st_ino','st_size','st_mode','st_mtime_ns','st_nlink')};fields.update(changes)
+   with patch.object(Path,'lstat',return_value=types.SimpleNamespace(**fields)),patch.object(Path,'open',side_effect=AssertionError('NO_REJECTED_REFERENCE_OPEN')),self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,{})
+ def test_reference_growth_read_stat_and_identity_faults_discard_canaries(self):
+  fixed=self.directory/'reference';fixed.write_bytes(b'{}');original=Path.open;metadata=fixed.lstat()
+  class Stream:
+   def __enter__(self):return self
+   def __exit__(self,*args):return False
+   def fileno(self):return 91
+   def read(self,size):self.limit=size;return b'{}'+CANARY.encode()
+  stream=Stream()
+  with patch.object(Path,'open',return_value=stream),patch('os.fstat',return_value=metadata),self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,{})
+  self.assertEqual(stream.limit,16*1024*1024+1)
+  for method in('open','lstat'):
+   reference={}
+   with patch.object(Path,method,side_effect=OSError(CANARY)),self.assertRaises(self.n['Stop']):self.n['bounded_component_reference'](fixed,reference)
+   self.assertNotIn(CANARY,json.dumps(reference))
+ def test_native29089_ledger22_oracle416_counters_reject_boolean_and_float(self):
+  comparison={'status':'PASS','check_counts':{'PASS':29089},'findings':[]};ledger={'status':'PASS','checks':[{'field':str(i),'status':'PASS','expected_sha256':'a'*64,'actual_sha256':'a'*64}for i in range(22)]};registry={i:'a'*64 for i in range(416)};results={'expression_count':416,'server_version_num':170011}
+  self.n['qualify_native_counts'](comparison,ledger,registry,results)
+  for bad in(True,29089.0,29088):
+   changed=deepcopy(comparison);changed['check_counts']['PASS']=bad
+   with self.assertRaises(self.n['Stop']):self.n['qualify_native_counts'](changed,ledger,registry,results)
+  for bad in(True,416.0,415):
+   changed={**results,'expression_count':bad}
+   with self.assertRaises(self.n['Stop']):self.n['qualify_native_counts'](comparison,ledger,registry,changed)
+  for changed in({'status':'PASS','checks':ledger['checks'][:-1]},{'status':'PASS','checks':ledger['checks']+[ledger['checks'][0]]}):
+   with self.assertRaises(self.n['Stop']):self.n['qualify_native_counts'](comparison,changed,registry,results)
+
+ def parent_throw_fixture(self,io_failure=False,active=False):
+  """Fault injection only; supplies no positive child/native qualification."""
+  n=self.n;native={'format':'workinants.native-catalog.v1'};comparison={'status':'PASS'}
+  (self.directory/'native-before.json').write_text(json.dumps(native));(self.directory/'catalog-comparison.json').write_text(json.dumps(comparison))
+  n['SCOPED_STATE']['first_install']={'run_id':RUN,'container_id':CID,'source_commit':'b'*40,'source_tree':'c'*40,'packet_sha256':n['PACKET'],'native':native,'comparison':comparison}
+  n['finalized']={NAME};n['inspect_owner']=Mock();n['MANIFEST']={'packet_files_sha256':{'scripts/sql-review/collect_native_catalog.sql':'f'*64},'migration_targets':{'ok':{}}};n['read_target_manifest']=lambda p:b'{}'
+  n['SAFE_FILES'].update({'scoped-read-native-attestation.json','scoped-read-run-plan.json'});calls=[]
+  def command(args,input=None,timeout=60):
+   self.assertEqual(input,n['_SAFETY_SQL_RECIPES']['GLOBAL_BACKENDS']);calls.append('GLOBAL_BACKENDS')
+   return types.SimpleNamespace(returncode=0,stdout=json.dumps({'migrator':0,'other_client_backends':1 if active else 0}),stderr='')
+  n['command']=command
+  def fail(*args):
+   calls.append('FAULT_INJECTED_CHILD_THROW')
+   if io_failure:n['save']=Mock(side_effect=OSError(CANARY))
+   raise RuntimeError(CANARY)
+  n['load_reviewed_helper']=Mock(return_value={'coordinate':fail});n['readonly_post_proof']=Mock(side_effect=AssertionError('NO_LATER_OBSERVER'))
+  return n,calls
+ def test_parent_child_throw_runs_actual_global_sql_before_absent_reference_even_persistent_IO(self):
+  n,calls=self.parent_throw_fixture(io_failure=True)
+  with self.assertRaises(n['Stop'])as failed:n['scoped_read_experiment']()
+  self.assertEqual(failed.exception.code,'SCOPED_READ_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');self.assertEqual(calls,['GLOBAL_BACKENDS','FAULT_INJECTED_CHILD_THROW','GLOBAL_BACKENDS'])
+  self.assertEqual(n['report']['primary_failure']['code'],failed.exception.code);self.assertTrue(n['report']['scoped_read']['component_closure_attempted']);self.assertFalse(n['report']['scoped_read']['component_closure_confirmed']);self.assertEqual(n['report']['scoped_read']['component_report_reference']['read_status'],'ABSENT');self.assertFalse(n['report']['evidence_complete']);n['readonly_post_proof'].assert_not_called();self.assertNotIn(CANARY,json.dumps(n['report']))
+ def test_parent_active_global_clients_block_child_before_any_coordinate(self):
+  n,calls=self.parent_throw_fixture(active=True)
+  with self.assertRaises(n['Stop']):n['scoped_read_experiment']()
+  self.assertEqual(calls,['GLOBAL_BACKENDS']);n['load_reviewed_helper'].assert_not_called();n['readonly_post_proof'].assert_not_called()
+
+if __name__=='__main__':
+ forbid_actual_runtime()
+ unittest.main()

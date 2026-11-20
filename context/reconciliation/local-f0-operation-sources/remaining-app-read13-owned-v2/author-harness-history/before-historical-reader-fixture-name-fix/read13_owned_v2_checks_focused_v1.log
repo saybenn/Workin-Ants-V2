@@ -1,0 +1,44 @@
+test_pipeline_failure_stops_coordinator_and_still_attempts_cleanup (<run_path>.OwnerOperationTests.test_pipeline_failure_stops_coordinator_and_still_attempts_cleanup) ... ok
+test_operational_stop_finalizer_and_persistent_save_failure_do_not_skip_finally (<run_path>.OwnerOperationTests.test_operational_stop_finalizer_and_persistent_save_failure_do_not_skip_finally) ... ok
+test_scan_and_persistent_save_failure_still_attempt_cleanup_and_each_postcheck (<run_path>.OwnerOperationTests.test_scan_and_persistent_save_failure_still_attempt_cleanup_and_each_postcheck) ... ok
+test_initial_evidence_failure_prevents_all_behavior_but_still_runs_finally (<run_path>.OwnerOperationTests.test_initial_evidence_failure_prevents_all_behavior_but_still_runs_finally) ... ok
+test_final_save_failure_cannot_return_or_emit_pass (<run_path>.OwnerOperationTests.test_final_save_failure_cannot_return_or_emit_pass) ... ok
+test_stop_event_stdout_failure_cannot_skip_cleanup_or_change_primary_failure (<run_path>.OwnerOperationTests.test_stop_event_stdout_failure_cannot_skip_cleanup_or_change_primary_failure) ... ok
+test_recovered_persistence_does_not_erase_sticky_evidence_failure (<run_path>.OwnerOperationTests.test_recovered_persistence_does_not_erase_sticky_evidence_failure) ... ok
+test_cleanup_write_failure_after_removal_does_not_skip_volume_secret_or_absence (<run_path>.OwnerOperationTests.test_cleanup_write_failure_after_removal_does_not_skip_volume_secret_or_absence) ... ok
+test_cleanup_inspection_failure_and_bad_writer_still_attempt_remaining_owned_parts (<run_path>.OwnerOperationTests.test_cleanup_inspection_failure_and_bad_writer_still_attempt_remaining_owned_parts) ... ok
+test_unconfirmed_cleanup_return_cannot_pass_and_postchecks_still_run (<run_path>.OwnerOperationTests.test_unconfirmed_cleanup_return_cannot_pass_and_postchecks_still_run) ... ok
+test_actual_core_initialize_has_own_resource_set_without_injected_global (<run_path>.Read13SourceEntryTests.test_actual_core_initialize_has_own_resource_set_without_injected_global) ... ok
+test_all_five_current_physical_snapshots_match_pending_metadata (<run_path>.Read13SourceEntryTests.test_all_five_current_physical_snapshots_match_pending_metadata) ... ok
+test_real_pending_owned_gate_precedes_common_or_project_compilation (<run_path>.Read13SourceEntryTests.test_real_pending_owned_gate_precedes_common_or_project_compilation) ... ok
+test_missing_readme_or_changed_runtime_helper_stops_before_compile (<run_path>.Read13SourceEntryTests.test_missing_readme_or_changed_runtime_helper_stops_before_compile) ... ok
+test_real_native_counter_guard_rejects_boolean_float_incomplete (<run_path>.Read13SourceEntryTests.test_real_native_counter_guard_rejects_boolean_float_incomplete) ... ok
+test_parent_reference_exception_still_runs_real_global_safety_before_parse (<run_path>.Read13SourceEntryTests.test_parent_reference_exception_still_runs_real_global_safety_before_parse) ... ok
+test_first_read_same_size_mutations_and_metadata_stable_fresh_bytes_reject (<run_path>.Read13ReferenceIntegrityTests.test_first_read_same_size_mutations_and_metadata_stable_fresh_bytes_reject) ... ok
+test_only_old_reader_restoration_reproduces_original_stale_reference (<run_path>.Read13ReferenceIntegrityTests.test_only_old_reader_restoration_reproduces_original_stale_reference) ... ERROR
+test_cross_representation_ctime_allowed_but_descriptor_identity_not_allowed (<run_path>.Read13ReferenceIntegrityTests.test_cross_representation_ctime_allowed_but_descriptor_identity_not_allowed) ... ok
+test_closed_reference_caps_types_links_duplicate_nonfinite_and_canary (<run_path>.Read13ReferenceIntegrityTests.test_closed_reference_caps_types_links_duplicate_nonfinite_and_canary) ... ok
+test_between_closed_reads_replacement_is_rejected (<run_path>.Read13ReferenceIntegrityTests.test_between_closed_reads_replacement_is_rejected) ... ok
+test_stable_atomic_replacement_before_read_is_a_valid_current_artifact (<run_path>.Read13ReferenceIntegrityTests.test_stable_atomic_replacement_before_read_is_a_valid_current_artifact) ... ok
+test_late_reference_change_preserves_original_hash_and_marks_incomplete (<run_path>.Read13ReferenceIntegrityTests.test_late_reference_change_preserves_original_hash_and_marks_incomplete) ... ok
+test_actual_main_final_barrier_rejects_cleanup_change_and_omission_tripwire (<run_path>.Read13ReferenceIntegrityTests.test_actual_main_final_barrier_rejects_cleanup_change_and_omission_tripwire) ... ok
+
+======================================================================
+ERROR: test_only_old_reader_restoration_reproduces_original_stale_reference (<run_path>.Read13ReferenceIntegrityTests.test_only_old_reader_restoration_reproduces_original_stale_reference)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 492, in test_only_old_reader_restoration_reproduces_original_stale_reference
+    path=TASK/'read13-before-two-evidence-fixes-Root-preserved-20261120/TASK/local_f0_remaining_app_read13_owned_v2_operation_steps.py';raw=path.read_bytes();self.assertEqual(sha(raw),'15efbd24dd2e3f9585a3b728083d086dc25b304e8f52519122ae4be519cb2b78')
+                                                                                                                                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13-owned-v2-private-candidate-20261120\\read13-before-two-evidence-fixes-Root-preserved-20261120\\TASK\\local_f0_remaining_app_read13_owned_v2_operation_steps.py'
+
+----------------------------------------------------------------------
+Ran 24 tests in 94.375s
+
+FAILED (errors=1)

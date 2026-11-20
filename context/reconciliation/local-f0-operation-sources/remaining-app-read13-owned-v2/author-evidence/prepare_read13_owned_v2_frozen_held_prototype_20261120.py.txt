@@ -1,0 +1,26 @@
+"""Pure private prototype, TO_BE_PINNED/PENDING; no runtime authority."""
+from pathlib import Path
+from unittest.mock import patch
+import hashlib,json,runpy,socket,subprocess
+T=Path(__file__).resolve().parent;F=T/'read13-owned-v2-private-candidate-20261120';C=F/'workinants-correction-pass'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+def main():
+ out=T/'read13_owned_v2_frozen_held_prototype_proof_20261120.json';assert not out.exists()
+ delivery=json.loads((T/'read13_owned_v2_frozen_private_source_delivery_20261120.json').read_bytes());five=delivery['external_five_sha256'];entry={name:H((F/name).read_bytes())for name in five};assert entry==five
+ guards=[]
+ for name in('run','Popen','call','check_call','check_output'):
+  guard=patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN'));guard.start();guards.append(guard)
+ for obj,name in((socket,'create_connection'),(socket.socket,'connect')):
+  guard=patch.object(obj,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();guards.append(guard)
+ try:
+  p=runpy.run_path(str(F/'prepare_local_f0_remaining_app_read13_owned_v2_plan.py'));baseline=F/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';result=p['prepare'](baseline,H(baseline.read_bytes()));manifest=Path(result['operation_manifest']);raw_before_pin=manifest.read_bytes();value=json.loads(raw_before_pin);assert value['source_commit']==value['source_tree']==value['packet_sha256']=='TO_BE_PINNED'and value['packet_files_sha256']=={}and value['review_status']=='PENDING_OPERATIONAL_REVIEW'
+  inventory=value['prepared_source_file_inventory_sha256'];assert all(H((C/name).read_bytes())==wanted for name,wanted in inventory.items());assert all(H((F/name).read_bytes())==wanted for name,wanted in five.items())
+  pin=runpy.run_path(str(F/'pin_local_f0_remaining_app_read13_owned_v2_plan_20261120.py'))
+  try:pin['pin'](manifest)
+  except pin['Held']as error:code=str(error)
+  else:raise AssertionError('PENDING_GATE_MUST_REFUSE_PIN')
+  assert code=='SAFETY_SQL_REVIEW_REQUIRED'and manifest.read_bytes()==raw_before_pinand not Path(value['evidence_directory']).exists()
+ finally:
+  for guard in reversed(guards):guard.stop()
+ record={'schema':'workinants.read13-owned-v2-final-private-held-prototype.v1','status':'PASS_PURE_SOURCE_PREPARATION_PENDING_REVIEW','operation_manifest':str(manifest),'operation_manifest_sha256':H(manifest.read_bytes()),'source_archive_sha256':result['source_archive_sha256'],'source_files':result['source_files'],'full_prepared_inventory_files':len(inventory),'full_prepared_inventory_sha256':H(''.join(name+'\0'+inventory[name]+'\n'for name in sorted(inventory)).encode()),'source_commit_tree_packet':'TO_BE_PINNED','review_status':value['review_status'],'actual_pinner_refusal':code,'external_five_sha256':five,'candidate_validation_gates':'PENDING_UNCHANGED','evidence_directory_absent':True,'process_network_boundaries':'FORBIDDEN','tools':'Actual pure preparer verified exact113900903-byte archive/all10300 members','baseline':'OFFLINE-ONLY absolute-path remap of preserved reviewed baseline; Root must reprepare using actual accepted baseline after reviewed candidate admission, not adopt this private prototype as runtime authority','runtime':'NOT_RUN','resources_or_operational_credentials_created':False};out.write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({'record':out.name,'sha256':H(out.read_bytes()),'prepared_files':len(inventory),'pinner':code,'reviews':'PENDING'}))
+if __name__=='__main__':main()

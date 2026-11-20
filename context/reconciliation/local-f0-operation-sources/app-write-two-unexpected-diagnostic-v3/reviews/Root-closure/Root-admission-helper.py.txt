@@ -1,0 +1,44 @@
+"""Admit exact independently reviewed App V3 code; close only source metadata, never runtime claims."""
+from pathlib import Path
+import ast,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+clean=json.loads((T/'a519_PrivilegeV7_9577e42a_independent_cleanup_20261120.json').read_bytes());assert clean['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'and clean['known_executor_session']==20084
+dp=T/'app_unexpected_diagnostic_v3_frozen_source_plan_20261120.json';db=dp.read_bytes();assert sha(db)=='a8086be85724ecd993ba40d55e679653c650f006a0baf0a9d4988df81b712291';d=json.loads(db);P=Path(d['source_root']);PT=Path(d['candidate']);assert P.resolve().is_relative_to(T.resolve())and not P.resolve().is_relative_to(R.resolve())
+pp=T/'app_unexpected_diagnostic_v3_independent_source_review_20261120.json';pb=pp.read_bytes();assert sha(pb)=='973462c41ab96ee4340caddc3a6b6eccf2ac98454a43b1c4efcdd49be740222a';peer=json.loads(pb);assert peer['decision']=='SOURCE_APPROVED'and peer['findings']==[]and peer['input_bindings']['delivery']['sha256']==sha(db)and peer['root_sources_sha256']==d['root_sources_sha256']and peer['operator_sources_sha256']==d['operator_sources_sha256']
+assert peer['coverage']['independent_distinct_final_source_methods_PASS']==15 and peer['coverage']['actual_owning_entry']['normal_and_late_error_required_gap']=='CLOSED_BY_INDEPENDENT_FINAL_FROZEN_COMPOSITION'
+cn=Path(d['child_validation']['path']).relative_to(P).as_posix();on=Path(d['owned_validation']['path']).relative_to(P).as_posix();cb=(P/cn).read_bytes();ob=(P/on).read_bytes();assert sha(cb)==d['child_validation']['sha256']and sha(ob)==d['owned_validation']['sha256'];c=json.loads(cb);o=json.loads(ob)
+assert c['source_reviews']==o['source_reviews']=={'author':'PENDING','offline':'PENDING','independent':'PENDING','Root':'PENDING'}and c['runtime']==o['runtime']=='NOT_RUN'
+incoming={**d['root_sources_sha256'],cn:sha(cb),on:sha(ob),**c['archive_files_sha256'],**o['archive_files_sha256']}
+for n,h in incoming.items():assert(P/n).resolve().is_relative_to(P.resolve())and sha((P/n).read_bytes())==h and not(R/n).exists(),n
+for n,h in c['source_and_artifact_inventory_sha256'].items():
+ assert sha((P/n).read_bytes())==h
+ if n not in d['root_sources_sha256']:assert sha((R/n).read_bytes())==h,n
+for n,h in c['generated_artifacts_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in d['operator_sources_sha256'].items():assert sha((PT/n).read_bytes())==h and not(T/n).exists(),n;ast.parse((PT/n).read_bytes())
+for n,h in d['root_sources_sha256'].items():
+ if n.endswith('.py'):ast.parse((P/n).read_bytes())
+for n,h in incoming.items():put(R/n,(P/n).read_bytes())
+for n,h in d['operator_sources_sha256'].items():put(T/n,(PT/n).read_bytes())
+CA=R/c['source_root'];OA=R/o['source_root'];assert len(c['archive_files_sha256'])==34 and len(o['archive_files_sha256'])==104
+root={'schema':'workinants.app-unexpected-diagnostic-v3-Root-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','reviewer':'/root','root_sources_sha256':d['root_sources_sha256'],'operator_sources_sha256':d['operator_sources_sha256'],'independent_source_review_sha256':sha(pb),'review':'Fixed six-key finite13 SQLSTATE diagnostic projection and optional exact source-bound noarg frame precede unchanged positive count/verdict after actual connection/global closure. Intended negative guard proof unchanged; extra clue cannot qualify success. Source gates admit original V2 generation and fixed24 artifacts separately from new runtime V3. Strict15-field outcomes/child reader/first origin/sticky IO/final original-reference barriers/exactcleanup preserved.','validation':'Independent15 distinct final methods including genuine normal and late-error full process-model compositions with retained closed outputs and strict reader checks. Prior author overall2 ERROR and independent5setup errors remain historical, not relabeled. No high-level success factory; actual database remains NOT_RUN.','generated_artifacts_sha256':c['generated_artifacts_sha256'],'historical8f2a_cause':'UNOBSERVED; no source recipe/SQL/fixture/ACL/guard/timeout changes','runtime':'NOT_RUN','Posture':'D'}
+for A,oldmeta in((CA,cb),(OA,ob)):
+ for n,b in{'independent-Track-source-review.json':pb,'Root-source-closure.json':enc(root),'validation-before-Root-closure.json':oldmeta,'frozen-reviewed-delivery.json':db,'Root-admission-helper.py.txt':Path(__file__).read_bytes()}.items():put(A/'reviews/Root-closure'/n,b)
+for n,h in peer['artifacts_sha256'].items():
+ b=(T/n).read_bytes();assert sha(b)==h;dest=n+'.txt'if n.endswith('.py')else n;put(OA/'reviews/Root-closure/independent-validation'/dest,b)
+for i,record in enumerate(peer['closed_offline_observations']):
+ assert record['scope']=='OFFLINE_PROCESS_MOCK_OUTPUT_NOT_RUNTIME_EVIDENCE'
+ for n,h in record['files_sha256'].items():
+  b=(Path(record['path'])/n).read_bytes();assert sha(b)==h;put(OA/'reviews/Root-closure/OFFLINE_MODEL_OUTPUTS'/str(i)/n,b)
+put(OA/'reviews/Root-closure/OFFLINE_MODEL_OUTPUTS/scope.json',enc({'scope':'OFFLINE_PROCESS_MOCK_OUTPUT_NOT_RUNTIME_EVIDENCE','runtime':'NOT_RUN','records':peer['closed_offline_observations']}))
+reviews={'author':'SOURCE_REVIEWED','offline':'PASS','independent':'SOURCE_APPROVED','Root':'SOURCE_APPROVED'}
+for meta,A in((c,CA),(o,OA)):
+ meta['source_reviews']=reviews.copy();meta['status']='SOURCE_APPROVED_RUNTIME_NOT_RUN_PIN_AND_LITERAL_REQUIRED';meta['source_review_evidence']={'independent':{'path':(A/'reviews/Root-closure/independent-Track-source-review.json').relative_to(R).as_posix(),'sha256':sha(pb)},'Root':{'path':(A/'reviews/Root-closure/Root-source-closure.json').relative_to(R).as_posix(),'sha256':sha(enc(root))}}
+ca={p.relative_to(R).as_posix():sha(p.read_bytes())for p in CA.rglob('*')if p.is_file()};c['archive_files_sha256']=ca;(R/cn).write_bytes(enc(c));o['child_validation_sha256']=sha((R/cn).read_bytes());oa={p.relative_to(R).as_posix():sha(p.read_bytes())for p in OA.rglob('*')if p.is_file()};o['archive_files_sha256']=oa;(R/on).write_bytes(enc(o))
+files={**incoming,**ca,**oa,cn:sha((R/cn).read_bytes()),on:sha((R/on).read_bytes())}
+for n,h in files.items():assert sha((R/n).read_bytes())==h,n
+for n,h in c['source_and_artifact_inventory_sha256'].items():assert sha((R/n).read_bytes())==h,n
+receipt={'schema':'workinants.app-unexpected-diagnostic-v3-source-approved-final-inventory.v1','files_sha256':dict(sorted(files.items())),'files':len(files),'child_archive_files':len(ca),'owned_archive_files':len(oa),'independent_source_review_sha256':sha(pb),'Root_source_closure_sha256':sha(enc(root)),'exact_reviewed_ten_sources_and_original24_artifacts_unchanged':True,'eight_source_gates':'SOURCE_APPROVED','runtime':'NOT_RUN','Posture':'D'}
+out=T/'app_unexpected_diagnostic_v3_source_approved_committable_inventory_20261120.json';put(out,enc(receipt));print(json.dumps({'inventory':out.name,'sha256':sha(out.read_bytes()),'files':len(files),'child_archive':len(ca),'owned_archive':len(oa),'runtime':'NOT_RUN'}))

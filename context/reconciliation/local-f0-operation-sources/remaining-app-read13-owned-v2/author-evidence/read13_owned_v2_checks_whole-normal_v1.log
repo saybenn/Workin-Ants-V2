@@ -1,0 +1,30 @@
+test_actual_Core_child_coordinate_CTX82_parent_and_cleanup (<run_path>.V2WholeEntryTests.test_actual_Core_child_coordinate_CTX82_parent_and_cleanup) ... ERROR
+
+======================================================================
+ERROR: test_actual_Core_child_coordinate_CTX82_parent_and_cleanup (<run_path>.V2WholeEntryTests.test_actual_Core_child_coordinate_CTX82_parent_and_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 860, in test_actual_Core_child_coordinate_CTX82_parent_and_cleanup
+    code,model,_=self.composed();report=model.n['report'];self.assertEqual(code,0,(report.get('primary_failure'),getattr(model,'last_mock_fault',None)));self.assertEqual(report['catalog_comparison']['check_counts'],{'PASS':29089});self.assertEqual(len(report['ledger_comparison']['checks']),22)
+                 ^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 852, in composed
+    path,fixture=self.fresh(mode=='wrong-namespace');core=runpy.run_path(str(fixture.task/'execute_local_f0_remaining_app_read13_owned_v2_20261120.py'));model=V2Read13ProcessModel(fixture,path,mode);model.n=core['launch'].__globals__;replace=Path.replace;faults=[];output=io.StringIO()
+                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 796, in __init__
+    self.vm=self.child['Transport'](packet,files);self.catalog=v2_closed_catalog(fixture.root)
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 788, in v2_closed_catalog
+    return {name:json.loads((base/(name+'.json')).read_bytes())for name in names}
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13-owned-v2-private-candidate-20261120\\offline-owner-operator-helfciyv\\cold-task\\workinants-correction-pass\\context\\reconciliation\\local-f0-run-assets\\fcab2e9-read13-0b7c519e\\evidence\\native-before.json'
+
+----------------------------------------------------------------------
+Ran 1 test in 136.191s
+
+FAILED (errors=1)

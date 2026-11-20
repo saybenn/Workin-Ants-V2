@@ -1,0 +1,43 @@
+"""Refresh only author-owned new packet/five/metadata, never live Root."""
+from pathlib import Path
+import ast,hashlib,json,runpy
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'install-failed-precleanup-activation-v5-author-20261120';F=D/'future-root'
+ARCHIVE='context/reconciliation/local-f0-operation-sources/install-controls-owned-source-phase-v5'
+VALIDATION='context/reconciliation/local-f0-install-controls-owned-source-phase-v5-source-validation.json'
+FILES=('execute_local_f0_install_controls_20261120_source_phase_v5.py','local_f0_install_controls_operation_steps_source_phase_v5.py','prepare_local_f0_install_controls_plan_source_phase_v5.py','check_local_f0_install_controls_operation_source_phase_v5.py','pin_local_f0_install_controls_plan_20261120_source_phase_v5.py')
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def value_patch(source,name,value):
+    node=next(n for n in ast.parse(source).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id==name for t in n.targets));v=node.value
+    lines=source.splitlines(keepends=True);start=sum(map(len,lines[:v.lineno-1]))+v.col_offset;end=sum(map(len,lines[:v.end_lineno-1]))+v.end_col_offset
+    return source[:start]+repr(value)+source[end:]
+def save(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    if type(raw)is str:raw=raw.encode()
+    path.write_bytes(raw)
+def encoded(value):return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+gen=runpy.run_path(str(F/'scripts/prepare-install-control-rehearsal-v5.py'));files,packet=gen['build'](F)
+for name,raw in files.items():save(F/'review-output/install-control-rehearsal-v5'/name,raw)
+fixture=sha(files['fixtures.json']);content=packet['source_only_packet_sha256']
+co=runpy.run_path(str(F/'scripts/sql-review/run-install-control-rehearsal-v5.py'));runtime={p:sha((F/p).read_bytes())for p in co['MODULES']}
+changed={n.replace('install-control-rehearsal-v4','install-control-rehearsal-v5').replace('install-controls-coordinator-v4','install-controls-coordinator-v5'):h for n,h in json.loads((D/'before-preservation.json').read_bytes())['Root_files_sha256'].items()if n in ('scripts/sql-review/run-install-control-rehearsal-v4.py','scripts/prepare-install-control-rehearsal-v4.py','scripts/check-install-control-rehearsal-v4.py','scripts/sql-review/install-controls-coordinator-v4.md','scripts/sql-review/test_run_install_control_rehearsal_v4.py')}
+for name in FILES:
+    p=T/name;s=p.read_text()
+    for path,old in changed.items():
+        if (F/path).exists():s=s.replace(old,sha((F/path).read_bytes()))
+    s=s.replace('d12cd17e1af40db9d49653202d55fa00afd1d4cc77c47bcf467f406a6b88ba2a',fixture).replace('8bfa39d18015440c08639909e345d423a788385ae0901b14e96b3da03031bf42',content)
+    if name.startswith('prepare_'):
+        s=value_patch(s,'MODULES',runtime);s=value_patch(s,'FIXTURES_SHA',fixture);s=value_patch(s,'CONTENT',content)
+        s=s.replace('Fixed reviewed INSTALL V3 coordinator on3 Root-owned targets;', 'Fixed reviewed INSTALL V5 coordinator with exact failed/precleanup activation phase on3 Root-owned targets;')
+    if 'operation_steps_'in name:s=value_patch(s,'FIXED_RUNTIME',runtime);s=value_patch(s,'INSTALL_FIXTURES_SHA',fixture);s=value_patch(s,'INSTALL_CONTENT',content)
+    ast.parse(s);save(p,s)
+five={name:sha((T/name).read_bytes())for name in FILES}
+for name in FILES:save(F/ARCHIVE/(name+'.txt'),(T/name).read_bytes())
+for name in ('install_failed_precleanup_activation_bounded_source_proposal_20261120.json','install_failed_precleanup_activation_independent_plan_review_20261120.json','install_failed_precleanup_activation_Root_bounded_implementation_ACK_20261120.json'):
+    save(F/ARCHIVE/'author-plan'/name,(T/name).read_bytes())
+childpaths=('scripts/sql-review/run-install-control-rehearsal-v5.py','scripts/install_failed_precleanup_activation_v5.py','scripts/prepare-install-control-rehearsal-v5.py','scripts/check-install-control-rehearsal-v5.py','scripts/check-install-failed-precleanup-phase-v5.py','scripts/sql-review/test_run_install_control_rehearsal_v5.py','scripts/sql-review/install-controls-coordinator-v5.md','scripts/install_independent_review_protocol_source_phase_v5.py','scripts/test_install_independent_review_protocol_source_phase_v5.py','scripts/sql-review/watch-install-independent-review-source-phase-v5.py','scripts/sql-review/test_watch_install_independent_review_source_phase_v5.py')
+for path in childpaths:save(F/ARCHIVE/'child-source'/(Path(path).name+'.txt'),(F/path).read_bytes())
+archive={p.relative_to(F).as_posix():sha(p.read_bytes())for p in(F/ARCHIVE).rglob('*')if p.is_file()}
+gates={key:{'decision':'PENDING'}for key in('independent_source_review','independent_ledger_source_review','independent_safety_sql_review','independent_review_publication_source_review','independent_failed_precleanup_activation_source_review','Root_source_review')}
+validation={'schema':'workinants.install-owned-source-validation.v1','status':'SOURCE_ONLY_NOT_RUN_REVIEW_PENDING','Posture':'D','all_five_sources_sha256':five,'child_source_files_sha256':{p:sha((F/p).read_bytes())for p in childpaths},'fixture_sha256':fixture,'content_sha256':content,'archive_files_sha256':archive,**gates,'basis':'Unchanged reviewed full three-target V4 suite; new V5 phase10receipts/15closures, fresh primary before4inactive candidate attempts. Original protocolGate/SQL/32ACL/readers/240s recovery/native/cleanup retained.','canonical_and_failure_SQL_unchanged':{k:v['sha256']for k,v in packet['variants'].items()},'runtime':'NOT_RUN','qualification_promoted':False}
+save(F/VALIDATION,encoded(validation));save(D/'current-draft-fingerprints.json',encoded({'external5_sha256':five,'child_source_sha256':validation['child_source_files_sha256'],'fixture_sha256':fixture,'content_sha256':content,'archive_files':len(archive),'validation_sha256':sha((F/VALIDATION).read_bytes()),'all_gates':'PENDING'}))
+print(json.dumps({'fixture_sha256':fixture,'content_sha256':content,'source_inputs':len(packet['source_files_sha256']),'artifacts':len(files),'external5':five,'archive_files':len(archive)}))

@@ -1,0 +1,28 @@
+from pathlib import Path
+import runpy,unittest,time,hashlib,json
+T=Path(__file__).resolve().parent;D=T/'install-failed-precleanup-activation-v5-author-20261120';F=D/'future-root'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+runpy.run_path(str(T/'refresh_install_failed_precleanup_v5_draft_20261120.py'))
+fingerprints=json.loads((D/'current-draft-fingerprints.json').read_bytes())
+phase=runpy.run_path(str(F/'scripts/check-install-failed-precleanup-phase-v5.py'))
+transport=runpy.run_path(str(F/'scripts/test_install_independent_review_protocol_source_phase_v5.py'))
+watch=runpy.run_path(str(F/'scripts/sql-review/test_watch_install_independent_review_source_phase_v5.py'))
+outer=runpy.run_path(str(T/'check_local_f0_install_controls_operation_source_phase_v5.py'));outer['namespace'].__globals__['ROOT']=F
+admit=runpy.run_path(str(T/'check_install_failed_precleanup_v5_admission_20261120.py'))
+suites={}
+suites['phase10-final']=unittest.defaultTestLoader.loadTestsFromTestCase(phase['PhaseTests'])
+suites['transport26-final']=unittest.defaultTestLoader.loadTestsFromTestCase(transport['Tests'])
+for method in ('test_publish_fresh_refuses_existing_preserves_bytes_and_has_no_hardlink','test_single_link_metadata_and_real_nonregular_are_rejected','test_bounded_closed_immutable_reads_and_no_mutable_result_opens','test_actual_watcher_cli_source_gate_returns_original_deadline_for_separate_explicit_review','test_wrong_watcher_self_fingerprint_stops_before_any_source_compile','test_actual_coordinator_timeout_publishes_ready_last_after_completed_save_and_is_quiescent','test_actual_coordinator_explicit_fixture_review_uses_unchanged_seven_fields','test_v5_dirty_or_malformed_saved_evidence_never_publishes_ready','test_v5_immutable_full_envelope_publication_IO_stops_before_ready','test_v5_rehashed_bad_full_envelope_phase_foreign_file_and_IO_never_approve','test_v5_real_failed_install_source_rows_through_watcher_and_seven_field_review','test_invalid_reviewer_and_expired_deadline_never_publish_approval','test_expiring_during_fsync_still_refuses_atomic_approval_publication','test_failed_final_marker_publication_cannot_start_review_clock','test_actual_main_refuses_missing_wrong_outer_identity_before_coordinator_or_evidence'):
+ suites['transport26-final'].addTest(watch['Tests'](method))
+suites['owning8-final']=unittest.TestSuite()
+for cls,method in (('Tests','test_actual_full_verifier_real_four_seven_histories_and_five_snapshots'),('Tests','test_emitted_actual_run_plan_is_admitted_by_frozen_coordinator_loader'),('Tests','test_actual_cli_reference_and_every_global_closure_precede_verdict'),('Tests','test_returned_or_throwing_coordinator_failure_still_closes_all_cids'),('FinallySafetyTests','test_actual_operational_stop_finalizer_and_persistent_save_do_not_skip_any_finally_branch'),('ReviewReadySourceGateTests','test_each_of_four_real_runtime_gates_blocks_before_any_helper_or_command'),('SemanticParityTests','test_source_AST_delta_is_only_namespace_and_bounded_parity_pipeline'),('SemanticParityTests','test_new_transport_watcher_coordinator_generator_are_exact_namespace_derivations')):
+ suites['owning8-final'].addTest(outer[cls](method))
+suites['admission4-final']=unittest.defaultTestLoader.loadTestsFromTestCase(admit['AdmissionTests'])
+results={};started=time.monotonic()
+for name,suite in suites.items():
+ p=D/(name+'.log');start=time.monotonic()
+ with p.open('w',encoding='utf8')as output:r=unittest.TextTestRunner(stream=output,verbosity=2).run(suite)
+ report={'PASS':r.wasSuccessful(),'methods':r.testsRun,'failures':len(r.failures),'errors':len(r.errors),'seconds':round(time.monotonic()-start,3),'log_sha256':sha(p.read_bytes())};results[name]=report;(D/(name+'.json')).write_text(json.dumps(report,indent=2)+'\n');print(name+': '+json.dumps(report),flush=True)
+ if not r.wasSuccessful():print(p.read_text()[-6500:],flush=True);break
+report={'schema':'workinants.install-v5-author-final-affected-checks.v1','PASS':len(results)==4 and all(r['PASS']for r in results.values()),'results':results,'methods_total':sum(r['methods']for r in results.values()),'seconds_total':round(time.monotonic()-started,3),'frozen_source_before':fingerprints,'boundaries':'All process, Docker, DB and network mocked/forbidden. No actual SQL/runtime.','runtime':'NOT_RUN'}
+(D/'final-affected-checks.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({'PASS':report['PASS'],'methods_total':report['methods_total'],'seconds_total':report['seconds_total']}));raise SystemExit(not report['PASS'])

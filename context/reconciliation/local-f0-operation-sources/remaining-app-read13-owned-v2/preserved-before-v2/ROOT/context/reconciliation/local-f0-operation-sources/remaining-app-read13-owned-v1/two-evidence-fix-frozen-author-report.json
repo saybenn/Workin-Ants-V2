@@ -1,0 +1,113 @@
+{
+  "schema": "workinants.read13-two-evidence-fix-author-report.v1",
+  "decision": "BOUNDED_SOURCE_CORRECTIONS_FROZEN_PENDING_SAME_INDEPENDENT_REVIEW",
+  "author": "/root/catalog_v4_review",
+  "original_implementation_author": "/root/review_track_ports",
+  "Root_ACK_sha256": "bfa9e647751b25b6e681780af7863a77a0fac944b269a567e4fe6e1fc5dac616",
+  "prior_independent_HOLD_sha256": "787c216f2b579a005fc4a57aaa951297e393390a5f74adf30a4e998f08a960cc",
+  "original_actual_probe_sha256": "844f38d8af6d579684293bea6479eba3e9a5ea0a21b1040acc6a4d83914e5041",
+  "original_preservation344_sha256": "0f1a6e426225d3a23d436ed81d36fffa5067bde2914fa979cab9bc7ab18a3f5a",
+  "required_reviewer": "/root/restricted_controls_operator",
+  "current_eleven_sha256": {
+    "scripts/prepare-remaining-app-read13-rehearsal.py": "6c583c9d2435fbea0f57b4bcd70a05234c6ad5995493f8ecdd160ce9ebf97499",
+    "scripts/remaining_app_read13_protocol.py": "7343104bf2dd70003d2a68ff0911ac2bab80e8aec47e8c1d5aa3524f0ca8fe0c",
+    "scripts/check-remaining-app-read13-rehearsal.py": "b8270da9f6933f9b1ace817d2f10825ffcba942fba1c380bdf20d9c3b602cbe8",
+    "scripts/check-remaining-app-read13-coordinator.py": "c05855164262bb48c81c1aeb43ba42e423410c23fc7be56a0b33048aeba03c26",
+    "scripts/sql-review/run-remaining-app-read13-rehearsal.py": "815bf499bbed3c967091739ed3c2e02d2a12e5c6848f480ca94c88792a2c95bf",
+    "scripts/sql-review/REMAINING-APP-READ13-REHEARSAL.md": "0c50b7b05151fce09c28a24e004649b5f8f2af212ba52e6b3fe2c045bba3e241",
+    "execute_local_f0_remaining_app_read13_owned_v1_20261120.py": "37bd25e444ffe8cd57eaf9dff332f85d1addd5a4c3232c2d09850840a61c58e2",
+    "local_f0_remaining_app_read13_owned_v1_operation_steps.py": "6381a581906c3f619cf9745d46bcc270b60006ddbe34148e28e0a72e36d4ef15",
+    "prepare_local_f0_remaining_app_read13_owned_v1_plan.py": "2302c781a6095874de7768d56e27f0949e1eb28c9b1920c0ffd41b9f2e988b84",
+    "check_local_f0_remaining_app_read13_owned_v1_operation.py": "b41f6a7dce75caacbe664804f446fa90ef4d9f3f7a574d9e1e62ea46851780fe",
+    "pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py": "1dbf9ff23ce7a8dedd24b8554efe559c19ef315f925aa23c0f2c1f3ef3ad6cb7"
+  },
+  "fixture_sha256": "59df049e2b21a3c15fcb080dc7679e3e8d694f9ac7074f8fd5e4bed8bbeeed5d",
+  "content_sha256": "b2a649ad704931272459923b427887242b20d624f88bdee87c6800048f38621c",
+  "offline_checks_final_version": [
+    {
+      "path": "read13_two_evidence_fix_source_v3.json",
+      "sha256": "c77a0bc737f8358f0358346a90f28c664f8c36b380477dafcba88960214f6aa5",
+      "mode": "source",
+      "methods": 17,
+      "seconds": 0.75,
+      "log_sha256": "50a6b92c24a940002b2013ecf92cd89ac23456beead02d27ed754c3bef4c9f64",
+      "source_scope": "exact_current_eleven"
+    },
+    {
+      "path": "read13_two_evidence_fix_child_v1.json",
+      "sha256": "3aff8dce2190bc23f9362a8457ca1239e29470c5d378a4a68084030117a391f0",
+      "mode": "child",
+      "methods": 22,
+      "seconds": 146.641,
+      "log_sha256": "ab25b2e3d5b611cc5ff559b45c45a374028180dada2ad8ac5ed87bc9007f008d",
+      "source_scope": "exact_child_six; parent-only later changes separately tested"
+    },
+    {
+      "path": "read13_two_evidence_fix_owned_v3.json",
+      "sha256": "64849a19c79f2775060db9694c6b6052cc017093579be39541efbf8e96c27cf3",
+      "mode": "owned",
+      "methods": 56,
+      "seconds": 293.593,
+      "log_sha256": "29a6857586188a8a75a090ed4ce9964610468492ee385c4826d7010de4c067fa",
+      "source_scope": "exact_current_eleven"
+    },
+    {
+      "path": "read13_two_evidence_fix_focused_v3.json",
+      "sha256": "0d338a44e1078aeaf05c741feae0a9e13b9af0863fec27ef592f61976fafd7ac",
+      "mode": "focused",
+      "methods": 14,
+      "seconds": 4.453,
+      "log_sha256": "af69b23a7597c705d75b7716c563c2a3ba11b9b616b4add0c78c5efaa79de008",
+      "source_scope": "exact_current_eleven"
+    }
+  ],
+  "all103_artifacts_reproduced": true,
+  "other102_artifacts_byte_exact": true,
+  "SQL_leaves": 101,
+  "SQL_statements": 529,
+  "original_packet_semantics_exact_except_source_fingerprints": true,
+  "unchanged_other_source_inputs": 56,
+  "finite_caps": {
+    "case_count": 82,
+    "positive_select_claims": 13,
+    "fixture_rows": 48,
+    "nonnull_fixture_fk_links": 78,
+    "setup_bypass_triggers": 15,
+    "grant_instances_max": 79,
+    "setup_grants": 10,
+    "read_control_grants": 69,
+    "user_triggers_restored": 100,
+    "simultaneous_app_sessions_max": 1,
+    "worker_loop": false
+  },
+  "corrections": [
+    "Fresh named response slots and explicit received/typed exit availability, null unknown ACK/error/count scalars, safe first-primary latch before later IO or safety failures.",
+    "Strict producer-consumer observation schema for the same82 protocols79 grants99 transactions.",
+    "Two independently closed bounded retained-file reads with descriptor/path identity, common mtime and per-representation ctime stability plus fresh byte/hash agreement.",
+    "Original SHA/length retained through pre/post read-only proof and postcleanup/source preservation final PASS barriers; uncertainty stops while safety/cleanup progresses."
+  ],
+  "limits": [
+    "No database, Docker, SQL, network, Git, resource or credential invocation by this author task.",
+    "All actual runtime protocols and thirteen possible SELECT links remain NOT_RUN.",
+    "No SQL/fixture business bytes, permissions, owner APIs, codecs, usage adapters, worker paths, timeouts, mounts or cleanup boundaries changed.",
+    "Integrity is proven only for the bounded observed file-read/finalization window, not perpetual filesystem atomicity.",
+    "Prior failures, actual probes and original held335+external5 are preserved; earlier source-version green results are not current-version authority."
+  ],
+  "source_review_gates": "PENDING",
+  "actual_runtime": "NOT_RUN",
+  "database_posture": "D",
+  "execution_authority": false,
+  "plain_english": "Each step gets a fresh answer. A changed saved report cannot become a passing report, and cleanup still gets done.",
+  "check_counts_are_version_qualified_and_not_additive": true,
+  "focused14_overlap_child_and_owned": true,
+  "static_scope_proof_sha256": "e294bade87b651c3914d215579a87fbdce04564a81bd869a7be92f6d7c350831",
+  "preserved_first_final_owned_attempt": {
+    "methods": 56,
+    "PASS": 55,
+    "ERROR": 1,
+    "receipt_sha256": "626b0a746832b1ce447cc653a4f8c91b56b9215111d3ad9cc7f7441ee6ebdafe",
+    "observed_error": "EXACT_COORDINATOR_SOURCE stale inline pinner literal; corrected fingerprint only",
+    "preservation_sha256": "fc6ce19333b33ff61753d00fc549b3d98e1514b235276633d51cec6c75625c40",
+    "replacement_final_owned_methods": 56
+  }
+}

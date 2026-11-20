@@ -1,0 +1,17 @@
+"""Refresh only the private draft hashes after authorized V2 source edits."""
+from pathlib import Path
+import hashlib,json
+T=Path(__file__).resolve().parent;F=T/'read13-owned-v2-private-candidate-20261120';C=F/'workinants-correction-pass'
+H=lambda raw:hashlib.sha256(raw).hexdigest();data=lambda value:(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+five=('execute_local_f0_remaining_app_read13_owned_v2_20261120.py','local_f0_remaining_app_read13_owned_v2_operation_steps.py','prepare_local_f0_remaining_app_read13_owned_v2_plan.py','check_local_f0_remaining_app_read13_owned_v2_operation.py','pin_local_f0_remaining_app_read13_owned_v2_plan_20261120.py')
+archive=C/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v2'
+for name in five:
+ raw=(T/name).read_bytes();(F/name).write_bytes(raw);(archive/(name+'.txt')).write_bytes(raw)
+fixture='review-output/remaining-app-read13-rehearsal/fixtures.json';packet=json.loads((C/fixture).read_bytes())
+child_path=C/'context/reconciliation/local-f0-remaining-app-read13-source-validation.json';child=json.loads(child_path.read_bytes())
+child['source_files_sha256']={**packet['source_files_sha256'],**{'review-output/remaining-app-read13-rehearsal/'+name:digest for name,digest in packet['prepared_files_sha256'].items()},fixture:H((C/fixture).read_bytes())}
+child['fixture_sha256']=H((C/fixture).read_bytes());child['content_sha256']=packet['source_only_packet_sha256'];assert child['independent_source_review']['decision']=='PENDING'
+child_archive=C/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1'
+child['archive_files_sha256']={p.relative_to(C).as_posix():H(p.read_bytes())for p in child_archive.rglob('*')if p.is_file()};child_path.write_bytes(data(child))
+owned_path=C/'context/reconciliation/local-f0-remaining-app-read13-owned-v2-source-validation.json';owned=json.loads(owned_path.read_bytes());owned['operator_sources_sha256']={name:H((F/name).read_bytes())for name in five};owned['archive_files_sha256']={p.relative_to(C).as_posix():H(p.read_bytes())for p in archive.rglob('*')if p.is_file()};assert owned['independent_owned_resource_review']['decision']==owned['independent_safety_sql_review']['decision']=='PENDING';owned_path.write_bytes(data(owned))
+print(json.dumps({'private_root':str(C),'child_map':len(child['source_files_sha256']),'child_archive':len(child['archive_files_sha256']),'owned_archive':len(owned['archive_files_sha256']),'five':owned['operator_sources_sha256'],'gates':'PENDING'}))

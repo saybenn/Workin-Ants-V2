@@ -1,0 +1,33 @@
+"""Versioned offline test receipts; no actual service execution."""
+from pathlib import Path
+import argparse,hashlib,json,runpy,sys,time,unittest
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass';sys.path[:0]=[str(TASK/'offline-python'),str(ROOT/'scripts')]
+CHILD=ROOT/'scripts/check-remaining-app-read13-coordinator.py';OWNED=TASK/'check_local_f0_remaining_app_read13_owned_v1_operation.py'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def main():
+ p=argparse.ArgumentParser();p.add_argument('mode',choices=('source','focused','child','owned','composition'));p.add_argument('tag');args=p.parse_args()
+ names=('scripts/remaining_app_read13_protocol.py','scripts/sql-review/run-remaining-app-read13-rehearsal.py','scripts/check-remaining-app-read13-coordinator.py','scripts/check-remaining-app-read13-rehearsal.py','scripts/prepare-remaining-app-read13-rehearsal.py','scripts/sql-review/REMAINING-APP-READ13-REHEARSAL.md')
+ external=('execute_local_f0_remaining_app_read13_owned_v1_20261120.py','local_f0_remaining_app_read13_owned_v1_operation_steps.py','prepare_local_f0_remaining_app_read13_owned_v1_plan.py','check_local_f0_remaining_app_read13_owned_v1_operation.py','pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py')
+ def hashes():return {**{name:sha((ROOT/name).read_bytes())for name in names},**{name:sha((TASK/name).read_bytes())for name in external}}
+ entry=hashes();start=time.monotonic();suite=unittest.TestSuite()
+ if args.mode in('focused','child','composition'):child=runpy.run_path(str(CHILD))
+ if args.mode in('focused','owned','composition'):owned=runpy.run_path(str(OWNED))
+ if args.mode=='source':
+  source=runpy.run_path(str(ROOT/'scripts/check-remaining-app-read13-rehearsal.py'))
+  for value in source.values():
+   if isinstance(value,type)and issubclass(value,unittest.TestCase)and value.__module__=='<run_path>':suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(value))
+ elif args.mode=='focused':
+  for name in('test_business_process_write_throw_has_no_stale_bind_observation','test_original_business_failure_is_primary_before_receipt_IO','test_only_old_response_reuse_restoration_fails_new_regression','test_fixed_transaction_response_types_unknown_exit_and_secret_exclusion','test_setup_commit_observation_is_business_response_and_restores','test_control_rebind_process_write_failure_has_own_fresh_stage'):suite.addTest(child['CoordinatorTests'](name))
+  suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(owned['Read13ReferenceIntegrityTests']))
+ elif args.mode=='child':
+  for value in child.values():
+   if isinstance(value,type)and issubclass(value,unittest.TestCase)and value.__module__=='<run_path>':suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(value))
+ elif args.mode=='composition':
+  for cls in('Read13ActualChildParentTests','Read13ColdEntryTests','Read13RealQualifierTests'):suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(owned[cls]))
+ else:
+  for value in owned.values():
+   if isinstance(value,type)and issubclass(value,unittest.TestCase)and value.__module__=='<run_path>':suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(value))
+ count=suite.countTestCases();prefix=TASK/('read13_two_evidence_fix_'+args.mode+'_'+args.tag);log=prefix.with_suffix('.log');receipt=prefix.with_suffix('.json');assert not log.exists()and not receipt.exists()
+ with log.open('w',encoding='utf8',newline='\n')as output:result=unittest.TextTestRunner(stream=output,verbosity=2).run(suite)
+ exit=hashes();record={'schema':'workinants.read13-two-evidence-fix-offline-checks.v1','mode':args.mode,'methods':count,'run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'skipped':len(result.skipped),'result':'PASS'if result.wasSuccessful()else'FAIL','seconds':round(time.monotonic()-start,3),'entry_source_sha256':entry,'exit_source_sha256':exit,'source_preserved':entry==exit,'log_path':str(log),'log_sha256':sha(log.read_bytes()),'actual_database_execution':False,'runtime_qualification':'NOT_RUN'};raw=(json.dumps(record,indent=2)+'\n').encode();receipt.write_bytes(raw);print(json.dumps({'receipt':str(receipt),'sha256':sha(raw),'result':record['result'],'run':record['run'],'failures':record['failures'],'errors':record['errors'],'seconds':record['seconds']}));return 0 if result.wasSuccessful()and entry==exit else 1
+if __name__=='__main__':raise SystemExit(main())

@@ -1,0 +1,149 @@
+"""Mechanism-only actual parent main/closed-reader regressions.
+
+Genuine historical producer JSON is immutable test data, not proof of new V5
+phase/runtime. Domain, resource and SQL bodies are isolated; all external
+process/network boundaries are forbidden. No Root or qualification writes.
+"""
+from pathlib import Path
+from contextlib import ExitStack,redirect_stdout
+from types import SimpleNamespace
+from unittest.mock import patch
+import ast,hashlib,io,json,os,runpy,socket,stat,subprocess,tempfile,unittest
+T=Path(__file__).resolve().parent;D=T/'install-failed-precleanup-activation-v5-author-20261120';F=D/'future-root';B=D/'parent-final-reference-fix1-before'
+CORE=T/'execute_local_f0_install_controls_20261120_source_phase_v5.py';STEPS=T/'local_f0_install_controls_operation_steps_source_phase_v5.py'
+PAYLOAD='context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b/evidence/install-controls/install-controls-results.json'
+CANARY='PRIVATE_FINAL_REFERENCE_ERROR_PASSWORD_SQL_CANARY'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+class ReferenceTests(unittest.TestCase):
+    def setUp(self):
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        for name in ('run','Popen','call','check_call','check_output'):self.stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN')))
+        self.stack.enter_context(patch.object(socket,'socket',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        self.temp=tempfile.TemporaryDirectory(prefix='install-v5-reference-fix1-',dir=D);self.base=Path(self.temp.name)
+        def cleanup():
+            resolved=self.base.resolve();assert resolved.is_relative_to(D.resolve())and resolved!=D.resolve();self.temp.cleanup()
+        self.addCleanup(cleanup)
+        self.payload=(F/PAYLOAD).read_bytes();self.assertEqual(sha(self.payload),'6d0e0c267efcdcdbfc3813c133510be52acb349a2580c5ae5029acb66c9a151a')
+    def fixture(self,mode='none',old=False):
+        n=runpy.run_path(str(CORE))['initialize'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+        if old:
+            tree=ast.parse((B/'TASK'/STEPS.name).read_bytes());node=next(x for x in tree.body if isinstance(x,ast.FunctionDef)and x.name=='main');exec(compile(ast.Module(body=[node],type_ignores=[]),'<only-held-main-placement-restored>','exec'),n)
+        out=self.base/str(len(list(self.base.iterdir())));fixed=out/'install-controls/install-controls-results.json';events=[];source='scripts/sql-review/local_image_identity.py'
+        n.update(TASK=T,ROOT=F,OUT=out,PRIVATE=out/'private',MANIFEST={'review_status':'APPROVED_LOCAL_F0_INSTALL_OWNED_ATTEMPT','operator_sources_sha256':{CORE.name:sha(CORE.read_bytes())}},TARGETS=[],report={'stage':'MECHANISM_ONLY','status':'IN_PROGRESS','steps':{},'targets':{},'events':[],'unexpected':[],'install':{'native':{}},'source_verification':{'files_sha256':{source:sha((F/source).read_bytes())}}},INSTALL={},bootstrap_attempted=set(),all_secrets=[],EVIDENCE_FAILED=False,FIRST_SAVE_IO=None)
+        state={'mutated':False,'saves':0,'at':'ENTRY'}
+        def mutate():
+            if state['mutated']:return
+            original=fixed.stat();raw=fixed.read_bytes();changed=raw.replace(b'"RUNNING"',b'"XUNNING"',1)
+            if changed==raw:changed=raw.replace(b'"schema"',b'"schEma"',1)
+            assert len(changed)==len(raw)and changed!=raw
+            fixed.write_bytes(changed);os.utime(fixed,ns=(original.st_atime_ns,original.st_mtime_ns));state['mutated']=True;events.append('SAME_SIZE_MTIME_RESTORED_MUTATION')
+        def component():
+            fixed.parent.mkdir();fixed.write_bytes(self.payload);n['retain_install_reference']();events.append('ACTUAL_INITIAL_READER')
+            if mode=='before-native':mutate()
+            if mode=='primary-IO':raise n['Stop']('ORIGINAL_FIXED_STOP')
+        for name in ('verify_packet','preflight','ensure_image','create_resources','prepare_install_credentials_and_baselines','provision_migration_tools','install_cross_target_semantic_parity','secret_scan'):
+            n[name]=lambda name=name:events.append(name)
+        def native(*args):
+            events.append('NATIVE');state['at']='NATIVE'
+            if mode=='native':mutate()
+        def cleanup():
+            events.append('CLEANUP');state['at']='CLEANUP'
+            if mode in ('cleanup','primary-IO'):mutate()
+        def tool():
+            events.append('TOOL');state['at']='TOOL'
+            if mode=='tool':mutate()
+        def external():
+            events.append('ARCHIVE');state['at']='ARCHIVE'
+            if mode=='archive':mutate()
+            n['save']()
+        def save():
+            state['saves']+=1;events.append('SAVE')
+            if mode=='postcheck-write'and state['at']=='ARCHIVE':mutate()
+            if mode=='primary-IO'and state['saves']>1:raise OSError(CANARY)
+        n.update(install_coordinator_experiment=component,qualify_install_catalog=native,cleanup=cleanup,verify_tool_data=tool,verify_external_input_preservation=external,save=save,event=lambda*a,**kw:None,write_safe=lambda*a:events.append('WRITE_SAFE'))
+        n['ensure_original_cleanup']=lambda name:events.append('FINALIZE_'+name)
+        return n,fixed,events,state,mutate,source
+    def invoke(self,n,mode,fixed,mutate,source):
+        read=Path.read_bytes
+        def reading(path):
+            raw=read(path)
+            if fixed.exists()and path in (F/source,CORE)and mode==('source'if path==F/source else 'external-source'):mutate()
+            return raw
+        with patch.object(Path,'read_bytes',reading),redirect_stdout(io.StringIO())as stdout:code=n['main']()
+        self.assertNotIn(CANARY,stdout.getvalue());self.assertNotIn(CANARY,json.dumps(n['report']));return code
+    def test_01_actual_main_reader_unchanged_bytes_pass_and_original_anchor_never_refreshes(self):
+        n,path,events,state,mutate,source=self.fixture();self.assertEqual(self.invoke(n,'none',path,mutate,source),0);ref=n['report']['install']['coordinator_reference'];self.assertEqual(ref['sha256'],sha(self.payload));self.assertEqual(ref['bytes'],len(self.payload));self.assertEqual([x['phase']for x in ref['integrity_checks']],['BEFORE_CANONICAL_NATIVE','BEFORE_RECOVERED_NATIVE','AFTER_ALL_POSTCHECKS']);self.assertTrue(all(x['matched_original']and x['all_read_handles_closed']for x in ref['integrity_checks']))
+    def test_02_actual_main_rejects_all_late_mutations_after_original_reader(self):
+        for mode in ('before-native','native','cleanup','tool','archive','source','external-source','postcheck-write'):
+            with self.subTest(mode=mode):
+                n,path,events,state,mutate,source=self.fixture(mode);self.assertEqual(self.invoke(n,mode,path,mutate,source),1);ref=n['report']['install']['coordinator_reference'];self.assertEqual(ref['sha256'],sha(self.payload));self.assertEqual(ref['bytes'],len(self.payload));self.assertNotEqual(sha(path.read_bytes()),ref['sha256']);self.assertFalse(ref['reference_qualified']);self.assertIn('CLEANUP',events);self.assertIn('TOOL',events);self.assertIn('ARCHIVE',events);self.assertEqual(n['report']['status'],'STOPPED_ATTEMPT_PRESERVED')
+                if mode=='before-native':self.assertNotIn('NATIVE',events)
+                if mode=='native':self.assertEqual(events.count('NATIVE'),1)
+    def test_03_restore_only_held_main_placement_reproduces_acceptance(self):
+        for mode in ('native','cleanup','tool','archive','source','external-source','postcheck-write'):
+            with self.subTest(mode=mode):
+                n,path,events,state,mutate,source=self.fixture(mode,old=True);self.assertEqual(self.invoke(n,mode,path,mutate,source),0);ref=n['report']['install']['coordinator_reference'];self.assertNotEqual(ref['sha256'],sha(path.read_bytes()));self.assertTrue(ref['reference_qualified'])
+    def test_04_first_primary_sticky_IO_and_all_finalizers_survive_final_barrier_failure(self):
+        n,path,events,state,mutate,source=self.fixture('primary-IO');n['bootstrap_attempted']={'first','second'};self.assertEqual(self.invoke(n,'primary-IO',path,mutate,source),1)
+        self.assertEqual(n['report']['primary_failure']['code'],'ORIGINAL_FIXED_STOP');self.assertTrue(n['report']['persistence_failure']);self.assertFalse(n['report']['evidence_complete']);self.assertIn('FINALIZE_first',events);self.assertIn('FINALIZE_second',events)
+        for event in ('CLEANUP','TOOL','ARCHIVE'):self.assertIn(event,events)
+        self.assertEqual(n['report']['install']['coordinator_reference']['sha256'],sha(self.payload));self.assertFalse(n['report']['install']['coordinator_reference']['reference_qualified'])
+    def prepared(self):
+        n,path,events,state,mutate,source=self.fixture();path.parent.mkdir(parents=True);path.write_bytes(self.payload);n['retain_install_reference']();self.assertTrue(n['report']['install']['coordinator_reference']['reference_qualified']);return n,path
+    def test_05_closed_reader_missing_unreadable_reparse_hardlink_oversize_and_replacement_reject(self):
+        for mode in ('missing','read','reparse','parent_reparse','symlink','hardlink','oversize','replacement','descriptor','proof_bool','origin_missing'):
+            with self.subTest(mode=mode):
+                n,path=self.prepared();opening=Path.open;lstat=Path.lstat;fstat=os.fstat
+                if mode=='missing':path.unlink()
+                if mode=='oversize':
+                    with path.open('wb')as writer:writer.truncate(16*1024*1024+1)
+                if mode=='proof_bool':n['report']['install']['coordinator_reference']['bytes']=True
+                if mode=='origin_missing':n['INSTALL'].pop('child_reference_origin')
+                if mode=='replacement':
+                    previous=path.with_suffix('.original');path.rename(previous);path.write_bytes(self.payload)
+                def metadata(item,*args,**kw):
+                    value=lstat(item,*args,**kw)
+                    if item==path and mode in ('reparse','symlink','hardlink')or item==path.parent and mode=='parent_reparse':
+                        fields={k:getattr(value,k)for k in dir(value)if k.startswith('st_')};fields['st_file_attributes']=getattr(value,'st_file_attributes',0)|(getattr(stat,'FILE_ATTRIBUTE_REPARSE_POINT',1024)if mode in ('reparse','parent_reparse')else 0);fields['st_nlink']=2 if mode=='hardlink'else value.st_nlink
+                        if mode=='symlink':fields['st_mode']=stat.S_IFLNK|0o777
+                        return SimpleNamespace(**fields)
+                    return value
+                def opened(item,*args,**kw):
+                    if item==path and mode=='read':raise OSError(CANARY)
+                    return opening(item,*args,**kw)
+                def descriptor(fd):
+                    value=fstat(fd)
+                    if mode=='descriptor':
+                        fields={k:getattr(value,k)for k in dir(value)if k.startswith('st_')};fields['st_ino']+=1;return SimpleNamespace(**fields)
+                    return value
+                with patch.object(Path,'lstat',metadata),patch.object(Path,'open',opened),patch.object(os,'fstat',descriptor),self.assertRaises(n['Stop'])as error:n['verify_install_reference']('AFTER_ALL_POSTCHECKS')
+                self.assertEqual(error.exception.code,'INSTALL_REFERENCE_CHANGED_OR_UNVERIFIED');self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_06_actual_closed_read_race_rejects_and_closes_handles(self):
+        n,path=self.prepared();opening=Path.open;active=[0];changed=[False]
+        class Reader:
+            def __init__(self,stream):self.stream=stream
+            def __enter__(self):active[0]+=1;return self
+            def fileno(self):return self.stream.fileno()
+            def read(self,*args):
+                raw=self.stream.read(*args)
+                if not changed[0]:
+                    stamp=path.stat();different=raw.replace(b'"schema"',b'"schEma"',1);assert different!=raw and len(different)==len(raw)
+                    with opening(path,'wb')as writer:writer.write(different)
+                    os.utime(path,ns=(stamp.st_atime_ns,stamp.st_mtime_ns));changed[0]=True
+                return raw
+            def __exit__(self,*args):self.stream.close();active[0]-=1
+        def opened(item,*args,**kw):
+            stream=opening(item,*args,**kw);return Reader(stream)if item==path and args and args[0]=='rb'else stream
+        with patch.object(Path,'open',opened),self.assertRaises(n['Stop']):n['verify_install_reference']('AFTER_ALL_POSTCHECKS')
+        self.assertTrue(changed[0]);self.assertEqual(active[0],0);self.assertFalse(n['report']['install']['coordinator_reference']['reference_qualified'])
+    def test_07_retain_again_cannot_rebaseline_changed_bytes(self):
+        n,path=self.prepared();origin=n['INSTALL']['child_reference_origin'];raw=path.read_bytes();path.write_bytes(raw.replace(b'"schema"',b'"schEma"',1));n['retain_install_reference']();self.assertEqual(n['INSTALL']['child_reference_origin'],origin);self.assertFalse(n['report']['install']['coordinator_reference']['reference_qualified'])
+    def test_08_AST_delta_child_packet_and_safety_functions_exact(self):
+        functions=lambda raw:{n.name:ast.dump(n,include_attributes=False)for n in ast.parse(raw).body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+        old=functions((B/'TASK'/STEPS.name).read_bytes());new=functions(STEPS.read_bytes());self.assertEqual({n for n in old if old[n]!=new[n]},{'retain_install_reference','main'});self.assertEqual(set(new)-set(old),{'read_closed_install_reference','verify_install_reference'})
+        delivery=json.loads((T/'install_failed_precleanup_activation_v5_frozen_author_delivery_20261120.json').read_bytes())
+        for name,h in delivery['physical_external5_sha256'].items():
+            if name not in (STEPS.name,'check_local_f0_install_controls_operation_source_phase_v5.py'):self.assertEqual(sha((T/name).read_bytes()),h)
+        for name,h in delivery['root_new_files_sha256'].items():
+            if name.startswith(('scripts/','review-output/')):self.assertEqual(sha((F/name).read_bytes()),h,name)
+if __name__=='__main__':unittest.main(verbosity=2)

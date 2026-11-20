@@ -1,0 +1,201 @@
+{
+  "recorded_at": "2026-11-18T05:31:00.161105+00:00",
+  "local_date": "2026-11-18",
+  "timezone": "America/New_York",
+  "session_started_local_date": "2026-11-17",
+  "scope": "PRESERVE_FULL_FUNCTION_IDENTITIES_IN_READ_ONLY_ACL_PROJECTION",
+  "status": "SOURCE_INDEPENDENTLY_APPROVED_OFFLINE_PASS_FRESH_RUNTIME_PENDING",
+  "previous_attempt": "context/reconciliation/local-f0-catalog-eb2aae6-2e4f5d40-execution.json",
+  "previous_attempt_sha256": "76923eea9f3a68cb6157a0ed23432662492d79c068a7b58be507309edbe3e452",
+  "source_prefix_analysis": "context/reconciliation/local-f0-run-assets/eb2aae6-native-catalog-2e4f5d40/source-prefix-analysis.json",
+  "source_prefix_analysis_sha256": "b3931b71fe3d0560d6864ce20aa64cc88086563c4399a34e4b442ed108c4fc4d",
+  "actual_retained_evidence": "V3 collector exit0/no stderr, complete62148-node bounded diagnostic;125unknown ACL.object sites/45uniquehashes,0omitted/notruncation. All45hashes uniquely match first63UTF8bytes of every long ASCII source function identity; source80nonowner/45owner multiplicities match. No rawunknown strings or accepted snapshot. Exactcleanup/source73 preserved.",
+  "source_cause": "CONFIRMED_SOURCE_AND_RETAINED_HASH_ANALYSIS: first UNION arm nspname is NAME, both name/text casts implicit, common-type algorithm keeps NAME and text_name clips63bytes. Explicit first-arm TEXT preserves full identities.",
+  "primary_sources": [
+    "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/include/catalog/pg_cast.dat",
+    "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/parser/parse_coerce.c",
+    "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/adt/varlena.c"
+  ],
+  "correction": "Exactly n.nspname AS object -> n.nspname::text AS object in first ACL UNION arm. No filter/allowlist/privilege/businessSQL change; already-approved full signatures remain accepted and truncated prefixes reject.",
+  "new_runtime_control": "Fixed4statementREADONLY/ROLLBACK probes oldNAMEtype+exact63sourceprefix and correctedTEXTtype+exactfullsourceknownsignature, plus native63identifierlimit. Fixedtyped10fields, mandatory beforemainnative; malformed/false/nonzero stops subsequentsteps. RuntimeNOT_RUN until fresh reviewed packet.",
+  "independent_reviews": {
+    "review_track_ports": "Independently verified complete actual sourceprefix mapping/multiplicities/cleanup and PG17primarysource; APPROVED9313/f1ca/fe7a5offlinePASS",
+    "catalog_v4_review": "Independently verified same actual proof and all5source tests; V4corec8cc/stepsddc9/tests4a83 SOURCEAPPROVED after33independentmocksPASS,14.161s; codehashesbefore/after identical;6assets reproduced/416expressions/expected bytes preserved."
+  },
+  "focused_counts": {
+    "text_projection": 5,
+    "existing_ACL_projection": 5,
+    "asset_generator": 14,
+    "V4_operator": 33,
+    "total": 57
+  },
+  "focused_source_checks": {
+    "text_projection": {
+      "command": [
+        "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/sql-review/test_catalog_collector_text.py"
+      ],
+      "recorded_at": "2026-11-18T05:25:12.277617+00:00",
+      "exit_code": 0,
+      "seconds": 0.39,
+      "stdout": "",
+      "stderr": "test_actual_acl_multiplicities_equal_source_grants_and_owner_rows (__main__.CollectorTextTests.test_actual_acl_multiplicities_equal_source_grants_and_owner_rows) ... ok\ntest_all_actual_unknown_hashes_match_exactly_the_source_long_signatures (__main__.CollectorTextTests.test_all_actual_unknown_hashes_match_exactly_the_source_long_signatures) ... ok\ntest_first_union_object_is_explicit_unbounded_text (__main__.CollectorTextTests.test_first_union_object_is_explicit_unbounded_text) ... ok\ntest_native_probe_is_read_only_and_uses_a_real_source_signature (__main__.CollectorTextTests.test_native_probe_is_read_only_and_uses_a_real_source_signature) ... ok\ntest_restoring_name_or_another_first_type_is_detected (__main__.CollectorTextTests.test_restoring_name_or_another_first_type_is_detected) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.101s\n\nOK\n",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "24743cab830969932b58606bf92b252cdacf0911b268e4b560a80d2912fb0a70"
+    },
+    "ACL_projection": {
+      "command": [
+        "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/sql-review/test_catalog_collector_acl.py"
+      ],
+      "recorded_at": "2026-11-18T05:25:12.683055+00:00",
+      "exit_code": 0,
+      "seconds": 0.407,
+      "stdout": "",
+      "stderr": "test_empty_acl_skips_strict_expansion_and_nonempty_is_preserved (__main__.CollectorAclTests.test_empty_acl_skips_strict_expansion_and_nonempty_is_preserved) ... ok\ntest_missing_schema_acl_remains_null_and_existing_acl_is_preserved (__main__.CollectorAclTests.test_missing_schema_acl_remains_null_and_existing_acl_is_preserved) ... ok\ntest_read_only_statement_boundary_is_preserved (__main__.CollectorAclTests.test_read_only_statement_boundary_is_preserved) ... ok\ntest_restoring_each_original_projection_or_wrong_catalog_code_is_detected (__main__.CollectorAclTests.test_restoring_each_original_projection_or_wrong_catalog_code_is_detected) ... ok\ntest_sequence_function_code_and_catalog_code_remain_distinct (__main__.CollectorAclTests.test_sequence_function_code_and_catalog_code_remain_distinct) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.167s\n\nOK\n",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "6ee493b4ab306cffd76631c3fa5e2e88c5d92117cb4ccc867a0d1682a9207461"
+    },
+    "asset_generator": {
+      "command": [
+        "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/check-native-catalog-review.py"
+      ],
+      "recorded_at": "2026-11-18T05:25:17.367922+00:00",
+      "exit_code": 0,
+      "seconds": 4.687,
+      "stdout": "",
+      "stderr": "test_cli_explicit_prepare_writes_only_six_source_assets_and_safe_summary (__main__.CatalogPreparationTests.test_cli_explicit_prepare_writes_only_six_source_assets_and_safe_summary) ... ok\ntest_closed_complete_six_module_eight_input_two_collector_pin_sets (__main__.CatalogPreparationTests.test_closed_complete_six_module_eight_input_two_collector_pin_sets) ... ok\ntest_drifted_throwing_transitive_code_is_never_executed_or_printed (__main__.CatalogPreparationTests.test_drifted_throwing_transitive_code_is_never_executed_or_printed) ... ok\ntest_exact_verified_bytes_and_diagnostic_namespace_survive_disk_replacement (__main__.CatalogPreparationTests.test_exact_verified_bytes_and_diagnostic_namespace_survive_disk_replacement) ... ok\ntest_generated_sql_and_all_do_bodies_parse_but_never_execute (__main__.CatalogPreparationTests.test_generated_sql_and_all_do_bodies_parse_but_never_execute) ... ok\ntest_import_help_and_missing_flag_execute_no_helpers_or_parser (__main__.CatalogPreparationTests.test_import_help_and_missing_flag_execute_no_helpers_or_parser) ... ok\ntest_missing_extra_bad_or_drifted_pins_stop_before_any_helper_execution (__main__.CatalogPreparationTests.test_missing_extra_bad_or_drifted_pins_stop_before_any_helper_execution) ... ok\ntest_output_writes_once_preserves_identical_and_refuses_any_different_bytes (__main__.CatalogPreparationTests.test_output_writes_once_preserves_identical_and_refuses_any_different_bytes) ... ok\ntest_preparation_is_byte_reproducible_and_all_runtime_statuses_unrun (__main__.CatalogPreparationTests.test_preparation_is_byte_reproducible_and_all_runtime_statuses_unrun) ... ok\ntest_public_recipe_is_exact_predeclared_three_plus_two_five_rows (__main__.CatalogPreparationTests.test_public_recipe_is_exact_predeclared_three_plus_two_five_rows) ... ok\ntest_public_recipe_never_learns_an_extra_source_or_observed_acl (__main__.CatalogPreparationTests.test_public_recipe_never_learns_an_extra_source_or_observed_acl) ... ok\ntest_read_errors_and_unexpected_cli_exceptions_never_export_messages (__main__.CatalogPreparationTests.test_read_errors_and_unexpected_cli_exceptions_never_export_messages) ... ok\ntest_unexpected_preloaded_helper_cache_is_not_reused (__main__.CatalogPreparationTests.test_unexpected_preloaded_helper_cache_is_not_reused) ... ok\ntest_unknown_imports_and_helper_output_or_exceptions_are_sanitized (__main__.CatalogPreparationTests.test_unknown_imports_and_helper_output_or_exceptions_are_sanitized) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 4.148s\n\nOK\n",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "e7ea6f35a0ae37e41f1050a6ef3ae55f34b1c4738f583a519395e40e822b0d01"
+    }
+  },
+  "operator_check": {
+    "command": [
+      "python",
+      "-B",
+      "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\check_native_catalog_v4_operation.py"
+    ],
+    "root_process_session": 34105,
+    "exit_code": 0,
+    "test_count": 33,
+    "seconds": 14.434,
+    "raw_stdout_stderr_retained": false,
+    "independent_reviewer_session": 47427,
+    "independent_exit_code": 0,
+    "independent_test_count": 33,
+    "independent_seconds": 14.161,
+    "reporting_limit": "Typed actual process/source-hash outcomes retained; no second run merely to reconstruct a log."
+  },
+  "broader_checks_not_repeated": "79unchanged core catalog/ledger tests and750/501business predicates/75mutations retain version-qualified prior outcomes. Collector projection/focused regressions and regeneratedasset admission changed; sourceexpected9ad/semantic3be/canonical5ae/416expressions and purecomparisonmodules remain byte-identical. Fresh actual full comparison still required.",
+  "parser": {
+    "scripts/sql-review/collect_native_catalog.sql": {
+      "SQL_statements": 4,
+      "DO_bodies": 0,
+      "SQL_executed_by_parser": false
+    },
+    "scripts/sql-review/catalog-text-preflight.sql": {
+      "SQL_statements": 4,
+      "DO_bodies": 0,
+      "SQL_executed_by_parser": false
+    },
+    "scripts/sql-review/catalog-acl-preflight.sql": {
+      "SQL_statements": 5,
+      "DO_bodies": 1,
+      "SQL_executed_by_parser": false
+    },
+    "review-output/native-catalog/expression-oracle.sql": {
+      "SQL_statements": 475,
+      "DO_bodies": 1,
+      "SQL_executed_by_parser": false
+    }
+  },
+  "generated_consistency": {
+    "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+    "expected_json_sha256": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+    "new_plan_sha256": "8ea40522a796fa83788ec595594eaaf6308dec52f0545bf0d6560e8032a5e81e",
+    "all416expression_records_unchanged": true,
+    "oracle_SQL_only_plan_binding_hash_substitution": true,
+    "source_generator_unchanged": true
+  },
+  "files_sha256": {
+    "review-output/native-catalog/README.md": "89e82bb70f53d6e959109c1e249bb4dda0101d22470d68211715baf5b1c74388",
+    "review-output/native-catalog/expected.json": "9ad2129c9b7b7b5fd99f2088ae94215326f6ccbf40550945694c44538d8d0976",
+    "review-output/native-catalog/expression-oracle-plan.json": "cce4b19c1931472841de2fec2662fa4b002278b275341815782078689a1af36f",
+    "review-output/native-catalog/expression-oracle.sql": "74d585741e1e097ac0614621b86c7ec97673697eb7dde344023e1dbe0ca613d2",
+    "review-output/native-catalog/public-schema-registration.json": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+    "review-output/native-catalog/source-pins.json": "a0e9c36eecf61b1d4ce717744c29f4b72424ecd8d9db5ce0519b6bdaf9f58d00",
+    "scripts/sql-review/catalog-text-preflight.sql": "f1cab9adf94fe5aa2452f34213eea43cf4ecfe35c9ce5f5289486b7d4f859823",
+    "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+    "scripts/sql-review/test_catalog_collector_text.py": "fe7a29132b7d69b69213f61ccfda3e14a7339735c202f3cae1334c92dc6e24a7"
+  },
+  "operation_source_snapshots_sha256": {
+    "context/reconciliation/local-f0-operation-sources/native-catalog-text-v4/operator-snapshot.py.txt": "c8cc84c8b35811609200487a90aeb49ef1370232368e14b3fe66184aec96cad2",
+    "context/reconciliation/local-f0-operation-sources/native-catalog-text-v4/operation-steps.py.txt": "ddc9e55d0a5e1c696cdc6dbd146b923f92257a57c57a0c2aadb718b5ed20c777",
+    "context/reconciliation/local-f0-operation-sources/native-catalog-text-v4/check-operation.py.txt": "4a835700826b31a0ed20019fc05685bd03bf6284bef0498f596b63b3bd0a9643",
+    "context/reconciliation/local-f0-operation-sources/native-catalog-text-v4/build-v4.py.txt": "45b1e8afe0c60db25c548a2d88b47864113ba062b27f9c6fb6470726a93f6aa9",
+    "context/reconciliation/local-f0-operation-sources/native-catalog-text-v4/prepare-plan.py.txt": "a15632ea6aa47dbfe990f46fed78ea77002e90e9c78e1aea1dbb452605e82361",
+    "context/reconciliation/local-f0-operation-sources/native-catalog-text-v4/finalize-plan.py.txt": "d10557d13fbc9f090ca02a87683df583142aa16d4a61592a370af3223aac5917",
+    "context/reconciliation/local-f0-operation-sources/native-catalog-text-v4/pin-plan.py.txt": "28779634d765e3b2f9433dc15d2caf8ab980e3f8e0b7ba741437dfa241292763",
+    "context/reconciliation/local-f0-operation-sources/native-catalog-text-v4/regenerate-assets.py.txt": "b04c04cc0c27c096baa2e637563927153af7b8f75426198f0ee7197bf48cb4cd"
+  },
+  "preserved_sha256": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "prisma/schema.prisma": "4a75be42a8b26001c20aaf46a1bb0e5dd7d0984090c9712274c308668908eebf",
+    "prisma/migrations/20260602021702_phase_2_database_truth_layer/migration.sql": "5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055",
+    "package.json": "6a3a1c7ef64f84eab2e4ec74843eb1c45d907e19ab7f04b222ad8d0eb42a6d85",
+    "package-lock.json": "6b4e322549d6a6c14cd8542a21c1a6621a2625f88dbab5606174fd655dcdda1f",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f"
+  },
+  "limits": {
+    "posture": "D",
+    "native_text_control": "NOT_RUN",
+    "accepted_native_catalog": "NOT_RUN",
+    "expression_oracle": "NOT_RUN",
+    "native_private_ledger": "NOT_RUN",
+    "whole94_or451_promoted": false,
+    "hosted_contact_or_adoption": false,
+    "P0_D_authorized": false
+  },
+  "next_action": "Pin fresh8fa680ed V4source/tree/fullpacket, independently review literalmanifest, executefullnative catalog/oracle/ledger with TEXTcompatibility preflight, then continue attainable restricted controls.",
+  "applicable_context_checks": {
+    "context": {
+      "recorded_at": "2026-11-18T05:32:35.115026+00:00",
+      "command": [
+        "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/check-context.py"
+      ],
+      "exit_code": 0,
+      "seconds": 19.328,
+      "stdout": "{\n  \"clusters\": 10,\n  \"modules\": 34,\n  \"cluster_documents\": 20,\n  \"module_documents\": 68,\n  \"handoffs\": 10,\n  \"shared_operations\": 132,\n  \"shared_statuses\": {\n    \"Confirmed\": 109,\n    \"Proposed ruling\": 23\n  },\n  \"prisma_models\": 177,\n  \"prisma_enums\": 207,\n  \"sql_migrations\": 1,\n  \"created_tables\": 53,\n  \"created_enums\": 31\n}\nWARNINGS: 124 mapped Prisma models lack CREATE TABLE in checked-in migration SQL; this is static coverage, not a migration replay\nStructural checks PASSED; semantic readiness is a separate gate.\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "e98f4c4a68c9eee15944f98a6b59ec5eb7530f5e972a514720eeef072235e912"
+    },
+    "phase0": {
+      "recorded_at": "2026-11-18T05:32:35.571167+00:00",
+      "command": [
+        "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/check-phase0.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.453,
+      "stdout": "{\n  \"errors\": [],\n  \"nine_roles\": 9,\n  \"archived_files\": 21,\n  \"source_models\": 177,\n  \"database_posture\": \"D\",\n  \"status\": \"FRAMEWORK_ACCEPTANCE_PASS_DEPENDENCY_SECURITY_REQUALIFIED\",\n  \"scope\": \"Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.\"\n}\n",
+      "stderr": "",
+      "scope": "OFFLINE_NO_DOCKER_OR_DATABASE",
+      "report_sha256": "ee35fabd6f3fe88b718a9b8c62b159d9a973e13207cd15d996d5d0a763cb1194"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+"""Unchanged actual INSTALL preparer and actual pinner filesystem prefix; all process/network calls forbidden."""
+from pathlib import Path
+import datetime,hashlib,json,runpy,socket,subprocess,time
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+raw=(T/'install_source_phase_v5_fix1_source_approved_committable_inventory_20261120.json').read_bytes();assert sha(raw)=='f314ad5aec49050b229b4baace3c3a877c5adfdcbd1f07e48a128cecb35211af';inventory=json.loads(raw)
+for n,h in inventory['files_sha256'].items():assert sha((R/n).read_bytes())==h
+delivery=json.loads((T/'install_v5_parent_final_reference_fix1_frozen_author_delivery_20261120.json').read_bytes());five=delivery['physical_external5_sha256']
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+baseline=T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';assert sha(baseline.read_bytes())=='92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5';basis=json.loads(baseline.read_bytes());calls=[];git_calls=[]
+def forbidden(*a,**kw):calls.append('FORBIDDEN_PROCESS_NETWORK');raise AssertionError('ALL_PROCESS_NETWORK_FORBIDDEN')
+class ReadOnlyGitBoundary(Exception):pass
+def git_boundary(*a):git_calls.append(a);assert a==('rev-parse','HEAD');raise ReadOnlyGitBoundary
+started=time.monotonic()
+with patch.multiple(subprocess,run=forbidden,Popen=forbidden,check_output=forbidden,check_call=forbidden,call=forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden):
+ prep=runpy.run_path(str(T/'prepare_local_f0_install_controls_plan_source_phase_v5.py'),run_name='_Root_actual_reviewed_INSTALL_phase_V5_preparer');directory,value,files=prep['prepare'](R,T,basis);assert not directory.exists()and not Path(value['evidence_directory']).exists();directory.mkdir(exist_ok=False)
+ for name,b in files.items():
+  p=directory/name;p.parent.mkdir(parents=True,exist_ok=True)
+  with p.open('xb')as f:f.write(b)
+ path=directory/'operation-manifest.json'
+ with path.open('xb')as f:f.write(prep['encoded'](value))
+ before=path.read_bytes();pin=runpy.run_path(str(T/'pin_local_f0_install_controls_plan_20261120_source_phase_v5.py'),run_name='_Root_actual_reviewed_INSTALL_phase_V5_filesystem_prefix')
+ with patch.dict(pin['pin'].__globals__,git=git_boundary):
+  try:pin['pin'](path)
+  except ReadOnlyGitBoundary:pass
+  else:raise AssertionError('EXPECTED_READ_ONLY_GIT_BOUNDARY_NOT_REACHED')
+assert not calls and git_calls==[('rev-parse','HEAD')]and path.read_bytes()==before and value['review_status']=='PENDING_OPERATIONAL_REVIEW'and not Path(value['evidence_directory']).exists()
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+for n,h in inventory['files_sha256'].items():assert sha((R/n).read_bytes())==h
+receipt={'schema':'workinants.install-phase-v5-fix1-actual-approved-prepare-filesystem-prefix.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_ACTUAL_UNCHANGED_PREPARER_AND_PINNER_FILESYSTEM_PREFIX','run_id':value['run_id'],'manifest':str(path),'manifest_sha256':sha(before),'source_files':len(value['packet_files_sha256']),'generated_external_files':len(files),'source_review_current_five_and_exact_archive_checks':'PASS_ACTUAL_PINNER_PREFIX','read_only_git_boundary':'STOPPED_BEFORE_FIRST_REV_PARSE; no fake commit or blob responses; no pin writes','committed_packet_and_whole_operational_verifier':'NOT_RUN_PENDING_PUBLICATION_AND_LITERAL_REVIEW','all_actual_process_network_boundaries_forbidden':True,'seconds':round(time.monotonic()-started,3),'review_status':'PENDING_OPERATIONAL_REVIEW','runtime':'NOT_RUN','Posture':'D'}
+out=T/'install_phase_v5_fix1_actual_approved_prepare_filesystem_prefix_20261120.json'
+with out.open('x',encoding='utf-8')as f:json.dump(receipt,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({**receipt,'receipt_sha256':sha(out.read_bytes())}))

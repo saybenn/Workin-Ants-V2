@@ -1,0 +1,54 @@
+{
+  "schema": "workinants.install-v5-author-final-source-scope.v1",
+  "recorded_at_utc": "2026-11-20T12:34:00.738453+00:00",
+  "all433_original_Root_files_and_before_snapshots_unchanged": true,
+  "all_original_external5_and_snapshots_unchanged": true,
+  "all11_SQL_artifacts_identical_to_V4": {
+    "canonical/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "division_failure/20261117000100_f0_local_initial/migration.sql": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+    "late_function_grant/20261117000100_f0_local_initial/migration.sql": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+    "bootstrap.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "authority-observe.sql": "b5791265492feb42a4e68b5538d41f33c1b3a77518e8b62f48ce3852b7f4b3e5",
+    "inactive-observe.sql": "3c81794dce2ef746695500f7539313f27fefd0590f12275deb8f471aef8bb92f",
+    "fresh-observe.sql": "674f92c95bbb627ba74abbc91dea0067ffd7cb25a01f1537487a21f354c09138",
+    "inventory.sql": "4364890304d7c112b69c1e25d20a6ccbbf99bf7b32c44183403bb216a5c7f453",
+    "ledger-observe.sql": "42ac58118727dbdc03c54e5ad6fb3cbedb3187f2ff2063eac4258336f0dfbb3c",
+    "rearm.sql": "40a2f1a0b2472a16af7b6b5544e330486b296c2265dba726c6264fd190f6b94b"
+  },
+  "canonical_original_failure_hashes": {
+    "canonical": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "division_failure": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+    "late_function_grant": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f"
+  },
+  "original_ActivationGate_protocol_byte_identical": true,
+  "worker32_ACL_source_bytes_unchanged": true,
+  "all13_artifacts_byte_reproduce_from32_source_inputs": true,
+  "coordinator_modified_functions": [
+    "load_inputs",
+    "Evidence.__init__",
+    "Evidence.save",
+    "Coordinator.__init__",
+    "Coordinator.finalize",
+    "Coordinator.failure",
+    "Coordinator.run",
+    "main"
+  ],
+  "coordinator_added_functions": [
+    "Evidence.remember_failure",
+    "Coordinator.phase_identity",
+    "Coordinator.phase_append",
+    "Coordinator.phase_closed",
+    "Coordinator.phase_observe",
+    "Coordinator.require_failed_precleanup_phase",
+    "Coordinator.failed_precleanup_phase"
+  ],
+  "new_focused10": "CLOSED0_10PASS60.067s",
+  "affected_legacy14": "CLOSED0_14PASS13.489s",
+  "admission_scope4": "CLOSED0_4PASS10.935s",
+  "unique_methods": 28,
+  "focused01_repeat_not_additive": true,
+  "original_failed_mock_run_not_PASS": true,
+  "no_runtime_Git_or_live_Root_status_writes": true,
+  "Posture": "D"
+}

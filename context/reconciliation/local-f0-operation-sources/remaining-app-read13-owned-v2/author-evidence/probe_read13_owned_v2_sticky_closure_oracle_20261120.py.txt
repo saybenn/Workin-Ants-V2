@@ -1,0 +1,29 @@
+"""Tiny actual closed_backends proof; no process or network execution."""
+from pathlib import Path
+from unittest.mock import patch
+import hashlib,json,runpy,socket,subprocess,time
+T=Path(__file__).resolve().parent;F=T/'read13-owned-v2-private-candidate-20261120'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+def main():
+ started=time.monotonic();out=T/'read13_owned_v2_actual_sticky_closure_oracle_probe_20261120.json';assert not out.exists()
+ m=runpy.run_path(str(F/'check_local_f0_remaining_app_read13_owned_v2_operation.py'));n=m['namespace']();name=m['NAME'];calls=[];guards=[]
+ for key in('run','Popen','call','check_call','check_output'):
+  guard=patch.object(subprocess,key,side_effect=AssertionError('PROCESS_FORBIDDEN'));guard.start();guards.append(guard)
+ for obj,key in((socket,'create_connection'),(socket.socket,'connect')):
+  guard=patch.object(obj,key,side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();guards.append(guard)
+ def failed_save():raise OSError(m['CANARY'])
+ def command(args,text,timeout):
+  assert args==n['psql_args'](name,'postgres')and text==n['_required_safety_text']('GLOBAL_BACKENDS')and timeout==120;calls.append(True)
+  return type('Reply',(),{'returncode':0,'stdout':'{"migrator":0,"other_client_backends":0}','stderr':''})()
+ try:
+  n['save']=failed_save;n['command']=command;n['remember_failure']('COORDINATOR_CALL','READ13_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED')
+  try:n['closed_backends'](name,'READ13_COMPONENT_FINALLY_GLOBAL_CLOSURE')
+  except n['Stop']as error:code=error.code
+  else:raise AssertionError('IO_BARRIER_MUST_STOP')
+  expected={'stage':'READ13_COMPONENT_FINALLY_GLOBAL_CLOSURE','scope':'ALL_DATABASES_ALL_ROLES_ALL_TAGS','observation_completed':True,'counts_valid':True,'migrator_zero':True,'other_clients_zero':True,'all_other_client_backends_absent':True}
+  assert calls==[True]and n['report']['backend_closures']==[expected]and code=='REQUIRED_SAFETY_EVIDENCE_UNCONFIRMED'and n['report']['evidence_complete']is False and n['report']['persistence_failure']is True
+  assert n['report']['primary_failure']=={'stage':'COORDINATOR_CALL','code':'READ13_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED'}and m['CANARY']not in json.dumps(n['report'])
+ finally:
+  for guard in reversed(guards):guard.stop()
+ value={'schema':'workinants.read13-actual-sticky-closure-oracle-probe.v1','status':'PASS','command_boundary_mocked_calls':1,'actual_closure_function':'closed_backends→_required_zero_backends→_required_safety_sql→sticky_barrier','typed_global_zero_RAM_receipt':expected,'fixed_stop_code':code,'confirmation_or_PASS_authorized':False,'first_STOP_preserved':True,'secret_canary_excluded':True,'seconds':round(time.monotonic()-started,3),'actual_process_DB_network':'NOT_RUN'};out.write_text(json.dumps(value,indent=2)+'\n');print(json.dumps({'record':out.name,'sha256':H(out.read_bytes()),'status':'PASS','seconds':value['seconds']}))
+if __name__=='__main__':main()

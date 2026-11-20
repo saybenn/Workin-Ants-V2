@@ -1,0 +1,5 @@
+SELECT jsonb_build_object('read13_marker','ConsentDisposition/root'::text,'position','BEFORE'::text);
+SELECT jsonb_build_object('model','ConsentPresentation','ids',coalesce(jsonb_agg(observed.id::text ORDER BY observed.id::text COLLATE "C"),'[]'::jsonb)) FROM (SELECT id,user_id,content_revision_id,rendered_text,rendered_hash,render_version,context_owner,context_kind,context_id,action_owner,action,created_at,mutation_transaction_id FROM app.consent_presentation WHERE id IN ('a34cbb12-fce5-5c24-9495-680edb4d956f'::uuid)) observed;
+SELECT jsonb_build_object('model','ConsentDisposition','ids',coalesce(jsonb_agg(observed.id::text ORDER BY observed.id::text COLLATE "C"),'[]'::jsonb)) FROM (SELECT id,proof_id,user_id,presentation_id,kind,semantic_key,fingerprint,created_at,mutation_transaction_id FROM app.consent_disposition WHERE id IN ('39c1897f-137b-5f63-9806-799d488d2647'::uuid,'6212d5c0-8c07-50d3-ba59-65a8427b1520'::uuid)) observed;
+SET CONSTRAINTS ALL IMMEDIATE;
+SELECT jsonb_build_object('read13_marker','ConsentDisposition/root'::text,'position','AFTER'::text);

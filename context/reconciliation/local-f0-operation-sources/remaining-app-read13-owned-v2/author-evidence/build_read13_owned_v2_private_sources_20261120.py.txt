@@ -1,0 +1,75 @@
+"""Static/pure source preparation under Root ACK9fb; live Root is read-only."""
+from pathlib import Path
+import ast,copy,hashlib,importlib.util,json,re,shutil,sys,uuid
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';F=T/'read13-owned-v2-private-candidate-20261120';C=F/'workinants-correction-pass'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+enc=lambda value:(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+preserve=T/'read13-owned-v2-before-author-20261120';pres=json.loads((preserve/'preservation.json').read_bytes())
+assert H((preserve/'preservation.json').read_bytes())=='0eb61b0e61059e213745e11bcfb12e4c905a3058cc71f5f086b6be528bd07165'
+for name,wanted in pres['old405_Root_files'].items():assert H((R/name).read_bytes())==wanted
+oldpacket=json.loads((C/'review-output/remaining-app-read13-rehearsal/fixtures.json').read_bytes());oldrun=oldpacket['fixture_run_id'];newrun=json.loads((F/'author-fresh-run-identity.json').read_bytes())['run_id'];assert newrun!=oldrun
+six=('scripts/prepare-remaining-app-read13-rehearsal.py','scripts/remaining_app_read13_protocol.py','scripts/check-remaining-app-read13-rehearsal.py','scripts/check-remaining-app-read13-coordinator.py','scripts/sql-review/run-remaining-app-read13-rehearsal.py','scripts/sql-review/REMAINING-APP-READ13-REHEARSAL.md')
+for name in six:assert (C/name).read_bytes()==(R/name).read_bytes()
+sys.path.insert(0,str(C/'scripts'))
+spec=importlib.util.spec_from_file_location('_private_read13_v2_generator',C/six[0]);generator=importlib.util.module_from_spec(spec);spec.loader.exec_module(generator)
+files,packet=generator.build(C,newrun);assert len(files)==103 and len(packet['source_files_sha256'])==62 and packet['source_files_sha256']==oldpacket['source_files_sha256']
+mapping={newrun:oldrun}
+for side,rows in packet['fixture_plan']['fixture_namespace']['preview_ids'].items():
+ for label,identity in rows.items():mapping[identity]=oldpacket['fixture_plan']['fixture_namespace']['preview_ids'][side][label]
+assert len(mapping)==49 and len(set(mapping.values()))==49
+pattern=re.compile('|'.join(re.escape(k)for k in mapping))
+normalize=lambda text:pattern.sub(lambda match:mapping[match[0]],text)
+for name,text in files.items():
+ if name!='fixtures.json':assert normalize(text)==(C/'review-output/remaining-app-read13-rehearsal'/name).read_text(),name
+normalized=json.loads(normalize(json.dumps(packet,ensure_ascii=False)));old_business=copy.deepcopy(oldpacket)
+for value in(normalized,old_business):
+ value.pop('prepared_files_sha256');value.pop('source_only_packet_sha256')
+assert normalized==old_business
+for name,text in files.items():
+ path=C/'review-output/remaining-app-read13-rehearsal'/name;assert path.resolve().is_relative_to(C.resolve());path.write_bytes(text.encode())
+fixture_sha=H(files['fixtures.json'].encode());content_sha=packet['source_only_packet_sha256']
+oldfive=tuple(pres['old_five']);newfive=tuple(name.replace('owned_v1','owned_v2')for name in oldfive)
+replacements={**dict(zip(oldfive,newfive)),'remaining-app-read13-owned-v1':'remaining-app-read13-owned-v2','REMAINING_APP_READ13_OWNED_V1':'REMAINING_APP_READ13_OWNED_V2',H((R/'review-output/remaining-app-read13-rehearsal/fixtures.json').read_bytes()):fixture_sha,oldpacket['source_only_packet_sha256']:content_sha}
+for before,after in zip(oldfive,newfive):
+ raw=(T/before).read_text()
+ for key,value in replacements.items():raw=raw.replace(key,value)
+ assert not(T/after).exists()and not(F/after).exists();(T/after).write_bytes(raw.encode());(F/after).write_bytes(raw.encode())
+coordinator=(C/'scripts/sql-review/run-remaining-app-read13-rehearsal.py').read_bytes();tree=ast.parse(coordinator)
+entry_names={'load_inputs','checked_source','compiled','source_path','unique_json'}
+codes=set()
+for function in tree.body:
+ if not isinstance(function,ast.FunctionDef)or function.name not in entry_names:continue
+ for node in ast.walk(function):
+  if isinstance(node,ast.Call)and isinstance(node.func,ast.Name):
+   position=1 if node.func.id=='need' else 0 if node.func.id=='HeldFailure'else None
+   if position is not None and len(node.args)>position and isinstance(node.args[position],ast.Constant)and type(node.args[position].value)is str:codes.add(node.args[position].value)
+assert 'SOURCE_REVIEW_RECORD_ADMISSION'in codes and len(codes)<=64
+helper="""
+READ13_ENTRY_FAILURE_CODES=frozenset(ENTRY_CODES)
+def read13_coordinator_call_observation(module,error=None,returned=False):
+    # Only exact source-loaded class identity and finite declared codes survive.
+    held=module.get('HeldFailure')if type(module)is dict else None
+    source_held=error is not None and type(held)is type and type(error)is held
+    code=getattr(error,'code',None)if source_held else None
+    matched=type(code)is str and code in READ13_ENTRY_FAILURE_CODES
+    return {'stage':'COORDINATOR_CALL','call_attempted':True,'child_return_received':returned is True,'exception_observed':error is not None,'failure_class':'SOURCE_HELD'if source_held else'OTHER'if error is not None else None,'reported_entry_code':code if matched else None}
+
+""".replace('ENTRY_CODES',repr(tuple(sorted(codes))),1)
+step=T/newfive[1];text=step.read_text();text=text.replace('def read13_experiment():',helper+'def read13_experiment():',1)
+text=text.replace("    failure=None;returned=None;value=None\n", "    failure=None;returned=None;value=None\n    details['coordinator_call']=read13_coordinator_call_observation(module)\n",1)
+text=text.replace("        try:returned=module['coordinate'](plan,OUT/'read13-component')\n        except BaseException:\n            failure=Stop('READ13_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');remember_failure(failure.stage,failure.code)", "        try:\n            returned=module['coordinate'](plan,OUT/'read13-component')\n            details['coordinator_call']=read13_coordinator_call_observation(module,returned=True)\n        except BaseException as error:\n            failure=Stop('READ13_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');remember_failure(failure.stage,failure.code)\n            details['coordinator_call']=read13_coordinator_call_observation(module,error)\n            persist_best_effort('READ13_COORDINATOR_CALL_FAILURE_RECORD')",1)
+step.write_bytes(text.encode());(F/newfive[1]).write_bytes(text.encode())
+archive_rel='context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v2';archive=C/archive_rel;assert not archive.exists();archive.mkdir()
+for name in newfive:(archive/(name+'.txt')).write_bytes((T/name).read_bytes())
+shutil.copytree(preserve,archive/'preserved-before-v2')
+oldoffline=C/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1/offline-only-mock-data'
+shutil.copytree(oldoffline,archive/'offline-only-mock-data')
+child_archive='context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1'
+review_old=C/'context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1/reviews/same-Restricted-source-closure.json';review_new=C/child_archive/'reviews/same-Restricted-source-closure.json';review_new.parent.mkdir(exist_ok=True);assert not review_new.exists();review_new.write_bytes(review_old.read_bytes());assert H(review_new.read_bytes())=='9d8b0231dbd5658c39dedc4ef0d3a0269cbd81ee6b4a3a2670bf9672176ffdb6'
+child_path=C/'context/reconciliation/local-f0-remaining-app-read13-source-validation.json';child=json.loads(child_path.read_bytes());child['historical_prior_source_review']=child['independent_source_review'];child['historical_Root_source_review']=child.pop('Root_source_review');child.update(fixture_sha256=fixture_sha,content_sha256=content_sha,status='SOURCE_ONLY_PENDING_FRESH_PACKET_REVIEW',independent_source_review={'decision':'PENDING'},Root_source_review={'decision':'PENDING'},author_report_sha256=None,offline_checks=[])
+child['archive_files_sha256']={p.relative_to(C).as_posix():H(p.read_bytes())for p in(C/child_archive).rglob('*')if p.is_file()};child_path.write_bytes(enc(child))
+five_hashes={name:H((F/name).read_bytes())for name in newfive};archive_map={p.relative_to(C).as_posix():H(p.read_bytes())for p in archive.rglob('*')if p.is_file()}
+owned={'schema':'workinants.remaining-app-read13-owned-v2-source-validation.v1','status':'SOURCE_ONLY_PENDING_CODE_DATA_REVIEW','posture':'D','runtime_status':'NOT_RUN','operator_sources_sha256':five_hashes,'archive_files_sha256':archive_map,'independent_owned_resource_review':{'decision':'PENDING'},'independent_safety_sql_review':{'decision':'PENDING'},'author_state':'DRAFT_NOT_SELF_APPROVED','execution_authority':False,'Root_ACK_sha256':H((T/'read13_namespace_fresh_packet_owned_v2_Root_bounded_implementation_ACK_20261120.json').read_bytes()),'previous_owned_metadata_sha256':H((R/'context/reconciliation/local-f0-remaining-app-read13-owned-v1-source-validation.json').read_bytes()),'offline_checks':[]}
+(C/'context/reconciliation/local-f0-remaining-app-read13-owned-v2-source-validation.json').write_bytes(enc(owned))
+record={'schema':'workinants.read13-owned-v2-private-static-derivation.v1','private_ROOT':str(C),'private_TASK':str(F),'old_run_uuid':oldrun,'fresh_run_uuid':newrun,'new_to_old_exact49_ID_map':mapping,'new_fixtures_sha256':fixture_sha,'new_content_sha256':content_sha,'source62_pins_exact':True,'six_child_source_files_byte_exact':{name:H((C/name).read_bytes())for name in six},'normalized101_SQL_and102_prepared_business_bytes_exact':True,'normalized_fixture_semantics_exact_except_declared_fingerprints':True,'new_five':five_hashes,'parent_entry_code_allowlist':sorted(codes),'child_historical_review_copy_sha256':H(review_new.read_bytes()),'all_new_review_states':'PENDING','live_Root_writes':False,'SQL_Docker_database_network_Git_resources_invoked':False}
+path=T/'read13_owned_v2_private_static_derivation_20261120.json';assert not path.exists();path.write_bytes(enc(record));print(json.dumps({'path':str(path),'sha256':H(path.read_bytes()),'fresh_uuid':newrun,'fixtures_sha256':fixture_sha,'content_sha256':content_sha,'new_five':five_hashes,'review_gates':'PENDING'}))

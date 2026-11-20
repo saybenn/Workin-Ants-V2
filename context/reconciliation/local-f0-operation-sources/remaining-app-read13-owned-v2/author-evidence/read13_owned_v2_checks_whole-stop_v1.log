@@ -1,0 +1,26 @@
+test_actual_wrong_prefix_before_child_evidence_and_persistent_parent_IO (<run_path>.V2WholeEntryTests.test_actual_wrong_prefix_before_child_evidence_and_persistent_parent_IO) ... ERROR
+
+======================================================================
+ERROR: test_actual_wrong_prefix_before_child_evidence_and_persistent_parent_IO (<run_path>.V2WholeEntryTests.test_actual_wrong_prefix_before_child_evidence_and_persistent_parent_IO)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 867, in test_actual_wrong_prefix_before_child_evidence_and_persistent_parent_IO
+    code,model,faults=self.composed('wrong-namespace',io_failure);report=model.n['report'];self.assertEqual(code,1);self.assertEqual(report['primary_failure']['code'],'READ13_COMPONENT_UNEXPECTED_STOP_EVIDENCE_RETAINED');call=report['read13']['coordinator_call'];self.assertEqual(call['failure_class'],'SOURCE_HELD');self.assertEqual(call['reported_entry_code'],'SOURCE_REVIEW_RECORD_ADMISSION');self.assertFalse(call['child_return_received']);self.assertTrue(report['read13']['component_closure_confirmed']);self.assertFalse((Path(model.manifest['evidence_directory'])/'read13-component').exists());self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{});self.assertTrue(report['cleanup_actions_confirmed']);self.assertNotIn('post_proof',report['read13'])
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 854, in composed
+    path,fixture=self.fresh(mode=='wrong-namespace');core=runpy.run_path(str(fixture.task/'execute_local_f0_remaining_app_read13_owned_v2_20261120.py'));model=V2Read13ProcessModel(fixture,path,mode);model.n=core['launch'].__globals__;replace=Path.replace;faults=[];output=io.StringIO()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 845, in fresh
+    task,root,packet,five,path=self.clone_world()
+                               ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\read13-owned-v2-private-candidate-20261120\check_local_f0_remaining_app_read13_owned_v2_operation.py", line 557, in clone_world
+    prep,packet,five,inventory=self.real_inventory();task=self.directory/'cold-task';root=task/'workinants-correction-pass';root.mkdir(parents=True)
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+FileExistsError: [WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\read13-owned-v2-private-candidate-20261120\\offline-owner-operator-d2zq7zrk\\cold-task\\workinants-correction-pass'
+
+----------------------------------------------------------------------
+Ran 1 test in 251.487s
+
+FAILED (errors=1)

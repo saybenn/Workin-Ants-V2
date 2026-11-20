@@ -1,0 +1,22 @@
+"""Versioned private-candidate offline checks; never run a real process/DB."""
+from pathlib import Path
+import argparse,hashlib,io,json,runpy,sys,time,unittest
+T=Path(__file__).resolve().parent;F=T/'read13-owned-v2-private-candidate-20261120';C=F/'workinants-correction-pass';sys.path[:0]=[str(T/'offline-python'),str(C/'scripts')]
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+def main():
+ p=argparse.ArgumentParser();p.add_argument('mode',choices=('static','cold','whole-normal','whole-stop','whole-late','inherited','qualifiers'));p.add_argument('tag');args=p.parse_args()
+ names=('execute_local_f0_remaining_app_read13_owned_v2_20261120.py','local_f0_remaining_app_read13_owned_v2_operation_steps.py','prepare_local_f0_remaining_app_read13_owned_v2_plan.py','check_local_f0_remaining_app_read13_owned_v2_operation.py','pin_local_f0_remaining_app_read13_owned_v2_plan_20261120.py')
+ def hashes():return {name:H((F/name).read_bytes())for name in names}
+ entry=hashes();started=time.monotonic();m=runpy.run_path(str(F/names[3]));suite=unittest.TestSuite()
+ if args.mode=='static':
+  for name in('V2EntryObservationTests','V2FreshPacketTests'):suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(m[name]))
+ elif args.mode=='cold':suite.addTest(m['Read13ColdEntryTests']('test_real_prepare_pinner_and_cold_Core_common_catalog_recipe_order'))
+ elif args.mode=='qualifiers':suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(m['Read13RealQualifierTests']))
+ elif args.mode=='inherited':
+  for name in('OwnerOperationTests','Read13SourceEntryTests','Read13ReferenceIntegrityTests'):suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(m[name]))
+ else:
+  method={'whole-normal':'test_actual_Core_child_coordinate_CTX82_parent_and_cleanup','whole-stop':'test_actual_wrong_prefix_before_child_evidence_and_persistent_parent_IO','whole-late':'test_actual_late_closed_reference_change_blocks_PASS'}[args.mode];suite.addTest(m['V2WholeEntryTests'](method))
+ stream=io.StringIO();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite);prefix=T/('read13_owned_v2_checks_'+args.mode+'_'+args.tag);log=prefix.with_suffix('.log');record=prefix.with_suffix('.json');assert not log.exists()and not record.exists();log.write_bytes(stream.getvalue().encode());exit=hashes()
+ value={'schema':'workinants.read13-owned-v2-author-offline-checks.v1','mode':args.mode,'methods':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'skipped':len(result.skipped),'seconds':round(time.monotonic()-started,3),'status':'PASS'if result.wasSuccessful()else'FAIL','entry_five_sha256':entry,'exit_five_sha256':exit,'code_preserved':entry==exit,'log_sha256':H(log.read_bytes()),'actual_runtime':'NOT_RUN','all_process_network_boundaries_mocked_or_forbidden':True,'private_candidate_only':True}
+ raw=(json.dumps(value,indent=2)+'\n').encode();record.write_bytes(raw);print(json.dumps({'path':str(record),'sha256':H(raw),'mode':args.mode,'status':value['status'],'methods':value['methods'],'failures':value['failures'],'errors':value['errors'],'seconds':value['seconds']}),flush=True);return 0 if result.wasSuccessful()and entry==exit else 1
+if __name__=='__main__':raise SystemExit(main())

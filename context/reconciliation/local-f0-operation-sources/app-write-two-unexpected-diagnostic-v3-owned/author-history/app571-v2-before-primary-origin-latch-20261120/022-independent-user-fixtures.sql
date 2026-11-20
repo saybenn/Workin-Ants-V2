@@ -1,0 +1,11 @@
+BEGIN;
+ALTER TABLE app.users DISABLE TRIGGER owner_commit;
+ALTER TABLE app.user_security_profiles DISABLE TRIGGER owner_commit;
+INSERT INTO app.users (id,is_public,revision,privacy_generation,created_at,updated_at,mutation_transaction_id) VALUES ('8136b2ae-cea6-5c8d-a04e-9bd70784c943',false,0,0,clock_timestamp(),clock_timestamp(),pg_current_xact_id()::text);
+INSERT INTO app.user_security_profiles (id,user_id,revision,security_generation,created_at,updated_at,mutation_transaction_id) VALUES ('da6ccedd-93e4-5ac4-ac5a-0d27f686250f','8136b2ae-cea6-5c8d-a04e-9bd70784c943',0,0,clock_timestamp(),clock_timestamp(),pg_current_xact_id()::text);
+INSERT INTO app.users (id,is_public,revision,privacy_generation,created_at,updated_at,mutation_transaction_id) VALUES ('0c0ba942-ce1f-5fd4-aa1f-466be695de97',false,0,0,clock_timestamp(),clock_timestamp(),pg_current_xact_id()::text);
+INSERT INTO app.user_security_profiles (id,user_id,revision,security_generation,created_at,updated_at,mutation_transaction_id) VALUES ('3a5b9ce7-046a-5883-b6bc-f1bbe4d27e27','0c0ba942-ce1f-5fd4-aa1f-466be695de97',0,0,clock_timestamp(),clock_timestamp(),pg_current_xact_id()::text);
+SET CONSTRAINTS ALL IMMEDIATE;
+ALTER TABLE app.user_security_profiles ENABLE TRIGGER owner_commit;
+ALTER TABLE app.users ENABLE TRIGGER owner_commit;
+COMMIT;

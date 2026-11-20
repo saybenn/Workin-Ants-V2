@@ -1,0 +1,34 @@
+"""Preserve the frozen input and create a private source/data author workspace."""
+from pathlib import Path
+import hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+ack=T/'read13_namespace_fresh_packet_owned_v2_Root_bounded_implementation_ACK_20261120.json'
+assert H(ack.read_bytes())=='9fb243e3ced20279e03e631792bbecdadfc33f63419de69e92dd069d1430bfbf'
+plan=json.loads((R/'context/reconciliation/local-f0-run-assets/fcab2e9-read13-0b7c519e/evidence/read13-run-plan.json').read_bytes())
+old_five=('execute_local_f0_remaining_app_read13_owned_v1_20261120.py','local_f0_remaining_app_read13_owned_v1_operation_steps.py','prepare_local_f0_remaining_app_read13_owned_v1_plan.py','check_local_f0_remaining_app_read13_owned_v1_operation.py','pin_local_f0_remaining_app_read13_owned_v1_plan_20261120.py')
+code=json.loads((T/'read13_two_evidence_fix_same_reviewer_independent_source_review_20261120.json').read_bytes())['exact_eleven_source_sha256']
+root_names={p for p in code if '/'in p}
+for folder in ('review-output/remaining-app-read13-rehearsal','context/reconciliation/local-f0-operation-sources/remaining-app-read13-source-v1','context/reconciliation/local-f0-operation-sources/remaining-app-read13-owned-v1'):
+ root_names.update(p.relative_to(R).as_posix()for p in(R/folder).rglob('*')if p.is_file())
+root_names.update(('context/reconciliation/local-f0-remaining-app-read13-source-validation.json','context/reconciliation/local-f0-remaining-app-read13-owned-v1-source-validation.json'))
+assert len(root_names)==405
+assets=json.loads((T/'fcab_read13_0b7c519e_stopped_attempt_preserved_inventory_20261120.json').read_bytes())['assets_sha256'];assert len(assets)==29
+preserve=T/'read13-owned-v2-before-author-20261120';future=T/'read13-owned-v2-private-candidate-20261120';candidate=future/'workinants-correction-pass'
+for folder in (preserve,future):assert not folder.exists()and folder.resolve().is_relative_to(T.resolve());folder.mkdir()
+saved={}
+def copy(source,dest,relative):
+ assert dest.resolve().is_relative_to(T.resolve());raw=source.read_bytes();dest.parent.mkdir(parents=True,exist_ok=True);assert not dest.exists();dest.write_bytes(raw);assert dest.read_bytes()==raw;saved[relative]={'sha256':H(raw),'snapshot':dest.relative_to(preserve).as_posix()}
+for name in sorted(set(plan['packet_files_sha256'])|root_names|set(assets)):
+ raw=(R/name).read_bytes()
+ if name in plan['packet_files_sha256']:assert H(raw)==plan['packet_files_sha256'][name]
+ if name in assets:assert H(raw)==assets[name]
+ snapshot=preserve/'ROOT'/(name+('.txt'if name.endswith('.py')else''));copy(R/name,snapshot,'ROOT/'+name)
+ destination=candidate/name;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(raw)
+for name in old_five:
+ assert H((T/name).read_bytes())==code[name];copy(T/name,preserve/'TASK'/(name+'.txt'),'TASK/'+name)
+for name in ('read13_namespace_fresh_packet_owned_v2_Root_bounded_implementation_ACK_20261120.json','read13_0b7c_independent_namespace_diagnosis_and_fresh_packet_source_plan_20261120.json','read13_0b7c_independent_admission_probe_20261120.json','read13_two_evidence_fix_same_reviewer_independent_source_review_20261120.json'):
+ copy(T/name,preserve/'TASK'/name,'TASK/'+name)
+record={'schema':'workinants.read13-owned-v2-pre-author-preservation.v1','Root_ACK_sha256':H(ack.read_bytes()),'old405_Root_files':{name:H((R/name).read_bytes())for name in sorted(root_names)},'old_five':{name:code[name]for name in old_five},'old103_physical_packet_files':103,'closed667_source_inputs':len(plan['packet_files_sha256']),'actual29_assets':len(assets),'files':saved,'private_future_TASK':str(future),'private_future_ROOT':str(candidate),'live_Root_writes':False,'process_network_database_Git_invoked':False}
+raw=(json.dumps(record,indent=2)+'\n').encode();(preserve/'preservation.json').write_bytes(raw)
+print(json.dumps({'preservation':str(preserve/'preservation.json'),'sha256':H(raw),'saved_files':len(saved),'old405':405,'actual29':29,'future_root':str(candidate)}))

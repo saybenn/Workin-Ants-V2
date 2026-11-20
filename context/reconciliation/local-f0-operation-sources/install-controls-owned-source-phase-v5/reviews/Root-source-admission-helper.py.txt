@@ -1,0 +1,35 @@
+"""Root-only admission of frozen INSTALL code and six metadata gates; no runtime/recovery approval."""
+from pathlib import Path
+import ast,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+clean=json.loads((T/'a519_PrivilegeV7_9577e42a_independent_cleanup_20261120.json').read_bytes());assert clean['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'and clean['known_executor_session']==20084 and clean['known_executor_exit']in(0,1)
+assert sha((T/'local-f0-privilege-ceiling-9577e42a/run-evidence.json').read_bytes())==clean['run_evidence_sha256']
+dp=T/'install_v5_parent_final_reference_fix1_frozen_author_delivery_20261120.json';db=dp.read_bytes();assert sha(db)=='cde49587d2aa856c93efad9e8b8e6ebbd7812f7dcf8753ea5a5bc3330843964e';d=json.loads(db);P=Path(d['future_root']);assert P.resolve().is_relative_to(T.resolve())and not P.resolve().is_relative_to(R.resolve())
+pp=T/'install_v5_fix1_same_reviewer_independent_source_closure_20261120.json';pb=pp.read_bytes();assert sha(pb)=='5b82e9585e8e29ec8b48d0a470e222915424cfa78ec2898f5213b83f22d8de1b';peer=json.loads(pb)
+assert peer['decision']=='SOURCE_APPROVED'and peer['findings']==[]and peer['finding']=='INSTALLV5-PARENT-FINAL-REFERENCE-01'and peer['finding_status']=='CLOSED'and peer['delivery']['sha256']==sha(db)
+incoming=d['Root_new_files_sha256'];five=d['physical_external5_sha256'];assert len(incoming)==199 and len(five)==5 and peer['Root_new_files_sha256']==incoming and peer['operator_sources_sha256']==peer['all_five_sources_sha256']==peer['physical_external5_sha256']==five
+for n,h in incoming.items():assert(P/n).resolve().is_relative_to(P.resolve())and not(P/n).is_symlink()and sha((P/n).read_bytes())==h and not(R/n).exists(),n
+for n,h in five.items():assert sha((T/n).read_bytes())==h;ast.parse((T/n).read_bytes())
+vn='context/reconciliation/local-f0-install-controls-owned-source-phase-v5-source-validation.json';vb=(P/vn).read_bytes();assert sha(vb)==incoming[vn]=='95eefcacb8805d1bd345be33b77af2e67f0b6d098b8393721a22863aa2256b92';v=json.loads(vb)
+assert v['schema']=='workinants.install-owned-source-validation.v1'and v['all_five_sources_sha256']==five and v['child_source_files_sha256']==peer['child_source_files_sha256']and v['runtime']=='NOT_RUN'and v['qualification_promoted']is False
+independent=('independent_source_review','independent_ledger_source_review','independent_safety_sql_review','independent_review_publication_source_review','independent_failed_precleanup_activation_source_review')
+for key in(*independent,'Root_source_review'):assert v[key]=={'decision':'PENDING'}
+for n,h in v['child_source_files_sha256'].items():assert sha((P/n).read_bytes())==h
+pres=T/'Root-install-source-phase-v5-fix1-before-admission-20261120';assert not pres.exists();put(pres/'pending-validation.json',vb);put(pres/'reviewed-delivery.json',db)
+for n,h in five.items():put(pres/'physical-five'/n,(T/n).read_bytes())
+for n,h in incoming.items():put(R/n,(P/n).read_bytes())
+A=R/'context/reconciliation/local-f0-operation-sources/install-controls-owned-source-phase-v5';assert {p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()}==v['archive_files_sha256']and len(v['archive_files_sha256'])==174
+reviewpath=(A/'reviews/independent-Catalog-source-closure-fix1.json').relative_to(R).as_posix();rootpath=(A/'reviews/Root-source-closure-fix1.json').relative_to(R).as_posix()
+root={'schema':'workinants.install-source-phase-v5-fix1-Root-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','reviewer':'/root','independent_source_review_sha256':sha(pb),'operator_sources_sha256':five,'all_five_sources_sha256':five,'child_source_files_sha256':v['child_source_files_sha256'],'fixture_sha256':v['fixture_sha256'],'content_sha256':v['content_sha256'],'review':'New post-failed-deploy/pre-original-grantor-finalization phase preserves genuine failure closure/diagnostic and real ActivationGate refusal, four NULL verifiers/startup refusals, exact three memberships then original-grantor cleanup. Full saved-v2 evidence remains immutable and hash-bound to strict sealed-v1 projection; watcher checks fixed full-v2 bytes before READY and explicit seven-field eligible review. Original protocol6c and220/240 deadlines remain unchanged. Fixed parent anchors original path identity/hash/length with closed reader, before both later native observations and after cleanup/all postchecks. First origin/sticky IO/all eligible finalizers preserved.','checks':'Independent original source19 plus final8/old-main counterexample8 and author24 affected methods; old child11/artifacts13 unchanged. Actual operation not run.','historical':'4b35 finite actual evidence remains historical; missing failed/precleanup activation assertion stays PARTIAL until fresh actual evidence. Source approval does not create a recovery approval or a watch.','runtime':'NOT_RUN','qualification_promoted':False,'Posture':'D'}
+extras={'independent-Catalog-source-closure-fix1.json':pb,'Root-source-closure-fix1.json':enc(root),'validation-before-Root-closure-fix1.json':vb,'frozen-reviewed-delivery-fix1.json':db,'Root-source-admission-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in extras.items():put(A/'reviews'/n,b)
+for key in independent:v[key]={'decision':'SOURCE_APPROVED','reviewer':peer['reviewer'],'path':reviewpath,'sha256':sha(pb),'operator_sources_sha256':five}
+v['Root_source_review']={'decision':'SOURCE_APPROVED','reviewer':'/root','path':rootpath,'sha256':sha(enc(root)),'operator_sources_sha256':five};v['status']='SOURCE_APPROVED_RUNTIME_NOT_RUN_PIN_LITERAL_AND_ACTUAL_REVIEW_REQUIRED'
+archive={p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()};v['archive_files_sha256']=archive;(R/vn).write_bytes(enc(v));files={**incoming,**archive,vn:sha((R/vn).read_bytes())}
+for n,h in files.items():assert sha((R/n).read_bytes())==h,n
+for n,h in v['child_source_files_sha256'].items():assert sha((R/n).read_bytes())==h
+receipt={'schema':'workinants.install-source-phase-v5-fix1-source-approved-final-inventory.v1','files_sha256':dict(sorted(files.items())),'files':len(files),'archive_files':len(archive),'independent_source_review_sha256':sha(pb),'Root_source_closure_sha256':sha(enc(root)),'reviewed_five_child11_artifacts13_unchanged':True,'six_source_gates':'SOURCE_APPROVED','runtime':'NOT_RUN','qualification_promoted':False,'Posture':'D'}
+out=T/'install_source_phase_v5_fix1_source_approved_committable_inventory_20261120.json';put(out,enc(receipt));print(json.dumps({'inventory':out.name,'sha256':sha(out.read_bytes()),'files':len(files),'archive_files':len(archive),'runtime':'NOT_RUN'}))

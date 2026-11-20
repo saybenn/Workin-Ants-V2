@@ -1,0 +1,22 @@
+"""Actual unchanged AppV3 preparation and complete filesystem admission with all processes/network forbidden."""
+from pathlib import Path
+import datetime,hashlib,json,runpy,socket,subprocess,time
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+raw=(T/'app_unexpected_diagnostic_v3_source_approved_committable_inventory_20261120.json').read_bytes();assert sha(raw)=='5435b871453cc590ef9d87d70fe0c5d8bcbb639da7adcf57648cb12250b28d0e';inventory=json.loads(raw)
+for n,h in inventory['files_sha256'].items():assert sha((R/n).read_bytes())==h
+d=json.loads((T/'app_unexpected_diagnostic_v3_frozen_source_plan_20261120.json').read_bytes());five=d['operator_sources_sha256']
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+baseline=T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';bs='92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5';assert sha(baseline.read_bytes())==bs;calls=[]
+def forbidden(*a,**kw):calls.append('FORBIDDEN_PROCESS_NETWORK');raise AssertionError('ALL_PROCESS_NETWORK_FORBIDDEN')
+started=time.monotonic()
+with patch.multiple(subprocess,run=forbidden,Popen=forbidden,check_output=forbidden,check_call=forbidden,call=forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden):
+ prep=runpy.run_path(str(T/'prepare_local_f0_app_write_two_unexpected_diagnostic_v3_plan.py'),run_name='_Root_actual_reviewed_AppV3_prepare');result=prep['prepare'](baseline,bs);path=Path(result['operation_manifest'])
+ pin=runpy.run_path(str(T/'pin_local_f0_app_write_two_unexpected_diagnostic_v3_plan_20261120.py'),run_name='_Root_actual_reviewed_AppV3_filesystem_admission');_,raw,value,files=pin['validate'](path)
+assert not calls and value['source_commit']==value['source_tree']==value['packet_sha256']=='TO_BE_PINNED'and value['review_status']=='PENDING_OPERATIONAL_REVIEW'and not Path(value['evidence_directory']).exists()
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+for n,h in inventory['files_sha256'].items():assert sha((R/n).read_bytes())==h
+receipt={'schema':'workinants.app-unexpected-v3-actual-approved-prepare-filesystem-validation.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_ACTUAL_UNCHANGED_PREPARER_AND_FULL_FILESYSTEM_VALIDATOR','run_id':value['run_id'],'manifest':str(path),'manifest_sha256':sha(raw),'source_files':len(files),'all_reviewed_ten_and_original24_preserved':True,'all_process_network_boundaries_forbidden':True,'seconds':round(time.monotonic()-started,3),'review_status':value['review_status'],'source_commit':'TO_BE_PINNED','runtime':'NOT_RUN','Posture':'D'}
+out=T/'app_unexpected_v3_actual_approved_prepare_validate_20261120.json'
+with out.open('x',encoding='utf-8')as f:json.dump(receipt,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({**receipt,'receipt_sha256':sha(out.read_bytes())}))

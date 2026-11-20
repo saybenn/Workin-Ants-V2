@@ -1,0 +1,76 @@
+"""Short pure preparation/admission and unchanged safety-boundary checks."""
+from pathlib import Path
+from copy import deepcopy
+from contextlib import ExitStack,redirect_stdout
+from unittest.mock import patch,Mock
+import ast,hashlib,io,json,runpy,socket,subprocess,tempfile,unittest
+
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'install-failed-precleanup-activation-v5-author-20261120';F=D/'future-root'
+FILES=('execute_local_f0_install_controls_20261120_source_phase_v5.py','local_f0_install_controls_operation_steps_source_phase_v5.py','prepare_local_f0_install_controls_plan_source_phase_v5.py','check_local_f0_install_controls_operation_source_phase_v5.py','pin_local_f0_install_controls_plan_20261120_source_phase_v5.py')
+V='context/reconciliation/local-f0-install-controls-owned-source-phase-v5-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def same_function(left,right,name):
+    find=lambda s:ast.dump(next(n for n in ast.parse(s).body if isinstance(n,ast.FunctionDef)and n.name==name),include_attributes=False)
+    return find(left)==find(right)
+
+class AdmissionTests(unittest.TestCase):
+    def setUp(self):
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        for n in('run','Popen','check_call','check_output','call'):self.stack.enter_context(patch.object(subprocess,n,side_effect=AssertionError('PROCESS_FORBIDDEN')))
+        self.stack.enter_context(patch.object(socket,'socket',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        self.temp=tempfile.TemporaryDirectory(prefix='v5-admission-',dir=D);self.addCleanup(self.remove_temp);self.task=Path(self.temp.name)
+        for n in FILES:(self.task/n).write_bytes((T/n).read_bytes())
+        prep=runpy.run_path(str(T/FILES[2]));base=json.loads((T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json').read_bytes())
+        self.directory,self.master,self.files=prep['prepare'](F,self.task,base)
+    def remove_temp(self):
+        assert Path(self.temp.name).resolve().is_relative_to(D.resolve());self.temp.cleanup()
+    def core(self):
+        path=self.task/'operation-manifest.json';path.write_text(json.dumps(self.master))
+        n=runpy.run_path(str(T/FILES[0]));n['initialize'](path);g=n['initialize'].__globals__;g['ROOT']=F
+        exec(compile((T/FILES[1]).read_bytes(),str(T/FILES[1]),'exec'),g);return g,path
+    def test_01_real_pure_prepare_reproduces_four_histories_and_new12_modules(self):
+        cfg=self.master['install'];self.assertEqual(set(cfg['histories']),{'canonical','division_failure','late_function_grant','division_recovery'})
+        self.assertEqual(len(self.master['targets']),3);self.assertEqual(self.master['review_status'],'PENDING_OPERATIONAL_REVIEW')
+        self.assertFalse(Path(self.master['evidence_directory']).exists());self.assertEqual(set(self.master['operator_sources_sha256']),set(FILES))
+        fixtures=json.loads((F/cfg['fixtures']).read_bytes());self.assertIn('scripts/install_failed_precleanup_activation_v5.py',fixtures['source_files_sha256'])
+        self.assertEqual(fixtures['status'],'NOT_RUN');self.assertEqual(fixtures['variants']['canonical']['sha256'],'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad')
+        for key,item in cfg['histories'].items():self.assertEqual(len(item['source_files_sha256']),7)
+    def test_02_actual_pending_literal_source_and_pinner_gates_before_process(self):
+        g,path=self.core();g['docker']=Mock(side_effect=AssertionError('NO_DOCKER'))
+        with self.assertRaises(g['Stop']):g['main']()
+        g['docker'].assert_not_called();self.assertFalse(g['OUT'].exists())
+        validation=json.loads((F/V).read_bytes())
+        for key in ('independent_source_review','independent_ledger_source_review','independent_safety_sql_review','independent_review_publication_source_review','independent_failed_precleanup_activation_source_review'):validation[key]={'decision':'PENDING'}
+        pending=(json.dumps(validation,indent=2)+'\n').encode();original=Path.read_bytes
+        def reading(p):return pending if p==F/V else original(p)
+        g['MANIFEST']['review_status']='APPROVED_LOCAL_F0_INSTALL_OWNED_ATTEMPT';g['MANIFEST']['packet_files_sha256'][V]=sha(pending);g['command']=Mock(side_effect=AssertionError('NO_GIT'))
+        with patch.object(Path,'read_bytes',reading),self.assertRaises(g['Stop'])as result:g['verify_common_packet']()
+        self.assertEqual(result.exception.code,'INSTALL_ALL_SOURCE_REVIEWS_REQUIRED');g['command'].assert_not_called()
+        pin=runpy.run_path(str(T/FILES[4]));pg=pin['pin'].__globals__;pg.update(ROOT=F,TASK=self.task);pg['git']=Mock(side_effect=AssertionError('NO_GIT'))
+        path.write_text(json.dumps(self.master))
+        with patch.object(Path,'read_bytes',reading),self.assertRaises(ValueError):pin['pin'](path)
+        pg['git'].assert_not_called()
+    def test_03_actual_outer_validator_rejects_historical_omitted_phase(self):
+        g,_=self.core();base='context/reconciliation/local-f0-run-assets/5f189aa-install-4b35e08b';value=json.loads((F/base/'evidence/install-controls/install-controls-results.json').read_bytes());raw=json.loads((F/base/'evidence/run-evidence.json').read_bytes())
+        value.update(schema='workinants.install-controls-results.v2',evidence_complete=True,persistence_failure=False,first_failure=None)
+        plan={**{k:value[k]for k in('run_id','source_commit','source_tree','packet_sha256')},'targets':{v:{'container_id':raw['targets'][name]['container_id']}for v,name in zip(('canonical','division_failure','late_function_grant'),('wa-p0c-4b35e08b-install-good','wa-p0c-4b35e08b-install-division','wa-p0c-4b35e08b-install-order'))}}
+        g.update(RUN_ID=value['run_id'],COMMIT=value['source_commit'],TREE=value['source_tree'],PACKET=value['packet_sha256'])
+        g['INSTALL'].update(protocol=runpy.run_path(str(F/'scripts/install_control_protocol_v2.py')),phase=runpy.run_path(str(F/'scripts/install_failed_precleanup_activation_v5.py')),packet=json.loads((F/'review-output/install-control-rehearsal-v5/fixtures.json').read_bytes()),run_plan_file_sha256=value['reviewed_plan_sha256'])
+        # Copy-only test: historical raw bytes stay untouched and no missing
+        # phase values are invented. A v2 label cannot make old history pass.
+        with self.assertRaises(g['INSTALL']['phase']['Held'])as failure:g['qualified_install_result'](value,plan)
+        self.assertEqual(failure.exception.code,'INSTALL_PHASE_RECEIPT_SHAPE')
+    def test_04_unchanged_readers_transport_gate_core_safety_and_native_parity(self):
+        oldcore=(D/'before'/FILES[0].replace('source_phase_v5','owned_parity_v4')).read_bytes();newcore=(T/FILES[0]).read_bytes()
+        for name in('create_resources','preflight','ensure_image','finalize','cleanup','_required_safety_sql','_required_zero_backends','secure_private_directory'):
+            self.assertTrue(same_function(oldcore,newcore,name),name)
+        oldsteps=(D/'before'/FILES[1].replace('source_phase_v5','owned_parity_v4')).read_bytes();newsteps=(T/FILES[1]).read_bytes()
+        for name in('bounded_external','retain_install_reference','install_semantic_native_view','install_cross_target_semantic_parity','qualify_install_catalog','verify_external_input_preservation'):
+            self.assertTrue(same_function(oldsteps,newsteps,name),name)
+        old=(D/'before/ROOT/scripts/sql-review/run-install-control-rehearsal-v4.py').read_bytes();new=(F/'scripts/sql-review/run-install-control-rehearsal-v5.py').read_bytes()
+        for name in('read_bound','admit_outer_identity'):self.assertTrue(same_function(old,new,name),name)
+        get=lambda s,name:ast.dump(next(n for c in ast.parse(s).body if isinstance(c,ast.ClassDef)and c.name=='Coordinator'for n in c.body if isinstance(n,ast.FunctionDef)and n.name==name),include_attributes=False)
+        for name in('migrate','stage_history','recovery','successful_install','auth','rejected_auth','authority','inactive'):
+            self.assertEqual(get(old,name),get(new,name),name)
+
+if __name__=='__main__':unittest.main(verbosity=2)

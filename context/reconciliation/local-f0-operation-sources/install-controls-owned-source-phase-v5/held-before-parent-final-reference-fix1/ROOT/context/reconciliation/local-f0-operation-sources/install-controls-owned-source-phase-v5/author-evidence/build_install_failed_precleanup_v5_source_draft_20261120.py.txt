@@ -1,0 +1,153 @@
+"""Construct only NEW TASK/future-root source. No runtime or live Root writes."""
+from pathlib import Path
+import ast,json,hashlib
+
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+D=T/'install-failed-precleanup-activation-v5-author-20261120';F=D/'future-root'
+def write(path,text):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('x',encoding='utf8',newline='\n')as out:out.write(text)
+def replace_function(source,cls,name,new):
+    tree=ast.parse(source);parent=next(n for n in tree.body if isinstance(n,ast.ClassDef)and n.name==cls)if cls else tree
+    node=next(n for n in parent.body if isinstance(n,ast.FunctionDef)and n.name==name)
+    lines=source.splitlines(keepends=True);lines[node.lineno-1:node.end_lineno]=[new.rstrip()+'\n'];return ''.join(lines)
+
+s=(R/'scripts/sql-review/run-install-control-rehearsal-v4.py').read_text()
+s=s.replace('install-control-rehearsal-v4','install-control-rehearsal-v5').replace('run-install-control-rehearsal-v4.py','run-install-control-rehearsal-v5.py')
+s=s.replace("PROTOCOL='scripts/install_control_protocol_v2.py';GEN='scripts/prepare-install-control-rehearsal-v5.py'", "PROTOCOL='scripts/install_control_protocol_v2.py';GEN='scripts/prepare-install-control-rehearsal-v5.py'\nPHASE_HELPER='scripts/install_failed_precleanup_activation_v5.py'")
+s=s.replace('MODULES=(SELF,PROTOCOL,GEN,CTX,API,HOST,DIAG,HISTORY,COLLECTOR,TRANSPORT,WATCH)','MODULES=(SELF,PROTOCOL,GEN,CTX,API,HOST,DIAG,HISTORY,COLLECTOR,TRANSPORT,WATCH,PHASE_HELPER)')
+s=s.replace("protocol['_review_transport']=compiled(TRANSPORT,modules[TRANSPORT]);protocol['_review_io']=compiled(WATCH,modules[WATCH])", "protocol['_review_transport']=compiled(TRANSPORT,modules[TRANSPORT]);protocol['_review_io']=compiled(WATCH,modules[WATCH]);protocol['_failed_precleanup_phase']=compiled(PHASE_HELPER,modules[PHASE_HELPER])")
+s=s.replace("'schema':'workinants.install-controls-results.v1'", "'schema':'workinants.install-controls-results.v2','evidence_complete':True,'persistence_failure':False,'first_failure':None")
+s=s.replace("self.directory=directory;directory.mkdir(exist_ok=False);self.value=", "self.required_cleanup=False;self.safe_codes=frozenset(('INSTALL_EVIDENCE_WRITE_FAILED',));self.safe_stages=frozenset(('ENTRY',));self.directory=directory;directory.mkdir(exist_ok=False);self.value=")
+s=replace_function(s,'Evidence','save',r'''
+    def save(self):
+        try:
+            path=self.directory/'install-controls-results.json';tmp=path.with_suffix('.tmp');raw=(json.dumps(self.value,indent=2,allow_nan=False)+'\n').encode('utf8')
+            with tmp.open('wb')as handle:handle.write(raw);handle.flush();__import__('os').fsync(handle.fileno())
+            tmp.replace(path);return raw
+        except BaseException:
+            self.value['evidence_complete']=False;self.value['persistence_failure']=True
+            self.remember_failure(HeldFailure('INSTALL_EVIDENCE_WRITE_FAILED'))
+            if self.required_cleanup:return b''
+            raise HeldFailure('INSTALL_EVIDENCE_WRITE_FAILED')from None
+    def remember_failure(self,error):
+        code=getattr(error,'code',None);code=code if type(code)is str and code in self.safe_codes else 'INSTALL_PHASE_PROCESS_TIMEOUT'if type(error).__name__=='TimeoutExpired'else 'INSTALL_PHASE_UNEXPECTED_RESPONSE'
+        stage=self.value.get('current_stage');stage=stage if type(stage)is str and stage in self.safe_stages else 'INSTALL_CHILD_OPERATION'
+        if self.value.get('first_failure')is None:self.value['first_failure']={'stage':stage,'code':code,'raw_exception_discarded':True}
+        self.value.update(status='STOPPED_UNEXPECTED_RESULT',subsequent_cases_stopped=True)
+''')
+s=s.replace("self.rows={}\n", "self.rows={};self.phase=protocol['_failed_precleanup_phase'];self.e.safe_codes=self.phase['CODES'];self.e.safe_stages=frozenset(('ENTRY','GENUINE_DEPLOY',self.phase['PHASE'],*(self.phase['PHASE']+'__'+k.upper()for k in (*self.phase['CLOSURES'],*self.phase['KINDS']))))\n")
+begin=s.index('    def finalize(self,variant):');end=s.index('    def activation_attempt(',begin)
+s=s[:begin]+'''    def finalize(self,variant):
+        previous=getattr(self.e,'required_cleanup',False);self.e.required_cleanup=True
+        try:
+            self.closed(variant,'PRE_FINALIZATION');self.execute(variant,'postgres',self.text('finalize.sql'),'ORIGINAL_GRANTOR_FINALIZATION');self.authority(variant,0);self.finalized.add(variant)
+            proof={'original_grantor':'postgres','temporary_memberships':0,'leaf_create':False,'other_clients':0};self.gates[variant].cleaned(proof);self.record(variant,'original_cleanup',proof)
+        except BaseException as error:
+            self.e.remember_failure(error);raise
+        finally:self.e.required_cleanup=previous
+        need(self.e.value.get('persistence_failure')is not True,'INSTALL_EVIDENCE_WRITE_FAILED')
+''' + s[end:]
+phase_methods=r'''
+    def phase_identity(self,variant):
+        return self.phase['identity']({**{k:self.plan[k]for k in('run_id','source_commit','source_tree','packet_sha256')},'variant':variant,'container_id':self.target(variant)['container_id'],'source_sql_sha256':self.packet['variants'][variant]['sha256']})
+    def phase_append(self,variant,kind,facts):
+        target=self.e.value['targets'][variant];rows=target['failed_precleanup_activation'];row={'phase':self.phase['PHASE'],'sequence':len(rows),'identity':self.phase_identity(variant),'kind':kind,'facts':unique_json(canonical(facts))}
+        self.phase['validate_receipts']([*rows,row],self.phase_identity(variant));rows.append(row);self.e.save()
+    def phase_closed(self,variant,token):
+        rows=self.e.value['targets'][variant]['failed_precleanup_closures'];label=self.phase['PHASE']+'__'+token
+        self.closed(variant,label)
+        proof=self.e.value['targets'][variant]['closure_'+label]
+        row={'phase':self.phase['PHASE'],'sequence':len(rows),'stage':token,'proof':unique_json(canonical(proof))}
+        self.phase['validate_closures']([*rows,row]);rows.append(row);self.e.save()
+    def phase_observe(self,variant,name,token):
+        self.phase_closed(variant,'PRE_'+token);self.e.stage(self.phase['PHASE']+'__'+token)
+        try:r=self.psql(variant,'postgres',self.text(name))
+        except BaseException as error:self.e.remember_failure(error);raise
+        finally:self.phase_closed(variant,'POST_'+token)
+        need(type(r.returncode)is int and r.returncode==0 and type(r.stdout)is str and len(r.stdout)<=4096 and r.stderr=='','INSTALL_PHASE_OBSERVATION_UNCONFIRMED');return unique_json(r.stdout)
+    def require_failed_precleanup_phase(self,variant):
+        target=self.e.value['targets'].get(variant,{})
+        self.phase['validate_receipts'](target.get('failed_precleanup_activation'),self.phase_identity(variant),True)
+        self.phase['validate_closures'](target.get('failed_precleanup_closures'),True)
+    def failed_precleanup_phase(self,variant,value,before):
+        target=self.e.value['targets'][variant]
+        need('failed_precleanup_activation'not in target and 'failed_precleanup_closures'not in target,'INSTALL_PHASE_ALREADY_PRESENT')
+        target['failed_precleanup_activation']=[];target['failed_precleanup_closures']=[];self.e.stage(self.phase['PHASE'])
+        try:
+            self.phase_closed(variant,'FAILED_DEPLOY_RETURNED');self.phase_closed(variant,'PRE_DIAGNOSTIC')
+            try:after=self.server(variant)
+            except BaseException as error:self.e.remember_failure(error);raise
+            finally:self.phase_closed(variant,'POST_DIAGNOSTIC')
+            verified=self.phase['failed_prefix'](value,before,after,self.phase_identity(variant),self.p)
+            self.phase_append(variant,'CLOSED_FAILED_DEPLOY_VERIFIED',verified)
+            need(variant not in self.finalized,'INSTALL_PHASE_GATE_STATE');self.phase['gate_state'](self.gates[variant]);self.gates[variant].installed(False,True)
+            self.phase_append(variant,'GATE_PREREQUISITES',self.phase['gate_state'](self.gates[variant]))
+            refused=False
+            try:self.gates[variant].permit()
+            except self.p['Held']as error:
+                need(error.code=='INSTALL_RUNTIME_ACTIVATION_HELD','INSTALL_PHASE_EXPECTED_GATE_REFUSAL');refused=True
+            need(refused,'INSTALL_PHASE_EXPECTED_GATE_REFUSAL')
+            self.phase_append(variant,'GATE_REFUSED',{'outcome':'REFUSED','refusal_code':'INSTALL_RUNTIME_ACTIVATION_HELD','database_password_sql_executed':False})
+            inactive=self.phase_observe(variant,'inactive-observe.sql','NULL_VERIFIERS');self.phase['exact'](inactive,self.phase['INACTIVE'],'INSTALL_PHASE_RUNTIME_NOT_INACTIVE');self.phase_append(variant,'NULL_VERIFIERS',inactive)
+            for role in ROLES[2:]:
+                self.phase_closed(variant,'PRE_STARTUP_'+role);self.e.stage(self.phase['PHASE']+'__STARTUP_REJECTED_'+role.upper())
+                try:r=self.psql(variant,role,'SELECT 1;\n')
+                except BaseException as error:self.e.remember_failure(error);raise
+                finally:self.phase_closed(variant,'POST_STARTUP_'+role)
+                self.rejected_auth(r,role)
+                self.phase_append(variant,'STARTUP_REJECTED_'+role,{'role':role,'candidate_startup':'PASS_REJECTED_INACTIVE','exit_code':2,'operation_connection_closed':True})
+            authority=self.phase_observe(variant,'authority-observe.sql','AUTHORITY');self.phase['exact'](authority,self.phase['AUTHORITY'],'INSTALL_PHASE_AUTHORITY_NOT_PRESERVED');self.phase_append(variant,'TEMPORARY_AUTHORITY',authority)
+            need(variant not in self.finalized,'INSTALL_PHASE_GATE_STATE');state=self.phase['gate_state'](self.gates[variant])
+            self.phase_append(variant,'COMPLETE',{'observations_complete':True,'original_finalization_not_yet_run':True,'database_password_sql_executed':False,'gate_state':state});self.require_failed_precleanup_phase(variant)
+        except BaseException as error:self.e.remember_failure(error);raise
+'''
+pos=s.index('    def failure(self,variant):');s=s[:pos]+phase_methods+'\n'+s[pos:]
+s=replace_function(s,'Coordinator','failure',r'''
+    def failure(self,variant):
+        self.bootstrap(variant);self.activation_attempt(variant,False);self.stage_history(variant);before=self.server(variant);self.record(variant,'server_before',before)
+        try:
+            value=self.migrate(variant,variant);self.failed_precleanup_phase(variant,value,before)
+        except BaseException as error:self.e.remember_failure(error);raise
+        finally:self.finalize(variant)
+        self.require_failed_precleanup_phase(variant)
+        inventory=self.inventory(variant,True);ledger=self.ledger(variant);after=self.server(variant);self.record(variant,'server_after',after)
+        verdict=self.p['failure_verdict'](variant,value,inventory,ledger,before,after,self.packet['variants'][variant]['sha256']);self.record(variant,'failure_verdict',verdict);self.inactive(variant,'FAILED_INSTALL_REMAINS_INACTIVE');self.activation_attempt(variant,False);self.rows[variant]=ledger['rows'][0];return verdict
+''')
+s=replace_function(s,'Coordinator','run',r'''
+    def run(self):
+        try:
+            self.successful_install();verdict=self.failure('division_failure');self.require_failed_precleanup_phase('division_failure');self.recovery(verdict);self.failure('late_function_grant');self.require_failed_precleanup_phase('late_function_grant')
+            need(self.e.value.get('first_failure')is None and self.e.value.get('persistence_failure')is not True,'INSTALL_EVIDENCE_WRITE_FAILED');self.e.value['status']='PASS_FINITE_INSTALL_PROTOCOLS_PENDING_FULL_NATIVE_COMPARISON'
+        except BaseException as error:self.e.remember_failure(error)
+        finally:
+            previous=getattr(self.e,'required_cleanup',False);self.e.required_cleanup=True
+            for variant in sorted(self.bootstrap_attempted-self.finalized):
+                try:self.finalize(variant)
+                except BaseException as error:self.e.remember_failure(error)
+            for variant in sorted(self.bootstrap_attempted):
+                try:self.closed(variant,'FINAL_GLOBAL')
+                except BaseException as error:self.e.remember_failure(error)
+            try:self.e.save()
+            except BaseException as error:self.e.remember_failure(error)
+            self.e.required_cleanup=previous
+        first=self.e.value.get('first_failure')
+        if first is not None:raise HeldFailure(first['code'])
+        need(self.e.value.get('evidence_complete')is not False and self.e.value.get('persistence_failure')is not True,'INSTALL_EVIDENCE_WRITE_FAILED')
+''')
+old="code=getattr(error,'code','UNEXPECTED_RESPONSE_OR_INTERNAL');code=code if type(code) is str and re.fullmatch('[A-Z0-9_]{1,96}',code) else 'UNEXPECTED_RESPONSE_OR_INTERNAL';evidence.value.update(status='STOPPED_UNEXPECTED_RESULT',subsequent_cases_stopped=True,failure={'stage':evidence.value['current_stage'],'code':code,'raw_exception_discarded':True});evidence.save()"
+new="evidence.remember_failure(error);evidence.value['failure']=dict(evidence.value['first_failure']);evidence.required_cleanup=True\n            try:evidence.save()\n            except BaseException:pass\n            finally:evidence.required_cleanup=False"
+assert old in s;s=s.replace(old,new)
+ast.parse(s);write(F/'scripts/sql-review/run-install-control-rehearsal-v5.py',s)
+
+# Versioned generator/test/doc names, original protocol/SQL derivation untouched.
+for old,new in [('scripts/prepare-install-control-rehearsal-v4.py','scripts/prepare-install-control-rehearsal-v5.py'),('scripts/check-install-control-rehearsal-v4.py','scripts/check-install-control-rehearsal-v5.py'),('scripts/sql-review/install-controls-coordinator-v4.md','scripts/sql-review/install-controls-coordinator-v5.md'),('scripts/sql-review/test_run_install_control_rehearsal_v4.py','scripts/sql-review/test_run_install_control_rehearsal_v5.py')]:
+    text=(R/old).read_text().replace('install-control-rehearsal-v4','install-control-rehearsal-v5').replace('install-controls-coordinator-v4','install-controls-coordinator-v5').replace('run-install-control-rehearsal-v4.py','run-install-control-rehearsal-v5.py').replace('prepare-install-control-rehearsal-v4.py','prepare-install-control-rehearsal-v5.py').replace('check-install-control-rehearsal-v4.py','check-install-control-rehearsal-v5.py').replace('test_run_install_control_rehearsal_v4.py','test_run_install_control_rehearsal_v5.py')
+    if new.endswith('prepare-install-control-rehearsal-v5.py'):
+        text=text.replace("SELF='scripts/prepare-install-control-rehearsal-v5.py';", "PHASE_HELPER='scripts/install_failed_precleanup_activation_v5.py'\nSELF='scripts/prepare-install-control-rehearsal-v5.py';")
+        text=text.replace("{SELF,PROTOCOL,CHECK,COORDINATOR,*HELPERS", "{SELF,PROTOCOL,CHECK,COORDINATOR,PHASE_HELPER,*HELPERS")
+        text=text.replace("'runtime_requires_independent_source_and_literal_review':True", "'runtime_requires_independent_source_and_literal_review':True,'post_failed_precleanup_phase':'NOT_RUN_REQUIRES_UNIQUE10_RECEIPTS15_CLOSURES_BOTH_FAILED_VARIANTS'")
+        text=text.replace("files['README.md']=b'''", "files['README.md']=b'''V5 prepares one uniquely retained failed-deploy/pre-original-finalization activation refusal with fourNULL verifiers/fourcandidate rejections/threeoriginal memberships intact. Actual outcomes remainNOT_RUN.\n\n")
+    if new.endswith('.md'):text+='\n\nV5 adds POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION after genuine closed nonzero/source-matching CLI and fresh exact intended server diagnostic, before finally cleanup. It requires unchanged real gate refusal, four inactive verifier/startup controls and exact temporary authority. Ten ordered append-only receipts and fifteen phase-unique global closure proofs are mandatory. No runtime password SQL occurs in this phase. Historical V4/4b35 remains unchanged. All runtime steps are NOT_RUN pending separate source and operational review.\n'
+    write(F/new,text)
+print(json.dumps({'new_child_sources':5,'Root_edits':False}))

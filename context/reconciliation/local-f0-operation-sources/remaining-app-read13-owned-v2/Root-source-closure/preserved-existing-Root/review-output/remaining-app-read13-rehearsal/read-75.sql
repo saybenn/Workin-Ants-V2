@@ -1,0 +1,4 @@
+SELECT jsonb_build_object('read13_marker','TrackUsageEvent/positive/B'::text,'position','BEFORE'::text);
+SELECT jsonb_build_object('model','TrackUsageEvent','ids',coalesce(jsonb_agg(observed.id::text ORDER BY observed.id::text COLLATE "C"),'[]'::jsonb)) FROM (SELECT id,user_id,subscription_id,entitlement_grant_id,entitlement_id,track,type,customer_profile_id,candidate_profile_id,professional_profile_id,target_type,target_id,quantity,occurred_at,metadata,semantic_effect_key,source_revision,source_owner,source_id,accepted_at,period_start,period_end,effect_receipt_id,mutation_transaction_id FROM app.track_usage_events WHERE id IN ('a4245b5f-631d-59ed-8390-a457a4d16992'::uuid,'254f1eff-697a-5375-b67c-9234855bf8e5'::uuid)) observed;
+SET CONSTRAINTS ALL IMMEDIATE;
+SELECT jsonb_build_object('read13_marker','TrackUsageEvent/positive/B'::text,'position','AFTER'::text);

@@ -1,0 +1,33 @@
+"""Root closes reviewed AppV2 source metadata; no packet pin or execution."""
+from pathlib import Path
+import ast,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+dp=T/'app571_guard_observation_v2_frozen_author_delivery_20261120.json';db=dp.read_bytes();assert sha(db)=='966dfdee10960166a0cebccf06889709eb0b8308a6d51fa6f9d4f962a02da1ff';d=json.loads(db)
+pp=T/'app571_guard_observation_v2_independent_source_review_20261120.json';pb=pp.read_bytes();assert sha(pb)=='c0beaa07639d2801202137afb7c51e03c064319d3dda0f2ba621fa37c2ccc3a0';peer=json.loads(pb);assert peer['decision']=='SOURCE_APPROVED_APP571_GUARD_OBSERVATION_V2_BOUNDED_DELTA'and peer['findings']==[]and peer['source_files_sha256']==d['source_files_sha256']
+ip=Path(d['inventory']['path']);ib=ip.read_bytes();assert sha(ib)==d['inventory']['sha256']=='b80611d549b888cf0dd838d21e4c9d462506d4621c2442def4c7d96fc44e01cc'
+assert len(d['Root_files_sha256'])==127
+for n,h in d['Root_files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in d['source_files_sha256'].items():
+ p=(R/n)if n.startswith('scripts/')else(T/n);assert sha(p.read_bytes())==h;ast.parse(p.read_bytes())
+cn='context/reconciliation/local-f0-app-write-two-guard-observation-v2-source-validation.json';on='context/reconciliation/local-f0-app-write-two-guard-observation-v2-owned-source-validation.json';cp=R/cn;op=R/on;cb=cp.read_bytes();ob=op.read_bytes();assert sha(cb)=='6a413abab0117b285b0ea77eda8052e7675d9ee9dd1fab1cee24ca31e7819265'and sha(ob)=='9c936e881b884193ba170f68a99b37e1cf4095ef8500393298ce7e0ab6dd3b31';c=json.loads(cb);o=json.loads(ob)
+assert c['source_reviews']==o['source_reviews']==dict.fromkeys(('author','offline','independent','Root'),'PENDING')
+A=R/'context/reconciliation/local-f0-operation-sources/app-write-two-guard-observation-v2-owned';assert A.is_dir()
+oldmap=o['archive_files_sha256'];assert len(oldmap)==75 and {p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()}==oldmap
+for n,h in c['archive_files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in o['operator_sources_sha256'].items():assert sha((T/n).read_bytes())==h
+review={'schema':'workinants.app571-guard-observation-v2-Root-source-review.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root','decision':'SOURCE_APPROVED_BOUNDED_NEW_V2_DELTA','source_files_sha256':d['source_files_sha256'],'independent_source_review_sha256':sha(pb),'independent_reviewer_lineage':'Catalog authored historical Fix2, not current V2/plan; bounded new delta/composed boundary review explicitly disclosed.','Root_review':{'source_order':'First runtime_command_receipt INSERT invokes command_state_guard before WITH CHECK; onlyeffect-wrong-root expects exactP0001/action-root body01c6line7. No claim of recovered old571diagnostic. Other13oracles and22SQL byte-identical under peer/source audit.','operation':'Four fresh call slots; bounded typed raw responses remain in memory only. Fixed14-field safe projection after connection+global closure and before primary rethrow/retention/verdict; primary safe code latched before secondary save failure. No rawoutputs/rows/probes/secrets/handles persisted.','parent':'Unconditional parentglobalclosure first, then coherent closed reference+Fix2 finalfreshbarrier. Exact full/minimal stopped shapes only; stopped origin remainsfailure and preventsafterqualification/laterbehavior. Unchanged strict27success/current_caseNone,14results/221ops/32complete42states/69closures/44retention/sourcework/grant counts.','independent_evidence':'29focusedPASS:source14 .620s,child9 31.974s,owned6 166.281s, actual child/owning/native29089/oracle416/ledger22/read-only-after composition, first-primary IO and realPENDING/noOUT rejection.','author_results':'Source14PASS .719s,child31PASS149.281s; priorowned25=23PASS1FAIL1ERROR316.359s, exacttwo test-bindings corrected and2PASS99.031s. No invented full25 finalPASS.','invariants':'Canonical5ae/June/access32/A-D/securitySQL/grants/two claim ceilings unchanged. No runtime, packet pin, permission expansion, whole-case promotion or retry from this closure.'},'runtime':'NOT_RUN','publication_committed_packet_and_separate_literal_still_required':True,'Posture':'D'}
+copies={'child-validation-before-Root.json':cb,'owned-validation-before-Root.json':ob,'independent-Catalog-source-review.json':pb,'author-frozen-delivery.json':db,'author-frozen-report.json':Path(d['author_report']['path']).read_bytes(),'author-frozen-inventory.json':ib,'Root-source-review.json':enc(review),'Root-source-closure-helper.py.txt':Path(__file__).read_bytes()}
+for n,b in copies.items():put(A/'reviews'/n,b)
+gates={'author':'SOURCE_REVIEWED','offline':'PASS','independent':'SOURCE_APPROVED','Root':'SOURCE_APPROVED'}
+evidence={'independent':{'path':(A/'reviews/independent-Catalog-source-review.json').relative_to(R).as_posix(),'sha256':sha(pb)},'Root':{'path':(A/'reviews/Root-source-review.json').relative_to(R).as_posix(),'sha256':sha(enc(review))}}
+c.update(status='SOURCE_APPROVED_NEW_V2_PUBLICATION_PIN_LITERAL_REQUIRED',source_reviews=gates,source_review_evidence=evidence);cp.write_bytes(enc(c))
+o.update(status='SOURCE_APPROVED_NEW_V2_PUBLICATION_PIN_LITERAL_REQUIRED',source_reviews=gates,source_review_evidence=evidence,child_validation_sha256=sha(cp.read_bytes()));o['archive_files_sha256']={p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()};assert len(o['archive_files_sha256'])==83;op.write_bytes(enc(o))
+files={**d['Root_files_sha256'],**o['archive_files_sha256'],cn:sha(cp.read_bytes()),on:sha(op.read_bytes())}
+for n,h in d['Root_files_sha256'].items():
+ if n not in (cn,on):assert sha((R/n).read_bytes())==h
+assert len(files)==135
+v={'schema':'workinants.app571-v2-source-approved-final-inventory.v1','files_sha256':dict(sorted(files.items())),'files':len(files),'code_unchanged_after_peer_review':True,'source10_sha256':d['source_files_sha256'],'child_validation_sha256':sha(cp.read_bytes()),'owned_validation_sha256':sha(op.read_bytes()),'independent_review_sha256':sha(pb),'runtime':'NOT_RUN','Posture':'D'}
+out=T/'app571_guard_observation_v2_source_approved_committable_inventory_20261120.json';put(out,enc(v));print(json.dumps({'inventory_sha256':sha(out.read_bytes()),'files':len(files),'child_validation_sha256':v['child_validation_sha256'],'owned_validation_sha256':v['owned_validation_sha256']}))
