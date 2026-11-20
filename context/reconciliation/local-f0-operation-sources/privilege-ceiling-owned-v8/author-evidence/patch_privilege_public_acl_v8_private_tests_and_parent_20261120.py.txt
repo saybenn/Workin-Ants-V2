@@ -1,0 +1,56 @@
+"""Private V8 mock projection and closed typed comparison validator only."""
+from pathlib import Path
+import hashlib,json
+T=Path(__file__).resolve().parent;F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+def main():
+ step=F/'local_f0_privilege_ceiling_v8_operation_steps.py';s=step.read_text()
+ needle="            need(privilege_metadata_receipt_allowed(operation.get('metadata_query_receipt')),'PRIVILEGE_METADATA_RECEIPT_REQUIRED')"
+ replacement=needle+"\n        if case['diagnostic']['kind']=='SCHEMA_CREATE':\n            need(privilege_schema_create_comparison_allowed(operation.get('schema_create_metadata_comparison'),operation.get('source_native_privilege_projection')),'PRIVILEGE_SCHEMA_CREATE_COMPARISON_REQUIRED')\n        else:need('schema_create_metadata_comparison'not in operation,'PRIVILEGE_SCHEMA_CREATE_COMPARISON_UNEXPECTED')"
+ assert s.count(needle)==1;s=s.replace(needle,replacement)
+ helper='''def privilege_schema_create_comparison_allowed(value,projection):
+    keys={'schema_usage','schema_create'}
+    if type(value)is not dict or set(value)!=keys or type(projection)is not dict or set(projection)!=keys or any(type(x)is not bool for x in projection.values()):return False
+    if projection['schema_create']is not False:return False
+    for key in keys:
+        row=value[key]
+        if type(row)is not dict or set(row)!={'expected','observed','matches'}or any(type(x)is not bool for x in row.values()):return False
+        if row['expected']is not projection[key]or row['observed']is not row['expected']or row['matches']is not True:return False
+    return True
+
+
+'''
+ needle='def privilege_metadata_receipt_allowed(value):';assert s.count(needle)==1;s=s.replace(needle,helper+needle);step.write_bytes(s.encode())
+ test=C/'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v8.py';s=test.read_text();s=s.replace("P['expected_acl']","source_right")
+ needle="CID=LEGACY['CID'];RUN=LEGACY['RUN'];CANARY='PRIVATE_PRIVILEGE_PASSWORD_SQL_URI_HANDLE_CANARY'"
+ extra='''
+PUBLIC_REGISTRATION=json.loads((ROOT/M['PUBLIC_SCHEMA_REGISTRATION']).read_bytes())
+PUBLIC_OBSERVED_NATIVE='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v8/OFFLINE-fixture-inputs/v7-9577-native-before.json'
+PUBLIC_OBSERVED_NATIVE_SHA='ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb'
+
+
+def source_right(native,role,kind,object_,verb,column=None):
+    return P['expected_acl'](native,role,kind,object_,verb,column,public_registration=PUBLIC_REGISTRATION)
+'''
+ assert s.count(needle)==1;s=s.replace(needle,needle+extra)
+ needle="        self.rows={name:[]for name in NATIVE_PACKET['synthetic_facts']['baseline']}"
+ extra="        observed=(ROOT/PUBLIC_OBSERVED_NATIVE).read_bytes();assert M['sha'](observed)==PUBLIC_OBSERVED_NATIVE_SHA;observed=json.loads(observed)\n        self.native['public_schema_owner']=observed['public_schema_owner'];self.native['public_schema_acl']=deepcopy(observed['public_schema_acl'])\n"
+ assert s.count(needle)==1;s=s.replace(needle,extra+needle)
+ needle="    def right(self,role,kind,object_,verb,column=None):\n"
+ replacement=needle+"        if kind=='SCHEMA'and object_=='public':\n            assert column is None\n            return any(row['grantee']in(role,'PUBLIC')and row['privilege']==verb for row in self.native['public_schema_acl'])\n"
+ assert s.count(needle)==1;s=s.replace(needle,replacement)
+ needle="|{M['PACKET']+'/fixtures.json',M['PACKET']+'/README.md',M['SELF'],M['METADATA_TEST'],M['METADATA_DOC']}"
+ assert s.count(needle)==1;s=s.replace(needle,"|{M['PACKET']+'/fixtures.json',M['PACKET']+'/README.md',M['SELF'],M['METADATA_TEST'],M['METADATA_DOC'],M['PUBLIC_SCHEMA_REGISTRATION']}")
+ # Preserve all existing denial/source-position tests and their SQL. New tests
+ # below use actual Runner.metadata with only process/evidence boundaries mocked.
+ test.write_bytes(s.encode())
+ doc=C/'scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-V8.md';doc.write_bytes(doc.read_bytes()+b'\n\nV8 public-schema oracle correction (source only)\n\nThe runtime public-schema projection validates the separate native public ACL and owner against the exact admitted registration. It honors exact role or PUBLIC grants per verb; it never infers CREATE from USAGE or repairs an ACL. The original generator/protocol and all 202 base artifacts remain unchanged.\n\nSCHEMA_CREATE operations retain only two fixed typed expected/observed/matches comparisons before a failed source comparison. Unreceived or malformed responses retain null observations. Metadata matches never qualify the unchanged restricted denial or source-position requirement. All historical individual public response bits remain unobserved; the 37-contrast stopped prefix does not qualify public CREATE or later cases.\n\nAll V8 source gates begin PENDING. Separate exact source review, Root closure/publication/pin and a fresh operational review are required; this source correction runs no database.\n')
+ # Synthetic result-validator fixture must obey the new finite comparison,
+ # while actual entry/source checks continue using the real child separately.
+ check=F/'check_local_f0_privilege_ceiling_v8_operation.py';s=check.read_text();needle="    if operation['name']in by_case and by_case[operation['name']]['diagnostic']['kind']!='IMMUTABLE_GRANT':operation['metadata_query_receipt']=successful_metadata_receipt()"
+ addition="""
+    if operation['name']in by_case and by_case[operation['name']]['diagnostic']['kind']=='SCHEMA_CREATE':
+     c=by_case[operation['name']];p=runpy.run_path(str(ROOT/'scripts/privilege_ceiling_control_protocol_v8.py'));registration=json.loads((ROOT/'review-output/native-catalog/public-schema-registration.json').read_bytes());observed=json.loads((ROOT/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v8/OFFLINE-fixture-inputs/v7-9577-native-before.json').read_bytes());expected={key:p['expected_acl'](observed,c['role'],'SCHEMA',c['schema'],verb,public_registration=registration)for key,verb in(('schema_usage','USAGE'),('schema_create','CREATE'))};operation['source_native_privilege_projection']=expected;operation['schema_create_metadata_comparison']={key:{'expected':value,'observed':value,'matches':True}for key,value in expected.items()}
+"""
+ assert s.count(needle)==1;s=s.replace(needle,needle+addition);check.write_bytes(s.encode())
+ print(json.dumps({'private_only':True,'metadata_SQL_function_unchanged':True,'original17_field_receipt_unchanged':True,'typed_parent_comparison_added':True,'mock_public_acl_from_closed_observation_not_expected_echo':True}))
+if __name__=='__main__':main()

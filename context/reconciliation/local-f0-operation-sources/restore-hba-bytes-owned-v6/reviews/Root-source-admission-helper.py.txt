@@ -1,0 +1,48 @@
+"""Root-only exact frozen V6 admission and prescribed metadata closure; no Git or runtime action."""
+from pathlib import Path
+import datetime,hashlib,json,stat
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+dp=T/'restore_hba_bytes_v6_frozen_author_delivery_20261120.json';dr=dp.read_bytes();assert sha(dr)=='707b0922033a63a1c16e591878dc16214bfc7dc94a74e71fb57948a574172f4d';d=json.loads(dr);F=Path(d['future_root']);candidate=d['candidate_Root_files_sha256'];five=d['operator_sources_sha256'];assert len(candidate)==75 and len(five)==5
+peerpath=T/'restore_hba_bytes_v6_independent_code_source_review_20261120.json';peerraw=peerpath.read_bytes();assert sha(peerraw)=='27f204b63ac3baf10bb59cf1079c754f218709363aff9e44d5f8f9b10a66d2dd';peer=json.loads(peerraw);assert peer['decision']=='SOURCE_APPROVED'and peer['findings']==[]and peer['reviewer']=='/root/review_track_ports'and peer['operator_sources_sha256']==five and peer['author_candidate_Root_files_sha256']==candidate
+meta='context/reconciliation/local-f0-restore-hba-bytes-owned-v6-source-validation.json';prefix='context/reconciliation/local-f0-operation-sources/restore-hba-bytes-owned-v6';mr=(F/meta).read_bytes();assert sha(mr)=='93c6b6ae5b2b631580b971b7cf49bc999fde42a0e138bf31121c55cea4ba9c53';value=json.loads(mr);schema=peer['Root_gate_admission_schema'];assert set(value)==set(schema['required_exact_metadata_keys'])and value['source_review_status']=='PENDING'and value['all_five_sources_sha256']==five
+for n,h in candidate.items():
+ p=F/n;s=p.lstat();assert stat.S_ISREG(s.st_mode)and not p.is_symlink()and not getattr(s,'st_file_attributes',0)&1024 and sha(p.read_bytes())==h and not(R/n).exists(),n
+for n,h in value['original_v5_generation']['root_files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in value['original_v5_generation']['external_five_sha256'].items():assert sha((T/n).read_bytes())==h
+existing={}
+for n,h in five.items():
+ assert sha((F/prefix/(n+'.txt')).read_bytes())==h
+ if (T/n).exists():
+  p=T/n;s=p.lstat();assert stat.S_ISREG(s.st_mode)and not p.is_symlink()and not getattr(s,'st_file_attributes',0)&1024 and sha(p.read_bytes())==h;existing[n]=h
+# These new source paths cannot change any already pinned/active old-source packet.
+for dirname in('local-f0-read13-parser-env-retry-plan-116153b2','local-f0-app-write-two-unexpected-diagnostic-v3-owned-plan-0a02569b','local-f0-install-controls-plan-6850ee4c'):
+ pins=json.loads((T/dirname/'operation-manifest.json').read_bytes())['packet_files_sha256'];assert not set(candidate)&set(pins)
+before=T/'restore-hba-bytes-v6-Root-before-admission-20261120';before.mkdir(exist_ok=False)
+for n in existing:put(before/n,(T/n).read_bytes())
+prior=T/'admit_close_reviewed_restore_hba_bytes_v6_20261120.before-physical5-preservation.py.txt';assert sha(prior.read_bytes())=='468a79e653b41329c20a0b39282f3bb90d21eec8b27a94d48a7819e74493cb85'
+put(before/prior.name,prior.read_bytes())
+for n in candidate:put(R/n,(F/n).read_bytes())
+put(R/prefix/'reviews/PENDING-before-Root-metadata-closure.json',mr);put(R/prefix/'reviews/Track-source-review.json',peerraw);put(R/prefix/'reviews/author-frozen-delivery.json',dr)
+put(R/prefix/'reviews/Root-helper-before-existing-physical5-reconciliation.py.txt',prior.read_bytes());put(R/prefix/'reviews/physical5-preserved-before-Root-admission.json',enc({'already_present_exact_five_sha256':existing,'all_existing_bytes_preserved':True,'no_existing_file_overwritten':True,'prior_helper_stopped_before_source_mutation':True,'fixed_only_Root_admission_expectation':True}))
+for n,h in peer['supplemental_reviewer_artifacts_to_copy_sha256'].items():
+ b=(T/n).read_bytes();assert sha(b)==h;put(R/prefix/'reviews'/('Track-'+n+('.txt'if n.endswith('.py')else'')),b)
+root={'schema':'workinants.restore-HBA-bytes-v6-Root-source-review.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','reviewer':'/root','operator_sources_sha256':five,'independent_review_sha256':sha(peerraw),'reviewed_candidate_metadata_sha256':sha(mr),'reviewed_bounded_behavior':['Root inspected exact binary-only writer using fixed4 source bytes/immutable createdCID/fixed HBA path/uid/gid/0600/60s/zero empty bytes; generic command/SQL/credential transport unchanged.','Root inspected binary server SHA+octet/parser Boolean comparison and strict archived HBA/source-byte equality and inert configuration predicates.','Basebackup bounded receipt and archive comparison persist before assertions; first error/sticky IO and unconditional original-grantor/closure/owned cleanup unchanged.','Exact V6 source5 has separate source-review authority before Steps/helper compilation; original V5 source5/3-generation/25-artifact hashes remain distinct.','Track independently exercised15 affected checks/four SQL parses and verified exact preserved1235/1045/25 and ordinary transport/safety AST.'],'scope_limits':['Source admission only; no operational literal or runtime approval.','Historical9cf archive/full cause remains unobserved; public byte-sink proof is subsequent source/environment evidence.','No canonical application/access/32workerACL/migration/ledger/status/accepted assertion change.'],'runtime':'NOT_RUN_NEW_SOURCE','Posture':'D'}
+put(R/prefix/'reviews/Root-source-review.json',enc(root));put(R/prefix/'reviews/Root-source-admission-helper.py.txt',Path(__file__).read_bytes())
+for n in five:
+ if n not in existing:put(T/n,(F/prefix/(n+'.txt')).read_bytes())
+value['source_review_status']='SOURCE_APPROVED'
+for key,rel in [('independent_source_review','reviews/Track-source-review.json'),('Root_source_review','reviews/Root-source-review.json')]:
+ path=prefix+'/'+rel;b=(R/path).read_bytes();body=json.loads(b);assert body['decision']=='SOURCE_APPROVED'and body['operator_sources_sha256']==five;value[key]={'decision':'SOURCE_APPROVED','path':path,'sha256':sha(b),'operator_sources_sha256':five}
+entries=list((R/prefix).rglob('*'));assert not any(p.is_symlink()or getattr(p.lstat(),'st_file_attributes',0)&1024 for p in entries);value['archive_files_sha256']={p.relative_to(R).as_posix():sha(p.read_bytes())for p in entries if p.is_file()}
+assert len(value['archive_files_sha256'])==len(json.loads(mr)['archive_files_sha256'])+10 and set(value)==set(schema['required_exact_metadata_keys'])
+assert {k for k in value if value[k]!=json.loads(mr)[k]}=={'source_review_status','independent_source_review','Root_source_review','archive_files_sha256'}
+temp=R/(meta+'.Root-admission.tmp');put(temp,enc(value));temp.replace(R/meta)
+for n,h in candidate.items():
+ if n!=meta:assert sha((R/n).read_bytes())==h
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+for n,h in value['original_v5_generation']['root_files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in value['original_v5_generation']['external_five_sha256'].items():assert sha((T/n).read_bytes())==h
+files={**value['archive_files_sha256'],meta:sha((R/meta).read_bytes())};receipt={'schema':'workinants.restore-HBA-bytes-v6-Root-exact-source-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','candidate_frozen75_sha256':candidate,'independent_review_sha256':sha(peerraw),'Root_review_sha256':sha(enc(root)),'files_sha256':files,'operator_sources_sha256':five,'final_archive_files':len(value['archive_files_sha256']),'source_metadata_schema_closed':True,'unchanged_existing_pinned_packets':True,'no_Git_or_runtime_or_ledger_status_mutation':True,'runtime':'NOT_RUN','Posture':'D'};rp=T/'restore_hba_bytes_v6_source_approved_committable_inventory_20261120.json';put(rp,enc(receipt));print(json.dumps({'inventory':rp.name,'sha256':sha(rp.read_bytes()),'files':len(files),'metadata_sha256':files[meta],'archive':len(value['archive_files_sha256']),'runtime':'NOT_RUN'}))

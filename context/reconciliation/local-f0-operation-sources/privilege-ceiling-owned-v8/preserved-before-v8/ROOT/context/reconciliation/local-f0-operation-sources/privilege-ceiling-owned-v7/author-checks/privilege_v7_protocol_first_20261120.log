@@ -1,0 +1,114 @@
+test_all_eight_exact_sources_accept_standalone_relation_cursor_and_no_position (<run_path>.CreateProjectionV7Tests.test_all_eight_exact_sources_accept_standalone_relation_cursor_and_no_position) ... ERROR
+test_ambiguous_malformed_unreceived_and_canary_diagnostics_are_fixed_receipts (<run_path>.CreateProjectionV7Tests.test_ambiguous_malformed_unreceived_and_canary_diagnostics_are_fixed_receipts) ... ERROR
+test_generator_import_stays_original_protocol_and_reproduces_all202 (<run_path>.CreateProjectionV7Tests.test_generator_import_stays_original_protocol_and_reproduces_all202) ... ok
+test_restoring_only_old_position_function_rejects_the_same_eight (<run_path>.CreateProjectionV7Tests.test_restoring_only_old_position_function_rejects_the_same_eight) ... ERROR
+test_same_state_alone_or_missing_source_identity_does_not_pass_CREATE (<run_path>.CreateProjectionV7Tests.test_same_state_alone_or_missing_source_identity_does_not_pass_CREATE) ... ERROR
+test_wrong_case_role_hash_run_template_or_extra_statement_cannot_bind (<run_path>.CreateProjectionV7Tests.test_wrong_case_role_hash_run_template_or_extra_statement_cannot_bind) ... ERROR
+test_wrong_display_schema_caret_line_location_state_and_message_never_pass (<run_path>.CreateProjectionV7Tests.test_wrong_display_schema_caret_line_location_state_and_message_never_pass) ... ERROR
+
+======================================================================
+ERROR: test_all_eight_exact_sources_accept_standalone_relation_cursor_and_no_position (<run_path>.CreateProjectionV7Tests.test_all_eight_exact_sources_accept_standalone_relation_cursor_and_no_position)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 794, in test_all_eight_exact_sources_accept_standalone_relation_cursor_and_no_position
+    template,text,binding,identity=self.source(case)
+                                   ^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 770, in source
+    binding=P['create_projection_binding'](case,template,text,RUN)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 177, in create_projection_binding
+    require(template==fixed and sha(template.encode())==case.get('sql_sha256')==CREATE_TEMPLATE_SHA[schema],'CREATE_SOURCE_BINDING')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 27, in require
+    if not value:raise Refused(code)
+                 ^^^^^^^^^^^^^^^^^^^
+<run_path>.Refused: CREATE_SOURCE_BINDING
+
+======================================================================
+ERROR: test_ambiguous_malformed_unreceived_and_canary_diagnostics_are_fixed_receipts (<run_path>.CreateProjectionV7Tests.test_ambiguous_malformed_unreceived_and_canary_diagnostics_are_fixed_receipts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 822, in test_ambiguous_malformed_unreceived_and_canary_diagnostics_are_fixed_receipts
+    case=next(c for c in PACKET['cases']if c.get('operation')=='CREATE');_,text,binding,identity=self.source(case);good=self.stderr(case,binding)
+                                                                                                 ^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 770, in source
+    binding=P['create_projection_binding'](case,template,text,RUN)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 177, in create_projection_binding
+    require(template==fixed and sha(template.encode())==case.get('sql_sha256')==CREATE_TEMPLATE_SHA[schema],'CREATE_SOURCE_BINDING')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 27, in require
+    if not value:raise Refused(code)
+                 ^^^^^^^^^^^^^^^^^^^
+<run_path>.Refused: CREATE_SOURCE_BINDING
+
+======================================================================
+ERROR: test_restoring_only_old_position_function_rejects_the_same_eight (<run_path>.CreateProjectionV7Tests.test_restoring_only_old_position_function_rejects_the_same_eight)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 804, in test_restoring_only_old_position_function_rejects_the_same_eight
+    _,text,binding,identity=self.source(case);error=self.stderr(case,binding)
+                            ^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 770, in source
+    binding=P['create_projection_binding'](case,template,text,RUN)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 177, in create_projection_binding
+    require(template==fixed and sha(template.encode())==case.get('sql_sha256')==CREATE_TEMPLATE_SHA[schema],'CREATE_SOURCE_BINDING')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 27, in require
+    if not value:raise Refused(code)
+                 ^^^^^^^^^^^^^^^^^^^
+<run_path>.Refused: CREATE_SOURCE_BINDING
+
+======================================================================
+ERROR: test_same_state_alone_or_missing_source_identity_does_not_pass_CREATE (<run_path>.CreateProjectionV7Tests.test_same_state_alone_or_missing_source_identity_does_not_pass_CREATE)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 828, in test_same_state_alone_or_missing_source_identity_does_not_pass_CREATE
+    case=next(c for c in PACKET['cases']if c.get('operation')=='CREATE');_,text,binding,identity=self.source(case)
+                                                                                                 ^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 770, in source
+    binding=P['create_projection_binding'](case,template,text,RUN)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 177, in create_projection_binding
+    require(template==fixed and sha(template.encode())==case.get('sql_sha256')==CREATE_TEMPLATE_SHA[schema],'CREATE_SOURCE_BINDING')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 27, in require
+    if not value:raise Refused(code)
+                 ^^^^^^^^^^^^^^^^^^^
+<run_path>.Refused: CREATE_SOURCE_BINDING
+
+======================================================================
+ERROR: test_wrong_case_role_hash_run_template_or_extra_statement_cannot_bind (<run_path>.CreateProjectionV7Tests.test_wrong_case_role_hash_run_template_or_extra_statement_cannot_bind)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 809, in test_wrong_case_role_hash_run_template_or_extra_statement_cannot_bind
+    case=next(c for c in PACKET['cases']if c.get('operation')=='CREATE');template,text,_,_=self.source(case)
+                                                                                           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 770, in source
+    binding=P['create_projection_binding'](case,template,text,RUN)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 177, in create_projection_binding
+    require(template==fixed and sha(template.encode())==case.get('sql_sha256')==CREATE_TEMPLATE_SHA[schema],'CREATE_SOURCE_BINDING')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 27, in require
+    if not value:raise Refused(code)
+                 ^^^^^^^^^^^^^^^^^^^
+<run_path>.Refused: CREATE_SOURCE_BINDING
+
+======================================================================
+ERROR: test_wrong_display_schema_caret_line_location_state_and_message_never_pass (<run_path>.CreateProjectionV7Tests.test_wrong_display_schema_caret_line_location_state_and_message_never_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 817, in test_wrong_display_schema_caret_line_location_state_and_message_never_pass
+    case=next(c for c in PACKET['cases']if c.get('operation')=='CREATE');_,text,binding,identity=self.source(case);good=self.stderr(case,binding)
+                                                                                                 ^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v7.py", line 770, in source
+    binding=P['create_projection_binding'](case,template,text,RUN)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 177, in create_projection_binding
+    require(template==fixed and sha(template.encode())==case.get('sql_sha256')==CREATE_TEMPLATE_SHA[schema],'CREATE_SOURCE_BINDING')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\privilege_ceiling_control_protocol_v7.py", line 27, in require
+    if not value:raise Refused(code)
+                 ^^^^^^^^^^^^^^^^^^^
+<run_path>.Refused: CREATE_SOURCE_BINDING
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.621s
+
+FAILED (errors=6)

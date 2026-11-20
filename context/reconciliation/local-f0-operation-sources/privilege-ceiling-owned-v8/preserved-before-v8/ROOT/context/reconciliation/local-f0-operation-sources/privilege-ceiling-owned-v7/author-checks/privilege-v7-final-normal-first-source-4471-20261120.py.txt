@@ -1,0 +1,192 @@
+"""New V7 actual CLI/child composition. Every process/network boundary modeled.
+
+No production factory, session, verifier or comparator is replaced. Historical
+sanitized data are OFFLINE process fixtures, never current runtime attestation.
+"""
+from contextlib import redirect_stdout
+from copy import deepcopy
+from pathlib import Path
+from unittest.mock import patch
+import ast,hashlib,io,json,re,runpy,socket,subprocess,sys,traceback,types,unittest,uuid
+
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+CID='a'*64;CANARY='V7_OFFLINE_ONLY_WRITER_PASSWORD_HANDLE_CANARY'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+encoded=lambda value:(json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+OWN=runpy.run_path(str(T/'check_local_f0_privilege_ceiling_v7_operation.py'))
+# Reuse only the reviewed primitive outer-command model's class definition.
+# Its App constructor/SQL model is overridden below; no App production code,
+# factory, approval or runtime result is selected or executed.
+_old=T/'check_local_f0_app_write_two_owned_resource_v1_operation.py'
+assert sha(_old.read_bytes())=='31fd7030921eb8ea43b59839968a88a0f76282152dacdbaacf73ba9df513c549'
+_tree=ast.parse(_old.read_bytes());_node=next(n for n in _tree.body if isinstance(n,ast.ClassDef)and n.name=='ProcessModel')
+exec(compile(ast.Module(body=[_node],type_ignores=[]),'REVIEWED_PRIMITIVE_PROCESS_MODEL_ONLY','exec'),globals())
+BaseModel=ProcessModel
+
+
+def historical_catalog():
+    rp=R/'context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/audit/coverage-clarification-history/normalization-before-coverage-wording-clarification.json'
+    assert sha(rp.read_bytes())=='fe5adf8b985bb4166c621d33fd8bcc315fa4564bb8405b3928fd107ddeba2327'
+    record=json.loads(rp.read_bytes());assert record['run_id']=='086c453e-b533-4677-83d3-05456feef377'
+    assets=record['assets_sha256'];out={}
+    for name in('native-before','ledger-observation','oracle-preflight','oracle-results','oracle-closure','acl-preflight','text-preflight'):
+        matches=[p for p in assets if p.endswith('/evidence/'+name+'.json')];assert len(matches)==1
+        raw=(R/matches[0]).read_bytes();assert sha(raw)==assets[matches[0]];out[name]=json.loads(raw)
+    return out
+
+
+class V7ProcessModel(BaseModel):
+    def __init__(self,fixture,path,mode='normal'):
+        self.fixture=fixture;self.path=path;self.manifest=json.loads(path.read_bytes());self.n=None;self.calls=[];self.containers={};self.volumes={};self.running=False;self.finalized=False;self.deploys=0;self.fail_stage=None;self.bad_global=None;self.after_started=False;self.outer_after_component=False;self.mutate_cleanup_reference=False;self.cleanup_reference_mutated=False
+        self.child=runpy.run_path(str(fixture.root/'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v7.py'))
+        # Source-derived process model validates the fresh run's actual name.
+        self.child['World'].execute.__globals__['RUN']=self.manifest['run_id']
+        self.child['LEGACY']['World'].run.__globals__['CID']=CID
+        self.vm=self.child['World']();self.vm.coordinator=None;self.catalog=historical_catalog();self.vm.native=deepcopy(self.catalog['native-before']);self.mode=mode;self.providers_created=False;self.provider_credentials=False
+        self.image='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1';self.md=self.image.split('@')[1];self.cd='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d';self.name=self.manifest['targets'][0]['name'];self.volume=self.manifest['targets'][0]['volume'];self.labels={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':self.manifest['run_id']};self.target=json.loads(Path(self.manifest['migration_targets']['ok']['manifest_path']).read_bytes());self.vm.target=deepcopy(self.target)
+        original=self.vm.execute
+        def execute(process,text):
+            rows,error=original(process,text)
+            if error and 'CREATE TABLE 'in text:
+                match=re.search(r'CREATE TABLE (?:app|platform|platform_private|public)\.wa_priv_[0-9a-f]{8}_probe\(id integer\);',text)
+                assert match,'SOURCE_CREATE_BOUNDARY_REQUIRED';query=match[0]
+                display,caret=self.child['CreateProjectionV7Tests']().display(query)
+                if self.mode=='wrong-caret':caret=' '+caret
+                lines=error.splitlines();error=lines[0]+'\n'+display+'\n'+caret+'\n'+lines[-1]+'\n'
+            return rows,error
+        self.vm.execute=execute
+
+    def native(self):
+        return json.loads(self.vm.raw('postgres',(self.fixture.root/'scripts/sql-review/collect_native_catalog.sql').read_text()))
+
+    def process(self,args,**options):
+        try:return super().process(args,**options)
+        except BaseException:
+            self.safe_boundary_trace=[{'file':Path(row.filename).name,'function':row.name,'line':row.lineno}for row in traceback.extract_tb(sys.exc_info()[2])]
+            raise
+
+    def check_output(self,args,**options):
+        result=self.process(args,**options)
+        if result.returncode:raise subprocess.CalledProcessError(result.returncode,args)
+        value=result.stdout
+        return value if options.get('text')or options.get('universal_newlines')else value.encode()if type(value)is str else value
+
+    def _process(self,args,**options):
+        args=list(args)
+        if args and args[0]=='powershell.exe':return self.response('PRIVILEGE_ONLY_VERIFIED\n')
+        if args[:3]==['docker','--context','desktop-linux'] and 'sh'in args:
+            if 'WA_PRIVILEGE_SECRET_TMPFS_V2_OK'in args[-1]:return self.response('WA_PRIVILEGE_SECRET_TMPFS_V2_OK\n')
+        # Deliberate post-cleanup fault; only closed safe child bytes change.
+        if self.mode=='late-reference' and args[3:5]==['volume','ls'] and self.deploys==1 and not self.containers and not self.volumes and not self.cleanup_reference_mutated:
+            p=Path(self.manifest['evidence_directory'])/'privilege-ceiling-component/privilege-ceiling-results.json'
+            if p.exists():
+                raw=p.read_bytes();changed=raw.replace(b'PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN',b'FAIL_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN',1)
+                assert changed!=raw and len(changed)==len(raw);p.write_bytes(changed);self.cleanup_reference_mutated=True
+        return super()._process(args,**options)
+
+    def sql(self,args,text,options):
+        stage=self.n['report']['stage'];active=sum(p.poll()is None for p in self.vm.processes)
+        if "'migrator'"in text and "'other_client_backends'"in text:return self.response({'migrator':0,'other_client_backends':active if self.bad_global is None else self.bad_global})
+        if text==self.n['_required_safety_text']('ORIGINAL_GRANTOR_FINALIZATION'):self.finalized=True;return self.response()
+        if "'remaining_memberships'"in text:return self.response({'grantor':'postgres','auth':'scram-sha-256:postgres','remaining_memberships':0 if self.finalized else 3,'leaf_create':dict.fromkeys(self.n['LEAVES'],not self.finalized),'active_install_connections':active})
+        if stage=='BOOTSTRAP_SETTINGS':return self.response({'login':'postgres','auth':'scram-sha-256:postgres','safe':True,'diagnostics_safe':True,'superuser':True})
+        if stage=='FRESH_PRE_BOOTSTRAP_PUBLIC_BASELINE':return self.response({'public_owner':'pg_database_owner','public_acl':[{'role':'pg_database_owner','privilege':p,'grantor':'pg_database_owner','grant_option':False}for p in('CREATE','USAGE')]+[{'role':'PUBLIC','privilege':'USAGE','grantor':'pg_database_owner','grant_option':False}],'application_roles':0,'event_triggers':0})
+        if stage in('BOOTSTRAP','CREDENTIAL_PROVISION'):return self.response()
+        if stage=='EMPTY_APPLICATION_BASELINE':return self.response({'public_owner':'pg_database_owner','public_acl':None,'event_triggers':0,'public_relations':0,'application_relations':0})
+        if 'CREATE ROLE anon'in text:self.providers_created=True;return self.response()
+        if 'ALTER ROLE anon PASSWORD'in text:self.provider_credentials=True;return self.response()
+        if "'roles',(SELECT count(*) FROM pg_roles"in text:return self.response({'roles':0 if not self.providers_created else 3})
+        if "'explicit_usage'"in text and "'effective_usage'"in text:
+            assert self.providers_created and self.provider_credentials
+            count=0 if self.deploys==1 and self.finalized else 9
+            return self.response({'roles':self.child['N']['provider_flags'](),'explicit_usage':count,'effective_usage':count})
+        if 'pg_hba_file_rules'in text:return self.response([{'rule_number':i+1,'type':'host','database':['all'],'user_name':['all'],'address':a,'netmask':mask,'auth_method':'scram-sha-256','error':None}for i,(a,mask)in enumerate([('127.0.0.1','255.255.255.255'),('::1','ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')])])
+        if 'FROM pg_authid'in text:
+            roles=('postgres','wa_migrator','wa_app_runtime','wa_worker','wa_context_issuer','wa_identity_service_authority')
+            if "'anon'"in text:roles+=('anon','authenticated','service_role')
+            return self.response(dict.fromkeys(roles,True))
+        role=args[args.index('-U')+1]
+        if 'PGPASSWORD'in args:return self.response('',2,'FATAL:  password authentication failed for user "'+role+'"\n')
+        if "'auth',system_user"in text:return self.response({'login':role,'auth':'scram-sha-256:'+role,'database':'wa_p0c_rehearsal','client':'127.0.0.1','server':'127.0.0.1'})
+        if 'workinants.native-catalog.v1'in text:
+            assert self.deploys==1 and self.finalized,'NATIVE_BEFORE_ACTUAL_INSTALL_PIPELINE';return self.response(self.native())
+        if 'workinants.expression-oracle-preflight.v1'in text:return self.response('\n'.join(json.dumps(self.catalog[k])for k in('oracle-preflight','oracle-results','oracle-closure')))
+        if 'workinants.prisma-ledger-native.v1'in text:return self.response(self.catalog['ledger-observation'])
+        if 'workinants.catalog-acl-preflight.v1'in text:return self.response(self.catalog['acl-preflight'])
+        if 'workinants.catalog-text-preflight.v1'in text:return self.response(self.catalog['text-preflight'])
+        if 'SELECT current_setting('in text:return self.response('t')
+        return self.vm.run(args,**options)
+
+
+class V7FullEntryTests(OWN['PrivilegeMetadataV6ClosureTests']):
+    def fresh(self):
+        made=self.preparer['prepare'](self.baseline,sha(self.baseline.read_bytes()),str(uuid.uuid4()));path=Path(made['operation_manifest']);self.pinner['pin'](path)
+        value=json.loads(path.read_bytes());value['review_status']='APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT';path.write_bytes(encoded(value))
+        def git(args,**options):
+            command=args[args.index('core.longpaths=true')+1:]if 'core.longpaths=true'in args else args[1:]
+            if command==['rev-parse','HEAD']:out=b'a'*40+b'\n'
+            elif command==['rev-parse','HEAD^{tree}']:out=b'b'*40+b'\n'
+            elif command[0]=='show':out=(self.root/command[-1].split(':',1)[1]).read_bytes()
+            else:raise AssertionError('UNREGISTERED_GIT_READ')
+            return types.SimpleNamespace(returncode=0,stdout=out.decode()if options.get('text')else out,stderr=''if options.get('text')else b'')
+        fixture=types.SimpleNamespace(root=self.root,task=self.task,git=git)
+        return path,fixture
+
+    def composed(self,mode='normal',write_fault=False):
+        path,fixture=self.fresh();core=runpy.run_path(str(self.task/OWN['CLOSURE_CORE']));model=V7ProcessModel(fixture,path,mode);model.n=core['launch'].__globals__;output=io.StringIO();real_replace=Path.replace;faults=[]
+        model.safe_exception_trace=[]
+        def trace(frame,event,arg):
+            if not frame.f_code.co_filename.endswith((OWN['CLOSURE_CORE'],'local_f0_privilege_ceiling_v7_operation_steps.py')):return None
+            frame.f_trace_lines=False;frame.f_trace_opcodes=False
+            if event=='exception':
+                row={'class':type(arg[1]).__name__,'function':frame.f_code.co_name,'line':frame.f_lineno}
+                if row not in model.safe_exception_trace:model.safe_exception_trace.append(row)
+            return trace
+        def replace(p,target):
+            if write_fault and p==Path(model.manifest['evidence_directory'])/'run-evidence.json.tmp' and model.n.get('report',{}).get('privilege_ceiling',{}).get('component_closure_attempted')is True:
+                faults.append(True);raise OSError(CANARY)
+            return real_replace(p,target)
+        # The SQL transport test module imports helpers for its own fixture.
+        # Model a genuinely cold CLI namespace, preserving the caller's cache.
+        # The production PRELOADED_HELPER_CACHE_REJECTED guard stays intact.
+        with patch.dict(sys.modules),patch.object(subprocess,'run',side_effect=model.process),patch.object(subprocess,'check_output',side_effect=model.check_output),patch.object(subprocess,'Popen',side_effect=lambda *a,**kw:self.legacy['Process'](model.vm,*a,**kw)),patch.object(Path,'replace',replace),redirect_stdout(output):
+            names=('catalog_manifest','pg17_catalog_rules','prisma_ledger_proof','compare_native_catalog','catalog_expression_oracle','migration_server_diagnostics')
+            model.offline_fixture_cache_isolation=[name for name in names if name in sys.modules]
+            for name in names:sys.modules.pop(name,None)
+            code=core['launch'](['--execute-reviewed-privilege-ceilings','--manifest',str(path)])
+        capture=T/('privilege-v7-OFFLINE-cli-capture-'+model.manifest['run_id']);capture.mkdir(exist_ok=False)
+        model.child_minimum=None;retained={}
+        for leaf in('run-evidence.json','catalog-comparison.json','ledger-comparison.json','privilege-ceiling-component/privilege-ceiling-results.json'):
+            source=Path(model.manifest['evidence_directory'])/leaf
+            if not source.exists():continue
+            raw=source.read_bytes()
+            assert all(secret.encode()not in raw for secret in model.n['all_secrets'])
+            dest=capture/Path(leaf).name;dest.write_bytes(raw);retained[leaf]=sha(raw)
+            if leaf.endswith('/privilege-ceiling-results.json'):
+                value=json.loads(raw);keys=('status','failure','original_failure','current_stage','current_case','run_id','source_commit','source_tree','operation_packet_sha256','run_plan_sha256')
+                model.child_minimum={key:value.get(key)for key in keys}
+        (capture/'OFFLINE-MOCK-LINEAGE.json').write_bytes(encoded({'scope':'OFFLINE_PROCESS_FIXTURE_NOT_RUNTIME_AUTHORITY','mode':mode,'write_fault':write_fault,'source':sha(Path(__file__).read_bytes()),'retained_sha256':retained}))
+        return code,model,model.n['report'],faults
+
+    def test_V7_actual_CLI_native29089_oracle416_ledger22_real_child200_244_cleanup(self):
+        code,model,report,_=self.composed()
+        self.assertEqual(code,0,(report.get('primary_failure'),getattr(model,'last_mock_fault',None),getattr(model,'safe_boundary_trace',None),report.get('unexpected'),model.safe_exception_trace,model.child_minimum))
+        self.assertEqual(report['catalog_comparison']['check_counts'],{'PASS':29089});self.assertEqual(len(report['ledger_comparison']['checks']),22)
+        child=json.loads((Path(model.manifest['evidence_directory'])/'privilege-ceiling-component/privilege-ceiling-results.json').read_bytes())
+        self.assertEqual(len(child['results']),200);self.assertEqual(len(child['operations']),244);self.assertEqual(len(child['native_controls']),40);self.assertEqual(len(child['definer_metadata']),16);self.assertEqual(len(child['issuer_protocols']),3)
+        self.assertEqual(model.deploys,1);self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{});self.assertTrue(report['cleanup_actions_confirmed']);self.assertFalse(model.n['PRIVATE'].exists());self.assertTrue(all(p.poll()is not None for p in model.vm.processes))
+
+    def test_V7_actual_stopped_CREATE_origin_survives_finally_and_parent_IO(self):
+        for io_failure in(False,True):
+            code,model,report,faults=self.composed('wrong-caret',io_failure)
+            self.assertEqual(code,1);self.assertEqual(report['primary_failure'],{'stage':'PRIVILEGE_NEGATIVE_OPERATION','code':'INTENDED_PRIVILEGE_GUARD_NOT_PROVEN'})
+            self.assertEqual(report['privilege_ceiling']['original_child_failure']['case'],'CREATE-wa_app_runtime-app');self.assertTrue(report['privilege_ceiling']['component_closure_attempted']);self.assertTrue(all(p.poll()is not None for p in model.vm.processes));self.assertTrue(report['cleanup_actions_confirmed']);self.assertEqual(model.containers,{});self.assertEqual(model.volumes,{})
+            if io_failure:self.assertTrue(faults);self.assertFalse(report['evidence_complete'])
+
+    def test_V7_actual_late_cleanup_reference_mutation_prevents_PASS(self):
+        code,model,report,_=self.composed('late-reference')
+        self.assertEqual(code,1);self.assertTrue(model.cleanup_reference_mutated);self.assertFalse(report['component_report_reference_unchanged']);self.assertTrue(report['cleanup_actions_confirmed'])
+
+
+if __name__=='__main__':
+    unittest.main()

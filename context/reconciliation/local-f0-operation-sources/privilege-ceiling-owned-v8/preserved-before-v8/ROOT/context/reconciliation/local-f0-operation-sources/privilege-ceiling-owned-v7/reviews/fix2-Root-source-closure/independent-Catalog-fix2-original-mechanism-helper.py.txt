@@ -1,0 +1,40 @@
+"""Same-reviewer original mechanism, fixed-vs-held-main-only; no domain proof."""
+from pathlib import Path
+from contextlib import redirect_stdout
+import ast,hashlib,io,json,os,runpy,sys,tempfile,time
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';H=lambda b:hashlib.sha256(b).hexdigest()
+STEPS=T/'local_f0_privilege_ceiling_v7_operation_steps.py';CORE=T/'execute_local_f0_privilege_ceiling_v7_20261120.py'
+def deny(event,args):
+ if event in {'subprocess.Popen','os.system','os.posix_spawn','socket.connect','socket.connect_ex','socket.bind','socket.getaddrinfo'}:raise AssertionError('ACTUAL_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(deny)
+def main():
+ start=time.monotonic();assert H(STEPS.read_bytes())=='c50fe30028313b9f5f400e9ced3f6dd2d30651075951ccbdf7a303d9f7e09544'
+ freeze=T/'privilege-v7-source-author-freeze-20261120/freeze-manifest.json';rows=json.loads(freeze.read_bytes())['files'];row=next(r for r in rows if Path(r['path'])==STEPS);held=(freeze.parent/row['snapshot']).read_bytes();assert H(held)==row['sha256']=='16ad7c49c15c2f4786ecba7c6fd60f4785e4252a707be98b34754c7cefa5e199'
+ heldmain=next(n for n in ast.parse(held).body if isinstance(n,ast.FunctionDef)and n.name=='main');results=[]
+ with tempfile.TemporaryDirectory(prefix='v7-fix2-independent-original-',dir=T)as directory:
+  for old in (False,True):
+   for phase in ('none','tool-postcheck'):
+    n=runpy.run_path(str(CORE))['initialize'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+    if old:exec(compile(ast.Module(body=[heldmain],type_ignores=[]),'HELD_MAIN_ONLY','exec'),n)
+    out=Path(directory)/(str(old)+'-'+phase);events=[];fixed=out/'privilege-ceiling-component/privilege-ceiling-results.json';before=b'{"safe":1}\n';after=b'{"safe":2}\n';ref={'artifact':'privilege-ceiling-component/privilege-ceiling-results.json','present':None,'read_status':'UNAVAILABLE'};source='scripts/sql-review/local_image_identity.py'
+    n.update(TASK=T,ROOT=R,OUT=out,PRIVATE=out/'private',MANIFEST={'review_status':'APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT','privilege_ceiling':{'external_files_sha256':{}}},report={'stage':'MECHANISM_TEST_ONLY','status':'IN_PROGRESS','steps':{},'targets':{},'events':[],'unexpected':[],'privilege_ceiling':{},'source_verification':{'files_sha256':{source:H((R/source).read_bytes())}}},bootstrap_attempted=set(),finalization_attempted=set(),all_secrets=[],save=lambda:None,event=lambda*a,**kw:None)
+    for name in ('privilege_source_review_preflight','verify_privilege_ceiling_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','provider_preinstall','catalog_experiment','secret_scan','verify_external_input_preservation'):n[name]=lambda name=name:events.append(name)
+    def component():fixed.parent.mkdir();fixed.write_bytes(before);n['privilege_read_closed_reference'](ref);n['PRIVILEGE_LAST_REFERENCE']=ref;events.append('ACTUAL_INITIAL_READER')
+    def cleanup():events.append('cleanup');n['report']['cleanup_actions_confirmed']=True
+    def post():
+     events.append('tool-postcheck')
+     if phase=='tool-postcheck':
+      st=fixed.stat();fixed.write_bytes(after);os.utime(fixed,ns=(st.st_atime_ns,st.st_mtime_ns));events.append('SAME_SIZE_MTIME_RESTORED_MUTATION')
+    barrier=n['privilege_reference_integrity_barrier']
+    def checked(value):events.append('ACTUAL_REFERENCE_BARRIER');return barrier(value)
+    n.update(privilege_ceiling_experiment=component,cleanup=cleanup,verify_tool_data=post,privilege_reference_integrity_barrier=checked)
+    with redirect_stdout(io.StringIO()):code=n['main']()
+    row={'held_main_only_restored':old,'mutation_phase':phase,'exit_code':code,'status':n['report']['status'],'original_reference_sha256':ref['artifact_sha256'],'retained_file_sha256':H(fixed.read_bytes()),'reference_flag':n['report']['component_report_reference_unchanged'],'events':events};results.append(row)
+    assert ref['bytes']==len(before)and ref['artifact_sha256']==H(before)
+    if phase=='none':assert code==0 and row['reference_flag']is True
+    elif old:assert code==0 and row['reference_flag']is True and row['original_reference_sha256']!=row['retained_file_sha256']
+    else:assert code==1 and row['reference_flag']is False and events.index('SAME_SIZE_MTIME_RESTORED_MUTATION')<len(events)-1 and events[-1]=='ACTUAL_REFERENCE_BARRIER'
+ v={'schema':'workinants.privilege-v7-fix2-same-reviewer-original-mechanism.v1','PASS':True,'vectors':results,'source_steps_sha256':H(STEPS.read_bytes()),'held_steps_sha256':H(held),'all_actual_process_network_forbidden':True,'scope':'Actual main/reader/barrier; prior domain/resource qualification deliberately isolated exactly as original independent probe; no runtime/full-domain qualification claimed.','seconds':round(time.monotonic()-start,3)};p=T/'privilege_v7_fix2_independent_original_mechanism_20261120.json';raw=(json.dumps(v,indent=2)+'\n').encode()
+ with p.open('xb')as handle:handle.write(raw)
+ print(json.dumps({'path':str(p),'sha256':H(raw),'PASS':True,'seconds':v['seconds']}))
+if __name__=='__main__':main()

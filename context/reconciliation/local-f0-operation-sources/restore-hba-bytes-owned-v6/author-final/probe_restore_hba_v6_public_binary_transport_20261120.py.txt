@@ -1,0 +1,27 @@
+"""Only public pinned HBA reaches two fixed actual Python byte sinks.
+
+Docker is intercepted before execution. No SQL, credential, protected archive,
+network, Git or real resource boundary is allowed.
+"""
+from pathlib import Path
+from unittest.mock import patch
+import hashlib,json,os,runpy,subprocess,sys
+T=Path(__file__).resolve().parent;D=T/'restore-hba-bytes-v6-author-20261120';F=D/'future-root'
+SINK="import sys,hashlib,json;raw=sys.stdin.buffer.read();print(json.dumps({'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw)}))"
+ALLOWED=[sys.executable,'-c',SINK]
+def audit(event,args):
+    if event in ('socket.connect','socket.connect_ex','socket.bind','socket.getaddrinfo','os.system','os.posix_spawn'):raise AssertionError('NETWORK_OR_OTHER_PROCESS_FORBIDDEN')
+    if event=='subprocess.Popen':
+        argv=args[1];valid=argv==subprocess.list2cmdline(ALLOWED)if type(argv)is str else list(argv)==ALLOWED
+        if not valid or args[0]is not None and os.path.normcase(str(args[0]))!=os.path.normcase(sys.executable):raise AssertionError('ONLY_FIXED_PUBLIC_BYTE_SINK_ALLOWED')
+def main():
+    assert os.name=='nt';sys.addaudithook(audit);native=subprocess.run;n=runpy.run_path(str(T/'check_local_f0_restore_hba_bytes_v6_operation.py'));n['namespace'].__globals__['ROOT']=F;ctx=n['namespace']();raw=ctx['source_hba_bytes']('source-backup.pg_hba.conf');assert len(raw)==445 and hashlib.sha256(raw).hexdigest()=='b0cb749bf4b0c893ad22f7c533b0d64e73047300e235e34fa12a9a3639ee243f'
+    original=ctx['command'](ALLOWED,raw.decode('utf8'),timeout=10);assert original.returncode==0 and original.stderr=='';old=json.loads(original.stdout);actual=[]
+    def intercepted(args,**options):
+        assert args[:5]==['docker','--context','desktop-linux','exec','-i']and args[5]==ctx['created_containers'][ctx['SOURCE']];assert options['input']==raw and type(options['input'])is bytes;assert not any(k in options for k in ('text','encoding','errors'));assert options['timeout']==60 and options['shell']is False
+        value=native(ALLOWED,input=options['input'],capture_output=True,timeout=10,cwd=F);assert value.returncode==0 and value.stderr==b'';actual.append(json.loads(value.stdout));return subprocess.CompletedProcess(args,0,b'',b'')
+    with patch.object(subprocess,'run',intercepted):ctx['write_hba'](ctx['SOURCE'],'source-backup.pg_hba.conf')
+    assert old['bytes']==457 and old['sha256']!=hashlib.sha256(raw).hexdigest();assert actual==[{'sha256':hashlib.sha256(raw).hexdigest(),'bytes':445}]
+    value={'schema':'workinants.restore-HBA-v6-public-Windows-byte-sink.v1','PASS':True,'input_sha256':hashlib.sha256(raw).hexdigest(),'input_bytes':445,'actual_unchanged_Core_command_text_path':old,'actual_new_binary_writer_path':actual[0],'actual_processes':2,'process_allowlist':'Only current Python executable with fixed stdin/hash/length sink; Docker intercepted, all network/other process denied','limits':'Public pinned HBA only. No credential or protected archive used. This proves current source transport, not historical9cf archive bytes/full cause or new database qualification.','runtime':'NOT_RUN_NEW_SOURCE'}
+    path=D/'public-Windows-binary-transport-probe.json';assert not path.exists();data=(json.dumps(value,indent=2)+'\n').encode();path.write_bytes(data);print(json.dumps({'PASS':True,'path':str(path),'sha256':hashlib.sha256(data).hexdigest(),'old_bytes':457,'new_bytes':445}))
+if __name__=='__main__':main()

@@ -1,0 +1,37 @@
+"""Real Windows filesystem / actual Evidence.save, with no runtime APIs.
+
+This reproduces a possible observer hazard, never the unretained failure cause.
+"""
+from pathlib import Path
+import ctypes,hashlib,json,runpy,sys,tempfile
+from ctypes import wintypes
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+def forbidden(event,args):
+ if event in('subprocess.Popen','os.system','socket.connect','socket.bind','socket.getaddrinfo'):raise AssertionError('ACTUAL_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(forbidden)
+source=R/'scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py';M=runpy.run_path(str(source))
+kernel=ctypes.WinDLL('kernel32',use_last_error=True)
+kernel.CreateFileW.argtypes=[wintypes.LPCWSTR,wintypes.DWORD,wintypes.DWORD,wintypes.LPVOID,wintypes.DWORD,wintypes.DWORD,wintypes.HANDLE];kernel.CreateFileW.restype=wintypes.HANDLE
+kernel.CloseHandle.argtypes=[wintypes.HANDLE];kernel.CloseHandle.restype=wintypes.BOOL
+invalid=ctypes.c_void_p(-1).value
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+with tempfile.TemporaryDirectory(prefix='v7-save-reader-control-',dir=T/'test-tmp')as temporary:
+ root=Path(temporary);evidence=M['Evidence'](root/'held-reader',{'control_links':[]});before=sha(evidence.path.read_bytes())
+ handle=kernel.CreateFileW(str(evidence.path),0x80000000,1,None,3,0x80,None);assert handle not in(None,invalid),'CONTROL_HANDLE_REQUIRED'
+ failure=None
+ try:
+  try:evidence.stage('CONTROL_HELD_READER')
+  except OSError as error:failure={'class':type(error).__name__,'winerror':error.winerror if type(error.winerror)is int and error.winerror in(5,32,33)else None}
+  assert failure is not None and failure['winerror']in(5,32,33),'REAL_ATOMIC_REPLACE_CONTROL_MUST_FAIL'
+  assert evidence.failed is True and evidence.value['evidence_complete']is False and sha(evidence.path.read_bytes())==before
+ finally:assert kernel.CloseHandle(handle)
+ evidence.stage('CONTROL_HANDLE_CLOSED');assert evidence.failed is True and json.loads(evidence.path.read_bytes())['evidence_complete']is False
+ fresh=M['Evidence'](root/'closed-reader',{'control_links':[]})
+ for _ in range(8):
+  with fresh.path.open('rb')as stream:assert json.loads(stream.read())['evidence_complete']is True
+  fresh.stage('CONTROL_ALL_READ_HANDLES_CLOSED_BEFORE_SAVE')
+ assert fresh.failed is False and fresh.value['evidence_complete']is True
+ value={'schema':'workinants.privilege-v7-real-save-reader-control.v1','status':'PASS_BOUNDED_WINDOWS_FILESYSTEM_CONTROL','actual_Evidence_save_source_sha256':sha(source.read_bytes()),'held_reader_real_replace_error':failure,'held_reader_first_error_sticky':True,'published_original_unchanged_on_failure':True,'closed_reader_then_save_successes':8,'previous_failed_evidence_did_not_become_qualified':True,'all_handles_closed':True,'actual_process_Docker_DB_network_SQL':'FORBIDDEN_NOT_RUN','original_192_stop_cause':'UNOBSERVED','inference':'A deny-delete read handle can cause the actual atomic save to fail. This does not identify the prior normal-run exception.'}
+ p=T/'privilege_v7_closed_reader_save_control_20261120.json'
+ with p.open('x',encoding='utf8')as stream:json.dump(value,stream,indent=2);stream.write('\n')
+ print(json.dumps({'path':str(p),'sha256':sha(p.read_bytes()),'status':value['status'],'control_error':failure}))

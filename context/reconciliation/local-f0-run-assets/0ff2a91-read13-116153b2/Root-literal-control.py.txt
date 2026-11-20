@@ -1,0 +1,12 @@
+"""Use existing Root flag-only preflight/closed cleanup observer for the exact separately reviewed new attempt."""
+import sys
+from approve_0ff_three_exact_literals_20261120 import CFG
+CFG['read_retry']=('local-f0-read13-parser-env-retry-plan-116153b2','31ba3959520bc1fbefe81a3c834e5e69af3560de95ac37d30d3256423477da0d','d848e852-f857-4c03-8288-4893e2e8aa0c','7720bb7deb6c5b190d04482be6f263cb45622cba36fe06b548ecddcfc164284f',1400,'APPROVED_LOCAL_F0_REMAINING_APP_READ13_OWNED_V2_ATTEMPT','local_f0_remaining_app_read13_owned_v2_operation_steps.py','read13',['wa-p0c-d848e852-read13'])
+if __name__=='__main__':
+ if '--cleanup'in sys.argv:
+  sys.argv.remove('--cleanup')
+  from verify_0ff_three_independent_cleanup_20261120 import main
+ else:
+  from approve_0ff_Read1161_with_environment_review_20261120 import main,CFG as STRICT_CFG
+  STRICT_CFG['read_retry']=CFG['read_retry']
+ raise SystemExit(main())

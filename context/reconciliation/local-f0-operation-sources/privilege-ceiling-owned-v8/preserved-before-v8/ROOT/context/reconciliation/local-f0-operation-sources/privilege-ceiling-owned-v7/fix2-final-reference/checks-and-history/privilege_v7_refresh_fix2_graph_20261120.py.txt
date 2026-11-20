@@ -1,0 +1,26 @@
+"""Refresh only excluded V7 fix2 snapshots/PENDING metadata; no approval."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();data=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+before=T/'privilege-v7-fix2-before-author-20261120/manifest.json';m=json.loads(before.read_bytes());rows={Path(row['path']):row for row in m['files']};allowed={T/'local_f0_privilege_ceiling_v7_operation_steps.py',T/'run_privilege_v7_author_checks_20261120.py'}
+for path,row in rows.items():
+ if path not in allowed:assert sha(path)==row['sha256'],str(path)
+ack=json.loads((T/'privilege_v7_CREATE_projection_Root_bounded_implementation_ACK_20261120.json').read_bytes());ns=ack['authorized_new_namespace'];archive=R/ns['archive'];fix=archive/'fix2-final-reference'
+def copy(p,q):
+ q.parent.mkdir(parents=True,exist_ok=True)
+ if q.exists():assert q.read_bytes()==p.read_bytes(),str(q)
+ else:q.write_bytes(p.read_bytes())
+copy(before,fix/'before-author-manifest.json')
+for path in [R/n for n in ns['child_sources']]+[T/n for n in ns['external_five']]+[R/ns[k]for k in('child_validation','owned_validation')]:
+ row=rows[path];source=before.parent/row['snapshot'];assert sha(source)==row['sha256'];copy(source,fix/'held-source-and-validation'/(path.name+'.txt'))
+names=('privilege_v7_final_reference_postcheck_Root_bounded_fix_ACK_20261120.json','privilege_v7_independent_source_review_HOLD_20261120.json','privilege_v7_final_reference_order_independent_probe_20261120.json','probe_privilege_v7_final_barrier_order_20261120.py','privilege_v7_independent_explicit16_20261120.json','privilege_v7_independent_explicit16_20261120.log','privilege_v7_independent_bounded_checks_20261120.json','privilege_v7_independent_bounded_checks_20261120.log','check_privilege_v7_final_reference_fix2_20261120.py','privilege_v7_refresh_fix2_graph_20261120.py','run_privilege_v7_author_checks_20261120.py','privilege-v7-fix2-harness-first-before-fixture-path-fix-20261120.py.txt')
+artifacts={T/n for n in names}|set(T.glob('privilege_v7_fix2-*_20261120.json'))|set(T.glob('privilege_v7_fix2-*_20261120.log'))
+for p in sorted(artifacts):copy(p,fix/'checks-and-history'/(p.name+'.txt'if p.suffix=='.py'else p.name))
+five={n:sha(T/n)for n in ns['external_five']}
+for name in ns['external_five']:(archive/(name+'.txt')).write_bytes((T/name).read_bytes())
+ownedpath=R/ns['owned_validation'];owned=json.loads(ownedpath.read_bytes());owned['operator_sources_sha256']=five
+for key in('independent_safety_sql_review','independent_projection_review','Root_source_review'):owned[key]={'decision':'PENDING','path':None,'sha256':None,'operator_sources_sha256':five}
+owned['bounded_final_reference_fix']={'status':'PENDING_SAME_CATALOG_REVIEWER_CLOSURE','finding':'V7-FINAL-REFERENCE-POSTCHECK-01','Root_ACK_sha256':sha(T/'privilege_v7_final_reference_postcheck_Root_bounded_fix_ACK_20261120.json'),'held_review_sha256':'30d105a807fe05a051dca08475bb7806bb909c4406e99098112aac50be5bc24a','before_author_manifest_sha256':sha(before),'actual_domain_replayed':'Immutable old200/244 producer bytes; no repeated domain or runtime claim.'}
+owned['archive_files_sha256']={p.relative_to(R).as_posix():sha(p)for p in sorted(archive.rglob('*'))if p.is_file()};ownedpath.write_bytes(data(owned))
+assert all(owned[k]['decision']=='PENDING'for k in('independent_safety_sql_review','independent_projection_review','Root_source_review'))
+print(json.dumps({'external5':five,'owned_validation_sha256':sha(ownedpath),'child_validation_sha256':sha(R/ns['child_validation']),'archive_files':len(owned['archive_files_sha256']),'source_gates':'PENDING'},indent=2))

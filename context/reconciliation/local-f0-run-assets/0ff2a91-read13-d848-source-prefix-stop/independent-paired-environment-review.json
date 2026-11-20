@@ -1,0 +1,39 @@
+{
+  "schema": "workinants.Read-parser-path-independent-environment-review.v1",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "PAIRED_ENVIRONMENT_DIAGNOSIS_SUPPORTED_NO_SOURCE_CODE_FIX_JUSTIFIED",
+  "findings": [],
+  "review_scope": "Static/minimal review during active AppV3. Read only immutable proof/helper/generator source; checked three small SHA values. No rerun, parser import, project-code execution, test suite, Git/Docker/database/network, mutable runtime JSON read or liveRoot/source/gate mutation.",
+  "inputs": {
+    "paired_proof": "0ff_Read_missing_parser_path_paired_pure_proof_20261120.json",
+    "paired_proof_sha256": "19f787e11a0700a57e2f897acf8cc54548126e02fc217d31d8677d02a26eb8d4",
+    "helper": "probe_0ff_Read_missing_parser_path_20261120.py",
+    "helper_sha256": "44ea3b8fed0a05d8005c7fad121526e813ca8f925d5b398c6c1fc6e035d9cf7a",
+    "generator": "scripts/prepare-native-catalog-review.py",
+    "generator_sha256": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+    "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+    "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+    "original_approved_literal_sha256": "98b82ea09b1c606a7c8cb353cb2d2b6fb51c0c3aa76be51d57f7cbe5dd3c2f8f",
+    "source16_map_reference": "paired_proof.source16_sha256; exact16 plus generator checked before and after by the proof"
+  },
+  "source_assessment": [
+    "The actual unchanged load_catalog_tools first verifies source bytes and refuses preloaded named catalogue helpers. Its try block imports pglast, requires version v7.21, and compiles those exact helpers. Missing import becomes the fixed PARSER_OR_HELPER_COMPILE_FAILED code; no raw exception text is needed.",
+    "The paired helper requires pglast absent from sys.modules and find_spec None before its first call. The first actual loader must raise its exact source PreparationFailure class with the allowlisted code. It then inserts only fixed TASK/offline-python, requires imported pglast v7.21 located under that resolved directory and calls the same loader again.",
+    "The success result comes from the actual unchanged source loader, whose return is built from its declared PUBLIC_MODULES. It is not a mocked or fabricated tools dictionary. The loader does not install named catalogue helpers in global sys.modules; no dirty-cache guard is cleared.",
+    "All subprocess and socket boundaries are forbidden across the paired loader calls, and the proof asserts the forbidden-call list stayed empty. Source16/generator and original manifest are rechecked unchanged."
+  ],
+  "what_is_established": "On the freshly probed host/environment, absence of the pinned parser search path makes the unchanged loader reject, while explicitly supplying the approved TASK/offline-python path permits the unchanged loader to return its declared tools with pglast v7.21. This supports a bounded operator launch-environment correction.",
+  "historical_limit": "The stopped59177 process did not retain its complete exception class/function/line or complete environment. Root separately reported the launch omitted PYTHONPATH. The new proof is consistent with that stop; it does not reconstruct the original exception or prove no other original cause existed. No installation, authentication, domain or production outcome is qualified.",
+  "future_launch_requirements": [
+    "No production-source, SQL, fixture, ACL, parser guard or cache-policy change. Do not add a permissive import fallback or clear a real preloaded-helper refusal.",
+    "Bind the exact launch to PYTHONUTF8=1 and PYTHONPATH equal to the fixed absolute TASK/offline-python directory. Before any resources, record the actual interpreter identity and pglast version/resolved module location under that directory. The positive proof changes in-process sys.path; it does not itself prove a later child process received the required environment.",
+    "Use a separately preserved new attempt/evidence/plan identity. The fixture and all source remain pinned to d848e852-f857-4c03-8288-4893e2e8aa0c; if reused, label that fixture/resource UUID reuse explicitly and never call it a fresh fixture UUID.",
+    "Keep the exact child run-plan schema; an external fresh attempt UUID belongs in Root's new receipt/evidence identity, not an invented unreviewed child run-plan field. Regenerate nested bootstrap path/raw hash, reviewed history provenance/source7 and source archive for the fresh evidence/private paths with the unchanged actual history helper.",
+    "Preserve the prior plan/OUT/raw stopped report and cleanup proof. Exact old container/volume names must be absent before any resource reuse; do not adopt/delete conflicts. Keep full1400 source/five/fixture d6fb/content af77 unchanged, and let the unchanged pinner verify current+committed closure.",
+    "A concrete fresh held literal and exact mandatory launch environment require separate independent operational review before Root's fresh live preflight/flag-only action and any actual attempt. This diagnosis is not an automatic retry, runtime or seven-field INSTALL recovery approval."
+  ],
+  "lineage_disclosure": "Historical Read13 evidence-fix author; nonauthor reviewer of new OWNED V2 namespace/receipt/fresh data and its exact literal. Did not author Root's paired proof. This is a separate environmental diagnosis review, not a rewrite of any historical source or runtime review.",
+  "runtime": "NOT_RUN_BY_REVIEWER",
+  "Posture": "D",
+  "plain_English": "The checker needs a particular toolbox. The fresh probe fails without that toolbox path and works with it. Put the right path in the next launch; do not change the checker or guess what the old hidden error said."
+}

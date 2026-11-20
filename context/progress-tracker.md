@@ -1,3 +1,21 @@
+## Local F0 continuation — audited Read and installation subsets, reviewed V6/V8 (2026-11-20)
+
+Accepted coverage remains **638 PASS /33 PARTIAL /324 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE**;671 current evidence rows and selected94 cases5PASS/78PARTIAL/11NOT_RUN. Normal publication0ff2a910ce081a0c6e0c6a268d6f876b8e061a45/tree886f85d4a919a8a04f85c8fe45a01e0a8801ba1c was independently verified.
+
+Fresh Read attempt116153b2 completed all82 protocols with actual restricted application logins, same transaction/issuer ordering and complete42-table state unchanged. The fixture/resource UUIDd848 is explicitly reused; the prior source-only stop95321 is preserved separately. Exact1C1V/private cleanup passed. Independent audit supports only13 proposed SQL SELECT links; their closed evidence reader and actual status build remain pending. Corrected launches explicitly record the pinned parser environment; the initial missing path was an operator environment error, with the original complete exception unobserved.
+
+Fresh INSTALL6850 passed the reviewed finite protocols, including both failed-target precleanup activation phases:10receipts/15closures each, gatefalse/fourNULL/fourstartuprefusals and temporary3 memberships before original-grantor finalization versus0 afterward. The independent reviewer issued only standard resolve-rolled-back approval within the original220/240-second deadline. Canonical/recovered native29089/29090, oracle416 each and ledger22/23 were independently reproduced; exact3C3V/private cleanup passed. Inherited raw NOT_RUN/pending summary flags remain unchanged and are reconciled to later typed evidence. This packet does not retain Read-style COMPLETE42 business-row fingerprints. Only the missing failure-cleanup PARTIAL row is proposed for replacement, preserving history.
+
+The diagnostic-only AppV3 attempt completed13 protocols then stopped at the final Work update, retaining42501 and source-bound runtime_transition line33/body10f9. PostgreSQL source analysis establishes a private-helper permission-initialization defect; the exact denied-callee message and older complete causes remain unretained. A private nested-IF append-only artifact is independently source-reviewed, with real mechanism/fulltwo-migration/application/worker qualification stillNOT_RUN. Existing initial5ae/June migrations, accepted A–D and32workerACL rows remain unchanged.
+
+RestoreV6 exact HBA byte transport and PrivilegeV8 registered-public-ACL expectations are independently source-approved and Root-closed. Actual unchanged pure preparation validates1285 and1212files respectively; both new run manifests remainTO_BE_PINNED/PENDING/NOT_RUN until publication, exact committed pin, separate literal/live preflight and bounded actual. Pure checks and code reviews add no runtime coverage.
+
+Plain English: The reading test finished, and the failed-install test stayed locked until its powers were cleaned up. We saved the proof. Small readers still need review before the scoreboard gains points. Two reviewed repairs are ready for their next local tests. The first migration and worker locks stayed unchanged.
+
+Current detailed evidence: `context/reconciliation/local-f0-0ff-read1161-install6850-V6-V8-progress-20261120.json`, SHA-256 `98a4aa0f1858683e43e458404f3b8ebb396b81cbae55641473a6bdff34186ccd`. PostureD and later-phase boundaries remain; continue autonomous local work after publication. Earlier sections are version-qualified history.
+
+---
+
 ## Local F0 continuation — cleaned37-contrast stop and three reviewed packets (2026-11-20)
 
 Accepted coverage remains638PASS/33PARTIAL/324NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE/0acceptedFAILED;671ledgerrows and94cases5PASS/78PARTIAL/11NOT_RUN. Publisheda519d61f678a48afa4bb0e38d74800ebf8000d67/tree0f2a26f12b654fb17d865d4ae563419c09069a39 was independently verified after normal fast-forward.

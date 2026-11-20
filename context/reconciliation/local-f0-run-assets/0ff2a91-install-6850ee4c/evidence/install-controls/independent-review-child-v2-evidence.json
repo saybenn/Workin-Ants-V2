@@ -1,0 +1,1016 @@
+{
+  "schema": "workinants.install-controls-results.v2",
+  "evidence_complete": true,
+  "persistence_failure": false,
+  "first_failure": null,
+  "status": "RUNNING",
+  "current_stage": "INDEPENDENT_ROLLBACK_REVIEW_REQUIRED",
+  "targets": {
+    "canonical": {
+      "closure_SETTINGS": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "settings": {
+        "terse": true,
+        "locale": true,
+        "prefix": true,
+        "version": true,
+        "passwords": true,
+        "no_statements": true,
+        "no_error_statements": true
+      },
+      "closure_EMPTY_TARGET_PRE_BOOTSTRAP": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_SEPARATE_ORIGINAL_BOOTSTRAP": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_ACTIVATE_ONLY_MIGRATOR": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_AUTH_postgres": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_WRONG_AUTH_postgres": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_postgres": {
+        "role": "postgres",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "actual_connection_closed": true
+      },
+      "closure_AUTH_wa_migrator": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_WRONG_AUTH_wa_migrator": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_migrator": {
+        "role": "wa_migrator",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "actual_connection_closed": true
+      },
+      "closure_AUTHORITY_OBSERVE": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "authority": {
+        "leaf_create": false,
+        "temporary_memberships": 0,
+        "exact_temporary_options": true,
+        "permanent_migrator_edge": true
+      },
+      "closure_BEFORE_INSTALL_RUNTIME_INACTIVE": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "BEFORE_INSTALL_RUNTIME_INACTIVE": {
+        "flags_exact": true,
+        "runtime_roles": 4,
+        "all_null_verifiers": true
+      },
+      "closure_AUTH_wa_context_issuer": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_context_issuer": {
+        "role": "wa_context_issuer",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "actual_connection_closed": true
+      },
+      "closure_AUTH_wa_identity_service_authority": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_identity_service_authority": {
+        "role": "wa_identity_service_authority",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "actual_connection_closed": true
+      },
+      "closure_AUTH_wa_app_runtime": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_app_runtime": {
+        "role": "wa_app_runtime",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "actual_connection_closed": true
+      },
+      "closure_AUTH_wa_worker": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_worker": {
+        "role": "wa_worker",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "actual_connection_closed": true
+      },
+      "activation_gate_held": {
+        "permit": false,
+        "database_password_sql_executed": false
+      },
+      "closure_STAGE_canonical": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_CLI_deploy": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "cli_canonical_deploy": {
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "deploy",
+        "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS",
+        "exit_code": 0,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": true,
+          "prisma_header_present": false,
+          "prisma_header_unique": false,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": true,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "container_id": "cf9dcd38c7bca7b01f6bb040d65cd71d0f543ae7bc4fe35850d86ad604bb3c4d",
+        "source_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "attestation_sha256": "077fd0482e6816d599f8a03a954663cbbf4eba7bf6aa66534c7306f244f79f4b"
+      },
+      "closure_WRONG_FINALIZER": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "wrong_grantor": {
+        "matched": true,
+        "sqlstate": "P0001",
+        "source_body_sha256": "a2f98b8da7497155f9c60bff2e1798a46b27395378b0986ee7115c3adecda2dd",
+        "source_line": 6,
+        "raw_output_discarded": true
+      },
+      "closure_PRE_FINALIZATION": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_ORIGINAL_GRANTOR_FINALIZATION": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "original_cleanup": {
+        "original_grantor": "postgres",
+        "temporary_memberships": 0,
+        "leaf_create": false,
+        "other_clients": 0
+      },
+      "closure_COMPLETE_APPLICATION_INVENTORY": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "inventory": {
+        "enums": 29,
+        "types": 142,
+        "functions": 147,
+        "relations": 188,
+        "other_clients": 0
+      },
+      "closure_GUARDED_PRIVATE_LEDGER": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "ledger": {
+        "rows": [
+          {
+            "steps": 1,
+            "finished": true,
+            "logs_state": "NULL",
+            "name_sha256": "45bda41cbf8bc23eda6a6cb1005a51bdcdb00281848b9caa7e1b8a7ca9e940d8",
+            "rolled_back": false,
+            "checksum_sha256": "0b49ce958ac762acad2705f29e480cc7d38354e5c46ddc8c38096767639ee38c",
+            "immutable_sha256": "4834ea2f6e9e2ab8b7ef372385364fced2c142b6e39a5f65f2cbd327716e3802"
+          }
+        ],
+        "ids_unique": true
+      },
+      "activation_gate_allowed": {
+        "permit": true,
+        "database_password_sql_executed": false
+      },
+      "closure_AFTER_VERIFIED_CLEANUP_STILL_INACTIVE": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "AFTER_VERIFIED_CLEANUP_STILL_INACTIVE": {
+        "flags_exact": true,
+        "runtime_roles": 4,
+        "all_null_verifiers": true
+      },
+      "closure_ACTIVATE_FOUR_AFTER_VERIFIED_SUCCESS_CLEANUP": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_WRONG_AUTH_wa_context_issuer": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_WRONG_AUTH_wa_identity_service_authority": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_WRONG_AUTH_wa_app_runtime": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_WRONG_AUTH_wa_worker": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_SCHEMA_FINGERPRINT": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "schema_fingerprint": {
+        "sha256": "718c3f037343b7e766e3e540924d018cb6ab7e5010fa5ca1a01c1b5d2d6e7ffe",
+        "random_meta_lines_removed": 2,
+        "raw_dump_retained": false
+      },
+      "finite_result": {
+        "success_cleanup_and_runtime_activation": "PASS_FINITE_PROTOCOL",
+        "genuine_second_deploy": "PASS_UNCHANGED_PRIVATE_LEDGER",
+        "full_schema_and_acl_parity": "PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON"
+      }
+    },
+    "division_failure": {
+      "closure_SETTINGS": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "settings": {
+        "terse": true,
+        "locale": true,
+        "prefix": true,
+        "version": true,
+        "passwords": true,
+        "no_statements": true,
+        "no_error_statements": true
+      },
+      "closure_EMPTY_TARGET_PRE_BOOTSTRAP": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_SEPARATE_ORIGINAL_BOOTSTRAP": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_ACTIVATE_ONLY_MIGRATOR": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_AUTH_postgres": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_WRONG_AUTH_postgres": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_postgres": {
+        "role": "postgres",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "actual_connection_closed": true
+      },
+      "closure_AUTH_wa_migrator": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_WRONG_AUTH_wa_migrator": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_migrator": {
+        "role": "wa_migrator",
+        "correct_password": "PASS_SCRAM",
+        "wrong_password": "PASS_REJECTED",
+        "actual_connection_closed": true
+      },
+      "closure_AUTHORITY_OBSERVE": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "authority": {
+        "leaf_create": false,
+        "temporary_memberships": 0,
+        "exact_temporary_options": true,
+        "permanent_migrator_edge": true
+      },
+      "closure_BEFORE_INSTALL_RUNTIME_INACTIVE": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "BEFORE_INSTALL_RUNTIME_INACTIVE": {
+        "flags_exact": true,
+        "runtime_roles": 4,
+        "all_null_verifiers": true
+      },
+      "closure_AUTH_wa_context_issuer": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_context_issuer": {
+        "role": "wa_context_issuer",
+        "correct_password": "PASS_REJECTED_INACTIVE",
+        "wrong_password": "NOT_RUN",
+        "actual_connection_closed": true
+      },
+      "closure_AUTH_wa_identity_service_authority": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_identity_service_authority": {
+        "role": "wa_identity_service_authority",
+        "correct_password": "PASS_REJECTED_INACTIVE",
+        "wrong_password": "NOT_RUN",
+        "actual_connection_closed": true
+      },
+      "closure_AUTH_wa_app_runtime": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_app_runtime": {
+        "role": "wa_app_runtime",
+        "correct_password": "PASS_REJECTED_INACTIVE",
+        "wrong_password": "NOT_RUN",
+        "actual_connection_closed": true
+      },
+      "closure_AUTH_wa_worker": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "auth_wa_worker": {
+        "role": "wa_worker",
+        "correct_password": "PASS_REJECTED_INACTIVE",
+        "wrong_password": "NOT_RUN",
+        "actual_connection_closed": true
+      },
+      "activation_gate_held": {
+        "permit": false,
+        "database_password_sql_executed": false
+      },
+      "closure_STAGE_division_failure": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "server_before": {
+        "schema": "workinants.install-server-counts.v1",
+        "counts": {
+          "registered": 20,
+          "division_22012": 0,
+          "function_42501": 0,
+          "secondary_25p02": 0,
+          "other_migrator_error": 1,
+          "malformed": 0,
+          "forbidden_body": 0
+        },
+        "raw_output_discarded": true
+      },
+      "closure_CLI_deploy": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "cli_division_failure_deploy": {
+        "schema": "workinants.local-f0-migrate-result.v2",
+        "operation": "deploy",
+        "status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT",
+        "exit_code": 1,
+        "prisma_codes": [],
+        "sqlstates": [],
+        "diagnostic_format": {
+          "text_valid": true,
+          "sgr_stripped": false,
+          "headers_valid": false,
+          "prisma_header_present": true,
+          "prisma_header_unique": true,
+          "database_header_present": false,
+          "database_header_unique": false
+        },
+        "no_pending_message_observed": false,
+        "raw_output_discarded": true,
+        "database_qualification_claimed": false,
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+        "attestation_sha256": "2e1a09b4552c061720aafd91674df56974fdf2d6d0f20191f12a6f8c070d2b8d"
+      },
+      "failed_precleanup_activation": [
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 0,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "CLOSED_FAILED_DEPLOY_VERIFIED",
+          "facts": {
+            "all_operation_backends_absent": true,
+            "cli_attestation_sha256": "2e1a09b4552c061720aafd91674df56974fdf2d6d0f20191f12a6f8c070d2b8d",
+            "cli_exit_code": 1,
+            "cli_status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT",
+            "closed_process_result_observed": true,
+            "diagnostic_delta": {
+              "division_22012": 1,
+              "forbidden_body": 0,
+              "function_42501": 0,
+              "malformed": 0,
+              "other_migrator_error": 0,
+              "registered": 2,
+              "secondary_25p02": 1
+            },
+            "intended_primary_sqlstate": "22012"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 1,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "GATE_PREREQUISITES",
+          "facts": {
+            "activated": false,
+            "install_closed_success": false,
+            "original_cleanup_verified": false
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 2,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "GATE_REFUSED",
+          "facts": {
+            "database_password_sql_executed": false,
+            "outcome": "REFUSED",
+            "refusal_code": "INSTALL_RUNTIME_ACTIVATION_HELD"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 3,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "NULL_VERIFIERS",
+          "facts": {
+            "all_null_verifiers": true,
+            "flags_exact": true,
+            "runtime_roles": 4
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 4,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "STARTUP_REJECTED_wa_context_issuer",
+          "facts": {
+            "candidate_startup": "PASS_REJECTED_INACTIVE",
+            "exit_code": 2,
+            "operation_connection_closed": true,
+            "role": "wa_context_issuer"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 5,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "STARTUP_REJECTED_wa_identity_service_authority",
+          "facts": {
+            "candidate_startup": "PASS_REJECTED_INACTIVE",
+            "exit_code": 2,
+            "operation_connection_closed": true,
+            "role": "wa_identity_service_authority"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 6,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "STARTUP_REJECTED_wa_app_runtime",
+          "facts": {
+            "candidate_startup": "PASS_REJECTED_INACTIVE",
+            "exit_code": 2,
+            "operation_connection_closed": true,
+            "role": "wa_app_runtime"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 7,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "STARTUP_REJECTED_wa_worker",
+          "facts": {
+            "candidate_startup": "PASS_REJECTED_INACTIVE",
+            "exit_code": 2,
+            "operation_connection_closed": true,
+            "role": "wa_worker"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 8,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "TEMPORARY_AUTHORITY",
+          "facts": {
+            "exact_temporary_options": true,
+            "leaf_create": false,
+            "permanent_migrator_edge": true,
+            "temporary_memberships": 3
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 9,
+          "identity": {
+            "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+            "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+            "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+            "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+            "variant": "division_failure",
+            "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+            "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+          },
+          "kind": "COMPLETE",
+          "facts": {
+            "database_password_sql_executed": false,
+            "gate_state": {
+              "activated": false,
+              "install_closed_success": false,
+              "original_cleanup_verified": false
+            },
+            "observations_complete": true,
+            "original_finalization_not_yet_run": true
+          }
+        }
+      ],
+      "failed_precleanup_closures": [
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 0,
+          "stage": "FAILED_DEPLOY_RETURNED",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 1,
+          "stage": "PRE_DIAGNOSTIC",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 2,
+          "stage": "POST_DIAGNOSTIC",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 3,
+          "stage": "PRE_NULL_VERIFIERS",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 4,
+          "stage": "POST_NULL_VERIFIERS",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 5,
+          "stage": "PRE_STARTUP_wa_context_issuer",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 6,
+          "stage": "POST_STARTUP_wa_context_issuer",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 7,
+          "stage": "PRE_STARTUP_wa_identity_service_authority",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 8,
+          "stage": "POST_STARTUP_wa_identity_service_authority",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 9,
+          "stage": "PRE_STARTUP_wa_app_runtime",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 10,
+          "stage": "POST_STARTUP_wa_app_runtime",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 11,
+          "stage": "PRE_STARTUP_wa_worker",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 12,
+          "stage": "POST_STARTUP_wa_worker",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 13,
+          "stage": "PRE_AUTHORITY",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        },
+        {
+          "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+          "sequence": 14,
+          "stage": "POST_AUTHORITY",
+          "proof": {
+            "all_other_clients_absent": true,
+            "observation_completed": true,
+            "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES"
+          }
+        }
+      ],
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__FAILED_DEPLOY_RETURNED": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__PRE_DIAGNOSTIC": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__POST_DIAGNOSTIC": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__PRE_NULL_VERIFIERS": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__POST_NULL_VERIFIERS": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__PRE_STARTUP_wa_context_issuer": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__POST_STARTUP_wa_context_issuer": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__PRE_STARTUP_wa_identity_service_authority": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__POST_STARTUP_wa_identity_service_authority": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__PRE_STARTUP_wa_app_runtime": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__POST_STARTUP_wa_app_runtime": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__PRE_STARTUP_wa_worker": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__POST_STARTUP_wa_worker": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__PRE_AUTHORITY": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION__POST_AUTHORITY": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_PRE_FINALIZATION": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "closure_ORIGINAL_GRANTOR_FINALIZATION": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "original_cleanup": {
+        "original_grantor": "postgres",
+        "temporary_memberships": 0,
+        "leaf_create": false,
+        "other_clients": 0
+      },
+      "closure_COMPLETE_APPLICATION_INVENTORY": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "inventory": {
+        "enums": 0,
+        "types": 0,
+        "functions": 0,
+        "relations": 0,
+        "other_clients": 0
+      },
+      "closure_GUARDED_PRIVATE_LEDGER": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "ledger": {
+        "rows": [
+          {
+            "steps": 0,
+            "finished": false,
+            "logs_state": "NULL",
+            "name_sha256": "45bda41cbf8bc23eda6a6cb1005a51bdcdb00281848b9caa7e1b8a7ca9e940d8",
+            "rolled_back": false,
+            "checksum_sha256": "8fbf6f4d4409282cb7ea17f2efa4c9203cd064d06b198a5f5b733130eda2dae5",
+            "immutable_sha256": "dde5fcf70237b807d5bc069d0e011219d8f58381720ddaf918fcf5e2774e4c7b"
+          }
+        ],
+        "ids_unique": true
+      },
+      "server_after": {
+        "schema": "workinants.install-server-counts.v1",
+        "counts": {
+          "registered": 26,
+          "division_22012": 1,
+          "function_42501": 0,
+          "secondary_25p02": 1,
+          "other_migrator_error": 1,
+          "malformed": 0,
+          "forbidden_body": 0
+        },
+        "raw_output_discarded": true
+      },
+      "failure_verdict": {
+        "variant": "division_failure",
+        "primary_sqlstate": "22012",
+        "classification": "SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS",
+        "delta": {
+          "registered": 6,
+          "division_22012": 1,
+          "function_42501": 0,
+          "secondary_25p02": 1,
+          "other_migrator_error": 0,
+          "malformed": 0,
+          "forbidden_body": 0
+        },
+        "failed_row_immutable_sha256": "dde5fcf70237b807d5bc069d0e011219d8f58381720ddaf918fcf5e2774e4c7b",
+        "P3018_claimed": false,
+        "actual_database_failure_observed": true,
+        "rollback_observed": true,
+        "recovery_approved": false
+      },
+      "closure_FAILED_INSTALL_REMAINS_INACTIVE": {
+        "scope": "ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES",
+        "observation_completed": true,
+        "all_other_clients_absent": true
+      },
+      "FAILED_INSTALL_REMAINS_INACTIVE": {
+        "flags_exact": true,
+        "runtime_roles": 4,
+        "all_null_verifiers": true
+      },
+      "review_hold": {
+        "proof_sha256": "f0eefef1c583485d0c3624b064ba1f04dc133d7258e5e0cd4c6782b848742924",
+        "decision": "PENDING_INDEPENDENT_REVIEW",
+        "timeout_seconds": 240
+      }
+    }
+  },
+  "subsequent_cases_stopped": false,
+  "limits": {
+    "posture": "D",
+    "whole_cases": "NOT_PROMOTED",
+    "full_native_acl_and_ledger_comparison": "PENDING_OUTER_OPERATOR",
+    "451_register": "NOT_PROMOTED",
+    "raw_output_retained": false
+  },
+  "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+  "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+  "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+  "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+  "reviewed_plan_sha256": "591bb587546afcd5e4d2772919b9299f9540e163357f1e80748554951d93ed9a"
+}

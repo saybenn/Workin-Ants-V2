@@ -1,0 +1,106 @@
+"""Appended to private V8 runtime tests; every real boundary is forbidden."""
+
+class PublicACLProjectionV8Tests(unittest.TestCase):
+    setUp=PrivilegeCoordinatorTests.setUp
+    no_secrets=PrivilegeCoordinatorTests.no_secrets
+    exercise=PrivilegeCoordinatorTests.exercise
+
+    def snapshot(self):
+        raw=(ROOT/PUBLIC_OBSERVED_NATIVE).read_bytes();self.assertEqual(M['sha'](raw),PUBLIC_OBSERVED_NATIVE_SHA)
+        return json.loads(raw)
+
+    def public_cases(self):return [c for c in PACKET['cases']if c['diagnostic']['kind']=='SCHEMA_CREATE'and c['schema']=='public']
+
+    def test_pure_eight_queries_unchanged_only_public_usage_projection_differs(self):
+        old=runpy.run_path(str(ROOT/'scripts/privilege_ceiling_control_protocol_v7.py'));native=self.snapshot();before=deepcopy(native);changed=[]
+        for case in[c for c in PACKET['cases']if c['diagnostic']['kind']=='SCHEMA_CREATE']:
+            old_query,old_expected,_=M['metadata_query_spec'](case,native,old['expected_acl']);query,expected,_=M['metadata_query_spec'](case,native,source_right)
+            self.assertEqual(query,old_query);self.assertFalse(expected['schema_create']);self.assertEqual(expected,{'schema_usage':True,'schema_create':False})
+            if expected!=old_expected:changed.append(case['name']);self.assertEqual(case['schema'],'public');self.assertEqual(old_expected,{'schema_usage':False,'schema_create':False})
+        self.assertEqual(set(changed),{c['name']for c in self.public_cases()});self.assertEqual(native,before)
+
+    def test_public_registration_owner_full_typed_multiset_drift_rejects(self):
+        native=self.snapshot();good=deepcopy(PUBLIC_REGISTRATION)
+        reversed_native=deepcopy(native);reversed_native['public_schema_acl'].reverse();self.assertTrue(P['expected_acl'](reversed_native,'wa_app_runtime','SCHEMA','public','USAGE',public_registration=good))
+        variants=[]
+        for key in('public_schema_owner','public_schema_acl'):
+            bad=deepcopy(native);bad.pop(key);variants.append((bad,good))
+        bad=deepcopy(native);bad['public_schema_owner']='foreign_owner';variants.append((bad,good))
+        bad=deepcopy(native);bad['public_schema_acl'].append(deepcopy(bad['public_schema_acl'][0]));variants.append((bad,good))
+        bad=deepcopy(native);bad['public_schema_acl'].pop();variants.append((bad,good))
+        for field,value in(('grantee',CANARY),('grantor',CANARY),('privilege','CREATE'),('grant_option',True),('grant_option',0)):
+            bad=deepcopy(native);bad['public_schema_acl'][0][field]=value;variants.append((bad,good))
+        bad=deepcopy(native);bad['public_schema_acl'][0]['unknown']=CANARY;variants.append((bad,good))
+        for mutate in(lambda x:x.update(owner='foreign_owner'),lambda x:x['full_acl'][0].update(privilege='USAGE'),lambda x:x['full_acl'][0].update(grant_option=True),lambda x:x.update(extra=CANARY),lambda x:x['full_acl'].pop()):
+            bad=deepcopy(good);mutate(bad);variants.append((native,bad))
+        for snapshot,registration in variants:
+            with self.assertRaises(P['Refused']):P['expected_acl'](snapshot,'wa_app_runtime','SCHEMA','public','USAGE',public_registration=registration)
+        self.assertFalse(P['expected_acl'](native,'wa_worker','SCHEMA','public','CREATE',public_registration=good))
+
+    def test_two_field_comparison_exact_types_and_unknown_values(self):
+        expected={'schema_usage':True,'schema_create':False};helper=M['schema_create_metadata_comparison'];unknown={key:{'expected':value,'observed':None,'matches':None}for key,value in expected.items()}
+        for actual in(None,{},True,{'schema_usage':True},{**expected,'unknown':CANARY},{'schema_usage':1,'schema_create':False},{'schema_usage':True,'schema_create':0},{'schema_usage':CANARY,'schema_create':False}):
+            self.assertEqual(helper(expected,actual),unknown);self.assertNotIn(CANARY,json.dumps(helper(expected,actual)))
+        self.assertEqual(helper(expected,{'schema_usage':False,'schema_create':False}),{'schema_usage':{'expected':True,'observed':False,'matches':False},'schema_create':{'expected':False,'observed':False,'matches':True}})
+
+    def test_actual_two_public_negative_methods_keep_strict_CREATE_diagnostics(self):
+        def action(runner):
+            runner.baseline=runner.fingerprint()
+            for case in self.public_cases():runner.negative(case)
+        failure,data,world,memory,runner=self.exercise(action=action)
+        self.assertIsNone(failure,(getattr(failure,'code',None),data.get('original_failure')));self.assertEqual(len(data['results']),2)
+        for record in data['operations']:
+            if record.get('name')not in{c['name']for c in self.public_cases()}:continue
+            self.assertTrue(record['diagnostic']['matched']);self.assertEqual(record['diagnostic']['gate'],'SCHEMA_CREATE');self.assertTrue(record['diagnostic_match_receipt']['strict_match']);self.assertTrue(record['diagnostic_match_receipt']['position_projection_matches']);self.assertTrue(record['closed_before_observers'])
+            self.assertEqual(record['schema_create_metadata_comparison'],{'schema_usage':{'expected':True,'observed':True,'matches':True},'schema_create':{'expected':False,'observed':False,'matches':True}})
+
+    def metadata_case(self,mode='normal',old_predicate=False):
+        # Actual Runner.metadata and actual global_closed. Only fixed raw SQL
+        # and process transport are modeled; no successful denial is fabricated.
+        case=self.public_cases()[0];world=World();memory=MemoryEvidence();world.evidence=memory
+        with tempfile.TemporaryDirectory(prefix='public-v8-metadata-',dir=TASK)as temporary:
+            plan=plans(world,Path(temporary));loaded=M['load_inputs'](plan);packet,blobs,protocol,native,ctx,np,nb,snapshot,api,host=loaded
+            if old_predicate:
+                old=runpy.run_path(str(ROOT/'scripts/privilege_ceiling_control_protocol_v7.py'))
+                def original(native,role,kind,object_,verb,column=None,*,public_registration=None):return old['expected_acl'](native,role,kind,object_,verb,column)
+                protocol={**protocol,'expected_acl':original}
+            Runner=M['runner_type'](native,ctx,protocol);runner=Runner(plan,packet,blobs,np,nb,snapshot,api,host,memory);memory.value.update(current_case=case['name'],current_stage='PRIVILEGE_METADATA',current={'name':case['name']});events=[]
+            actual=world.run;query=M['metadata_query_spec'](case,world.native,source_right)[0];ordinary=memory.save
+            def transport(args,**kwargs):
+                if kwargs.get('input')==query:
+                    events.append('METADATA_PROCESS')
+                    if mode=='throw':raise OSError(CANARY)
+                    result=actual(args,**kwargs)
+                    if mode=='wrong':result.stdout='{"schema_usage":false,"schema_create":false}'
+                    if mode=='nonboolean':result.stdout='{"schema_usage":1,"schema_create":false}'
+                    if mode=='duplicate':result.stdout='{"schema_usage":true,"schema_usage":false,"schema_create":false}'
+                    if mode=='nonfinite':result.stdout='{"schema_usage":NaN,"schema_create":false}'
+                    if mode=='control':result.stdout='\x01'+result.stdout
+                    if mode=='unknown':result.stdout=json.dumps({CANARY:True,'schema_create':False})
+                    if mode=='io':
+                        def writer():raise OSError(CANARY)
+                        memory.save=writer
+                    return result
+                if "'other_clients'"in kwargs.get('input',''):events.append('GLOBAL_CLOSURE')
+                return actual(args,**kwargs)
+            runner.actor=Mock(side_effect=AssertionError('NO_BUSINESS_ACTOR_IN_METADATA_ONLY_TEST'))
+            with patch.object(subprocess,'run',side_effect=transport),patch.object(subprocess,'check_output',side_effect=world.check_output),patch.object(subprocess,'Popen',side_effect=lambda*a,**k:Process(world,*a,**k)):
+                try:projection=runner.metadata(case);failure=None
+                except BaseException as error:failure=error;projection=None
+            self.no_secrets(memory.value,world);runner.actor.assert_not_called()
+            self.assertIn('GLOBAL_CLOSURE',events);self.assertTrue(memory.value['current']['metadata_query_receipt']['closure_attempted']);self.assertEqual(memory.value['results'],[])
+            return failure,memory.value,events,projection
+
+    def test_actual_metadata_process_projection_and_old_predicate_restoration(self):
+        failure,value,events,projection=self.metadata_case();self.assertIsNone(failure);self.assertEqual(projection,{'schema_usage':True,'schema_create':False})
+        failure,value,events,projection=self.metadata_case(old_predicate=True);self.assertEqual(getattr(failure,'code',None),'SOURCE_NATIVE_METADATA_REQUIRED');receipt=value['current']['schema_create_metadata_comparison'];self.assertEqual(receipt['schema_usage'],{'expected':False,'observed':True,'matches':False});self.assertIsNone(projection)
+
+    def test_actual_invalid_or_unreceived_metadata_keeps_null_and_stops(self):
+        for mode in('throw','nonboolean','duplicate','nonfinite','control','unknown'):
+            with self.subTest(mode=mode):
+                failure,value,events,projection=self.metadata_case(mode);self.assertIsNotNone(failure);self.assertIsNone(projection)
+                for row in value['current']['schema_create_metadata_comparison'].values():self.assertIsNone(row['observed']);self.assertIsNone(row['matches'])
+
+    def test_actual_wrong_comparison_and_IO_preserve_fixed_failure_and_closure(self):
+        failure,value,events,projection=self.metadata_case('wrong');self.assertEqual(getattr(failure,'code',None),'SOURCE_NATIVE_METADATA_REQUIRED');self.assertFalse(value['current']['schema_create_metadata_comparison']['schema_usage']['matches']);self.assertEqual(events[-1],'GLOBAL_CLOSURE')
+        failure,value,events,projection=self.metadata_case('io');self.assertEqual(getattr(failure,'code',None),'EVIDENCE_INCOMPLETE');self.assertFalse(value['evidence_complete']);self.assertIsNone(projection);self.assertIn('GLOBAL_CLOSURE',events)

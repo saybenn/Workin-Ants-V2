@@ -1,0 +1,20 @@
+from pathlib import Path
+import hashlib,json,runpy,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+def forbidden(event,args):
+ if event in('subprocess.Popen','os.system','socket.connect','socket.bind','socket.getaddrinfo'):raise AssertionError('ACTUAL_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(forbidden)
+tests=runpy.run_path(str(R/'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v7.py'))
+world=tests['World']();api=runpy.run_path(str(R/tests['N']['API']))
+args=api['psql']('postgres','a'*64);query="SELECT current_user='postgres';"
+try:world.run(args,input=query,text=True);old_rejected=False
+except AssertionError:old_rejected=True
+assert old_rejected
+globals_=tests['LEGACY']['World'].run.__globals__;before=globals_['CID'];globals_['CID']='a'*64
+try:
+ result=world.run(args,input=query,text=True);assert result.returncode==0 and result.stdout=='t'
+finally:globals_['CID']=before
+value={'schema':'workinants.privilege-v7-process-fixture-CID-probe.v1','status':'PASS_BOUNDED_PROCESS_MODEL_PROJECTION_ONLY','old_literal_CID_mismatch_reproduced':True,'same_actual_psql_args_after_test_only_CID_projection':{'exit_code':result.returncode,'exact_original_grantor_boolean':result.stdout=='t'},'production_factories_or_verifiers_replaced':False,'production_CID_or_plan_modified':False,'actual_process_network_SQL':'FORBIDDEN_NOT_RUN','qualification_claim':'NONE','test_source_sha256':hashlib.sha256((R/'scripts/sql-review/test_run_native_table_denials_v3.py').read_bytes()).hexdigest()}
+p=T/'privilege_v7_model_CID_boundary_probe_20261120.json'
+with p.open('x',encoding='utf8')as stream:json.dump(value,stream,indent=2);stream.write('\n')
+print(json.dumps({'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'status':value['status']}))

@@ -1,0 +1,45 @@
+{
+  "schema": "workinants.restore-hba-v6-independent-affected-checks.v1",
+  "delivery_sha256": "707b0922033a63a1c16e591878dc16214bfc7dc94a74e71fb57948a574172f4d",
+  "freeze_sha256": "87ffbde5b002b715e3819880d4db80fac69d7acc887af4ab931d47283ff27833",
+  "script_sha256": "f2cf71a6024b2d9fe05b3ad77320ce5bd41f0d623cbb715913f7fd55b2ed9957",
+  "operator_sources_sha256": {
+    "execute_local_f0_restore_hba_bytes_v6_20261120.py": "a6173224dfaf931d2a3ff211ea7bf881952ea1ab29643826eb46ac17c69183b4",
+    "local_f0_restore_hba_bytes_v6_operation_steps.py": "08790b6d8325119f50ad96051de67de2c5fe451a2839e9baf90311344a947c02",
+    "prepare_local_f0_restore_hba_bytes_v6_plan.py": "633fa4458fe9f28bb712bea4ba45f4261c3bfd99db587113ca6512f601b1d4f9",
+    "check_local_f0_restore_hba_bytes_v6_operation.py": "21db372a6c88f978c2e0a3b557c80b00cdf5e7ee85cf243a08f807428878002c",
+    "pin_local_f0_restore_hba_bytes_v6_plan_20261120.py": "3860b63e977edbe411622be2a70dbce1b941585be5779c0343cdb55f75cae4aa"
+  },
+  "testsRun": 15,
+  "failures": 0,
+  "errors": 0,
+  "PASS": true,
+  "seconds": 157.375,
+  "trace": "test_01_common_binary_writer_exact_four_public_payloads_and_verifier (<run_path>.HbaV6Tests.test_01_common_binary_writer_exact_four_public_payloads_and_verifier) ... ok\ntest_02_binary_writer_rejects_wrong_types_noise_and_unadmitted_targets (<run_path>.HbaV6Tests.test_02_binary_writer_rejects_wrong_types_noise_and_unadmitted_targets) ... ok\ntest_03_binary_verifier_rejects_semantic_equivalents_parser_and_malformed_responses (<run_path>.HbaV6Tests.test_03_binary_verifier_rejects_semantic_equivalents_parser_and_malformed_responses) ... ok\ntest_04_only_old_source_writer_restoration_reproduces_CRLF_and_fails_exact_verifier (<run_path>.HbaV6Tests.test_04_only_old_source_writer_restoration_reproduces_CRLF_and_fails_exact_verifier) ... ok\ntest_05_only_old_multiline_verifier_restoration_misses_coupled_translation (<run_path>.HbaV6Tests.test_05_only_old_multiline_verifier_restoration_misses_coupled_translation) ... ok\ntest_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) ... ok\ntest_07_archive_preassert_receipt_and_unchanged_strict_members (<run_path>.HbaV6Tests.test_07_archive_preassert_receipt_and_unchanged_strict_members) ... ok\ntest_08_actual_backup_retains_process_boundary_but_bad_HBA_never_qualifies (<run_path>.HbaV6Tests.test_08_actual_backup_retains_process_boundary_but_bad_HBA_never_qualifies) ... ok\ntest_09_receipt_first_stop_sticky_IO_and_main_finally_stops_later_phases (<run_path>.HbaV6Tests.test_09_receipt_first_stop_sticky_IO_and_main_finally_stops_later_phases) ... ok\ntest_10_new_source_gate_exact_five_pending_and_original_generation (<run_path>.HbaV6Tests.test_10_new_source_gate_exact_five_pending_and_original_generation) ... ok\ntest_11_actual_prepare_keeps_V5_generation_and_pinner_stops_at_new_pending_gate (<run_path>.HbaV6Tests.test_11_actual_prepare_keeps_V5_generation_and_pinner_stops_at_new_pending_gate) ... ok\ntest_12_actual_entry_pending_gate_precedes_Steps_compilation (<run_path>.HbaV6Tests.test_12_actual_entry_pending_gate_precedes_Steps_compilation) ... ok\ntest_13_actual_current_committed_pin_and_source_verifier_on_exclusive_review_fixture (<run_path>.HbaV6Tests.test_13_actual_current_committed_pin_and_source_verifier_on_exclusive_review_fixture) ... ok\ntest_14_ordinary_ASTs_and_entire_original_generation_unchanged (<run_path>.HbaV6Tests.test_14_ordinary_ASTs_and_entire_original_generation_unchanged) ... ok\ntest_15_new_gate_malformed_nonfinite_foreign_map_and_snapshot_drift_reject (<run_path>.HbaV6Tests.test_15_new_gate_malformed_nonfinite_foreign_map_and_snapshot_drift_reject) ... ok\n\n----------------------------------------------------------------------\nRan 15 tests in 157.223s\n\nOK\n",
+  "query_parse_only": {
+    "source-backup.pg_hba.conf": {
+      "sha256": "ccdc6aa29bc21448189405a5f75974b4b8769a83da9f29a54f2dbbbe1a87e518",
+      "statements": 1,
+      "no_multiline_expected_HBA": true
+    },
+    "quarantine-admin.pg_hba.conf": {
+      "sha256": "5ec6a9e71d6025667fee754d1eee6c67282423b6eadf662673b484a44b195402",
+      "statements": 1,
+      "no_multiline_expected_HBA": true
+    },
+    "quarantine-identity.pg_hba.conf": {
+      "sha256": "ecd988c04219dd51e353d741cca21b824b37bb8179d993bd1ec9981113959f51",
+      "statements": 1,
+      "no_multiline_expected_HBA": true
+    },
+    "quarantine-diagnostic.pg_hba.conf": {
+      "sha256": "1b92f58e9fa6372635b5a968cf273de710f2a19917cd0907cd2a66f2e5553fa8",
+      "statements": 1,
+      "no_multiline_expected_HBA": true
+    }
+  },
+  "candidate75_and_frozen91_before_after_exact": true,
+  "test_scope": "Only15 affected HbaV6Tests; actual modified methods and real source-admission/preparer/pinner algorithms. External Docker/DB/Git boundary mocks; isolated future approval metadata; no runtime qualification. Unchanged broad suites not rerun.",
+  "all_real_process_and_network_forbidden": true,
+  "runtime": "NOT_RUN_NEW_SOURCE"
+}

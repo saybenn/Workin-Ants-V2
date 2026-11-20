@@ -1,0 +1,21 @@
+"""Actual unchanged V8 prepare/full filesystem validation after exact Root/source closure; all processes forbidden."""
+from pathlib import Path
+import datetime,hashlib,json,runpy,socket,subprocess,time,uuid
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+ip=T/'privilege_public_acl_v8_source_approved_committable_inventory_20261120.json';ir=ip.read_bytes();assert sha(ir)=='d9dde02380185394fbef80b9d929faaafbf5236dd77188c1ea5ff1fc04b0a6a8';inv=json.loads(ir)
+for n,h in inv['files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in inv['operator_sources_sha256'].items():assert sha((T/n).read_bytes())==h
+baseline=T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';bs='92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5'
+assert sha(baseline.read_bytes())==bs
+calls=[]
+def forbidden(*a,**kw):calls.append('FORBIDDEN_PROCESS_OR_NETWORK');raise AssertionError('ALL_PROCESS_NETWORK_FORBIDDEN')
+start=time.monotonic();identity=str(uuid.uuid4())
+with patch.multiple(subprocess,run=forbidden,Popen=forbidden,check_output=forbidden,check_call=forbidden,call=forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden):
+ prep=runpy.run_path(str(T/'prepare_local_f0_privilege_ceiling_v8_plan.py'),run_name='_Root_actual_approved_V8_prepare');result=prep['prepare'](baseline,bs,identity);path=Path(result['operation_manifest']);pin=runpy.run_path(str(T/'pin_local_f0_privilege_ceiling_v8_plan_20261120.py'),run_name='_Root_actual_approved_V8_full_filesystem_validation');_,raw,value,files=pin['validate'](path)
+assert not calls and value['run_id']==identity and value['source_commit']==value['source_tree']==value['packet_sha256']=='TO_BE_PINNED'and value['review_status']=='PENDING_OPERATIONAL_REVIEW'and not Path(value['evidence_directory']).exists()
+for n,h in inv['files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in inv['operator_sources_sha256'].items():assert sha((T/n).read_bytes())==h
+v={'schema':'workinants.privilege-public-ACL-v8-Root-actual-approved-prepare-filesystem-proof.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_ACTUAL_UNCHANGED_PREPARER_AND_FULL_FILESYSTEM_VALIDATOR','run_id':identity,'manifest':str(path),'manifest_sha256':sha(raw),'files':len(files),'Root814_and_source9_preserved':True,'all_process_network_forbidden':True,'seconds':round(time.monotonic()-start,3),'source_commit':'TO_BE_PINNED','review_status':value['review_status'],'runtime':'NOT_RUN','Posture':'D'};rp=T/'privilege_public_acl_v8_actual_approved_prepare_validate_20261120.json'
+with rp.open('x',encoding='utf8')as f:json.dump(v,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({**v,'receipt_sha256':sha(rp.read_bytes())}))

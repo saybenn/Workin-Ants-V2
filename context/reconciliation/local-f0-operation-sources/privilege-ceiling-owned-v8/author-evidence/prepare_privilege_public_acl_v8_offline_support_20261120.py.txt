@@ -1,0 +1,25 @@
+"""Copy exact immutable support into the private test environment only."""
+from pathlib import Path
+import hashlib,json,shutil
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+def main():
+ copied={}
+ names=('scripts/sql-review/test_run_native_table_denials_v3.py','scripts/check-local-f0-migrate.py','context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/native-before.json','context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence/catalog-comparison.json','node_modules/@prisma/engines-version/package.json','node_modules/prisma/package.json')
+ for name in names:
+  raw=(R/name).read_bytes();p=C/name
+  if p.exists():assert p.read_bytes()==raw
+  else:p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
+  copied['ROOT/'+name]=H(raw)
+ # The unchanged inherited owning checker imports these historical test-only
+ # definitions; none is selected by a runtime operator.
+ support=('check_common_safety_sql_v1_composed_20261119.py','common_safety_sql_v1_helpers.py.txt','common_safety_sql_v1_install_eligibility.py.txt','safety_sql_v1_derivation_inventory_20261119.json')
+ for name in support:
+  raw=(T/name).read_bytes();(F/name).write_bytes(raw);copied['TASK/'+name]=H(raw)
+ src=T/'safety-sql-before-author-20261119/preservation-manifest.json';dest=F/'safety-sql-before-author-20261119/preservation-manifest.json';dest.parent.mkdir();dest.write_bytes(src.read_bytes());copied['TASK/'+dest.relative_to(F).as_posix()]=H(src.read_bytes())
+ for name in('local-f0-privilege-ceiling-plan-086c453e/operation-manifest.json','local-f0-privilege-ceiling-plan-c3c6d297/operation-manifest.json'):
+  p=F/name;p.parent.mkdir(exist_ok=True);p.write_bytes((T/name).read_bytes());copied['TASK/'+name]=H(p.read_bytes())
+ baseline_path=T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';baseline=json.loads(baseline_path.read_bytes());tool=F/'pinned-prisma-tools.tar.gz';shutil.copyfile(baseline['tool_archive'],tool);assert H(tool.read_bytes())=='481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb';baseline['tool_archive']=str(tool)
+ nested=F/'OFFLINE-baseline-nested.json';nested.write_bytes(Path(baseline['migration_targets']['ok']['manifest_path']).read_bytes());baseline['migration_targets']['ok']['manifest_path']=str(nested);p=F/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';p.parent.mkdir();p.write_text(json.dumps(baseline,indent=2)+'\n')
+ record={'schema':'workinants.privilege-public-v8-offline-support.v1','immutable_copies_sha256':copied,'baseline':'OFFLINE_ONLY_ABSOLUTE_PATH_REMAP_NO_RUNTIME_AUTHORITY','baseline_original_sha256':H(baseline_path.read_bytes()),'baseline_fixture_sha256':H(p.read_bytes()),'tool_archive_sha256':H(tool.read_bytes()),'actual_process_network_DB_Git':'NOT_RUN'};out=F/'OFFLINE-SUPPORT-MANIFEST.json';assert not out.exists();out.write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({'support_sha256':H(out.read_bytes()),'copies':len(copied),'private_only':True}))
+if __name__=='__main__':main()

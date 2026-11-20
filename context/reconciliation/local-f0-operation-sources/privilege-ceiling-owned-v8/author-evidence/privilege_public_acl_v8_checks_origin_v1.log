@@ -1,0 +1,18 @@
+test_source_comparison_origin_survives_failed_comparison_persistence (<run_path>.PublicACLProjectionV8Tests.test_source_comparison_origin_survives_failed_comparison_persistence) ... FAIL
+
+======================================================================
+FAIL: test_source_comparison_origin_survives_failed_comparison_persistence (<run_path>.PublicACLProjectionV8Tests.test_source_comparison_origin_survives_failed_comparison_persistence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-public-acl-v8-private-candidate-20261120\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v8.py", line 1000, in test_source_comparison_origin_survives_failed_comparison_persistence
+    self.assertEqual(getattr(failure,'code',None),'SOURCE_NATIVE_METADATA_REQUIRED');self.assertEqual(value['original_failure'],{'stage':'PRIVILEGE_NEGATIVE_OPERATION','case':case['name'],'phase':'METADATA','code':'SOURCE_NATIVE_METADATA_REQUIRED'});self.assertFalse(value['evidence_complete']);self.assertEqual(value['results'],[]);self.assertEqual(len(world.processes),0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'EVIDENCE_INCOMPLETE' != 'SOURCE_NATIVE_METADATA_REQUIRED'
+- EVIDENCE_INCOMPLETE
++ SOURCE_NATIVE_METADATA_REQUIRED
+
+
+----------------------------------------------------------------------
+Ran 1 test in 7.701s
+
+FAILED (failures=1)

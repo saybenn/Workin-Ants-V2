@@ -1,0 +1,27 @@
+{
+  "schema": "workinants.restore-HBA-v6-author-static-plan.v1",
+  "utc": "2026-11-20T14:00:27.611956+00:00",
+  "Root_ACK_sha256": "06eb698e058c02c078209c8423e3c1045dc5d0d297b5b965deefd92ce7e72f44",
+  "private_only": true,
+  "new_five": [
+    "execute_local_f0_restore_hba_bytes_v6_20261120.py",
+    "local_f0_restore_hba_bytes_v6_operation_steps.py",
+    "prepare_local_f0_restore_hba_bytes_v6_plan.py",
+    "check_local_f0_restore_hba_bytes_v6_operation.py",
+    "pin_local_f0_restore_hba_bytes_v6_plan_20261120.py"
+  ],
+  "gates": "Inline pure V6 snapshot/metadata gate in Core before Steps compilation, repeated in direct main/common verification, preparation and pinner. Original V5 gate/data/function and original5 input map remain separate and unchanged.",
+  "runtime_delta": [
+    "Read exactly one of4pinned HBA artifact bytes and validate sourceSHA; common fixed binary subprocess writer used by source and staging. Keep Core.command/credential/SQL transport unchanged.",
+    "verify_hba uses PG17 binary-file SHA/byte length and parser error absence, fixed typed minimal comparisons; old multiline literal never sent.",
+    "Archive validator retains existing exact equality and safety predicates; fixed hash/length/presence comparison saved before its HBA assertion.",
+    "Minimal basebackup process receipt saved before existing success predicate, no artifact milestone promoted on later stop."
+  ],
+  "source_scope": "Only new namespace, data-only admission, HBA writer/verifier, stage callsite and bounded receipts/tests; original25 artifacts,3child/generator sources, canonicalSQL,32ACL,worker/role/business/cleanup/timeouts/storage/image unchanged.",
+  "validation_plan": "Focused real methods and process-boundary mocks plus actual public Windows sink only after Root quiet release; source/current+committed pinner/entry/PENDING gates. Preserve failed harnesses and inspect fixtures before expensive compositions.",
+  "historic_scope": "Source defect consistent with9cf stop; original archive bytes/difference/full cause UNOBSERVED. No new runtime or qualification claim.",
+  "PG17_receipt_sha256": "98792780f850fca3cd8abed25ad1b1f6f6e3374a921f8768b73d7c4277379cf0",
+  "no_tests_started": true,
+  "runtime": "NOT_RUN_NEW_SOURCE",
+  "Posture": "D"
+}

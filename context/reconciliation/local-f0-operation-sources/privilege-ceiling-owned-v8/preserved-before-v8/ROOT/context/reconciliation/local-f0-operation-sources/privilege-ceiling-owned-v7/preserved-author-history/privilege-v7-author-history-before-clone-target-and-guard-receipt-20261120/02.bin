@@ -1,0 +1,841 @@
+"""SQL-projection/process mocks only. Every real process/network API is forbidden."""
+from contextlib import ExitStack,redirect_stdout,redirect_stderr
+from copy import deepcopy
+import datetime
+import hashlib
+import io
+import json
+from pathlib import Path
+import queue
+import re
+import runpy
+import socket
+import subprocess
+import tempfile
+import types
+import unittest
+from unittest.mock import patch,Mock
+from pglast import ast,parse_sql
+from pglast.visitors import Visitor
+
+ROOT=Path(__file__).resolve().parents[2];TASK=ROOT.parent
+M=runpy.run_path(str(ROOT/'scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py'))
+N=runpy.run_path(str(ROOT/M['NATIVE']))
+C=runpy.run_path(str(ROOT/M['CTX']))
+P=runpy.run_path(str(ROOT/M['PROTOCOL']))
+G=runpy.run_path(str(ROOT/M['GENERATOR']))
+LEGACY=runpy.run_path(str(ROOT/'scripts/sql-review/test_run_native_table_denials_v3.py'))
+PACKET=json.loads((ROOT/M['PACKET']/'fixtures.json').read_bytes())
+NATIVE_PACKET=json.loads((ROOT/'review-output/native-table-denials-v2/packet.json').read_bytes())
+CID=LEGACY['CID'];RUN=LEGACY['RUN'];CANARY='PRIVATE_PRIVILEGE_PASSWORD_SQL_URI_HANDLE_CANARY'
+
+
+class Functions(Visitor):
+    def __init__(self):super().__init__();self.nodes=[]
+    def visit_FuncCall(self,ancestors,node):self.nodes.append(node)
+
+
+class MemoryEvidence:
+    def __init__(self):
+        self.value={'schema':'workinants.privilege-ceiling-evidence.v1','status':'IN_PROGRESS','current_stage':'ENTRY','current':{},'operations':[],'results':[],'authentication':[],'native_controls':[],'facets':[],'selected_cases':[],'evidence_complete':True,'cleanup_required':True,'subsequent_cases_stopped':False}
+        self.failed=False;self.saves=0;self.snapshots=[]
+    def save(self):
+        self.saves+=1;self.snapshots.append((self.value.get('current_stage'),len(self.value['operations']),len(self.value['results'])))
+    def stage(self,stage):self.value['current_stage']=stage;self.save()
+
+
+class Output:
+    def __init__(self):self.items=queue.Queue()
+    def readline(self,size=None):return self.items.get(timeout=3)
+    def read(self,size=None):return self.items.get(timeout=3)
+
+
+class Process:
+    def __init__(self,world,args,**kwargs):
+        self.world=world;self.role=args[args.index('-U')+1];self.returncode=None;self.stdout=Output();self.stderr=Output();self.pending={};self.context=None
+        self.pid=str(100+len(world.processes));self.xid=str(1000+len(world.processes));self.started='2026-11-19 00:00:00+00';self.clock=world.now()
+        self.stdin=types.SimpleNamespace(write=self.write,flush=lambda:None,close=lambda:setattr(self.stdin,'closed',True),closed=False)
+        world.processes.append(self);world.events.append(('process-open',self.role))
+    def write(self,text):
+        if N['TUPLE']in text:
+            self.world.events.append(('capture',self.role))
+            value={'login':self.role,'current_user':self.role,'database':M['DATABASE'],'isolation':'read committed','pid':self.pid,'xid':self.xid,'started':self.started,'context_absent':True}
+            if self.world.mode=='wrong-login':value['login']=CANARY
+            self.stdout.items.put(N['TUPLE']+json.dumps(value)+'\n');return
+        if '\\q'in text:
+            self.pending={};self.end(0);return
+        ack=re.search(r"SELECT '(WA_(?:PRIV|NATIVE_DENY)_ACK\|[0-9a-f]+)';\s*$",text)
+        if not ack:raise AssertionError('UNMODELED_PRIVATE_TRANSPORT')
+        body=text[:ack.start()]
+        self.world.sql.append((self.role,body))
+        rows,error=self.world.execute(self,body)
+        for row in rows:self.stdout.items.put(row+'\n')
+        if error:self.stderr.items.put(error);self.end(3)
+        elif self.world.mode=='lost-issuer-ack'and self.role=='wa_context_issuer'and'INSERT INTO platform.database_action_grant'in body:self.end(1)
+        else:self.stdout.items.put(ack[1]+'\n')
+    def end(self,code):
+        if self.returncode is None:self.returncode=code;self.stdout.items.put('');self.stderr.items.put('');self.world.events.append(('process-exit',self.role))
+    def poll(self):return self.returncode
+    def wait(self,timeout=None):return self.returncode
+    def terminate(self):self.pending={};self.end(0)
+    def kill(self):self.pending={};self.end(0)
+
+
+class World(LEGACY['World']):
+    """The emitted SQL drives role rights, transactions, grants and currentness."""
+    def __init__(self,mode='normal'):
+        super().__init__();self.mode=mode;self.processes=[];self.sql=[];self.new_grants={};self.ticks=0;self.negative_count=0;self.binds=0;self.commit_events=[];self.live_observations=[]
+        expected=LEGACY['EXPECTED']
+        self.native['relations']=[{'object':name,'kind':'r'}for name in expected['tables']]
+        self.native['columns']=[{'table_name':name,'name':column,'nullable':spec['nullable']}for name,table in expected['tables'].items()for column,spec in table['columns'].items()]
+        self.native['functions']=[{'object':identity,'name':row['name'],'owner':row['owner'],'body_sha256':row['body_sha256'],'security_definer':row['security_definer'],'settings':['search_path=pg_catalog'],'kind':'f','language':row['language'],'parameters':row['parameters']}for identity,row in expected['functions'].items()]
+        self.native['roles']=[]
+        flags=('rolsuper','rolinherit','rolcreaterole','rolcreatedb','rolcanlogin','rolreplication','rolbypassrls')
+        for line in (ROOT/'review-output/foundation-bootstrap.review.sql').read_text().splitlines():
+            match=re.match(r'CREATE ROLE (wa_[a-z_]+) (.*);',line)
+            if match:
+                options=set(match[2].split());self.native['roles'].append({'name':match[1],**{key:({'rolcanlogin':'LOGIN','rolsuper':'SUPERUSER'}.get(key,key[3:].upper())in options)for key in flags}})
+        self.native['memberships']=[{'role':'wa_schema_owner','member':'wa_migrator','grantor':'postgres','admin':False,'inherit':False,'set':True}]
+        self.rows={name:[]for name in NATIVE_PACKET['synthetic_facts']['baseline']}
+        self.initial_rows=deepcopy(self.rows)
+        for raw in parse_sql((ROOT/'review-output/native-table-denials-v2/native-fact-setup.sql').read_text()):
+            node=raw.stmt
+            if isinstance(node,ast.InsertStmt):
+                table=node.relation.schemaname+'.'+node.relation.relname
+                self.initial_rows[table].append({column.name:self.expr(value,None)for column,value in zip(node.cols,node.selectStmt.valuesLists[0])})
+
+    def now(self):
+        self.ticks+=1;return(datetime.datetime(2026,11,19,tzinfo=datetime.timezone.utc)+datetime.timedelta(microseconds=self.ticks*1000)).isoformat()
+
+    def right(self,role,kind,object_,verb,column=None):
+        return any(row['kind']==kind and row['object']==object_ and row['grantee']in(role,'PUBLIC')and row['privilege']==verb and row.get('column')in((None,)if column is None else(None,column))for row in self.native['nonowner_acl'])
+
+    def expr(self,node,process):
+        if isinstance(node,ast.A_Const):
+            if node.isnull:return None
+            value=node.val
+            if isinstance(value,ast.String):return value.sval
+            if isinstance(value,ast.Integer):return value.ival
+            if isinstance(value,ast.Boolean):return value.boolval
+            if isinstance(value,ast.Float):return float(value.fval)
+        if isinstance(node,ast.TypeCast):
+            value=self.expr(node.arg,process);kind=node.typeName.names[-1].sval
+            if value is None:return None
+            if kind=='timestamptz':return datetime.datetime.fromisoformat(value.replace('Z','+00:00')).isoformat()
+            if kind=='interval':return datetime.timedelta(seconds=int(value.split()[0]))
+            if kind in('int2','int4','int8','integer','bigint'):return int(value)
+            if kind in('json','jsonb')and type(value)is str:return json.loads(value)
+            if kind=='text'and type(value)is dict:return M['canonical'](value)
+            return value
+        if isinstance(node,ast.A_ArrayExpr):return[self.expr(value,process)for value in node.elements]
+        if isinstance(node,ast.SQLValueFunction):return process.clock
+        if isinstance(node,ast.BoolExpr):return all(self.expr(value,process)for value in node.args)
+        if isinstance(node,ast.A_Expr):
+            left,right=self.expr(node.lexpr,process),self.expr(node.rexpr,process);operator=node.name[0].sval
+            if operator=='=':return left==right
+            if operator=='+':
+                if type(left)is str and isinstance(right,datetime.timedelta):return(datetime.datetime.fromisoformat(left)+right).isoformat()
+                return left+right
+        if isinstance(node,ast.FuncCall):
+            name=node.funcname[-1].sval;args=[self.expr(value,process)for value in(node.args or())]
+            if name=='jsonb_build_object':return dict(zip(args[::2],args[1::2]))
+            if name=='convert_to':return args[0].encode('utf8')
+            if name=='sha256':return hashlib.sha256(args[0]).digest()
+            if name=='encode':return args[0].hex()
+            if name=='clock_timestamp':return self.now()
+            if name=='pg_backend_pid':return int(process.pid)
+            if name=='pg_current_xact_id':return process.xid
+            if name=='has_schema_privilege':return self.right(args[0],'SCHEMA',args[1],args[2])
+            if name=='has_table_privilege':return self.right(args[0],'TABLE',args[1],args[2])
+            if name=='has_column_privilege':
+                if args[3]not in('SELECT','INSERT','UPDATE','REFERENCES'):raise ValueError('SOURCE_INVALID_COLUMN_PRIVILEGE')
+                return self.right(args[0],'TABLE',args[1],args[3],args[2])
+            if name=='has_any_column_privilege':
+                if args[2]not in('SELECT','INSERT','UPDATE','REFERENCES'):raise ValueError('SOURCE_INVALID_COLUMN_PRIVILEGE')
+                return any(self.right(args[0],'TABLE',args[1],args[2],r['name'])for r in self.native['columns']if r['table_name']==args[1])
+            if name=='has_function_privilege':return self.right(args[0],'FUNCTION',args[1],args[2])
+            if name=='pg_has_role':return False
+            if name=='context_allows':
+                grant=self.bound(process);return grant is not None and[grant[key]for key in('owner_module_id','action','target_kind','target_id','purpose')]==args
+            if name=='context_subject':
+                grant=self.bound(process);return grant is not None and grant['principal_user_id']==args[0]and grant['owner_module_id']=='consent_disclosure'
+            if name=='context_subject_owner':
+                grant=self.bound(process);return grant is not None and grant['principal_user_id']==args[0]and grant['owner_module_id']==args[1]
+        raise AssertionError('UNMODELED_SQL_EXPRESSION')
+
+    def bound(self,process):
+        for row in self.new_grants.values():
+            if row['token_hash']==process.context and row['database_login_role']==process.role and row['backend_pid']==int(process.pid)and row['transaction_id']==process.xid and row['revoked_at']is None and datetime.datetime.fromisoformat(row['expires_at'])>datetime.datetime.fromisoformat(self.now()):
+                if row['principal_user_id']is None:return None  # exact known revoked fixture
+                return row
+        return None
+
+    def error(self,state,message,function=None,line=None):
+        if self.mode=='wrong-state':state='P0001'
+        if self.mode=='wrong-message':message='unrelated diagnostic '+CANARY
+        text='ERROR:  '+state+': '+message+'\n'
+        if function:text+='CONTEXT:  PL/pgSQL function platform_private.'+function+' line '+str(line)+' at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:4000\n'
+        else:text+='LOCATION:  aclcheck_error, aclchk.c:2841\n'
+        if self.mode=='secret-error':text+='DETAIL: '+CANARY+'\n'
+        if self.mode=='wrong-frame':text=text.replace('aclcheck_error, aclchk.c:2841','exec_stmt_raise, pl_exec.c:4000')
+        return text
+
+    def permission_error(self,process,schema,relation,verb,columns=(),reads=()):
+        role=process.role;table=schema+'.'+relation
+        if not self.right(role,'SCHEMA',schema,'USAGE'):return self.error('42501','permission denied for schema '+schema)
+        missing=verb in('DELETE','TRUNCATE')and not self.right(role,'TABLE',table,verb)
+        if verb in('INSERT','UPDATE'):missing|=not(self.right(role,'TABLE',table,verb)or bool(columns)and all(self.right(role,'TABLE',table,verb,c)for c in columns))
+        if reads:missing|=not(self.right(role,'TABLE',table,'SELECT')or all(self.right(role,'TABLE',table,'SELECT',c)for c in reads))
+        elif verb=='SELECT':missing|=not any(self.right(role,'TABLE',table,'SELECT',r['name'])for r in self.native['columns']if r['table_name']==table)
+        return self.error('42501','permission denied for table '+relation)if missing else None
+
+    def read_columns(self,node):
+        class Reads(Visitor):
+            def __init__(self):super().__init__();self.names=[]
+            def visit_ColumnRef(self,ancestors,column):
+                if isinstance(column.fields[-1],ast.String):self.names.append(column.fields[-1].sval)
+        visitor=Reads()
+        if isinstance(node,ast.SelectStmt):visitor(node)
+        else:
+            if getattr(node,'whereClause',None)is not None:visitor(node.whereClause)
+            if node.returningList:visitor(node.returningList)
+            if isinstance(node,ast.UpdateStmt):
+                for target in node.targetList:visitor(target.val)
+        return list(dict.fromkeys(visitor.names))
+
+    def execute(self,process,text):
+        self.events.append(('execute',process.role))
+        if 'all-native-fact-setup-triggers-restored'in text:
+            expected=N['captured_tail']((ROOT/'review-output/native-table-denials-v2/native-fact-setup.sql').read_text())
+            assert text.strip()==expected.strip();self.rows=deepcopy(self.initial_rows);self.seeded=True
+            return[json.dumps({'control':'all-native-fact-setup-triggers-restored','all_declared_user_triggers_restored':True})],None
+        marker=re.search(r"'native-control-([A-Za-z]+)'",text)
+        if marker:
+            case=next(c for c in NATIVE_PACKET['cases']if c['model']==marker[1]);expected=N['captured_tail']((ROOT/'review-output/native-table-denials-v2'/case['native_controls']).read_text());assert text.strip()==expected.strip();self.controls+=1
+            return['t']*(2+len(case['native_update_control_columns']))+[json.dumps({'control':'native-control-'+marker[1],'all_declared_user_triggers_restored':True})],None
+        rows=[]
+        for parsed in parse_sql(text):
+            node=parsed.stmt
+            if isinstance(node,ast.TransactionStmt):
+                if node.kind.name=='TRANS_STMT_COMMIT':self.new_grants.update(process.pending);process.pending={};self.commit_events.append(process.role)
+                elif node.kind.name=='TRANS_STMT_ROLLBACK':process.pending={}
+                continue
+            if isinstance(node,ast.VariableSetStmt):
+                if node.name=='role':
+                    target=node.args[0].val.sval if isinstance(node.args[0],ast.A_Const)else node.args[0].sval
+                    self.negative_count+=1;return rows,self.error('42501','permission denied to set role "'+target+'"').replace('aclcheck_error, aclchk.c:2841','call_string_check_hook, guc.c:6500')
+                continue
+            if isinstance(node,ast.CreateStmt):
+                self.negative_count+=1;schema=node.relation.schemaname;assert node.relation.relname=='wa_priv_'+RUN[:8]+'_probe'
+                return rows,self.error('42501','permission denied for schema '+schema)
+            if isinstance(node,ast.TruncateStmt):
+                self.negative_count+=1;relation=node.relations[0];return rows,self.permission_error(process,relation.schemaname,relation.relname,'TRUNCATE')
+            if isinstance(node,(ast.InsertStmt,ast.UpdateStmt,ast.DeleteStmt)):
+                relation=node.relation;table=relation.schemaname+'.'+relation.relname;verb='INSERT'if isinstance(node,ast.InsertStmt)else'UPDATE'if isinstance(node,ast.UpdateStmt)else'DELETE'
+                columns=[column.name for column in(node.cols if verb=='INSERT'else node.targetList)]if verb in('INSERT','UPDATE')else[]
+                if table=='platform.database_action_grant'and verb=='INSERT':
+                    value={column.name:self.expr(expression,process)for column,expression in zip(node.cols,node.selectStmt.valuesLists[0])}
+                    if process.role in P['APP_ROLES']:
+                        assert value['backend_pid']==int(process.pid)and value['transaction_id']==process.xid and value['issuer_service']==process.role and value['principal_user_id']==PACKET['person_grant']['principal_user_id']and value['revoked_at']is None
+                        assert datetime.datetime.fromisoformat(value['expires_at'])>datetime.datetime.fromisoformat(self.now())
+                error=self.permission_error(process,relation.schemaname,relation.relname,verb,columns,self.read_columns(node))
+                if error:self.negative_count+=1;return rows,error
+                if table!='platform.database_action_grant':raise AssertionError('UNEXPECTED_BUSINESS_MUTATION')
+                if verb=='INSERT':
+                    assert process.role=='wa_context_issuer'and value['issuer_service']==process.role;value['created_at']=self.now();value['mutation_transaction_id']=process.xid;process.pending[value['id']]=value
+                    rows.append(json.dumps({'created_at':value['created_at']}))
+                elif verb=='UPDATE':
+                    identity=self.expr(node.whereClause.rexpr,process);old=deepcopy(self.new_grants[identity]);new=self.expr(node.targetList[0].val,process)
+                    if old['revoked_at']is not None or new is None:
+                        self.negative_count+=1;line=next(c['diagnostic']['body_line']for c in PACKET['cases']if c['family']=='ISSUER_GRANT_GUARD')
+                        return rows,self.error('P0001','immutable grant','grant_guard()',line)
+                    old.update(revoked_at=self.now(),mutation_transaction_id=process.xid);process.pending[identity]=old;rows.append(json.dumps({'created_at':old['revoked_at']}))
+                else:raise AssertionError('UNEXPECTED_GRANT_DELETE')
+                continue
+            if isinstance(node,ast.SelectStmt):
+                if "'own'"in text and "'foreign'"in text:
+                    ids=re.findall(r"WHERE id='([0-9a-f-]{36})'::uuid",text);allrows={row['id']:row for row in self.rows['platform.database_action_grant']};allrows.update(self.new_grants);allrows.update(process.pending)
+                    rows.append(json.dumps({'own':int(ids[0]in allrows and allrows[ids[0]]['issuer_service']==process.role),'foreign':int(ids[1]in allrows and allrows[ids[1]]['issuer_service']==process.role)}));continue
+                funcs=Functions();funcs(node);calls=funcs.nodes
+                binder=next((f for f in calls if f.funcname[-1].sval=='bind_request_context'),None)
+                if binder:
+                    if not self.right(process.role,'SCHEMA','platform_private','USAGE'):
+                        self.negative_count+=1;return rows,self.error('42501','permission denied for schema platform_private')
+                    secret=self.expr(binder.args[0],process);process.context=hashlib.sha256(bytes.fromhex(secret)).hexdigest();self.binds+=1
+                    if self.bound(process)is None:return rows,self.error('42501','invalid, stale or unsupported context','bind_request_context(text)',PACKET['bind_currentness_diagnostic']['body_line'])
+                    continue
+                protected=next((f for f in calls if f.funcname[-1].sval in('bound_grant','worker_source_row_valid','worker_source_claim_valid','customer_current_for_track','worker_lease_valid')),None)
+                if protected:
+                    if not self.right(process.role,'SCHEMA','platform_private','USAGE'):
+                        self.negative_count+=1;return rows,self.error('42501','permission denied for schema platform_private')
+                    self.negative_count+=1;name=protected.funcname[-1].sval;return rows,self.error('42501','permission denied for function '+name)
+                if node.fromClause:
+                    relation=node.fromClause[0];self.negative_count+=1;return rows,self.permission_error(process,relation.schemaname,relation.relname,'SELECT',reads=self.read_columns(node))
+                rows.append(json.dumps(self.expr(node.targetList[0].val,process)))
+                continue
+            raise AssertionError('UNMODELED_SQL_STATEMENT')
+        return rows,None
+
+    def raw(self,role,text):
+        if 'SELECT NOT EXISTS(SELECT 1 FROM pg_auth_members'in text:return super().raw(role,text)
+        if 'FROM pg_stat_activity WHERE pid='in text:
+            pid=re.search(r'WHERE pid=([0-9]+)',text)[1];live=any(p.pid==pid and(p.poll()is None or self.mode=='backend-live')for p in self.processes);self.events.append(('closed-query',role));return'1'if live else'0'
+        if "'other_clients'"in text:
+            count=sum(p.poll()is None for p in self.processes)+(1 if self.mode=='other-client'and self.new_grants else 0);self.live_observations.append(count);return json.dumps({'other_clients':count})
+        if 'AS rows_sha256'in text:
+            assert all(p.poll()is not None for p in self.processes),'DATA_OBSERVER_BEFORE_OPERATION_CLOSURE'
+            excluded=set(re.findall(r"'([0-9a-f-]{36})'::uuid",text))if'WHERE id NOT IN'in text else set();values=[]
+            for name in sorted(self.rows):
+                rows=deepcopy(self.rows[name])if self.seeded else[]
+                if name=='platform.database_action_grant':rows+=[row for identity,row in self.new_grants.items()if identity not in excluded]
+                values.append({'object':name,'row_count':len(rows),'rows_sha256':M['digest'](sorted(rows,key=M['canonical']))})
+            return json.dumps(values)
+        if 'to_jsonb(g)='in text:
+            assert all(p.poll()is not None for p in self.processes),'GRANT_OBSERVER_BEFORE_OPERATION_CLOSURE'
+            identity=re.search(r"WHERE id='([0-9a-f-]{36})'::uuid",text)[1];row=self.new_grants.get(identity);calls=Functions();calls(parse_sql(text));expected=next(f for f in calls.nodes if f.funcname[-1].sval=='jsonb_build_object'and f.args and isinstance(f.args[0],ast.A_Const)and f.args[0].val.sval=='id')
+            return json.dumps({'count':int(row is not None),'complete_row_matches':row==self.expr(expected,None)and self.mode!='grant-mismatch','unexpired':row is not None and self.mode!='grant-expired'and datetime.datetime.fromisoformat(row['expires_at'])>datetime.datetime.fromisoformat(self.now())})
+        if "jsonb_build_object('count',count(*)) FROM platform.database_action_grant"in text:return json.dumps({'count':(len(self.rows['platform.database_action_grant'])if self.seeded else 0)+len(self.new_grants)})
+        if "'generation_matches'"in text:return json.dumps({'count':1,'revoked':True,'generation_matches':True})
+        if 'has_schema_privilege'in text or 'has_table_privilege'in text or 'has_column_privilege'in text or 'has_function_privilege'in text or 'pg_has_role'in text:
+            node=parse_sql(text)[0].stmt;return json.dumps(self.expr(node.targetList[0].val,None))
+        return super().raw(role,text)
+
+
+def plans(world,directory):
+    """Offline transport fixture; real closed native/comparison data, never runtime authority.
+
+    Actual owning-entry tests use the real preparer's inventory rather than this
+    small unit fixture. No synthetic PASS1 or production comparator override.
+    """
+    prefix=ROOT/'context/reconciliation/local-f0-run-assets/c820e39-privilege-53d7f860/evidence'
+    world.native=json.loads((prefix/'native-before.json').read_bytes())
+    report=json.loads((prefix/'catalog-comparison.json').read_bytes())
+    assert report['check_counts']=={'PASS':29089}and report['native_snapshot_sha256']==M['digest'](world.native)
+    proof={'schema':'workinants.native-deny-provider-preinstall.v1','run_id':RUN,'container_id':CID,'source_commit':'a'*40,'source_tree':'c'*40,'packet_sha256':N['PACKET_SHA'],'application_sql_sha256':M['APPLICATION_SHA'],'roles':N['provider_flags'](),'all_nine_schema_usage_sentinels_before_install':True,'canonical_install_removed_all_nine':True,'genuine_prisma_one_applied_migration':True,'original_grantor_finalized':True,'local_simulation_only':True,'hosted_parity_claimed':False}
+    native={'schema':'workinants.native-deny-run.v1','scope':'FINITE_NATIVE_DENIAL_FACETS_ONLY','run_id':RUN,'source_commit':'a'*40,'source_tree':'c'*40,'packet_sha256':N['PACKET_SHA'],'source_modules_sha256':{name:M['sha']((ROOT/name).read_bytes())for name in N['MODULES']},'target_manifest':world.target,'immutable_container_id':CID,'selected_case_ids':NATIVE_PACKET['selected_case_ids']}
+    def asset(name,value):
+        path=directory/(name+'.json');path.write_text(json.dumps(value),encoding='utf8');return{'path':str(path),'sha256':M['sha'](path.read_bytes())}
+    for name,value in(('native_snapshot',world.native),('native_comparison',report),('provider_preinstall_proof',proof)):native[name]=asset(name,value)
+    files=set(PACKET['source_files_sha256'])|{M['PACKET']+'/'+name for name in PACKET['prepared_files_sha256']}|{M['PACKET']+'/fixtures.json',M['PACKET']+'/README.md',M['SELF'],M['METADATA_TEST'],M['METADATA_DOC']}|set(N['MODULES'])
+    pins={name:M['sha']((ROOT/name).read_bytes())for name in sorted(files)}
+    aggregate=M['sha'](''.join(name+'\0'+pins[name]+'\n'for name in sorted(pins)).encode())
+    result={'schema':'workinants.privilege-ceiling-run.v1','scope':'FINITE_EXISTING_PRIVILEGE_CEILINGS_ONLY','run_id':RUN,'source_commit':'a'*40,'source_tree':'c'*40,'packet_sha256':aggregate,'packet_files_sha256':pins,'fixtures_sha256':M['sha']((ROOT/M['PACKET']/'fixtures.json').read_bytes()),'content_sha256':PACKET['source_only_packet_sha256'],'native_plan':native}
+    admission={'schema':'workinants.privilege-ceiling-native-attestation.v1','run_id':RUN,'container_id':CID,'source_commit':'a'*40,'source_tree':'c'*40,'operation_packet_sha256':aggregate,'native_sql_packet_sha256':N['PACKET_SHA'],'application_sql_sha256':M['APPLICATION_SHA'],'source_expected_sha256':M['EXPECTED_NATIVE'],'native_snapshot_sha256':M['digest'](world.native),'native_comparison_file_sha256':native['native_comparison']['sha256'],'genuine_prisma_one_applied_migration':True,'original_grantor_finalized':True,'native_expression_oracle_and_private_ledger_pass':True,'all_other_client_backends_absent':True,'provider_preinstall_source_proven':True,'posture':'D','whole_case_promotion':False}
+    result['prerequisite_attestation']=asset('same_run_prerequisite',admission)
+    return result
+
+
+class PrivilegeCoordinatorTests(unittest.TestCase):
+    def setUp(self):
+        for name in('run','Popen','check_output','call','check_call'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();self.addCleanup(guard.stop)
+
+    def no_secrets(self,evidence,world):
+        encoded=json.dumps(evidence)
+        for secret in[CANARY,*world.passwords,*[row['token_hash']for row in world.new_grants.values()]]:
+            self.assertNotIn(secret,encoded)
+        for _,sql in world.sql:
+            for secret in re.findall(r"bind_request_context\('([0-9a-f]{64})'\)",sql):self.assertNotIn(secret,encoded)
+        for text in('"pid":','"xid":','"started":','INSERT INTO','PGPASSWORD','raw_stderr','postgresql://'):
+            self.assertNotIn(text,encoded)
+
+    def exercise(self,mode='normal',action=None,evidence=None):
+        world=World(mode);memory=evidence or MemoryEvidence();world.evidence=memory
+        with tempfile.TemporaryDirectory(prefix='privilege-offline-',dir=TASK)as temporary:
+            plan=plans(world,Path(temporary));loaded=M['load_inputs'](plan)
+            packet,blobs,protocol,native,ctx,np,nb,snapshot,api,host=loaded
+            Runner=M['runner_type'](native,ctx,protocol)
+            runner=Runner(plan,packet,blobs,np,nb,snapshot,api,host,memory);failure=None
+            with patch.object(subprocess,'run',side_effect=world.run),patch.object(subprocess,'check_output',side_effect=world.check_output),patch.object(subprocess,'Popen',side_effect=lambda *a,**k:Process(world,*a,**k)):
+                try:(action or(lambda value:value.run()))(runner)
+                except BaseException as error:
+                    failure=error;memory.value.update(status='STOPPED_PARTIAL_EVIDENCE_PRESERVED',subsequent_cases_stopped=True)
+            self.no_secrets(memory.value,world)
+            return failure,memory.value,world,memory,runner
+
+    def test_real_whole_source_loader_precedes_any_process(self):
+        world=World()
+        with tempfile.TemporaryDirectory(prefix='privilege-loader-',dir=TASK)as temporary:
+            plan=plans(world,Path(temporary));original=list(__import__('sys').path);loaded=M['load_inputs'](plan)
+            self.assertEqual(len(loaded[0]['cases']),200);self.assertEqual(__import__('sys').path,original)
+            self.assertEqual(set(loaded[1]),set(plan['packet_files_sha256']));self.assertEqual(len(json.loads(loaded[6]['__models'])),40)
+
+    def test_full_finite_sql_protocol(self):
+        failure,data,world,memory,runner=self.exercise()
+        self.assertIsNone(failure,(type(failure).__name__,getattr(failure,'code',None),data.get('current')))
+        self.assertEqual(len(data['results']),200);self.assertEqual(world.controls,40);self.assertEqual(len(data['definer_metadata']),16)
+        self.assertEqual(len(world.new_grants),2);self.assertEqual(len(data['issuer_protocols']),3)
+        self.assertEqual(len(data['facets']),0);self.assertTrue(all(row['whole_case_promoted']is False for row in data['results']))
+        self.assertTrue(all(p.poll()is not None for p in world.processes));self.assertGreater(memory.saves,1000)
+        self.assertTrue(all(row['status']=='NOT_RUN'for row in PACKET['control_links']))
+
+    def test_unrelated_states_messages_and_source_frame_stop_before_second_case(self):
+        for mode in('wrong-state','wrong-message','wrong-frame'):
+            with self.subTest(mode=mode):
+                def action(r):
+                    r.setup_facts();r.negative(next(c for c in r.privileges_packet['cases']if c['family']=='RUNTIME_ESCALATION'));self.fail('unexpected qualification')
+                failure,data,world,_,_=self.exercise(mode,action)
+                self.assertIsNotNone(failure);self.assertEqual(len(data['results']),0);self.assertEqual(world.negative_count,1)
+                self.assertTrue(data['operations'][-1]['closed_before_observers']);self.assertTrue(all(p.poll()is not None for p in world.processes))
+
+    def test_extra_detail_rejects_qualification_and_discards_canary(self):
+        def action(r):
+            r.setup_facts();r.negative(next(c for c in r.privileges_packet['cases']if c['family']=='RUNTIME_ESCALATION'))
+        failure,data,world,_,_=self.exercise('secret-error',action)
+        self.assertIsNotNone(failure);self.assertEqual(len(data['results']),0)
+
+    def test_later_unexpected_error_preserves_completed_scenario_and_stops(self):
+        def action2(r):
+            r.setup_facts();cases=[c for c in r.privileges_packet['cases']if c['family']=='RUNTIME_ESCALATION'];r.negative(cases[0])
+            r.api['run'].__globals__['subprocess'].run.side_effect.__self__.mode='wrong-message';r.negative(cases[1]);r.negative(cases[2])
+        failure,data,world,memory,_=self.exercise(action=action2)
+        self.assertIsNotNone(failure);self.assertEqual(len(data['results']),1);self.assertEqual(world.negative_count,2)
+        self.assertGreater(memory.saves,50);self.assertTrue(data['operations'][-1]['closed_before_observers'])
+
+    def test_lost_issuer_commit_ack_stops_and_does_not_exclude_unknown_row(self):
+        def action(r):r.setup_facts();r.person_binding();self.fail('unexpected bind')
+        failure,data,world,_,runner=self.exercise('lost-issuer-ack',action)
+        self.assertIsNotNone(failure);self.assertEqual(world.binds,0);self.assertEqual(len(world.new_grants),1);self.assertFalse(runner.grants)
+        record=data['operations'][-1];self.assertFalse(record['issuer_COMMIT_acknowledged']);self.assertTrue(record['closed_before_observers'])
+        self.assertFalse(record['post_case_state_verified']);self.assertEqual(data['results'],[])
+
+    def test_global_different_tag_other_database_client_stops_before_metadata_observer(self):
+        def action(r):r.setup_facts();r.person_binding()
+        failure,data,world,_,_=self.exercise('other-client',action)
+        self.assertIsNotNone(failure);self.assertFalse(data['global_client_boundaries'][-1]['confirmed']);self.assertEqual(data['results'],[])
+        self.assertTrue(data['global_client_boundaries'][-1]['stage'].endswith('ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS'))
+
+    def test_unconfirmed_operation_backend_never_runs_data_observer(self):
+        def action(r):
+            r.setup_facts();r.negative(next(c for c in r.privileges_packet['cases']if c['family']=='RUNTIME_ESCALATION'))
+        failure,data,world,_,_=self.exercise('backend-live',action)
+        self.assertIsNotNone(failure);record=data['operations'][-1];self.assertFalse(record['closed_before_observers']);self.assertNotIn('post_case_state_verified',record)
+        self.assertEqual(data['results'],[])
+
+    def test_malformed_captured_identity_closes_process_but_never_claims_backend_absence(self):
+        def action(r):r.person_binding()
+        failure,data,world,_,_=self.exercise('wrong-login',action)
+        self.assertIsNotNone(failure);self.assertTrue(all(p.poll()is not None for p in world.processes));self.assertEqual(data['results'],[])
+        self.assertFalse(data['operations'][-1]['closed_before_observers'])
+
+    def test_close_event_io_failure_cannot_skip_close_or_claim_pass(self):
+        evidence=MemoryEvidence();save=evidence.save
+        def writer():
+            if str(evidence.value['current_stage']).startswith('CLOSE_')and 'source_template_sha256'in evidence.value.get('current',{}):
+                raise OSError(CANARY)
+            save()
+        evidence.save=writer
+        def action(r):
+            r.setup_facts();r.negative(next(c for c in r.privileges_packet['cases']if c['family']=='RUNTIME_ESCALATION'))
+        failure,data,world,_,_=self.exercise(action=action,evidence=evidence)
+        self.assertIsNotNone(failure);self.assertFalse(data['evidence_complete']);self.assertTrue(all(p.poll()is not None for p in world.processes));self.assertEqual(data['results'],[])
+        self.assertTrue(data['global_client_boundaries'][-1]['attempted']);self.assertTrue(data['global_client_boundaries'][-1]['stage'].startswith('AFTER_OPERATION_'))
+
+    def test_post_failure_observer_save_failure_latches_incomplete(self):
+        evidence=MemoryEvidence();save=evidence.save
+        def writer():
+            if evidence.value.get('current',{}).get('observation_failure'):raise OSError(CANARY)
+            save()
+        evidence.save=writer
+        def action(r):r.setup_facts();r.person_binding()
+        failure,data,world,_,_=self.exercise('lost-issuer-ack',action,evidence)
+        self.assertIsNotNone(failure);self.assertFalse(data['evidence_complete']);self.assertTrue(all(p.poll()is not None for p in world.processes));self.assertEqual(data['results'],[])
+
+    def test_unexpected_complete_grant_state_and_expiry_stop_qualification(self):
+        for mode in('grant-mismatch','grant-expired'):
+            with self.subTest(mode=mode):
+                def action(r):
+                    r.setup_facts();r.person_binding()
+                    r.negative(next(c for c in r.privileges_packet['cases']if c['family']=='ISSUER_COLUMN_CEILING'))
+                failure,data,world,_,_=self.exercise(mode,action)
+                self.assertIsNotNone(failure);self.assertEqual(data['results'],[]);self.assertTrue(all(p.poll()is not None for p in world.processes))
+
+    def test_real_person_grant_commit_precedes_same_backend_binding(self):
+        def action(r):r.setup_facts();r.person_binding()
+        failure,data,world,_,_=self.exercise(action=action)
+        self.assertIsNone(failure);self.assertEqual(world.binds,4)
+        commit_index=next(i for i,(role,text)in enumerate(world.sql)if role=='wa_context_issuer'and'INSERT INTO platform.database_action_grant'in text)
+        bind_index=next(i for i,(role,text)in enumerate(world.sql)if role=='wa_app_runtime'and'bind_request_context'in text)
+        self.assertLess(commit_index,bind_index);self.assertIn('COMMIT;',world.sql[commit_index][1]);self.assertEqual(world.commit_events,['wa_context_issuer'])
+        self.assertTrue(data['operations'][-1]['same_app_tuple_and_separate_issuer_COMMIT'])
+
+    def test_rendered_grant_insert_uses_actual_login_pid_xid_and_current_expiry(self):
+        def action(r):
+            r.setup_facts()
+            for case in r.privileges_packet['cases']:
+                if case['family']=='RUNTIME_ESCALATION'and case.get('operation')=='GRANT_INSERT':r.negative(case)
+        failure,data,world,_,_=self.exercise(action=action)
+        self.assertIsNone(failure);self.assertEqual(len(data['results']),2)
+        # The parser in World.execute checks each emitted 21-column candidate
+        # against the actual private capture before returning its native denial.
+        self.assertTrue(all('__WA_'not in sql for _,sql in world.sql))
+
+    def test_constructor_failure_after_popen_reaps_owned_process(self):
+        def action(r):
+            with patch.object(__import__('threading').Thread,'start',side_effect=RuntimeError(CANARY)):
+                r.person_binding()
+        failure,data,world,_,_=self.exercise(action=action)
+        self.assertIsNotNone(failure);self.assertEqual(len(world.processes),1);self.assertIsNotNone(world.processes[0].poll())
+        actor=data['operations'][-1]['actors'][0];self.assertTrue(actor['constructor_before_reap']['process_created']);self.assertTrue(actor['constructor_after_reap']['process_exit_confirmed']);self.assertFalse(actor['closed_before_observers'])
+
+    def test_all_source_mutants_reject_before_first_project_compile(self):
+        world=World()
+        with tempfile.TemporaryDirectory(prefix='privilege-mutants-',dir=TASK)as temporary:
+            original=plans(world,Path(temporary))
+            names=[M['SELF'],M['PROTOCOL'],M['GENERATOR'],M['CTX'],M['NATIVE'],N['API'],'scripts/sql-review/collect_native_catalog.sql',M['PACKET']+'/'+PACKET['cases'][0]['file']]
+            for name in names:
+                for mode in('missing','hash'):
+                    with self.subTest(name=name,mode=mode):
+                        plan=deepcopy(original)
+                        if mode=='missing':del plan['packet_files_sha256'][name]
+                        else:plan['packet_files_sha256'][name]='0'*64
+                        pins=plan['packet_files_sha256'];plan['packet_sha256']=M['sha'](''.join(p+'\0'+pins[p]+'\n'for p in sorted(pins)).encode())
+                        with patch.dict(M['load_inputs'].__globals__,compile_closed=Mock(side_effect=AssertionError('FIRST_COMPILE_FORBIDDEN'))):
+                            with self.assertRaises(M['Held']):M['load_inputs'](plan)
+
+    def test_unbound_same_run_proof_rejects_before_process(self):
+        world=World()
+        with tempfile.TemporaryDirectory(prefix='privilege-proof-',dir=TASK)as temporary:
+            plan=plans(world,Path(temporary));path=Path(plan['prerequisite_attestation']['path']);proof=json.loads(path.read_bytes());proof['operation_packet_sha256']='0'*64;path.write_text(json.dumps(proof));plan['prerequisite_attestation']['sha256']=M['sha'](path.read_bytes())
+            with self.assertRaisesRegex(M['Held'],'FULL_NATIVE_ORACLE_LEDGER_PREREQUISITE'):M['load_inputs'](plan)
+
+    def test_unknown_project_import_never_falls_back_to_disk(self):
+        with self.assertRaisesRegex(M['Held'],'UNAPPROVED_SOURCE_IMPORT'):M['compile_closed']({'bad.py':b'import unknown_project_helper\n'},'bad.py',{})
+
+    def test_help_and_import_do_not_read_project_helpers_or_start_process(self):
+        output=io.StringIO()
+        with patch.object(Path,'read_bytes',side_effect=AssertionError('SOURCE_READ_FORBIDDEN')),redirect_stdout(output),self.assertRaises(SystemExit)as stopped:M['main'](['--help'])
+        self.assertEqual(stopped.exception.code,0)
+
+    def test_person_comparison_fixed_boolean_shapes_and_secret_exclusion(self):
+        valid={'allowed':True,'subject':True,'same_tuple':True};function=M['person_binding_comparison'];good=function([json.dumps(valid)],True,'')
+        self.assertTrue(all(good.values()));self.assertTrue(all(type(x)is bool for x in good.values()))
+        cases=[([],True,''),([json.dumps(valid),CANARY],True,''),([CANARY],True,''),([json.dumps({'allowed':True,'subject':{'secret':CANARY},'same_tuple':True})],True,''),([json.dumps({**valid,'unlisted':CANARY})],True,''),(['null'],True,''),(['[]'],True,''),(['{"allowed":true,"allowed":true,"subject":true,"same_tuple":true}'],True,''),(['{"allowed":NaN,"subject":true,"same_tuple":true}'],True,''),([CANARY*500],True,''),([json.dumps(valid)],1,''),([json.dumps(valid)],True,CANARY),([json.dumps(valid)],True,None),((json.dumps(valid),),True,'')]
+        for field in valid:
+            for bad in(False,1,None,CANARY):cases.append(([json.dumps({**valid,field:bad})],True,''))
+        for rows,ack,errors in cases:
+            result=function(rows,ack,errors);self.assertEqual(set(result),set(good));self.assertTrue(all(type(x)is bool for x in result.values()));self.assertFalse(all(result.values()));self.assertNotIn(CANARY,json.dumps(result))
+
+    def test_subject_helpers_model_the_actual_owner_and_bound_tuple_semantics(self):
+        world=World();principal=PACKET['person_grant']['principal_user_id'];process=types.SimpleNamespace(role='wa_app_runtime',pid='40404',xid='101',context='a'*64)
+        grant={'token_hash':process.context,'database_login_role':process.role,'backend_pid':int(process.pid),'transaction_id':process.xid,'revoked_at':None,'expires_at':(datetime.datetime.fromisoformat(world.now())+datetime.timedelta(seconds=60)).isoformat(),'principal_user_id':principal,'owner_module_id':'customer_buyer_profile'};world.new_grants={'synthetic':grant}
+        def value(name,who,owner=None):
+            sql='SELECT platform_private.'+name+'('+M['quote'](who)+'::uuid'+(''if owner is None else ','+M['quote'](owner))+');';return world.expr(parse_sql(sql)[0].stmt.targetList[0].val,process)
+        self.assertFalse(value('context_subject',principal));self.assertTrue(value('context_subject_owner',principal,'customer_buyer_profile'));self.assertFalse(value('context_subject_owner',principal,'consent_disclosure'));self.assertFalse(value('context_subject_owner','00000000-0000-4000-8000-000000000001','customer_buyer_profile'))
+        grant['owner_module_id']='consent_disclosure';self.assertTrue(value('context_subject',principal));self.assertTrue(value('context_subject_owner',principal,'consent_disclosure'));grant['owner_module_id']='customer_buyer_profile'
+        for field,bad in(('backend_pid',1),('transaction_id','1'),('database_login_role','wa_worker'),('revoked_at',world.now()),('expires_at','2000-01-01T00:00:00+00:00'),('token_hash','b'*64)):
+            old=grant[field];grant[field]=bad;self.assertFalse(value('context_subject_owner',principal,'customer_buyer_profile'));grant[field]=old
+        process.context='c'*64;self.assertFalse(value('context_subject_owner',principal,'customer_buyer_profile'))
+
+    def oracle_mutation(self,replacement,failed):
+        # An intentional direct oracle-source mutant. The normal complete
+        # pipeline still uses the real loader/factory with unchanged byte pins.
+        raw=(ROOT/M['SELF']).read_text();needle=next(line for line in raw.splitlines()if line.startswith('                expression='));self.assertNotEqual(needle,replacement);module={'__name__':'_person_oracle_mutant','__file__':str(ROOT/M['SELF'])};exec(compile(raw.replace(needle,replacement),str(ROOT/M['SELF']),'exec'),module)
+        def action(r):r.setup_facts();r.person_binding();self.fail('oracle mutant unexpectedly qualified')
+        with patch.dict(globals(),M=module):failure,data,world,_,_=self.exercise(action=action)
+        self.assertIsNotNone(failure);self.assertEqual(data['results'],[]);self.assertEqual(world.negative_count,0);self.assertTrue(all(p.poll()is not None for p in world.processes));record=data['operations'][-1];self.assertTrue(record['closed_before_observers']);self.assertTrue(record['global_client_closure_confirmed']);self.assertFalse(record['caller_path_comparisons'][0]);checks=record['caller_path_comparison_outcomes'][0];self.assertIs(checks[failed],False);self.assertEqual(set(checks),set(M['person_binding_comparison']([],False,'')));self.assertTrue(all(type(v)is bool for v in checks.values()))
+
+    def test_restoring_old_Consent_only_subject_oracle_is_detected(self):
+        line=next(line for line in(ROOT/M['SELF']).read_text().splitlines()if line.startswith('                expression='))
+        old=line.replace('context_subject_owner(', 'context_subject(').replace('::uuid,"+quote(template[\'owner_module_id\'])+"','::uuid')
+        self.oracle_mutation(old,'owner_subject')
+
+    def test_wrong_principal_or_owner_argument_stops_subject_qualification(self):
+        line=next(line for line in(ROOT/M['SELF']).read_text().splitlines()if line.startswith('                expression='))
+        replacements=[line.replace('context_subject_owner("+quote(template[\'principal_user_id\'])+"','context_subject_owner(\'00000000-0000-4000-8000-000000000001\''),line.replace('::uuid,"+quote(template[\'owner_module_id\'])+"','::uuid,\'consent_disclosure\'')]
+        for replacement in replacements:
+            with self.subTest(replacement=replacement):self.oracle_mutation(replacement,'owner_subject')
+
+    def test_wrong_scalar_tuple_projection_is_detected_and_closed(self):
+        line=next(line for line in(ROOT/M['SELF']).read_text().splitlines()if line.startswith('                expression='))
+        self.oracle_mutation(line.replace("'same_tuple',pg_backend_pid()=","'same_tuple',0="),'same_tuple')
+
+    def test_person_scalar_failure_evidence_IO_stops_and_closes(self):
+        memory=MemoryEvidence();save=memory.save
+        def writer():
+            if memory.value.get('current',{}).get('caller_path_comparison_outcomes'):raise OSError(CANARY)
+            save()
+        memory.save=writer
+        def action(r):r.setup_facts();r.person_binding()
+        failure,data,world,_,_=self.exercise(action=action,evidence=memory);self.assertIsNotNone(failure);self.assertFalse(data['evidence_complete']);self.assertEqual(data['results'],[]);self.assertEqual(world.negative_count,0);self.assertTrue(all(p.poll()is not None for p in world.processes));self.assertTrue(data['global_client_boundaries'][-1]['attempted'])
+
+    def test_actual_bad_scalar_rows_retain_fixed_comparisons_and_close_before_observers(self):
+        original=World.execute
+        for mode in('malformed','extra_secret_field','non_boolean','secret_error'):
+            def execute(world,process,text):
+                rows,error=original(world,process,text)
+                if process.role=='wa_app_runtime'and'context_subject_owner('in text:
+                    if mode=='malformed':rows=[CANARY]
+                    elif mode=='extra_secret_field':rows=[json.dumps({'allowed':True,'subject':True,'same_tuple':True,'unlisted':{'uri':CANARY}})]
+                    elif mode=='non_boolean':rows=[json.dumps({'allowed':True,'subject':1,'same_tuple':True})]
+                    else:error='ERROR:  XX000: '+CANARY+'\nDETAIL: '+CANARY+'\n'
+                return rows,error
+            def action(r):r.setup_facts();r.person_binding();self.fail('bad probe unexpectedly qualified')
+            with self.subTest(mode=mode),patch.object(World,'execute',execute):failure,data,world,_,_=self.exercise(action=action)
+            self.assertIsNotNone(failure);self.assertEqual(data['results'],[]);self.assertEqual(world.negative_count,0);self.assertTrue(all(p.poll()is not None for p in world.processes));record=data['operations'][-1];self.assertTrue(record['closed_before_observers']);self.assertTrue(record['global_client_closure_confirmed']);checks=record['caller_path_comparison_outcomes'][0];self.assertFalse(all(checks.values()));self.assertTrue(all(type(v)is bool for v in checks.values()));self.assertNotIn(CANARY,json.dumps(data))
+
+    def test_main_malformed_plan_retains_sanitized_stop_without_runtime(self):
+        with tempfile.TemporaryDirectory(prefix='privilege-main-',dir=TASK)as temporary:
+            directory=Path(temporary);path=directory/'plan.json';path.write_text(json.dumps({'secret':CANARY}));code=M['main'](['--execute-reviewed-privilege-ceilings','--run-plan',str(path),'--evidence-directory',str(directory/'evidence')])
+            data=json.loads((directory/'evidence/privilege-ceiling-results.json').read_bytes());self.assertEqual(code,2);self.assertEqual(data['failure']['code'],'PLAN_SCOPE');self.assertNotIn(CANARY,json.dumps(data))
+
+
+
+
+
+
+class MetadataV6Tests(PrivilegeCoordinatorTests):
+    # Only these new methods are added to the existing source-aware suite.
+    def spec(self,name='GRANT-wa_app_runtime-DELETE',world=None):
+        w=world or World();case=next(c for c in PACKET['cases']if c['name']==name)
+        return case,w,M['metadata_query_spec'](case,w.native,P['expected_acl'])
+
+    def test_descriptor_admission_exact200_and_five_fixed_digest_expressions(self):
+        blobs={M['PACKET']+'/'+c['file']:(ROOT/M['PACKET']/c['file']).read_bytes()for c in PACKET['cases']};M['validate_metadata_descriptors'](PACKET,blobs)
+        self.assertEqual(len(M['METADATA_DESCRIPTORS']),200)
+        five=[c for c in PACKET['cases']if c.get('verb')=='INSERT'and 'encode('in blobs[M['PACKET']+'/'+c['file']].decode()];self.assertEqual(len(five),5)
+        for c in five:
+            _,e,s=M['metadata_query_spec'](c,World().native,P['expected_acl']);self.assertNotIn('read_columns',e);self.assertNotIn('read_table_privilege',e)
+        mutant=deepcopy(PACKET);mutant['cases'][0]['sql_sha256']='f'*64
+        with self.assertRaisesRegex(M['Held'],'METADATA_DESCRIPTOR_SQL_REQUIRED'):M['validate_metadata_descriptors'](mutant,blobs)
+
+    def test_all200_emitted_projection_is_SQL_driven_and_has_no_invalid_column_verb(self):
+        w=World()
+        for case in PACKET['cases']:
+            query,expected,spec=M['metadata_query_spec'](case,w.native,P['expected_acl'])
+            if query is None:self.assertEqual(case['diagnostic']['kind'],'IMMUTABLE_GRANT');continue
+            self.assertEqual(json.loads(w.raw('postgres',query)),expected)
+            calls=Functions();calls(parse_sql(query))
+            for call in calls.nodes:
+                if call.funcname[-1].sval=='has_column_privilege':self.assertIn(w.expr(call.args[-1],None),('SELECT','INSERT','UPDATE','REFERENCES'))
+            if case['family']=='PROVIDER_REACHABILITY'and'EXEC'in case['name']:
+                self.assertEqual(set(expected),{'schema_usage'});self.assertNotIn('has_table_privilege',query)
+
+    def test_all200_descriptors_match_actual_prepared_SQL_AST(self):
+        world=World()
+        for case in PACKET['cases']:
+            spec=M['METADATA_DESCRIPTORS'][case['name']];d=spec['requirement'];raw=(ROOT/M['PACKET']/case['file']).read_bytes()
+            self.assertEqual(hashlib.sha256(raw).hexdigest(),spec['sql_sha256'])
+            nodes=[x.stmt for x in parse_sql(raw.decode())]
+            native=[x for x in nodes if isinstance(x,(ast.InsertStmt,ast.UpdateStmt,ast.DeleteStmt,ast.SelectStmt,ast.TruncateStmt))]
+            if case['diagnostic']['kind']=='IMMUTABLE_GRANT':
+                self.assertEqual(len(native),1);self.assertIsInstance(native[0],ast.UpdateStmt);continue
+            if spec['profile']in('ROLE_SET','SCHEMA_CREATE','FUNCTION_EXECUTE_WITH_SCHEMA'):continue
+            self.assertEqual(len(native),1);node=native[0]
+            if spec['profile']=='PROVIDER_SCHEMA_ONLY_FUNCTION_CALL':
+                self.assertIsInstance(node,ast.SelectStmt);self.assertFalse(node.fromClause);calls=Functions();calls(node)
+                self.assertIn(d['actual_function_name'],['.'.join(x.sval for x in f.funcname)for f in calls.nodes]);continue
+            relation=node.relations[0]if isinstance(node,ast.TruncateStmt)else node.fromClause[0]if isinstance(node,ast.SelectStmt)else node.relation
+            self.assertEqual(relation.schemaname+'.'+relation.relname,d['table'])
+            if isinstance(node,ast.TruncateStmt):self.assertEqual(d['mandatory_table_privileges'],['TRUNCATE']);continue
+            writes=[c.name for c in node.cols]if isinstance(node,ast.InsertStmt)else[c.name for c in node.targetList]if isinstance(node,ast.UpdateStmt)else[]
+            reads=world.read_columns(node)
+            self.assertEqual(writes,d.get('write_columns',[]),case['name']);self.assertEqual(sorted(reads),sorted(d.get('read_columns',[])),case['name'])
+            if isinstance(node,ast.InsertStmt):
+                self.assertTrue(node.selectStmt.valuesLists);self.assertFalse(node.selectStmt.fromClause);self.assertFalse(node.onConflictClause);self.assertFalse(node.returningList)
+                functions=Functions();functions(node)
+                self.assertTrue(all(f.funcname[-1].sval in('encode','sha256','convert_to')for f in functions.nodes))
+
+    def test_old_DELETE_projection_restoration_is_rejected_by_actual_SQL_mock(self):
+        c,w,_=self.spec();old=runpy.run_path(str(ROOT/'scripts/sql-review/run-privilege-ceiling-control-rehearsal.py'));runner=object.__new__(old['runner_type'](N,C,P));runner.native=w.native;runner.evidence=MemoryEvidence();runner.json=lambda text:json.loads(w.raw('postgres',text));runner.persist=lambda:True
+        with self.assertRaisesRegex(ValueError,'SOURCE_INVALID_COLUMN_PRIVILEGE'):runner.metadata(c)
+
+    def test_exact48_permission_component_combinations(self):
+        import itertools
+        for verb in('INSERT','UPDATE','DELETE','SELECT','TRUNCATE','ANY'):
+            for table,write,read in itertools.product((False,True),repeat=3):
+                d={'operation':verb,'write_columns':['written']if verb in('INSERT','UPDATE')else[],'read_columns':['predicate']if verb in('UPDATE','DELETE','SELECT')else[],'mandatory_table_privileges':[verb]if verb in('DELETE','TRUNCATE')else[]}
+                e={'table_privilege':table}
+                if d['write_columns']:e['write_columns']={'written':write}
+                if d['read_columns']:e.update(read_table_privilege=read,read_columns={'predicate':read})
+                if verb=='ANY':d['SELECT_any_actual_column']=True;e['any_column_select']=read
+                value=M['metadata_diagnostic_projection'](e,{'profile':'TABLE','requirement':d})
+                want={'INSERT':not(table or write),'UPDATE':not(table or write)or not read,'DELETE':not table or not read,'SELECT':not read,'TRUNCATE':not table,'ANY':not read}[verb]
+                self.assertIs(value['required_permission_missing'],want,(verb,table,write,read))
+
+    def test_UPDATE_sets_and_predicates_are_distinct_actual_source(self):
+        for name,writes,reads in(('ISSUER-UserRole-UPDATE',['user_id'],['user_id','role']),('ISSUER-PRIVATE-identity_service_authorization-UPDATE',['security_generation'],['service_principal']),('ISSUER-IMMUTABLE-token_hash',['token_hash'],['id'])):
+            c,w,(query,expected,spec)=self.spec(name);self.assertEqual(spec['requirement']['write_columns'],writes);self.assertEqual(spec['requirement']['read_columns'],reads)
+            self.assertIn("'SELECT'",query);self.assertIn("'UPDATE'",query)
+
+    def test_metadata_sanitizer_allowlist_caps_and_multiseverity(self):
+        self.assertEqual(M['metadata_sqlstate']('ERROR:  22023: x\r\nLOCATION: safe\r\n'),('ALLOWLISTED_SINGLE_HEADER','22023'))
+        for state in M['METADATA_SQLSTATES']:
+            self.assertEqual(M['metadata_sqlstate']('ERROR:  '+state+': '+CANARY+'\nDETAIL: '+CANARY+' ERROR FATAL PANIC\n'),('ALLOWLISTED_SINGLE_HEADER',state))
+        for text in('ERROR:  ZZ999: '+CANARY,'ERROR:  22023: '+CANARY+' ERROR:  42501: '+CANARY,'ERROR:  22023: x\nFATAL:  42501: '+CANARY,'ERROR:  22023: '+CANARY+'\x01','ERROR:  22023: x\r'+CANARY,CANARY*20000,None):self.assertEqual(M['metadata_sqlstate'](text),('REDACTED',None))
+
+    def test_metadata_nonboolean_duplicate_and_nonfinite_shape_reject(self):
+        good={'x':False,'columns':{'id':True}}
+        for bad in({'x':0,'columns':{'id':True}},{'x':False,'columns':{'id':1}},{'x':False,'columns':{'id':True},CANARY:True}):self.assertFalse(M['metadata_boolean_shape'](bad,good))
+
+    def metadata_fault(self,mode):
+        world=World();memory=MemoryEvidence();case=next(c for c in PACKET['cases']if c['name']=='GRANT-wa_app_runtime-DELETE');Runner=M['runner_type'](N,C,P);runner=object.__new__(Runner);runner.native=world.native;runner.evidence=memory;runner.api={'psql':lambda role,cid:['MOCK',role,cid]};runner.cid=CID;runner.failed=False;runner._fingerprinting=False;runner.grants={};runner.source_blobs={M['PACKET']+'/'+case['file']:(ROOT/M['PACKET']/case['file']).read_bytes()};events=[]
+        def boundary(label):
+            confirmed=not(mode=='live'and label.startswith('AFTER_METADATA_'))
+            events.append('closure');memory.value.setdefault('global_client_boundaries',[]).append({'stage':label,'attempted':True,'confirmed':confirmed})
+            if not confirmed:raise M['Held']('GLOBAL_CLIENT_CLOSURE_UNCONFIRMED')
+        runner.global_closed=boundary
+        query,expected,_=M['metadata_query_spec'](case,world.native,P['expected_acl'])
+        def run(*args,**kwargs):
+            events.append('process-return');self.assertEqual(kwargs['input'],query);self.assertEqual(kwargs['timeout'],60)
+            if mode=='throw':raise OSError(CANARY)
+            if mode=='timeout':raise subprocess.TimeoutExpired(CANARY,60,output=CANARY,stderr=CANARY)
+            if mode in('nonzero','postio'):return types.SimpleNamespace(returncode=3,stdout='',stderr='ERROR:  22023: '+CANARY+'\nDETAIL: '+CANARY+'\n')
+            if mode=='boolcode':return types.SimpleNamespace(returncode=False,stdout=json.dumps(expected),stderr='')
+            if mode=='badshape':return types.SimpleNamespace(returncode=0,stdout=json.dumps({CANARY:True}),stderr='')
+            if mode=='duplicate':return types.SimpleNamespace(returncode=0,stdout='{"x":true,"x":false}',stderr='')
+            if mode=='nonfinite':return types.SimpleNamespace(returncode=0,stdout='{"x":NaN}',stderr='')
+            if mode=='oversized':return types.SimpleNamespace(returncode=0,stdout=CANARY*20000,stderr='')
+            return types.SimpleNamespace(returncode=0,stdout=json.dumps(expected),stderr='')
+        save=memory.save
+        if mode in('io','postio'):
+            def writer():
+                receipt=memory.value.get('current',{}).get('metadata_query_receipt')
+                if receipt and(mode=='io'or receipt['process_result_received']is True):raise OSError(CANARY)
+                save()
+            memory.save=writer
+        runner.actor=Mock(side_effect=AssertionError('NO_ACTOR_AFTER_METADATA_FAILURE'))
+        with patch.object(subprocess,'run',side_effect=run):
+            try:runner.negative(case);failure=None
+            except BaseException as error:failure=error
+        runner.actor.assert_not_called()
+        self.assertIsNotNone(failure);self.assertEqual(memory.value['results'],[]);self.assertNotIn(CANARY,json.dumps(memory.value));self.assertIn('closure',events);self.assertNotIn('source_native_privilege_projection',memory.value['current'])if mode not in('live',)else None
+        return memory.value,events
+
+    def test_metadata_failure_receipts_and_closure_precede_any_actor(self):
+        for mode in('throw','timeout','nonzero','boolcode','badshape','duplicate','nonfinite','oversized','io','postio','live'):
+            with self.subTest(mode=mode):
+                data,events=self.metadata_fault(mode);receipt=data['current']['metadata_query_receipt'];self.assertTrue(receipt['closure_attempted'])
+                if mode in('nonzero','postio'):self.assertEqual(receipt['sqlstate'],'22023');self.assertTrue(receipt['process_result_received'])
+                if mode in('throw','timeout','io'):self.assertFalse(receipt['process_result_received'])
+                if mode in('io','postio'):self.assertFalse(data['evidence_complete'])
+                if mode=='postio':self.assertEqual(data['current']['original_metadata_failure']['code'],'METADATA_QUERY_FAILED')
+                if 'process-return'in events:self.assertLess(events.index('process-return'),len(events)-1)
+
+    def test_metadata_error_preserves_completed_case_and_stops_remaining_cases(self):
+        actual=World.run
+        def run(world,args,**kwargs):
+            text=kwargs.get('input','')
+            if 'has_table_privilege'in text and "'DELETE'"in text:
+                return types.SimpleNamespace(returncode=3,stdout='',stderr='ERROR:  22023: '+CANARY+'\n')
+            return actual(world,args,**kwargs)
+        def action(r):
+            r.setup_facts();first=next(c for c in PACKET['cases']if c['diagnostic']['kind']=='SET_ROLE');r.negative(first)
+            r.negative(next(c for c in PACKET['cases']if c['name']=='GRANT-wa_app_runtime-DELETE'))
+            self.fail('LATER_CASE_MUST_NOT_START')
+        with patch.object(World,'run',run):failure,data,world,_,_=self.exercise(action=action)
+        self.assertEqual(getattr(failure,'code',None),'METADATA_QUERY_FAILED');self.assertEqual(len(data['results']),1);self.assertEqual(world.negative_count,1)
+        self.assertTrue(all(p.poll()is not None for p in world.processes));self.assertEqual(data['current']['metadata_query_receipt']['sqlstate'],'22023');self.assertTrue(data['current']['metadata_query_receipt']['closure_confirmed'])
+
+
+# Avoid repeating inherited31 tests through the new subclass.
+for _name in list(PrivilegeCoordinatorTests.__dict__):
+    if _name.startswith('test_'):setattr(MetadataV6Tests,_name,None)
+_legacy_plans=plans
+
+
+def plans(world,directory):
+    """Unit-only closed source clone, with explicit future-review fixtures.
+
+    Production validations are never edited. Full owning CLI tests obtain
+    install proofs from actual comparators rather than this unit attestation.
+    """
+    result=_legacy_plans(world,directory)
+    root=directory/'workinants-correction-pass';root.mkdir()
+    names=set(result['packet_files_sha256'])|{M['PROTOCOL'],M['SELF'],M['METADATA_TEST'],M['METADATA_DOC'],M['LEGACY_PROTOCOL']}
+    for name in names:
+        target=root/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((ROOT/name).read_bytes())
+    source4={name:M['sha']((root/name).read_bytes())for name in(M['PROTOCOL'],M['SELF'],M['METADATA_TEST'],M['METADATA_DOC'])}
+    review_path='context/reconciliation/OFFLINE_TEST_ONLY_V7_SOURCE_REVIEW.json'
+    review={'decision':'SOURCE_APPROVED','source4_sha256':source4,'scope':'OFFLINE_UNIT_METADATA_FIXTURE_NOT_RUNTIME_AUTHORITY'}
+    raw=(json.dumps(review,sort_keys=True)+'\n').encode();(root/review_path).write_bytes(raw)
+    gate={'decision':'SOURCE_APPROVED','source4_sha256':source4,'path':review_path,'sha256':M['sha'](raw)}
+    validation={'review_gate':'SOURCE_APPROVED','source4_sha256':source4,'independent_source_review':gate,'Root_source_review':gate}
+    vp=root/M['SOURCE_VALIDATION'];vp.parent.mkdir(parents=True,exist_ok=True);vp.write_text(json.dumps(validation)+'\n',encoding='utf8')
+    names.update({review_path,M['SOURCE_VALIDATION']})
+    pins={name:M['sha']((root/name).read_bytes())for name in sorted(names)}
+    result['packet_files_sha256']=pins;result['packet_sha256']=M['sha'](''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode())
+    asset=Path(result['prerequisite_attestation']['path']);proof=json.loads(asset.read_bytes());proof['operation_packet_sha256']=result['packet_sha256'];asset.write_text(json.dumps(proof)+'\n',encoding='utf8');result['prerequisite_attestation']['sha256']=M['sha'](asset.read_bytes())
+    # Environment location only: all actual source readers/compilers remain
+    # intact and verify the complete cloned current source map themselves.
+    M['load_inputs'].__globals__.update(ROOT=root,TASK=directory)
+    world.offline_root=root
+    return result
+
+
+class CreateProjectionV7Tests(unittest.TestCase):
+    def source(self,case):
+        template=(ROOT/M['PACKET']/case['file']).read_text();text=P['reviewed_text'](template,RUN)
+        binding=P['create_projection_binding'](case,template,text,RUN)
+        identity={'template_sha256':case['sql_sha256'],'rendered_source_sha256':M['sha'](text.encode())}
+        return template,text,binding,identity
+
+    def display(self,query):
+        cursor=len('CREATE TABLE ');start=0;end=len(query)
+        if end>60:
+            if 60>=cursor+10:end=60
+            else:end=min(end,cursor+10);start=max(0,end-60)
+        left='...'if start else'';right='...'if end<len(query)else''
+        return 'LINE 1: '+left+query[start:end]+right,' '*(8+len(left)+cursor-start)+'^'
+
+    def stderr(self,case,binding,position=True):
+        rows=['ERROR:  42501: permission denied for schema '+case['schema']]
+        if position:rows.extend(self.display(binding['query']))
+        rows.append('LOCATION:  aclcheck_error, aclchk.c:2843')
+        return '\n'.join(rows)+'\n'
+
+    def invoke(self,case,text,binding,identity,error):
+        return P['diagnostic_with_receipt'](error,case['diagnostic'],{'schema_usage':True,'schema_create':False},text,P['source_position_matches'],create_binding=binding,source_identity=identity)
+
+    def test_all_eight_exact_sources_accept_standalone_relation_cursor_and_no_position(self):
+        cases=[c for c in PACKET['cases']if c.get('operation')=='CREATE'];self.assertEqual(len(cases),8)
+        for case in cases:
+            template,text,binding,identity=self.source(case)
+            statements=parse_sql(text);self.assertEqual([type(x.stmt).__name__ for x in statements],['TransactionStmt','VariableSetStmt','VariableSetStmt','CreateStmt','TransactionStmt'])
+            self.assertEqual(parse_sql(binding['query'])[0].stmt.relation.location,len('CREATE TABLE '))
+            for positioned in(True,False):
+                result,receipt=self.invoke(case,text,binding,identity,self.stderr(case,binding,positioned))
+                self.assertTrue(result['matched']);self.assertTrue(receipt['strict_match']);self.assertTrue(receipt['source_statement_identity_matches']);self.assertEqual(receipt['position_source'],'VERIFIED_CREATE_QUERY')
+                self.assertIs(receipt['position_projection_matches'],True if positioned else None)
+
+    def test_restoring_only_old_position_function_rejects_the_same_eight(self):
+        for case in [c for c in PACKET['cases']if c.get('operation')=='CREATE']:
+            _,text,binding,identity=self.source(case);error=self.stderr(case,binding)
+            result=P['_unchanged_diagnostic'](error,case['diagnostic'],{'schema_usage':True,'schema_create':False},text,P['source_position_matches'])
+            self.assertFalse(result['matched']);self.assertTrue(self.invoke(case,text,binding,identity,error)[0]['matched'])
+
+    def test_wrong_case_role_hash_run_template_or_extra_statement_cannot_bind(self):
+        case=next(c for c in PACKET['cases']if c.get('operation')=='CREATE');template,text,_,_=self.source(case)
+        for field,value in(('name','CREATE-wa_worker-app'),('role','postgres'),('schema','foreign'),('sql_sha256','0'*64),('operation','SELECT')):
+            mutated=deepcopy(case);mutated[field]=value
+            with self.subTest(field=field),self.assertRaises(P['Refused']):P['create_projection_binding'](mutated,template,text,RUN)
+        for changed in(text+'SELECT 1;',text.replace(RUN[:8],'abcdefab'),text.replace('CREATE TABLE','CREATE /*x*/ TABLE')):
+            with self.assertRaises(P['Refused']):P['create_projection_binding'](case,template,changed,RUN)
+
+    def test_wrong_display_schema_caret_line_location_state_and_message_never_pass(self):
+        case=next(c for c in PACKET['cases']if c.get('operation')=='CREATE');_,text,binding,identity=self.source(case);good=self.stderr(case,binding)
+        variants=[good.replace('schema app','schema platform'),good.replace('LINE 1:','LINE 2:'),good.replace('^',' ^'),good.replace('aclcheck_error, aclchk.c','exec_stmt_raise, pl_exec.c'),good.replace('42501','P0001'),good.replace('permission denied','other denial'),good.replace('CREATE TABLE','CREATE TABLX')]
+        for error in variants:self.assertFalse(self.invoke(case,text,binding,identity,error)[0]['matched'])
+
+    def test_ambiguous_malformed_unreceived_and_canary_diagnostics_are_fixed_receipts(self):
+        case=next(c for c in PACKET['cases']if c.get('operation')=='CREATE');_,text,binding,identity=self.source(case);good=self.stderr(case,binding)
+        values=[None,False,b'ERROR',good+'ERROR malformed\n',good.replace('schema app','schema app ERROR:  22012: '+CANARY),good+CANARY+'\x00',good+('x'*16385)]
+        for error in values:
+            result,receipt=self.invoke(case,text,binding,identity,error);self.assertFalse(result['matched']);self.assertFalse(receipt['strict_match']);self.assertNotIn(CANARY,json.dumps(receipt));self.assertIsNone(receipt['sqlstate'])
+
+    def test_same_state_alone_or_missing_source_identity_does_not_pass_CREATE(self):
+        case=next(c for c in PACKET['cases']if c.get('operation')=='CREATE');_,text,binding,identity=self.source(case)
+        self.assertFalse(self.invoke(case,text,binding,identity,'ERROR: 42501: other\n')[0]['matched'])
+        for bad in(None,{},dict(identity,rendered_source_sha256='0'*64)):
+            self.assertFalse(self.invoke(case,text,binding,bad,self.stderr(case,binding))[0]['matched'])
+
+    def test_generator_import_stays_original_protocol_and_reproduces_all202(self):
+        names=set(PACKET['source_files_sha256'])|{M['GENERATOR'],M['PROTOCOL'],M['LEGACY_PROTOCOL']}
+        blobs={name:(ROOT/name).read_bytes()for name in names};cache={}
+        generator=M['compile_closed'](blobs,M['GENERATOR'],cache);generated,fixture=generator['generate'](ROOT)
+        self.assertEqual(fixture,PACKET);self.assertEqual(len(generated),202);self.assertIn(M['LEGACY_PROTOCOL'],cache);self.assertNotIn(M['PROTOCOL'],cache)
+        self.assertEqual(M['sha'](blobs[M['LEGACY_PROTOCOL']]),'faf980151efec719fc54963fc0630c056cba50c40f3f1eb7e7d1f0c7fc18f921')
+
+
+if __name__=='__main__':unittest.main()

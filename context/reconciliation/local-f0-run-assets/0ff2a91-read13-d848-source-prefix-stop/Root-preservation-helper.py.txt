@@ -1,0 +1,32 @@
+"""Preserve the known-closed Read source-prefix stop with no assertion promotion or invented cause."""
+from pathlib import Path
+import datetime,hashlib,json,re
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+mp=T/'local-f0-remaining-app-read13-owned-v2-plan-d848e852/operation-manifest.json';mb=mp.read_bytes();assert sha(mb)=='98b82ea09b1c606a7c8cb353cb2d2b6fb51c0c3aa76be51d57f7cbe5dd3c2f8f';m=json.loads(mb);out=Path(m['evidence_directory']);raw=(out/'run-evidence.json').read_bytes();assert sha(raw)=='95321fa01bb48db9f69e7d47082e63da57808f625a2a7b5eb0f9110b7f58da53';r=json.loads(raw)
+assert r['status']=='STOPPED_ATTEMPT_PRESERVED'and r['run_id']==m['run_id']and r['targets']=={}and r['cleanup_actions_confirmed']is True and r['evidence_complete']is True
+assert {p.relative_to(out).as_posix()for p in out.rglob('*')if p.is_file()}=={'run-evidence.json'}and not(out/'private').exists()
+for n in('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_sources_unchanged_after_run','external_inputs_unchanged_after_run'):assert r[n]is True
+prefix='context/reconciliation/local-f0-run-assets/0ff2a91-read13-d848-source-prefix-stop';assets={
+ 'run-evidence.json':out/'run-evidence.json',
+ 'approved-operation-manifest.json':mp,
+ 'pending-operation-manifest.json':mp.with_name('operation-manifest-before-operational-review.json'),
+ 'unpin-operation-manifest.json':mp.with_name('operation-manifest-before-source-pin.json'),
+ 'independent-operational-literal-review.json':T/'read13_d848e852_independent_operational_literal_Catalog_20261120.json',
+ 'Root-literal-approval-receipt.json':T/'0ff_read_Root_literal_approval_receipt_20261120.json',
+ 'independent-cleanup.json':T/'0ff_read_independent_cleanup_20261120.json',
+ 'independent-closed-evidence-audit.json':T/'read13_d848_independent_closed_evidence_audit_20261120.json',
+ 'bounded-evidence-admission-plan.json':T/'read13_d848_bounded_evidence_admission_plan_20261120.json',
+ 'paired-new-offline-environment-proof.json':T/'0ff_Read_missing_parser_path_paired_pure_proof_20261120.json',
+ 'independent-paired-environment-review.json':T/'0ff_Read_missing_parser_path_independent_Catalog_review_20261120.json',
+ 'Root-paired-environment-probe.py.txt':T/'probe_0ff_Read_missing_parser_path_20261120.py',
+ 'Root-independent-cleanup-helper.py.txt':T/'verify_0ff_three_independent_cleanup_20261120.py',
+ 'Root-exact-literal-preflight-helper.py.txt':T/'approve_0ff_three_exact_literals_20261120.py',
+ 'Root-preservation-helper.py.txt':Path(__file__)}
+fixed={'independent-cleanup.json':'88bb17eb79bc1a058d014c65dfef4fcc1e67015bfdbb82d09cc8a4805376e0da','independent-closed-evidence-audit.json':'7287fa30675633f3fb5048036ed6996b4cc3bcb75d54ae061cdbd66a362813fa','bounded-evidence-admission-plan.json':'3cf612232dd68904d785315e8a06d3d550f33752f3bf3143cf3f8b7e9d5a7f55','paired-new-offline-environment-proof.json':'19f787e11a0700a57e2f897acf8cc54548126e02fc217d31d8677d02a26eb8d4','independent-paired-environment-review.json':'26e8e4666c5d8e2d1a99fc52dc5f5f0f5dd6ba29cd10adb7a11da7bea1b8b15f'}
+pins={}
+for n,p in assets.items():
+ b=p.read_bytes();assert n not in fixed or sha(b)==fixed[n];assert not re.search(rb'(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)',b);put(R/prefix/n,b);pins[prefix+'/'+n]=sha(b)
+name='context/reconciliation/local-f0-read13-0ff2a91-d848-source-prefix-execution.json';v={'schema':'workinants.local-f0-Read13-0ff-d848-source-prefix-stopped-execution.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'STOPPED_ATTEMPT_PRESERVED_NO_ASSERTION_PROMOTION','run_id':m['run_id'],'known_executor_session':59177,'known_exit':1,'source_commit':m['source_commit'],'source_tree':m['source_tree'],'packet_sha256':m['packet_sha256'],'packet_files':1400,'approved_manifest_sha256':sha(mb),'raw_run_evidence_sha256':sha(raw),'actual_milestones':{'common_SOURCE_VERIFICATION_1400':'PASS_CURRENT_AND_COMMITTED_BYTES','complete_owning_source_admission':'NOT_PROVEN','resource_creation':'NOT_REACHED_IN_RETAINED_CONTROL_FLOW','authentication_installation_native_Read13_child_behavior':'NOT_RUN','13_SELECT_assertion_links':[]},'true_limits':{'retained_primary_stage':'SOURCE_VERIFICATION','retained_primary_code':'UNEXPECTED_READ13_WRAPPER_FAILURE','exception_class_function_line_and_complete_original_cause':'UNOBSERVED','no_discarded_values_reconstructed':True},'subsequent_pure_source_environment_proof':{'proof_sha256':fixed['paired-new-offline-environment-proof.json'],'independent_review_sha256':fixed['independent-paired-environment-review.json'],'demonstrates':'Unchanged pinned catalog loader rejects absent pinned parser path and loads with TASK/offline-python pglastv7.21. Root initial launch omitted that path. This fresh proof is consistent with the retained stop; it does not reconstruct the complete historical exception.','correction_scope':'Root launch environment only; no security/SQL/fixture/permission/source change.'},'cleanup':{'independent_proof_sha256':fixed['independent-cleanup.json'],'exact_container':'wa-p0c-d848e852-read13','exact_volume':'wa-p0c-d848e852-read13-data','both_absent':True,'private_absent':True,'pinned_image_retained':True},'assets_sha256':pins,'accepted_assertion_counts_unchanged':{'PASS':638,'PARTIAL':33,'NOT_RUN':324,'DEPENDENCY_BLOCKED':32,'UNRESOLVED_SOURCE':7,'FAILED':0},'671_ledger_rows_preserved':True,'selected94_case_counts_unchanged':{'PASS':5,'PARTIAL':78,'NOT_RUN':11},'Posture':'D','continue_standing_assignment':True};put(R/name,enc(v));inventory={'record':name,'record_sha256':sha((R/name).read_bytes()),'assets_sha256':pins,'all_files_sha256':{**pins,name:sha((R/name).read_bytes())},'assertion_links_added':0,'source_changed':False,'Posture':'D'};p=T/'0ff_Read_d848_source_prefix_stop_preserved_inventory_20261120.json';put(p,enc(inventory));print(json.dumps({'inventory':p.name,'sha256':sha(p.read_bytes()),'record_sha256':inventory['record_sha256'],'assets':len(pins),'assertion_links_added':0}))

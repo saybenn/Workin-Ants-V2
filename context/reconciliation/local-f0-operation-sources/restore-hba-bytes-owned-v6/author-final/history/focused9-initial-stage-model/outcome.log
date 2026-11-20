@@ -1,0 +1,49 @@
+test_01_common_binary_writer_exact_four_public_payloads_and_verifier (<run_path>.HbaV6Tests.test_01_common_binary_writer_exact_four_public_payloads_and_verifier) ... ok
+test_02_binary_writer_rejects_wrong_types_noise_and_unadmitted_targets (<run_path>.HbaV6Tests.test_02_binary_writer_rejects_wrong_types_noise_and_unadmitted_targets) ... ok
+test_03_binary_verifier_rejects_semantic_equivalents_parser_and_malformed_responses (<run_path>.HbaV6Tests.test_03_binary_verifier_rejects_semantic_equivalents_parser_and_malformed_responses) ... ok
+test_04_only_old_source_writer_restoration_reproduces_CRLF_and_fails_exact_verifier (<run_path>.HbaV6Tests.test_04_only_old_source_writer_restoration_reproduces_CRLF_and_fails_exact_verifier) ... ok
+test_05_only_old_multiline_verifier_restoration_misses_coupled_translation (<run_path>.HbaV6Tests.test_05_only_old_multiline_verifier_restoration_misses_coupled_translation) ... ok
+test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) ... 
+  test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) (old=False) ... FAIL
+test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) ... ERROR
+test_07_archive_preassert_receipt_and_unchanged_strict_members (<run_path>.HbaV6Tests.test_07_archive_preassert_receipt_and_unchanged_strict_members) ... ok
+test_08_actual_backup_retains_process_boundary_but_bad_HBA_never_qualifies (<run_path>.HbaV6Tests.test_08_actual_backup_retains_process_boundary_but_bad_HBA_never_qualifies) ... ok
+test_09_receipt_first_stop_sticky_IO_and_main_finally_stops_later_phases (<run_path>.HbaV6Tests.test_09_receipt_first_stop_sticky_IO_and_main_finally_stops_later_phases) ... ok
+
+======================================================================
+ERROR: test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 169, in test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected
+    body=self.world.bodies[n['STAGING']];self.world.bodies[n['RESTORED']]=body
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'wa-p0c-550e8400-restore-staging'
+
+======================================================================
+FAIL: test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) (old=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 168, in test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected
+    else:n['stage_restore'](metadata)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\local_f0_restore_hba_bytes_v6_operation_steps.py", line 1655, in stage_restore
+    inspect_restore(SOURCE,'source',running=False);create_extra_volume();create_extra_container(STAGING,True)
+                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\local_f0_restore_hba_bytes_v6_operation_steps.py", line 1645, in create_extra_container
+    attempted_containers.add(name);need(docker(args).returncode==0,'RESTORE_CONTAINER_CREATE')
+                                        ^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\execute_local_f0_restore_hba_bytes_v6_20261120.py", line 202, in docker
+    def docker(args,input=None,timeout=60):return command(['docker','--context','desktop-linux',*args],input,timeout)
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\execute_local_f0_restore_hba_bytes_v6_20261120.py", line 200, in command
+    return subprocess.run(args,input=input,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=timeout,cwd=ROOT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 62, in process
+    assert cmd[0]=='exec','UNREGISTERED_DOCKER_COMMAND'
+           ^^^^^^^^^^^^^^
+AssertionError: UNREGISTERED_DOCKER_COMMAND
+
+----------------------------------------------------------------------
+Ran 9 tests in 5.115s
+
+FAILED (failures=1, errors=1)

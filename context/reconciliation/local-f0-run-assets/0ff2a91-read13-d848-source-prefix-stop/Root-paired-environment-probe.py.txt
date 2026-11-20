@@ -1,0 +1,29 @@
+"""Paired environment-only probe of the unchanged admitted catalog tool loader; no subprocess/network."""
+from pathlib import Path
+import datetime,hashlib,importlib.util,json,runpy,socket,subprocess,sys
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+mp=T/'local-f0-remaining-app-read13-owned-v2-plan-d848e852/operation-manifest.json';raw=mp.read_bytes();assert sha(raw)=='98b82ea09b1c606a7c8cb353cb2d2b6fb51c0c3aa76be51d57f7cbe5dd3c2f8f';m=json.loads(raw)
+gen='scripts/prepare-native-catalog-review.py';pins=json.loads((R/'review-output/native-catalog/source-pins.json').read_bytes());assert len(pins)==16
+for n,h in {**pins,gen:m['packet_files_sha256'][gen]}.items():assert sha((R/n).read_bytes())==h
+assert 'pglast'not in sys.modules and importlib.util.find_spec('pglast')is None
+calls=[]
+def forbid(*a,**kw):calls.append('FORBIDDEN_PROCESS_OR_NETWORK');raise AssertionError('ALL_PROCESS_OR_NETWORK_FORBIDDEN')
+with patch.multiple(subprocess,run=forbid,Popen=forbid,check_output=forbid,check_call=forbid,call=forbid),patch.object(socket,'socket',forbid),patch.object(socket,'create_connection',forbid):
+ ns=runpy.run_path(str(R/gen),run_name='_Root_environment_paired_catalog_loader');rows=[]
+ try:ns['load_catalog_tools'](R,pins)
+ except BaseException as e:
+  intended=type(e)is ns['PreparationFailure']and e.args==('PARSER_OR_HELPER_COMPILE_FAILED',)
+  rows.append({'environment':'original_missing_parser_path','loader_rejected':True,'exact_source_allowlisted_code':'PARSER_OR_HELPER_COMPILE_FAILED'if intended else None,'raw_exception_discarded':True});assert intended
+ else:raise AssertionError('MISSING_PARSER_MUST_REJECT')
+ offline=T/'offline-python';assert offline.is_dir();sys.path.insert(0,str(offline));import pglast
+ assert pglast.__version__=='v7.21'and Path(pglast.__file__).resolve().is_relative_to(offline.resolve())
+ tools=ns['load_catalog_tools'](R,pins);assert len(tools)==len(ns['PUBLIC_MODULES'])
+ rows.append({'environment':'explicit_pinned_offline_parser_path','loader_rejected':False,'parser_version':pglast.__version__,'parser_loaded_from_fixed_TASK_offline_python':True,'actual_unchanged_loader_returned_all_public_tools':True})
+assert not calls
+v={'schema':'workinants.0ff-Read-paired-offline-parser-environment-proof.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_PAIRED_SOURCE_ENVIRONMENT_PROOF','source_commit':m['source_commit'],'source_tree':m['source_tree'],'manifest_sha256':sha(raw),'generator':gen,'generator_sha256':m['packet_files_sha256'][gen],'source16_sha256':pins,'comparisons':rows,'all_process_network_forbidden':True,'source_and_manifest_unchanged':True,'historical_limit':'This freshly demonstrates missing pinned parser path makes the unchanged loader reject. The stopped59177 run retained no exception class/function/line; its complete cause remains unobserved. No installation, authentication or Read behavior qualification.','correction_scope':'Root launch environment only; no source/security/fixture/ACL relaxation. Fresh reviewed attempt identity/evidence plan still required.','runtime':'NOT_RUN_BY_PROBE','Posture':'D'}
+assert mp.read_bytes()==raw
+for n,h in {**pins,gen:m['packet_files_sha256'][gen]}.items():assert sha((R/n).read_bytes())==h
+p=T/'0ff_Read_missing_parser_path_paired_pure_proof_20261120.json'
+with p.open('x',encoding='utf8')as f:json.dump(v,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'proof':str(p),'sha256':sha(p.read_bytes()),'status':v['status'],'no_process_database_network':True}))

@@ -1,0 +1,131 @@
+"""Static exact-byte closure of the independent V8 review. No process calls."""
+import ast
+import datetime
+import hashlib
+import json
+from pathlib import Path
+
+TASK=Path(__file__).resolve().parent
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)
+def read_json(path):return json.loads(path.read_bytes())
+delivery_path=TASK/'privilege_public_acl_v8_frozen_private_delivery_20261120.json'
+assert sha(delivery_path.read_bytes())=='8c363aabdfdb9a648386764b0b1b2d7bbbefd0a1839cdd0e0a1bf82516a3ed8a'
+d=read_json(delivery_path);root=Path(d['private_ROOT']);private=Path(d['private_TASK'])
+candidate=d['candidate_Root_new_files_sha256'];assert len(candidate)==794
+assert {p:sha((root/p).read_bytes())for p in candidate}==candidate
+assert {p:sha((private/p).read_bytes())for p in d['owned5_sha256']}==d['owned5_sha256']
+child_path='context/reconciliation/privilege-ceiling-v8-source-validation.json'
+owned_path='context/reconciliation/local-f0-privilege-ceiling-owned-v8-source-validation.json'
+assert sha((root/child_path).read_bytes())==d['child_validation_sha256']
+assert sha((root/owned_path).read_bytes())==d['owned_validation_sha256']
+child=read_json(root/child_path);owned=read_json(root/owned_path)
+assert child['source4_sha256']==d['source4_sha256']
+assert owned['operator_sources_sha256']==d['owned5_sha256']
+assert child['review_gate']=='PENDING'
+assert all(child[k]['decision']=='PENDING'for k in('independent_source_review','Root_source_review'))
+assert all(owned[k]['decision']=='PENDING'for k in('independent_safety_sql_review','independent_projection_review','Root_source_review'))
+archive='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v8'
+archive_map={p.relative_to(root).as_posix():sha(p.read_bytes())for p in(root/archive).rglob('*')if p.is_file()}
+assert archive_map==owned['archive_files_sha256'];assert len(archive_map)==788
+for name,wanted in d['owned5_sha256'].items():
+    assert (root/archive/(name+'.txt')).read_bytes()==(private/name).read_bytes()
+preservation_path=root/archive/'preserved-before-v8/preservation.json'
+assert sha(preservation_path.read_bytes())==d['preservation689_manifest_sha256']
+preservation=read_json(preservation_path);assert len(preservation['saved_files'])==689
+for value in preservation['saved_files'].values():
+    assert sha((preservation_path.parent/value['snapshot']).read_bytes())==value['sha256']
+original122=child['original_source122_sha256'];base202=child['artifacts202_sha256']
+assert len(original122)==122 and len(base202)==202
+assert all(sha((root/p).read_bytes())==h for p,h in {**original122,**base202}.items())
+assert owned['privilege_packet']['artifacts_sha256']==base202
+assert sha((root/'review-output/foundation-application.review.sql').read_bytes())=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+registration=root/'review-output/native-catalog/public-schema-registration.json'
+assert sha(registration.read_bytes())=='f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3'
+assert sha(canonical(read_json(registration)).encode())=='59a40e9472a828ceda6683c51be763c524ea98a761353b74d28c87fbaca4dbeb'
+
+def functions(path):
+    result={}
+    def walk(nodes,prefix=''):
+        for node in nodes:
+            if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+                key=prefix+node.name;result[key]=ast.dump(node,include_attributes=False);walk(node.body,key+'.')
+    walk(ast.parse(path.read_bytes()).body);return result
+def normalized(value):
+    return value.replace('v8','v7').replace('V8','V7').replace('b788cf40cda693be2c285c64572011ae54f7640bf3157000648196f603a7775c','571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f')
+def delta(old,new):
+    a=functions(old);b=functions(new)
+    return {'added':sorted(set(b)-set(a)),'removed':sorted(set(a)-set(b)),'changed':sorted(k for k in a.keys()&b.keys()if a[k]!=normalized(b[k]))}
+protocol_delta=delta(root/'scripts/privilege_ceiling_control_protocol_v7.py',root/'scripts/privilege_ceiling_control_protocol_v8.py')
+assert protocol_delta=={'added':['registered_public_schema_acl','registered_public_schema_acl.rows'],'removed':[],'changed':['expected_acl']}
+coordinator_delta=delta(root/'scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py',root/'scripts/sql-review/run-privilege-ceiling-control-rehearsal-v8.py')
+assert coordinator_delta=={'added':['schema_create_metadata_comparison'],'removed':[],'changed':['load_inputs','runner_type','runner_type.Runner','runner_type.Runner.metadata']}
+old_five=root/archive/'preserved-before-v8/TASK'
+owning_deltas={}
+for name in d['owned5_sha256']:
+    if name.startswith('check_'):continue
+    owning_deltas[name]=delta(old_five/(name.replace('v8','v7')+'.txt'),private/name)
+assert owning_deltas['execute_local_f0_privilege_ceiling_v8_20261120.py']=={'added':[],'removed':[],'changed':[]}
+assert owning_deltas['local_f0_privilege_ceiling_v8_operation_steps.py']=={'added':['privilege_schema_create_comparison_allowed'],'removed':[],'changed':['admit_privilege_ceiling_sources','verify_privilege_result']}
+assert owning_deltas['prepare_local_f0_privilege_ceiling_v8_plan.py']=={'added':[],'removed':[],'changed':['prepare']}
+assert owning_deltas['pin_local_f0_privilege_ceiling_v8_plan_20261120.py']=={'added':[],'removed':[],'changed':['validate']}
+
+focused_path=TASK/'privilege_public_acl_v8_independent_focused_Catalog_20261120.json'
+assert sha(focused_path.read_bytes())=='ff6f0d9e832f5fd01f166763d29ad12edd52047b8a2622abca4c873f12185d3f'
+focused=read_json(focused_path);assert focused['successful']is True and focused['tests_run']==9 and focused['errors']==focused['failures']==0
+assert focused['source4_sha256']==d['source4_sha256']and focused['operator_sources_sha256']==d['owned5_sha256']
+supplement_path=TASK/'privilege_public_acl_v8_deferred_positive_graph_final_supplement_20261120.json'
+assert sha(supplement_path.read_bytes())=='1fb69e76bb7b59a2ed57877ee863881f7622900eb004b9641b94ae087aa80a93'
+supplement=read_json(supplement_path)
+for name,wanted in supplement['artifacts_sha256'].items():assert sha((TASK/name).read_bytes())==wanted
+graph_path=TASK/'privilege_public_acl_v8_deferred_positive_graph_20261120_v2.json'
+graph=read_json(graph_path);assert graph['success']is True and graph['testsRun']==1 and graph['failure_count']==graph['error_count']==0
+assert graph['entry']==graph['exit']and graph['entry']['all_exact']is True
+assert graph['actual_prepared_inventory_count']==1194 and graph['runtime_executed']is False
+expected9={**{'ROOT/'+p:h for p,h in d['source4_sha256'].items()},**{'TASK/'+p:h for p,h in d['owned5_sha256'].items()}}
+assert supplement['source9_entry_and_exit_sha256']==expected9
+
+artifacts={
+ delivery_path.name:sha(delivery_path.read_bytes()),
+ 'privilege_public_acl_v8_frozen_author_report_20261120.json':d['author_report_sha256'],
+ supplement_path.name:sha(supplement_path.read_bytes()),
+ graph_path.name:sha(graph_path.read_bytes()),
+ focused_path.name:sha(focused_path.read_bytes()),
+ 'privilege_public_acl_v8_independent_focused_Catalog_20261120.log':focused['log_sha256'],
+ 'review_privilege_public_acl_v8_focused_Catalog_20261120.py':sha((TASK/'review_privilege_public_acl_v8_focused_Catalog_20261120.py').read_bytes()),
+ Path(__file__).name:sha(Path(__file__).read_bytes()),
+ **supplement['artifacts_sha256'],
+}
+for name,wanted in artifacts.items():assert sha((TASK/name).read_bytes())==wanted
+report={
+ 'schema':'workinants.privilege-public-acl-v8-independent-Catalog-source-review.v1',
+ 'reviewer':'/root/catalog_v4_review','decision':'SOURCE_APPROVED','created_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ 'findings':[],
+ 'source4_sha256':d['source4_sha256'],'operator_sources_sha256':d['owned5_sha256'],
+ 'lineage_disclosure':'I authored the bounded public-ACL correction PLAN2fb9 and historical Owner-derived scaffolding, and independently reviewed prior V7 code. I did not author the new V8 runtime four or owned five. This decision reviews the new V8 implementation and its exact preservation/composition; it does not independently re-authorize historical code or qualify runtime evidence.',
+ 'finding_closure':{'PUBLIC_SCHEMA_EXPECTATION_OMITS_REGISTERED_SEPARATE_ACL':'CLOSED_AT_SOURCE_ONLY'},
+ 'exact_inventory':{'private_ROOT':str(root),'private_TASK':str(private),'new_candidate_Root_files':794,'candidate_map_sha256':sha(canonical(candidate).encode()),'owned_archive_files':788,'archive_map_sha256':sha(canonical(archive_map).encode()),'before_author_saved_files':689,'preservation_manifest_sha256':d['preservation689_manifest_sha256'],'unchanged_generation_inputs':122,'unchanged_base_artifacts':202,'all200_business_SQL_unchanged':True,'canonical_application_sha256':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','child_validation_sha256':d['child_validation_sha256'],'owned_validation_sha256':d['owned_validation_sha256'],'all_gates_remain_PENDING':True},
+ 'code_review':{
+  'public_expectation':'Only SCHEMA/public now derives exact role-or-PUBLIC privilege from native.public_schema_acl after fixed raw/canonical registration hashes, owner and complete typed ACL multiset match. No USAGE hardcode, CREATE inference, ACL mutation or other object predicate change.',
+  'safe_comparison':'SCHEMA_CREATE only retains exactly schema_usage/schema_create with expected bool and observed/matches bool-or-null. Malformed/unreceived shapes remain null. Comparison persists before mismatch assertion; first source mismatch remains primary through sticky IO and global closure. Parent requires all exact true matches before a full-success verdict.',
+  'strict_denial_preserved':'All metadata_query_spec SQL emission, descriptors, diagnostic/source-position matching, operation closure/currentness and finite200/244/40/16/3 limits remain source-identical outside the acknowledged delta. Metadata equality itself never counts as a business denial.',
+  'generation_runtime_separation':'Exact old571951 coordinator is admitted solely for compile_closed(original GENERATOR)/legacy protocol and immutable202 reproduction in Prep, Steps and pinner. It does not call old load_inputs/main/coordinate. Actual runtime config/dispatch is separately hash-pinned b788 V8, with fresh child and owned review gates before compilation/resources.',
+  'shared_safety_and_final_reference':'Core functions and all Steps safety/finalizer/cleanup/reader/early-final reference functions including main are AST-identical after explicit namespace/hash normalization to preserved approved V7 FIX2. Original first-primary, sticky IO, eligible safety SQL, unconditional parent global closure, strict original reference SHA/length, source/tool/archive postchecks and final barrier remain intact.',
+  'protocol_function_delta':protocol_delta,'coordinator_function_delta':coordinator_delta,'owning_function_deltas':owning_deltas,
+ },
+ 'independent_focused_checks':{'methods':focused['methods'],'tests_run':9,'PASS':9,'errors':0,'failures':0,'elapsed_seconds':focused['duration_seconds'],'report_sha256':sha(focused_path.read_bytes()),'actual_methods':'Real Runner.metadata and global_closed; real source loader/admission; projection-aware process models and actual Session public denials; original-only expected_acl restoration rejects. Process/network boundaries forbidden or explicitly mocked.','new_runtime_executed':False},
+ 'deferred_author_graph_reviewed':{'supplement_sha256':sha(supplement_path.read_bytes()),'output_sha256':sha(graph_path.read_bytes()),'known_exit':0,'methods':1,'elapsed_seconds':58.282,'actual_prepared_inventory':1194,'tools_members':10300,'qualification':'Actual pure prepare/pinner and initialized source verifier reach only the fixed first-resource-boundary sentinel; synthetic exact Git committed bytes are a process mock, not a live-HEAD attestation. Old V6 test-clone support failure and71 exact support copies preserved. No full200 or actual runtime claim.'},
+ 'Root_metadata_admission':{
+  'recommended_report_copy':archive+'/reviews/independent-Catalog-v8-source-review.json',
+  'child_validation':{'path':child_path,'schema':'workinants.privilege-v8-source-validation.v1','preserve_pending_bytes_first':True,'review_gate_after_Root_closure':'SOURCE_APPROVED','required_source4_sha256':d['source4_sha256'],'exact_review_fields':['independent_source_review','Root_source_review'],'each_record_requires':['decision=SOURCE_APPROVED','path','sha256','source4_sha256'],'referenced_report_body_requires':['decision=SOURCE_APPROVED','source4_sha256 exact']},
+  'owned_validation':{'path':owned_path,'schema':'workinants.privilege-ceiling-owned-operator-source-validation.v1','preserve_pending_bytes_first':True,'required_operator_sources_sha256':d['owned5_sha256'],'exact_review_fields':['independent_safety_sql_review','independent_projection_review','Root_source_review'],'each_record_requires':['decision=SOURCE_APPROVED','path','sha256','operator_sources_sha256'],'referenced_projection_and_Root_body_requires':['decision=SOURCE_APPROVED','operator_sources_sha256 exact'],'archive_files_sha256':'Recompute exact new owned archive tree after preserving pending validation, reports and source-test histories. Keep original202 artifacts/source122 maps unchanged.'},
+  'after_metadata_closure':'Unchanged real prepare+pinner/filesystem validator must pass the final closed graph. Normal publication and current+committed pin, separate literal review and fresh live preflight remain required. This source report changes no live gate or runtime authorization.',
+  'artifacts_to_preserve_sha256':artifacts,
+ },
+ 'limits':['All V8 database/runtime cases remain NOT_RUN.','Historical9577 individual public response bits remain UNRETAINED and complete historical causes UNOBSERVED.','No ACL/schema/permission/sourceguard/worker32/business SQL changes or repairs.','No 94/451/full-case/API/owner-write/production-readiness promotion.','No Root source/gate/ledger/status/Git/runtime mutations by reviewer; Posture D unchanged.'],
+ 'plain_english':'The check now reads the saved permission list for public. It records a small true/false result and still stops when anything is wrong. No database test has run for this new version.'
+}
+name=TASK/'privilege_public_acl_v8_independent_Catalog_source_review_20261120.json'
+raw=(json.dumps(report,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+with name.open('xb')as handle:handle.write(raw)
+print(json.dumps({'decision':report['decision'],'report':str(name),'sha256':sha(raw),'tests_run':9,'source4':4,'operator_sources':5},sort_keys=True))

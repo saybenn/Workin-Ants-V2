@@ -1,0 +1,15 @@
+{
+  "schema":"workinants.privilege-v7-Root-primary-source-projection-audit.v1",
+  "reviewer":"/root",
+  "scope":"Independent primary-source check of V7's fixed eight-CREATE query/cursor projection; not a complete code approval or actual runtime result.",
+  "sources":[
+    {"url":"https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/bin/psql/mainloop.c","lines":"393-428","fact":"The stdin parser submits at a statement-ending semicolon, resets the query buffer, and resets statement scanning after submission."},
+    {"url":"https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/fe_utils/psqlscan.l","lines":"384-394","fact":"The scanner excludes initial whitespace while its output buffer is empty. Together with query-buffer reset, this supports the fixed standalone CREATE statement even when the prepared input contains earlier BEGIN and SET statements on the same input line."},
+    {"url":"https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/parser/parse_utilcmd.c","lines":"166-180","fact":"Creation-namespace validation uses an error-position callback bound to the relation token's parser location. V7's fixed ASCII query places that token immediately after its CREATE TABLE prefix."},
+    {"url":"https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/interfaces/libpq/fe-protocol3.c","lines":"1128-1149,1273-1338","fact":"The frontend converts the cursor offset to zero-based indexing, applies the60-column display limit with10-column right-cut margin, and builds the line/caret projection. V7 restricts the new special case to its fixed ASCII query/cursor and same hash-bound case/schema/run template."}
+  ],
+  "source_reviewed_so_far":{"protocol_sha256":"7f20d136bb3eed707e08887212dea9defde5537b357442a421aa5e4cabc94864","coordinator_sha256":"571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f","eight_CREATE_only":"Fixed template hash/schema/role/case/run UUID/rendered SQL/query hash required; no arbitrary SQL splitting/search or generic42501 verdict."},
+  "historical086c":"Actual discarded primary/LINE/caret/native frame/full cause remain UNOBSERVED. These source facts support a bounded correction and future experiment; they do not recover old missing observations.",
+  "runtime":"NOT_RUN",
+  "Posture":"D"
+}

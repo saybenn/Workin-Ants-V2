@@ -1,0 +1,19 @@
+"""Static author-owned V6 fingerprints only; no generator/import/process/API."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;D=T/'restore-hba-bytes-v6-author-20261120';F=D/'future-root';A=F/'context/reconciliation/local-f0-operation-sources/restore-hba-bytes-owned-v6';V=F/'context/reconciliation/local-f0-restore-hba-bytes-owned-v6-source-validation.json'
+sha=lambda raw:hashlib.sha256(raw).hexdigest();enc=lambda value:(json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+before=json.loads((D/'before-preservation.json').read_bytes());names=tuple(before['new_five_unoccupied']);generation=json.loads((D/'original-V5-generation-binding.json').read_bytes())
+def patch_value(source,name,value):
+ node=next(n for n in ast.parse(source).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id==name for t in n.targets)).value;lines=source.splitlines(keepends=True);start=sum(map(len,lines[:node.lineno-1]))+node.col_offset;end=sum(map(len,lines[:node.end_lineno-1]))+node.end_col_offset;return source[:start]+repr(value)+source[end:]
+pin=T/names[4];source=pin.read_text();source=patch_value(source,'FROZEN',{name:sha((T/name).read_bytes())for name in names[:4]});pin.write_text(source,encoding='utf8',newline='\n');five={name:sha((T/name).read_bytes())for name in names};A.mkdir(parents=True,exist_ok=True)
+for name in names:(A/(name+'.txt')).write_bytes((T/name).read_bytes())
+for name in ('restore_hba_bytes_v6_Root_bounded_implementation_ACK_20261120.json','restore_v5_9cf_windows_hba_transport_bounded_source_proposal_20261120.json','restore9cf_independent_actual_audit_and_HBA_v6_source_plan_review_20261120.json','restore_v5_9cf_Windows_text_stdin_public_HBA_probe_20261120.json'):
+ out=A/'plan'/name;out.parent.mkdir(exist_ok=True);out.write_bytes((T/name).read_bytes())
+for name in ('before-preservation.json','author-static-plan.json','PG17-binary-API-primary-source-receipt.json','original-V5-generation-binding.json','four-public-HBA-byte-specs.json'):
+ out=A/'author'/name;out.parent.mkdir(exist_ok=True);out.write_bytes((D/name).read_bytes())
+for name,h in before['original_physical5_sha256'].items():
+ raw=(T/name).read_bytes();assert sha(raw)==h;out=A/'original-V5-five'/(name+'.txt');out.parent.mkdir(exist_ok=True);out.write_bytes(raw)
+for relative,h in generation['root_files_sha256'].items():assert sha((F/relative).read_bytes())==h,relative
+archive={p.relative_to(F).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()};pending={'decision':'PENDING','path':None,'sha256':None,'operator_sources_sha256':five}
+value={'schema':'workinants.restore-hba-bytes-owned-v6-source-validation.v1','source_review_status':'PENDING','all_five_sources_sha256':five,'original_v5_generation':generation,'archive_files_sha256':archive,'independent_source_review':dict(pending),'Root_source_review':dict(pending),'runtime':'NOT_RUN_NEW_SOURCE','Posture':'D'};V.write_bytes(enc(value));report={'external5_sha256':five,'validation_sha256':sha(V.read_bytes()),'archive_files':len(archive),'original_generation':generation,'all_gates':'PENDING','no_Runtime_Root_Git_actions':True};(D/'current-private-fingerprints.json').write_bytes(enc(report));print(json.dumps({'external5':five,'archive':len(archive),'validation':report['validation_sha256'],'gates':'PENDING'}))

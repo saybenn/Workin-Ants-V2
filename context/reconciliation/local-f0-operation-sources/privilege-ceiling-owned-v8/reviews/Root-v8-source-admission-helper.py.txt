@@ -1,0 +1,58 @@
+"""Root exact private V8 source admission; preserve history and close only separately reviewed source gates."""
+from pathlib import Path
+import datetime,hashlib,json,stat
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+dp=T/'privilege_public_acl_v8_frozen_private_delivery_20261120.json';dr=dp.read_bytes();assert sha(dr)=='8c363aabdfdb9a648386764b0b1b2d7bbbefd0a1839cdd0e0a1bf82516a3ed8a';d=json.loads(dr);F=Path(d['private_ROOT']);FT=Path(d['private_TASK']);candidate=d['candidate_Root_new_files_sha256'];source4=d['source4_sha256'];five=d['owned5_sha256'];assert len(candidate)==794 and len(source4)==4 and len(five)==5
+pp=T/'privilege_public_acl_v8_independent_Catalog_source_review_20261120.json';pr=pp.read_bytes();assert sha(pr)=='1f98bddd66dd2685cbcc5afc40a75df2f49cd754a8e6d4f838c27795a553c985';peer=json.loads(pr);assert peer['decision']=='SOURCE_APPROVED'and peer['findings']==[]and peer['reviewer']=='/root/catalog_v4_review'and peer['source4_sha256']==source4 and peer['operator_sources_sha256']==five
+cn='context/reconciliation/privilege-ceiling-v8-source-validation.json';on='context/reconciliation/local-f0-privilege-ceiling-owned-v8-source-validation.json';prefix='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v8';cr=(F/cn).read_bytes();orr=(F/on).read_bytes();assert sha(cr)=='418aeb479bea7e75d3065edc1d3b5212cd1c1abba041fe0904583e38d6bf6eb5'and sha(orr)=='81c2765d877d7902284bdc46144e084899fe30617a2e90d3145bdbadbbb0a945';child=json.loads(cr);owned=json.loads(orr);oldchild=json.loads(cr);oldowned=json.loads(orr)
+assert child['review_gate']=='PENDING'and child['source4_sha256']==source4 and owned['operator_sources_sha256']==five and len(owned['archive_files_sha256'])==788
+existing={}
+for n,h in candidate.items():
+ p=F/n;s=p.lstat();assert stat.S_ISREG(s.st_mode)and not p.is_symlink()and not getattr(s,'st_file_attributes',0)&1024 and sha(p.read_bytes())==h,n
+ if(R/n).exists():assert sha((R/n).read_bytes())==h;existing[n]=h
+for n,h in source4.items():assert candidate[n]==h
+existingfive={}
+for n,h in five.items():
+ assert sha((FT/n).read_bytes())==h and candidate[prefix+'/'+n+'.txt']==h
+ if(T/n).exists():
+  p=T/n;s=p.lstat();assert stat.S_ISREG(s.st_mode)and not p.is_symlink()and not getattr(s,'st_file_attributes',0)&1024 and sha(p.read_bytes())==h;existingfive[n]=h
+# Admission cannot mutate an already pinned old-source packet.
+for dirname in('local-f0-read13-parser-env-retry-plan-116153b2','local-f0-app-write-two-unexpected-diagnostic-v3-owned-plan-0a02569b','local-f0-install-controls-plan-6850ee4c'):
+ pins=json.loads((T/dirname/'operation-manifest.json').read_bytes())['packet_files_sha256'];assert all(n in existing and h==pins[n]for n,h in candidate.items()if n in pins)
+for mapping in(child['original_source122_sha256'],child['artifacts202_sha256']):
+ for n,h in mapping.items():assert sha((R/n).read_bytes())==h
+artifacts=peer['Root_metadata_admission']['artifacts_to_preserve_sha256']
+for n,h in artifacts.items():assert sha((T/n).read_bytes())==h
+before=T/'privilege-public-acl-v8-Root-before-admission-20261120';before.mkdir(exist_ok=False)
+for n in existing:put(before/'ROOT'/n,(R/n).read_bytes())
+for n in existingfive:put(before/'TASK'/n,(T/n).read_bytes())
+for n in candidate:
+ if n not in existing:put(R/n,(F/n).read_bytes())
+added={}
+def archive(relative,b):
+ n=prefix+'/'+relative;assert n not in owned['archive_files_sha256']and n not in added;put(R/n,b);added[n]=sha(b)
+archive('reviews/child-PENDING-before-Root-closure.json',cr);archive('reviews/owned-PENDING-before-Root-closure.json',orr);archive('reviews/independent-Catalog-v8-source-review.json',pr)
+for n in artifacts:archive('reviews/source-closure/'+n+('.txt'if n.endswith('.py')else''),(T/n).read_bytes())
+archive('reviews/Root-preserved-existing-identical-files.json',enc({'existing_identical_Root_files_sha256':existing,'existing_identical_physical_five_sha256':existingfive,'all_existing_bytes_preserved':True,'no_existing_unfinished_work_overwritten':True}))
+root={'schema':'workinants.privilege-v8-Root-source-review.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','reviewer':'/root','source4_sha256':source4,'operator_sources_sha256':five,'independent_source_review_sha256':sha(pr),'reviewed_candidate794_sha256':candidate,'bounded_review':['Root inspected registered_public_schema_acl: fixed source-registration digest and owner plus strict typed ACL multiset retaining multiplicity/grantor/options, order independent.','SCHEMA/public only derives role/PUBLIC USAGE and CREATE from the separately registered native public ACL; other object predicates and all200 query bytes remain unchanged. No permission mutation or inferred PUBLIC CREATE.','Root inspected actual metadata path: fixed two-field bool/null comparison persists before assertion; arbitrary response dictionaries and stderr are discarded; original17-field receipt/strict denial classification unchanged.','Exact source4/owned5/report/registration gates precede compilation. Old571951 coordinator is admitted only as original immutable generation compiler, new b788 runtime is distinct.','Independent Catalog nine affected methods and author25 plus actual1194/tools10300 initialized source graph close the changed scope; failed harness/support histories retained.','First-origin, sticky incomplete evidence, global operation closure, early/final child-reference integrity, original grantor and exact cleanup remain intact.'],'historical_limits':['9577 response bits and old complete causes remain unobserved; only new source expectation/receipt implementation is approved.','Source approval is not operational literal approval/runtime/accepted assertion evidence.','Original122-generation inputs/202 artifacts/canonical5ae/June/A-D/32workerACL unchanged.'],'runtime':'NOT_RUN','Posture':'D'}
+archive('reviews/Root-v8-source-review.json',enc(root));archive('reviews/Root-v8-source-admission-helper.py.txt',Path(__file__).read_bytes())
+peerrel=prefix+'/reviews/independent-Catalog-v8-source-review.json';rootrel=prefix+'/reviews/Root-v8-source-review.json'
+child['review_gate']='SOURCE_APPROVED';child['status']='SOURCE_REVIEWED_RUNTIME_NOT_RUN'
+for key,path in [('independent_source_review',peerrel),('Root_source_review',rootrel)]:child[key]={'decision':'SOURCE_APPROVED','path':path,'sha256':sha((R/path).read_bytes()),'source4_sha256':source4}
+ct=R/(cn+'.Root-admission.tmp');put(ct,enc(child));ct.replace(R/cn)
+for key,path in [('independent_safety_sql_review',peerrel),('independent_projection_review',peerrel),('Root_source_review',rootrel)]:owned[key]={'decision':'SOURCE_APPROVED','path':path,'sha256':sha((R/path).read_bytes()),'operator_sources_sha256':five}
+owned['status']='SOURCE_REVIEWED_RUNTIME_NOT_RUN';owned['corrected_child_validation']={'path':cn,'sha256':sha((R/cn).read_bytes())}
+entries=list((R/prefix).rglob('*'));assert not any(p.is_symlink()or getattr(p.lstat(),'st_file_attributes',0)&1024 for p in entries);actual={p.relative_to(R).as_posix():sha(p.read_bytes())for p in entries if p.is_file()};assert actual=={**oldowned['archive_files_sha256'],**added};owned['archive_files_sha256']=actual
+ot=R/(on+'.Root-admission.tmp');put(ot,enc(owned));ot.replace(R/on)
+for n in five:
+ if n not in existingfive:put(T/n,(FT/n).read_bytes())
+for n,h in candidate.items():
+ if n not in(cn,on):assert sha((R/n).read_bytes())==h
+for n,h in five.items():assert sha((T/n).read_bytes())==h
+for key in('original_source122_sha256','artifacts202_sha256'):assert child[key]==oldchild[key]
+assert owned['privilege_packet']==oldowned['privilege_packet']and {k for k in child if child[k]!=oldchild[k]}=={'status','review_gate','independent_source_review','Root_source_review'}
+assert {k for k in owned if owned[k]!=oldowned[k]}=={'status','independent_safety_sql_review','independent_projection_review','Root_source_review','corrected_child_validation','archive_files_sha256'}
+files={**{n:sha((R/n).read_bytes())for n in candidate},**added};receipt={'schema':'workinants.privilege-public-ACL-v8-Root-source-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'decision':'SOURCE_APPROVED','files_sha256':files,'source4_sha256':source4,'operator_sources_sha256':five,'independent_review_sha256':sha(pr),'Root_review_sha256':sha(enc(root)),'archive_files':len(actual),'child_validation_sha256':files[cn],'owned_validation_sha256':files[on],'unchanged_old_pinned_packets':True,'original122_and202_preserved':True,'no_Git_ledger_status_runtime_mutation':True,'runtime':'NOT_RUN','Posture':'D'};ip=T/'privilege_public_acl_v8_source_approved_committable_inventory_20261120.json';put(ip,enc(receipt));print(json.dumps({'inventory':ip.name,'sha256':sha(ip.read_bytes()),'files':len(files),'archive':len(actual),'child_validation_sha256':files[cn],'owned_validation_sha256':files[on],'runtime':'NOT_RUN'}))

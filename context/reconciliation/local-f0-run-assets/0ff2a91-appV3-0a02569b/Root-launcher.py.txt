@@ -1,0 +1,15 @@
+"""Root launch environment for the unchanged independently reviewed AppV3 local operator."""
+from pathlib import Path
+import datetime,hashlib,json,os,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+offline=T/'offline-python';sys.path.insert(0,str(offline));import pglast
+assert pglast.__version__=='v7.21'and Path(pglast.__file__).resolve().is_relative_to(offline.resolve())
+mp=T/'local-f0-app-write-two-unexpected-diagnostic-v3-owned-plan-0a02569b/operation-manifest.json';raw=mp.read_bytes();assert sha(raw)=='e0e58940fa38d73faa69147e756c7e6b2d8ba0977133a14b4a18c18831489c71';m=json.loads(raw)
+wrapper='execute_local_f0_app_write_two_unexpected_diagnostic_v3_20261120.py';assert sha((T/wrapper).read_bytes())==m['wrapper_sha256']
+assert m['source_commit']=='0ff2a910ce081a0c6e0c6a268d6f876b8e061a45'and m['source_tree']=='886f85d4a919a8a04f85c8fe45a01e0a8801ba1c'and m['review_status']=='APPROVED_LOCAL_F0_APP_WRITE_TWO_ATTEMPT'and not Path(m['evidence_directory']).exists()
+tmp=T/'test-tmp';assert tmp.is_dir();env=os.environ.copy();env.update(PYTHONUTF8='1',PYTHONPATH=str(offline),TMP=str(tmp),TEMP=str(tmp),TMPDIR=str(tmp))
+v={'schema':'workinants.0ff-AppV3-Root-reviewed-operator-environment-launch.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'run_id':m['run_id'],'source_commit':m['source_commit'],'source_tree':m['source_tree'],'approved_manifest_sha256':sha(raw),'wrapper_sha256':m['wrapper_sha256'],'Python_version':list(sys.version_info[:3]),'offline_parser_version':pglast.__version__,'offline_parser_fixed_directory':str(offline),'offline_parser_init_sha256':sha(Path(pglast.__file__).read_bytes()),'environment_keys_set':['PYTHONUTF8','PYTHONPATH','TMP','TEMP','TMPDIR'],'database_contacted_at_record':False,'source_SQL_fixtures_permissions_and_manifest_unchanged':True,'Posture':'D'}
+rp=T/'0ff_AppV3_pinned_offline_environment_launch_receipt_20261120.json'
+with rp.open('x',encoding='utf8')as f:json.dump(v,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'launch_receipt':rp.name,'sha256':sha(rp.read_bytes()),'parser':'v7.21','status':'LAUNCHING_UNCHANGED_REVIEWED_OPERATOR'}),flush=True)
+raise SystemExit(subprocess.run([sys.executable,'-X','utf8',str(T/wrapper),'--execute-reviewed-app-writes','--manifest',str(mp)],cwd=R,env=env,shell=False).returncode)

@@ -1,0 +1,297 @@
+"""Focused offline V6 HBA checks; all Docker/DB/network boundaries mocked.
+
+Original V5 source/generation remains immutable input. This new checker tests
+only the HBA delta, nonqualifying receipts and new source admission. It never
+claims actual database/runtime coverage or invents old9cf archive bytes.
+"""
+from pathlib import Path
+from contextlib import ExitStack,redirect_stdout
+from types import SimpleNamespace
+from unittest.mock import patch,Mock
+import ast,copy,hashlib,io,json,os,re,runpy,socket,subprocess,sys,tarfile,tempfile,unittest,uuid
+TASK=Path(__file__).resolve().parent;ROOT=TASK/'workinants-correction-pass'
+CORE=TASK/'execute_local_f0_restore_hba_bytes_v6_20261120.py';STEPS=TASK/'local_f0_restore_hba_bytes_v6_operation_steps.py';PREP=TASK/'prepare_local_f0_restore_hba_bytes_v6_plan.py';PIN=TASK/'pin_local_f0_restore_hba_bytes_v6_plan_20261120.py'
+PROPOSAL_PATH='review-output/restore-control-rehearsal-v5/proposal.json';PACKET='review-output/restore-control-rehearsal-v5';VALIDATION='context/reconciliation/local-f0-restore-hba-bytes-owned-v6-source-validation.json';ARCHIVE='context/reconciliation/local-f0-operation-sources/restore-hba-bytes-owned-v6'
+CANARY='PRIVATE_V6_CREDENTIAL_CONFIG_HANDLE_ERROR_CANARY';sha=lambda raw:hashlib.sha256(raw).hexdigest()
+def proposal():
+    raw=(ROOT/PROPOSAL_PATH).read_bytes();assert sha(raw)=='2dba2c292178cc971896ee8f2065445be5acae40aca86ba3944960ce337c6685';return json.loads(raw)
+def namespace():
+    n=runpy.run_path(str(CORE))['launch'].__globals__;exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n);p=proposal();run='550e8400-e29b-41d4-a716-446655440000';source='wa-p0c-550e8400-restore-source';target='wa-p0c-550e8400-restore-target';stage='wa-p0c-550e8400-restore-staging'
+    pins={**p['source_files_sha256'],**{PACKET+'/'+name:h for name,h in p['prepared_files_sha256'].items()},PROPOSAL_PATH:'2dba2c292178cc971896ee8f2065445be5acae40aca86ba3944960ce337c6685'}
+    n.update(ROOT=ROOT,TASK=TASK,PROPOSAL=p,SOURCE=source,RESTORED=target,STAGING=stage,RUN_ID=run,DB='wa_p0c_rehearsal',IMAGE=p['image'],CONFIG='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d',LABEL='p0c-local-f0',CONNECTION_TAG='wa-restore-v6-test',ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),RESOURCE_CONTAINERS=(source,stage,target),RESOURCE_VOLUMES=(source+'-data',target+'-data'),TARGETS=[{'name':source,'volume':source+'-data','kind':'ok'}],created_containers={source:'a'*64,stage:'b'*64,target:'c'*64},created_volumes={source+'-data':'SOURCE_TIME',target+'-data':'TARGET_TIME'},attempted_containers=set(),attempted_volumes=set(),bootstrap_attempted=set(),bootstrapped=set(),finalization_attempted=set(),finalized=set(),passwords={source:{r:CANARY+'_'+r for r in ('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker')}},all_secrets=[],secret_paths=[],GRANTS=[],HELPERS={},report={'stage':'OFFLINE_MECHANISM','status':'IN_PROGRESS','steps':{x:'NOT_RUN'for x in n['RESTORE_STEPS']},'restore':{'postgres_os_identity':[999,999],'source_system_identifier_sha256':'f'*64},'targets':{source:{}},'events':[],'unexpected':[],'cleanup':{},'evidence_complete':True,'persistence_failure':False,'image':{'image_id':'sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d'}},MANIFEST={'packet_files_sha256':pins},EVIDENCE_FAILED=False,FIRST_SAVE_IO=None,save=lambda:None,event=lambda*a,**k:None)
+    worker=(ROOT/'scripts/sql-review/run-worker-control-rehearsal.py').read_bytes();node=next(x for x in ast.parse(worker).body if isinstance(x,ast.FunctionDef)and x.name=='quote');q={};exec(compile(ast.Module(body=[node],type_ignores=[]),'<pinned-worker-quote>','exec'),q);n['WORKER']={'quote':q['quote']};return n
+
+def archive_bytes(hba,extra=None,omit=()):
+    entries={'PG_VERSION':b'17\n','backup_manifest':b'{}','postgresql.auto.conf':b'# inert\n','pg_hba.conf':hba,'global/pg_control':b'\0'*8192,'pg_wal/'+'A'*24:b'SYNTHETIC_WAL_NOT_RUNTIME_PROOF','base/5/1':CANARY.encode()};entries.update(extra or {});out=io.BytesIO()
+    with tarfile.open(fileobj=out,mode='w')as archive:
+        for name,raw in entries.items():
+            if name in omit:continue
+            info=tarfile.TarInfo(name);info.size=len(raw);archive.addfile(info,io.BytesIO(raw))
+    return out.getvalue()
+
+class ByteWorld:
+    """Finite process boundary model; unknown commands and SQL always reject."""
+    def __init__(self,n,base):
+        self.n=n;self.base=base;self.events=[];self.binary=[];self.bodies={};self.running={name:True for name in n['RESOURCE_CONTAINERS']};self.ids=dict(n['created_containers']);self.names=set(n['RESOURCE_CONTAINERS']);self.volumes=set(n['RESOURCE_VOLUMES']);self.basebackup_result=None;self.query_override=None;self.parser_error=False
+    def result(self,stdout='',code=0,stderr=''):return SimpleNamespace(returncode=code,stdout=stdout,stderr=stderr)
+    def current_name(self,cid):
+        match=[name for name,value in self.ids.items()if value==cid];assert len(match)==1;return match[0]
+    def object(self,name):
+        n=self.n;kind='source'if name==n['SOURCE']else 'staging'if name==n['STAGING']else 'target';volume=name+'-data'if kind=='source'else n['RESTORED']+'-data';mounts=[{'Type':'volume','Name':volume,'Destination':n['DATA_ROOT'],'RW':True}]
+        if kind!='target':mounts.append({'Type':'bind','Source':str(n['PRIVATE']/'ok-bootstrap-password')if kind=='source'else str(n['ARCHIVE']),'Destination':'/run/bootstrap-password'if kind=='source'else '/run/restore01-base.tar','RW':False})
+        return {'Id':self.ids[name],'Name':'/'+name,'Config':{'Image':n['IMAGE'],'Labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':n['RUN_ID']}},'Image':n['report']['image']['image_id'],'Platform':'linux','State':{'Running':self.running[name]},'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],'Links':None,'Tmpfs':{}if kind=='staging'else {'/run/wa-secrets':'rw,noexec,nosuid,nodev,mode=0700'}},'NetworkSettings':{'Ports':{}},'Mounts':mounts}
+    def volume(self,name):return {'Name':name,'CreatedAt':self.n['created_volumes'].get(name,'TARGET_TIME'),'Labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':self.n['RUN_ID']},'Driver':'local','Options':{},'Scope':'local'}
+    def process(self,args,**options):
+        if args[0]=='powershell.exe':
+            assert args[:4]==['powershell.exe','-NoProfile','-NonInteractive','-File']and args[-1]==str(self.n['ARCHIVE']);assert b'Private artifact DACL mismatch'in Path(args[4]).read_bytes();return self.result('PRIVATE_ARCHIVE_OWNER_ONLY\n')
+        assert args[:3]==['docker','--context','desktop-linux'];cmd=args[3:];n=self.n;text=options.get('text')is True;input=options.get('input');self.events.append(tuple(cmd[:2]))
+        if cmd[:2]==['container','inspect']:
+            return self.result(json.dumps([self.object(cmd[2])]))if cmd[2]in self.names else self.result('',1)
+        if cmd[:2]==['volume','inspect']:return self.result(json.dumps([self.volume(cmd[2])]))
+        if cmd[:2]==['container','ls']:return self.result('\n'.join(sorted(self.names)))
+        if cmd[:2]==['volume','ls']:return self.result('\n'.join(sorted(self.volumes)))
+        if cmd[:2]==['container','stop']:self.running[self.current_name(cmd[-1])]=False;return self.result()
+        if cmd[:2]==['container','rm']:self.names.remove(self.current_name(cmd[-1]));return self.result()
+        if cmd[:2]==['volume','create']:name=cmd[-1];self.volumes.add(name);n['created_volumes'][name]='TARGET_TIME';return self.result(name+'\n')
+        if cmd[:2]==['container','start']:self.running[self.current_name(cmd[-1])]=True;return self.result()
+        if cmd[:2]==['container','create']:
+            assert '--network'in cmd and cmd[cmd.index('--network')+1]=='none'and '--platform'in cmd and cmd[cmd.index('--platform')+1]=='linux/amd64'
+            name=cmd[cmd.index('--name')+1];self.names.add(name);self.running[name]=False
+            if name==n['RESTORED']and n['STAGING']in self.bodies:self.bodies[name]=self.bodies[n['STAGING']]
+            return self.result(self.ids[name]+'\n')
+        if cmd[0]=='cp':
+            assert cmd[-1]==str(n['ARCHIVE']);n['ARCHIVE'].write_bytes(archive_bytes(self.bodies.get(n['SOURCE'],n['source_hba_bytes']('source-backup.pg_hba.conf'))));return self.result()
+        assert cmd[0]=='exec','UNREGISTERED_DOCKER_COMMAND'
+        cid=next((x for x in cmd[1:]if type(x)is str and re.fullmatch('[0-9a-f]{64}',x)),None);assert cid is not None;name=self.current_name(cid);tail=cmd[cmd.index(cid)+1:]
+        if tail[:2]==['sh','-ceu']and tail[-1].startswith('cat > '+n['DATA_ROOT']+'/pg_hba.conf;'):
+            script=tail[-1];uid,gid=n['report']['restore']['postgres_os_identity'];assert script=='cat > '+n['DATA_ROOT']+'/pg_hba.conf; chown '+str(uid)+':'+str(gid)+' '+n['DATA_ROOT']+'/pg_hba.conf; chmod 600 '+n['DATA_ROOT']+'/pg_hba.conf'
+            if text:
+                assert type(input)is str;raw=input.replace('\n','\r\n').encode('utf8')
+            else:
+                assert type(input)is bytes and not any(k in options for k in ('text','encoding','errors'));assert options['timeout']==60 and options['capture_output']is True and options['shell']is False;raw=input;self.binary.append({'name':name,'sha256':sha(raw),'bytes':len(raw)})
+            self.bodies[name]=raw;return self.result(''if text else b'',stderr=''if text else b'')
+        if tail[:2]==['sh','-ceu']and tail[-1]==n['RESTORE_SECRET_TMPFS_SCRIPT']:
+            assert name!=n['STAGING']and self.running[name];return self.result(n['RESTORE_SECRET_TMPFS_TOKEN']+'\n')
+        if tail and tail[0]=='psql':
+            assert type(input)is str
+            if 'pg_catalog.pg_read_binary_file' in input:
+                assert input.count('pg_catalog.pg_read_binary_file')==1 and 'pg_read_file('not in input and '\n'not in input
+                h=re.search(r"pg_catalog.sha256\(value\),'hex'\)='([0-9a-f]{64})'",input);length=re.search(r'pg_catalog.octet_length\(value\)=([0-9]+)',input);assert h and length and 'FROM pg_catalog.pg_hba_file_rules WHERE error IS NOT NULL'in input
+                body=self.bodies.get(name,b'');value={'sha256_matches':sha(body)==h[1],'byte_length_matches':len(body)==int(length[1]),'parser_errors_absent':not self.parser_error};return self.result(self.query_override if self.query_override is not None else json.dumps(value)+'\n')
+            if 'pg_read_file(current_setting' in input:
+                normalized=input.replace('\n','\r\n');literal=normalized.split("))=",1)[1].rsplit(' AND NOT EXISTS',1)[0];expected=literal[1:-1].replace("''", "'").encode('utf8');return self.result('t\n'if self.bodies.get(name)==expected and not self.parser_error else 'f\n')
+            if "'system_identifier_sha256'"in input and 'pg_control_system()'in input:return self.result(json.dumps({'version':170011,'safe':True,'auth':'scram-sha-256:postgres','primary':True,'system_identifier_sha256':'f'*64})+'\n')
+            raise AssertionError('UNREGISTERED_SQL_PROJECTION')
+        if tail==['sha256sum','/run/restore01-base.tar']:
+            assert name==n['STAGING'];return self.result(sha(n['ARCHIVE'].read_bytes())+'  /run/restore01-base.tar\n')
+        if tail and tail[0]=='pg_isready':return self.result()
+        if tail and '--version'in tail:
+            assert tail[0]in ('pg_basebackup','pg_verifybackup','pg_waldump');return self.result(tail[0]+' (PostgreSQL) 17.11 (Debian)\n')
+        if tail and tail[0]=='pg_basebackup':
+            assert tail==n['PROPOSAL']['backup_client']['argv'];return self.basebackup_result or self.result()
+        if tail and tail[0]in ('pg_verifybackup','find','tar'):return self.result()
+        if tail[:2]==['sh','-ceu']:
+            script=tail[-1]
+            if 'stat -c "%a:%u:%g:%h"'in script:return self.result('600:0:0:1\n')
+            if 'stat -c "%a:%u:%g"'in script:return self.result('600:0:0\n')
+            if script.startswith('umask 077; mkdir -m 700 ')or script.startswith('test "$(cat '):return self.result()
+        raise AssertionError('UNREGISTERED_PROCESS_BOUNDARY')
+
+class HbaV6Tests(unittest.TestCase):
+    def setUp(self):
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        for name in ('run','Popen','call','check_call','check_output'):self.stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN')))
+        self.stack.enter_context(patch.object(socket,'socket',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        self.temp=tempfile.TemporaryDirectory(prefix='restore-v6-offline-',dir=ROOT.parent);self.base=Path(self.temp.name)
+        def cleanup():assert self.base.resolve().is_relative_to(ROOT.parent.resolve())and self.base.resolve()!=ROOT.parent.resolve();self.temp.cleanup()
+        self.addCleanup(cleanup);self.n=namespace();self.n.update(OUT=self.base,PRIVATE=self.base/'private',ARCHIVE=self.base/'private/restore01-base.tar');self.n['PRIVATE'].mkdir();self.world=ByteWorld(self.n,self.base)
+    def process_model(self):return patch.object(subprocess,'run',self.world.process)
+    def restore_old(self,name):
+        raw=(TASK/'local_f0_restore_preflight_v5_operation_steps.py').read_bytes();tree=ast.parse(raw);node=next(x for x in tree.body if isinstance(x,ast.FunctionDef)and x.name==name);scope=self.n;exec(compile(ast.Module(body=[node],type_ignores=[]),'<only-held-V5-'+name+'>','exec'),scope)
+    def assert_safe(self):self.assertNotIn(CANARY,json.dumps(self.n['report']))
+    def reset(self):
+        n=namespace();base=self.base/str(len(list(self.base.iterdir())));base.mkdir();n.update(OUT=base,PRIVATE=base/'private',ARCHIVE=base/'private/restore01-base.tar');n['PRIVATE'].mkdir();self.n=n;self.world=ByteWorld(n,base);return n
+    def test_01_common_binary_writer_exact_four_public_payloads_and_verifier(self):
+        n=self.n
+        for name in (n['SOURCE'],n['STAGING']):
+            for file in n['HBA_BYTE_SPECS']:
+                with self.subTest(name=name,file=file),self.process_model():n['write_hba'](name,file);n['verify_hba'](name,file)
+                raw=(ROOT/PACKET/file).read_bytes();self.assertEqual(self.world.bodies[name],raw);self.assertEqual(self.world.binary[-1]['sha256'],sha(raw));self.assertEqual(n['report']['restore']['hba_binary_comparisons'][-1]['comparisons'],dict.fromkeys(('sha256_matches','byte_length_matches','parser_errors_absent'),True))
+        self.assert_safe()
+    def test_02_binary_writer_rejects_wrong_types_noise_and_unadmitted_targets(self):
+        for result in (None,SimpleNamespace(returncode=False,stdout=b'',stderr=b''),SimpleNamespace(returncode=0.0,stdout=b'',stderr=b''),SimpleNamespace(returncode=0,stdout='',stderr=b''),SimpleNamespace(returncode=0,stdout=b' ',stderr=b''),SimpleNamespace(returncode=0,stdout=b'',stderr=CANARY.encode()),SimpleNamespace(returncode=2,stdout=b'',stderr=b'')):
+            n=self.reset()
+            with self.subTest(result_type=type(result).__name__),patch.object(subprocess,'run',return_value=result),self.assertRaises(n['Stop'])as error:n['write_hba'](n['SOURCE'],'source-backup.pg_hba.conf')
+            self.assertEqual(error.exception.code,'RESTORE_HBA_WRITE');self.assert_safe()
+        for mode in ('unknown_file','unknown_target','wrong_CID','wrong_uid','drift'):
+            n=self.reset();name=n['SOURCE'];file='source-backup.pg_hba.conf'
+            if mode=='unknown_file':file='foreign.conf'
+            if mode=='unknown_target':name='foreign'
+            if mode=='wrong_CID':n['created_containers'][name]='not-a-cid'
+            if mode=='wrong_uid':n['report']['restore']['postgres_os_identity']=[True,999]
+            read=Path.read_bytes
+            def reading(path):return CANARY.encode()if mode=='drift'and path==ROOT/PACKET/file else read(path)
+            with self.subTest(mode=mode),patch.object(Path,'read_bytes',reading),self.assertRaises(n['Stop']):n['write_hba'](name,file)
+            self.assertEqual(self.world.binary,[]);self.assert_safe()
+    def test_03_binary_verifier_rejects_semantic_equivalents_parser_and_malformed_responses(self):
+        raw=(ROOT/PACKET/'source-backup.pg_hba.conf').read_bytes()
+        cases=[('CRLF',raw.replace(b'\n',b'\r\n')),('space',raw.replace(b'host ',b'host  ',1)),('extra',raw+b'# '+CANARY.encode()+b'\n'),('parser',raw),('null',raw),('extra_key',raw),('bool_type',raw),('duplicate',raw),('oversize',raw)]
+        for mode,body in cases:
+            n=self.reset();self.world.bodies[n['SOURCE']]=body;self.world.parser_error=mode=='parser'
+            if mode=='null':self.world.query_override='null'
+            if mode=='extra_key':self.world.query_override=json.dumps({'sha256_matches':True,'byte_length_matches':True,'parser_errors_absent':True,'secret':CANARY})
+            if mode=='bool_type':self.world.query_override=json.dumps({'sha256_matches':1,'byte_length_matches':True,'parser_errors_absent':True})
+            if mode=='duplicate':self.world.query_override='{"sha256_matches":true,"sha256_matches":true,"byte_length_matches":true,"parser_errors_absent":true}'
+            if mode=='oversize':self.world.query_override=CANARY*1000
+            with self.subTest(mode=mode),self.process_model(),self.assertRaises(n['Stop']):n['verify_hba'](n['SOURCE'],'source-backup.pg_hba.conf')
+            receipt=n['report']['restore']['hba_binary_comparisons'][-1];self.assertEqual(set(receipt),{'schema','source_file','expected_sha256','expected_bytes','response_received','exact_field_set','comparisons','raw_output_discarded'});self.assertEqual(receipt['expected_bytes'],445);self.assert_safe()
+    def test_04_only_old_source_writer_restoration_reproduces_CRLF_and_fails_exact_verifier(self):
+        n=self.n;self.restore_old('write_hba')
+        with self.process_model():
+            n['write_hba'](n['SOURCE'],'source-backup.pg_hba.conf')
+            with self.assertRaises(n['Stop']):n['verify_hba'](n['SOURCE'],'source-backup.pg_hba.conf')
+        self.assertEqual(len(self.world.bodies[n['SOURCE']]),457);self.assertNotEqual(self.world.bodies[n['SOURCE']],n['source_hba_bytes']('source-backup.pg_hba.conf'))
+    def test_05_only_old_multiline_verifier_restoration_misses_coupled_translation(self):
+        n=self.n;self.world.bodies[n['SOURCE']]=n['source_hba_bytes']('source-backup.pg_hba.conf').replace(b'\n',b'\r\n')
+        with self.process_model(),self.assertRaises(n['Stop']):n['verify_hba'](n['SOURCE'],'source-backup.pg_hba.conf')
+        self.restore_old('verify_hba')
+        with self.process_model():n['verify_hba'](n['SOURCE'],'source-backup.pg_hba.conf')
+        self.assertNotEqual(self.world.bodies[n['SOURCE']],n['source_hba_bytes']('source-backup.pg_hba.conf'))
+    def prepare_stage(self):
+        n=self.n;path=n['ARCHIVE'];path.write_bytes(archive_bytes(n['source_hba_bytes']('source-backup.pg_hba.conf')));metadata=n['validate_backup_archive'](path);self.world.names={n['SOURCE']};self.world.volumes={n['SOURCE']+'-data'}
+        for name in (n['STAGING'],n['RESTORED']):n['created_containers'].pop(name)
+        n['created_volumes'].pop(n['RESTORED']+'-data');return metadata
+    def test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected(self):
+        for old in (False,True):
+            n=self.reset();metadata=self.prepare_stage()
+            if old:self.restore_old('stage_restore')
+            with self.subTest(old=old),self.process_model():
+                if old:
+                    with self.assertRaises(n['Stop'])as error:n['stage_restore'](metadata)
+                    self.assertEqual(error.exception.code,'RESTORE_HBA_PARSED_EXACT_FILE')
+                else:n['stage_restore'](metadata)
+                body=self.world.bodies[n['STAGING']]
+                # The modeled physical volume preserved this HBA at startup.
+                self.assertEqual(body.endswith(b'\r\n'),old);self.assertFalse(any('initdb'in event or 'migrate'in event for event in self.world.events));self.assert_safe()
+    def test_07_archive_preassert_receipt_and_unchanged_strict_members(self):
+        raw=(ROOT/PACKET/'source-backup.pg_hba.conf').read_bytes()
+        for mode in ('good','CRLF','missing','canary','unsafe','signal','wal','oversized'):
+            n=self.reset();extra={};omit=();hba=raw
+            if mode=='CRLF':hba=raw.replace(b'\n',b'\r\n')
+            if mode=='missing':omit=('pg_hba.conf',)
+            if mode=='canary':hba=CANARY.encode()
+            if mode=='unsafe':extra={'../outside':b'x'}
+            if mode=='signal':extra={'standby.signal':b''}
+            if mode=='wal':omit=('pg_wal/'+'A'*24,)
+            if mode=='oversized':hba=b'x'*(16777216+1)
+            n['ARCHIVE'].write_bytes(archive_bytes(hba,extra,omit))
+            with self.subTest(mode=mode):
+                if mode=='good':metadata=n['validate_backup_archive'](n['ARCHIVE']);self.assertFalse(metadata['raw_exported'])
+                else:
+                    with self.assertRaises(n['Stop']):n['validate_backup_archive'](n['ARCHIVE'])
+                receipts=n['report']['restore'].get('archive_hba_comparisons',[])
+                if mode in ('unsafe','signal','oversized'):self.assertFalse(receipts)
+                else:
+                    row=receipts[-1];self.assertEqual(set(row),{'schema','source_file','expected_sha256','expected_bytes','member_present','member_bounded_bytes','observed_sha256','observed_bytes','exact_match','raw_bytes_discarded','artifact_qualified'});self.assertFalse(row['artifact_qualified'])
+                    if mode=='missing':self.assertIsNone(row['observed_sha256']);self.assertIsNone(row['observed_bytes'])
+                    if mode in ('CRLF','canary'):self.assertFalse(row['exact_match']);self.assertEqual(row['observed_sha256'],sha(hba))
+                self.assert_safe()
+    def test_08_actual_backup_retains_process_boundary_but_bad_HBA_never_qualifies(self):
+        for mode in ('good','CRLF','bad_code','bad_types','noise'):
+            n=self.reset();self.world.bodies[n['SOURCE']]=n['source_hba_bytes']('source-backup.pg_hba.conf')
+            if mode=='CRLF':self.world.bodies[n['SOURCE']]=self.world.bodies[n['SOURCE']].replace(b'\n',b'\r\n')
+            if mode=='bad_code':self.world.basebackup_result=self.world.result('',3,CANARY)
+            if mode=='bad_types':self.world.basebackup_result=SimpleNamespace(returncode=False,stdout='',stderr='')
+            if mode=='noise':self.world.basebackup_result=self.world.result(CANARY)
+            with self.subTest(mode=mode),self.process_model():
+                if mode=='good':n['backup_archive']();self.assertEqual(n['report']['steps']['RESTORE-BACKUP'],'PASS_REAL_PROTECTED_SYNTHETIC_ARTIFACT')
+                else:
+                    with self.assertRaises(n['Stop']):n['backup_archive']()
+                    self.assertEqual(n['report']['steps']['RESTORE-BACKUP'],'NOT_RUN');self.assertEqual(n['report']['steps']['RESTORE-VERIFY'],'NOT_RUN')
+            row=n['report']['restore']['basebackup_process_outcomes'][-1];self.assertFalse(row['artifact_qualified']);self.assertIs(row['result_received'],True);self.assert_safe()
+    def test_09_receipt_first_stop_sticky_IO_and_main_finally_stops_later_phases(self):
+        n=self.n;root=self.base/'main';n['OUT']=root;n['PRIVATE']=root/'private';n['ARCHIVE']=n['PRIVATE']/'restore01-base.tar';events=[];n['MANIFEST']={'review_status':'APPROVED_LOCAL_F0_RESTORE_HBA_BYTES_V6_ATTEMPT','restore':{'external_files_sha256':{}},'packet_files_sha256':n['MANIFEST']['packet_files_sha256']};n['report']['source_verification']={'files_sha256':{PROPOSAL_PATH:sha((ROOT/PROPOSAL_PATH).read_bytes())}};n['bootstrap_attempted']={n['SOURCE']}
+        for name in ('verify_restore_packet','preflight','ensure_image','create_resources','bootstrap_all','provision_migration_tools','catalog_experiment'):n[name]=lambda name=name:events.append(name)
+        n['finalize']=lambda name:events.append('eligible-finalizer');n['secret_scan']=lambda:events.append('scan');n['cleanup']=lambda:events.append('exact-cleanup');n['verify_tool_data']=lambda:events.append('tools');n['verify_external_input_preservation']=lambda:events.append('archives')
+        def failure():
+            self.world.bodies[n['SOURCE']]=n['source_hba_bytes']('source-backup.pg_hba.conf').replace(b'\n',b'\r\n');n['save']=lambda:(_ for _ in ()).throw(OSError(CANARY));n['verify_hba'](n['SOURCE'],'source-backup.pg_hba.conf');events.append('UNREACHABLE_BACKUP_OR_STAGE')
+        n['restore_experiment']=failure
+        with self.process_model(),redirect_stdout(io.StringIO()):code=n['main']()
+        self.assertEqual(code,1);self.assertEqual(n['report']['primary_failure']['code'],'RESTORE_HBA_PARSED_EXACT_FILE');self.assertTrue(n['report']['persistence_failure']);self.assertFalse(n['report']['evidence_complete']);self.assertNotIn('UNREACHABLE_BACKUP_OR_STAGE',events)
+        for item in ('eligible-finalizer','scan','exact-cleanup','tools','archives'):self.assertIn(item,events)
+        self.assert_safe()
+    def test_10_new_source_gate_exact_five_pending_and_original_generation(self):
+        n=self.n;five={name:sha((TASK/name).read_bytes())for name in n['HBA_V6_FILES']};reader=lambda relative:(ROOT/relative).read_bytes()
+        with patch('builtins.compile',side_effect=AssertionError('NO_PROJECT_COMPILE_IN_DATA_GATE'))as compiler:
+            admitted=n['hba_v6_source_admission'](reader,False,five);self.assertIn(VALIDATION,admitted)
+            with self.assertRaises(n['Stop'])as error:n['hba_v6_source_admission'](reader,True,five)
+            self.assertEqual(error.exception.code,'V6_SEPARATE_SOURCE_REVIEW_REQUIRED');compiler.assert_not_called()
+        for mode in ('old_five','missing','extra','foreign','hash','generation'):
+            changed=dict(five)
+            if mode=='old_five':changed=dict(n['ORIGINAL_V5_GENERATION']['external_five_sha256'])
+            if mode=='missing':changed.pop(next(iter(changed)))
+            if mode=='extra':changed['foreign.py']='a'*64
+            if mode=='foreign':changed['foreign.py']=changed.pop(next(iter(changed)))
+            if mode=='hash':changed[next(iter(changed))]='0'*64
+            target=next(iter(n['ORIGINAL_V5_GENERATION']['root_files_sha256']))
+            def source(relative):return CANARY.encode()if mode=='generation'and relative==target else reader(relative)
+            with self.subTest(mode=mode),self.assertRaises(n['Stop']):n['hba_v6_source_admission'](source,False,changed)
+        funcs=[]
+        for path in (CORE,PREP,PIN):funcs.append(ast.dump(next(x for x in ast.parse(path.read_bytes()).body if isinstance(x,ast.FunctionDef)and x.name=='hba_v6_source_admission'),include_attributes=False))
+        self.assertEqual(funcs,[funcs[0]]*3)
+    def prepared_fixture(self,approved=False):
+        base=self.base/('graph-'+str(len(list(self.base.iterdir()))));base.mkdir();g=runpy.run_path(str(PREP));original=g['prepare'].__globals__;baseline=TASK/'local-f0-catalog-v4-plan-8fa680ed/operation-manifest.json';raw=baseline.read_bytes();path=base/'baseline.json';path.write_bytes(raw)
+        for name in (*self.n['HBA_V6_FILES'],*self.n['ORIGINAL_V5_GENERATION']['external_five_sha256']):(base/name).write_bytes((TASK/name).read_bytes())
+        with patch.dict(original,TASK=base,ROOT=ROOT):prepared=g['prepare'](path,sha(raw),str(uuid.uuid4()))
+        path=Path(prepared['operation_manifest']);master=json.loads(path.read_bytes());clone=base/'workinants-correction-pass';clone.mkdir();files=dict(master['prepared_source_file_inventory_sha256'])
+        for relative,h in files.items():destination=clone/relative;destination.parent.mkdir(parents=True,exist_ok=True);body=(ROOT/relative).read_bytes();self.assertEqual(sha(body),h);destination.write_bytes(body)
+        for relative in (*master['catalog']['tool_source_files_sha256'],'AGENTS.md','node_modules/prisma/package.json','node_modules/@prisma/engines-version/package.json'):
+            destination=clone/relative;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes((ROOT/relative).read_bytes())
+        if approved:
+            # ONLY this exclusive clone receives synthetic review inputs. They
+            # test code/data admission, never authorize or run real resources.
+            metadata=json.loads((clone/VALIDATION).read_bytes());metadata['source_review_status']='SOURCE_APPROVED'
+            for key,reviewer in (('independent_source_review','OFFLINE_PEER'),('Root_source_review','OFFLINE_ROOT')):
+                relative=ARCHIVE+'/reviews/'+reviewer+'.json';body=(json.dumps({'decision':'SOURCE_APPROVED','operator_sources_sha256':metadata['all_five_sources_sha256'],'reviewer':reviewer,'scope':'TEST_ONLY_NO_RUNTIME_AUTHORITY'},indent=2)+'\n').encode();destination=clone/relative;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(body);metadata['archive_files_sha256'][relative]=sha(body);metadata[key]={'decision':'SOURCE_APPROVED','path':relative,'sha256':sha(body),'operator_sources_sha256':metadata['all_five_sources_sha256']};files[relative]=sha(body)
+            body=(json.dumps(metadata,indent=2)+'\n').encode();(clone/VALIDATION).write_bytes(body);files[VALIDATION]=sha(body);master['prepared_source_file_inventory_sha256']=dict(files);path.write_text(json.dumps(master,indent=2)+'\n')
+        return base,path,master,clone,files
+    def test_11_actual_prepare_keeps_V5_generation_and_pinner_stops_at_new_pending_gate(self):
+        base,path,master,clone,files=self.prepared_fixture();self.assertEqual(master['purpose'],'LOCAL_F0_RESTORE_HBA_BYTES_V6_REHEARSAL');self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertEqual(master['packet_files_sha256'],{});self.assertFalse(Path(master['evidence_directory']).exists());self.assertEqual(len(master['migration_targets']['ok']['source_files_sha256']),7)
+        p=runpy.run_path(str(base/PIN.name));g=p['pin'].__globals__;calls=Mock(side_effect=AssertionError('NO_GIT_BEFORE_PENDING_SOURCE_GATE'))
+        with patch.dict(g,TASK=base,ROOT=clone,git_read=calls),self.assertRaises(p['Held'])as error:p['pin'](path)
+        self.assertEqual(error.exception.code,'V6_SEPARATE_SOURCE_REVIEW_REQUIRED');calls.assert_not_called()
+        for relative,h in self.n['ORIGINAL_V5_GENERATION']['root_files_sha256'].items():self.assertEqual(sha((ROOT/relative).read_bytes()),h)
+    def test_12_actual_entry_pending_gate_precedes_Steps_compilation(self):
+        base,path,master,clone,files=self.prepared_fixture();master.update(source_commit='a'*40,source_tree='b'*40,packet_files_sha256=files,packet_sha256=sha(''.join(p+'\0'+files[p]+'\n'for p in sorted(files)).encode()),review_status='APPROVED_LOCAL_F0_RESTORE_HBA_BYTES_V6_ATTEMPT');path.write_text(json.dumps(master,indent=2)+'\n');core=runpy.run_path(str(base/CORE.name))
+        with patch('builtins.compile',side_effect=AssertionError('NO_STEPS_COMPILE_BEFORE_V6_REVIEW'))as compiler,redirect_stdout(io.StringIO())as stdout:code=core['launch'](['--execute-reviewed-restore','--manifest',str(path)])
+        self.assertEqual(code,1);compiler.assert_not_called();self.assertEqual(json.loads(stdout.getvalue())['code'],'RESTORE_ENTRY_REFUSED');self.assertFalse(Path(master['evidence_directory']).exists())
+    def test_13_actual_current_committed_pin_and_source_verifier_on_exclusive_review_fixture(self):
+        base,path,master,clone,files=self.prepared_fixture(approved=True);p=runpy.run_path(str(base/PIN.name));g=p['pin'].__globals__
+        def git(*args):
+            if args==('rev-parse','HEAD'):return b'a'*40+b'\n'
+            if args==('rev-parse','HEAD^{tree}'):return b'b'*40+b'\n'
+            self.assertEqual(args[0],'show');return (clone/args[1].split(':',1)[1]).read_bytes()
+        def wrong(*args):return CANARY.encode()if args and args[0]=='show'else git(*args)
+        with patch.dict(g,TASK=base,ROOT=clone,git_read=wrong),self.assertRaises(p['Held'])as error:p['pin'](path)
+        self.assertEqual(error.exception.code,'CURRENT_AND_COMMITTED_BLOB_MISMATCH');self.assertEqual(json.loads(path.read_bytes())['packet_files_sha256'],{})
+        with patch.dict(g,TASK=base,ROOT=clone,git_read=git):value=p['pin'](path)
+        self.assertEqual(value['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertFalse(Path(master['evidence_directory']).exists());master=json.loads(path.read_bytes());master['review_status']='APPROVED_LOCAL_F0_RESTORE_HBA_BYTES_V6_ATTEMPT';path.write_text(json.dumps(master,indent=2)+'\n')
+        core=runpy.run_path(str(base/CORE.name));n=core['initialize'].__globals__;n['initialize'](path);exec(compile((base/STEPS.name).read_bytes(),str(base/STEPS.name),'exec'),n);n.update(ROOT=clone,TASK=base,save=lambda:None,event=lambda*a,**k:None)
+        def process(args,**options):
+            self.assertEqual(args[:3],['git','-c','core.longpaths=true']);raw=git(*args[3:]);return SimpleNamespace(returncode=0,stdout=raw.decode()if options.get('text')is True else raw,stderr=''if options.get('text')is True else b'')
+        with patch.object(subprocess,'run',process):n['verify_restore_packet']()
+        self.assertEqual(n['RESOURCE_CONTAINERS'],(n['SOURCE'],n['STAGING'],n['RESTORED']));self.assertEqual(len(n['RESOURCE_VOLUMES']),2);self.assertEqual(n['report']['restore']['selected_case']['status'],'NOT_RUN');self.assertEqual(n['PROPOSAL']['prepared_files_sha256'],proposal()['prepared_files_sha256'])
+    def test_14_ordinary_ASTs_and_entire_original_generation_unchanged(self):
+        original=self.n['ORIGINAL_V5_GENERATION']
+        for relative,h in original['root_files_sha256'].items():self.assertEqual(sha((ROOT/relative).read_bytes()),h)
+        for name,h in original['external_five_sha256'].items():self.assertEqual(sha((TASK/name).read_bytes()),h)
+        def functions(raw):return {x.name:ast.dump(x,include_attributes=False)for x in ast.parse(raw).body if isinstance(x,(ast.FunctionDef,ast.ClassDef))}
+        old=functions((TASK/'execute_local_f0_restore_preflight_v5_20261120.py').read_bytes());new=functions(CORE.read_bytes());self.assertEqual(old['command'],new['command']);self.assertEqual(old['cleanup'],new['cleanup']);self.assertEqual(old['finalize'],new['finalize'])
+        before=(TASK/'local_f0_restore_preflight_v5_operation_steps.py').read_text();after=STEPS.read_text();mapping=dict(zip(original['external_five_sha256'],self.n['HBA_V6_FILES']))
+        for a,b in mapping.items():after=after.replace(b,a)
+        after=after.replace('APPROVED_LOCAL_F0_RESTORE_HBA_BYTES_V6_ATTEMPT','APPROVED_LOCAL_F0_RESTORE_PREFLIGHT_V5_ATTEMPT')
+        left,right=functions(before.encode()),functions(after.encode());allowed={'verify_common_packet','write_hba','verify_hba','backup_archive','validate_backup_archive','stage_restore'};self.assertEqual({name for name in left if left[name]!=right[name]},allowed);self.assertEqual(set(right)-set(left),{'source_hba_bytes','retain_basebackup_outcome','retain_archive_hba_comparison'})
+        for path in (STEPS,PREP,PIN):
+            held=TASK/dict(zip(self.n['HBA_V6_FILES'],original['external_five_sha256']))[path.name];a=functions(held.read_bytes());b=functions(path.read_bytes());self.assertEqual(a['preflight_v5_source_admission'],b['preflight_v5_source_admission'])
+
+if __name__=='__main__':unittest.main(verbosity=2)

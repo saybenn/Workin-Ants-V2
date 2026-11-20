@@ -1,0 +1,50 @@
+{
+  "schema": "workinants.privilege-v8-deferred-positive-graph.v1",
+  "delivery_sha256": "8c363aabdfdb9a648386764b0b1b2d7bbbefd0a1839cdd0e0a1bf82516a3ed8a",
+  "entry": {
+    "Root_files": 794,
+    "owned_files": 5,
+    "all_exact": true
+  },
+  "exit": {
+    "Root_files": 794,
+    "owned_files": 5,
+    "all_exact": true
+  },
+  "testsRun": 0,
+  "errors": [
+    {
+      "test": "setUpClass (<run_path>.PrivilegeMetadataV6ClosureTests)",
+      "type": "FileNotFoundError",
+      "frames": [
+        {
+          "file": "suite.py",
+          "line": 166,
+          "function": "_handleClassSetUp"
+        },
+        {
+          "file": "check_local_f0_privilege_ceiling_v8_operation.py",
+          "line": 644,
+          "function": "setUpClass"
+        },
+        {
+          "file": "pathlib.py",
+          "line": 1019,
+          "function": "read_bytes"
+        },
+        {
+          "file": "pathlib.py",
+          "line": 1013,
+          "function": "open"
+        }
+      ]
+    }
+  ],
+  "failure_count": 0,
+  "error_count": 1,
+  "success": false,
+  "elapsed_seconds": 0.266,
+  "all_external_processes_and_network": "FORBIDDEN_EXCEPT_EXACT_READ_GIT_AND_FIXED_FIRST_RESOURCE_BOUNDARY_MOCKS",
+  "runtime_executed": false,
+  "log": "setUpClass (<run_path>.PrivilegeMetadataV6ClosureTests) ... ERROR\n\n======================================================================\nERROR: setUpClass (<run_path>.PrivilegeMetadataV6ClosureTests)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\privilege-public-acl-v8-private-candidate-20261120\\check_local_f0_privilege_ceiling_v8_operation.py\", line 644, in setUpClass\n    cls.actual_inventory = {relative: sha((ROOT / relative).read_bytes()) for relative in names}\n                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pathlib.py\", line 1019, in read_bytes\n    with self.open(mode='rb') as f:\n         ^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\pathlib.py\", line 1013, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\elijr\\\\.codex\\\\visualizations\\\\2026\\\\11\\\\09\\\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\\\privilege-public-acl-v8-private-candidate-20261120\\\\workinants-correction-pass\\\\context\\\\reconciliation\\\\local-f0-operation-sources\\\\privilege-ceiling-owned-metadata-v6\\\\development-history\\\\privilege-metadata-v6-child-firstpass-before-test-expansion-20261120\\\\privilege_metadata_v6_child_first_20261120.log'\n\n----------------------------------------------------------------------\nRan 0 tests in 0.041s\n\nFAILED (errors=1)\n"
+}

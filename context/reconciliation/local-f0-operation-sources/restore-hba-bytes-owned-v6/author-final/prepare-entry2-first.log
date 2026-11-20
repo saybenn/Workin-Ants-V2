@@ -1,0 +1,53 @@
+test_11_actual_prepare_keeps_V5_generation_and_pinner_stops_at_new_pending_gate (<run_path>.HbaV6Tests.test_11_actual_prepare_keeps_V5_generation_and_pinner_stops_at_new_pending_gate) ... ERROR
+test_12_actual_entry_pending_gate_precedes_Steps_compilation (<run_path>.HbaV6Tests.test_12_actual_entry_pending_gate_precedes_Steps_compilation) ... ERROR
+
+======================================================================
+ERROR: test_11_actual_prepare_keeps_V5_generation_and_pinner_stops_at_new_pending_gate (<run_path>.HbaV6Tests.test_11_actual_prepare_keeps_V5_generation_and_pinner_stops_at_new_pending_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 259, in test_11_actual_prepare_keeps_V5_generation_and_pinner_stops_at_new_pending_gate
+    base,path,master,clone,files=self.prepared_fixture();self.assertEqual(master['purpose'],'LOCAL_F0_RESTORE_HBA_BYTES_V6_REHEARSAL');self.assertEqual(master['review_status'],'PENDING_OPERATIONAL_REVIEW');self.assertEqual(master['packet_files_sha256'],{});self.assertFalse(Path(master['evidence_directory']).exists());self.assertEqual(len(master['migration_targets']['ok']['source_files_sha256']),7)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 245, in prepared_fixture
+    with patch.dict(original,TASK=base,ROOT=ROOT):prepared=g['prepare'](path,sha(raw),str(uuid.uuid4()))
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\prepare_local_f0_restore_hba_bytes_v6_plan.py", line 212, in prepare
+    generated,history=helper['prepare_plan'](nested,nested_raw,snapshot[MIGRATION],snapshot[SCHEMA],{path:snapshot[path] for path in RUNTIME_FILES},SQL_SHA)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\restore-hba-bytes-v6-author-20261120\future-root\scripts\prepare-local-f0-history.py", line 99, in prepare_plan
+    validate_manifest(manifest)
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\restore-hba-bytes-v6-author-20261120\future-root\scripts\prepare-local-f0-history.py", line 66, in validate_manifest
+    validate_bootstrap_secret_path(target["bootstrap_secret_host_path"])
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\restore-hba-bytes-v6-author-20261120\future-root\scripts\prepare-local-f0-history.py", line 53, in validate_bootstrap_secret_path
+    require(path.is_absolute() and path.is_relative_to(task) and not path.is_relative_to(checkout) and
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\restore-hba-bytes-v6-author-20261120\future-root\scripts\prepare-local-f0-history.py", line 36, in require
+    raise HeldFailure(code)
+_restore_guarded_source_history.HeldFailure: TASK_OWNED_EXTERNAL_SECRET_PATH_REQUIRED
+
+======================================================================
+ERROR: test_12_actual_entry_pending_gate_precedes_Steps_compilation (<run_path>.HbaV6Tests.test_12_actual_entry_pending_gate_precedes_Steps_compilation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 265, in test_12_actual_entry_pending_gate_precedes_Steps_compilation
+    base,path,master,clone,files=self.prepared_fixture();master.update(source_commit='a'*40,source_tree='b'*40,packet_files_sha256=files,packet_sha256=sha(''.join(p+'\0'+files[p]+'\n'for p in sorted(files)).encode()),review_status='APPROVED_LOCAL_F0_RESTORE_HBA_BYTES_V6_ATTEMPT');path.write_text(json.dumps(master,indent=2)+'\n');core=runpy.run_path(str(base/CORE.name))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 245, in prepared_fixture
+    with patch.dict(original,TASK=base,ROOT=ROOT):prepared=g['prepare'](path,sha(raw),str(uuid.uuid4()))
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\prepare_local_f0_restore_hba_bytes_v6_plan.py", line 212, in prepare
+    generated,history=helper['prepare_plan'](nested,nested_raw,snapshot[MIGRATION],snapshot[SCHEMA],{path:snapshot[path] for path in RUNTIME_FILES},SQL_SHA)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\restore-hba-bytes-v6-author-20261120\future-root\scripts\prepare-local-f0-history.py", line 99, in prepare_plan
+    validate_manifest(manifest)
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\restore-hba-bytes-v6-author-20261120\future-root\scripts\prepare-local-f0-history.py", line 66, in validate_manifest
+    validate_bootstrap_secret_path(target["bootstrap_secret_host_path"])
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\restore-hba-bytes-v6-author-20261120\future-root\scripts\prepare-local-f0-history.py", line 53, in validate_bootstrap_secret_path
+    require(path.is_absolute() and path.is_relative_to(task) and not path.is_relative_to(checkout) and
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\restore-hba-bytes-v6-author-20261120\future-root\scripts\prepare-local-f0-history.py", line 36, in require
+    raise HeldFailure(code)
+_restore_guarded_source_history.HeldFailure: TASK_OWNED_EXTERNAL_SECRET_PATH_REQUIRED
+
+----------------------------------------------------------------------
+Ran 2 tests in 14.833s
+
+FAILED (errors=2)

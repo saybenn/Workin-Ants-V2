@@ -1,0 +1,33 @@
+"""Single frozen V8 positive admission graph; every process/network boundary mocked."""
+from pathlib import Path
+import hashlib,json,runpy,unittest,time,io,sys,traceback,subprocess,socket
+from unittest.mock import patch
+T=Path(__file__).resolve().parent
+F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+D=T/'privilege_public_acl_v8_frozen_private_delivery_20261120.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+j=json.loads(D.read_bytes())
+assert sha(D.read_bytes())=='8c363aabdfdb9a648386764b0b1b2d7bbbefd0a1839cdd0e0a1bf82516a3ed8a'
+def exact():
+ for p,h in j['candidate_Root_new_files_sha256'].items():assert sha((C/p).read_bytes())==h,p
+ for p,h in j['owned5_sha256'].items():assert sha((F/p).read_bytes())==h,p
+ return {'Root_files':len(j['candidate_Root_new_files_sha256']),'owned_files':len(j['owned5_sha256']),'all_exact':True}
+entry=exact();sys.path[:0]=[str(T/'offline-python'),str(C/'scripts'),str(C/'scripts/sql-review')]
+ns=runpy.run_path(str(F/'check_local_f0_privilege_ceiling_v8_operation.py'))
+cls=ns['PrivilegeMetadataV6ClosureTests']
+class Capture(unittest.TextTestResult):
+ def addError(self,test,err):
+  super().addError(test,err)
+  errors.append({'test':str(test),'type':err[0].__name__,'frames':[{'file':Path(x.filename).name,'line':x.lineno,'function':x.name}for x in traceback.extract_tb(err[2])]})
+errors=[];stream=io.StringIO();start=time.monotonic()
+r=unittest.TextTestRunner(stream=stream,verbosity=2,resultclass=Capture).run(unittest.TestSuite([cls('test_real_initialized_complete_entry_reaches_only_first_resource_boundary')]))
+result={'schema':'workinants.privilege-v8-deferred-positive-graph.v1','delivery_sha256':sha(D.read_bytes()),'entry':entry,'exit':exact(),'testsRun':r.testsRun,'errors':errors,'failure_count':len(r.failures),'error_count':len(r.errors),'success':r.wasSuccessful(),'elapsed_seconds':round(time.monotonic()-start,3),'all_external_processes_and_network':'FORBIDDEN_EXCEPT_EXACT_READ_GIT_AND_FIXED_FIRST_RESOURCE_BOUNDARY_MOCKS','runtime_executed':False,'log':stream.getvalue()}
+if hasattr(cls,'pin_result'):result['actual_pinner_result']=cls.pin_result
+if hasattr(cls,'master'):
+ result['actual_prepared_inventory_count']=len(cls.master['prepared_source_file_inventory_sha256'])
+ result['actual_pinned_packet_sha256']=cls.pinned['packet_sha256']
+ result['actual_git_read_calls']=[list(x)for x in cls.pin_calls]
+out=T/'privilege_public_acl_v8_deferred_positive_graph_20261120_v1.json';assert not out.exists();out.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+print(json.dumps({'path':str(out),'sha256':sha(out.read_bytes()),'success':r.wasSuccessful(),'testsRun':r.testsRun,'errors':errors,'elapsed_seconds':result['elapsed_seconds']}))
+if not r.wasSuccessful():print(stream.getvalue())
+raise SystemExit(0 if r.wasSuccessful()else 1)

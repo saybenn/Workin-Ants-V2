@@ -1,0 +1,42 @@
+"""Fresh attempt/evidence identity with the unchanged frozen ReadV2 fixture/run identity explicitly reused."""
+from pathlib import Path
+import copy,datetime,gzip,hashlib,io,json,runpy,socket,subprocess,tarfile,uuid
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+old=T/'local-f0-remaining-app-read13-owned-v2-plan-d848e852/operation-manifest.json';oldraw=old.read_bytes();assert sha(oldraw)=='98b82ea09b1c606a7c8cb353cb2d2b6fb51c0c3aa76be51d57f7cbe5dd3c2f8f';base=json.loads(oldraw)
+closed=Path(base['evidence_directory'])/'run-evidence.json';closedraw=closed.read_bytes();assert sha(closedraw)=='95321fa01bb48db9f69e7d47082e63da57808f625a2a7b5eb0f9110b7f58da53';assert json.loads(closedraw)['status']=='STOPPED_ATTEMPT_PRESERVED'
+cp=T/'0ff_read_independent_cleanup_20261120.json';assert sha(cp.read_bytes())=='88bb17eb79bc1a058d014c65dfef4fcc1e67015bfdbb82d09cc8a4805376e0da'and json.loads(cp.read_bytes())['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+for n,h in base['packet_files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in base['read13']['external_files_sha256'].items():assert sha((T/n).read_bytes())==h
+attempt=str(uuid.uuid4());directory=T/('local-f0-read13-parser-env-retry-plan-'+attempt[:8]);out=T/('local-f0-read13-parser-env-retry-'+attempt[:8]);assert not directory.exists()and not out.exists()
+value=copy.deepcopy(base);value.update(source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_sha256='TO_BE_PINNED',packet_files_sha256={},review_status='PENDING_OPERATIONAL_REVIEW',evidence_directory=str(out),attempt_id=attempt)
+value['attempt_identity_note']={'attempt_id':attempt,'fixture_and_resource_run_id':base['run_id'],'fixture_and_resource_identity_reused_explicitly':True,'reason':'Previous attempt stopped inside source admission before resource creation/child behavior. Retain exact frozen fixtures/SQL/source and verify names absent again before a new physical attempt.','previous_executor_session':59177,'previous_known_exit':1,'previous_raw_report_sha256':sha(closedraw),'previous_independent_cleanup_sha256':sha(cp.read_bytes()),'launch_environment':'Pinned PYTHONUTF8=1 and TASK/offline-python pglast v7.21; no source-code change.','new_external_plan_and_evidence_directory':True,'no_prior_file_or_report_overwrite':True}
+oldplan=base['migration_targets']['ok'];nested_raw=Path(oldplan['manifest_path']).read_bytes();assert sha(nested_raw)==oldplan['manifest_sha256'];nested=json.loads(nested_raw);nested['target']['bootstrap_secret_host_path']=str(out/'private/ok-bootstrap-password');new_nested_raw=enc(nested)
+before_nested=json.loads(nested_raw);delta=copy.deepcopy(nested);delta['target']['bootstrap_secret_host_path']=before_nested['target']['bootstrap_secret_host_path'];assert delta==before_nested
+calls=[]
+def forbidden(*a,**kw):calls.append('FORBIDDEN_PROCESS_OR_NETWORK');raise AssertionError('ALL_PROCESS_OR_NETWORK_FORBIDDEN')
+helper='scripts/prepare-local-f0-history.py';assert sha((R/helper).read_bytes())==base['packet_files_sha256'][helper]
+with patch.multiple(subprocess,run=forbidden,Popen=forbidden,check_output=forbidden,check_call=forbidden,call=forbidden),patch.object(socket,'socket',forbidden),patch.object(socket,'create_connection',forbidden):
+ ns=runpy.run_path(str(R/helper),run_name='_Root_unchanged_reviewed_history_for_new_attempt')
+ generated,provenance=ns['prepare_plan'](nested,new_nested_raw,(R/ns['SOURCE']).read_bytes(),(R/ns['SCHEMA']).read_bytes(),{n:(R/n).read_bytes()for n in ns['RUNTIME_FILES']},nested['source']['integrated_sql_sha256'])
+assert not calls
+old_snapshot=Path(oldplan['source_snapshot']);snapshot={n:(old_snapshot/n).read_bytes()for n in oldplan['source_files_sha256']}
+for n,h in oldplan['source_files_sha256'].items():assert sha(snapshot[n])==h
+history='prisma/foundation/history-manifest.json';old_provenance=json.loads(snapshot[history]);same=copy.deepcopy(provenance);same['run_manifest_sha256']=old_provenance['run_manifest_sha256'];assert same==old_provenance and provenance['run_manifest_sha256']==sha(new_nested_raw)
+assert all(snapshot[n]==b for n,b in generated.items());snapshot[history]=enc(provenance)
+assert len(snapshot)==7 and {n:sha(b)for n,b in snapshot.items()if n!=history}=={n:h for n,h in oldplan['source_files_sha256'].items()if n!=history}
+archive=io.BytesIO()
+with gzip.GzipFile(fileobj=archive,mode='wb',mtime=0)as gz:
+ with tarfile.open(fileobj=gz,mode='w',format=tarfile.PAX_FORMAT)as tar:
+  for n,b in sorted(snapshot.items()):info=tarfile.TarInfo(n);info.size=len(b);info.mode=0o600;info.mtime=0;tar.addfile(info,io.BytesIO(b))
+ab=archive.getvalue();value['migration_targets']={'ok':{'manifest_path':str(directory/'ok-migration-manifest.json'),'manifest_sha256':sha(new_nested_raw),'source_snapshot':str(directory/'source-ok'),'source_files_sha256':{n:sha(b)for n,b in snapshot.items()},'source_archive':str(directory/'source-ok.tar.gz'),'source_archive_sha256':sha(ab)}}
+assert value['run_id']==base['run_id']=='d848e852-f857-4c03-8288-4893e2e8aa0c'and value['targets']==base['targets']and value['read13']==base['read13']and value['prepared_source_file_inventory_sha256']==base['prepared_source_file_inventory_sha256']
+assert old.read_bytes()==oldraw and closed.read_bytes()==closedraw
+directory.mkdir(exist_ok=False);put(directory/'ok-migration-manifest.json',new_nested_raw)
+for n,b in snapshot.items():put(directory/'source-ok'/n,b)
+put(directory/'source-ok.tar.gz',ab);put(directory/'operation-manifest.json',enc(value))
+receipt={'schema':'workinants.ReadV2-fresh-environment-attempt-preparation.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PREPARED_UNPINNED_HELD','fresh_attempt_id':attempt,'unchanged_frozen_fixture_and_resource_run_id':value['run_id'],'same_fixture_identity_explicitly_not_new_fixture_UUID':True,'manifest':str(directory/'operation-manifest.json'),'manifest_sha256':sha(enc(value)),'previous_manifest_sha256':sha(oldraw),'previous_run_report_sha256':sha(closedraw),'source1400_and_external5_unchanged':True,'nested_target_delta_only_new_bootstrap_secret_path':True,'actual_unchanged_reviewed_history_prepare_plan_used':True,'seven_source_files_only_generated_history_manifest_binding_changed':True,'original_evidence_preserved':True,'all_process_network_forbidden':True,'all_runtime_steps':'NOT_RUN_FOR_NEW_ATTEMPT','Posture':'D'}
+rp=T/'ReadV2_fresh_environment_attempt_preparation_20261120.json';put(rp,enc(receipt));print(json.dumps({**receipt,'receipt_sha256':sha(rp.read_bytes())}))

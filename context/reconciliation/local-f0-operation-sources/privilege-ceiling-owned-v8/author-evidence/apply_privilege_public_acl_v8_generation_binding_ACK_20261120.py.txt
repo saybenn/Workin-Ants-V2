@@ -1,0 +1,30 @@
+"""Root-ACK exact old generation helper; current V8 runtime dispatch separate."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+OLD='scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py';OLD_SHA='571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f'
+NEW='scripts/sql-review/run-privilege-ceiling-control-rehearsal-v8.py'
+def main():
+ assert H((C/OLD).read_bytes())==OLD_SHA;new_sha=H((C/NEW).read_bytes());assert new_sha=='b788cf40cda693be2c285c64572011ae54f7640bf3157000648196f603a7775c'
+ d=T/'privilege-public-acl-v8-author-history-20261120/before-Root-ACK-generation-binding';d.mkdir(exist_ok=False)
+ old=json.loads((T/'privilege-public-acl-v8-before-author-20261120/preservation.json').read_bytes())
+ for name in old['original_five_sha256']:
+  name=name.replace('_v7','_v8');(d/(name+'.txt')).write_bytes((F/name).read_bytes())
+ for name in old['original_source4_sha256']:
+  name=name.replace('_v7','_v8').replace('-v7','-v8').replace('-V7','-V8');(d/(Path(name).name+'.txt')).write_bytes((C/name).read_bytes())
+ for name in('prepare_local_f0_privilege_ceiling_v8_plan.py','local_f0_privilege_ceiling_v8_operation_steps.py'):
+  p=F/name;s=p.read_text();needle="    coordinator='"+NEW+"'";assert s.count(needle)==1;s=s.replace(needle,"    coordinator='"+OLD+"'")
+  if name.startswith('prepare_'):
+   needle="|{'scripts/sql-review/run-privilege-ceiling-control-rehearsal-v8.py','scripts/sql-review/run-native-table-denials-v3.py'}";assert s.count(needle)==1;s=s.replace(needle,"|{'"+OLD+"','scripts/sql-review/run-privilege-ceiling-control-rehearsal-v8.py','scripts/sql-review/run-native-table-denials-v3.py'}")
+   needle="'coordinator_sha256':'"+OLD_SHA+"'";assert s.count(needle)==1;s=s.replace(needle,"'coordinator_sha256':'"+new_sha+"'")
+  else:
+   needle="PRIVILEGE_COORDINATOR_SHA='"+OLD_SHA+"'";assert s.count(needle)==1;s=s.replace(needle,"PRIVILEGE_COORDINATOR_SHA='"+new_sha+"'")
+   needle="{PRIVILEGE_CHILD_VALIDATION,*PRIVILEGE_SOURCE4,";assert s.count(needle)==1;s=s.replace(needle,"{PRIVILEGE_CHILD_VALIDATION,*PRIVILEGE_SOURCE4,'"+OLD+"',")
+  p.write_bytes(s.encode());ast.parse(p.read_bytes())
+ p=F/'pin_local_f0_privilege_ceiling_v8_plan_20261120.py';s=p.read_text();needle="need(set(V8_SOURCE4)|{V7_VALIDATION}|HELPERS";assert s.count(needle)==1;s=s.replace(needle,"need(set(V8_SOURCE4)|{V7_VALIDATION,'"+OLD+"'}|HELPERS")
+ needle="need(cfg['coordinator_sha256']=='"+OLD_SHA+"'=='"+OLD_SHA+"','EXACT_COORDINATOR_SOURCE')";assert s.count(needle)==1;s=s.replace(needle,"need(cfg['coordinator_sha256']==files.get('"+NEW+"')=='"+new_sha+"','EXACT_COORDINATOR_SOURCE')\n need(files.get('"+OLD+"')=='"+OLD_SHA+"','PRIVILEGE_GENERATED_COORDINATOR_IDENTITY')")
+ p.write_bytes(s.encode());ast.parse(p.read_bytes())
+ record={'schema':'workinants.privilege-public-v8-Root-extra-generation-binding-ACK.v1','decision':'ROOT_ACK_BOUNDED_EXISTING_GENERATION_COMPILER_ADMISSION','Root_ACK':'Explicitly admit preserved original generation compiler at571951 only for immutable generator/legacy protocol/202 artifacts in new owned prep/Steps/pinner; V8 runtime4/dispatch remain separate. No hash rebinding, old load_inputs/main, runtime fallback or permissions change.','Root_path_clarification':'Exact existing run-privilege-ceiling-control-rehearsal-v7.py confirmed by Root; earlier native-position-v7 name was a message typo, not an alias/new path.','exact_existing_generation_helper':OLD,'generation_helper_sha256':OLD_SHA,'exact_new_runtime_dispatch':NEW,'runtime_dispatch_sha256':new_sha,'source_changes':'Only new owned prep/Steps/pinner explicit helper membership/pure-closure path plus refreshed V8 runtime fingerprint. Original source/hash/generator/protocol/all202 untouched.','separate_nonauthor_review_required':'Catalog must inspect this extra historical helper admission and pure-only use.','runtime':'NOT_RUN','source_gates':'PENDING'}
+ out=T/'privilege_public_acl_v8_extra_generation_helper_Root_ACK_20261120.json';assert not out.exists();out.write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({'ACK_record':out.name,'sha256':H(out.read_bytes()),'runtime_dispatch_sha256':new_sha,'generation_helper_sha256':OLD_SHA}))
+if __name__=='__main__':main()

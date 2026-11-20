@@ -1,0 +1,121 @@
+"""Read the five fixed immutable handoffs plus the fixed reviewed V2 evidence file only; never issue approval."""
+import argparse
+import datetime
+import hashlib
+import json
+import math
+from pathlib import Path
+import time
+import types
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+RUN='6850ee4c-154b-4834-9ed0-c3612db77724'
+COMMIT='0ff2a910ce081a0c6e0c6a268d6f876b8e061a45'
+TREE='886f85d4a919a8a04f85c8fe45a01e0a8801ba1c'
+PACKET='1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2'
+FAULT='dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c'
+ARMING='643dac5f5717b5ad1fadbb5900fea26c709a60e5542d31dc354f0a781fb96091'
+WATCH='scripts/sql-review/watch-install-independent-review-source-phase-v5.py'
+WATCH_SHA='5fb09251e7bf7d70b8935f5bfb93dc7413bdb98c5cc864bce976bb57fa62db3a'
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def need(value,code):
+    if not value:raise ValueError(code)
+def pinned(path,wanted):
+    raw=path.read_bytes();need(sha(raw)==wanted,'SOURCE_OR_ARMING_DRIFT');return raw
+
+args=argparse.ArgumentParser()
+args.add_argument('--original-deadline',required=True,type=float)
+args.add_argument('--ready-sha256',required=True)
+opts=args.parse_args()
+deadline=opts.original_deadline
+need(math.isfinite(deadline)and 0<deadline-time.monotonic()<=220,'ORIGINAL_REVIEW_BUDGET_EXPIRED_OR_INVALID')
+arm=json.loads(pinned(TASK/'install_v5_6850ee4c_Catalog_watch_arming_20261120.json',ARMING))
+watch=types.ModuleType('_actual_closed_install_watch');watch.__file__=str(ROOT/WATCH)
+exec(compile(pinned(ROOT/WATCH,WATCH_SHA),str(ROOT/WATCH),'exec'),watch.__dict__)
+p,authority=watch.load_sources(arm['source_modules_sha256'])
+expected={'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET}
+need(arm['expected']==expected,'EXACT_PREARMED_IDENTITY')
+out=TASK/'local-f0-install-controls-20261119-6850ee4c'
+value,raws=watch.read_handoff(out,p,expected)
+need(sha(raws[p['READY']])==opts.ready_sha256,'ORIGINAL_READY_RECEIPT_MISMATCH')
+need(watch.OPEN_HANDLES==0 and time.monotonic()<deadline,'CLOSED_HANDLES_AND_ORIGINAL_DEADLINE')
+
+# Independent replay of the pure failure rules against the closed observations,
+# rather than accepting the prepared proof dictionary as its own evidence.
+snapshot=value['snapshot'];target=snapshot['targets']['division_failure'];proof=value['proof']
+need(proof['source_sql_sha256']==FAULT,'EXACT_DIVISION_FAULT_SOURCE')
+cli=target['cli_division_failure_deploy']
+# The new phase is independently evaluated from the actual sealed completed-v2
+# bytes, not accepted solely because a READY marker exists.
+binding=target['completed_v2_evidence']
+need(binding['file']=='independent-review-child-v2-evidence.json','EXACT_COMPLETED_V2_FILE')
+v2_raw=watch.read_regular(out/'install-controls'/'independent-review-child-v2-evidence.json',p['CAPS'][p['SNAPSHOT']])
+need(sha(v2_raw)==binding['sha256'],'EXACT_COMPLETED_V2_BYTES')
+v2=p['decode'](v2_raw)
+need(v2['schema']=='workinants.install-controls-results.v2'and v2['evidence_complete']is True and v2['persistence_failure']is False and v2['first_failure']is None,'ACTUAL_CLEAN_COMPLETED_V2_SNAPSHOT')
+phase=p['_phase'];v2_target=v2['targets']['division_failure']
+phase_identity={**expected,'variant':'division_failure','container_id':proof['container_id'],'source_sql_sha256':FAULT}
+phase['validate_receipts'](v2_target['failed_precleanup_activation'],phase_identity,True)
+phase['validate_closures'](v2_target['failed_precleanup_closures'],True)
+need(len(v2_target['failed_precleanup_activation'])==10 and len(v2_target['failed_precleanup_closures'])==15,'EXACT_PHASE10_CLOSURE15')
+first=v2_target['failed_precleanup_activation'][0]['facts']
+need(first['cli_attestation_sha256']==cli['attestation_sha256']and first['cli_exit_code']==cli['exit_code']and first['cli_status']==cli['status'],'PHASE_ACTUAL_CLI_BINDING')
+need(first['intended_primary_sqlstate']=='22012'and first['diagnostic_delta']['division_22012']==1,'PHASE_FRESH_ACTUAL_DIVISION_DIAGNOSTIC')
+for index,kind in enumerate(phase['KINDS']):need(v2_target['failed_precleanup_activation'][index]['kind']==kind,'EXACT_NEW_PHASE_ORDER')
+need(v2_target['failed_precleanup_activation'][8]['facts']['temporary_memberships']==3 and target['authority']['temporary_memberships']==0,'ACTUAL_PHASE_THREE_BEFORE_ZERO_AFTER_FINALIZATION')
+need(v2_target['failed_precleanup_activation'][9]['facts']['original_finalization_not_yet_run']is True,'ACTUAL_PHASE_BEFORE_ORIGINAL_GRANTOR_FINALIZATION')
+need(watch.OPEN_HANDLES==0 and time.monotonic()<deadline,'NEW_PHASE_CLOSED_HANDLES_AND_DEADLINE')
+need(cli['run_id']==RUN and cli['container_id']==proof['container_id']and cli['source_sql_sha256']==FAULT,'ACTUAL_FAILED_CLI_TARGET_IDENTITY')
+rebuilt=authority['failure_verdict']('division_failure',cli,target['inventory'],target['ledger'],target['server_before'],target['server_after'],FAULT)
+need(p['exact'](rebuilt,proof['failure'])and p['exact'](rebuilt,target['failure_verdict']),'REBUILT_ACTUAL_FAILURE_VERDICT')
+authority['validate_inventory'](target['inventory'],True)
+need(p['exact'](target['inventory'],proof['application_inventory']),'ZERO_COMPLETE_APPLICATION_INVENTORY')
+need(p['exact'](target['ledger']['rows'],[proof['failed_ledger']]),'EXACT_RETAINED_FAILED_LEDGER')
+authority['ledger_rows'](target['ledger'])
+need(p['exact'](target['original_cleanup'],{'original_grantor':'postgres','temporary_memberships':0,'leaf_create':False,'other_clients':0}),'ORIGINAL_GRANTOR_FINALIZATION')
+need(p['exact'](target['authority'],{'temporary_memberships':0,'exact_temporary_options':True,'leaf_create':False,'permanent_migrator_edge':True}),'ACTUAL_REMOVED_AUTHORITY_OBSERVATION')
+need(p['exact'](target['settings'],dict.fromkeys(('prefix','terse','no_statements','no_error_statements','locale','passwords','version'),True)),'SAFE_ACTUAL_SERVER_SETTINGS')
+for label in ('BEFORE_INSTALL_RUNTIME_INACTIVE','FAILED_INSTALL_REMAINS_INACTIVE'):
+    need(p['exact'](target[label],{'runtime_roles':4,'all_null_verifiers':True,'flags_exact':True}),'FAILED_INSTALL_RUNTIME_REMAINS_INACTIVE')
+need(p['exact'](target['activation_gate_held'],{'permit':False,'database_password_sql_executed':False}),'ACTIVATION_HELD')
+closures={k:v for k,v in target.items()if k.startswith('closure_')}
+required={'closure_CLI_deploy','closure_PRE_FINALIZATION','closure_ORIGINAL_GRANTOR_FINALIZATION','closure_AUTHORITY_OBSERVE','closure_COMPLETE_APPLICATION_INVENTORY','closure_GUARDED_PRIVATE_LEDGER'}
+need(required<=set(closures),'ACTUAL_REQUIRED_CLOSURE_OBSERVATIONS')
+closed={'scope':'ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES','observation_completed':True,'all_other_clients_absent':True}
+need(all(p['exact'](v,closed)for v in closures.values()),'ACTUAL_GLOBAL_CLOSURES_COMPLETE')
+for role in ('postgres','wa_migrator'):
+    need(p['exact'](target['auth_'+role],{'role':role,'correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','actual_connection_closed':True}),'BOOTSTRAP_AUTH_SOURCE_REQUIREMENTS')
+for role in authority['RUNTIME_ROLES']:
+    need(p['exact'](target['auth_'+role],{'role':role,'correct_password':'PASS_REJECTED_INACTIVE','wrong_password':'NOT_RUN','actual_connection_closed':True}),'FAILED_TARGET_RUNTIME_LOGIN_INACTIVE')
+canonical=snapshot['targets']['canonical']
+authority['validate_inventory'](canonical['inventory'],False)
+authority['applied_ledger'](canonical['ledger'])
+need(canonical['cli_canonical_deploy']['no_pending_message_observed']is True,'PRIOR_CANONICAL_GENUINE_NOOP')
+need(p['exact'](canonical['finite_result'],{'success_cleanup_and_runtime_activation':'PASS_FINITE_PROTOCOL','genuine_second_deploy':'PASS_UNCHANGED_PRIVATE_LEDGER','full_schema_and_acl_parity':'PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON'}),'CANONICAL_FINITE_ONLY_NOT_FULL_NATIVE')
+need('late_function_grant'not in snapshot['targets'],'NO_UNOBSERVED_LATER_VARIANT')
+
+manifest=json.loads(pinned(TASK/'local-f0-install-controls-plan-6850ee4c/operation-manifest.json','98a2f53b88af97f308c2005d82708f1e0e624bc8546d705b64894e33efd320b9'))
+need(len(manifest['packet_files_sha256'])==291,'ORIGINAL_FULL_PACKET_COUNT')
+for name,wanted in manifest['packet_files_sha256'].items():pinned(ROOT/name,wanted)
+for name,wanted in value['identity']['operator_sources_sha256'].items():pinned(TASK/name,wanted)
+need(value['identity']['operator_sources_sha256']==manifest['operator_sources_sha256'],'ACTUAL_OUTER_OPERATOR_FIVE_BINDING')
+need(time.monotonic()<deadline and watch.OPEN_HANDLES==0,'FINAL_ORIGINAL_REVIEW_BUDGET')
+receipt={
+ 'schema':'workinants.install6850-source-phase-v5-Catalog-actual-sealed-evidence-review.v1',
+ 'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ 'reviewer':'/root/catalog_v4_review','decision':'ACTUAL_ROLLBACK_EVIDENCE_SATISFIES_STANDARD_RESOLVE_REVIEW_ONLY',
+ 'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'container_id':proof['container_id'],'source_sql_sha256':FAULT,
+ 'immutable_inputs_sha256':{name:sha(raw)for name,raw in raws.items()},
+ 'completed_v2_evidence_sha256':sha(v2_raw),'failed_precleanup_activation':v2_target['failed_precleanup_activation'],'failed_precleanup_closure_records_verified':15,
+ 'failure_rebuilt_from_actual_closed_snapshot':rebuilt,'failed_ledger':proof['failed_ledger'],'application_inventory':target['inventory'],
+ 'original_cleanup':target['original_cleanup'],'authority':target['authority'],'global_closure_records_verified':len(closures),
+ 'full291_current_sources_and_actual5_sourcebytes_verified':True,'all_read_handles_closed':True,
+ 'original_review_deadline_monotonic':deadline,'budget_remaining_when_review_recorded':deadline-time.monotonic(),
+ 'actual_recovery_approval_issued_by_this_audit_script':False,
+ 'limits':{'full_native_acl_and_private_ledger_comparison':'PENDING_OUTER_OPERATOR_AFTER_RECOVERY','later_function_grant':'NOT_RUN_AT_HOLD','whole94_451':False,'hosted_changes':False,'production_readiness':False,'Posture':'D'},
+ 'plain_english':'The failed test left no application objects, kept its failure record, and removed its temporary powers. This evidence supports only the planned test recovery. The approval is a separate explicit decision.'}
+path=TASK/'install_v5_6850ee4c_Catalog_actual_sealed_evidence_review_20261120.json'
+with path.open('x',encoding='utf8',newline='\n')as stream:stream.write(json.dumps(receipt,indent=2,allow_nan=False)+'\n')
+print(json.dumps({'review':str(path),'review_sha256':sha(path.read_bytes()),'container_id':proof['container_id'],'proof_sha256':sha(raws[p['PROOF']]),'failure':rebuilt,'remaining_seconds':deadline-time.monotonic(),'approval_issued':False},allow_nan=False))

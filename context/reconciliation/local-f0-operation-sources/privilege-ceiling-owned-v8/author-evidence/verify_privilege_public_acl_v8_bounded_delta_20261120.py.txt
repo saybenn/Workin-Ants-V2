@@ -1,0 +1,54 @@
+"""AST, every metadata-query byte, original generation and parser proof only."""
+from pathlib import Path
+import ast,copy,hashlib,json,runpy,socket,subprocess,sys
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass';P=T/'privilege-public-acl-v8-before-author-20261120'
+sys.path[:0]=[str(T/'offline-python'),str(C/'scripts'),str(C/'scripts/sql-review')]
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+def main():
+ old=json.loads((P/'preservation.json').read_bytes());runtime={name:name.replace('_v7','_v8').replace('-v7','-v8').replace('-V7','-V8')for name in old['original_source4_sha256']};five={name:name.replace('_v7','_v8')for name in old['original_five_sha256']};inverse={**{v:k for k,v in{**runtime,**five}.items()},'privilege-ceiling-owned-v8':'privilege-ceiling-owned-v7','privilege-ceiling-v8-source-validation':'privilege-ceiling-v7-source-validation','privilege-v8-source-validation':'privilege-v7-source-validation','privilege-v8':'privilege-v7','V8_SOURCE':'V7_SOURCE','OFFLINE_TEST_ONLY_V8':'OFFLINE_TEST_ONLY_V7'}
+ def normalized(text):
+  for new,prior in inverse.items():text=text.replace(new,prior)
+  return text
+ def parsed(text):return ast.parse(text)
+ def dump(node):return ast.dump(node,include_attributes=False)
+ production={}
+ for before,after in five.items():
+  if 'operation_steps' in before or 'check_'in before:continue
+  assert normalized((F/after).read_text())==(F/before).read_text();production[after]='EXACT_MECHANICAL_FULL_TEXT'
+ def bounded_module(before,after,removed_names,allowed_functions):
+  first=parsed((C/before).read_text());second=parsed(normalized((C/after).read_text()));original={n.name:n for n in ast.walk(first)if isinstance(n,ast.FunctionDef)and n.name in allowed_functions}
+  class Limited(ast.NodeTransformer):
+   def visit_FunctionDef(self,node):
+    if node.name in removed_names:return None
+    if node.name in original:return copy.deepcopy(original[node.name])
+    return self.generic_visit(node)
+   def visit_Assign(self,node):
+    if any(isinstance(target,ast.Name)and target.id in removed_names for target in node.targets):return None
+    return self.generic_visit(node)
+  assert dump(first)==dump(Limited().visit(second))
+ bounded_module('scripts/privilege_ceiling_control_protocol_v7.py','scripts/privilege_ceiling_control_protocol_v8.py',{'PUBLIC_SCHEMA_REGISTRATION_CONTENT_SHA256','registered_public_schema_acl'},{'expected_acl'})
+ bounded_module('scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py','scripts/sql-review/run-privilege-ceiling-control-rehearsal-v8.py',{'PUBLIC_SCHEMA_REGISTRATION','PUBLIC_SCHEMA_REGISTRATION_SHA256','schema_create_metadata_comparison'},{'load_inputs','metadata'})
+ before=(F/'local_f0_privilege_ceiling_v7_operation_steps.py').read_text();after=normalized((F/'local_f0_privilege_ceiling_v8_operation_steps.py').read_text());original=next(n for n in ast.parse(before).body if isinstance(n,ast.FunctionDef)and n.name=='verify_privilege_result')
+ second=ast.parse(after);second.body=[copy.deepcopy(original)if isinstance(n,ast.FunctionDef)and n.name=='verify_privilege_result'else n for n in second.body if not(isinstance(n,ast.FunctionDef)and n.name=='privilege_schema_create_comparison_allowed')];assert dump(ast.parse(before))==dump(second)
+ guards=[]
+ for name in('run','Popen','call','check_call','check_output'):
+  guard=patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN'));guard.start();guards.append(guard)
+ for owner,name in((socket,'create_connection'),(socket.socket,'connect')):
+  guard=patch.object(owner,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();guards.append(guard)
+ try:
+  m=runpy.run_path(str(C/'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v8.py'));oldp=runpy.run_path(str(C/'scripts/privilege_ceiling_control_protocol_v7.py'));snapshot=json.loads((C/m['PUBLIC_OBSERVED_NATIVE']).read_bytes());changes=[];queries={}
+  for case in m['PACKET']['cases']:
+   first,e1,_=m['M']['metadata_query_spec'](case,snapshot,oldp['expected_acl']);second,e2,_=m['M']['metadata_query_spec'](case,snapshot,m['source_right']);assert first==second;queries[case['name']]=H(first.encode())if first is not None else None
+   if e1!=e2:changes.append(case['name']);assert case['diagnostic']=={'kind':'SCHEMA_CREATE','schema':'public'}and e1=={'schema_usage':False,'schema_create':False}and e2=={'schema_usage':True,'schema_create':False}
+  assert len(changes)==2
+  files,packet=m['G']['generate'](C);assert len(files)==202
+  for name,raw in files.items():assert raw==(C/m['M']['PACKET']/name).read_bytes()
+  for name,wanted in old['original649_Root_files_sha256'].items():assert H((R/name).read_bytes())==wanted
+  source=json.loads((C/'context/reconciliation/privilege-ceiling-v8-source-validation.json').read_bytes());assert all(H((C/name).read_bytes())==wanted for name,wanted in source['original_source122_sha256'].items())and all(H((C/name).read_bytes())==wanted for name,wanted in source['artifacts202_sha256'].items())
+  from pglast import parse_sql
+  sql=[raw for name,raw in files.items()if name.endswith('.sql')];statements=sum(len(parse_sql(raw.decode()))for raw in sql);assert len(sql)==200
+ finally:
+  for guard in reversed(guards):guard.stop()
+ value={'schema':'workinants.privilege-public-v8-bounded-source-delta-proof.v1','status':'PASS','mechanical_production_files':production,'protocol_only_existing_function_changed':'expected_acl; new strict registered_public_schema_acl helper/known registration digest','coordinator_only_existing_functions_changed':['load_inputs (admit exact already-existing registration asset)','Runner.metadata (public callback and two-field safe comparison persistence)'],'metadata_query_spec_and_descriptors_all200':'AST_UNCHANGED; every query byte identical','denial_and_CREATE_position_functions':'AST_UNCHANGED','owned_existing_functions_changed':['verify_privilege_result (require closed typed new comparison only)'],'owned_main_final_reference_safety_cleanup':'ALL_AST_UNCHANGED','metadata_queries200_sha256':queries,'only_expected_value_changes':changes,'original122_and_all202_business_artifacts':'BYTE_IDENTICAL_AND_ACTUAL_GENERATOR_REPRODUCED','original649_live_files_unchanged':True,'SQL_parse':{'leaves':200,'statements':statements},'new_reviews':'PENDING','runtime':'NOT_RUN'};out=T/'privilege_public_acl_v8_bounded_delta_proof_20261120.json';assert not out.exists();out.write_text(json.dumps(value,indent=2)+'\n');print(json.dumps({'record':out.name,'sha256':H(out.read_bytes()),'status':'PASS','queries':200,'only_expected_changes':changes,'SQL_statements':statements}))
+if __name__=='__main__':main()

@@ -1,0 +1,72 @@
+{
+  "schema": "workinants.v7-public-schema-metadata-bounded-correction-plan.v1",
+  "author": "/root/catalog_v4_review",
+  "decision": "INDEPENDENT_PLAN_FOR_ROOT_ACK_NOT_IMPLEMENTATION_OR_RUNTIME_APPROVAL",
+  "finding": "PUBLIC_SCHEMA_EXPECTATION_OMITS_REGISTERED_SEPARATE_ACL",
+  "actual_basis": {
+    "run_id": "9577e42a-1a55-43e6-8784-80b23d4c7653",
+    "source_commit": "a519d61f678a48afa4bb0e38d74800ebf8000d67",
+    "source_tree": "0f2a26f12b654fb17d865d4ae563419c09069a39",
+    "packet_sha256": "d9a2eb23ae3cd4390c4364605c908d6d5fdd616d54934baa694c2d3c458b3051",
+    "packet_files": 649,
+    "approved_manifest_sha256": "28e196791cb9b3da604e5d20d895164f3fc5c55b9954480a05dc356c1cafbeb9",
+    "raw_outer_sha256": "82bf40535d1e99509923b6f97a668ba1b9ff35908e5a6041643f2842f4f7adb5",
+    "raw_child_sha256": "c8559e88ba98a021bae43d70b5d1cfe3bc3537d1b4698f87178169be263f2dfb",
+    "cleanup_sha256": "1db9974374e77a5102b966a2f4c77b84c8d9d64a7cc3ad2ac6c0ca0c3c5a5c9d",
+    "independent_audit": "v7_9577_independent_closed_evidence_audit_Catalog_20261120_v2.json",
+    "independent_audit_sha256": "1a361ef1070744672b1db655f16b0ab25e54f47fa694090ee0e6293ba072724f",
+    "pure_projection_proof": "v7_public_schema_projection_independent_catalog_20261120.json",
+    "pure_projection_proof_sha256": "0f4dc85199ffcfee9560db88594552120323231693f1b420fd7a3f3f96626b68"
+  },
+  "known_actual_origin": {
+    "stage": "PRIVILEGE_NEGATIVE_OPERATION",
+    "case": "CREATE-wa_app_runtime-public",
+    "phase": "METADATA",
+    "code": "SOURCE_NATIVE_METADATA_REQUIRED",
+    "metadata_query_sha256": "2ab1ae684af2f8645986c9fd37dc1829fa8308174fd1c520f326e33298732431",
+    "actual_retained": "Process received/exit0/bounded outputs/empty stderr/parsed exactBoolean shape; aggregate source comparison false; metadata global closure confirmed. No business actor/session or executed_SQL hash exists.",
+    "not_observed": "Individual returned Booleans and exact differing comparison fields; the default diagnostic-match receipt is unexecuted initial state, not actual malformed server stderr. Do not backfill these or older causes."
+  },
+  "proved_source_defect": {
+    "protocol": "scripts/privilege_ceiling_control_protocol_v7.py:expected_acl",
+    "protocol_sha256": "7f20d136bb3eed707e08887212dea9defde5537b357442a421aa5e4cabc94864",
+    "coordinator": "scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py:metadata_query_spec,Runner.metadata",
+    "coordinator_sha256": "571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f",
+    "representation": "collect_native_catalog.sql intentionally stores public ACL in native.public_schema_acl, separate from native.nonowner_acl. expected_acl reads only nonowner_acl, so it falsely predicts public USAGE false.",
+    "registered_baseline": "review-output/native-catalog/public-schema-registration.json explicitly preserves PUBLIC USAGE, pg_database_owner CREATE/USAGE and source-added wa_migrator CREATE/USAGE. Actual retained native.public_schema_owner and fullACL match it exactly; no PUBLIC CREATE exists.",
+    "projection": "Across all8 fixed CREATE cases, only the two public expectations differ: schema_usage false becomes true; schema_create remains false; every metadata SQL query byte and its SHA stays unchanged. This proves a source oracle omission consistent with the stopped comparison, not the discarded actual response bits."
+  },
+  "proposed_minimum_correction": [
+    "Use a NEW never-executed namespace/version for the bounded protocol/coordinator and owned source chain; preserve V7/fix2 source4/five/archive/validation, exact649 manifest/source/history, raw stopped evidence and audit/probe bytes first.",
+    "Add an explicit SCHEMA/public privilege projection from the separately retained native.public_schema_acl. Honor exact role or PUBLIC grant entries and verb; do not hardcode USAGE true, infer CREATE from USAGE, invent privileges or mutate/merge the native snapshot globally.",
+    "Keep the full-native source/comparison/identity admission mandatory. Bind public owner/fullACL to the already admitted registered public-schema asset before using the branch; any extra pure validation/import must be source-admitted before compilation. Unknown/missing/extra ACL/owner drift stops, not a permissive fallback. Existing nonpublic schema/table/column/function/role predicates remain exact.",
+    "Preserve the exact has_schema_privilege query and all strict CREATE refusal/source-position checks. A metadata match merely permits the existing restricted negative operation to run; it does not constitute a denial or qualify CREATE by itself.",
+    "For SCHEMA_CREATE metadata only, retain minimal fixed per-field comparison outcomes for schema_usage and schema_create before raising a source-comparison failure. A bounded exact structure may contain expected Boolean, observed Boolean-or-null and matched Boolean-or-null. Populate observed values only after exact typed shape validation; malformed/missing/unreceived values remain null. No arbitrary dictionaries, SQL text, settings, object values, exception strings, credentials or handles.",
+    "Keep the existing first-origin latch, sticky evidence failure and metadata/global closure timing. New comparison receipt failure must stop later cases, preserve the first origin, close all affected processes before any observer/next actor, and retain cleanup/reference integrity.",
+    "Refresh only actually affected source fingerprints, closed imports/snapshots, new archive/validation and whole packet inventories. The frozen200 business SQL/202 base artifacts,32workerACL,100guards, finite200/244 ceilings, source/data/diagnostic contracts and exact resource/credential/cleanup limits remain byte-exact. Root must review any claimed unavoidable metadata-only artifact change explicitly; do not silently rewrite base evidence or business SQL."
+  ],
+  "focused_environment_free_validation": [
+    "Re-run the pure8-case retained-native projection: public USAGE true/CREATE false from exact registration; all6 nonpublic CREATE expectations and all query bytes unchanged.",
+    "Use a projection-aware metadata process mock that derives has_schema_privilege results from the separate actual public ACL representation. Do not have the mock return metadata_query_spec expected values. Restoring only the old nonowner-only predicate must reproduce a public comparison rejection.",
+    "Keep public noCREATE denial strict. Inject missing/extra public ACL, PUBLIC CREATE, foreign owner, grant-option drift or wrong source registration and require the admitted public/native contract to reject; never repair ACL to make a mock pass.",
+    "Test exact typed per-field comparison receipts, Boolean/null rules, wrong/malformed/duplicate/nonfinite responses, canary secrecy, safe failure persistence, first primary and global closure before any later actor. Original partial bits stay UNOBSERVED.",
+    "Exercise the actual metadata method and reviewed fixed CREATE source diagnostic pipeline for the relevant public controls under process-only mocks; do not claim a new database denial from this mock. No unchanged full200 suite is required absent a concrete new dependency/failure.",
+    "Check source admission/real whole loader/new physical snapshots/PENDING gates and reproduction/parser/source-context checks affected by the actual delta. Preserve the accepted final-reference barriers and cleanup safety code; no unrelated wrapper rewrite."
+  ],
+  "closure_and_future_actual": "Require separate independent exact-source review and Root metadata closure, normal publication/current+committed packet pin, fresh literal and live preflight before any future actual. Source correction is not an automatic retry authorization. A future actual may record only its exercised subset.",
+  "coverage_limits": {
+    "completed_prior_finite_contrasts": 37,
+    "native42501": 34,
+    "allowlisted_P0001_grant_guard": 3,
+    "public_CREATE_business_SQL": "NOT_RUN",
+    "remaining_unqualified_business_contrasts_including_public": 163,
+    "native_fixture_controls": "40 validity-only, never owner-write/case promotion",
+    "definer_metadata": 16,
+    "issuer_protocols": 2,
+    "facets": 0,
+    "register_or_whole_case_promotion": false
+  },
+  "planner_actions": "Only closed files/source reads and a0.14s pure8-case projection with actual processes/network forbidden. No implementation, SQL/database/Docker/Git/network/resource/permission or liveRoot/status mutation.",
+  "Posture": "D",
+  "plain_English": "The public-room permission is on a separate list. Teach the checker to read that list and save which small check differed. Do not change the lock or pretend the stopped test tried the door."
+}

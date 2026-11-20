@@ -1,0 +1,25 @@
+"""Explicit focused V8 checks; never discovers inherited full200 tests."""
+from pathlib import Path
+import argparse,hashlib,io,json,runpy,socket,subprocess,sys,time,unittest
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+sys.path[:0]=[str(T/'offline-python'),str(C/'scripts'),str(C/'scripts/sql-review')]
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+def hashes():
+ old=json.loads((T/'privilege-public-acl-v8-before-author-20261120/preservation.json').read_bytes());files={str(C/name.replace('_v7','_v8').replace('-v7','-v8').replace('-V7','-V8'))for name in old['original_source4_sha256']}|{str(F/name.replace('_v7','_v8'))for name in old['original_five_sha256']};return{str(Path(name).relative_to(F)).replace('\\','/'):H(Path(name).read_bytes())for name in sorted(files)}
+def main():
+ p=argparse.ArgumentParser();p.add_argument('mode',choices=('pure','metadata','public-denials','loader','existing-metadata','existing-create','origin','registration'));p.add_argument('tag');args=p.parse_args();prefix=T/('privilege_public_acl_v8_checks_'+args.mode+'_'+args.tag);assert not prefix.with_suffix('.json').exists()and not prefix.with_suffix('.log').exists();before=hashes();started=time.monotonic();guards=[]
+ for name in('run','Popen','call','check_call','check_output'):
+  guard=patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN'));guard.start();guards.append(guard)
+ for owner,name in((socket,'create_connection'),(socket.socket,'connect')):
+  guard=patch.object(owner,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();guards.append(guard)
+ try:
+  m=runpy.run_path(str(C/'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v8.py'));suite=unittest.TestSuite()
+  selected={'registration':('PublicACLProjectionV8Tests',('test_admitted_registration_byte_drift_rejects_before_compile',)),'origin':('PublicACLProjectionV8Tests',('test_source_comparison_origin_survives_failed_comparison_persistence',)),'pure':('PublicACLProjectionV8Tests',('test_pure_eight_queries_unchanged_only_public_usage_projection_differs','test_public_registration_owner_full_typed_multiset_drift_rejects','test_two_field_comparison_exact_types_and_unknown_values')),'metadata':('PublicACLProjectionV8Tests',('test_actual_metadata_process_projection_and_old_predicate_restoration','test_actual_invalid_or_unreceived_metadata_keeps_null_and_stops','test_actual_wrong_comparison_and_IO_preserve_fixed_failure_and_closure')),'public-denials':('PublicACLProjectionV8Tests',('test_actual_two_public_negative_methods_keep_strict_CREATE_diagnostics',)),'loader':('PrivilegeCoordinatorTests',('test_real_whole_source_loader_precedes_any_process','test_all_source_mutants_reject_before_first_project_compile','test_unknown_project_import_never_falls_back_to_disk')),'existing-metadata':('MetadataV6Tests',('test_exact48_permission_component_combinations','test_metadata_sanitizer_allowlist_caps_and_multiseverity','test_metadata_nonboolean_duplicate_and_nonfinite_shape_reject','test_metadata_failure_receipts_and_closure_precede_any_actor')),'existing-create':('CreateProjectionV7Tests',('test_all_eight_exact_sources_accept_standalone_relation_cursor_and_no_position','test_restoring_only_old_position_function_rejects_the_same_eight','test_wrong_case_role_hash_run_template_or_extra_statement_cannot_bind','test_wrong_display_schema_caret_line_location_state_and_message_never_pass','test_ambiguous_malformed_unreceived_and_canary_diagnostics_are_fixed_receipts','test_same_state_alone_or_missing_source_identity_does_not_pass_CREATE','test_generator_import_stays_original_protocol_and_reproduces_all202'))}
+  cls,names=selected[args.mode]
+  for name in names:suite.addTest(m[cls](name))
+  stream=io.StringIO();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite)
+ finally:
+  for guard in reversed(guards):guard.stop()
+ log=prefix.with_suffix('.log');log.write_text(stream.getvalue(),encoding='utf8');after=hashes();value={'schema':'workinants.privilege-public-acl-v8-focused-offline-checks.v1','mode':args.mode,'status':'PASS'if result.wasSuccessful()and before==after else'FAIL','methods':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':round(time.monotonic()-started,3),'entry_source9_sha256':before,'exit_source9_sha256':after,'all_source9_preserved':before==after,'log_sha256':H(log.read_bytes()),'selection':'Explicit methods only; no unchanged full200 replay','process_network':'FORBIDDEN_EXCEPT_EXPLICIT_MOCKS','runtime':'NOT_RUN'};record=prefix.with_suffix('.json');record.write_text(json.dumps(value,indent=2)+'\n');print(json.dumps({'record':record.name,'sha256':H(record.read_bytes()),'status':value['status'],'methods':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':value['seconds']}));return 0 if value['status']=='PASS'else 1
+if __name__=='__main__':raise SystemExit(main())

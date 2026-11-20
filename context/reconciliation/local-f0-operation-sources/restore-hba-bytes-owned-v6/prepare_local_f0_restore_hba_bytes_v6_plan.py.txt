@@ -1,0 +1,265 @@
+"""Prepare NEW source-only literal restore inputs. No process, Docker or DB API.
+
+Commit/tree/full packet stay unpinned and execution stays held until root review.
+Import and --help read no helper code, source manifest or credential material.
+"""
+import argparse
+import copy
+import gzip
+import hashlib
+import io
+import json
+import math
+from pathlib import Path
+import re
+import tarfile
+import uuid
+
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'workinants-correction-pass'
+PROPOSAL='review-output/restore-control-rehearsal-v5/proposal.json'
+PROPOSAL_SHA='2dba2c292178cc971896ee8f2065445be5acae40aca86ba3944960ce337c6685'
+CONTENT_SHA='f9858f8b29eb5da030710fc9ab6bf7f400a11baedcf759dc69169eba1e26144e'
+IMAGE='docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1'
+SQL='review-output/foundation-application.review.sql'
+SQL_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+RUNTIME_FILES=('prisma.local-f0.config.mjs','scripts/sql-review/local-f0-migrate-guard.mjs','scripts/sql-review/local-f0-migrate-runner.mjs')
+MIGRATION='prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql'
+SCHEMA='prisma/review/foundation-candidate.prisma'
+LOCK='prisma/foundation/migrations/migration_lock.toml'
+HISTORY_HELPER='scripts/prepare-local-f0-history.py'
+HISTORY_HELPER_SHA='33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8'
+IMAGE_FILES=('scripts/sql-review/local_image_identity.py', 'scripts/sql-review/test_local_image_identity.py', 'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json')
+HELPER_FILES=('scripts/sql-review/run-first-rehearsal.py', 'scripts/sql-review/rehearsal-diagnostics.py', 'scripts/sql-review/run-local-f0-migrate.py', 'scripts/prepare-local-f0-history.py', 'scripts/sql-review/run-worker-control-rehearsal.py')
+HELPER_PINS={'scripts/sql-review/run-first-rehearsal.py': '279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e', 'scripts/sql-review/rehearsal-diagnostics.py': 'c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e', 'scripts/sql-review/run-local-f0-migrate.py': '4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f', 'scripts/prepare-local-f0-history.py': '33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8', 'scripts/sql-review/run-worker-control-rehearsal.py': '84b7268b4ef0f2d529927a267297981cec01a5166658f571c84c41e046bd893d'}
+EXTERNAL_FILES=('execute_local_f0_restore_hba_bytes_v6_20261120.py','local_f0_restore_hba_bytes_v6_operation_steps.py','prepare_local_f0_restore_hba_bytes_v6_plan.py','check_local_f0_restore_hba_bytes_v6_operation.py')
+
+
+class Refused(Exception): pass
+def need(value,code):
+    if not value:raise Refused(code)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def data(value):return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+
+
+def source_blob(relative,expected=None):
+    need(type(relative) is str and not Path(relative).is_absolute() and chr(92) not in relative and all(part not in ('','.','..') for part in relative.split('/')),'RESTORE_SOURCE_PATH')
+    path=(ROOT/relative).resolve();need(path.is_relative_to(ROOT.resolve()),'RESTORE_SOURCE_PATH')
+    raw=path.read_bytes()
+    if expected is not None:need(sha(raw)==expected,'RESTORE_SOURCE_ADMISSION_DRIFT')
+    return raw
+
+
+
+def preflight_v5_source_admission(read_source,approved_required,proposal,all_five):
+    """Data-only, exact V5 admission. No project code executes in this gate."""
+    prefix='context/reconciliation/local-f0-operation-sources/restore-preflight-v5/'
+    child_path='context/reconciliation/local-f0-restore-preflight-v5-source-validation.json'
+    owned_path='context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json'
+    sources={'scripts/prepare-restore-control-rehearsal-v5.py','scripts/check-restore-control-rehearsal-v5.py','scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md'}
+    def decode(raw):
+        def pairs(items):
+            result={}
+            for key,value in items:
+                need(key not in result,'V5_DUPLICATE_METADATA_KEY');result[key]=value
+            return result
+        return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'V5_NONFINITE_METADATA'))
+    def pins(value):
+        need(type(value) is dict and value and all(type(k) is str and type(v) is str and re.fullmatch('[0-9a-f]{64}',v) and not Path(k).is_absolute() and ':' not in k and chr(92) not in k and all(p not in ('','.','..') for p in k.split('/')) for k,v in value.items()),'V5_EXACT_PIN_MAP')
+        return value
+    child_raw=read_source(child_path);owned_raw=read_source(owned_path)
+    child=decode(child_raw);owned=decode(owned_raw)
+    need(type(approved_required) is bool and type(child) is dict and type(owned) is dict,'V5_METADATA_OBJECTS')
+    need(child.get('schema')=='workinants.restore-preflight-v5-child-source-validation.v1' and owned.get('schema')=='workinants.restore-preflight-v5-owned-source-validation.v1','V5_METADATA_SCHEMAS')
+    need(set(pins(child.get('sources_sha256')))==sources and child['sources_sha256']=={k:proposal['source_files_sha256'][k] for k in sources},'V5_CHILD_EXACT_THREE_SOURCES')
+    need(child.get('packet_source_files_sha256')==proposal['source_files_sha256'] and child.get('prepared_files_sha256')==proposal['prepared_files_sha256'],'V5_CHILD_CLOSED_PACKET')
+    need(type(all_five) is dict and len(all_five)==5 and owned.get('all_five_sources_sha256')==all_five,'V5_OWNED_EXACT_FIVE')
+    archive=pins(owned.get('archive_files_sha256'))
+    need(child.get('archive_files_sha256')==archive and all(k.startswith(prefix) for k in archive),'V5_EXACT_SHARED_ARCHIVE')
+    disk=ROOT/prefix
+    need(disk.is_dir() and not disk.is_symlink() and not any(p.is_symlink() for p in disk.rglob('*')),'V5_ARCHIVE_NO_SYMLINK')
+    need({p.relative_to(ROOT).as_posix() for p in disk.rglob('*') if p.is_file()}==set(archive),'V5_ARCHIVE_EXACT_FILE_SET')
+    result={child_path:hashlib.sha256(child_raw).hexdigest(),owned_path:hashlib.sha256(owned_raw).hexdigest()}
+    for relative,expected in archive.items():
+        need(hashlib.sha256(read_source(relative)).hexdigest()==expected,'V5_ARCHIVED_BYTE_DRIFT');result[relative]=expected
+    for name,expected in all_five.items():
+        need(type(name) is str and Path(name).name==name and type(expected) is str and re.fullmatch('[0-9a-f]{64}',expected),'V5_PHYSICAL_SOURCE_MAP')
+        need(hashlib.sha256((TASK/name).read_bytes()).hexdigest()==expected and archive.get(prefix+name+'.txt')==expected,'V5_PHYSICAL_FIVE_SNAPSHOT_DRIFT')
+    for name,expected in child['sources_sha256'].items():
+        need(hashlib.sha256(read_source(name)).hexdigest()==expected and archive.get(prefix+'root-sources/'+name+'.txt')==expected,'V5_CHILD_SOURCE_SNAPSHOT_DRIFT')
+    for meta in (child,owned):
+        need(meta.get('source_review_status') in ('PENDING','SOURCE_APPROVED'),'V5_DECLARED_SOURCE_REVIEW_STATE')
+        review=meta.get('independent_source_review')
+        need(type(review) is dict and set(review)=={'decision','path','sha256'} and review['decision'] in ('PENDING','SOURCE_APPROVED'),'V5_INDEPENDENT_REVIEW_STATE')
+        if approved_required:
+            need(meta['source_review_status']=='SOURCE_APPROVED' and review['decision']=='SOURCE_APPROVED','V5_SEPARATE_SOURCE_REVIEW_REQUIRED')
+            relative=review['path'];expected=review['sha256']
+            need(type(relative) is str and relative.startswith(prefix+'reviews/') and type(expected) is str and re.fullmatch('[0-9a-f]{64}',expected) and archive.get(relative)==expected,'V5_REVIEW_ARCHIVE_BINDING')
+            body=decode(read_source(relative))
+            need(type(body) is dict and body.get('decision')=='SOURCE_APPROVED','V5_REVIEW_DECISION_REQUIRED')
+        elif review['decision']=='PENDING':
+            need(review['path'] is None and review['sha256'] is None,'V5_PENDING_REVIEW_HAS_NO_AUTHORITY')
+    for name,expected in pins(proposal['source_files_sha256']).items():
+        need(hashlib.sha256(read_source(name)).hexdigest()==expected,'V5_PACKET_SOURCE_DRIFT');result[name]=expected
+    for name,expected in pins(proposal['prepared_files_sha256']).items():
+        need(Path(name).name==name,'V5_ARTIFACT_LEAF_REQUIRED')
+        relative='review-output/restore-control-rehearsal-v5/'+name
+        need(hashlib.sha256(read_source(relative)).hexdigest()==expected,'V5_PREPARED_ARTIFACT_DRIFT');result[relative]=expected
+    return result
+
+
+HBA_V6_FILES=('execute_local_f0_restore_hba_bytes_v6_20261120.py', 'local_f0_restore_hba_bytes_v6_operation_steps.py', 'prepare_local_f0_restore_hba_bytes_v6_plan.py', 'check_local_f0_restore_hba_bytes_v6_operation.py', 'pin_local_f0_restore_hba_bytes_v6_plan_20261120.py')
+ORIGINAL_V5_GENERATION={'root_files_sha256': {'context/reconciliation/local-f0-restore-preflight-v5-source-validation.json': '65841bbb0da225d3ced8c1a43eb5205f9ebd37b7721303219cb878f80922304d', 'context/reconciliation/local-f0-restore-preflight-owned-v5-source-validation.json': '90059cbc7d2b3e314a41832e0a334d09621e6d597325dff5c781457173530cc8', 'scripts/prepare-restore-control-rehearsal-v5.py': 'a2f0c0a406d305f33a6392a96b91b98f56ce5a1e6c0351f6362ac1f04d06086c', 'scripts/check-restore-control-rehearsal-v5.py': '02855c2d9744a26869c4388631a18c8b5dd241f9d3edb64dd89d92d3cc96d251', 'scripts/sql-review/RESTORE-CONTROL-REHEARSAL-V5.md': '02de96c76d567db5f58c88a7244c7715ec7172180050e4af1b1851ac6fc04b40', 'review-output/restore-control-rehearsal-v5/proposal.json': '2dba2c292178cc971896ee8f2065445be5acae40aca86ba3944960ce337c6685', 'review-output/restore-control-rehearsal-v5/trusted-identity-fixtures.sql': '4df630eefa7875a89e71ec039dcebca003ff6140b3a41171425f495a3d8936a7', 'review-output/restore-control-rehearsal-v5/fixture-trigger-restore-observe.sql': '0b030f37f1e32bc8ff410547b95d85a4ff955a7005d81b1f5375b9089132a6a8', 'review-output/restore-control-rehearsal-v5/source-customer.sql': '9110445ab6d188d9796d2d495b9e9574874bbc018658a0fed82267378ec71ba6', 'review-output/restore-control-rehearsal-v5/source-customer-observe.sql': 'ab05fd62664de42df4a123df35969037f626c8f58903e13f1ec7da2b773aa9da', 'review-output/restore-control-rehearsal-v5/identity-bootstrap.sql': 'ad98db21ff8efd096c6edac061546364e8a69f8c9ad5a09a1b906309dc993cc4', 'review-output/restore-control-rehearsal-v5/schedule.sql': '8b0c6731118f70c528703a2de1ce6a4418017e22182f547d9ebd01af138d527c', 'review-output/restore-control-rehearsal-v5/work-observe.sql': '27b3d8610ee521c6ffee2287cd9db90e5601f35e54439601e6e70734d6debfde', 'review-output/restore-control-rehearsal-v5/app-read.sql': 'c76984507b9fa82f26b5ed9550828fd627eb2cf5859b8e627a29840930b2736d', 'review-output/restore-control-rehearsal-v5/worker-read.sql': '0fbd2c2a534caff45f2387f1a7b88490a02a74624e5f4f9113fecbe28076904c', 'review-output/restore-control-rehearsal-v5/grant-write-acl-observe.sql': '0f330d91a958a36109340ba4454790bedaecae42c698646efb35f248860c7c9b', 'review-output/restore-control-rehearsal-v5/all-data-fingerprint.sql': 'daf86e8915f75fcca4790f0a798d9eec428a66d5eeb53388562c0a71df376b0e', 'review-output/restore-control-rehearsal-v5/business-data-fingerprint.sql': 'af77dc14e8d812e43e5d52bd44ea65cf303a003e9be32ff4252558dffdeca841', 'review-output/restore-control-rehearsal-v5/ledger-fingerprint.sql': 'fa915135283a9942f45a8def70ba8a272ed84b892252f3cd5e339371a30bdf7a', 'review-output/restore-control-rehearsal-v5/authority-fingerprint.sql': 'cc24890b24e7f4fd7d5ff8806400182a7021e292ab62be46822f0c3094fca8b7', 'review-output/restore-control-rehearsal-v5/backup-preflight.sql': '1ee9a6a0937b1ad194cec2ba482ec0df5cf834dfa29d30b2d93ecde5c4fcbc39', 'review-output/restore-control-rehearsal-v5/identity-revoke.sql': '130f69dcbbb503ef539496d65500ae20bfe0a854a454749a44ad497f3ecff277', 'review-output/restore-control-rehearsal-v5/identity-recover.sql': '3a67da2c75dbab562db26bcd83badb4f555087bc965dc9fea8f561b72c976e73', 'review-output/restore-control-rehearsal-v5/identity-bootstrap-observe.sql': 'eeb0ec3cee421b1be966d9c7ff7d72dbb151b6854be662e5e4928187ed748bfc', 'review-output/restore-control-rehearsal-v5/identity-revoke-observe.sql': 'a8c6b7bdbead8613d97ba7c25d30bc9fc600705240b20c8992c20b52228eab45', 'review-output/restore-control-rehearsal-v5/identity-recover-observe.sql': '72edfe7ec6bf86e92949306480047183e94344fdf0f7aedc4d66fb6e1e7f1a31', 'review-output/restore-control-rehearsal-v5/quarantine-admin.pg_hba.conf': 'c55f0c1efd829770ead9ad7c844a1c0d87adb0214aec1d06f8f294f82ad44d52', 'review-output/restore-control-rehearsal-v5/quarantine-identity.pg_hba.conf': '729ae637a23ab083c358bc88cad46420b30cc8662e735115e0cbb8a6aab8316e', 'review-output/restore-control-rehearsal-v5/quarantine-diagnostic.pg_hba.conf': '73c3fd27d3ed718054e1fefae000844d326d758b590e9471d376fa982b168993', 'review-output/restore-control-rehearsal-v5/source-backup.pg_hba.conf': 'b0cb749bf4b0c893ad22f7c533b0d64e73047300e235e34fa12a9a3639ee243f', 'review-output/restore-control-rehearsal-v5/README.md': '53b405a60fef2961b6b982268c8277d9c3512c303cf2d55ecbe6d0aa9c2ba3e1'}, 'external_five_sha256': {'execute_local_f0_restore_preflight_v5_20261120.py': '64c96f9a085abeae6c5155e51b69db3fb899b20fc3b5b8676f139f2d304ecb35', 'local_f0_restore_preflight_v5_operation_steps.py': 'ed624fa73f26bc2aa0f5ff0deb9babd5eb35aa34372123d84cd8b2a8229005e4', 'prepare_local_f0_restore_preflight_v5_plan.py': '390e7a52f5baf681ccef5a81738e47aa1d1e9786aa3d51bf53be915c19d45e9b', 'check_local_f0_restore_preflight_v5_operation.py': 'ddf9b45ff51c092772b2a0acb517caadeee68ebb6b32ba5c4e16b2bbf38fc561', 'pin_local_f0_restore_preflight_v5_plan_20261120.py': '1074909f87538d86b255a1ba95bdbe1742b14211cfd346034d9cf579b4fb338c'}, 'proposal_sha256': '2dba2c292178cc971896ee8f2065445be5acae40aca86ba3944960ce337c6685', 'content_sha256': 'f9858f8b29eb5da030710fc9ab6bf7f400a11baedcf759dc69169eba1e26144e'}
+
+def hba_v6_source_admission(read_source,approved_required,all_five):
+    """Separate V6 executable authority; never rebind V5 generation hashes."""
+    prefix='context/reconciliation/local-f0-operation-sources/restore-hba-bytes-owned-v6/'
+    metadata_path='context/reconciliation/local-f0-restore-hba-bytes-owned-v6-source-validation.json'
+    def relative(path):
+        need(type(path)is str and path and not Path(path).is_absolute()and ':'not in path and chr(92)not in path and all(x not in ('','.','..')for x in path.split('/')),'V6_SOURCE_PATH')
+        return path
+    def decode(raw):
+        need(type(raw)is bytes and len(raw)<=16*1024*1024,'V6_METADATA_BYTES')
+        def pairs(items):
+            result={}
+            for key,value in items:need(key not in result,'V6_DUPLICATE_METADATA_KEY');result[key]=value
+            return result
+        value=json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'V6_NONFINITE_METADATA'))
+        budget=[300000]
+        def typed(item,depth=0):
+            budget[0]-=1;need(depth<=64 and budget[0]>=0,'V6_METADATA_BOUNDS')
+            if type(item)is dict:
+                need(all(type(k)is str for k in item),'V6_METADATA_KEYS')
+                for child in item.values():typed(child,depth+1)
+            elif type(item)is list:
+                for child in item:typed(child,depth+1)
+            else:need(item is None or type(item)in(str,int,bool)or type(item)is float and math.isfinite(item),'V6_METADATA_TYPES')
+        typed(value);return value
+    def pins(value,code):
+        need(type(value)is dict and 0<len(value)<=4096 and all(type(h)is str and re.fullmatch('[0-9a-f]{64}',h)for h in value.values()),code)
+        for path in value:relative(path)
+        return value
+    need(type(approved_required)is bool and type(all_five)is dict and set(all_five)==set(HBA_V6_FILES),'V6_EXACT_FIVE_REQUIRED')
+    for name,h in all_five.items():need(type(h)is str and re.fullmatch('[0-9a-f]{64}',h)and hashlib.sha256((TASK/name).read_bytes()).hexdigest()==h,'V6_PHYSICAL_FIVE_DRIFT')
+    raw=read_source(metadata_path);value=decode(raw)
+    fields={'schema','source_review_status','all_five_sources_sha256','original_v5_generation','archive_files_sha256','independent_source_review','Root_source_review','runtime','Posture'}
+    need(type(value)is dict and set(value)==fields and value['schema']=='workinants.restore-hba-bytes-owned-v6-source-validation.v1'and value['runtime']=='NOT_RUN_NEW_SOURCE'and value['Posture']=='D','V6_METADATA_SCHEMA')
+    need(value['all_five_sources_sha256']==all_five and value['original_v5_generation']==ORIGINAL_V5_GENERATION,'V6_SEPARATE_GENERATION_BINDING')
+    result={metadata_path:hashlib.sha256(raw).hexdigest()};archive=pins(value['archive_files_sha256'],'V6_ARCHIVE_MAP')
+    need(all(p.startswith(prefix)for p in archive),'V6_ARCHIVE_PREFIX')
+    disk=ROOT/prefix;need(disk.is_dir()and not disk.is_symlink()and not getattr(disk.lstat(),'st_file_attributes',0)&1024,'V6_ARCHIVE_DIRECTORY')
+    entries=list(disk.rglob('*'));need(not any(p.is_symlink()or getattr(p.lstat(),'st_file_attributes',0)&1024 for p in entries),'V6_ARCHIVE_LINK')
+    need({p.relative_to(ROOT).as_posix()for p in entries if p.is_file()}==set(archive),'V6_CLOSED_ARCHIVE_SET')
+    for path,h in archive.items():
+        blob=read_source(path);need(type(blob)is bytes and hashlib.sha256(blob).hexdigest()==h,'V6_ARCHIVE_BYTE_DRIFT');result[path]=h
+    for name,h in all_five.items():need(archive.get(prefix+name+'.txt')==h,'V6_EXACT_NEW_FIVE_SNAPSHOTS')
+    # Original metadata, three child sources and all25 prepared artifacts remain
+    # a different immutable generation, even while the new owning code changes.
+    for path,h in ORIGINAL_V5_GENERATION['root_files_sha256'].items():
+        blob=read_source(relative(path));need(hashlib.sha256(blob).hexdigest()==h,'V6_ORIGINAL_GENERATION_DRIFT');result[path]=h
+    for name,h in ORIGINAL_V5_GENERATION['external_five_sha256'].items():need(hashlib.sha256((TASK/name).read_bytes()).hexdigest()==h,'V6_ORIGINAL_PHYSICAL_FIVE_DRIFT')
+    need(value['source_review_status']in ('PENDING','SOURCE_APPROVED'),'V6_SOURCE_REVIEW_STATE')
+    for key in ('independent_source_review','Root_source_review'):
+        review=value[key];need(type(review)is dict and set(review)=={'decision','path','sha256','operator_sources_sha256'}and review['operator_sources_sha256']==all_five,'V6_EXACT_REVIEW_FIVE_MAP')
+        need(review['decision']in ('PENDING','SOURCE_APPROVED'),'V6_REVIEW_DECISION_STATE')
+        if approved_required:need(value['source_review_status']=='SOURCE_APPROVED'and review['decision']=='SOURCE_APPROVED','V6_SEPARATE_SOURCE_REVIEW_REQUIRED')
+        if review['decision']=='PENDING':need(review['path']is None and review['sha256']is None,'V6_PENDING_HAS_NO_AUTHORITY')
+        else:
+            path=relative(review['path']);need(path.startswith(prefix+'reviews/')and archive.get(path)==review['sha256'],'V6_REVIEW_ARCHIVE_BINDING');body=decode(read_source(path))
+            need(type(body)is dict and body.get('decision')=='SOURCE_APPROVED'and body.get('operator_sources_sha256')==all_five,'V6_REVIEW_EXACT_SOURCE_DECISION')
+    return result
+
+
+def prepare(baseline_path,baseline_sha,run_id=None):
+    baseline_path=Path(baseline_path).resolve()
+    need(baseline_path.is_relative_to(TASK) and not baseline_path.is_relative_to(ROOT),'EXTERNAL_BASELINE_PATH')
+    raw=baseline_path.read_bytes();need(sha(raw)==baseline_sha,'REVIEWED_BASELINE_SHA')
+    baseline=json.loads(raw)
+    need(baseline['purpose']=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and baseline['image']==IMAGE and baseline['database']=='wa_p0c_rehearsal','BASELINE_SCOPE')
+    need(baseline['review_status']=='APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT','REVIEWED_BASELINE_REQUIRED')
+    current={path:source_blob(path,value) for path,value in baseline['packet_files_sha256'].items()}
+    need(sha(''.join(path+'\0'+baseline['packet_files_sha256'][path]+'\n' for path in sorted(baseline['packet_files_sha256'])).encode())==baseline['packet_sha256'],'BASELINE_PACKET_AGGREGATE')
+    proposal_raw=(ROOT/PROPOSAL).read_bytes();need(sha(proposal_raw)==PROPOSAL_SHA,'APPROVED_RESTORE_PROPOSAL')
+    proposal=json.loads(proposal_raw);need(proposal['source_only_packet_sha256']==CONTENT_SHA and proposal['status']=='NOT_RUN','RESTORE_PROPOSAL_SCOPE')
+    for name,expected in proposal['source_files_sha256'].items():need(sha((ROOT/name).read_bytes())==expected,'RESTORE_PROPOSAL_INPUT_DRIFT')
+    for name,expected in proposal['prepared_files_sha256'].items():need(sha((ROOT/'review-output/restore-control-rehearsal-v5'/name).read_bytes())==expected,'RESTORE_ARTIFACT_DRIFT')
+    all_five={name:sha((TASK/name).read_bytes()) for name in (*EXTERNAL_FILES,'pin_local_f0_restore_hba_bytes_v6_plan_20261120.py')}
+    admitted=preflight_v5_source_admission(source_blob,False,proposal,ORIGINAL_V5_GENERATION['external_five_sha256'])
+    admitted.update(hba_v6_source_admission(source_blob,False,all_five))
+    for artifact in baseline['catalog']['assets'].values():need(sha((ROOT/artifact['path']).read_bytes())==artifact['sha256'],'BASELINE_CATALOG_ASSET_DRIFT')
+    need(sha((ROOT/SQL).read_bytes())==sha((ROOT/MIGRATION).read_bytes())==SQL_SHA,'CANONICAL_SQL')
+    identity=str(uuid.uuid4()) if run_id is None else run_id
+    need(type(identity) is str and str(uuid.UUID(identity))==identity and uuid.UUID(identity).version==4,'FRESH_RUN_UUID4')
+    stem=identity[:8];name='wa-p0c-'+stem+'-restore-source';target='wa-p0c-'+stem+'-restore-target';stage='wa-p0c-'+stem+'-restore-staging'
+    directory=TASK/('local-f0-restore-plan-'+stem);out=TASK/('local-f0-restore-'+stem)
+    need(not directory.exists() and not out.exists(),'FRESH_PLAN_AND_EVIDENCE_REQUIRED')
+    old=baseline['migration_targets']['ok'];old_raw=Path(old['manifest_path']).read_bytes();need(sha(old_raw)==old['manifest_sha256'],'BASELINE_NESTED_PLAN')
+    nested=json.loads(old_raw)
+    nested['run_id']=identity;nested['target'].update(container_name=name,volume_name=name+'-data',bootstrap_secret_host_path=str(out/'private/ok-bootstrap-password'))
+    nested['target']['labels']={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':identity}
+    nested['source']['runtime_files_sha256']={path:sha((ROOT/path).read_bytes()) for path in RUNTIME_FILES}
+    need(nested['source']['integrated_sql_sha256']==SQL_SHA and nested['source']['foundation_schema_sha256']==sha((ROOT/SCHEMA).read_bytes()),'BASELINE_SOURCE_BINDING')
+    need(sha(Path(baseline['tool_archive']).read_bytes())==baseline['tool_archive_sha256'],'BASELINE_TOOL_ARCHIVE')
+    closure=json.loads((ROOT/'context/reconciliation/local-f0-tooling/prisma-tools-closure.json').read_bytes())
+    need(nested['tools']['files_sha256']==closure['tools_files_sha256'],'TOOL_CLOSURE_BINDING')
+    snapshot={path:(ROOT/path).read_bytes() for path in (MIGRATION,LOCK,SCHEMA,*RUNTIME_FILES)}
+    nested_raw=data(nested)
+    # Every runtime helper is admitted before the pure history helper compiles.
+    helper_hashes={path:sha(source_blob(path,HELPER_PINS[path])) for path in HELPER_FILES}
+    helper_raw=source_blob(HISTORY_HELPER,HISTORY_HELPER_SHA)
+    helper={'__file__':str(ROOT/HISTORY_HELPER),'__name__':'_restore_guarded_source_history'}
+    exec(compile(helper_raw,str(ROOT/HISTORY_HELPER),'exec'),helper)
+    generated,history=helper['prepare_plan'](nested,nested_raw,snapshot[MIGRATION],snapshot[SCHEMA],{path:snapshot[path] for path in RUNTIME_FILES},SQL_SHA)
+    need(set(generated)=={MIGRATION,LOCK} and all(generated[path]==snapshot[path] for path in generated),'CANONICAL_HISTORY_FILES_MUST_STAY_IDENTICAL')
+    snapshot['prisma/foundation/history-manifest.json']=data(history)
+    master=copy.deepcopy(baseline)
+    master.update(purpose='LOCAL_F0_RESTORE_HBA_BYTES_V6_REHEARSAL',run_id=identity,source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_files_sha256={},packet_sha256='TO_BE_PINNED',
+        evidence_directory=str(out),targets=[{'name':name,'volume':name+'-data','kind':'ok'}],review_status='PENDING_OPERATIONAL_REVIEW',status='SOURCE_PREPARED_NOT_EXECUTED')
+    master['migration_targets']={'ok':{'manifest_path':str(directory/'ok-migration-manifest.json'),'manifest_sha256':sha(nested_raw),'source_snapshot':str(directory/'source-ok'),
+        'source_files_sha256':{path:sha(value) for path,value in snapshot.items()},'source_archive':str(directory/'source-ok.tar.gz')}}
+    external={path:sha((TASK/path).read_bytes()) for path in EXTERNAL_FILES}
+    master['wrapper_sha256']=external[EXTERNAL_FILES[0]];master['steps_sha256']=external[EXTERNAL_FILES[1]]
+    master['restore']={'proposal_sha256':PROPOSAL_SHA,'content_sha256':CONTENT_SHA,'restored':{'name':target,'volume':target+'-data'},'staging':{'name':stage},
+        'archive_path':str(out/'private/restore01-base.tar'),'external_files_sha256':external}
+    master['cleanup']='Exact three created CIDs/names/run-labels and two volume names/run-labels/CreatedAt only; source/staging/target private copies disappear with owned resources. Delete only exact owner-DACL private ok-bootstrap-password and restore01-base.tar, then empty private directory; independently confirm all five resource names and private paths absent. Retain cached image, previous reports, reviewed sources and tools.'
+    master['storage']=copy.deepcopy(proposal['required_literal_resource_manifest'])
+    master['allowed_catalog_operations']=['One genuine source-only guarded canonical Prisma deploy/finalize/full native+oracle+ledger PASS before synthetic facts.',
+        'Only frozen synthetic source Customer/schedule/private-Identity bootstrap and finite source SELECT positives.',
+        'Postgres-only source quiescence, real WALstream physical backup and two pg_verifybackup runs; protected archive outside Git.',
+        'Empty owned target volume staged without initdb/bootstrap/migration; admin-only restore and exact parity before transition.',
+        'Six independent target credentials; actual synthetic Identity revoke/recover; five quarantined SELECT/denial probes; re-quarantine.',
+        'No production serving, worker loop, real Privacy replay, owner-adapter or full RESTORE01 qualification.']
+    master['guarded_history_helper_sha256']=HISTORY_HELPER_SHA
+    master['restore_runtime_helpers_sha256']=helper_hashes
+    inventory=set(admitted)|set(HELPER_FILES)|set(IMAGE_FILES)|set(current)|set(proposal['source_files_sha256'])|{PROPOSAL,HISTORY_HELPER}|{'review-output/restore-control-rehearsal-v5/'+name for name in proposal['prepared_files_sha256']}
+    master['prepared_source_file_inventory_sha256']={path:sha(source_blob(path)) for path in sorted(inventory)}
+    need(all(master['prepared_source_file_inventory_sha256'][path]==helper_hashes[path] for path in HELPER_FILES),'RUNTIME_HELPER_CHANGED_DURING_PREPARATION')
+    master['execution_hold']='Source commit/tree/full closed Git packet and exact external hashes must be pinned and independently reviewed; no execution from this preparation output.'
+    # All checks finish before the first NEW file is created. No existing source,
+    # migration, old operator, plan or evidence file is overwritten.
+    directory.mkdir(exist_ok=False);(directory/'ok-migration-manifest.json').write_bytes(nested_raw)
+    for path,value in snapshot.items():
+        dest=directory/'source-ok'/path;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(value)
+    archive=io.BytesIO()
+    with gzip.GzipFile(fileobj=archive,mode='wb',mtime=0) as stream:
+        with tarfile.open(fileobj=stream,mode='w',format=tarfile.PAX_FORMAT) as tar:
+            for path,value in sorted(snapshot.items()):
+                info=tarfile.TarInfo(path);info.size=len(value);info.mode=0o600;info.mtime=0;tar.addfile(info,io.BytesIO(value))
+    source_archive=archive.getvalue();(directory/'source-ok.tar.gz').write_bytes(source_archive)
+    master['migration_targets']['ok']['source_archive_sha256']=sha(source_archive)
+    (directory/'operation-manifest.json').write_bytes(data(master))
+    return {'status':'PREPARED_SOURCE_ONLY_HELD','run_id':identity,'operation_manifest':str(directory/'operation-manifest.json'),'operation_manifest_sha256':sha(data(master)),
+        'source_archive_sha256':sha(source_archive),'source_files':len(snapshot),'database_contacted':False,'resources_created':False}
+
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--prepare-plan',action='store_true');parser.add_argument('--baseline-manifest',type=Path);parser.add_argument('--baseline-sha256');parser.add_argument('--run-id')
+    args=parser.parse_args(argv)
+    try:
+        need(args.prepare_plan and args.baseline_manifest is not None and args.baseline_sha256 is not None,'EXPLICIT_REVIEWED_BASELINE_REQUIRED')
+        value=prepare(args.baseline_manifest,args.baseline_sha256,args.run_id);print(json.dumps(value));return 0
+    except BaseException as error:
+        print(json.dumps({'status':'HELD','code':str(error) if isinstance(error,Refused) else 'SOURCE_PREPARATION_REFUSED','raw_output_discarded':True}));return 1
+
+
+if __name__=='__main__':raise SystemExit(main())

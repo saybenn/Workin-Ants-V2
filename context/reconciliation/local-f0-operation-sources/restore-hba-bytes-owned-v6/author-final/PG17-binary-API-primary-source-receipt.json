@@ -1,0 +1,18 @@
+{
+  "schema": "workinants.restore-HBA-v6-PG17-primary-source-verification.v1",
+  "verified_before_new_verifier_SQL": true,
+  "utc": "2026-11-20T13:57:12.903275+00:00",
+  "sources": [
+    {
+      "url": "https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADMIN-GENFILE",
+      "paraphrase": "pg_read_binary_file returns bytea and performs no text-encoding checks. Its existing direct postgres use needs no new grant."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/functions-binarystring.html",
+      "paraphrase": "sha256(bytea) returns a bytea digest. encode with hex produces lowercase hexadecimal text. octet_length(bytea) reports byte count."
+    }
+  ],
+  "planned_exact_expression": "encode(sha256(pg_read_binary_file(current_setting('hba_file'))),'hex') and octet_length over the same binary file value; retain pg_hba_file_rules error absence",
+  "limits": "Documentation/type/source validation only. No server query executed; runtime NOT_RUN.",
+  "network_scope": "Official PostgreSQL17 documentation only; no Git/Docker/DB/network process boundary."
+}

@@ -1,0 +1,35 @@
+"""Minimal current-nine/snapshot/PENDING source admission; no tool decompression."""
+from pathlib import Path
+from unittest.mock import Mock,patch
+import builtins,hashlib,json,runpy,socket,subprocess,sys,tempfile
+T=Path(__file__).resolve().parent;F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+sys.path[:0]=[str(T/'offline-python'),str(C/'scripts'),str(C/'scripts/sql-review')]
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+def main():
+ child_path='context/reconciliation/privilege-ceiling-v8-source-validation.json';owned_path='context/reconciliation/local-f0-privilege-ceiling-owned-v8-source-validation.json';child=json.loads((C/child_path).read_bytes());owned=json.loads((C/owned_path).read_bytes());assert child['review_gate']==child['independent_source_review']['decision']==child['Root_source_review']['decision']=='PENDING';assert all(owned[key]['decision']=='PENDING'for key in('independent_safety_sql_review','independent_projection_review','Root_source_review'))
+ for name,wanted in child['source4_sha256'].items():assert H((C/name).read_bytes())==wanted
+ for name,wanted in owned['operator_sources_sha256'].items():assert H((F/name).read_bytes())==wanted and (F/name).read_bytes()==(C/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v8'/(name+'.txt')).read_bytes()
+ guards=[]
+ for name in('run','Popen','call','check_call','check_output'):
+  g=patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN'));g.start();guards.append(g)
+ for obj,name in((socket,'create_connection'),(socket.socket,'connect')):
+  g=patch.object(obj,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));g.start();guards.append(g)
+ try:
+  m=runpy.run_path(str(C/'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v8.py'));world=m['World']()
+  with tempfile.TemporaryDirectory(prefix='v8-explicit-pending-',dir=F)as tmp:
+   directory=Path(tmp);plan=m['plans'](world,directory);root=world.offline_root;raw=(C/child_path).read_bytes();(root/child_path).write_bytes(raw);pins=plan['packet_files_sha256'];pins[child_path]=H(raw);plan['packet_sha256']=H(''.join(name+'\0'+pins[name]+'\n'for name in sorted(pins)).encode());compiler=Mock(side_effect=AssertionError('FIRST_COMPILE_FORBIDDEN'))
+   with patch.dict(m['M']['load_inputs'].__globals__,compile_closed=compiler):
+    try:m['M']['load_inputs'](plan)
+    except m['M']['Held']as error:child_code=error.code
+    else:raise AssertionError('PENDING_CHILD_ACCEPTED')
+   assert child_code=='V8_SOURCE_REVIEW_REQUIRED';compiler.assert_not_called();assert not(directory/'remaining-results').exists()
+  plans_before={path.name for path in F.glob('local-f0-privilege-ceiling-plan-*')};prep=runpy.run_path(str(F/'prepare_local_f0_privilege_ceiling_v8_plan.py'));baseline=F/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json'
+  with patch.object(builtins,'compile',side_effect=AssertionError('FIRST_COMPILE_FORBIDDEN')):
+   try:prep['prepare'](baseline,H(baseline.read_bytes()))
+   except prep['Refused']as error:prep_code=str(error)
+   else:raise AssertionError('PENDING_PREPARER_ACCEPTED')
+  assert prep_code=='V8_SOURCE_REVIEW_REQUIRED';assert {path.name for path in F.glob('local-f0-privilege-ceiling-plan-*')}==plans_before
+ finally:
+  for g in reversed(guards):g.stop()
+ value={'schema':'workinants.privilege-public-v8-pending-and-snapshots.v1','status':'PASS','actual_child_loader_pending_refusal':child_code,'actual_preparer_pending_refusal':prep_code,'source4_sha256':child['source4_sha256'],'physical_archived_five_sha256':owned['operator_sources_sha256'],'project_compiles':0,'process_network_calls':0,'source_gates':'PENDING_UNCHANGED','full_tool_graph_and_positive_pinner':'DEFERRED_DURING_ROOT_ACTUAL_HOLD','runtime':'NOT_RUN'};out=T/'privilege_public_acl_v8_pending_and_snapshots_20261120.json';assert not out.exists();out.write_text(json.dumps(value,indent=2)+'\n');print(json.dumps({'record':out.name,'sha256':H(out.read_bytes()),'status':'PASS','preparer':prep_code,'loader':child_code}))
+if __name__=='__main__':main()

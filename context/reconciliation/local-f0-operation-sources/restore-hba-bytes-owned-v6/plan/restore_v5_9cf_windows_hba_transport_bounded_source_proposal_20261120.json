@@ -1,0 +1,55 @@
+{
+  "schema": "workinants.restore-9cf-Windows-HBA-transport-bounded-source-proposal.v1",
+  "finding": "RESTORE9CF-HBA-TEXT-TRANSPORT-01",
+  "decision": "REQUEST_INDEPENDENT_ACTUAL_EVIDENCE_AND_BOUNDED_PLAN_REVIEW",
+  "actual": {
+    "run_id": "9cf7cce2-992b-4df9-a309-14ed9e15e6e0",
+    "source_commit": "11a1fa1f5747877270ac85d260ed5d410c04f999",
+    "source_tree": "27c8900c2ab20d1050776bdc6580b1c7399cb431",
+    "packet_sha256": "3e4f1b9b682171f3a4348aa40328cc2d9f9b8b3057885a25d7e50f0309136c06",
+    "raw_sha256": "5da488233fb8e7110b9b141399ab318b3af402fd7d192239ac3c8c2c54312cf0",
+    "known_exit": {"session": 44373, "exit_code": 1},
+    "first_failure": {"stage": "RESTORE_SOURCE_VERIFYBACKUP", "code": "RESTORE_BACKUP_SOURCE_HBA"},
+    "independent_cleanup_sha256": "253c637d1f112e7038f3e936812918b4f57a4fabc0d2dd2cadca46582746865b",
+    "limits": "Archive bytes/hash/difference were not retained and private archive was deleted by controlled cleanup. No target/staging/credential rotation/generation proof. Source backup and verifier reached successful process boundaries before archive validation, but backup/verify milestones and selected assertions remain NOT_RUN because complete artifact validation failed."
+  },
+  "source_reproduction": {
+    "record": "restore_v5_9cf_Windows_text_stdin_public_HBA_probe_20261120.json",
+    "sha256": "70a49b0cc2270d4ec0431d83e26eb8d4c96b4f978ab09824ba64779d5bc67f79",
+    "proven": "Actual unchanged held Core.command with only public pinned HBA and an actual non-Docker Python byte sink changes LF445 bytes to CRLF457 bytes on this Windows/Python3.12.10 host. Binary stdin control preserves exact445 bytes. No credential/archive/database/SQL/network call.",
+    "analysis": "write_hba and stage_restore inline HBA write both use text-mode stdin. verify_hba embeds the same multiline HBA in SQL sent through the same translating stdin, so its equality can agree with changed bytes. validate_backup_archive correctly compares against original pinned LF bytes. This is a proven source defect consistent with the stop; complete historical cause remains unobserved.",
+    "primary_reference": "https://docs.python.org/3.12/library/subprocess.html#frequently-used-arguments"
+  },
+  "proposed_author": "/root/privilege_mount_v2_review",
+  "proposed_independent_reviewer": "/root/review_track_ports",
+  "preserve": "All1200 packet inputs, original V5 five helpers/1045 archive/25 artifacts, all18 closed safe outputs, manifest stages, reports and cleanup/probe evidence before edits. Keep original and newer work and historic unknown causes unchanged.",
+  "new_namespace": {
+    "external_five": [
+      "execute_local_f0_restore_hba_bytes_v6_20261120.py",
+      "local_f0_restore_hba_bytes_v6_operation_steps.py",
+      "prepare_local_f0_restore_hba_bytes_v6_plan.py",
+      "check_local_f0_restore_hba_bytes_v6_operation.py",
+      "pin_local_f0_restore_hba_bytes_v6_plan_20261120.py"
+    ],
+    "new_owned_validation": "context/reconciliation/local-f0-restore-hba-bytes-owned-v6-source-validation.json",
+    "new_owned_archive": "context/reconciliation/local-f0-operation-sources/restore-hba-bytes-owned-v6",
+    "generation_rule": "Retain existing V5 three child/generator sources, approved V5 metadata, original physical five and all25 generated artifacts byte-exact as a separate original generation closure. New executable V6 five require their own mandatory exact PENDING/independent/Root source gate before compiling any helper. No old source alias or hash rebinding; no historical packet reuse."
+  },
+  "bounded_change": [
+    "Use one strict binary HBA writer for both running-source reload and staging-admin installation. Input must be the exact admitted UTF8 bytes of one of the four fixed HBA files; fixed Docker argv/current immutable created CID/run-owned path/owner/mode remain unchanged. Capture byte output, require integer zero exit and empty stdout/stderr, and discard all raw failures. No global command(), SQL or credential transport changes.",
+    "Replace multiline literal equality in verify_hba with source SHA256 plus byte-length comparison over pg_read_binary_file(hba_file), retaining the no-pg_hba_file_rules-error requirement. Use only hash/length literals in the SQL; do not normalize either actual or expected bytes. Keep the reviewed role, exact file and parser/isolation expectations. Verify the documented PG17 SHA256(bytea) API or use an equally exact reviewed byte-hash process boundary.",
+    "Keep validate_backup_archive strict HBA byte equality and all safe member, inert configuration, required files/WAL, protected DACL and system-identity checks unchanged. Before its HBA assertion, retain only a fixed typed comparison with expected source hash/length, presence, observed safe bounded length/hash and equality outcome; never raw file bytes/configuration.",
+    "Retain a minimal typed pg_basebackup process outcome before asserting its existing zero/empty stdout/empty stderr requirements, so a later artifact validation stop does not erase its observed boundary. This receipt cannot qualify the incomplete backup milestone.",
+    "Only HBA writer/verifier, staging call site, minimal backup/comparison receipts and required new namespace/fingerprint/source-admission snapshots, focused tests and explanatory records may change. No canonical SQL, fixtures, 25 artifacts, A-D guards,32 worker ACL, image, resource/storage/secret limits, original grantor, transaction semantics, timeouts, generation rules or cleanup scope change."
+  ],
+  "required_focused_evidence": [
+    "Actual Windows public-byte sink reproduces old445-to457 conversion; corrected binary path preserves445. All Docker/database boundaries mocked/forbidden. No protected archive or credentials used in the reproducer.",
+    "Actual writer/source and staging call sites use binary pinned bytes. Restoring either old text path reproduces byte drift or fails regression. Positive and negative source-hash/length/parser checks; CRLF/same semantic rules, altered whitespace, injected line, malformed/unknown results and canary data must not pass exact-byte validation.",
+    "New archive comparison receipt precedes rejection and has an exact bounded schema; intended fixed fields only, no raw config/error/credentials/handles. Existing strict archive validator still rejects changed/missing/unsafe entries and signals.",
+    "First stop and sticky IO retained; all eligible finalization/global closure/cleanup runs. No later physical stage or generation scenario after an unexpected result.",
+    "Actual new prepare/source gate/pinner/entry composition checks mandatory pending-review rejection, exact new-five/old-V5 separation, current+committed maps and original packet reproduction. Do not replace owning paths with success factories or merely mock the high-level verifier.",
+    "Prove unchanged remaining ordinary-function ASTs and exact V5 generation closure/artifact hashes. Repeat affected existing checks only; broaden for a concrete regression gap. All new gates PENDING until separate nonauthor review."
+  ],
+  "runtime": "NOT_RUN_NEW_SOURCE",
+  "Posture": "D"
+}

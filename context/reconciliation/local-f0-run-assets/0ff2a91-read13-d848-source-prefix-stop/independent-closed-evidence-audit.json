@@ -1,0 +1,278 @@
+{
+  "schema": "workinants.read13-d848-independent-closed-evidence-audit.v1",
+  "decision": "CLOSED_STOP_CONFIRMED_NO_ASSERTION_QUALIFICATION",
+  "utc": "2026-11-20T15:25:31.331249+00:00",
+  "reviewer": "/root/privilege_mount_v2_review",
+  "authorship": "Not author of Read13 source/ownedV2; source author Restricted and source/literal peer Catalog. Author of older Six evidence parser and RestoreV6, neither supplies this run with behavioral evidence.",
+  "identity": {
+    "run_id": "d848e852-f857-4c03-8288-4893e2e8aa0c",
+    "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+    "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+    "packet_sha256": "7720bb7deb6c5b190d04482be6f263cb45622cba36fe06b548ecddcfc164284f",
+    "known_session": 59177,
+    "known_exit": 1
+  },
+  "closed_inputs_sha256": {
+    "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-remaining-app-read13-owned-v2-plan-d848e852\\operation-manifest.json": "98b82ea09b1c606a7c8cb353cb2d2b6fb51c0c3aa76be51d57f7cbe5dd3c2f8f",
+    "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-remaining-app-read13-owned-v2-d848e852\\run-evidence.json": "95321fa01bb48db9f69e7d47082e63da57808f625a2a7b5eb0f9110b7f58da53",
+    "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\0ff_read_independent_cleanup_20261120.json": "88bb17eb79bc1a058d014c65dfef4fcc1e67015bfdbb82d09cc8a4805376e0da"
+  },
+  "exact_closed_OUT_filemap": {
+    "run-evidence.json": "95321fa01bb48db9f69e7d47082e63da57808f625a2a7b5eb0f9110b7f58da53"
+  },
+  "source_packet": {
+    "files": 1400,
+    "reported_full_map_equals_approved_and_prepared": true,
+    "independently_rehashed_current_all1400": true,
+    "aggregate_verified": true,
+    "physical5_rehashed": {
+      "execute_local_f0_remaining_app_read13_owned_v2_20261120.py": "f5434d79164b794318e872429b4d92dcf2ab7b437f02281d7382ab8a05831bb9",
+      "local_f0_remaining_app_read13_owned_v2_operation_steps.py": "b69cda4407a5931f27f938b2d5d80a254dfc228352af54157c56979d5e310bbe",
+      "prepare_local_f0_remaining_app_read13_owned_v2_plan.py": "23b9ac0050f62ab44be492f84a98f833241b1d78dc1c99471e08447573449c45",
+      "check_local_f0_remaining_app_read13_owned_v2_operation.py": "e0d6a053e698107d228c86e369d5994bbc1fe15620cfbaa69e7d9f66fd2179bd",
+      "pin_local_f0_remaining_app_read13_owned_v2_plan_20261120.py": "379e1167ec91b0227c1b90165ce5a3342cab7bd54993316db8111b65bc67b29e"
+    },
+    "committed_blobs_this_audit": "NOT_RERUN; prior literal/pin/publication evidence distinct"
+  },
+  "observed": {
+    "status": "STOPPED_ATTEMPT_PRESERVED",
+    "first_failure": {
+      "stage": "SOURCE_VERIFICATION",
+      "code": "UNEXPECTED_READ13_WRAPPER_FAILURE"
+    },
+    "unexpected_count": 1,
+    "events": [
+      {
+        "stage": "SOURCE_VERIFICATION",
+        "status": "PASS",
+        "files": 1400,
+        "packet_sha256": "7720bb7deb6c5b190d04482be6f263cb45622cba36fe06b548ecddcfc164284f"
+      },
+      {
+        "stage": "STOP",
+        "status": "NO_LATER_STEPS",
+        "failure": {
+          "stage": "SOURCE_VERIFICATION",
+          "code": "UNEXPECTED_READ13_WRAPPER_FAILURE"
+        }
+      },
+      {
+        "stage": "CONTROLLED_CLEANUP",
+        "status": "PASS",
+        "all_created_names_absent": true,
+        "expected_resource_names": 2,
+        "test_secret_files_absent": true
+      }
+    ],
+    "steps": {
+      "CATALOG-SETUP": "NOT_RUN",
+      "CATALOG-AUTH": "NOT_RUN",
+      "CATALOG-TOOLS": "NOT_RUN",
+      "CATALOG-INSTALL": "NOT_RUN",
+      "CATALOG-ACL-COMPAT": "NOT_RUN",
+      "CATALOG-TEXT-COMPAT": "NOT_RUN",
+      "CATALOG-NATIVE": "NOT_RUN",
+      "CATALOG-ORACLE": "NOT_RUN",
+      "CATALOG-LEDGER": "NOT_RUN",
+      "CATALOG-COMPARE": "NOT_RUN",
+      "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+      "CATALOG-CLEANUP": "PASS",
+      "READ13-REVIEW": "NOT_RUN",
+      "READ13-COMPONENT": "NOT_RUN"
+    },
+    "targets": {},
+    "cleanup_entries": {},
+    "evidence_complete": true,
+    "persistence_failure": false,
+    "output_complete": true,
+    "closed_OUT_files": 1,
+    "child_evidence": "ABSENT",
+    "native_install_auth_postproof_artifacts": "ABSENT",
+    "prepared_protocols": 82,
+    "prepared_source_claims": 13,
+    "actual_confirmed_protocols": 0,
+    "actual_selected_assertions": "NOT_RUN"
+  },
+  "source_control_flow": {
+    "source_verification_event": "verify_common_packet final event, called inside verify_catalog_packet from verify_read13_packet",
+    "event_is_not_completed_read13_admission": true,
+    "later_catalog_preparation_field": "ABSENT",
+    "READ13_REVIEW_final_assignment": "NOT_REACHED_PER_RETAINED_REPORT_AND_SOURCE_FLOW",
+    "preflight_create_install_child": "NO_CONFIRMED_REACH; ordinary source order places all after successful verify_read13_packet",
+    "actual_historical_exception_class_function_line_message": "NOT_RETAINED_UNOBSERVED",
+    "exact_failure_site_cause": "UNOBSERVED; source interval is not an exception reconstruction"
+  },
+  "cleanup": {
+    "independent_proof_sha256": "88bb17eb79bc1a058d014c65dfef4fcc1e67015bfdbb82d09cc8a4805376e0da",
+    "exact_container_and_volume_absent": true,
+    "private_absent": true,
+    "image_retained": true,
+    "raw_resource_diagnostics_retained": false,
+    "auditor_invoked_Docker_DB_SQL_network": false
+  },
+  "preservation_flags": {
+    "packet_unchanged_after_run": true,
+    "tool_source_data_unchanged_after_run": true,
+    "external_sources_unchanged_after_run": true,
+    "external_inputs_unchanged_after_run": true
+  },
+  "qualification": {
+    "approved_links": [],
+    "candidate_source_ceilings": [
+      {
+        "case_id": "P0C-TABLE-ConsentDisposition-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "8350c24e493d6caa98ae97416a43c86a7d90df664a8688e370777770ea9a8c45",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "9f38cf8a8e765a4e6953679929d3ff19cf6c8b1cf931f2d7d64fad5a8962fc33",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-OwnerMutationEvidence-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "3330e2467599e3634cd3ede37458c030175d198c382f53c0c1e88c17e9c5d20e",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "3330e2467599e3634cd3ede37458c030175d198c382f53c0c1e88c17e9c5d20e",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "3330e2467599e3634cd3ede37458c030175d198c382f53c0c1e88c17e9c5d20e",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "3330e2467599e3634cd3ede37458c030175d198c382f53c0c1e88c17e9c5d20e",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "b9aab0589cae70aa8ac3beab759234b75aae1e9b157a211ecbb64c7dfd617d81",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-RuntimeWorkItem-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "c35f81f22043199b971c910b708aa581dc4779cb6492e59e6ae268c5b9482ffc",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "43f32da6c476f7dbbfb2cf324edaf321d3edf6a4a799970a7e9f617385bd958c",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-TrackSubscription-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "0438ae318c360852060840da4e0a432855ca640d65f3b297a59a92c76ff84de4",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-TrackSubscriptionEvent-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "bdd26d9da1f0d522dcc3c910467a8a4a6cfa32a8317167292ae5ed4db2abb9fb",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-TrackUsageCounter-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "99c75a1e678081d179ecfd1d5a62a28b0357bc3b7b4f56d24d59ea0c672ff661",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      },
+      {
+        "case_id": "P0C-TABLE-TrackUsageEvent-ALLOW",
+        "assertion_id": "positive.wa_app_runtime.select",
+        "source_whole_assertion_sha256": "661ff7f0134ad7b7998951f4fd1b7650b5af6d3f7478a64cb8fb2015a15f733a",
+        "ledger_expected_text_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+        "actual_audited_status": "NOT_RUN",
+        "approved_assertion_link": null,
+        "reason": "NO_EXECUTED_SELECTED_READ_EVIDENCE"
+      }
+    ],
+    "adapter_implementation": "NOT_AUTHORIZED_NOT_IMPLEMENTED",
+    "reason": "Stopped pre-resource admission cannot establish SELECT, negative-context, binder,fixture restoration,installation or native runtime assertions. Cleanup and source hash proof are actual limited evidence only."
+  },
+  "unchanged_baseline": {
+    "ledger_rows": 671,
+    "ledger_sha256": "8b7cd04a5681dc7d2b2996c20b896dc352af67e88f968f1ccc9250f9bdda0d64",
+    "status_sha256": "5ab0d974a02f7a99bbb92b30d8f55c5b9c50d1bd962dd0654467243f3b3f2e07",
+    "assertion_counts": {
+      "PASS": 638,
+      "PARTIAL": 33,
+      "FAILED": 0,
+      "DEPENDENCY_BLOCKED": 32,
+      "NOT_RUN": 324,
+      "UNRESOLVED_SOURCE": 7
+    },
+    "case_counts": {
+      "PASS": 5,
+      "PARTIAL": 78,
+      "FAILED": 0,
+      "DEPENDENCY_BLOCKED": 0,
+      "NOT_RUN": 11
+    },
+    "no_writes_to_ledger_or_status": true
+  },
+  "source_references_sha256": {
+    "scripts/local_f0_scoped_read_evidence.py": "dc67a3a0ed60a27296cd4d007a8a8de212d17bb1c6d2ea066693c706f9e615fa",
+    "scripts/local_f0_worker_recovery_evidence_v2.py": "b201bfa6a5b016d858ada96ebeb9f49cb85b5832037e5efb4c2d631cbcaec0a0",
+    "scripts/prepare-local-f0-status.py": "cc17de640c624cb9f259d88e71dfff21a461cc2762a204939e8bcd2856d6d4f4",
+    "scripts/remaining_app_read13_protocol.py": "7343104bf2dd70003d2a68ff0911ac2bab80e8aec47e8c1d5aa3524f0ca8fe0c",
+    "scripts/sql-review/run-remaining-app-read13-rehearsal.py": "815bf499bbed3c967091739ed3c2e02d2a12e5c6848f480ca94c88792a2c95bf",
+    "scripts/prepare-remaining-app-read13-rehearsal.py": "6c583c9d2435fbea0f57b4bcd70a05234c6ad5995493f8ecdd160ce9ebf97499"
+  },
+  "inspection_corrections": {
+    "source_ceiling_hash": "Generator hashes canonical whole assertion; ledger hashes expected text separately. Initial exploratory expected-text comparison was not an evidence/source defect. Both verified correctly for13 above.",
+    "status_filename": "Initial exploratory read used nonexistent local-f0-status.json; actual local-f0-qualification-status.json then read. No production mutation."
+  },
+  "limits": "No worker/API/SH/owner-write/vector/whole-case/94/451/hosted/production promotion. Source/offline expectations never replace actual results. PostureD.",
+  "Posture": "D"
+}

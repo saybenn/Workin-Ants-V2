@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\audit_install_v5_6850_closed_and_plan_Catalog_20261120.py", line 169, in <module>
+    main()
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\audit_install_v5_6850_closed_and_plan_Catalog_20261120.py", line 131, in main
+    adapter=ledger_module['make_adapter'](adapter_blobs,{p:sha(b)for p,b in adapter_blobs.items()},protocol,identity6)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\install_ledger_proof_v3.py", line 75, in make_adapter
+    need(type(blobs) is dict and set(blobs)==set(INPUTS) and type(source_hashes) is dict and set(source_hashes)==set(INPUTS),'EXACT_LEDGER_SOURCE_GRAPH')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\workinants-correction-pass\scripts\sql-review\install_ledger_proof_v3.py", line 33, in need
+    if not value:raise LedgerProofError(code)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_audited_install_ledger_proof_v3.LedgerProofError: EXACT_LEDGER_SOURCE_GRAPH

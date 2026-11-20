@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "platform"."runtime_effect_receipt"("id","command_receipt_id","owner_module_id","operation","subject_scope","semantic_effect_key","fingerprint","state","source_revision","fence","result_schema_id","result_hash","committed_at","created_at","mutation_transaction_id") VALUES ('6020a7ca-64ff-539c-9d87-e042c1c0043a'::pg_catalog.uuid,NULL::pg_catalog.uuid,'customer_buyer_profile'::pg_catalog.text,'SH-004.v1'::pg_catalog.text,'CustomerProfile:e652b295-f63f-5db7-8fc4-744d46113cb7'::pg_catalog.text,'native-acl-6608f9407b025e4e3e50f164'::pg_catalog.text,'6f7e6c0c393baa39de15e57523b2f69cfca51d41b77c0a4d28796b808afab53c'::pg_catalog.bpchar,'pending'::platform.runtime_receipt_state,NULL::pg_catalog.int8,'0'::pg_catalog.int8,'SH-004.v1#/$defs/response'::pg_catalog.text,NULL::pg_catalog.bpchar,NULL::pg_catalog.timestamptz,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

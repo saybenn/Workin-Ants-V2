@@ -1,0 +1,251 @@
+{
+  "schema": "workinants.AppV3-0a-independent-new-diagnostic-closed-evidence-audit.v1",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "NEW_DIAGNOSTIC_AND_CLOSED_EVIDENCE_CONSISTENT_NO_ASSERTION_PROMOTION",
+  "conflict_disclosure": "Independent nonauthor of V3 diagnostic delta. Authored original R01/R02 recipes and AppOwnedFix2; recipe/source-cause semantics and business qualification here are AUTHOR_CONTEXT only. No independent self-approval of authored recipes or assertion mapping.",
+  "raw_outer_sha256": "923389e82baa282bb7d5c0d6e7ebf299041d5c02d7f99da351f8d5037c0d8d22",
+  "raw_child_sha256": "6a6a300810118bf2f9c346016075ac5f0806a392e13f64ba5b3c1f2788f8dc03",
+  "independent_cleanup_sha256": "ea89568758364547613dadbbf880a1c83a16fe988301d60b3ecd5f80df2a03fe",
+  "source": {
+    "commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+    "tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+    "packet_sha256": "0f6118df8735570905b90c25ed4dd2d7ada627afae699db71a86154a065be2a9",
+    "files_current_rehashed": 301,
+    "physical_five_sha256": {
+      "execute_local_f0_app_write_two_unexpected_diagnostic_v3_20261120.py": "c26dfd6282b661320476a5a65fc79cc2bb903d38c869c43d89459edae03208ea",
+      "local_f0_app_write_two_unexpected_diagnostic_v3_operation_steps.py": "33cea65b0fcf40c1e3ac61a7a18e04dc9ed1d52c99753ee22aecc460e37803ca",
+      "prepare_local_f0_app_write_two_unexpected_diagnostic_v3_plan.py": "fcc71bdc5e36fd5df12a0715eb091d5b3ee09c344a5e8bd5b4b98e8ea39c4eeb",
+      "check_local_f0_app_write_two_unexpected_diagnostic_v3_operation.py": "3dfacdba2f40bab0c5d4f1fd2393145324ac722a4448646f5c88be6949bba39a",
+      "pin_local_f0_app_write_two_unexpected_diagnostic_v3_plan_20261120.py": "9bde24c48735abc44292bbd0063a32a5f7307eabb44486633736876f8c2f3787"
+    }
+  },
+  "run_id": "0a02569b-40e9-409f-b0df-e0d724977daa",
+  "container_id": "8e9b8c8fe163cd187cb1c79d4b5443038b226c0e6d73cbd1df86f2fef2a1e5ad",
+  "actual_executor_session": 74646,
+  "actual_exit": 1,
+  "observed_child_origin": {
+    "stage": "FINITE_APP_WRITE_PROTOCOL",
+    "case": "pending-work-next-attempt-update",
+    "code": "EXACT_RECORD_COUNT"
+  },
+  "observed_unexpected_diagnostic": {
+    "schema": "workinants.app-unexpected-business-diagnostic.v3",
+    "classification": "OBSERVED",
+    "sqlstate": "42501",
+    "header_count": 1,
+    "frame_status": "SOURCE_VERIFIED",
+    "source_frame": {
+      "function": "platform_private.runtime_transition()",
+      "source_body_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+      "source_body_line": 33
+    }
+  },
+  "observed_current_milestones": {
+    "stage": "RESTRICTED_APP_TRANSACTION",
+    "case": "pending-work-next-attempt-update",
+    "actual_login": "wa_app_runtime",
+    "issuer_committed": true,
+    "same_tuple_verified": true,
+    "bind_stage_reached": true,
+    "write_stage_reached": true,
+    "read_stage_reached": false,
+    "operation_closed": true,
+    "operation_outcome": {
+      "observed_stage": "BUSINESS",
+      "response_received": true,
+      "response_shape_valid": true,
+      "client_exit_received": true,
+      "client_exit": 3,
+      "client_exit_class": "KNOWN",
+      "acknowledged": false,
+      "record_count": 1,
+      "before_marker_matches": true,
+      "after_marker_matches": false,
+      "expected_sequence_matches": false,
+      "diagnostic": null,
+      "unexpected_diagnostic": {
+        "schema": "workinants.app-unexpected-business-diagnostic.v3",
+        "classification": "OBSERVED",
+        "sqlstate": "42501",
+        "header_count": 1,
+        "frame_status": "SOURCE_VERIFIED",
+        "source_frame": {
+          "function": "platform_private.runtime_transition()",
+          "source_body_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+          "source_body_line": 33
+        }
+      },
+      "operation_closed": true,
+      "global_closure_confirmed": true
+    }
+  },
+  "new_source_frame_verification": "Independently extracted exact canonical runtime_transition body, SHA10f9... matches; line33 begins the retained source IF. Raw primary text/callee identity/statement details are not retained, so no further actual message reconstructed.",
+  "source_analysis_AUTHOR_CONTEXT_only": "The source IF at bodyline33 includes worker lease/current-holder logic in runtime_transition. Follow-up semantic or permission diagnosis needs a distinct nonauthor source review; this audit proposes no grant/guard/SQL/recipe repair. write_stage_reached means business stage reached, not a successful UPDATE.",
+  "observed_completed_source_verdicts": [
+    {
+      "case": "effect-wrong-root",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": {
+        "matched": true,
+        "sqlstate": "P0001",
+        "source_body_sha256": "01c6a19be31eb4a29e8ca0e676b0b4d5314291a0196e895e7ebee10e36f658c8",
+        "source_body_line": 7,
+        "classification": "command action/root does not match protected scope"
+      }
+    },
+    {
+      "case": "effect-wrong-purpose",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": {
+        "matched": true,
+        "sqlstate": "42501",
+        "source_body_sha256": null,
+        "source_body_line": null,
+        "classification": "new row violates row-level security policy for table \"runtime_command_receipt\""
+      }
+    },
+    {
+      "case": "effect-missing-result-field",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": {
+        "matched": true,
+        "sqlstate": "42501",
+        "source_body_sha256": null,
+        "source_body_line": null,
+        "classification": "new row violates row-level security policy for table \"runtime_effect_receipt\""
+      }
+    },
+    {
+      "case": "effect-stale-security",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": {
+        "matched": true,
+        "sqlstate": "42501",
+        "source_body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "source_body_line": 7,
+        "classification": "invalid, stale or unsupported context"
+      }
+    },
+    {
+      "case": "effect-wrong-principal",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": {
+        "matched": true,
+        "sqlstate": "42501",
+        "source_body_sha256": "242bc33836b80f24cdcd22495d133678fd8b5d204f145ffa3f689308a91aba95",
+        "source_body_line": 18,
+        "classification": "foreign Customer principal"
+      }
+    },
+    {
+      "case": "genuine-sh004-effect-insert",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": "P0C-TABLE-RuntimeEffectReceipt-ALLOW|positive.wa_app_runtime.insert",
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": null
+    },
+    {
+      "case": "customer-existing-complete-revision-read",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": null
+    },
+    {
+      "case": "customer-existing-missing-revision-read",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": null
+    },
+    {
+      "case": "work-wrong-root",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": null
+    },
+    {
+      "case": "work-wrong-purpose",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": null
+    },
+    {
+      "case": "work-missing-update-field",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": {
+        "matched": true,
+        "sqlstate": "42501",
+        "source_body_sha256": "8fc8e42c9bdd07e4a8eb766b135e668ca8f75afd1ee6249b83e4f3471e2add4f",
+        "source_body_line": 11,
+        "classification": "field or CAS scope denied"
+      }
+    },
+    {
+      "case": "work-missing-revision",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": null
+    },
+    {
+      "case": "work-stale-security",
+      "observed_source_coordinator_verdict": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+      "claim": null,
+      "independent_business_qualification": "NOT_DECIDED_AUTHOR_RECIPE_LINEAGE",
+      "source_guard": {
+        "matched": true,
+        "sqlstate": "42501",
+        "source_body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+        "source_body_line": 7,
+        "classification": "invalid, stale or unsupported context"
+      }
+    }
+  ],
+  "counts": {
+    "RESOURCE_PREFLIGHT": 1,
+    "GLOBAL_BACKEND_CLOSURE": 66,
+    "PRE_FIXTURE_FULL_NATIVE": 1,
+    "COMPLETE42_STATE": 31,
+    "SYNTHETIC_USER_PREREQUISITES_ONLY": 1,
+    "POST_FIXTURE_ALL_GUARDS_RESTORED": 1,
+    "RESTRICTED_APP_TRANSACTION": 15,
+    "SEPARATE_ISSUER_COMMIT": 15,
+    "IMMUTABLE_ISSUER_RETENTION": 43,
+    "ALL_GUARDS_UNCHANGED_AFTER_PROTOCOL": 13,
+    "ACTUAL_SH004_SOURCE_EFFECT_COHERENCE": 11,
+    "PENDING_WORK_CONTROL": 12,
+    "GENUINE_APP_SCHEDULE_PREREQUISITE": 1,
+    "FINALLY_FULL_NATIVE_PARITY": 1
+  },
+  "typed_complete42_snapshots_recomputed": 31,
+  "current_case_complete_after_state": "NOT_OBSERVED; only its before42 snapshot is retained, no after-write/future/coherence success inferred.",
+  "state_limits": [
+    "13completed source verdicts retain paired42-state hashes, allowed-table differences, issuer retention, closure and marker checks. They are observations, not independent recipe or register qualification here.",
+    "15separate issuer commits, same app tuple/current bind evidence and current operation/backend/global closure are retained;43retention observations eachcheck all21fields.",
+    "Two fixture-only User/security bypasses restored before behavior;13postprotocol native/guard observations and finalfullnative parity match baseline. No Track enrollment in retained SH004 coherence observations.",
+    "The current case has BUSINESS received/valid,exit3/noACK/one BEFORE record/noAFTER/sequencefalse and newunexpected42501/sourceframe; R02 success remains unqualified. Expected negative diagnostic remainsnull because this is a positive recipe.",
+    "Old8f2a complete actual cause/SQLSTATE remain UNOBSERVED. New0a diagnostic is independent actual evidence only for this run; do not backfill old records.",
+    "Root parent preserves declared child origin, early/final original-byte reference and source flags; exact1C1V/private absence and cached image retention are independently evidenced.",
+    "Source/native29089/oracle416/ledger22/auth prerequisite observations are retained. No new live query, resource action, wholecase94/451 or production promotion."
+  ],
+  "coverage_promoted": false,
+  "reviewer_Git_Docker_DB_SQL_network_source_status_or_resource_changes": false,
+  "Posture": "D",
+  "seconds": 0.39,
+  "plain_English": "The new test saved a safe error clue and stopped cleanly. It did not finish the last write, and we cannot use the new clue to fill in the old missing error."
+}

@@ -1,0 +1,14 @@
+"""Focused typed-comparison parent units; no actual or synthetic run approval."""
+class PublicSchemaComparisonOuterV8Tests(unittest.TestCase):
+ def test_exact_closed_comparison_matches_projection_and_rejects_unknown_values(self):
+  n=operator_namespace();allowed=n['privilege_schema_create_comparison_allowed']
+  for usage in(False,True):
+   projection={'schema_usage':usage,'schema_create':False};good={key:{'expected':value,'observed':value,'matches':True}for key,value in projection.items()};self.assertTrue(allowed(good,projection))
+   for key in good:
+    for field in good[key]:
+     for value in(None,0,1,0.0,CANARY,{},[]):
+      bad=deepcopy(good);bad[key][field]=value;self.assertFalse(allowed(bad,projection))
+    bad=deepcopy(good);bad[key]['matches']=False;self.assertFalse(allowed(bad,projection))
+   self.assertFalse(allowed({**good,'extra':CANARY},projection));self.assertFalse(allowed(good,{**projection,'schema_create':True}));self.assertFalse(allowed(good,{**projection,'schema_usage':not usage}))
+ def test_existing_metadata_receipt_seventeen_fields_and_final_barriers_unchanged(self):
+  n=operator_namespace();receipt=successful_metadata_receipt();self.assertEqual(len(receipt),17);self.assertTrue(n['privilege_metadata_receipt_allowed'](receipt));source=STEPS.read_text();self.assertLess(source.index("for flag,check in checks:"),source.index("# Later preservation checks"));self.assertIn("privilege_reference_integrity_barrier(PRIVILEGE_LAST_REFERENCE)",source)

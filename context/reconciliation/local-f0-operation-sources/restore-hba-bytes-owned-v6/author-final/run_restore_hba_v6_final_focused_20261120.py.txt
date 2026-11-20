@@ -1,0 +1,19 @@
+from pathlib import Path
+import runpy,unittest,time,json,hashlib
+from pglast import parse_sql
+T=Path(__file__).resolve().parent;D=T/'restore-hba-bytes-v6-author-20261120';F=D/'future-root';sha=lambda raw:hashlib.sha256(raw).hexdigest()
+runpy.run_path(str(T/'refresh_restore_hba_v6_private_fingerprints_20261120.py'))
+before=json.loads((D/'current-private-fingerprints.json').read_bytes());n=runpy.run_path(str(T/'check_local_f0_restore_hba_bytes_v6_operation.py'));n['namespace'].__globals__['ROOT']=F
+# Syntactic only. The process-boundary tests separately exercise raw_sql.
+context=n['namespace']();queries=[]
+def capture(name,role,query):
+ assert role=='postgres';queries.append(query);return json.dumps(dict.fromkeys(('sha256_matches','byte_length_matches','parser_errors_absent'),True))
+context['raw_sql']=capture
+for file in context['HBA_BYTE_SPECS']:context['verify_hba'](context['SOURCE'],file)
+parsed={file:{'query_sha256':sha(query.encode()),'statements':len(parse_sql(query)),'no_multiline_HBA_literal':all(raw.decode()not in query for raw in (context['source_hba_bytes'](name)for name in context['HBA_BYTE_SPECS']))}for file,query in zip(context['HBA_BYTE_SPECS'],queries)}
+assert all(row['statements']==1 and row['no_multiline_HBA_literal']for row in parsed.values())
+p=D/'final-focused15.log';assert not p.exists();start=time.monotonic()
+with p.open('w',encoding='utf8')as out:result=unittest.TextTestRunner(stream=out,verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(n['HbaV6Tests']))
+for file,h in before['external5_sha256'].items():assert sha((T/file).read_bytes())==h
+value=json.loads((F/'context/reconciliation/local-f0-restore-hba-bytes-owned-v6-source-validation.json').read_bytes());assert value['source_review_status']=='PENDING'and value['independent_source_review']['decision']==value['Root_source_review']['decision']=='PENDING'
+report={'schema':'workinants.restore-HBA-v6-final-focused-checks.v1','PASS':result.wasSuccessful(),'methods':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':round(time.monotonic()-start,3),'log_sha256':sha(p.read_bytes()),'four_query_parser_checks':parsed,'source_before':before,'source_code_unchanged_during_checks':True,'all_gates':'PENDING','runtime':'NOT_RUN_NEW_SOURCE','limits':'All Docker/database/network/Git boundaries mocked; private source review fixtures authorize no runtime; synthetic archives do not establish real backup/WAL/database qualification.'};(D/'final-focused15.json').write_text(json.dumps(report,indent=2,allow_nan=False)+'\n');print(json.dumps({k:report[k]for k in ('PASS','methods','failures','errors','seconds','log_sha256','all_gates')}));print(p.read_text()[-6500:]);raise SystemExit(not result.wasSuccessful())

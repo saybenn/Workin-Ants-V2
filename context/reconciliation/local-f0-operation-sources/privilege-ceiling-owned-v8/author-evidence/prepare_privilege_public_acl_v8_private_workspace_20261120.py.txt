@@ -1,0 +1,40 @@
+"""Preserve V7 and prepare a private future-root, without processes/network."""
+from pathlib import Path
+import hashlib,json,shutil
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+P=T/'privilege-public-acl-v8-before-author-20261120'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+D=lambda value:(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def main():
+ assert not F.exists()and not P.exists()
+ manifest=T/'local-f0-privilege-ceiling-plan-9577e42a/operation-manifest.json';raw=manifest.read_bytes();assert H(raw)=='28e196791cb9b3da604e5d20d895164f3fc5c55b9954480a05dc356c1cafbeb9';m=json.loads(raw);assert len(m['packet_files_sha256'])==649
+ owned_path='context/reconciliation/local-f0-privilege-ceiling-owned-v7-source-validation.json';child_path='context/reconciliation/privilege-ceiling-v7-source-validation.json';owned=json.loads((R/owned_path).read_bytes());child=json.loads((R/child_path).read_bytes());assert len(owned['archive_files_sha256'])==246 and len(owned['operator_sources_sha256'])==5 and len(child['source4_sha256'])==4
+ inputs={'ROOT/'+name:(R/name).read_bytes()for name in m['packet_files_sha256']}
+ assert all(H(inputs['ROOT/'+name])==wanted for name,wanted in m['packet_files_sha256'].items())
+ for name,wanted in owned['operator_sources_sha256'].items():
+  body=(T/name).read_bytes();assert H(body)==wanted;inputs['TASK/'+name]=body
+ assert all(H((R/name).read_bytes())==wanted for name,wanted in child['source4_sha256'].items())
+ assert all(H((R/name).read_bytes())==wanted for name,wanted in owned['archive_files_sha256'].items())
+ out=Path(m['evidence_directory']);assert out.resolve().is_relative_to(T.resolve())and not(out/'private').exists()
+ assert H((out/'run-evidence.json').read_bytes())=='82bf40535d1e99509923b6f97a668ba1b9ff35908e5a6041643f2842f4f7adb5'
+ assert H((out/'privilege-ceiling-component/privilege-ceiling-results.json').read_bytes())=='c8559e88ba98a021bae43d70b5d1cfe3bc3537d1b4698f87178169be263f2dfb'
+ for path in out.rglob('*'):
+  if path.is_file():inputs['TASK/'+path.relative_to(T).as_posix()]=path.read_bytes()
+ plan=manifest.parent
+ for path in plan.rglob('*'):
+  if path.is_file():inputs['TASK/'+path.relative_to(T).as_posix()]=path.read_bytes()
+ for name,wanted in{'v7_9577_public_schema_metadata_bounded_correction_plan_Catalog_20261120.json':'2fb9fdfd2584f150cffe9ed15e08457e6e18a4284b51611a69d0211d62388a61','v7_9577_independent_closed_evidence_audit_Catalog_20261120_v2.json':'1a361ef1070744672b1db655f16b0ab25e54f47fa694090ee0e6293ba072724f','v7_public_schema_projection_independent_catalog_20261120.json':'0f4dc85199ffcfee9560db88594552120323231693f1b420fd7a3f3f96626b68'}.items():
+  body=(T/name).read_bytes();assert H(body)==wanted;inputs['TASK/'+name]=body
+ ack='privilege_public_acl_v8_Root_bounded_implementation_ACK_20261120.json';inputs['TASK/'+ack]=(T/ack).read_bytes()
+ P.mkdir();C.mkdir(parents=True);saved={}
+ for name,body in sorted(inputs.items()):
+  target=P/(name+'.txt'if name.endswith('.py')else name);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(body);saved[name]={'sha256':H(body),'snapshot':target.relative_to(P).as_posix()}
+ for name,wanted in m['packet_files_sha256'].items():
+  target=C/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(inputs['ROOT/'+name])
+ for name in owned['operator_sources_sha256']:(F/name).write_bytes(inputs['TASK/'+name])
+ # Closed actual native observations are OFFLINE test data only.
+ target=F/'OFFLINE-closed-v7-9577e42a';shutil.copytree(out,target)
+ preservation={'schema':'workinants.privilege-public-acl-v8-before-author.v1','original649_Root_files_sha256':m['packet_files_sha256'],'original_source4_sha256':child['source4_sha256'],'original_five_sha256':owned['operator_sources_sha256'],'original_owned246_archive_sha256':owned['archive_files_sha256'],'original_child_validation_sha256':H((R/child_path).read_bytes()),'original_owned_validation_sha256':H((R/owned_path).read_bytes()),'approved_manifest_sha256':H(raw),'saved_files':saved,'actual_public_response_bits':'UNRETAINED','historical_complete_cause':'UNOBSERVED','runtime':'NOT_RUN_NEW_SOURCE'}
+ path=P/'preservation.json';path.write_bytes(D(preservation));print(json.dumps({'preservation':str(path),'sha256':H(path.read_bytes()),'files':len(saved),'private_root':str(C),'source_edits':False,'process_network_DB_Git':False}))
+if __name__=='__main__':main()

@@ -1,0 +1,45 @@
+"""Independent focused V8 source checks; no real process/network boundary."""
+import contextlib
+import hashlib
+import io
+import json
+from pathlib import Path
+import runpy
+import socket
+import subprocess
+import time
+import unittest
+from unittest.mock import patch
+
+TASK=Path(__file__).resolve().parent
+DELIVERY=TASK/'privilege_public_acl_v8_frozen_private_delivery_20261120.json'
+EXPECTED='8c363aabdfdb9a648386764b0b1b2d7bbbefd0a1839cdd0e0a1bf82516a3ed8a'
+PREFIX='privilege_public_acl_v8_independent_focused_Catalog_20261120'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def save(name,raw):
+    with (TASK/name).open('xb') as handle:handle.write(raw)
+raw=DELIVERY.read_bytes();assert sha(raw)==EXPECTED
+delivery=json.loads(raw);root=Path(delivery['private_ROOT']);private=Path(delivery['private_TASK'])
+def inventory():
+    found={name:sha((root/name).read_bytes())for name in delivery['candidate_Root_new_files_sha256']}
+    assert found==delivery['candidate_Root_new_files_sha256']
+    five={name:sha((private/name).read_bytes())for name in delivery['owned5_sha256']}
+    assert five==delivery['owned5_sha256']
+    return {'candidate_Root_files':len(found),'candidate_Root_map_sha256':sha(json.dumps(found,sort_keys=True,separators=(',',':')).encode()),'source4_sha256':delivery['source4_sha256'],'operator_sources_sha256':five}
+before=inventory();stream=io.StringIO();start=time.monotonic()
+with contextlib.ExitStack() as stack:
+    for name in ('run','Popen','check_output','call','check_call'):
+        stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('UNMOCKED_PROCESS_FORBIDDEN')))
+    stack.enter_context(patch.object(socket,'socket',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+    stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+    module=runpy.run_path(str(root/'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v8.py'))
+    cls=module['PublicACLProjectionV8Tests']
+    names=unittest.defaultTestLoader.getTestCaseNames(cls)
+    assert len(names)==9
+    result=unittest.TextTestRunner(stream=stream,verbosity=2).run(unittest.TestSuite(cls(name)for name in names))
+duration=time.monotonic()-start;after=inventory();assert after==before
+log=stream.getvalue().encode('utf8');save(PREFIX+'.log',log)
+report={'schema':'workinants.privilege-public-v8-independent-focused-checks.v1','reviewer':'/root/catalog_v4_review','delivery_sha256':EXPECTED,'source4_sha256':delivery['source4_sha256'],'operator_sources_sha256':delivery['owned5_sha256'],'actual_test_class':'PublicACLProjectionV8Tests','methods':names,'tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'successful':result.wasSuccessful(),'duration_seconds':round(duration,3),'log_sha256':sha(log),'entry_and_exit_inventory':before,'process_and_network_boundaries':'FORBIDDEN_OR_EXPLICIT_PROCESS_MODELS','actual_database_runtime':'NOT_RUN','source_gate_changes':False}
+encoded=(json.dumps(report,sort_keys=True,indent=2,allow_nan=False)+'\n').encode();save(PREFIX+'.json',encoded)
+print(json.dumps({'successful':result.wasSuccessful(),'tests_run':result.testsRun,'duration_seconds':round(duration,3),'report':PREFIX+'.json','sha256':sha(encoded)},sort_keys=True))
+raise SystemExit(0 if result.wasSuccessful()else 1)

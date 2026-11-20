@@ -1,0 +1,11 @@
+{
+  "classification": "INDEPENDENT_AUDIT_ASSUMPTION_DEFECT_NOT_RUNTIME_OR_EVIDENCE_FAILURE",
+  "session": 49746,
+  "known_exit": 1,
+  "safe_exception": "AssertionError",
+  "code": "ALL79_SELECT_ONLY_SQL_SCRIPTS",
+  "source_fact": "Exact frozen read-01.sql includes SET CONSTRAINTS ALL IMMEDIATE between read projections and AFTER marker. Initial filter allowed only SelectStmt/TransactionStmt and was too narrow.",
+  "correction": "Allow only exact ConstraintsSetStmt with no named constraints and deferred=False, retaining SELECT-only business projection ceiling. No data mutation statement added.",
+  "source_and_closed_raw_mutation": false,
+  "audit_source_sha256": "d8ebe0def4844bba6c2a40256df8fc75d2ccc4dd65a0645590b193494d4aa763"
+}

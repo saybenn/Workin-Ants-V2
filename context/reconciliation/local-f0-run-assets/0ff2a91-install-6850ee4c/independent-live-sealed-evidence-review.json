@@ -1,0 +1,297 @@
+{
+  "schema": "workinants.install6850-source-phase-v5-Catalog-actual-sealed-evidence-review.v1",
+  "recorded_at_utc": "2026-11-20T16:30:11.460652+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "ACTUAL_ROLLBACK_EVIDENCE_SATISFIES_STANDARD_RESOLVE_REVIEW_ONLY",
+  "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+  "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+  "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+  "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+  "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+  "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+  "immutable_inputs_sha256": {
+    "independent-review-ready.json": "ff4b4ee79d29c3c937bb8eb1615d6af6a7d68169de4b13c379b7fce92e83613d",
+    "rollback-proof-for-review.json": "f0eefef1c583485d0c3624b064ba1f04dc133d7258e5e0cd4c6782b848742924",
+    "independent-review-child-snapshot.json": "f60859c7c105de763b0fc85a8a00b4c143c0754f4b5ed88c213c6e0efe101056",
+    "independent-review-outer-identity.json": "480ed34e69e867469ed80933562bf7e3cd2f0b64fc3e5df2cf4a6e9245f191aa",
+    "install-coordinator-run-plan.json": "591bb587546afcd5e4d2772919b9299f9540e163357f1e80748554951d93ed9a"
+  },
+  "completed_v2_evidence_sha256": "c0eab0c1ccd1342a49eea49577a89d02e8ea80970119595f1fcb584101ee5c2d",
+  "failed_precleanup_activation": [
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 0,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "CLOSED_FAILED_DEPLOY_VERIFIED",
+      "facts": {
+        "all_operation_backends_absent": true,
+        "cli_attestation_sha256": "2e1a09b4552c061720aafd91674df56974fdf2d6d0f20191f12a6f8c070d2b8d",
+        "cli_exit_code": 1,
+        "cli_status": "CLI_OUTPUT_REJECTED_STOP_AND_INSPECT",
+        "closed_process_result_observed": true,
+        "diagnostic_delta": {
+          "division_22012": 1,
+          "forbidden_body": 0,
+          "function_42501": 0,
+          "malformed": 0,
+          "other_migrator_error": 0,
+          "registered": 2,
+          "secondary_25p02": 1
+        },
+        "intended_primary_sqlstate": "22012"
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 1,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "GATE_PREREQUISITES",
+      "facts": {
+        "activated": false,
+        "install_closed_success": false,
+        "original_cleanup_verified": false
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 2,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "GATE_REFUSED",
+      "facts": {
+        "database_password_sql_executed": false,
+        "outcome": "REFUSED",
+        "refusal_code": "INSTALL_RUNTIME_ACTIVATION_HELD"
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 3,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "NULL_VERIFIERS",
+      "facts": {
+        "all_null_verifiers": true,
+        "flags_exact": true,
+        "runtime_roles": 4
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 4,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "STARTUP_REJECTED_wa_context_issuer",
+      "facts": {
+        "candidate_startup": "PASS_REJECTED_INACTIVE",
+        "exit_code": 2,
+        "operation_connection_closed": true,
+        "role": "wa_context_issuer"
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 5,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "STARTUP_REJECTED_wa_identity_service_authority",
+      "facts": {
+        "candidate_startup": "PASS_REJECTED_INACTIVE",
+        "exit_code": 2,
+        "operation_connection_closed": true,
+        "role": "wa_identity_service_authority"
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 6,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "STARTUP_REJECTED_wa_app_runtime",
+      "facts": {
+        "candidate_startup": "PASS_REJECTED_INACTIVE",
+        "exit_code": 2,
+        "operation_connection_closed": true,
+        "role": "wa_app_runtime"
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 7,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "STARTUP_REJECTED_wa_worker",
+      "facts": {
+        "candidate_startup": "PASS_REJECTED_INACTIVE",
+        "exit_code": 2,
+        "operation_connection_closed": true,
+        "role": "wa_worker"
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 8,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "TEMPORARY_AUTHORITY",
+      "facts": {
+        "exact_temporary_options": true,
+        "leaf_create": false,
+        "permanent_migrator_edge": true,
+        "temporary_memberships": 3
+      }
+    },
+    {
+      "phase": "POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION",
+      "sequence": 9,
+      "identity": {
+        "run_id": "6850ee4c-154b-4834-9ed0-c3612db77724",
+        "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+        "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+        "packet_sha256": "1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2",
+        "variant": "division_failure",
+        "container_id": "cd4fb26d0aa8d91c3ac84f2366299fe0695439d5387b13df9f897243dab241e4",
+        "source_sql_sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c"
+      },
+      "kind": "COMPLETE",
+      "facts": {
+        "database_password_sql_executed": false,
+        "gate_state": {
+          "activated": false,
+          "install_closed_success": false,
+          "original_cleanup_verified": false
+        },
+        "observations_complete": true,
+        "original_finalization_not_yet_run": true
+      }
+    }
+  ],
+  "failed_precleanup_closure_records_verified": 15,
+  "failure_rebuilt_from_actual_closed_snapshot": {
+    "variant": "division_failure",
+    "primary_sqlstate": "22012",
+    "classification": "SERVER_PRIMARY_WITH_SECONDARY_25P02_NULL_LOGS",
+    "delta": {
+      "registered": 6,
+      "division_22012": 1,
+      "function_42501": 0,
+      "secondary_25p02": 1,
+      "other_migrator_error": 0,
+      "malformed": 0,
+      "forbidden_body": 0
+    },
+    "failed_row_immutable_sha256": "dde5fcf70237b807d5bc069d0e011219d8f58381720ddaf918fcf5e2774e4c7b",
+    "P3018_claimed": false,
+    "actual_database_failure_observed": true,
+    "rollback_observed": true,
+    "recovery_approved": false
+  },
+  "failed_ledger": {
+    "checksum_sha256": "8fbf6f4d4409282cb7ea17f2efa4c9203cd064d06b198a5f5b733130eda2dae5",
+    "finished": false,
+    "immutable_sha256": "dde5fcf70237b807d5bc069d0e011219d8f58381720ddaf918fcf5e2774e4c7b",
+    "logs_state": "NULL",
+    "name_sha256": "45bda41cbf8bc23eda6a6cb1005a51bdcdb00281848b9caa7e1b8a7ca9e940d8",
+    "rolled_back": false,
+    "steps": 0
+  },
+  "application_inventory": {
+    "enums": 0,
+    "functions": 0,
+    "other_clients": 0,
+    "relations": 0,
+    "types": 0
+  },
+  "original_cleanup": {
+    "leaf_create": false,
+    "original_grantor": "postgres",
+    "other_clients": 0,
+    "temporary_memberships": 0
+  },
+  "authority": {
+    "exact_temporary_options": true,
+    "leaf_create": false,
+    "permanent_migrator_edge": true,
+    "temporary_memberships": 0
+  },
+  "global_closure_records_verified": 36,
+  "full291_current_sources_and_actual5_sourcebytes_verified": true,
+  "all_read_handles_closed": true,
+  "original_review_deadline_monotonic": 213727.921,
+  "budget_remaining_when_review_recorded": 199.64000000001397,
+  "actual_recovery_approval_issued_by_this_audit_script": false,
+  "limits": {
+    "full_native_acl_and_private_ledger_comparison": "PENDING_OUTER_OPERATOR_AFTER_RECOVERY",
+    "later_function_grant": "NOT_RUN_AT_HOLD",
+    "whole94_451": false,
+    "hosted_changes": false,
+    "production_readiness": false,
+    "Posture": "D"
+  },
+  "plain_english": "The failed test left no application objects, kept its failure record, and removed its temporary powers. This evidence supports only the planned test recovery. The approval is a separate explicit decision."
+}

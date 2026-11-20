@@ -1,0 +1,93 @@
+"""Bounded private V8 derivation; old/live V7 and base generation untouched."""
+from pathlib import Path
+import ast,hashlib,json,shutil
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass';P=T/'privilege-public-acl-v8-before-author-20261120'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+D=lambda value:(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+REG='review-output/native-catalog/public-schema-registration.json'
+REG_SHA='f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3'
+REG_DIGEST='59a40e9472a828ceda6683c51be763c524ea98a761353b74d28c87fbaca4dbeb'
+def main():
+ preservation=json.loads((P/'preservation.json').read_bytes());assert H((P/'preservation.json').read_bytes())=='4497298134f3305243aea9417b69d921ece9b36c3e2505643c3820ebbbb8fee6'
+ for name,wanted in preservation['original649_Root_files_sha256'].items():assert H((R/name).read_bytes())==wanted
+ runtime={name:name.replace('_v7','_v8').replace('-v7','-v8').replace('-V7','-V8')for name in preservation['original_source4_sha256']}
+ five={name:name.replace('_v7','_v8')for name in preservation['original_five_sha256']}
+ substitutions={**runtime,**five,'privilege-ceiling-owned-v7':'privilege-ceiling-owned-v8','privilege-ceiling-v7-source-validation':'privilege-ceiling-v8-source-validation','privilege-v7-source-validation':'privilege-v8-source-validation','privilege-v7':'privilege-v8','V7_SOURCE':'V8_SOURCE','OFFLINE_TEST_ONLY_V7':'OFFLINE_TEST_ONLY_V8'}
+ for old,new in{**runtime,**five}.items():
+  source=R/old if old in runtime else F/old;target=C/new if old in runtime else F/new;assert not target.exists();text=source.read_text()
+  for before,after in substitutions.items():text=text.replace(before,after)
+  target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(text.encode())
+ protocol=C/'scripts/privilege_ceiling_control_protocol_v8.py';s=protocol.read_text()
+ helper='''PUBLIC_SCHEMA_REGISTRATION_CONTENT_SHA256=REG_DIGEST_LITERAL
+
+
+def registered_public_schema_acl(native,registration):
+    """Exact admitted source registration and typed native ACL multiset only."""
+    code='REGISTERED_PUBLIC_SCHEMA_ACL_REQUIRED'
+    fields={'format','owner','requires_prebootstrap_verification','baseline_acl','source_added_acl','full_acl'}
+    require(type(native)is dict and type(registration)is dict and set(registration)==fields,code)
+    require(registration['format']=='workinants.public-schema-registration.v1'and type(registration['owner'])is str and registration['requires_prebootstrap_verification']is True,code)
+    def rows(value):
+        require(type(value)is list and 0<len(value)<=16,code)
+        for row in value:
+            require(type(row)is dict and set(row)=={'grantee','grantor','privilege','grant_option'}and all(type(row[key])is str and 0<len(row[key])<=64 for key in('grantee','grantor','privilege'))and type(row['grant_option'])is bool,code)
+        return sorted(canonical(row)for row in value)
+    for name in('baseline_acl','source_added_acl','full_acl'):rows(registration[name])
+    require(digest(registration)==PUBLIC_SCHEMA_REGISTRATION_CONTENT_SHA256,code)
+    require(type(native.get('public_schema_owner'))is str and native['public_schema_owner']==registration['owner'],code)
+    actual=native.get('public_schema_acl');require(rows(actual)==rows(registration['full_acl']),code)
+    return actual
+
+
+'''.replace('REG_DIGEST_LITERAL',repr(REG_DIGEST))
+ old="def expected_acl(native,role,kind,object_,verb,column=None):\n    require(role in (*APP_ROLES,*PROVIDERS,'wa_context_issuer','wa_identity_service_authority'),'FIXED_ACL_ROLE')\n    rows=native['nonowner_acl']"
+ new="def expected_acl(native,role,kind,object_,verb,column=None,*,public_registration=None):\n    require(role in (*APP_ROLES,*PROVIDERS,'wa_context_issuer','wa_identity_service_authority'),'FIXED_ACL_ROLE')\n    if kind=='SCHEMA'and object_=='public':\n        require(column is None and verb in('USAGE','CREATE'),'REGISTERED_PUBLIC_SCHEMA_ACL_REQUIRED')\n        rows=registered_public_schema_acl(native,public_registration)\n        return any(row['grantee']in(role,'PUBLIC')and row['privilege']==verb for row in rows)\n    rows=native['nonowner_acl']"
+ assert s.count(old)==1;s=s.replace(old,helper+new);protocol.write_bytes(s.encode())
+ coor=C/'scripts/sql-review/run-privilege-ceiling-control-rehearsal-v8.py';s=coor.read_text()
+ needle="METADATA_OUTPUT_LIMIT=16384";assert s.count(needle)==1;s=s.replace(needle,needle+"\nPUBLIC_SCHEMA_REGISTRATION="+repr(REG)+"\nPUBLIC_SCHEMA_REGISTRATION_SHA256="+repr(REG_SHA))
+ s=s.replace("{SELF,METADATA_TEST,METADATA_DOC,PROTOCOL,LEGACY_PROTOCOL,SOURCE_VALIDATION,GENERATOR,NATIVE,CTX,PACKET+'/fixtures.json'}","{SELF,METADATA_TEST,METADATA_DOC,PROTOCOL,LEGACY_PROTOCOL,SOURCE_VALIDATION,GENERATOR,NATIVE,CTX,PUBLIC_SCHEMA_REGISTRATION,PACKET+'/fixtures.json'}",1)
+ needle="need(all(sha(raw)==pins[name]for name,raw in blobs.items()),'FULL_SOURCE_DRIFT')";assert s.count(needle)==1;s=s.replace(needle,needle+"\n    need(pins.get(PUBLIC_SCHEMA_REGISTRATION)==PUBLIC_SCHEMA_REGISTRATION_SHA256,'REGISTERED_PUBLIC_SCHEMA_ACL_REQUIRED')",1)
+ needle='def metadata_query_spec(case,native,right):'
+ helper='''def schema_create_metadata_comparison(expected,actual=None):
+    keys={'schema_usage','schema_create'}
+    need(type(expected)is dict and set(expected)==keys and all(type(value)is bool for value in expected.values()),'SOURCE_NATIVE_METADATA_REQUIRED')
+    observed=actual if metadata_boolean_shape(actual,expected)else None
+    return {key:{'expected':expected[key],'observed':observed[key]if observed is not None else None,'matches':observed[key]is expected[key]if observed is not None else None}for key in('schema_usage','schema_create')}
+
+
+'''
+ assert s.count(needle)==1;s=s.replace(needle,helper+needle)
+ old="            query,expected,spec=metadata_query_spec(case,self.native,P.expected_acl)"
+ new="""            right=P.expected_acl
+            if case['diagnostic'].get('schema')=='public':
+                registration=unique_json(self.source_blobs[PUBLIC_SCHEMA_REGISTRATION])
+                right=lambda native,role,kind,object_,verb,column=None:P.expected_acl(native,role,kind,object_,verb,column,public_registration=registration)
+            query,expected,spec=metadata_query_spec(case,self.native,right)"""
+ assert s.count(old)==1;s=s.replace(old,new)
+ needle="            record['metadata_query_receipt']=receipt;primary=None;closure=None;projection=None"
+ assert s.count(needle)==1;s=s.replace(needle,needle+"\n            schema_create=case['diagnostic']['kind']=='SCHEMA_CREATE'\n            if schema_create:record['schema_create_metadata_comparison']=schema_create_metadata_comparison(expected)")
+ old="                if not receipt['source_comparison_matches']:receipt['failure_class']='JSON_OR_SOURCE_REJECTED';raise Held('SOURCE_NATIVE_METADATA_REQUIRED')"
+ new="""                if not receipt['source_comparison_matches']:receipt['failure_class']='JSON_OR_SOURCE_REJECTED'
+                if schema_create:
+                    record['schema_create_metadata_comparison']=schema_create_metadata_comparison(expected,actual)
+                    persisted=self.persist()
+                    if receipt['source_comparison_matches']:need(persisted,'EVIDENCE_INCOMPLETE')
+                if not receipt['source_comparison_matches']:raise Held('SOURCE_NATIVE_METADATA_REQUIRED')"""
+ assert s.count(old)==1;s=s.replace(old,new);coor.write_bytes(s.encode())
+ # The original generation protocol/generator and all202 artifacts are never changed.
+ original_packet=json.loads((C/'review-output/privilege-ceiling-control-rehearsal/fixtures.json').read_bytes())
+ assert len(original_packet['cases'])==200 and len(original_packet['source_files_sha256'])==122
+ for name,wanted in original_packet['prepared_files_sha256'].items():assert H((C/'review-output/privilege-ceiling-control-rehearsal'/name).read_bytes())==wanted
+ archive_rel='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v8';archive=C/archive_rel;assert not archive.exists();archive.mkdir();shutil.copytree(P,archive/'preserved-before-v8')
+ fixtures=archive/'OFFLINE-fixture-inputs';fixtures.mkdir();native=(F/'OFFLINE-closed-v7-9577e42a/native-before.json').read_bytes();assert H(native)=='ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb';(fixtures/'v7-9577-native-before.json').write_bytes(native)
+ oldowned=json.loads((C/'context/reconciliation/local-f0-privilege-ceiling-owned-v7-source-validation.json').read_bytes());oldchild=json.loads((C/'context/reconciliation/privilege-ceiling-v7-source-validation.json').read_bytes())
+ source4={name:H((C/name).read_bytes())for name in runtime.values()};fivehash={name:H((F/name).read_bytes())for name in five.values()}
+ child={**oldchild,'schema':'workinants.privilege-v8-source-validation.v1','status':'SOURCE_ONLY_PENDING_PUBLIC_ACL_REVIEW','source_version':'privilege-v8','review_gate':'PENDING','source4_sha256':source4,'independent_source_review':{'decision':'PENDING'},'Root_source_review':{'decision':'PENDING'},'historical_v7_independent_source_review':oldchild['independent_source_review'],'historical_v7_Root_source_review':oldchild['Root_source_review'],'generator_protocol_rule':'Runtime V8 and original unchanged generation protocol remain separately admitted; no aliases or rebinding.','actual9577_individual_metadata_bits':'UNRETAINED; old complete causes UNOBSERVED'}
+ childpath='context/reconciliation/privilege-ceiling-v8-source-validation.json';(C/childpath).write_bytes(D(child))
+ owned={**oldowned,'status':'SOURCE_ONLY_PENDING_PUBLIC_ACL_REVIEW','source_version':'privilege-v8','operator_sources_sha256':fivehash,'archive_files_sha256':{},'independent_safety_sql_review':{'decision':'PENDING'},'independent_projection_review':{'decision':'PENDING'},'Root_source_review':{'decision':'PENDING'},'corrected_child_validation':{'path':childpath,'sha256':H((C/childpath).read_bytes())},'Root_ACK_sha256':H((T/'privilege_public_acl_v8_Root_bounded_implementation_ACK_20261120.json').read_bytes()),'before_author_preservation_sha256':H((P/'preservation.json').read_bytes())}
+ for name in five.values():(archive/(name+'.txt')).write_bytes((F/name).read_bytes())
+ for name in runtime.values():(archive/'child-source').mkdir(exist_ok=True);(archive/'child-source'/(Path(name).name+'.txt')).write_bytes((C/name).read_bytes())
+ owned['archive_files_sha256']={p.relative_to(C).as_posix():H(p.read_bytes())for p in archive.rglob('*')if p.is_file()}
+ (C/'context/reconciliation/local-f0-privilege-ceiling-owned-v8-source-validation.json').write_bytes(D(owned))
+ print(json.dumps({'private_runtime4':source4,'private_owned5':fivehash,'archive':len(owned['archive_files_sha256']),'all_gates':'PENDING','base202_and_original122_unchanged':True}))
+if __name__=='__main__':main()

@@ -1,0 +1,50 @@
+"""Exclusive source-only V7 author preservation proof; no runtime APIs."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+ack=json.loads((T/'privilege_v7_CREATE_projection_Root_bounded_implementation_ACK_20261120.json').read_bytes())
+ns=ack['authorized_new_namespace']
+pm=json.loads((T/'privilege-v7-before-author-preservation-20261120/manifest.json').read_bytes())
+for row in pm['files']:assert sha(Path(row['path']).read_bytes())==row['sha256'],row['path']
+fixture=json.loads((R/'review-output/privilege-ceiling-control-rehearsal/fixtures.json').read_bytes())
+source122=fixture['source_files_sha256'];assert len(source122)==122
+for name,wanted in source122.items():assert sha((R/name).read_bytes())==wanted,name
+oldvalidation=json.loads((R/'context/reconciliation/privilege-ceiling-metadata-v6-source-validation.json').read_bytes())
+artifacts=oldvalidation['artifacts202_sha256'];assert len(artifacts)==202
+for name,wanted in artifacts.items():assert sha((R/name).read_bytes())==wanted,name
+assert sum(name.endswith('.sql')for name in artifacts)==200
+def functions(path):
+ return {n.name:n for n in ast.parse(path.read_bytes()).body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}
+dump=lambda n:ast.dump(n,include_attributes=False)
+oldsteps=functions(T/'local_f0_privilege_ceiling_metadata_v6_operation_steps.py')
+newsteps=functions(T/'local_f0_privilege_ceiling_v7_operation_steps.py')
+changed=[name for name in oldsteps if dump(oldsteps[name])!=dump(newsteps[name])]
+assert set(changed)=={'admit_privilege_ceiling_sources','privilege_generated_artifact_closure','verify_privilege_ceiling_packet','privilege_ceiling_experiment','main','verify_privilege_result'}
+assert not(set(oldsteps)-set(newsteps))
+unchanged=sorted(set(oldsteps)-set(changed))
+oldcore=functions(T/'execute_local_f0_privilege_ceiling_metadata_v6_20261120.py')
+newcore=functions(T/'execute_local_f0_privilege_ceiling_v7_20261120.py')
+core_unchanged=[name for name in oldcore if name in newcore and dump(oldcore[name])==dump(newcore[name])]
+for name in('sql','observe','psql_args','cleanup','finalize','inspect_owner','verify_catalog_packet','closed_backends'):
+ assert name in unchanged or name in core_unchanged,name
+oldprotocol=functions(R/'scripts/privilege_ceiling_control_protocol.py')
+newprotocol=functions(R/'scripts/privilege_ceiling_control_protocol_v7.py')
+diagnostic=newprotocol['_unchanged_diagnostic'];diagnostic.name='diagnostic'
+assert dump(diagnostic)==dump(oldprotocol['diagnostic'])
+for name,node in oldprotocol.items():
+ if name!='diagnostic':assert dump(node)==dump(newprotocol[name]),name
+recordold=R/'context/reconciliation/local-f0-run-assets/c401d2f-privilege-086c453e/audit/coverage-clarification-history/normalization-before-coverage-wording-clarification.json'
+recordnew=R/'context/reconciliation/local-f0-privilege-c401d2f-086c453e-execution.json'
+assert sha(recordold.read_bytes())=='fe5adf8b985bb4166c621d33fd8bcc315fa4564bb8405b3928fd107ddeba2327'
+assert sha(recordnew.read_bytes())=='0701bab0f50831cfb05c35dc6671214b0a461a6a81cf7fda8392564bae4ed1da'
+a=json.loads(recordold.read_bytes());b=json.loads(recordnew.read_bytes())
+historical={}
+for leaf in('native-before','ledger-observation','oracle-preflight','oracle-results','oracle-closure','acl-preflight','text-preflight'):
+ names=[p for p in a['assets_sha256']if p.endswith('/evidence/'+leaf+'.json')];assert len(names)==1
+ name=names[0];assert a['assets_sha256'][name]==b['assets_sha256'][name]==sha((R/name).read_bytes())
+ historical[name]=a['assets_sha256'][name]
+value={'schema':'workinants.privilege-v7-source-preservation-author-proof.v1','status':'PASS_SOURCE_ONLY','old_snapshot_files':len(pm['files']),'source122_sha256':source122,'artifacts202_sha256':artifacts,'SQL_leaves':200,'unchanged_steps_AST_functions':unchanged,'unchanged_core_AST_functions':core_unchanged,'changed_steps_AST_functions':changed,'unchanged_protocol_functions':sorted(oldprotocol),'original_086c_cause':'UNOBSERVED','offline_fixture_only':{'normalization_before_sha256':sha(recordold.read_bytes()),'Root_clarified_after_sha256':sha(recordnew.read_bytes()),'identical_seven_fixture_assets_sha256':historical},'external5_sha256':{name:sha((T/name).read_bytes())for name in ns['external_five']},'source4_sha256':{name:sha((R/name).read_bytes())for name in ns['child_sources']},'runtime':'NOT_RUN','assertion_promotions':False}
+dest=T/'privilege_v7_final_source_preservation_author_proof_20261120.json'
+with dest.open('x',encoding='utf8')as stream:json.dump(value,stream,indent=2);stream.write('\n')
+print(json.dumps({'path':str(dest),'sha256':sha(dest.read_bytes()),'status':value['status'],'old_files':len(pm['files']),'unchanged_steps_functions':len(unchanged)}))

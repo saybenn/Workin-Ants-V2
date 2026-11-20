@@ -1,0 +1,18 @@
+"""Refresh only the private V8 pending snapshots after source authoring."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+D=lambda value:(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def main():
+ p=T/'privilege-public-acl-v8-before-author-20261120/preservation.json';old=json.loads(p.read_bytes());runtime={name:name.replace('_v7','_v8').replace('-v7','-v8').replace('-V7','-V8')for name in old['original_source4_sha256']};five={name:name.replace('_v7','_v8')for name in old['original_five_sha256']};archive=C/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v8'
+ for name in runtime.values():
+  raw=(C/name).read_bytes()
+  if name.endswith('.py'):ast.parse(raw)
+  (archive/'child-source'/(Path(name).name+'.txt')).write_bytes(raw)
+ for name in five.values():
+  raw=(F/name).read_bytes();ast.parse(raw);(archive/(name+'.txt')).write_bytes(raw)
+ childpath=C/'context/reconciliation/privilege-ceiling-v8-source-validation.json';child=json.loads(childpath.read_bytes());assert child['review_gate']==child['independent_source_review']['decision']==child['Root_source_review']['decision']=='PENDING';child['source4_sha256']={name:H((C/name).read_bytes())for name in runtime.values()};childpath.write_bytes(D(child))
+ ownedpath=C/'context/reconciliation/local-f0-privilege-ceiling-owned-v8-source-validation.json';owned=json.loads(ownedpath.read_bytes());assert all(owned[key]['decision']=='PENDING'for key in('independent_safety_sql_review','independent_projection_review','Root_source_review'));owned['operator_sources_sha256']={name:H((F/name).read_bytes())for name in five.values()};owned['corrected_child_validation']={'path':childpath.relative_to(C).as_posix(),'sha256':H(childpath.read_bytes())};owned['archive_files_sha256']={p.relative_to(C).as_posix():H(p.read_bytes())for p in archive.rglob('*')if p.is_file()};ownedpath.write_bytes(D(owned))
+ print(json.dumps({'source4':child['source4_sha256'],'five':owned['operator_sources_sha256'],'archive':len(owned['archive_files_sha256']),'gates':'PENDING'}))
+if __name__=='__main__':main()

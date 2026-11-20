@@ -1,0 +1,344 @@
+{
+  "schema": "workinants.v7-9577-independent-closed-evidence-audit.v1",
+  "reviewer": "/root/catalog_v4_review",
+  "decision": "STOPPED_PREFIX_EVIDENCE_CONSISTENT_BOUNDED_SOURCE_CORRECTION_NEEDED",
+  "lineage": "Independent reviewer of V7/fix2; did not author its CREATE/source-metadata code or this actual run. Historical authoring in other families does not qualify this evidence.",
+  "identity": {
+    "run_id": "9577e42a-1a55-43e6-8784-80b23d4c7653",
+    "source_commit": "a519d61f678a48afa4bb0e38d74800ebf8000d67",
+    "source_tree": "0f2a26f12b654fb17d865d4ae563419c09069a39"
+  },
+  "operation_packet_sha256": "d9a2eb23ae3cd4390c4364605c908d6d5fdd616d54934baa694c2d3c458b3051",
+  "approved_manifest_sha256": "28e196791cb9b3da604e5d20d895164f3fc5c55b9954480a05dc356c1cafbeb9",
+  "raw_outer_sha256": "82bf40535d1e99509923b6f97a668ba1b9ff35908e5a6041643f2842f4f7adb5",
+  "raw_child_sha256": "c8559e88ba98a021bae43d70b5d1cfe3bc3537d1b4698f87178169be263f2dfb",
+  "independent_cleanup_sha256": "1db9974374e77a5102b966a2f4c77b84c8d9d64a7cc3ad2ac6c0ca0c3c5a5c9d",
+  "actual_executor_session": 20084,
+  "actual_exit": 1,
+  "known_origin": {
+    "stage": "PRIVILEGE_NEGATIVE_OPERATION",
+    "case": "CREATE-wa_app_runtime-public",
+    "phase": "METADATA",
+    "code": "SOURCE_NATIVE_METADATA_REQUIRED"
+  },
+  "failed_case_observation": {
+    "schema": "workinants.privilege-metadata-receipt.v1",
+    "phase": "PRIVILEGE_METADATA_QUERY",
+    "query_sha256": "2ab1ae684af2f8645986c9fd37dc1829fa8308174fd1c520f326e33298732431",
+    "process_result_received": true,
+    "process_exit_class": "ZERO",
+    "exit_code": 0,
+    "stdout_bounded": true,
+    "stderr_bounded": true,
+    "stderr_empty": true,
+    "json_parsed": true,
+    "exact_boolean_shape": true,
+    "source_comparison_matches": false,
+    "sqlstate_class": "NONE",
+    "sqlstate": null,
+    "failure_class": "JSON_OR_SOURCE_REJECTED",
+    "closure_attempted": true,
+    "closure_confirmed": true
+  },
+  "failed_business_SQL": "NOT_RUN: metadata rejected before actor construction/capture/render/finish; no executed SQL hash or session record exists. Default diagnostic receipt is initial/unexecuted, not a malformed actual PostgreSQL error.",
+  "unretained_fields": "Individual metadata Boolean values and actual differing comparison fields UNOBSERVED; no reconstruction. Current_auth_role is prior authentication bookkeeping, not evidence of a failed business actor login.",
+  "finite_completed_contrasts": [
+    {
+      "name": "ISSUER-IMMUTABLE-id",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "25992126b222ae03f7616236402ce11780507c18fbebc2e22ea676c9a1fa5c49",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-token_hash",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "d1fd0c6628929e7a2344d30709529504d6d191ac0b293d7a04a46efa204e5414",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-issuer_service",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "d3243aea79fc50683bd126080d372de1006ad5186f51680a9e2c26a7512fdb89",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-principal_user_id",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "39d71308549c27fa1651a177f6d4d907ed31e6d193d583001f000a2aa5d86371",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-service_principal",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "1591a65c8560cc45a935b3c702d71eaf115e33164bb7731253216322a3d09f22",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-database_login_role",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "080151b2ca9af13de3657855d9f6b5c63af3905e186d239d321f6b04a3f481ab",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-owner_module_id",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "3ea6f64de627c32c762f0ba30c548f6dbde0bf590dc41e6d56c414148a95e371",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-action",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "a1545fd3bc0c62b26037639d6acddaad773f79ebd04fabcf713870baf2996368",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-purpose",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "d295640e18375cedc749df08a1231a3316ca79f4e636d5837570e3ed113e1712",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-target_kind",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "ef4065fa6db53c2ea4ad0f2343934d016628d3072b4b98df630d54d6d76736c7",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-target_id",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "a7ee079b2c0577590663805071ee4fa38cf9d0d411be1fb224ad052310ced333",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-allowed_fields",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "d5adea00c3b40705147e93dd72ec220a1f3d3a9aefa0a4f68ab38906a966107a",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-policy_version",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "cef0930872f364e09db8a8aad301902c0c0f28a7e954464310a692059c5e9b49",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-security_generation",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "2c737b557284d1d65dbb2a358760b3d7fe333622076b5badbb2b7edf67fb4fc7",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-source_generation",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "b0c5265281c23d3ee72d6bdbf99e02149d7d950fd6e82c64a1a4601e7810cf69",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-backend_pid",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "4ec7fdbde39314786492bebf9b70d29d688a4253c3a3192558f016ececc441bf",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-transaction_id",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "1a401abc423bdf584ec001959489476a00391c9b000a9c78e41d1ffb6a890e2b",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-expires_at",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "b0e5f48e78b8e126644d35c83132c5914c0ca417620decf0cabbfd9a4e487ba3",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-created_at",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "4498a663126e4456dc1e4f8ada621c7a3b03a36e8da872a833ff0d724aa7a195",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-IMMUTABLE-mutation_transaction_id",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "6ed7ce85f33b4dc3a7c76f31a450c9ca509439c4839673b08047b579a3db198f",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-UNREVOKED-NULL-REVOKE",
+      "diagnostic_gate": null,
+      "sqlstate": "P0001",
+      "source_template_sha256": "653570f7a22df134cbaa3436c16cdd55bee27a192b01f16a3d1146560ee3424a",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-REPEAT-REVOKE",
+      "diagnostic_gate": null,
+      "sqlstate": "P0001",
+      "source_template_sha256": "cdf9c39995a259a1759ffa484cef039a6d076751d36bc7a55e3cd6b3510c7ea7",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ISSUER-UNREVOKE",
+      "diagnostic_gate": null,
+      "sqlstate": "P0001",
+      "source_template_sha256": "653570f7a22df134cbaa3436c16cdd55bee27a192b01f16a3d1146560ee3424a",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ROLE-wa_app_runtime-wa_context_issuer",
+      "diagnostic_gate": "ROLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "88dc3dd98878527f8ed6f6bd5d3562ee0bca9689496c5a3a5ed02f824a80ae5c",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ROLE-wa_app_runtime-wa_private_helper_owner",
+      "diagnostic_gate": "ROLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "4f4aa72d8e1b5921ef94d3b5ac65f26ff34e4a682a29bff7dd2031af795bb6f4",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ROLE-wa_app_runtime-wa_customer_verifier",
+      "diagnostic_gate": "ROLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "0534592a9753597999ee48f3ad7e69b69069d5a5c23d7d0810eadc7556091712",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ROLE-wa_app_runtime-wa_track_verifier",
+      "diagnostic_gate": "ROLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "c68cd1f3ea2072acc8506dda8f6ccfdbfc131aa43b57ee510c7c07b5f457d81a",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ROLE-wa_app_runtime-wa_schema_owner",
+      "diagnostic_gate": "ROLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "7058a182d963d009a5b1ccd9f354813854be6a49ab664486cf811936cc0df59d",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ROLE-wa_app_runtime-wa_migrator",
+      "diagnostic_gate": "ROLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "302aa0e3a673db8312077f3feb7797c1e6a26ad370a8aac0ac0a310b02931f68",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "ROLE-wa_app_runtime-wa_identity_service_authority",
+      "diagnostic_gate": "ROLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "01bb0a150029375bceeddd934315e3f99d760bbb9f40511cf5c73f3c0d272980",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "GRANT-wa_app_runtime-SELECT",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "01625e359233b87c5cb8122da5e9f0c9eef35628516c87a25e8fac3081898169",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "GRANT-wa_app_runtime-INSERT",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "1c81564d8693c5b5dca82e1d3ea21b1ddf06e25c1ce7a379918ab6aa34d6cbb4",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "GRANT-wa_app_runtime-UPDATE",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "49882236b6c0c87ab02a63986c3d0efe54cc28b1cff4131a400c04b9915cdb69",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "GRANT-wa_app_runtime-DELETE",
+      "diagnostic_gate": "TABLE",
+      "sqlstate": "42501",
+      "source_template_sha256": "5a2c9da2ef52decbbd40d4ea6edaca9e56e81e60f986ce09ec42695d4fc987b2",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "CREATE-wa_app_runtime-app",
+      "diagnostic_gate": "SCHEMA_CREATE",
+      "sqlstate": "42501",
+      "source_template_sha256": "7f501d14dbcc0400ed3d78a9842092ffc313d46c8fb85fad0a7f1f0beb7fb310",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "CREATE-wa_app_runtime-platform",
+      "diagnostic_gate": "SCHEMA_CREATE",
+      "sqlstate": "42501",
+      "source_template_sha256": "c629879fb15b7fdaecfb41b8a3f28d43685fd50c5e069e38d3dbcf7f59fbb2d2",
+      "exact_closed_finite_state_evidence": true
+    },
+    {
+      "name": "CREATE-wa_app_runtime-platform_private",
+      "diagnostic_gate": "SCHEMA_CREATE",
+      "sqlstate": "42501",
+      "source_template_sha256": "e4bc54bfbf715687bfbf2632d32c386bbc70e9aaf5774a06a0cc71c24029847d",
+      "exact_closed_finite_state_evidence": true
+    }
+  ],
+  "counts": {
+    "results": 37,
+    "operations": 81,
+    "successful_global_boundaries": 195,
+    "native_fixture_validity_controls": 40,
+    "definer_metadata": 16,
+    "issuer_protocols": 2,
+    "facets": 0,
+    "remaining_unqualified_business_contrasts": 163
+  },
+  "state_and_limits": [
+    "Each completed37 has an exact intended diagnostic receipt/exit3/noACK/empty output:34native42501 and3allowlistedP0001 grant_guard frame matches, never a generic code alone. All have confirmed operation/global closure, source template binding and stable42-object fingerprint projection; private grants are checked separately by source-defined complete-row and total-count controls, not equated to the fingerprint filtered count.",
+    "All37 completed contrasts retain all100guard/function restoration and native-catalog unchanged flags.40native fixture controls are rollback validity only, not owner writes or wholecase qualification.",
+    "Three CREATE app/platform/platform_private contrasts carry verified source positions. Public CREATE and all later business cases remain NOT_RUN; no whole200, privilege umbrella, issuer aggregate, selected94/451 or production promotion.",
+    "Native29089/oracle416/ledger22 prerequisite observations and identical before/after native artifacts are retained. No live database re-observation or recomputation of discarded stderr occurred.",
+    "Parent preserved exact child origin, same original child hash/length, source649/physicalfive and final reference/postcheck flags; independently retained cleanup confirms exact1C1V/private absence and cached image retention."
+  ],
+  "source_projection_proof": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\v7_public_schema_projection_independent_catalog_20261120.json",
+    "sha256": "0f4dc85199ffcfee9560db88594552120323231693f1b420fd7a3f3f96626b68",
+    "vectors": 8,
+    "result": "Old oracle omits separate registered public_schema_acl: only two public CREATE expectations differ, USAGE false\u2192true while CREATE remains false and query bytes stay identical. Retained native.public_schema_acl matches registered fullACL.",
+    "actual_cause_limit": "Proven source omission consistent with this stop; does not identify unretained actual response bits or complete historical failures."
+  },
+  "source_current649_rehashed": true,
+  "physical_five_current_sha256": {
+    "execute_local_f0_privilege_ceiling_v7_20261120.py": "58d44455767e11a79d13aea4883016b9a00fc8a2044ab7f8231e897fcfd6aee2",
+    "local_f0_privilege_ceiling_v7_operation_steps.py": "c50fe30028313b9f5f400e9ced3f6dd2d30651075951ccbdf7a303d9f7e09544",
+    "prepare_local_f0_privilege_ceiling_v7_plan.py": "057f86eb2825b350504d0baca62638129cf9387de07842ea6a63a5f1204394c3",
+    "check_local_f0_privilege_ceiling_v7_operation.py": "c9c1bd77c9a40e57439b3e4e29c64d37ed098cb15777666596f3b97c16a56f86",
+    "pin_local_f0_privilege_ceiling_v7_plan_20261120.py": "32694fb7b44bc15ed931c589969f375e019cd08f5fd15711d7d32a14223e3c02"
+  },
+  "coverage_promoted": false,
+  "liveRoot_source_status_Git_Docker_DB_SQL_network_changes": false,
+  "Posture": "D",
+  "auditor_runner_history": "Two initial audit assertions assumed packet display order and universal42501; both assumptions were rejected by retained evidence, original helpers preserved. Audit now derives execution family order from actual run() AST and validates34native42501 plus3allowlistedP0001. First completed report ec319ab862c6aacec9b490dfaa7500258998959088cc81d61d327addfb9119e3 is preserved and superseded only to correct its stale42501 narrative; no source/raw evidence changed.",
+  "seconds": 0.562,
+  "plain_English": "The test stopped while checking permissions, before trying the public CREATE. Its checker forgot a permission stored in a different list. The saved evidence and cleanup agree; the missing response bits stay unknown."
+}

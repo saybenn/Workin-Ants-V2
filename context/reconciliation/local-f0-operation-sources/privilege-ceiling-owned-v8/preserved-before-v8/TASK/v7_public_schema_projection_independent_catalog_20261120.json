@@ -1,0 +1,131 @@
+{
+  "schema": "workinants.v7-public-schema-source-projection-independent.v1",
+  "PASS": true,
+  "decision": "PROVEN_SOURCE_EXPECTATION_OMITS_SEPARATE_REGISTERED_PUBLIC_ACL",
+  "vectors": [
+    {
+      "case": "CREATE-wa_app_runtime-app",
+      "query_sha256": "ee669ab10822e11a02685745e9a74384a49639b89dcb093bedc6765db2a3e80f",
+      "old_source_expectation": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "registered_public_ACL_projection": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "expected_comparison_differs": false,
+      "same_query_and_CREATE_refusal_expectation": true
+    },
+    {
+      "case": "CREATE-wa_app_runtime-platform",
+      "query_sha256": "7e103d28d9f2941cd72ac50aa772c3fdb0281aa31ffaebad65a6681ab9fa2fe4",
+      "old_source_expectation": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "registered_public_ACL_projection": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "expected_comparison_differs": false,
+      "same_query_and_CREATE_refusal_expectation": true
+    },
+    {
+      "case": "CREATE-wa_app_runtime-platform_private",
+      "query_sha256": "0881d0b348e5c9222ad1f93f47ffb6676d122476fb6c4878648810e8e5147aa0",
+      "old_source_expectation": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "registered_public_ACL_projection": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "expected_comparison_differs": false,
+      "same_query_and_CREATE_refusal_expectation": true
+    },
+    {
+      "case": "CREATE-wa_app_runtime-public",
+      "query_sha256": "2ab1ae684af2f8645986c9fd37dc1829fa8308174fd1c520f326e33298732431",
+      "old_source_expectation": {
+        "schema_usage": false,
+        "schema_create": false
+      },
+      "registered_public_ACL_projection": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "expected_comparison_differs": true,
+      "same_query_and_CREATE_refusal_expectation": true
+    },
+    {
+      "case": "CREATE-wa_worker-app",
+      "query_sha256": "e82a9ccb5e6d0fcf9d147a7328b776acb0c8e45aecaf11020278c3504e77a8e1",
+      "old_source_expectation": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "registered_public_ACL_projection": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "expected_comparison_differs": false,
+      "same_query_and_CREATE_refusal_expectation": true
+    },
+    {
+      "case": "CREATE-wa_worker-platform",
+      "query_sha256": "ac51f782948f82f150642de8d3dc1b24804cedf99a8def95e4181ebb1dec445a",
+      "old_source_expectation": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "registered_public_ACL_projection": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "expected_comparison_differs": false,
+      "same_query_and_CREATE_refusal_expectation": true
+    },
+    {
+      "case": "CREATE-wa_worker-platform_private",
+      "query_sha256": "33c68154585b9a53acaa9c5522f16d4073a1c9c2969e528739aabdaccf7d2e6f",
+      "old_source_expectation": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "registered_public_ACL_projection": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "expected_comparison_differs": false,
+      "same_query_and_CREATE_refusal_expectation": true
+    },
+    {
+      "case": "CREATE-wa_worker-public",
+      "query_sha256": "d3c8ae32dc0d3c3a6c2a00254d0712b0bbf8b1fd4d9229b728d26bb9ffb495d1",
+      "old_source_expectation": {
+        "schema_usage": false,
+        "schema_create": false
+      },
+      "registered_public_ACL_projection": {
+        "schema_usage": true,
+        "schema_create": false
+      },
+      "expected_comparison_differs": true,
+      "same_query_and_CREATE_refusal_expectation": true
+    }
+  ],
+  "public_schema_registration_sha256": "f0a46eef94da5f4836f46e64fe3a1c11a700fc158d40e36381e30bbdc0ec28d3",
+  "retained_native_sha256": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+  "protocol_sha256": "7f20d136bb3eed707e08887212dea9defde5537b357442a421aa5e4cabc94864",
+  "coordinator_sha256": "571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f",
+  "failed_metadata_query_SHA_matches_exact_source": true,
+  "registered_PUBLIC_USAGE_present": true,
+  "registered_PUBLIC_CREATE_absent": true,
+  "all_actual_process_network_forbidden": true,
+  "production_source_mutated": false,
+  "historical_actual_individual_metadata_bits": "UNOBSERVED; projected booleans here derive from retained source-bound native ACL, not a reconstruction of discarded query output.",
+  "scope": "Pure eight-case CREATE source projection. No actual SQL/process output fabricated, no all200 suite or qualification.",
+  "seconds": 0.14
+}

@@ -1,0 +1,35 @@
+"""Independent affected-code tests. No real process, database or network."""
+from pathlib import Path
+import ast,hashlib,io,json,runpy,socket,subprocess,time,unittest
+from unittest.mock import patch
+from pglast import parse_sql
+T=Path(__file__).resolve().parent
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+delivery=T/'restore_hba_bytes_v6_frozen_author_delivery_20261120.json'
+assert sha(delivery.read_bytes())=='707b0922033a63a1c16e591878dc16214bfc7dc94a74e71fb57948a574172f4d'
+d=json.loads(delivery.read_bytes());F=Path(d['future_root']);freeze=Path(d['freeze']['path']);f=json.loads(freeze.read_bytes())
+assert sha(freeze.read_bytes())==d['freeze']['sha256']
+def verify():
+ for name,wanted in d['operator_sources_sha256'].items():assert sha((T/name).read_bytes())==wanted
+ for name,wanted in d['candidate_Root_files_sha256'].items():assert sha((F/name).read_bytes())==wanted
+ for name,wanted in f['snapshot_sha256'].items():assert sha((freeze.parent/'files'/name).read_bytes())==wanted
+verify()
+n=runpy.run_path(str(T/'check_local_f0_restore_hba_bytes_v6_operation.py'))
+n['namespace'].__globals__['ROOT']=F
+def forbidden(*a,**kw):raise AssertionError('INDEPENDENT_REAL_PROCESS_OR_NETWORK_FORBIDDEN')
+stream=io.StringIO();start=time.monotonic()
+with patch.object(subprocess,'run',forbidden),patch.object(subprocess,'Popen',forbidden),patch.object(subprocess,'call',forbidden),patch.object(subprocess,'check_call',forbidden),patch.object(subprocess,'check_output',forbidden),patch.object(socket.socket,'connect',forbidden),patch.object(socket.socket,'connect_ex',forbidden),patch.object(socket,'create_connection',forbidden):
+ result=unittest.TextTestRunner(stream=stream,verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(n['HbaV6Tests']))
+ context=n['namespace']();queries=[]
+ def capture(name,role,query):
+  assert role=='postgres';queries.append(query);return json.dumps(dict.fromkeys(('sha256_matches','byte_length_matches','parser_errors_absent'),True))
+ context['raw_sql']=capture
+ for file in context['HBA_BYTE_SPECS']:context['verify_hba'](context['SOURCE'],file)
+ parsed={file:{'sha256':sha(query.encode()),'statements':len(parse_sql(query)),'no_multiline_expected_HBA':all(context['source_hba_bytes'](name).decode()not in query for name in context['HBA_BYTE_SPECS'])}for file,query in zip(context['HBA_BYTE_SPECS'],queries)}
+ assert len(parsed)==4 and all(row['statements']==1 and row['no_multiline_expected_HBA']for row in parsed.values())
+seconds=time.monotonic()-start;verify()
+out={'schema':'workinants.restore-hba-v6-independent-affected-checks.v1','delivery_sha256':sha(delivery.read_bytes()),'freeze_sha256':sha(freeze.read_bytes()),'script_sha256':sha(Path(__file__).read_bytes()),'operator_sources_sha256':d['operator_sources_sha256'],'testsRun':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'PASS':result.wasSuccessful(),'seconds':seconds,'trace':stream.getvalue(),'query_parse_only':parsed,'candidate75_and_frozen91_before_after_exact':True,'test_scope':'Only15 affected HbaV6Tests; actual modified methods and real source-admission/preparer/pinner algorithms. External Docker/DB/Git boundary mocks; isolated future approval metadata; no runtime qualification. Unchanged broad suites not rerun.','all_real_process_and_network_forbidden':True,'runtime':'NOT_RUN_NEW_SOURCE'}
+dest=T/'restore_hba_v6_independent_affected_checks_20261120.json'
+with dest.open('x',encoding='utf8',newline='\n')as output:json.dump(out,output,indent=2);output.write('\n')
+print(json.dumps({'path':str(dest),'sha256':sha(dest.read_bytes()),'testsRun':result.testsRun,'PASS':result.wasSuccessful(),'errors':len(result.errors),'failures':len(result.failures),'seconds':seconds}))
+if not result.wasSuccessful():print(stream.getvalue());raise SystemExit(1)

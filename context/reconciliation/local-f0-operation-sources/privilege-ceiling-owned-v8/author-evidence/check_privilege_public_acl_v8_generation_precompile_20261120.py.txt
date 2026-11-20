@@ -1,0 +1,34 @@
+"""Minimal no-project-compile generation-helper binding checks during hold."""
+from pathlib import Path
+from unittest.mock import patch
+import ast,builtins,copy,hashlib,json,runpy,socket,subprocess
+T=Path(__file__).resolve().parent;F=T/'privilege-public-acl-v8-private-candidate-20261120';C=F/'workinants-correction-pass'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+OLD='scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py';SHA='571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f'
+def main():
+ packet=json.loads((C/'review-output/privilege-ceiling-control-rehearsal/fixtures.json').read_bytes());validation=json.loads((C/'context/reconciliation/local-f0-privilege-ceiling-owned-v8-source-validation.json').read_bytes());paths=set(packet['source_files_sha256'])|set(validation['privilege_packet']['artifacts_sha256'])|{OLD};blobs={name:(C/name).read_bytes()for name in paths};prep=runpy.run_path(str(F/'prepare_local_f0_privilege_ceiling_v8_plan.py'));steps_raw=(F/'local_f0_privilege_ceiling_v8_operation_steps.py').read_text();node=next(n for n in ast.parse(steps_raw).body if isinstance(n,ast.FunctionDef)and n.name=='privilege_generated_artifact_closure');step={'hashlib':hashlib,'json':json,'Path':Path,'need':prep['need']};exec(compile(ast.Module(body=[node],type_ignores=[]),'<actual-steps-generation-helper-only>','exec'),step)
+ guards=[]
+ for name in('run','Popen','call','check_call','check_output'):
+  g=patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN'));g.start();guards.append(g)
+ for obj,name in((socket,'create_connection'),(socket.socket,'connect')):
+  g=patch.object(obj,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));g.start();guards.append(g)
+ checks=[]
+ try:
+  for label,function in(('actual_preparer',prep['privilege_generated_artifact_closure']),('actual_steps',step['privilege_generated_artifact_closure'])):
+   with patch.object(builtins,'compile',side_effect=AssertionError('PROJECT_COMPILE_FORBIDDEN')):
+    assert function(blobs,validation,packet,C,reproduce=False)is None;checks.append(label+'/correct-exact-old-helper')
+    for mode in('missing','wrong-bytes'):
+     changed=dict(blobs)
+     if mode=='missing':changed.pop(OLD)
+     else:changed[OLD]=b'UNADMITTED_HELPER_BYTES'
+     try:function(changed,validation,packet,C,reproduce=False)
+     except prep['Refused']:pass
+     else:raise AssertionError('WRONG_GENERATION_HELPER_ADMITTED')
+     checks.append(label+'/'+mode+'-reject')
+  assert H((C/OLD).read_bytes())==SHA
+  pin=(F/'pin_local_f0_privilege_ceiling_v8_plan_20261120.py').read_text();assert OLD in pin and "files.get('"+OLD+"')=='"+SHA+"'"in pin
+  runtime=H((C/'scripts/sql-review/run-privilege-ceiling-control-rehearsal-v8.py').read_bytes());assert "PRIVILEGE_COORDINATOR_SHA='"+runtime+"'"in steps_raw
+ finally:
+  for g in reversed(guards):g.stop()
+ result={'schema':'workinants.privilege-public-v8-generation-precompile-proof.v1','status':'PASS','checks':checks,'project_compiles':0,'process_network_calls':0,'original_generation_helper':{'path':OLD,'sha256':SHA},'separate_runtime_dispatch_sha256':runtime,'Root_ACK_sha256':H((T/'privilege_public_acl_v8_extra_generation_helper_Root_ACK_20261120.json').read_bytes()),'full_tool_graph':'DEFERRED_ROOT_ACTUAL_TIMING_HOLD','runtime':'NOT_RUN'};out=T/'privilege_public_acl_v8_generation_precompile_proof_20261120.json';assert not out.exists();out.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'record':out.name,'sha256':H(out.read_bytes()),'checks':len(checks),'project_compiles':0}))
+if __name__=='__main__':main()

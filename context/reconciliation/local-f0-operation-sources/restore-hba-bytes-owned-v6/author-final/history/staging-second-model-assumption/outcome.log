@@ -1,0 +1,54 @@
+test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) ... 
+  test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) (old=False) ... FAIL
+  test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) (old=True) ... FAIL
+
+======================================================================
+FAIL: test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) (old=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 168, in test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected
+    else:n['stage_restore'](metadata)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\local_f0_restore_hba_bytes_v6_operation_steps.py", line 1655, in stage_restore
+    inspect_restore(SOURCE,'source',running=False);create_extra_volume();create_extra_container(STAGING,True)
+                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\local_f0_restore_hba_bytes_v6_operation_steps.py", line 1645, in create_extra_container
+    attempted_containers.add(name);need(docker(args).returncode==0,'RESTORE_CONTAINER_CREATE')
+                                        ^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\execute_local_f0_restore_hba_bytes_v6_20261120.py", line 202, in docker
+    def docker(args,input=None,timeout=60):return command(['docker','--context','desktop-linux',*args],input,timeout)
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\execute_local_f0_restore_hba_bytes_v6_20261120.py", line 200, in command
+    return subprocess.run(args,input=input,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=timeout,cwd=ROOT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 62, in process
+    assert cmd[0]=='exec','UNREGISTERED_DOCKER_COMMAND'
+           ^^^^^^^^^^^^^^
+AssertionError: UNREGISTERED_DOCKER_COMMAND
+
+======================================================================
+FAIL: test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected (<run_path>.HbaV6Tests.test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected) (old=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 166, in test_06_actual_staging_uses_common_binary_path_and_old_inline_path_is_detected
+    with self.assertRaises(n['Stop'])as error:n['stage_restore'](metadata)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<only-held-V5-stage_restore>", line 1596, in stage_restore
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\local_f0_restore_hba_bytes_v6_operation_steps.py", line 1645, in create_extra_container
+    attempted_containers.add(name);need(docker(args).returncode==0,'RESTORE_CONTAINER_CREATE')
+                                        ^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\execute_local_f0_restore_hba_bytes_v6_20261120.py", line 202, in docker
+    def docker(args,input=None,timeout=60):return command(['docker','--context','desktop-linux',*args],input,timeout)
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\execute_local_f0_restore_hba_bytes_v6_20261120.py", line 200, in command
+    return subprocess.run(args,input=input,capture_output=True,text=True,encoding='utf8',errors='strict',timeout=timeout,cwd=ROOT)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 62, in process
+    assert cmd[0]=='exec','UNREGISTERED_DOCKER_COMMAND'
+           ^^^^^^^^^^^^^^
+AssertionError: UNREGISTERED_DOCKER_COMMAND
+
+----------------------------------------------------------------------
+Ran 1 test in 0.288s
+
+FAILED (failures=2)

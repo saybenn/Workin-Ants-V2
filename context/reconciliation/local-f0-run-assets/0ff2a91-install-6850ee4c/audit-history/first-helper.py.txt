@@ -1,0 +1,169 @@
+"""Closed actual INSTALL audit; pure comparisons only, no Root mutations."""
+import ast,builtins,collections,contextlib,datetime,hashlib,json,re,runpy,socket,subprocess,time,types
+from pathlib import Path
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';O=T/'local-f0-install-controls-20261119-6850ee4c'
+RUN='6850ee4c-154b-4834-9ed0-c3612db77724';COMMIT='0ff2a910ce081a0c6e0c6a268d6f876b8e061a45';TREE='886f85d4a919a8a04f85c8fe45a01e0a8801ba1c';PACKET='1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2'
+APP='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad';FAULT='dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c';LATE='bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f'
+ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker');checks=0
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+def need(value,code):
+ global checks
+ checks+=1
+ if not value:raise AssertionError(code)
+def same(a,b,code):need(canonical(a)==canonical(b),code)
+def doc(raw):
+ def pairs(items):
+  value={}
+  for k,v in items:need(k not in value,'DUPLICATE_JSON');value[k]=v
+  return value
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(AssertionError('NONFINITE_JSON')))
+def emit(path,value):
+ raw=(json.dumps(value,indent=2,sort_keys=True,allow_nan=False)+'\n').encode()
+ with path.open('xb')as f:f.write(raw)
+ return sha(raw)
+def identity(v):same([v['run_id'],v['source_commit'],v['source_tree'],v['packet_sha256']],[RUN,COMMIT,TREE,PACKET],'ACTUAL_IDENTITY')
+def pure_module(relative,blobs):
+ need(relative in blobs,'PURE_MODULE_NOT_ADMITTED');m=types.ModuleType('_audited_'+Path(relative).stem.replace('-','_'));m.__file__=str(R/relative);exec(compile(blobs[relative],str(R/relative),'exec'),m.__dict__);return m.__dict__
+
+# Generic source-derived FK trigger algorithm, reviewed here against only new6850 observations.
+def semantic_view(native,expected):
+ """Independently derive this exact source's 78 RESTRICT FK x four triggers."""
+ wanted={};empty=sha(b'');fk_count=0
+ for table,info in expected['tables'].items():
+  for source in info['constraints']:
+   if source['kind']!='FOREIGN':
+    need(not(source['kind']in('PRIMARY','UNIQUE')and source['deferrable']),'NO_OTHER_INTERNAL_TRIGGER_SOURCE');continue
+   fk_count+=1;need(source['delete_action']==source['update_action']=='r'and source['deferrable']is False and source['initially_deferred']is False,'EXACT_RESTRICT_FK_SOURCE')
+   candidates=[x for x in native['constraints']if x['table_name']==table and x['kind']=='f'and x['columns']==source['columns']and x['references']==source['references']and x['referenced_columns']==source['referenced_columns']and (source['name']is None or x['name']==source['name'])]
+   need(len(candidates)==1,'SOURCE_FK_IDENTITY');actual=candidates[0]
+   for field in('delete_action','update_action','deferrable','initially_deferred','match'):same(actual[field],source[field],'SOURCE_FK_PROPERTY')
+   need(type(actual['name'])is str and actual['name'].endswith('_fkey')and len(actual['name'].encode())<=63,'SOURCE_GENERATED_CONSTRAINT_NAME')
+   reference=source['references'];index=actual['referenced_unique_index'];ref_info=expected['tables'][reference]
+   source_indexes=[x for x in ref_info['constraint_indexes']if x['unique']is True and x['columns']==source['referenced_columns']]
+   native_indexes=[x for x in native['indexes']if x['object']==index and x['table_name']==reference and x['unique']is True and [k['column']for k in x['keys']]==source['referenced_columns']]
+   explicit=expected['explicit_indexes'].get(index)
+   source_index_match=any(x['constraint_name']is None or index==reference.split('.')[0]+'.'+x['constraint_name']for x in source_indexes)or(type(explicit)is dict and explicit['table']==reference and explicit['unique']is True and [x['IndexElem']['name']for x in explicit['keys_ast']]==source['referenced_columns'])
+   need(len(native_indexes)==1 and source_index_match,'SOURCE_REFERENCED_INDEX')
+   for target,other,function,bits,prefix in [(table,reference,'RI_FKey_check_ins',5,'c'),(table,reference,'RI_FKey_check_upd',17,'c'),(reference,table,'RI_FKey_restrict_del',9,'a'),(reference,table,'RI_FKey_restrict_upd',17,'a')]:
+    row={'table_name':target,'constraint_table':table,'constraint_name':actual['name'],'function':'pg_catalog.'+function,'function_identity':'pg_catalog.'+function+'()','function_release_builtin':True,'type_bits':bits,'enabled':'O','constraint':True,'deferrable':False,'initially_deferred':False,'argument_count':0,'arguments_sha256':empty,'when_sha256':None,'has_constraint_relation':True,'referenced_table':other,'has_constraint_index':True,'constraint_index':index,'dependencies':[{'class':'constraint','object':table+'/'+actual['name'],'direction':'trigger_to','object_subid':0,'dependency_type':'i','referenced_subid':0}],'internal':True}
+    key=(table,actual['name'],target,'pg_catalog.'+function,bits);need(key not in wanted,'UNIQUE_SOURCE_TRIGGER');wanted[key]=(row,prefix)
+ need(fk_count==78 and len(wanted)==312,'SOURCE312_INTERNAL_IDENTITIES')
+ internal={};external={};names={};seen=set()
+ for row in native['triggers']:
+  need(type(row)is dict and len(row)==21 and type(row['internal'])is bool,'TRIGGER21_FIELDS');keyname=(row['table_name'],row['name']);need(keyname not in seen,'UNIQUE_TRIGGER_NAME');seen.add(keyname)
+  if row['internal']is False:
+   key=row['table_name']+'/'+row['name'];need(key in expected['triggers']and key not in external,'SOURCE100_EXTERNAL_IDENTITIES');need(row['enabled']=='O','EXTERNAL_RESTORED');external[key]=row;continue
+  key=(row['constraint_table'],row['constraint_name'],row['table_name'],row['function'],row['type_bits']);need(key in wanted and key not in internal,'EXACT_SOURCE_INTERNAL_IDENTITY');source,prefix=wanted[key]
+  need(re.fullmatch('RI_ConstraintTrigger_'+prefix+'_[0-9]+',row['name'])is not None,'ONLY_GENERATED_INTERNAL_NAME')
+  clean={k:v for k,v in row.items()if k!='name'};same(clean,source,'ALL20_INTERNAL_NONNAME_FIELDS');internal[key]=clean;names[key]=row['name']
+ need(set(internal)==set(wanted)and set(external)==set(expected['triggers'])and len(external)==100 and len(native['triggers'])==412,'COMPLETE312_100_TRIGGER_SET')
+ view={'format':'workinants.install-source-semantic-native-view.v1','nontrigger_sections':{k:v for k,v in native.items()if k!='triggers'},'external_triggers':external,'internal_triggers':[[list(k),internal[k]]for k in sorted(internal)]}
+ need(len(view['nontrigger_sections'])==26,'OTHER26_NATIVE_SECTIONS');return view,names
+
+def main():
+ started=time.perf_counter();before_files={p.relative_to(O).as_posix():p.read_bytes()for p in O.rglob('*')if p.is_file()}
+ need('private'not in {p.parts[0]for p in map(Path,before_files)},'PRIVATE_CREDENTIAL_DIRECTORY_ABSENT')
+ assets={p:sha(b)for p,b in before_files.items()}
+ def a(name):return doc(before_files[name])
+ need(assets['run-evidence.json']=='eada43073ac1d0496ee922230ca05cc49cca8f0777a87ce5725689d47599f096','EXACT_CLOSED_RUN')
+ r=a('run-evidence.json');c=a('install-controls/install-controls-results.json');plan=a('install-coordinator-run-plan.json')
+ identity(c);identity(plan);need(c['schema']=='workinants.install-controls-results.v2'and c['evidence_complete']is True and c['persistence_failure']is False and c['first_failure']is None and c['status']=='PASS_FINITE_INSTALL_PROTOCOLS_PENDING_FULL_NATIVE_COMPARISON'and c['subsequent_cases_stopped']is False,'ACTUAL_CLEAN_CHILD')
+ need(r['status']=='PASS_FINITE_INSTALL_PROTOCOLS_AND_NATIVE_SUBSET_ONLY'and r['evidence_complete']is True and r['persistence_failure']is False and r['unexpected']==[],'ACTUAL_CLEAN_PARENT')
+ same([r['run_id'],r['approved_commit'],r['approved_tree'],r['approved_packet_sha256']],[RUN,COMMIT,TREE,PACKET],'PARENT_IDENTITY')
+ m=r['run_manifest'];identity(m);pins=m['packet_files_sha256'];need(len(pins)==291 and sha(''.join(p+'\0'+pins[p]+'\n'for p in sorted(pins)).encode())==PACKET,'ACTUAL291_AGGREGATE')
+ blobs={p:(R/p).read_bytes()for p in pins};need(all(sha(b)==pins[p]for p,b in blobs.items()),'CURRENT291_EXACT')
+ need(r['run_manifest_sha256']==sha((T/'local-f0-install-controls-plan-6850ee4c/operation-manifest.json').read_bytes())=='98a2f53b88af97f308c2005d82708f1e0e624bc8546d705b64894e33efd320b9','APPROVED_MANIFEST')
+ same(r['source_verification']['files_sha256'],pins,'ACTUAL_SOURCE_MAP');same(c['reviewed_plan_sha256'],assets['install-coordinator-run-plan.json'],'CLOSED_PLAN_BINDING')
+ five=m['operator_sources_sha256'];need(len(five)==5 and all(sha((T/p).read_bytes())==h for p,h in five.items()),'CURRENT_FIVE_EXACT')
+ scoreboard_paths=['context/reconciliation/local-f0-assertion-evidence.json','context/reconciliation/local-f0-qualification-status.json','scripts/check-local-f0-status.py']
+ scoreboard={p:(R/p).read_bytes()for p in scoreboard_paths};ledger0=doc(scoreboard[scoreboard_paths[0]]);need(len(ledger0['assertions'])==671,'PRESERVE_EXISTING671')
+ inventory=doc(blobs['context/reconciliation/local-f0-assertions.json']);case=next(x for x in inventory['cases']if x['id']=='P0C-INSTALL-02');assertion=next(x for x in case['assertions']if x['id']=='vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial')
+ assertion_hash=sha(assertion['expected_assertion'].encode());need(assertion_hash=='34db5106a123525087e33083c3917fb0cf0065d6c20f3d2060b2e8de5e8c60e9','EXACT_SINGLE_ASSERTION')
+ previous=next(x for x in ledger0['assertions']if x.get('case_id')==case['id']and x.get('assertion_id')==assertion['id']);need(previous['status']=='PARTIAL'and previous['expected_assertion_sha256']==assertion_hash,'PRESERVE_PRIOR_PARTIAL_HISTORY')
+ protocol=pure_module('scripts/install_control_protocol_v2.py',blobs);phase=pure_module('scripts/install_failed_precleanup_activation_v5.py',blobs)
+ proof=a('install-controls/rollback-proof-for-review.json');approval=a('install-controls/independent-recovery-approval.json');identity(proof)
+ need(assets['install-controls/independent-recovery-approval.json']=='c294fa71aa9d491ab696e7221854d07b4d70fa928bb420f3f0f374e87073d4ec','EXACT_EXPLICIT_APPROVAL')
+ protocol['require_recovery_review'](proof,approval,{k:proof[k]for k in('run_id','container_id','source_sql_sha256')})
+ receipt=doc((T/'install_v5_6850ee4c_Catalog_explicit_recovery_decision_receipt_20261120.json').read_bytes());need(receipt['original_review_deadline_monotonic']==213727.921 and 0<receipt['remaining_seconds_after_publication']<=220 and receipt['all_read_handles_closed']is True and receipt['approval_sha256']==assets['install-controls/independent-recovery-approval.json'],'ORIGINAL_UNEXTENDED_DEADLINE_APPROVAL')
+ same(receipt['decision'],approval,'EXACT_SEPARATE_SEVEN_FIELDS')
+ observed={};closure_counts={}
+ closed={'scope':'ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES','observation_completed':True,'all_other_clients_absent':True}
+ for variant,target in c['targets'].items():
+  need(variant in('canonical','division_failure','late_function_grant'),'EXACT_THREE_VARIANTS')
+  for key,value in target.items():
+   if key.startswith('closure_'):same(value,closed,'ALL_RETAINED_GLOBAL_CLOSURES')
+  closure_counts[variant]=sum(k.startswith('closure_')for k in target)
+  same(target['original_cleanup'],{'original_grantor':'postgres','temporary_memberships':0,'leaf_create':False,'other_clients':0},'ORIGINAL_GRANTOR_FINALIZATION')
+  same(target['authority'],{'temporary_memberships':0,'exact_temporary_options':True,'leaf_create':False,'permanent_migrator_edge':True},'AUTHORITY_AFTER_FINALIZATION')
+  same(target['settings'],dict.fromkeys(('prefix','terse','no_statements','no_error_statements','locale','passwords','version'),True),'SAFE_LOGGING')
+  for role in ROLES:
+   active=variant!='late_function_grant'or role in ROLES[:2]
+   same(target['auth_'+role],{'role':role,'correct_password':'PASS_SCRAM'if active else'PASS_REJECTED_INACTIVE','wrong_password':'PASS_REJECTED'if active else'NOT_RUN','actual_connection_closed':True},'ACTUAL_AUTH_CONTROLS')
+  if variant=='canonical':
+   protocol['validate_inventory'](target['inventory'],False);protocol['applied_ledger'](target['ledger']);protocol['completed'](target['cli_canonical_deploy']);need(target['cli_canonical_deploy']['no_pending_message_observed']is True,'ACTUAL_CANONICAL_NOOP')
+   need(target['wrong_grantor']['matched']is True and target['wrong_grantor']['sqlstate']=='P0001','WRONG_GRANTOR_ACTUAL_REFUSAL');continue
+  expected={**{k:plan[k]for k in('run_id','source_commit','source_tree','packet_sha256')},'variant':variant,'container_id':plan['targets'][variant]['container_id'],'source_sql_sha256':FAULT if variant=='division_failure'else LATE}
+  phase['validate_receipts'](target['failed_precleanup_activation'],expected,True);phase['validate_closures'](target['failed_precleanup_closures'],True)
+  need(len(target['failed_precleanup_activation'])==10 and len(target['failed_precleanup_closures'])==15,'NEW_PHASE10_GLOBAL15')
+  first=target['failed_precleanup_activation'][0]['facts'];cli=target['cli_'+variant+'_deploy'];same(first['cli_attestation_sha256'],cli['attestation_sha256'],'GENUINE_CLOSED_PHASE_CLI')
+  same([first['cli_exit_code'],first['cli_status']],[cli['exit_code'],cli['status']],'PHASE_ACTUAL_CLI_FIELDS')
+  failed={'rows':[proof['failed_ledger']],'ids_unique':True}if variant=='division_failure'else target['ledger']
+  zero=proof['application_inventory']if variant=='division_failure'else target['inventory']
+  rebuilt=protocol['failure_verdict'](variant,cli,zero,failed,target['server_before'],target['server_after'],expected['source_sql_sha256']);same(rebuilt,target['failure_verdict'],'REBUILT_ACTUAL_FAILURE')
+  need(rebuilt['primary_sqlstate']==('22012'if variant=='division_failure'else'42501')and rebuilt['rollback_observed']is True and rebuilt['P3018_claimed']is False,'INTENDED_FAILURE_NOT_CLI_LABEL')
+  protocol['validate_inventory'](zero,True);same(target['FAILED_INSTALL_REMAINS_INACTIVE'],phase['INACTIVE'],'POST_FAILED_RUNTIME_STAYS_INACTIVE');same(target['activation_gate_held'],{'permit':False,'database_password_sql_executed':False},'POST_FINALIZATION_GATE_REFUSAL')
+  need(target['failed_precleanup_activation'][8]['facts']['temporary_memberships']==3 and target['authority']['temporary_memberships']==0,'THREE_BEFORE_ZERO_AFTER')
+  observed[variant]={'failure_verdict':rebuilt,'precleanup_primary':first,'phase_receipts':10,'phase_closures':15,'precleanup_identity':expected,'zero_rollback_inventory':zero,'original_cleanup':target['original_cleanup']}
+ div=c['targets']['division_failure'];protocol['resolved_ledger']({'rows':[div['ledger']['rows'][0]],'ids_unique':True},proof['failed_ledger']);protocol['applied_ledger'](div['ledger'],proof['failed_ledger'])
+ protocol['completed'](div['cli_division_failure_resolve-rolled-back'],'resolve-rolled-back');protocol['completed'](div['cli_division_recovery_deploy']);need(div['cli_division_recovery_deploy']['no_pending_message_observed']is True,'GENUINE_RECOVERED_NOOP')
+ same(div['recovery_result'],{'standard_resolve':'PASS_AFTER_INDEPENDENT_REVIEW','failed_row_retained_unchanged':True,'canonical_retry_and_noop':'PASS_FINITE_PROTOCOL','full_schema_and_acl_parity':'PENDING_OUTER_OPERATOR_FULL_NATIVE_COMPARISON'},'RECOVERY_FINITE_RESULT')
+ # Closed, source-hashed tools only. No archived or caller-supplied code runs.
+ generator=pure_module('scripts/prepare-native-catalog-review.py',blobs);tools=generator['load_catalog_tools'](R,doc(blobs['review-output/native-catalog/source-pins.json']))
+ expected=doc(blobs['review-output/native-catalog/expected.json']);public=doc(blobs['review-output/native-catalog/public-schema-registration.json']);ledger_module=pure_module('scripts/sql-review/install_ledger_proof_v3.py',blobs)
+ adapter_names=('scripts/sql-review/install_ledger_proof_v3.py','scripts/sql-review/prisma_ledger_proof.py','scripts/sql-review/collect_prisma_ledger.sql','scripts/install_control_protocol_v2.py','context/reconciliation/local-f0-tooling/prisma-tools-closure.json','prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql','review-output/install-control-rehearsal-v3/division_failure/20261117000100_f0_local_initial/migration.sql')
+ adapter_blobs={p:blobs[p]for p in adapter_names};native_results={};views={};names={}
+ for variant,prefix,count,ledger_count in [('canonical','canonical-',29089,22),('division_failure','recovered-',29090,23)]:
+  row=c['targets'][variant];installed=row['cli_'+('canonical'if variant=='canonical'else'division_recovery')+'_deploy'];native=a(prefix+'native-before.json');native_digest=sha(canonical(native).encode())
+  same(a(prefix+'native-after-oracle.json'),native,'ORACLE_ROLLBACK_COMPLETE_CATALOG');same(a(prefix+'native-after-ledger.json'),native,'LEDGER_OBSERVER_COMPLETE_CATALOG')
+  identity6={'run_id':RUN,'container_id':plan['targets'][variant]['container_id'],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'target_attestation_sha256':installed['attestation_sha256']}
+  adapter=ledger_module['make_adapter'](adapter_blobs,{p:sha(b)for p,b in adapter_blobs.items()},protocol,identity6)
+  failed=a('recovered-install-failure-proof.json')if variant=='division_failure'else None
+  if failed is not None:adapter.validate_failure_proof(failed,failed['identity']);same(failed['rollback'],proof,'RETAINED_ROLLBACK_PROOF');same(failed['approval'],approval,'RETAINED_APPROVAL')
+  reg=adapter.build_registration(m['catalog']['ledger_expectation']if variant=='canonical'else m['install']['recovered_history_expectation'],run_id=RUN,target_attestation_sha256=installed['attestation_sha256'],source_expected_sha256=expected['source_expected_sha256'],root=R,database='wa_p0c_rehearsal',install_failure_proof=failed)
+  same(reg,a(prefix+'ledger-registration.json'),'RECOMPUTED_EXACT_LEDGER_REGISTRATION')
+  oracle=a(prefix+'oracle-evidence.json');need(tools['catalog_expression_oracle'].validate_evidence(expected,native,oracle,database='wa_p0c_rehearsal',grantor='postgres',root=R)is not False,'ACTUAL416_ORACLE_SOURCE_MATCH')
+  same(oracle['results'],a(prefix+'oracle-results.json'),'ORACLE_RESULTS_ARTIFACT');need(type(oracle['results']['expression_count'])is int and oracle['results']['expression_count']==len(oracle['results']['expressions'])==416,'EXACT416')
+  ledger=adapter.compare_proof(reg,a(prefix+'ledger-evidence.json'),native,bootstrap_grantor='postgres',source_expected_sha256=expected['source_expected_sha256'],root=R);same(ledger,a(prefix+'ledger-comparison.json'),'RECOMPUTED_LEDGER_COMPARISON');need(ledger['status']=='PASS'and len(ledger['checks'])==ledger_count,'EXACT_LEDGER_CHECK_COUNT')
+  fn=tools['compare_native_catalog'].compare_manifest;gl=dict(fn.__globals__);base=gl['__builtins__'];base=dict(base)if type(base)is dict else vars(base).copy();ordinary=base['__import__']
+  def imported(name,globals=None,locals=None,fromlist=(),level=0):return adapter if name=='prisma_ledger_proof'and level==0 else ordinary(name,globals,locals,fromlist,level)
+  gl['__builtins__']={**base,'__import__':imported};compare=types.FunctionType(fn.__code__,gl,fn.__name__,fn.__defaults__,fn.__closure__);compare.__kwdefaults__=fn.__kwdefaults__
+  result=compare(expected,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=public['full_acl'],ledger_registration=reg,ledger_evidence=a(prefix+'ledger-evidence.json'),expression_oracle_evidence=oracle,oracle_database='wa_p0c_rehearsal',root=R)
+  same(result,a(prefix+'catalog-comparison.json'),'RECOMPUTED_FULL_NATIVE_COMPARISON');need(result['status']=='PASS'and result['check_counts']=={'PASS':count}and result['findings']==[],'EXACT_FULL_NATIVE_COUNTS')
+  views[variant],names[variant]=semantic_view(native,expected)
+  native_results[variant]={'catalog_PASS':count,'oracle_expressions':416,'private_ledger_PASS':ledger_count,'raw_native_sha256':native_digest,'catalog_relations':len(native['relations']),'external_guards':len([x for x in native['triggers']if x['internal']is False]),'internal_triggers':len([x for x in native['triggers']if x['internal']is True])}
+ same(views['canonical'],views['division_failure'],'SOURCE_DERIVED_SEMANTIC_PARITY_ONLY');parity=a('install-semantic-parity.json');same(parity,r['install']['semantic_parity'],'PARENT_PARITY_BINDING');same(parity['semantic_view_sha256'],{k:sha(canonical(v).encode())for k,v in views.items()},'INDEPENDENT_SEMANTIC_PARITY_HASHES')
+ need(parity['only_validated_internal_name_equality_omitted']is True and parity['raw_snapshots_rewritten']is False and sum(names['canonical'][k]!=names['division_failure'][k]for k in names['canonical'])==312,'ONLY_VALIDATED312_INTERNAL_NAMES_OMITTED')
+ ref=r['install']['coordinator_reference'];need(ref['sha256']==assets['install-controls/install-controls-results.json']and ref['bytes']==len(before_files['install-controls/install-controls-results.json'])and ref['reference_qualified']is True,'ORIGINAL_CLOSED_COMPONENT_REFERENCE')
+ need([x['phase']for x in ref['integrity_checks']]==['BEFORE_CANONICAL_NATIVE','BEFORE_RECOVERED_NATIVE','AFTER_ALL_POSTCHECKS']and all(x['matched_original']is True and x['all_read_handles_closed']is True for x in ref['integrity_checks']),'EARLY_AND_FINAL_REFERENCE_BARRIERS')
+ clean_path=T/'0ff_install_independent_cleanup_20261120.json';need(sha(clean_path.read_bytes())=='d8880f065a01842960c85b1654110dc4bcc26f3ebfe312583c9083decf5072bc','EXACT_INDEPENDENT_CLEANUP');clean=doc(clean_path.read_bytes());identity(clean)
+ need(clean['known_executor_exit']==0 and clean['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'and clean['private_directory_absent']is True and len(clean['exact_name_observations'])==6 and all(x['absent_exact_known_diagnostic']is True for x in clean['exact_name_observations'].values())and clean['pinned_image_retained_and_validated']['removed']is False,'ACTUAL6_RESOURCES_PRIVATE_ABSENT')
+ for flag in('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_input_archives_and_fresh_history_unchanged_after_run','external_sources_unchanged_after_run','all_source_and_external_inputs_preserved_after_run'):need(r[flag]is True,'SOURCE_IO_POSTCHECKS')
+ need(all(v is False for v in r['cleanup_summary']['resource_presence_after'].values())and r['cleanup_summary']['image_removed']is False and r['cleanup_summary']['unrelated_resources_changed']is False,'CONTROLLED_EXACT_CLEANUP')
+ for p,b in blobs.items():need((R/p).read_bytes()==b,'FINAL_SOURCE_BYTES')
+ for p,b in scoreboard.items():need((R/p).read_bytes()==b,'SCOREBOARD_UNTOUCHED')
+ need({p.relative_to(O).as_posix():sha(p.read_bytes())for p in O.rglob('*')if p.is_file()}==assets,'FINAL_CLOSED_ASSETS')
+ audit={'schema':'workinants.install6850-independent-closed-final-evidence-audit.v1','reviewer':'/root/catalog_v4_review','decision':'PASS_ACTUAL_FINITE_INSTALL_EVIDENCE_NEW_PRECLEANUP_PHASE_SUPPORTED','created_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'lineage':'I independently reviewed the new V5 phase/parent delta and am its distinct actual recovery reviewer; I did not author V5. Historical watcher design and Owner-derived scaffolding lineage is disclosed. This is an actual closed evidence audit, not production or full-case approval.','run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'source_files':291,'operator_sources_sha256':five,'raw_run_sha256':assets['run-evidence.json'],'raw_child_sha256':assets['install-controls/install-controls-results.json'],'closed_assets_sha256':assets,'independent_cleanup_sha256':sha(clean_path.read_bytes()),'checks':checks,'seconds':round(time.perf_counter()-started,3),'failures_and_new_phase':observed,'native_recomputed':native_results,'semantic_parity':parity,'child_closure_keys':closure_counts,'parent_closure_records':len(r['backend_closures']),'exact_approval_sha256':assets['install-controls/independent-recovery-approval.json'],'original_deadline':receipt['original_review_deadline_monotonic'],'approval_seconds_remaining':receipt['remaining_seconds_after_publication'],'coordinator_original_reference':ref,'scoreboard_preserved_sha256':{p:sha(b)for p,b in scoreboard.items()},'claim_ceiling':{'case_id':case['id'],'assertion_id':assertion['id'],'expected_assertion_sha256':assertion_hash,'maximum_action':'ONE_EXISTING_PARTIAL_TO_PASS_ONLY_AFTER_REVIEWED_ADAPTER_AND_ROOT_BUILD','existing671_rows_untouched':True},'limits':['No old4b35 actual values substituted; only generic source-derived semantic normalization algorithm reused and current source/observations independently recomputed.','CLI first/noop and intermediate ledger/authority labels are overwritten in raw history; successful source-gated completion plus final no-pending/ledger/schema parity are the bounded evidence. Do not invent missing per-call receipts.','Catalog evidence covers all42 relations and100 enabled external guards. This packet has no COMPLETE42 business-row count/hash snapshots; no business-DML/owner-write/worker qualification is claimed.','Only validated312 generated internal trigger names are omitted from cross-install semantic equality; all20 other internal fields,100 external rows and26 other native sections match; raw native snapshots remain distinct.','Raw child full-native PENDING tags remain unchanged; separate outer full comparisons provide the source-bound native/oracle/ledger evidence.','No other assertions/94/451/hosted/production readiness promotion; Posture D unchanged.'],'plain_english':'Both planned failures left no application objects. Before cleanup, the app stayed locked and could not turn itself on. Cleanup then removed the temporary powers. Only that missing check is proposed for the scoreboard.'}
+ audit['raw_aggregate_step_flags_preserved']={k:v for k,v in r['steps'].items()if v=='NOT_RUN'}
+ audit['limits'].append('Raw aggregate CATALOG-AUTH/INSTALL/native stage flags may remain NOT_RUN while later exact source/CID-bound actual child and native artifacts prove the exercised subset. No raw flag is rewritten or treated as proof by itself.')
+ audit_path=T/'install_v5_6850ee4c_independent_closed_final_audit_Catalog_20261120.json';audit_sha=emit(audit_path,audit)
+ mapping={'schema':'workinants.install6850-single-precleanup-assertion-admission-plan.v1','status':'PROPOSED_SOURCE_PLAN_ONLY_PENDING_ROOT_ACK_AND_SEPARATE_REVIEW','audit':{'path':str(audit_path),'sha256':audit_sha},'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'case_id':case['id'],'assertion_id':assertion['id'],'source_assertion':assertion,'expected_assertion_sha256':assertion_hash,'complete_source_assertion_sha256':sha(canonical(assertion).encode()),'proposed_status':'PASS','previous_row':previous,'preserve_previous_row_and_provenance':True,'base_ledger_sha256':sha(scoreboard[scoreboard_paths[0]]),'base_rows':671,'source_packet_files_sha256':pins,'operator_sources_sha256':five,'closed_assets_sha256':assets,'independent_cleanup':{'path':str(clean_path),'sha256':sha(clean_path.read_bytes())},'required_evidence_pointers':['/targets/late_function_grant/failed_precleanup_activation','/targets/late_function_grant/failed_precleanup_closures','/targets/late_function_grant/failure_verdict','/targets/late_function_grant/inventory','/targets/late_function_grant/original_cleanup','/targets/late_function_grant/authority','/targets/division_failure/failed_precleanup_activation','/targets/division_failure/failed_precleanup_closures'],'new_pure_reader_paths':['scripts/local_f0_install_precleanup_evidence.py','scripts/check-local-f0-install-precleanup-evidence.py'],'reader_contract':'Hash-bound closed normalized execution record once Root curates it, this independent audit, all exact291 source files/five snapshots and complete fixed assets. Never compile archived code or execute processes/network/SQL. Duplicate/nonfinite/unknown/malformed types reject. Check both exact10/15 phase identities/order, actual closed failed CLI attestation, primary22012/42501, zero rollback objects, real GateFalse refusal with no password SQL, four NULL verifiers and four actual rejected startups, temporary3 before original finalization and0/noCREATE afterward. Enforce exact original seven-field approval/recovery/native evidence as supporting context; one literal case|assertion whitelist only. Closed-file fstat/path representation checks, fresh closed byte/SHA/length recheck and sticky final integrity barrier before returning the single result. No arbitrary proof dictionary or pointer accepted.','required_mutants':['omitted precleanup phase or a preinstall/postcleanup substitute','swapped or duplicated phase sequence or closure','foreign run/source/CID/fault checksum/CLI attestation','Gate True or password SQL executed','NULL verifier or startup control missing/wrong role','memberships3 not observed before or0/noCREATE absent after original grantor','unrelated SQLSTATE or forged native/ledger count/hash','missing/expired/foreign reviewer seven-field approval','only parent PASS labels with missing actual child facts','source/asset/current+fresh-read drift, same-size restored-mtime mutation, final-barrier omission','duplicate/nonfinite/bool-as-int/extra fields, unlisted assertion, forged existing dictionary pointer, secret canary'],'Root_admission_sequence':['Curate immutable new execution record and closed assets without editing raw historical files. Preserve this audit and the explicit watch/review/decision receipts.','Author only the narrow pure one-claim adapter and focused environment-free tests after Root ACK; obtain a distinct source review before integration.','Add one explicit dispatcher kind/record pin and fixed pointer after review; replace only this existing PARTIAL evidence row with prior row preserved in history. Do not duplicate the five old INSTALL accepted links or any other accepted row.','Run actual unchanged Root builder/checker against the complete graph; preserve all prior671 rows/provenance and untouched source/dependency/whole-case aggregation rules. No manual whole-case,94 or451 promotion.'],'unchanged_scoreboard':{p:sha(b)for p,b in scoreboard.items()},'runtime_or_parser_implementation_authorized_by_this_plan':False,'Posture':'D'}
+ plan_path=T/'install_v5_6850ee4c_single_assertion_admission_plan_Catalog_20261120.json';plan_sha=emit(plan_path,mapping)
+ print(json.dumps({'audit':str(audit_path),'audit_sha256':audit_sha,'plan':str(plan_path),'plan_sha256':plan_sha,'checks':checks,'seconds':audit['seconds'],'maximum_new_claims':1}))
+
+if __name__=='__main__':
+ with contextlib.ExitStack()as stack:
+  for name in('run','Popen','check_output','call','check_call'):stack.enter_context(patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN')))
+  stack.enter_context(patch.object(socket,'socket',side_effect=AssertionError('NETWORK_FORBIDDEN')));stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+  main()

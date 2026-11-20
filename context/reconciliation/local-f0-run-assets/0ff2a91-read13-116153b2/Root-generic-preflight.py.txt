@@ -1,0 +1,51 @@
+"""Root flag-only admission of one separately reviewed, exact published local run literal."""
+from pathlib import Path
+import argparse,datetime,hashlib,io,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+C='0ff2a910ce081a0c6e0c6a268d6f876b8e061a45';TREE='886f85d4a919a8a04f85c8fe45a01e0a8801ba1c'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+CFG={
+ 'read':('local-f0-remaining-app-read13-owned-v2-plan-d848e852','9035fe8f694db811e5c8659a2e9ffd14ca7091b3d2c971474351a108a25eaccc','d848e852-f857-4c03-8288-4893e2e8aa0c','7720bb7deb6c5b190d04482be6f263cb45622cba36fe06b548ecddcfc164284f',1400,'APPROVED_LOCAL_F0_REMAINING_APP_READ13_OWNED_V2_ATTEMPT','local_f0_remaining_app_read13_owned_v2_operation_steps.py','read13',['wa-p0c-d848e852-read13']),
+ 'app':('local-f0-app-write-two-unexpected-diagnostic-v3-owned-plan-0a02569b','c0c3b26ac67df9f766b0f0848e002db93a4ab62966c82a122c22d8f40f9891e2','0a02569b-40e9-409f-b0df-e0d724977daa','0f6118df8735570905b90c25ed4dd2d7ada627afae699db71a86154a065be2a9',301,'APPROVED_LOCAL_F0_APP_WRITE_TWO_ATTEMPT','local_f0_app_write_two_unexpected_diagnostic_v3_operation_steps.py','app_write_two',['wa-p0c-0a02569b-appwrite2']),
+ 'install':('local-f0-install-controls-plan-6850ee4c','86e9c2fd07b553a563b69f6c6962d354ad8c43717abca9e95333ddf1a69d3d08','6850ee4c-154b-4834-9ed0-c3612db77724','1ec1f730e6023d22c52e93b750c91f96ea07b2337fe793dd3d1477cd383c4fc2',291,'APPROVED_LOCAL_F0_INSTALL_OWNED_ATTEMPT','local_f0_install_controls_operation_steps_source_phase_v5.py',None,['wa-p0c-6850ee4c-install-good','wa-p0c-6850ee4c-install-division','wa-p0c-6850ee4c-install-order'])}
+def put(p,b):
+ with p.open('xb')as f:f.write(b)
+def git(*a,input=None):return subprocess.check_output(['git','--no-optional-locks','-c','core.longpaths=true',*a],cwd=R,input=input,timeout=120)
+def docker(*a):return subprocess.run(['docker','--context','desktop-linux',*a],cwd=R,capture_output=True,text=True,timeout=30,shell=False)
+def absent(p):
+ try:p.lstat()
+ except FileNotFoundError:return True
+ return False
+def main():
+ p=argparse.ArgumentParser();p.add_argument('lane',choices=CFG);p.add_argument('--review',type=Path,required=True);p.add_argument('--review-sha256',required=True);a=p.parse_args()
+ dirname,pending,run,packet,count,flag,steps,subkey,cnames=CFG[a.lane];path=T/dirname/'operation-manifest.json';raw=path.read_bytes();assert sha(raw)==pending;m=json.loads(raw)
+ rp=a.review.resolve();assert rp.is_relative_to(T.resolve())and not rp.is_relative_to(R.resolve());rr=rp.read_bytes();assert sha(rr)==a.review_sha256;v=json.loads(rr)
+ assert v['decision']=='SOURCE_APPROVED_OPERATIONAL_LITERAL'and v['findings']==[]and v['reviewer']in('/root/catalog_v4_review','/root/privilege_mount_v2_review','/root/review_track_ports','/root/install_outer_review')
+ assert v['pending_literal']=={'path':str(path),'sha256':pending,'run_id':run};assert m['run_id']==run and m['review_status']=='PENDING_OPERATIONAL_REVIEW'
+ assert v['source']['commit']==m['source_commit']==C and v['source']['tree']==m['source_tree']==TREE
+ pins=m['packet_files_sha256'];assert len(pins)==count==v['source']['full_current_and_committed_files'];aggregate=sha(''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode());assert aggregate==packet==m['packet_sha256']==v['source']['packet_sha256']
+ for n,h in pins.items():assert sha((R/n).read_bytes())==h,n
+ five=m['operator_sources_sha256']if subkey is None else m[subkey]['external_files_sha256'];assert len(five)==5 and five==v['source']['external5_sha256']
+ for n,h in five.items():assert sha((T/n).read_bytes())==h
+ assert v['Root_flag_only_action_after_fresh_preflight']=={'review_status':flag,'all_other_manifest_fields_and_pins_must_remain_identical':True,'fresh_live_endpoint_platform_image_exact_name_absence_required':True}
+ assert "MANIFEST['review_status']=='"+flag+"'"in(T/steps).read_text(encoding='utf8')
+ assert git('rev-parse','HEAD').decode().strip()==C and git('rev-parse','HEAD^{tree}').decode().strip()==TREE
+ data=io.BytesIO(git('cat-file','--batch',input=''.join(C+':'+n+'\n'for n in sorted(pins)).encode()))
+ for n in sorted(pins):
+  h=data.readline().split();assert len(h)==3 and h[1]==b'blob';body=data.read(int(h[2]));assert sha(body)==pins[n]and data.read(1)==b'\n',n
+ assert not data.read();assert git('ls-remote','--exit-code','origin','refs/heads/codex/p0c-candidate-corrections-2026-10-31').decode().split()==[C,'refs/heads/codex/p0c-candidate-corrections-2026-10-31']
+ c=docker('context','inspect','desktop-linux');assert c.returncode==0;contexts=json.loads(c.stdout);assert len(contexts)==1 and contexts[0]['Name']=='desktop-linux';endpoint=contexts[0]['Endpoints']['docker']['Host'];assert endpoint=='npipe:////./pipe/dockerDesktopLinuxEngine'
+ s=docker('version','--format','{{json .Server}}');assert s.returncode==0;server=json.loads(s.stdout);assert server['Os']=='linux'and server['Arch']=='amd64'
+ i=docker('image','inspect',m['image']);assert i.returncode==0;hp='scripts/sql-review/local_image_identity.py';hb=(R/hp).read_bytes();assert sha(hb)==pins[hp]=='a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604'
+ ns={'__name__':'_Root_reviewed_local_image_identity','__file__':str(R/hp)};exec(compile(hb,str(R/hp),'exec'),ns);identity=ns['validate_cached_image'](json.loads(i.stdout),(R/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes());assert identity['reference']==m['image']
+ assert [t['name']for t in m['targets']]==cnames and [t['volume']for t in m['targets']]==[n+'-data'for n in cnames];names=[('container',n)for n in cnames]+[('volume',n+'-data')for n in cnames];observations={}
+ for kind,n in names:
+  r=docker(kind,'inspect',n);expected='Error response from daemon: No such container: '+n if kind=='container'else'Error response from daemon: get '+n+': no such volume';assert r.returncode==1 and r.stdout.strip()=='[]'and r.stderr.strip()==expected;observations[n]={'kind':kind,'absent_exact_known_diagnostic':True,'raw_output_retained':False}
+ out=Path(m['evidence_directory']);assert out.resolve().is_relative_to(T.resolve())and not out.resolve().is_relative_to(R.resolve())and absent(out)and absent(out/'private')
+ assert path.read_bytes()==raw and git('rev-parse','HEAD').decode().strip()==C
+ for n,h in pins.items():assert sha((R/n).read_bytes())==h
+ for n,h in five.items():assert sha((T/n).read_bytes())==h
+ put(path.with_name('operation-manifest-before-operational-review.json'),raw);m['review_status']=flag;assert {k for k in m if m[k]!=json.loads(raw)[k]}=={'review_status'};temp=path.with_name('operation-manifest-reviewed.tmp');put(temp,(json.dumps(m,indent=2,allow_nan=False)+'\n').encode());temp.replace(path)
+ value={'schema':'workinants.0ff-Root-exact-literal-approval.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'lane':a.lane,'source_commit':C,'source_tree':TREE,'run_id':run,'review_path':str(rp),'review_sha256':a.review_sha256,'pending_manifest_sha256':pending,'approved_manifest_sha256':sha(path.read_bytes()),'changed_keys':['review_status'],'packet_sha256':packet,'all_current_and_committed_files':count,'external5_sha256':five,'fresh_preflight':{'endpoint':endpoint,'server':{k:server[k]for k in('Version','Os','Arch')},'image_identity':identity,'exact_names':observations,'OUT_private_absent':True},'runtime':'NOT_RUN_AT_APPROVAL','Posture':'D'}
+ proof=T/('0ff_'+a.lane+'_Root_literal_approval_receipt_20261120.json');put(proof,(json.dumps(value,indent=2,allow_nan=False)+'\n').encode());print(json.dumps({'receipt':str(proof),'receipt_sha256':sha(proof.read_bytes()),'approved_manifest_sha256':value['approved_manifest_sha256'],'status':'APPROVED_EXACT_FLAG_ONLY_AFTER_FRESH_LOCAL_PREFLIGHT','runtime':'NOT_RUN_AT_APPROVAL'}))
+if __name__=='__main__':main()

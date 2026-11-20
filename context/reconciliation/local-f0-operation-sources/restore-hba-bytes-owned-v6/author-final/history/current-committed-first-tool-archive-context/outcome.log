@@ -1,0 +1,18 @@
+test_13_actual_current_committed_pin_and_source_verifier_on_exclusive_review_fixture (<run_path>.HbaV6Tests.test_13_actual_current_committed_pin_and_source_verifier_on_exclusive_review_fixture) ... FAIL
+
+======================================================================
+FAIL: test_13_actual_current_committed_pin_and_source_verifier_on_exclusive_review_fixture (<run_path>.HbaV6Tests.test_13_actual_current_committed_pin_and_source_verifier_on_exclusive_review_fixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\check_local_f0_restore_hba_bytes_v6_operation.py", line 276, in test_13_actual_current_committed_pin_and_source_verifier_on_exclusive_review_fixture
+    self.assertEqual(error.exception.code,'CURRENT_AND_COMMITTED_BLOB_MISMATCH');self.assertEqual(json.loads(path.read_bytes())['packet_files_sha256'],{})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'TASK_EXTERNAL_PATH_REQUIRED' != 'CURRENT_AND_COMMITTED_BLOB_MISMATCH'
+- TASK_EXTERNAL_PATH_REQUIRED
++ CURRENT_AND_COMMITTED_BLOB_MISMATCH
+
+
+----------------------------------------------------------------------
+Ran 1 test in 29.095s
+
+FAILED (failures=1)

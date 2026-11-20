@@ -1,0 +1,39 @@
+"""Close exact V7 source gates after separate review; never execute a resource operation."""
+from pathlib import Path
+import ast,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+dp=T/'privilege_v7_frozen_source_plan_fix2_20261120.json';db=dp.read_bytes();assert sha(db)=='204cbca387eabc521cd1f30d3061a6050dcdc9cf40f453ef170eaa9b79b2c2b3';d=json.loads(db)
+pp=T/'privilege_v7_fix2_same_reviewer_independent_source_closure_20261120.json';pb=pp.read_bytes();assert sha(pb)=='81515ab6b2d618422a46002f7b5d463155afcadf03727374babfe11c3fbd98e6';peer=json.loads(pb)
+assert peer['decision']=='SOURCE_APPROVED'and peer['findings']==[]and peer['reviewer']=='/root/catalog_v4_review'and peer['delivery']['sha256']==sha(db)
+assert peer['finding']['id']=='V7-FINAL-REFERENCE-POSTCHECK-01'and peer['finding']['status']=='CLOSED'
+assert peer['source4_sha256']==d['source4_sha256']and peer['operator_sources_sha256']==d['operator_sources_sha256']
+ar=Path(d['author_review']['path']).read_bytes();assert sha(ar)==d['author_review']['sha256'];author=json.loads(ar)
+for n,h in d['source4_sha256'].items():assert sha((R/n).read_bytes())==h;ast.parse((R/n).read_bytes())if n.endswith('.py')else None
+for n,h in d['operator_sources_sha256'].items():assert sha((T/n).read_bytes())==h;ast.parse((T/n).read_bytes())
+cn='context/reconciliation/privilege-ceiling-v7-source-validation.json';on='context/reconciliation/local-f0-privilege-ceiling-owned-v7-source-validation.json';cb=(R/cn).read_bytes();ob=(R/on).read_bytes()
+assert sha(cb)==d['validation_files_sha256'][cn]and sha(ob)==d['validation_files_sha256'][on];c=json.loads(cb);o=json.loads(ob)
+assert c['source4_sha256']==d['source4_sha256']and o['operator_sources_sha256']==d['operator_sources_sha256']and o['archive_files_sha256']==author['archive_files_sha256']
+A=R/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v7'
+archive={p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()};assert archive==o['archive_files_sha256']and len(archive)==235
+for k in('independent_source_review','Root_source_review'):assert c[k]['decision']=='PENDING'
+for k in('independent_safety_sql_review','independent_projection_review','Root_source_review'):assert o[k]['decision']=='PENDING'
+for n,h in {**c['original_source122_sha256'],**c['artifacts202_sha256']}.items():assert sha((R/n).read_bytes())==h,n
+root={'schema':'workinants.privilege-v7-fix2-Root-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root','decision':'SOURCE_APPROVED','source4_sha256':d['source4_sha256'],'operator_sources_sha256':d['operator_sources_sha256'],'independent_source_review_sha256':sha(pb),'closed_finding':'V7-FINAL-REFERENCE-POSTCHECK-01','review':{'diagnostic':'Eight fixed CREATE diagnostics use standalone CREATE fragment source positions and bounded libpq grammar; exact schema/template/source-cursor proof. Original 200 SQL, 202 artifacts, 122 source inputs and 32 worker ACL rows unchanged. No SQLSTATE-only qualification.','observation':'Typed safe match receipt precedes verdict; fixed unknown metadata, original primary before secondary evidence IO, closed operation before observations, stopped child origin and strict bounded child reader preserved.','final_integrity':'Existing early original SHA/length barrier retained; fresh original SHA/length barrier now follows cleanup and every packet/tool/external/archive postcheck and their writes before final verdict. Expected reference never rebased. All eligible safety steps run with first failure and sticky IO preserved.','evidence':'Independent original review16PASS plus Root224 CREATE predicates; author full200/244/40/16/3 process-model composition is version-qualified held evidence. Final main-only fix independently seven focused tests plus four fixed-versus-held mechanism contrasts; no new full runtime claim.','historical':'Actual 086c complete diagnostic and cause remain UNOBSERVED. Source-derived CREATE projection and final-reference defects do not reconstruct historical values.','execution':'Source approval only. Fresh manifest, exact committed publication/pin, separate literal review and live preflight are still required before Root actual.'},'runtime':'NOT_RUN','assertion_promotions':'NONE','Posture':'D'}
+extras={'child-validation-before-Root-source-closure.json':cb,'owned-validation-before-Root-source-closure.json':ob,'independent-Catalog-fix2-source-closure.json':pb,'frozen-fix2-delivery.json':db,'frozen-fix2-author-review.json':ar,'Root-source-closure.json':enc(root),'Root-source-closure-helper.py.txt':Path(__file__).read_bytes()}
+for dest,source in [('independent-Catalog-fix2-focused.json',peer['focused_checks']['path']),('independent-Catalog-fix2-original-mechanism.json',peer['same_reviewer_original_probe']['path']),('independent-Catalog-fix2-original-mechanism-helper.py.txt',peer['same_reviewer_original_probe']['helper']),('independent-Catalog-fix2-inventory.json',peer['inventory']['path'])]:extras[dest]=Path(source).read_bytes()
+assert sha(extras['independent-Catalog-fix2-focused.json'])==peer['focused_checks']['sha256']and sha(extras['independent-Catalog-fix2-original-mechanism.json'])==peer['same_reviewer_original_probe']['sha256']and sha(extras['independent-Catalog-fix2-original-mechanism-helper.py.txt'])==peer['same_reviewer_original_probe']['helper_sha256']and sha(extras['independent-Catalog-fix2-inventory.json'])==peer['inventory']['sha256']
+for n,b in extras.items():put(A/'reviews/fix2-Root-source-closure'/n,b)
+archive={p.relative_to(R).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()}
+peerpath=(A/'reviews/fix2-Root-source-closure/independent-Catalog-fix2-source-closure.json').relative_to(R).as_posix();rootpath=(A/'reviews/fix2-Root-source-closure/Root-source-closure.json').relative_to(R).as_posix()
+for meta,keys,field,expected in((c,('independent_source_review','Root_source_review'),'source4_sha256',d['source4_sha256']),(o,('independent_safety_sql_review','independent_projection_review','Root_source_review'),'operator_sources_sha256',d['operator_sources_sha256'])):
+ for k in keys:meta[k]={'decision':'SOURCE_APPROVED','path':rootpath if k=='Root_source_review'else peerpath,'sha256':sha(enc(root))if k=='Root_source_review'else sha(pb),field:expected}
+ meta['status']='SOURCE_APPROVED_RUNTIME_NOT_RUN'
+c['review_gate']='SOURCE_APPROVED';o['archive_files_sha256']=archive
+(R/cn).write_bytes(enc(c));(R/on).write_bytes(enc(o))
+files={**d['source4_sha256'],**archive,cn:sha((R/cn).read_bytes()),on:sha((R/on).read_bytes()),**c['artifacts202_sha256']}
+for n,h in files.items():assert sha((R/n).read_bytes())==h
+receipt={'schema':'workinants.privilege-v7-fix2-source-approved-final-inventory.v1','files_sha256':dict(sorted(files.items())),'files':len(files),'archive_files':len(archive),'independent_source_review_sha256':sha(pb),'Root_source_closure_sha256':sha(enc(root)),'source_code_unchanged_after_independent_review':True,'all_five_source_gates':'SOURCE_APPROVED','runtime':'NOT_RUN','assertion_promotions':'NONE','Posture':'D'}
+out=T/'privilege_v7_fix2_source_approved_committable_inventory_20261120.json';put(out,enc(receipt));print(json.dumps({'inventory':out.name,'sha256':sha(out.read_bytes()),'files':len(files),'archive_files':len(archive),'runtime':'NOT_RUN'}))

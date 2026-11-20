@@ -1,0 +1,16 @@
+"""Extend only Root's local flag-only helper to enforce the reviewer's additional environment requirement."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;src=T/'approve_0ff_three_exact_literals_20261120.py';old=src.read_bytes();s=old.decode()
+needle="assert v['Root_flag_only_action_after_fresh_preflight']=={'review_status':flag,'all_other_manifest_fields_and_pins_must_remain_identical':True,'fresh_live_endpoint_platform_image_exact_name_absence_required':True}"
+new="""assert v['Root_flag_only_action_after_fresh_preflight']=={'review_status':flag,'all_other_manifest_fields_and_pins_must_remain_identical':True,'fresh_live_endpoint_platform_image_exact_name_absence_required':True,'mandatory_actual_launch_environment_receipt_required':True}
+ assert v['mandatory_actual_launch_environment']=={'PYTHONUTF8':'1','PYTHONPATH':str(T/'offline-python'),'parser':'pglast v7.21','resolved_parser_module_must_be_under_fixed_TASK_offline_python':True,'actual_interpreter_version_location_receipt_before_resources_required':True,'basis_paired_proof_sha256':'19f787e11a0700a57e2f897acf8cc54548126e02fc217d31d8677d02a26eb8d4','independent_environment_review_sha256':'26e8e4666c5d8e2d1a99fc52dc5f5f0f5dd6ba29cd10adb7a11da7bea1b8b15f'}
+ assert a.lane=='read_retry'and m['attempt_id']==v['attempt_identity']['new_attempt_id']=='116153b2-1af4-4fc9-bde8-f804146b5cea'and v['attempt_identity']['fixture_and_resource_identity_explicitly_reused_not_new_fixture_UUID']is True and v['attempt_identity']['fixture_and_resource_run_id']==run
+ assert v['attempt_identity']['fresh_evidence_directory']==m['evidence_directory']and v['attempt_identity']['previous_raw_report_sha256']=='95321fa01bb48db9f69e7d47082e63da57808f625a2a7b5eb0f9110b7f58da53'and v['attempt_identity']['new_nested_history7_paths_and_hashes_verified']is True
+ import sys
+ sys.path.insert(0,str(T/'offline-python'))
+ import pglast
+ assert pglast.__version__=='v7.21'and Path(pglast.__file__).resolve().is_relative_to((T/'offline-python').resolve())"""
+assert s.count(needle)==1;derived=s.replace(needle,new);ast.parse(derived);dest=T/'approve_0ff_Read1161_with_environment_review_20261120.py'
+with dest.open('xb')as f:f.write(derived.encode())
+print(json.dumps({'Root_original_helper_sha256':hashlib.sha256(old).hexdigest(),'new_helper_sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'delta':'Strict additional review condition/environment/attempt assertions only; original full source/remote/Docker/flag-only/preservation checks intact.','runtime_source_changed':False}))

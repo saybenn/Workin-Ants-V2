@@ -1,0 +1,35 @@
+{
+  "schema": "workinants.privilege-v7-fix2-independent-inventory.v1",
+  "PASS": true,
+  "delivery_sha256": "204cbca387eabc521cd1f30d3061a6050dcdc9cf40f453ef170eaa9b79b2c2b3",
+  "freeze_sha256": "0a778667ec4b83c70d0b2255aaf1489d207ed202d6cb2dd53eaa415865ddb7e6",
+  "current_and_saved_snapshots": 839,
+  "original_saved_snapshots_preserved": 779,
+  "code_maps": "source4 and physical5 exact; other8 byte-identical; only Steps.main AST changed; non-main module AST exact",
+  "source4_sha256": {
+    "scripts/privilege_ceiling_control_protocol_v7.py": "7f20d136bb3eed707e08887212dea9defde5537b357442a421aa5e4cabc94864",
+    "scripts/sql-review/run-privilege-ceiling-control-rehearsal-v7.py": "571951d886af0d96eff0c5dad14783a8cdcefa49fe80dd7856fa104aed27c13f",
+    "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v7.py": "5ceb4255a72d110510ddc0e2f1eb220446741543e5683ddb03ad036e196065d5",
+    "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-V7.md": "52ff274504b9cd3b916b7babf737d8e37d6faf5692356663040eb7eb43b57ad2"
+  },
+  "operator_sources_sha256": {
+    "execute_local_f0_privilege_ceiling_v7_20261120.py": "58d44455767e11a79d13aea4883016b9a00fc8a2044ab7f8231e897fcfd6aee2",
+    "local_f0_privilege_ceiling_v7_operation_steps.py": "c50fe30028313b9f5f400e9ced3f6dd2d30651075951ccbdf7a303d9f7e09544",
+    "prepare_local_f0_privilege_ceiling_v7_plan.py": "057f86eb2825b350504d0baca62638129cf9387de07842ea6a63a5f1204394c3",
+    "check_local_f0_privilege_ceiling_v7_operation.py": "c9c1bd77c9a40e57439b3e4e29c64d37ed098cb15777666596f3b97c16a56f86",
+    "pin_local_f0_privilege_ceiling_v7_plan_20261120.py": "32694fb7b44bc15ed931c589969f375e019cd08f5fd15711d7d32a14223e3c02"
+  },
+  "validation_sha256": {
+    "context/reconciliation/privilege-ceiling-v7-source-validation.json": "dd7a914de83357c134e6a990b6353b826f4d0f30be099b70fe82d9c9538f61e3",
+    "context/reconciliation/local-f0-privilege-ceiling-owned-v7-source-validation.json": "e42194f2dc2f3874131761c775b1170716deaaa8aaee70b138d4979f8f5230ad"
+  },
+  "gates": {
+    "context/reconciliation/privilege-ceiling-v7-source-validation.json:independent_source_review": "PENDING",
+    "context/reconciliation/privilege-ceiling-v7-source-validation.json:Root_source_review": "PENDING",
+    "context/reconciliation/local-f0-privilege-ceiling-owned-v7-source-validation.json:independent_safety_sql_review": "PENDING",
+    "context/reconciliation/local-f0-privilege-ceiling-owned-v7-source-validation.json:independent_projection_review": "PENDING",
+    "context/reconciliation/local-f0-privilege-ceiling-owned-v7-source-validation.json:Root_source_review": "PENDING"
+  },
+  "source_or_gate_writes": false,
+  "seconds": 22.188
+}

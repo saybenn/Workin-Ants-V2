@@ -1,0 +1,18 @@
+"""Only two new actual-validator units; no inherited full suite or processes."""
+from pathlib import Path
+import ast,hashlib,io,json,socket,subprocess,time,unittest
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;F=T/'privilege-public-acl-v8-private-candidate-20261120'
+H=lambda raw:hashlib.sha256(raw).hexdigest()
+def main():
+ started=time.monotonic();p=F/'check_local_f0_privilege_ceiling_v8_operation.py';raw=p.read_bytes();tree=ast.parse(raw);nodes=[n for n in tree.body if n.lineno<599 or isinstance(n,ast.ClassDef)and n.name=='PublicSchemaComparisonOuterV8Tests'];scope={'__file__':str(p),'__name__':'_only_v8_validator_units'};guards=[]
+ for name in('run','Popen','call','check_call','check_output'):
+  guard=patch.object(subprocess,name,side_effect=AssertionError('PROCESS_FORBIDDEN'));guard.start();guards.append(guard)
+ for owner,name in((socket,'create_connection'),(socket.socket,'connect')):
+  guard=patch.object(owner,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));guard.start();guards.append(guard)
+ try:
+  exec(compile(ast.Module(body=nodes,type_ignores=[]),str(p),'exec'),scope);suite=unittest.defaultTestLoader.loadTestsFromTestCase(scope['PublicSchemaComparisonOuterV8Tests']);stream=io.StringIO();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite)
+ finally:
+  for guard in reversed(guards):guard.stop()
+ prefix=T/'privilege_public_acl_v8_parent_focused_20261120';assert not prefix.with_suffix('.json').exists();prefix.with_suffix('.log').write_text(stream.getvalue());value={'schema':'workinants.privilege-v8-parent-focused.v1','status':'PASS'if result.wasSuccessful()else'FAIL','methods':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':round(time.monotonic()-started,3),'checker_sha256':H(raw),'source_units':'Two new methods extracted verbatim from actual checker; actual Core/Steps validator functions used, no fake success payload','runtime':'NOT_RUN'};prefix.with_suffix('.json').write_text(json.dumps(value,indent=2)+'\n');print(json.dumps({'record':prefix.with_suffix('.json').name,'sha256':H(prefix.with_suffix('.json').read_bytes()),'status':value['status'],'methods':result.testsRun,'seconds':value['seconds']}));return 0 if result.wasSuccessful()else 1
+if __name__=='__main__':raise SystemExit(main())

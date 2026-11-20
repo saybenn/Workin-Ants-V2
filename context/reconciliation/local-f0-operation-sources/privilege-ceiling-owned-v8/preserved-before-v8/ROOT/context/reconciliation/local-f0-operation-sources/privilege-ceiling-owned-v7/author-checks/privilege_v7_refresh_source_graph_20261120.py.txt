@@ -1,0 +1,93 @@
+"""Refresh only new V7 author sources/archive/PENDING metadata. No processes."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda raw:hashlib.sha256(raw).hexdigest()
+encoded=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+ack=json.loads((T/'privilege_v7_CREATE_projection_Root_bounded_implementation_ACK_20261120.json').read_bytes())
+ns=ack['authorized_new_namespace'];archive=R/ns['archive'];archive.mkdir(parents=True,exist_ok=True)
+oldm=json.loads((T/'local-f0-privilege-ceiling-plan-086c453e/operation-manifest.json').read_bytes())
+oldv=json.loads((R/'context/reconciliation/privilege-ceiling-metadata-v6-source-validation.json').read_bytes())
+preservation=T/'privilege-v7-before-author-preservation-20261120/manifest.json'
+pm=json.loads(preservation.read_bytes())
+for row in pm['files']:
+ p=Path(row['path']);assert sha(p.read_bytes())==row['sha256'],str(p)
+
+doc=R/ns['child_sources'][3]
+doc.write_text('''# Privilege ceilings V7: finite CREATE position and stop observations
+
+Source-only replacement; runtime and assertion qualification remain NOT_RUN.
+Root implementation ACK9c887 binds plan4194 and actual086c audite90f.
+
+The original faf protocol and generator still reproduce the same202 artifacts,
+including all200 SQL leaves and122 source inputs. They are separately admitted
+from the new runtime protocol. No alias changes generated SQL or permissions.
+
+Only eight SCHEMA_CREATE cases receive a fixed psql query projection: exact
+reviewed template SHA, case/role/schema/run UUID, one CREATE TABLE statement,
+qualified relation cursor and PG17 ASCII60/10 display. No generic SQL parser,
+arbitrary caret search or SQLSTATE-only acceptance. All strict42501 message,
+native ACL location, actual role ACL metadata, exit3/ACKfalse/empty output checks
+remain. Other192 diagnostic verdicts use the unchanged protocol implementation.
+
+Every negative operation starts with an unavailable fixed typed match receipt.
+Only an actual returned bounded diagnostic supplies its comparison Booleans,
+closed enums and source hashes. No SQL/error message/caret/native C line,
+credential/hash/handle/row values are exported. Ambiguous input is redacted.
+
+The first child operation stage/case/phase/code is retained before finally
+progress labels. The parent always attempts global closure before bounded
+double closed reads, stat/fstat and fresh SHA barriers, then handles a valid
+stopped origin as failure. Earlier wrapper failures remain primary; a reserved
+generic nonzero-child signal may only be refined by that exact verified origin.
+Cleanup still attempts every exact owned part and checks final reference bytes.
+
+Success still requires200 results/244 closed operations/native40/definers16/
+issuer3, genuine first-install native29089/oracle416/ledger22 and source/native
+preservation. This change does not qualify whole94/451, owner APIs or hosted use.
+
+New child and owned review gates are PENDING. Mandatory source maps and actual
+review JSON bytes are checked before helper compilation or resources. Independent
+nonauthor source review, Root metadata closure/publication/fresh pin/literal/live
+preflight remain separate. Actual086c discarded message/location/caret and full
+original cause remain UNOBSERVED; offline counterexamples do not recreate them.
+''',encoding='utf8',newline='\n')
+
+coor=R/ns['child_sources'][1];coor_sha=sha(coor.read_bytes())
+state=T/'privilege_v7_hash_refresh_state_20261120.json'
+previous=json.loads(state.read_bytes())['coordinator_sha256']if state.exists()else'55595f4a5013c186062d23ee190f1bf04476993e050ed2c4fa746bb0d5b55bed'
+for name in ns['external_five']:
+ p=T/name;s=p.read_text()
+ s=s.replace(previous,coor_sha)
+ p.write_text(s,encoding='utf8',newline='\n');ast.parse(s)
+state.write_bytes(encoded({'coordinator_sha256':coor_sha}))
+source4={n:sha((R/n).read_bytes())for n in ns['child_sources']}
+five={n:sha((T/n).read_bytes())for n in ns['external_five']}
+
+def cp(source,target):
+ target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(source.read_bytes())
+for name in ns['external_five']:cp(T/name,archive/(name+'.txt'))
+for name in ns['child_sources']:cp(R/name,archive/'child-source'/(Path(name).name+'.txt'))
+oldarchive=R/'context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-metadata-v6'
+cp(oldarchive/'reviews/image-proof-independent-source.json',archive/'reviews/image-proof-independent-source.json')
+for name,leaf in(
+ ('privilege_v7_CREATE_projection_Root_bounded_implementation_ACK_20261120.json','Root-implementation-ACK.json'),
+ ('privilege_v7_create_projection_observation_source_plan_20261120.json','source-plan.json'),
+ ('privilege_v6_086c_independent_actual_source_audit_20261120.json','independent-closed-actual-audit.json')):
+ cp(T/name,archive/'reviews'/leaf)
+cp(preservation,archive/'before-author-preservation-manifest.json')
+for name in oldm['privilege_ceiling']['external_files_sha256']:cp(T/name,archive/'historical-v6'/(name+'.txt'))
+for name in('context/reconciliation/privilege-ceiling-metadata-v6-source-validation.json','context/reconciliation/local-f0-privilege-ceiling-owned-metadata-v6-source-validation.json'):
+ cp(R/name,archive/'historical-v6'/Path(name).name)
+for p,leaf in((T/'local-f0-privilege-ceiling-plan-086c453e/operation-manifest.json','approved-operation-manifest.json'),(T/'local-f0-privilege-ceiling-086c453e/run-evidence.json','closed-run-evidence.json'),(T/'local-f0-privilege-ceiling-086c453e/privilege-ceiling-component/privilege-ceiling-results.json','closed-child-evidence.json'),(T/'privilege_v6_c401_086c453e_independent_cleanup_20261120.json','independent-cleanup.json')):
+ cp(p,archive/'historical-v6'/leaf)
+
+pending4={'decision':'PENDING','path':None,'sha256':None,'source4_sha256':source4}
+pending5={'decision':'PENDING','path':None,'sha256':None,'operator_sources_sha256':five}
+child={'schema':'workinants.privilege-v7-source-validation.v1','status':'SOURCE_PREPARED_PENDING_INDEPENDENT_AND_ROOT_REVIEW','source_version':'privilege-v7','review_gate':'PENDING','source4_sha256':source4,'original_source122_sha256':oldv.get('original_source122_sha256',json.loads((R/'review-output/privilege-ceiling-control-rehearsal/fixtures.json').read_bytes())['source_files_sha256']),'artifacts202_sha256':oldv['artifacts202_sha256'],'independent_source_review':pending4,'Root_source_review':pending4,'runtime':'NOT_RUN','Posture':'D','actual086c_complete_cause':'UNOBSERVED','generator_protocol_rule':'Runtime new V7 protocol and original faf generator protocol are separately admitted, never aliased.'}
+childpath=R/ns['child_validation'];childpath.write_bytes(encoded(child))
+ap={p.relative_to(R).as_posix():sha(p.read_bytes())for p in sorted(archive.rglob('*'))if p.is_file()}
+owned={'schema':'workinants.privilege-ceiling-owned-operator-source-validation.v1','status':'SOURCE_PREPARED_PENDING_INDEPENDENT_AND_ROOT_REVIEW','source_version':'privilege-v7','operator_sources_sha256':five,'archive_files_sha256':ap,'independent_safety_sql_review':pending5,'independent_projection_review':pending5,'Root_source_review':pending5,'privilege_packet':{'artifacts_sha256':oldv['artifacts202_sha256'],'fixture_sha256':oldv['fixture_sha256'],'content_sha256':oldv['content_sha256']},'corrected_child_validation':{'path':ns['child_validation'],'sha256':sha(childpath.read_bytes())},'historical_accepted_common_safety':'V6 common SafetySQL AST is retained; historical review copies do not approve V7 delta.','Root_ACK_sha256':sha((T/'privilege_v7_CREATE_projection_Root_bounded_implementation_ACK_20261120.json').read_bytes()),'before_author_preservation_sha256':sha(preservation.read_bytes()),'runtime':'NOT_RUN','assertion_promotions':False,'Posture':'D','actual086c_complete_cause':'UNOBSERVED'}
+ownedpath=R/ns['owned_validation'];ownedpath.write_bytes(encoded(owned))
+for p in [R/n for n in ns['child_sources']if n.endswith('.py')]+[T/n for n in ns['external_five']]:ast.parse(p.read_text())
+print(json.dumps({'source4':source4,'external5':five,'child_validation_sha256':sha(childpath.read_bytes()),'owned_validation_sha256':sha(ownedpath.read_bytes()),'archive_files':len(ap),'all_new_review_gates':'PENDING','original_preserved_files':len(pm['files'])},indent=2))

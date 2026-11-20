@@ -1,0 +1,15 @@
+test_actual_two_public_negative_methods_keep_strict_CREATE_diagnostics (<run_path>.PublicACLProjectionV8Tests.test_actual_two_public_negative_methods_keep_strict_CREATE_diagnostics) ... FAIL
+
+======================================================================
+FAIL: test_actual_two_public_negative_methods_keep_strict_CREATE_diagnostics (<run_path>.PublicACLProjectionV8Tests.test_actual_two_public_negative_methods_keep_strict_CREATE_diagnostics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege-public-acl-v8-private-candidate-20261120\workinants-correction-pass\scripts\sql-review\test_run_privilege_ceiling_control_rehearsal_v8.py", line 933, in test_actual_two_public_negative_methods_keep_strict_CREATE_diagnostics
+    self.assertIsNone(failure,(getattr(failure,'code',None),data.get('original_failure')));self.assertEqual(len(data['results']),2)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Held('INTENDED_PRIVILEGE_GUARD_NOT_PROVEN') is not None : ('INTENDED_PRIVILEGE_GUARD_NOT_PROVEN', {'stage': 'PRIVILEGE_NEGATIVE_OPERATION', 'case': 'CREATE-wa_app_runtime-public', 'phase': 'VERDICT', 'code': 'PRIVATE_GRANT_STATE_MISMATCH'})
+
+----------------------------------------------------------------------
+Ran 1 test in 3.368s
+
+FAILED (failures=1)

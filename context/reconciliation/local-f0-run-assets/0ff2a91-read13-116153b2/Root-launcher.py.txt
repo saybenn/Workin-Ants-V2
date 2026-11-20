@@ -1,0 +1,16 @@
+"""Root launches unchanged reviewed ReadV2 with fixed offline environment and explicit fresh attempt identity."""
+from pathlib import Path
+import datetime,hashlib,json,os,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+offline=T/'offline-python';sys.path.insert(0,str(offline));import pglast
+assert pglast.__version__=='v7.21'and Path(pglast.__file__).resolve().is_relative_to(offline.resolve())
+mp=T/'local-f0-read13-parser-env-retry-plan-116153b2/operation-manifest.json';raw=mp.read_bytes();m=json.loads(raw);ap=T/'0ff_read_retry_Root_literal_approval_receipt_20261120.json';a=json.loads(ap.read_bytes());assert sha(raw)==a['approved_manifest_sha256']and a['pending_manifest_sha256']=='31ba3959520bc1fbefe81a3c834e5e69af3560de95ac37d30d3256423477da0d'and a['review_sha256']=='640d1530f00a363364c5f24b149c379f66a509ef1c73d299b1363ef45aed2c5e'
+assert m['attempt_id']=='116153b2-1af4-4fc9-bde8-f804146b5cea'and m['run_id']=='d848e852-f857-4c03-8288-4893e2e8aa0c'and m['attempt_identity_note']['fixture_and_resource_identity_reused_explicitly']is True
+assert m['source_commit']=='0ff2a910ce081a0c6e0c6a268d6f876b8e061a45'and m['source_tree']=='886f85d4a919a8a04f85c8fe45a01e0a8801ba1c'and m['packet_sha256']=='7720bb7deb6c5b190d04482be6f263cb45622cba36fe06b548ecddcfc164284f'and m['review_status']=='APPROVED_LOCAL_F0_REMAINING_APP_READ13_OWNED_V2_ATTEMPT'and not Path(m['evidence_directory']).exists()
+wrapper='execute_local_f0_remaining_app_read13_owned_v2_20261120.py';assert sha((T/wrapper).read_bytes())==m['wrapper_sha256'];tmp=T/'test-tmp';assert tmp.is_dir();env=os.environ.copy();env.update(PYTHONUTF8='1',PYTHONPATH=str(offline),TMP=str(tmp),TEMP=str(tmp),TMPDIR=str(tmp))
+v={'schema':'workinants.0ff-Read1161-reviewed-pinned-environment-launch.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'fresh_attempt_id':m['attempt_id'],'explicit_reused_fixture_and_resource_run_id':m['run_id'],'source_commit':m['source_commit'],'source_tree':m['source_tree'],'approved_manifest_sha256':sha(raw),'Root_approval_receipt_sha256':sha(ap.read_bytes()),'wrapper_sha256':m['wrapper_sha256'],'Python_version':list(sys.version_info[:3]),'offline_parser_version':pglast.__version__,'offline_parser_fixed_directory':str(offline),'offline_parser_init_sha256':sha(Path(pglast.__file__).read_bytes()),'environment_keys_set':['PYTHONUTF8','PYTHONPATH','TMP','TEMP','TMPDIR'],'database_contacted_at_record':False,'source_SQL_fixtures_permissions_unchanged':True,'previous_evidence_preserved':True,'Posture':'D'}
+rp=T/'0ff_Read1161_pinned_offline_environment_launch_receipt_20261120.json'
+v['Python_executable']=str(Path(sys.executable).resolve());v['offline_parser_resolved_module']=str(Path(pglast.__file__).resolve())
+with rp.open('x',encoding='utf8')as f:json.dump(v,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'launch_receipt':rp.name,'sha256':sha(rp.read_bytes()),'parser':'v7.21','fresh_attempt_id':m['attempt_id'],'fixture_identity_explicitly_reused':True,'status':'LAUNCHING_UNCHANGED_REVIEWED_OPERATOR'}),flush=True)
+raise SystemExit(subprocess.run([sys.executable,'-X','utf8',str(T/wrapper),'--execute-reviewed-remaining-app-read13-owned','--manifest',str(mp)],cwd=R,env=env,shell=False).returncode)
