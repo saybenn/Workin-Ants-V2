@@ -1,0 +1,19 @@
+"""Focused actual source/launch/pinner checks after source metadata approval."""
+from pathlib import Path
+import datetime,hashlib,importlib.util,json,time,unittest
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+def load(name,path):
+ spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+m=load('Root_owned_worker_current_initializer',T/'check_worker_owned_resource_v1_integration_20261119.py')
+n=load('Root_owned_worker_current_operation',T/'check_local_f0_worker_recovery_owned_v1_operation.py')
+suite=unittest.TestSuite([
+ m.InitializationTests('test_actual_initialized_whole_verifier_real_inventory_and_eight_helpers'),
+ m.InitializationTests('test_actual_launch_current_and_committed_source_gate_without_state_injection'),
+ n.WorkerOperationTests('test_pending_safety_review_blocks_real_pinner_and_runtime_before_any_command'),
+])
+started=time.perf_counter();result=unittest.TextTestRunner(verbosity=2).run(suite)
+record={'schema':'workinants.worker-owned-v1-approved-metadata-Root-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'elapsed_seconds':round(time.perf_counter()-started,3),'status':'PASS' if result.wasSuccessful() else 'FAIL','validation_sha256':hashlib.sha256((R/'context/reconciliation/local-f0-worker-recovery-owned-resource-v1-source-validation.json').read_bytes()).hexdigest(),'scope':'Actual initialized whole-source helper graph, actual CLI/Common current+committed gate and isolated pending pinner/runtime rejection; every process/Docker/DB/Git/network boundary mocked; no actual runtime or approval.','no_frozen_test_or_production_code_changes':True,'Posture':'D'}
+p=T/'worker_owned_v1_approved_metadata_Root_checks_20261119.json'
+with p.open('x',encoding='utf8') as f:json.dump(record,f,indent=2)
+print(json.dumps({'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'status':record['status'],'methods':result.testsRun}))
+raise SystemExit(0 if result.wasSuccessful() else 1)

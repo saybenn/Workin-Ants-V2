@@ -1,0 +1,37 @@
+{
+  "schema": "workinants.worker-guard-observation-v2-Root-source-closure.v1",
+  "recorded_at_utc": "2026-11-20T06:11:54.439875+00:00",
+  "reviewer": "/root",
+  "decision": "SOURCE_APPROVED",
+  "findings": [],
+  "operator_sources_sha256": {
+    "execute_local_f0_worker_recovery_guard_observation_v2_20261119.py": "dd7e851d83ac794ef4403ce73489b8a4e86df7f1293dbcb7eb04a2f1c78559c4",
+    "local_f0_worker_recovery_guard_observation_v2_operation_steps.py": "654319c0676ae37dd7a23ae2c4bc253ddcc5c58850d959d3bf5c450d45e0e071",
+    "prepare_local_f0_worker_recovery_guard_observation_v2_plan.py": "b245e93aa35d16c80221f9b496f0fa0681cd4b193af7706087e432f73e142d99",
+    "check_local_f0_worker_recovery_guard_observation_v2_operation.py": "4cf6878555f3888ce4b317e7a14c74f67d0a7e45ecc13e0ef9d47f1ef6e0bb5f",
+    "pin_local_f0_worker_recovery_guard_observation_v2_plan_20261119.py": "ccd22bb3f11e0b104b59430d372870800f2c16d4c0fae9aa88da4a7c1157d25f"
+  },
+  "child_sources_sha256": {
+    "scripts/worker_recovery_control_protocol.py": "2ef788f124adaa248ba01bd0bad852cbc113ad2d0e9cd1fc942d4f6d35d6ceb1",
+    "scripts/sql-review/run-worker-recovery-control-rehearsal.py": "eff0342fd3dfb3768c5dd7809635b5d38db330512bde3aca7ccb5b5d2aee216c",
+    "scripts/prepare-worker-recovery-control-rehearsal.py": "12be4f09f860160e5fdc6f623ad255f409c2be406ef3f575cd1a4c537f2daf29",
+    "scripts/check-worker-recovery-control-coordinator.py": "24e4b7928de41d08446ff61e11c6c146b2a17d3b2ab41d72e0b2cc780e306030",
+    "scripts/check-worker-recovery-control-rehearsal.py": "80d2b65cd4d7b58201ff91c51f7c176e41a66c2ba66c423cfbbcfe35c5dc650e"
+  },
+  "independent_source_review_sha256": "e4a141ca4992e27ef0d88a9a37d86b31006d01aee1e473435e14e0747d4bd616",
+  "Root_inspection": [
+    "Read complete pure observation/diagnostic/verdict functions and coordinator transaction/finally ordering. Case17 now requires exact source-derived BEFORE track_binding P0001 message/body7/hash/location; generic or later RLS failures reject.",
+    "Fixed typed Boolean/enum/count outcomes distinguish actual received response and client exit from defaults. Body rows/ACK/stderr are cleared before call; malformed response cannot retain bind-call ACK. No rows, handles, stderr or arbitrary messages are retained.",
+    "Operation closes first; bounded observation is saved in finally before primary failure, retention or verdict can escape. Primary failure, persistent evidence-I/O state and required global closure remain independently sticky.",
+    "Frozen owned-source paths/hashes and child validation are bound before helpers; all40SQL bytes/grants/21cases/caps/timing/currentness/canonical5ae/worker32 unchanged."
+  ],
+  "actual_checks": {
+    "author_unique_methods": 171,
+    "independent_selected_methods": 42,
+    "independent_seconds": 178.217,
+    "actual_services": "NOT_RUN_PROCESS_BOUNDARIES_MOCKED"
+  },
+  "historical_limit": "Original6282 complete cause, failure ACK/exit/SQLSTATE/diagnostic remain UNOBSERVED. Completed historical16 records are preserved without automatic links or whole-case promotion.",
+  "runtime": "NOT_RUN_FRESH_PUBLICATION_PIN_AND_LITERAL_REQUIRED",
+  "Posture": "D"
+}

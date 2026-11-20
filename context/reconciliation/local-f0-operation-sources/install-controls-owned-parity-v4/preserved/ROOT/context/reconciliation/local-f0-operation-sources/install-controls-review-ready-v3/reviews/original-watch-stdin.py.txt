@@ -1,0 +1,39 @@
+from pathlib import Path
+import hashlib,json,time,stat
+T=Path.cwd().parent;P=T/'local-f0-install-controls-20261119-7923a7e6/install-controls';R=P/'install-controls-results.json';F=P/'rollback-proof-for-review.json';A=P/'independent-recovery-approval.json';O=P.parent/'run-evidence.json';start=time.monotonic();last_poll=start;seen=False;last_state=None
+
+def read(path,cap):
+ metadata=path.lstat()
+ if not stat.S_ISREG(metadata.st_mode) or path.is_symlink() or not 0<=metadata.st_size<=cap:raise ValueError('SHAPE')
+ with path.open('rb') as file:raw=file.read(cap+1)
+ if len(raw)>cap:raise ValueError('BOUND')
+ def pairs(items):
+  d={}
+  for k,v in items:
+   if k in d:raise ValueError('DUPLICATE')
+   d[k]=v
+  return d
+ return raw,json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in ()).throw(ValueError('NONFINITE')))
+print(json.dumps({'watch':'ACTIVE_DISK_ONLY','run_id':'7923a7e6-c227-414d-b91b-3804517e5d02','poll_seconds':1,'overall_watch_budget_seconds':1800,'approval_written':False}),flush=True)
+while time.monotonic()-start<1800:
+ now=time.monotonic();state='WAITING_FOR_LAUNCH';payload={}
+ try:
+  if R.exists():
+   raw,d=read(R,16*1024*1024);status=d.get('status');stage=d.get('current_stage');state='CHILD_RUNNING';payload={'results_sha256':hashlib.sha256(raw).hexdigest()}
+   if stage=='INDEPENDENT_ROLLBACK_REVIEW_REQUIRED':
+    rawproof,proof=read(F,65536);expected=d.get('targets',{}).get('division_failure',{}).get('review_hold',{}).get('proof_sha256');actual=hashlib.sha256(rawproof).hexdigest();canonical=(json.dumps(proof,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode()
+    if rawproof!=canonical or expected!=actual:raise ValueError('BINDING')
+    state='HOLD_READY_FOR_ACTUAL_INDEPENDENT_REVIEW';payload.update(proof_sha256=actual,observed_monotonic=now,prior_poll_monotonic=last_poll,conservative_review_deadline_monotonic=last_poll+220)
+    if not seen:print(json.dumps({'watch':state,**payload}),flush=True);seen=True
+   elif isinstance(status,str) and status.startswith('STOP'):state='CHILD_STOPPED_NO_APPROVAL_BY_WATCH'
+  if O.exists():
+   _,outer=read(O,16*1024*1024)
+   if isinstance(outer.get('status'),str) and outer['status'].startswith('STOP'):state='OUTER_STOPPED_NO_APPROVAL_BY_WATCH'
+  if A.exists():state='APPROVAL_ARTIFACT_PRESENT_REVIEWER_MUST_CONFIRM'
+ except FileNotFoundError:state='WAITING_FOR_ATOMIC_PUBLICATION'
+ except BaseException:state='WATCH_READ_OR_BINDING_UNCONFIRMED'
+ if state!=last_state and state!='HOLD_READY_FOR_ACTUAL_INDEPENDENT_REVIEW':print(json.dumps({'watch':state,**payload}),flush=True)
+ last_state=state;last_poll=now
+ if state in ('CHILD_STOPPED_NO_APPROVAL_BY_WATCH','OUTER_STOPPED_NO_APPROVAL_BY_WATCH','APPROVAL_ARTIFACT_PRESENT_REVIEWER_MUST_CONFIRM'):break
+ time.sleep(1)
+else:print(json.dumps({'watch':'WATCH_TIMEBOX_EXPIRED_NO_APPROVAL_WRITTEN'}),flush=True)

@@ -1,0 +1,102 @@
+"""Bounded source-only namespace derivation and PENDING source metadata."""
+import ast,hashlib,json,re
+from pathlib import Path
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'worker-guard-observation-v2-author-20261120'
+OLD=('execute_local_f0_worker_recovery_owned_v1_20261119.py','local_f0_worker_recovery_owned_v1_operation_steps.py','prepare_local_f0_worker_recovery_owned_v1_plan.py','check_local_f0_worker_recovery_owned_v1_operation.py','pin_local_f0_worker_recovery_owned_v1_plan_20261119.py')
+NEW=('execute_local_f0_worker_recovery_guard_observation_v2_20261119.py','local_f0_worker_recovery_guard_observation_v2_operation_steps.py','prepare_local_f0_worker_recovery_guard_observation_v2_plan.py','check_local_f0_worker_recovery_guard_observation_v2_operation.py','pin_local_f0_worker_recovery_guard_observation_v2_plan_20261119.py')
+OLDARC='context/reconciliation/local-f0-operation-sources/worker-recovery-owned-resource-v1';ARC='context/reconciliation/local-f0-operation-sources/worker-recovery-owned-guard-observation-v2';VAL='context/reconciliation/local-f0-worker-recovery-owned-guard-observation-v2-source-validation.json'
+CARC='context/reconciliation/local-f0-operation-sources/worker-recovery-core-guard-observation-v3';CVAL='context/reconciliation/local-f0-worker-recovery-core-guard-observation-v3-source-validation.json'
+CHILD=('scripts/worker_recovery_control_protocol.py','scripts/sql-review/run-worker-recovery-control-rehearsal.py','scripts/prepare-worker-recovery-control-rehearsal.py','scripts/check-worker-recovery-control-coordinator.py','scripts/check-worker-recovery-control-rehearsal.py')
+def sha(b):return hashlib.sha256(b).hexdigest()
+def enc(x):return (json.dumps(x,indent=2)+'\n').encode()
+def replace_once(s,old,new):
+ assert s.count(old)==1,old
+ return s.replace(old,new,1)
+def replace_function(s,name,body):
+ node=next(n for n in ast.walk(ast.parse(s))if isinstance(n,ast.FunctionDef)and n.name==name);lines=s.splitlines(keepends=True)
+ return ''.join(lines[:node.lineno-1])+body.rstrip()+'\n'+''.join(lines[node.end_lineno:])
+def rename(s):
+ for a,b in zip(OLD,NEW):s=s.replace(a,b)
+ return s.replace('worker-recovery-owned-resource-v1','worker-recovery-owned-guard-observation-v2')
+
+GATE='''def verify_guard_observation_review(admitted):
+    own=unique_json(admitted[OWNED_VALIDATION]);child=unique_json(admitted[CHILD_VALIDATION])
+    need(own.get('child_validation')=={'path':CHILD_VALIDATION,'sha256':hashlib.sha256(admitted[CHILD_VALIDATION]).hexdigest()},'WORKER_GUARD_OBSERVATION_CHILD_METADATA_BINDING')
+    for key in ('independent_safety_sql_review','independent_guard_observation_review','Root_source_review'):
+        need(type(own.get(key)) is dict and own[key].get('decision')=='SOURCE_APPROVED','WORKER_GUARD_OBSERVATION_REVIEW_REQUIRED')
+    need(child.get('schema')=='workinants.worker-recovery-core-guard-observation-source-validation.v1','WORKER_GUARD_OBSERVATION_CHILD_SCHEMA')
+    for key in ('independent_source_review','Root_source_review'):
+        need(type(child.get(key)) is dict and child[key].get('decision')=='SOURCE_APPROVED','WORKER_GUARD_OBSERVATION_CHILD_REVIEW_REQUIRED')
+    pins=MANIFEST['packet_files_sha256'];source=child['source_files_sha256']
+    need(type(source) is dict and set(source)==set(CHILD_SOURCES) and all(pins.get(p)==h for p,h in source.items()),'WORKER_GUARD_OBSERVATION_CHILD_BINDING')
+    archive=child['archive_files_sha256']
+    need(type(archive) is dict and all(p.startswith(CHILD_ARCHIVE+'/') and pins.get(p)==h for p,h in archive.items()),'WORKER_GUARD_OBSERVATION_CHILD_ARCHIVE')
+    actual={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (ROOT/CHILD_ARCHIVE).rglob('*') if p.is_file()}
+    need(actual==archive,'WORKER_GUARD_OBSERVATION_CHILD_ARCHIVE_TREE')
+'''
+PIN_GATE=''' child=decoded(blobs[CHILD_VALIDATION])
+ need(owned.get('child_validation')=={'path':CHILD_VALIDATION,'sha256':sha(blobs[CHILD_VALIDATION])},'GUARD_OBSERVATION_CHILD_METADATA_BINDING')
+ for key in ('independent_safety_sql_review','independent_guard_observation_review','Root_source_review'):need(type(owned.get(key)) is dict and owned[key].get('decision')=='SOURCE_APPROVED','GUARD_OBSERVATION_OWNED_REVIEW_REQUIRED')
+ need(child.get('schema')=='workinants.worker-recovery-core-guard-observation-source-validation.v1','GUARD_OBSERVATION_CHILD_SCHEMA')
+ for key in ('independent_source_review','Root_source_review'):need(type(child.get(key)) is dict and child[key].get('decision')=='SOURCE_APPROVED','GUARD_OBSERVATION_CHILD_REVIEW_REQUIRED')
+ need(set(child['source_files_sha256'])==CHILD_SOURCES and all(files.get(p)==h for p,h in child['source_files_sha256'].items()),'GUARD_OBSERVATION_CHILD_SOURCE_BINDING')
+ need(all(p.startswith(CHILD_ARCHIVE+'/') and files.get(p)==h for p,h in child['archive_files_sha256'].items()),'GUARD_OBSERVATION_CHILD_ARCHIVE_BINDING')
+ actual_child={p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in (ROOT/CHILD_ARCHIVE).rglob('*') if p.is_file()};need(actual_child==child['archive_files_sha256'],'GUARD_OBSERVATION_CHILD_ARCHIVE_TREE')
+'''
+def build():
+ assert sha((T/'worker_6282_guard_observation_v2_Root_plan_review_ACK_20261119.json').read_bytes())=='e7163fa88bd40ce4a3354376835bc632cf04444703111af93676684288d46987'
+ packet=json.loads((R/'review-output/worker-recovery-control-rehearsal/fixtures.json').read_bytes());fixture_sha=sha((R/'review-output/worker-recovery-control-rehearsal/fixtures.json').read_bytes());content=packet['source_only_packet_sha256'];coor=sha((R/CHILD[1]).read_bytes())
+ texts={b:rename((D/'before/TASK'/a).read_text(encoding='utf8'))for a,b in zip(OLD,NEW)}
+ for n in NEW:
+  s=texts[n].replace('2985c82acca090c21f47dcb3e1debafc9b5fcf83832a306ad80c16290bbe62d9',fixture_sha).replace('ac5a69f2f5e8b4956da19b1e46d4534297e8cbd89d49195c707e22335151392f',content).replace('a9a8bc39f21a7e2455cb2e3e6064fcd4aa3e84e101c45bb225922da3775ecb27',coor)
+  texts[n]=s
+ s=texts[NEW[1]];constants="CHILD_VALIDATION="+repr(CVAL)+"\nCHILD_ARCHIVE="+repr(CARC)+"\nCHILD_SOURCES="+repr(CHILD)+"\n"
+ s=s.replace('HELPERS={}\n','HELPERS={}\n'+constants+GATE+'\n')
+ s=replace_once(s,"fixed=set(HELPER_FILES)|set(IMAGE_FILES)|{WORKER_PEER,IMAGE_PEER,OWNED_VALIDATION,", "fixed=set(HELPER_FILES)|set(IMAGE_FILES)|{WORKER_PEER,IMAGE_PEER,OWNED_VALIDATION,CHILD_VALIDATION,")
+ s=replace_once(s,"need(actual==archive,'WORKER_RECOVERY_OWNED_ARCHIVE_TREE')","need(actual==archive,'WORKER_RECOVERY_OWNED_ARCHIVE_TREE')\n    verify_guard_observation_review(admitted)")
+ s=s.replace("'valid-current-Free-selection-survives-duplicate-attempt':('42501',None,'ExecWithCheckOptions@execMain.c')","'valid-current-Free-selection-survives-duplicate-attempt':('P0001',7,'exec_stmt_raise@pl_exec.c')")
+ app=(R/'review-output/foundation-application.review.sql').read_text();body=re.search(r'CREATE FUNCTION platform_private\.track_binding\(\).*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',app,re.S)[2]
+ s=s.replace("'source_body_sha256':'10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038'if line is not None else None", "'source_body_sha256':("+repr(sha(body.encode()))+"if case['name']=='valid-current-Free-selection-survives-duplicate-attempt'else'10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038')if line is not None else None")
+ s=replace_once(s,"{'stage','name','login','issuer_committed','same_tuple_verified','operation_closed','exit_code','verdict'}", "{'stage','name','login','issuer_committed','same_tuple_verified','operation_closed','operation_observation','exit_code','verdict'}")
+ needle="need(row['exit_code']==(3 if guard else 0),'WORKER_RECOVERY_TRANSACTION_EXACT_EXIT');exact(row['verdict'],{'status':'PASS_FINITE_WORKER_PROTOCOL_ONLY','source_guard':guard,'complete_record_sequence_match':True},'WORKER_RECOVERY_TRANSACTION_VERDICT')"
+ addition="\n            observation={'result_received':True,'client_exit_received':True,'client_exit_type_valid':True,'client_exit_code':3 if guard else 0,'commit_acknowledged':False if guard else True,'response_shape_valid':True,'expected_exit_match':True,'expected_ack_match':True,'record_count_match':True,'record_sequence_match':True,'diagnostic':'EXACT_SOURCE_GUARD'if guard else'NO_DIAGNOSTIC','source_guard':guard}\n            exact(row.get('operation_observation'),observation,'WORKER_GUARD_OBSERVATION_EXACT_RESULT')"
+ s=replace_once(s,needle,needle+addition);texts[NEW[1]]=s
+ s=texts[NEW[2]];s=s.replace("validation='context/reconciliation/local-f0-worker-recovery-core-source-validation.json'","validation="+repr(CVAL))
+ texts[NEW[2]]=s
+ s=texts[NEW[4]];s=s.replace('HELPERS=set(',constants.replace('CHILD_SOURCES='+repr(CHILD),'CHILD_SOURCES=set('+repr(CHILD)+')')+'HELPERS=set(',1)
+ s=replace_once(s,"blobs={name:read_source(name,wanted) for name,wanted in files.items()}","blobs={name:read_source(name,wanted) for name,wanted in files.items()}\n need(CHILD_VALIDATION in files,'GUARD_OBSERVATION_CHILD_REQUIRED')")
+ marker="owned=decoded(blobs[VALIDATION]);";s=replace_once(s,marker,marker)
+ # Gate before any source can be pinned; prepare remains dormant/PENDING.
+ n=s.index(" archive_pins=mapping(owned['archive_files_sha256'])");s=s[:n]+PIN_GATE+s[n:];texts[NEW[4]]=s
+ # The legacy unit boundary keeps the original mocked component shape, but its
+ # new fixed safe observations are produced by the actual new child mock run.
+ texts[NEW[3]]=texts[NEW[3]].replace('worker_owned_v1_MOCK_ONLY_component_result_20261119.json','worker_guard_observation_v2_MOCK_ONLY_component_result_20261120.json')
+ checker=texts[NEW[3]]
+ checker=replace_function(checker,'real_verifier',''' def real_verifier(self,manifest):
+  # Future approval metadata exists only in this disposable offline copy.
+  n=self.n;manifest=deepcopy(manifest);pins=dict(manifest['prepared_source_file_inventory_sha256']);clone=Path(tempfile.mkdtemp(prefix='reviewed-gate-source-',dir=self.directory))
+  for name in pins:
+   path=clone/name;path.parent.mkdir(parents=True,exist_ok=True)
+   if (ROOT/name).is_file():path.write_bytes((ROOT/name).read_bytes())
+  for name in manifest['catalog']['tool_source_files_sha256']:
+   path=clone/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/name).read_bytes())
+  child=clone/n['CHILD_VALIDATION'];cv=json.loads(child.read_bytes())
+  for key in ('independent_source_review','Root_source_review'):cv[key]={'decision':'SOURCE_APPROVED','scope':'PRIVATE_OFFLINE_GATE_FIXTURE_ONLY'}
+  child.write_text(json.dumps(cv,indent=2)+'\\n',encoding='utf8');pins[n['CHILD_VALIDATION']]=hashlib.sha256(child.read_bytes()).hexdigest()
+  owned=clone/n['OWNED_VALIDATION'];ov=json.loads(owned.read_bytes())
+  for key in ('independent_safety_sql_review','independent_guard_observation_review','Root_source_review'):ov[key]={'decision':'SOURCE_APPROVED','scope':'PRIVATE_OFFLINE_GATE_FIXTURE_ONLY'}
+  ov['child_validation']['sha256']=pins[n['CHILD_VALIDATION']];owned.write_text(json.dumps(ov,indent=2)+'\\n',encoding='utf8');pins[n['OWNED_VALIDATION']]=hashlib.sha256(owned.read_bytes()).hexdigest()
+  manifest.update(source_commit='a'*40,source_tree='b'*40,packet_files_sha256=pins,packet_sha256=hashlib.sha256(''.join(k+'\\0'+pins[k]+'\\n'for k in sorted(pins)).encode()).hexdigest());n.update(ROOT=clone,MANIFEST=manifest,COMMIT=manifest['source_commit'],TREE=manifest['source_tree'],PACKET=manifest['packet_sha256'],TARGETS=manifest['targets'],RUN_ID=manifest['run_id'],verify_common_packet=Mock());return n''')
+ needle="validation=clone/g['VALIDATION'];record=json.loads(validation.read_bytes());record['independent_safety_sql_review']={'decision':'SOURCE_APPROVED','scope':'OFFLINE_SYNTHETIC_TEST_FIXTURE_ONLY'};validation.write_text(json.dumps(record,indent=2)+'\\n',encoding='utf8')"
+ replacement="validation=clone/g['VALIDATION'];record=json.loads(validation.read_bytes())\n  for key in ('independent_safety_sql_review','independent_guard_observation_review','Root_source_review'):record[key]={'decision':'SOURCE_APPROVED','scope':'OFFLINE_SYNTHETIC_TEST_FIXTURE_ONLY'}\n  child=clone/g['CHILD_VALIDATION'];cv=json.loads(child.read_bytes())\n  for key in ('independent_source_review','Root_source_review'):cv[key]={'decision':'SOURCE_APPROVED','scope':'OFFLINE_SYNTHETIC_TEST_FIXTURE_ONLY'}\n  child.write_text(json.dumps(cv,indent=2)+'\\n',encoding='utf8');pins[g['CHILD_VALIDATION']]=hashlib.sha256(child.read_bytes()).hexdigest();record['child_validation']['sha256']=pins[g['CHILD_VALIDATION']];validation.write_text(json.dumps(record,indent=2)+'\\n',encoding='utf8')"
+ checker=replace_once(checker,needle,replacement)
+ checker=checker.replace("n=self.real_verifier(self.pending_manifest);n['ROOT']=g['ROOT'];","n=self.real_verifier(self.pending_manifest);n['ROOT']=g['ROOT'];n['MANIFEST']['packet_files_sha256']=dict(self.pending_manifest['prepared_source_file_inventory_sha256']);")
+ texts[NEW[3]]=checker
+ for name,source in texts.items():
+  ast.parse(source,filename=name)
+  p=T/name
+  if p.exists():p.write_text(source,encoding='utf8',newline='\n')
+  else:
+   with p.open('x',encoding='utf8',newline='\n')as f:f.write(source)
+ print(json.dumps({'five_sha256':{n:sha((T/n).read_bytes())for n in NEW},'fixture_sha256':fixture_sha,'content_sha256':content,'coordinator_sha256':coor}))
+if __name__=='__main__':build()

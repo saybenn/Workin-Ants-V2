@@ -1,0 +1,44 @@
+"""Attach actual independent/Root source closure; authorize no runtime."""
+from pathlib import Path
+import datetime,hashlib,json,runpy,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+A='context/reconciliation/local-f0-operation-sources/app-write-two-owned-resource-v1'
+V='context/reconciliation/local-f0-app-write-two-owned-resource-v1-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(b)
+old=(R/V).read_bytes();assert sha(old)=='c5d36b9f62907c11942185f567ded78427b1a2b92876842fd71180433023366c'
+v=json.loads(old);assert len(v['archive_files_sha256'])==67 and all(x=='PENDING'for x in v['source_reviews'].values())
+delivery_path=T/'app_write_two_owned_resource_v1_frozen_source_plan_fix2_20261120.json';delivery_raw=delivery_path.read_bytes();assert sha(delivery_raw)=='4642f1dbe94d357f0fa65958d31f0f71e2efffb83416567c694456c7372d481c'
+d=json.loads(delivery_raw);five=v['operator_sources_sha256'];assert five==d['five_sha256']
+sources={}
+for name,h in five.items():
+    raw=(T/name).read_bytes();assert sha(raw)==h and(R/A/(name+'.txt')).read_bytes()==raw;sources[name]=raw
+for name,h in v['archive_files_sha256'].items():assert sha((R/name).read_bytes())==h
+peer_path=T/'app_write_two_owned_resource_v1_independent_source_review_fix2_20261120.json';peer_raw=peer_path.read_bytes();assert sha(peer_raw)=='6aee2bdea48a1e133a860085c6f2726f85eb0db0600fb15d5da5c8824321de6b'
+peer=json.loads(peer_raw);assert peer['decision']=='SOURCE_APPROVED'and peer['findings']==[]and peer['operator_sources_sha256']==five
+checks=(T/'app_owned_fix2_independent_checks_v2_20261120.json').read_bytes();assert sha(checks)=='ce41d9e2f61995517d6de2d1c43936c4fa599a03ce8a9c4a084cd87f3de4b107'
+author=Path(d['author_report']['path']).read_bytes();assert sha(author)==d['author_report']['sha256']=='79e19d31bed1d8917fe5419261630f04ddb1f89da77ee2049cdae5f2e793080b'
+freeze=Path(d['freeze']['path']).read_bytes();assert sha(freeze)==d['freeze']['sha256']=='8bb2b54dbf6c5695f39167eec91f4b562982a5774508c6def325527e071b000c'
+root_review={'schema':'workinants.app-owned-fix2-Root-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root','decision':'SOURCE_APPROVED','findings':[],'operator_sources_sha256':five,'independent_source_review_sha256':sha(peer_raw),'Root_inspection':'Read production validate_app_result, app_read_closed_reference, integrity barrier and component ordering. Exact27 typed fields/current_case required; complete chronological42-table continuity includes auxiliary scheduling and permits only declared two User/security fixture transition. Six common metadata fields across APIs, ctime stability within representations, bounded closed fresh second read and same-original hash barriers bind consumed report through final PASS. No filesystem perpetual-atomicity claim.','evidence':'Original three independently demonstrated blockers are closed by unchanged frozen author23 PASS601.833s plus independent10 PASS298.984s, including full parent process mocks, preservedmtime/latecleanup/persistentIO/old-restoration and actual atomic-replace8-vector scratch. Root did not rerun unchanged suites.','preservation':'Old held source/evidence and child59/24artifacts/159archive unchanged; source2claims only, no SQL/ACL/contract broadening.','runtime':'NOT_RUN_FRESH_COMMITTED_PIN_AND_LITERAL_REQUIRED','Posture':'D'}
+added={A+'/reviews/Root-fix2-validation-before-source-closure.json':old,A+'/reviews/independent-fix2-source-review.json':peer_raw,A+'/reviews/independent-fix2-focused-checks.json':checks,A+'/reviews/author-fix2-final-report.json':author,A+'/reviews/author-fix2-frozen-delivery.json':delivery_raw,A+'/reviews/author-fix2-freeze-manifest.json':freeze,A+'/reviews/Root-fix2-source-review.json':encoded(root_review),A+'/reviews/Root-fix2-source-closure-helper.py.txt':Path(__file__).read_bytes()}
+for name,b in added.items():put(R/name,b)
+v['archive_files_sha256'].update({n:sha(b)for n,b in added.items()});assert len(v['archive_files_sha256'])==75
+v.update(status='SOURCE_APPROVED_FIX2_FRESH_PUBLICATION_PIN_AND_LITERAL_REQUIRED',source_reviews={'author':'SOURCE_REVIEWED','offline':'PASS','independent':'SOURCE_APPROVED','Root':'SOURCE_APPROVED'},author_source_review={'path':A+'/reviews/author-fix2-final-report.json','sha256':sha(author)},independent_source_review={'decision':'SOURCE_APPROVED','path':A+'/reviews/independent-fix2-source-review.json','sha256':sha(peer_raw),'operator_sources_sha256':five},Root_source_review={'decision':'SOURCE_APPROVED','path':A+'/reviews/Root-fix2-source-review.json','sha256':sha(added[A+'/reviews/Root-fix2-source-review.json']),'operator_sources_sha256':five},actual_offline_results={'author_methods':23,'author_seconds':601.833,'independent_methods':10,'independent_seconds':298.984,'independent_check_record':{'path':A+'/reviews/independent-fix2-focused-checks.json','sha256':sha(checks)},'runtime':'NOT_RUN'})
+v['limits'].pop('source_or_literal_approval');v['limits'].update(source_review='SOURCE_APPROVED',operational_literal_review='PENDING',runtime='NOT_RUN')
+(R/V).write_bytes(encoded(v))
+files={**v['archive_files_sha256'],V:sha((R/V).read_bytes())};assert len(files)==76
+receipt={'schema':'workinants.app-owned-fix2-source-closed-committable.v1','files_sha256':files,'validation_sha256':files[V],'archive_files':75,'operator_sources_sha256':five,'independent_source_review_sha256':sha(peer_raw),'runtime':'NOT_RUN','Posture':'D'}
+p=T/'app_owned_fix2_source_approved_committable_inventory_20261120.json';put(p,encoded(receipt));print(json.dumps({'inventory_sha256':sha(p.read_bytes()),'validation_sha256':files[V],'archive_files':75,'committable_files':76}),flush=True)
+# This is a real, unchanged offline preparer and complete pinner validator.
+# Neither receives injected project functions or mocked source admission.
+def no_process(event,args):
+    if event in('subprocess.Popen','os.system','socket.connect','socket.bind'):raise RuntimeError('OFFLINE_PROCESS_OR_NETWORK_FORBIDDEN')
+sys.addaudithook(no_process)
+prep=runpy.run_path(str(T/'prepare_local_f0_app_write_two_owned_resource_v1_plan.py'),run_name='_actual_approved_app_prepare')
+result=prep['prepare'](T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json','92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5')
+pin=runpy.run_path(str(T/'pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py'),run_name='_actual_approved_app_validate');validated=pin['validate'](Path(result['operation_manifest']))
+proof={'schema':'workinants.app-owned-fix2-actual-approved-metadata-prepare-validate.v1','status':'PASS','admitted_files':len(validated[3]),'result':result,'all_process_network_boundaries':'FORBIDDEN_NOT_INVOKED','live_and_archived_five_unchanged':five,'runtime':'NOT_RUN','publication_pin_literal':'PENDING','Posture':'D'}
+p=T/'app_owned_fix2_actual_approved_prepare_validate_20261120.json';put(p,encoded(proof));print(json.dumps({'actual_prepare_validate':'PASS','proof_sha256':sha(p.read_bytes()),'result':result}),flush=True)

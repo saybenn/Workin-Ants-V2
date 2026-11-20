@@ -1,0 +1,177 @@
+"""Real file/Windows/Core/coordinator composition; all external boundaries forbidden."""
+from contextlib import ExitStack,redirect_stdout
+from pathlib import Path
+import ast,copy,io,json,os,runpy,socket,subprocess,tempfile,unittest
+from unittest.mock import Mock,patch
+ROOT=Path(__file__).resolve().parents[2];TASK=ROOT.parent
+F=runpy.run_path(str(ROOT/'scripts/test_install_independent_review_protocol_v2.py'));P=F['P']
+D=runpy.run_path(str(ROOT/'scripts/sql-review/watch-install-independent-review-v3.py'))['read_regular'].__globals__
+A=runpy.run_path(str(ROOT/'scripts/install_control_protocol_v2.py'))
+C=runpy.run_path(str(ROOT/'scripts/sql-review/run-install-control-rehearsal-v4.py'))
+CORE=TASK/'execute_local_f0_install_controls_20261120_owned_parity_v4.py'
+CANARY='PRIVATE_IO_DIAGNOSTIC_CANARY'
+class Tests(unittest.TestCase):
+    def setUp(self):
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        for method in ('run','Popen','call','check_call','check_output'):self.stack.enter_context(patch.object(subprocess,method,side_effect=AssertionError('REAL_PROCESS_FORBIDDEN')))
+        self.stack.enter_context(patch.object(socket,'create_connection',side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        temp=tempfile.TemporaryDirectory(prefix='install-v3-closed-',dir=TASK);self.addCleanup(temp.cleanup);self.out=Path(temp.name)
+    def emit(self):
+        raw,expected=F['fixture']();(self.out/'install-controls').mkdir()
+        for name,path in D['handoff_paths'](self.out,P).items():D['publish_immutable'](path,raw[name],P['CAPS'][name])
+        return raw,expected
+    def core(self):
+        n=runpy.run_path(str(CORE))['save'].__globals__;n.update(OUT=self.out,report={'unexpected':[],'status':'IN_PROGRESS'},all_secrets=[],EVIDENCE_FAILED=False,FIRST_SAVE_IO=None);return n
+    def coordinator(self):
+        raws,expected=F['fixture']();plan=P['decode'](raws[P['PLAN']]);plan['targets']={v:dict(t,name='unused',volume='unused') for v,t in plan['targets'].items()};planraw=P['canonical'](plan);identity=P['decode'](raws[P['IDENTITY']]);identity['child_run_plan_sha256']=P['sha'](planraw)
+        D['publish_immutable'](self.out/P['PLAN'],planraw,P['CAPS'][P['PLAN']]);D['publish_immutable'](self.out/P['IDENTITY'],P['canonical'](identity),P['CAPS'][P['IDENTITY']])
+        e=C['Evidence'](self.out/'install-controls');s=P['decode'](raws[P['SNAPSHOT']]);e.value.update({k:s[k] for k in ('run_id','source_commit','source_tree','packet_sha256','reviewed_plan_sha256')});e.value['reviewed_plan_sha256']=P['sha'](planraw);target=copy.deepcopy(s['targets']['division_failure']);target.pop('review_hold');e.value['targets']={'division_failure':target};e.save()
+        proto=dict(A,_review_transport=P,_review_io=D);co=C['Coordinator'](plan,{'variants':{v:{'sha256':P['SQL'][v]} for v in P['VARIANTS']}},{},{},{},{},proto,e,process=Mock(side_effect=AssertionError('NO_COMMAND_EXPECTED')));co.finalized.add('division_failure');co.rows['division_failure']=target['ledger']['rows'][0];clock=[0.0];co.monotonic=lambda:clock[0];return co,e,clock,expected,target['failure_verdict']
+    def test_publish_fresh_refuses_existing_preserves_bytes_and_has_no_hardlink(self):
+        path=self.out/'immutable.json';D['publish_immutable'](path,b'{}\n',64)
+        with self.assertRaises(D['Held']):D['publish_immutable'](path,b'changed',64)
+        self.assertEqual(path.read_bytes(),b'{}\n');self.assertEqual(path.stat().st_nlink,1);self.assertNotIn('link(',ast.get_source_segment((ROOT/'scripts/sql-review/watch-install-independent-review-v3.py').read_text(),next(n for n in ast.parse((ROOT/'scripts/sql-review/watch-install-independent-review-v3.py').read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='publish_immutable')))
+    def test_single_link_metadata_and_real_nonregular_are_rejected(self):
+        path=self.out/'one';path.write_bytes(b'x');actual=path.lstat()
+        # Host sandbox refuses actual hardlink creation. Project the only
+        # relevant admission metadata; no claim of observed hardlink creation.
+        from types import SimpleNamespace
+        metadata=SimpleNamespace(st_mode=actual.st_mode,st_nlink=2,st_size=1)
+        with patch.object(Path,'lstat',return_value=metadata),self.assertRaises(D['Held']):D['read_regular'](path,64)
+        with self.assertRaises(D['Held']):D['read_regular'](self.out,64)
+    def test_bounded_closed_immutable_reads_and_no_mutable_result_opens(self):
+        raw,expected=self.emit();opened=[];original=Path.open
+        def trace(path,*a,**kw):opened.append(path.name);return original(path,*a,**kw)
+        with patch.object(Path,'open',trace):value,read=D['read_handoff'](self.out,P,expected)
+        self.assertEqual(set(opened),set(raw));self.assertEqual(D['OPEN_HANDLES'],0);self.assertEqual(read,raw);self.assertEqual(value['proof']['application_inventory']['relations'],0)
+    def test_noncanonical_or_replaced_immutable_file_is_rejected(self):
+        raw,expected=self.emit();(self.out/'install-controls'/P['READY']).write_bytes(raw[P['READY']]+b' ')
+        with self.assertRaises(P['Held']):D['read_handoff'](self.out,P,expected)
+        self.assertEqual(D['OPEN_HANDLES'],0)
+    def test_poll_checks_only_ready_before_publication(self):
+        raw,expected=F['fixture']();clock=[0];reads=[];original=D['read_regular']
+        def sleep(seconds):
+            clock[0]+=seconds
+            if clock[0]==2:self.emit()
+        def read(path,cap):reads.append((clock[0],path.name));return original(path,cap)
+        with patch.dict(D,read_regular=read):value,readraw,deadline=D['wait_ready'](self.out,P,expected,monotonic=lambda:clock[0],sleep=sleep,watch_seconds=5)
+        self.assertTrue(all(t==2 for t,n in reads));self.assertEqual(deadline,221);self.assertFalse((self.out/'install-controls'/P['APPROVAL']).exists())
+    def deadline_scenario(self,method,mode):
+        # All immutable bytes are real fixture files. Only the filesystem's
+        # observation/delivery timing and the injected monotonic/sleep change.
+        with tempfile.TemporaryDirectory(prefix='late-ready-',dir=self.out) as directory:
+            out=Path(directory);(out/'install-controls').mkdir();raws,expected=F['fixture']();paths=D['handoff_paths'](out,P);approval=out/'install-controls'/P['APPROVAL']
+            for name,path in paths.items():D['publish_immutable'](path,raws[name],P['CAPS'][name])
+            initial=tuple(paths.values())+(approval,);state={'fresh':0,'ready_polls':0};clock=[0.0];original=Path.lstat
+            def lstat(path,*args,**kwargs):
+                if state['fresh']<len(initial) and path==initial[state['fresh']]:
+                    index=state['fresh'];state['fresh']+=1
+                    if mode=='initial_ready' and index==0:clock[0]=30.0
+                    if mode in ('initial_scan','first_present') and index==len(initial)-1:clock[0]=30.0
+                    raise FileNotFoundError
+                if path==paths[P['READY']]:
+                    state['ready_polls']+=1
+                    if mode=='delayed_absence' and state['ready_polls']==1:clock[0]=30.0;raise FileNotFoundError
+                    if mode=='first_present' and state['ready_polls']==1:clock[0]=230.0
+                return original(path,*args,**kwargs)
+            result={'mode':mode,'ready_published_and_coordinator_timer_started_at':1.0,'actual_coordinator_deadline':241.0,'deadline':None,'held':None}
+            with patch.object(Path,'lstat',lstat):
+                try:value,read,deadline=method(out,P,expected,monotonic=lambda:clock[0],sleep=lambda seconds:clock.__setitem__(0,clock[0]+seconds),watch_seconds=1800);result['deadline']=deadline
+                except D['Held'] as error:result['held']=str(error)
+            result['response_time']=clock[0];self.assertEqual(D['OPEN_HANDLES'],0);self.assertFalse(approval.exists());return result
+    def assert_conservative_deadline(self,result):
+        if result['held'] is not None:self.assertEqual(result['held'],'REVIEW_DEADLINE_EXPIRED')
+        else:self.assertEqual(result['deadline'],220.0);self.assertLess(result['deadline'],result['actual_coordinator_deadline'])
+    def test_delayed_absence_deschedule_retains_timestamp_before_ready_lstat(self):
+        self.assert_conservative_deadline(self.deadline_scenario(D['wait_ready'],'delayed_absence'))
+    def test_initial_ready_absence_delay_never_seeds_a_later_budget(self):
+        self.assert_conservative_deadline(self.deadline_scenario(D['wait_ready'],'initial_ready'))
+    def test_delayed_initial_multifile_scan_keeps_actual_ready_precheck_timestamp(self):
+        self.assert_conservative_deadline(self.deadline_scenario(D['wait_ready'],'initial_scan'))
+    def test_delayed_first_present_poll_stops_at_original_conservative_deadline(self):
+        result=self.deadline_scenario(D['wait_ready'],'first_present');self.assert_conservative_deadline(result);self.assertEqual(result['held'],'REVIEW_DEADLINE_EXPIRED')
+    def test_restoring_only_original_wait_ready_fails_all_four_timing_regressions(self):
+        old=TASK/'install-review-ready-v3-author-freeze-20261119/files/ROOT/scripts/sql-review/watch-install-independent-review-v2.py';raw=old.read_bytes();self.assertEqual(P['sha'](raw),'26b16dcf2dda60c9b1b2b12f0ae1e8d80e0f16445e1ed49f5921ebd9357151b9');node=next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name=='wait_ready');scope=dict(D);exec(compile(ast.Module(body=[node],type_ignores=[]),str(old),'exec'),scope)
+        for mode in ('delayed_absence','initial_ready','initial_scan','first_present'):
+            result=self.deadline_scenario(scope['wait_ready'],mode);self.assertEqual(result['deadline'],250.0)
+            with self.subTest(mode=mode),self.assertRaises(AssertionError):self.assert_conservative_deadline(result)
+    def test_actual_watcher_cli_source_gate_returns_original_deadline_for_separate_explicit_review(self):
+        raw,expected=F['fixture']();arming={'schema':'workinants.install-independent-review-watch.v2','evidence_directory':str(self.out),'expected':expected,'source_modules_sha256':{name:P['sha']((ROOT/name).read_bytes()) for name in (D['HELPER'],D['AUTHORITY'],D['SELF'])},'watch_seconds':5};path=self.out/'source-bound-watch-arming.json';arming_raw=P['canonical'](arming);path.write_bytes(arming_raw);actual=D['wait_ready'];clock=[10.0]
+        def sleep(seconds):clock[0]+=seconds;self.emit()
+        def bounded(out,p,identity,watch_seconds):return actual(out,p,identity,monotonic=lambda:clock[0],sleep=sleep,watch_seconds=watch_seconds)
+        with patch.dict(D,wait_ready=bounded),redirect_stdout(io.StringIO()) as output:code=D['main'](['--arming',str(path)])
+        value=json.loads(output.getvalue());self.assertEqual(code,0);self.assertEqual(value['review_deadline_monotonic'],230);self.assertEqual(value['local_review_budget_seconds'],220);self.assertEqual(value['arming_sha256'],P['sha'](arming_raw));self.assertEqual(value['watcher_source_sha256'],arming['source_modules_sha256'][D['SELF']]);self.assertTrue(value['all_read_handles_closed']);self.assertFalse(value['approval_issued']);self.assertFalse((self.out/'install-controls'/P['APPROVAL']).exists())
+    def test_wrong_watcher_self_fingerprint_stops_before_any_source_compile(self):
+        pins={name:P['sha']((ROOT/name).read_bytes()) for name in (D['HELPER'],D['AUTHORITY'],D['SELF'])};pins[D['SELF']]='0'*64;compiler=Mock(side_effect=AssertionError('NO_COMPILE_BEFORE_ALL_WATCH_PINS'))
+        with patch.dict(D,compile_source=compiler),self.assertRaises(D['Held']) as error:D['load_sources'](pins)
+        self.assertEqual(str(error.exception),'WATCH_SOURCE_DRIFT');compiler.assert_not_called();self.assertEqual(D['OPEN_HANDLES'],0)
+    def test_actual_coordinator_timeout_publishes_ready_last_after_completed_save_and_is_quiescent(self):
+        co,e,clock,expected,verdict=self.coordinator();saves=[];original=e.save;e.save=lambda:(saves.append(clock[0]) or original());published=[];publish=D['publish_immutable']
+        def traced(path,raw,cap):published.append(path.name);return publish(path,raw,cap)
+        def sleep(seconds):
+            clock[0]+=seconds;value,_=D['read_handoff'](self.out,P,expected);self.assertEqual(value['snapshot']['current_stage'],'INDEPENDENT_ROLLBACK_REVIEW_REQUIRED');self.assertEqual(saves,[0,0])
+        co.sleep=sleep
+        with patch.dict(D,publish_immutable=traced),self.assertRaises(C['HeldFailure']) as error:co.review('division_failure',verdict)
+        self.assertEqual(error.exception.code,'RECOVERY_REVIEW_PENDING_OR_TIMEOUT');self.assertEqual(clock[0],240);self.assertEqual(published,[P['PROOF'],P['SNAPSHOT'],P['READY']]);self.assertEqual(D['OPEN_HANDLES'],0);self.assertFalse((self.out/'install-controls'/P['APPROVAL']).exists())
+    def test_actual_coordinator_explicit_fixture_review_uses_unchanged_seven_fields(self):
+        co,e,clock,expected,verdict=self.coordinator();immutable={}
+        def sleep(seconds):
+            clock[0]+=seconds;value,raw=D['read_handoff'](self.out,P,expected);immutable.update(raw);proof=value['proof'];decision={'schema':'workinants.install-independent-rollback-review.v1','decision':'APPROVED_STANDARD_RESOLVE_ROLLED_BACK',**{k:proof[k] for k in ('run_id','container_id','source_sql_sha256')},'proof_sha256':P['sha'](raw[P['PROOF']]),'reviewer':'/root/catalog_v4_review'}
+            D['publish_explicit_approval'](self.out,P,A,expected,decision,220,monotonic=lambda:clock[0])
+        co.sleep=sleep;result=co.review('division_failure',verdict);self.assertEqual(result['disposition'],'REVIEWED_FOR_STANDARD_RESOLVE_ROLLED_BACK');self.assertEqual(D['OPEN_HANDLES'],0);e.value['current_stage']='RESUMED';e.save();_,after=D['read_handoff'](self.out,P,expected);self.assertEqual(after,immutable)
+    def test_invalid_reviewer_and_expired_deadline_never_publish_approval(self):
+        raw,expected=self.emit();proof=P['decode'](raw[P['PROOF']]);decision={'schema':'workinants.install-independent-rollback-review.v1','decision':'APPROVED_STANDARD_RESOLVE_ROLLED_BACK',**{k:proof[k] for k in ('run_id','container_id','source_sql_sha256')},'proof_sha256':P['sha'](raw[P['PROOF']]),'reviewer':'/root/install_outer_review'}
+        for deadline in (0,220):
+            with self.assertRaises((A['Held'],D['Held'])):D['publish_explicit_approval'](self.out,P,A,expected,decision,deadline,monotonic=lambda:1)
+        self.assertFalse((self.out/'install-controls'/P['APPROVAL']).exists())
+    def test_expiring_during_fsync_still_refuses_atomic_approval_publication(self):
+        raw,expected=self.emit();proof=P['decode'](raw[P['PROOF']]);decision={'schema':'workinants.install-independent-rollback-review.v1','decision':'APPROVED_STANDARD_RESOLVE_ROLLED_BACK',**{k:proof[k] for k in ('run_id','container_id','source_sql_sha256')},'proof_sha256':P['sha'](raw[P['PROOF']]),'reviewer':'/root/catalog_v4_review'};clock=[1];original=os.fsync
+        def slow_sync(fd):original(fd);clock[0]=221
+        with patch.object(os,'fsync',slow_sync),self.assertRaises(D['Held']):D['publish_explicit_approval'](self.out,P,A,expected,decision,220,monotonic=lambda:clock[0])
+        self.assertFalse((self.out/'install-controls'/P['APPROVAL']).exists());self.assertEqual(D['OPEN_HANDLES'],0)
+    def test_failed_final_marker_publication_cannot_start_review_clock(self):
+        co,e,clock,expected,verdict=self.coordinator();original=D['publish_immutable']
+        def fail(path,raw,cap):
+            if path.name==P['READY']:raise PermissionError(CANARY)
+            return original(path,raw,cap)
+        co.monotonic=Mock(side_effect=AssertionError('TIMER_BEFORE_READY'));co.sleep=Mock()
+        with patch.dict(D,publish_immutable=fail),self.assertRaises(PermissionError):co.review('division_failure',verdict)
+        co.monotonic.assert_not_called();co.sleep.assert_not_called();self.assertFalse((self.out/'install-controls'/P['READY']).exists())
+    def test_actual_main_refuses_missing_wrong_outer_identity_before_coordinator_or_evidence(self):
+        raws,expected=F['fixture']();plan=P['decode'](raws[P['PLAN']]);packet={'variants':{v:{'sha256':P['SQL'][v]} for v in P['VARIANTS']}};proto=dict(A,_review_transport=P,_review_io=D);path=self.out/P['PLAN'];path.write_bytes(raws[P['PLAN']]);identity_path=self.out/P['IDENTITY'];factory=Mock(side_effect=AssertionError('NO_RUNTIME_BEFORE_CLOSED_IDENTITY'));evidence=Mock(side_effect=AssertionError('NO_EVIDENCE_BEFORE_CLOSED_IDENTITY'))
+        for kind in ('missing','hash','CID','tree'):
+            if kind!='missing':
+                identity=P['decode'](raws[P['IDENTITY']])
+                if kind=='hash':identity['child_run_plan_sha256']='0'*64
+                elif kind=='CID':identity['targets']['canonical']['container_id']='9'*64
+                else:identity['source_tree']='0'*40
+                identity_path.write_bytes(P['canonical'](identity))
+            with self.subTest(kind=kind),redirect_stdout(io.StringIO()):code=C['main'](['--execute-reviewed-install-controls','--reviewed-run-plan',str(path),'--evidence-directory',str(self.out/'install-controls')],dependencies={'load_inputs':lambda p:(packet,{},{},{},{},proto),'coordinator':factory,'evidence':evidence})
+            self.assertEqual(code,2);factory.assert_not_called();evidence.assert_not_called();self.assertFalse((self.out/'install-controls').exists())
+    def test_windows_held_mutable_reader_failure_then_closed_reader_resumed_save_pass_sticky(self):
+        self.assertEqual(os.name,'nt');n=self.core();n['save']();handle=(self.out/'run-evidence.json').open('rb')
+        try:
+            with self.assertRaises(PermissionError):n['save']()
+        finally:handle.close()
+        first=dict(n['FIRST_SAVE_IO']);self.assertEqual(first,{'phase':'ATOMIC_REPLACE','exception_class':'PermissionError','winerror':5});n['save']();self.assertTrue(n['EVIDENCE_FAILED']);self.assertEqual(n['FIRST_SAVE_IO'],first);self.assertFalse(n['evidence_is_complete']());self.assertNotIn(CANARY,json.dumps(n['report']))
+    def test_all_seven_actual_save_phases_and_first_exception_survives_close_failure(self):
+        for phase in ('TEMP_OPEN','SERIALIZE_REDACT','TEMP_WRITE','TEMP_FLUSH','TEMP_FSYNC','TEMP_CLOSE','ATOMIC_REPLACE'):
+            n=self.core();failure=PermissionError(CANARY);failure.winerror=32;stream=Mock();stream.fileno.return_value=1
+            if phase=='TEMP_OPEN':opening=Mock(side_effect=failure)
+            else:opening=Mock(return_value=stream)
+            if phase in ('TEMP_WRITE','TEMP_FLUSH','TEMP_CLOSE'):getattr(stream,{'TEMP_WRITE':'write','TEMP_FLUSH':'flush','TEMP_CLOSE':'close'}[phase]).side_effect=failure
+            dumps=Mock(side_effect=failure) if phase=='SERIALIZE_REDACT' else json.dumps
+            fsync=Mock(side_effect=failure) if phase=='TEMP_FSYNC' else Mock()
+            replace=Mock(side_effect=failure) if phase=='ATOMIC_REPLACE' else Mock()
+            with self.subTest(phase=phase),patch.object(Path,'open',opening),patch.object(Path,'replace',replace),patch.object(n['json'],'dumps',dumps),patch.object(n['os'],'fsync',fsync),self.assertRaises(PermissionError) as error:n['save']()
+            self.assertIs(error.exception,failure);self.assertEqual(n['FIRST_SAVE_IO'],{'phase':phase,'exception_class':'PermissionError','winerror':32});self.assertTrue(n['EVIDENCE_FAILED'])
+        n=self.core();first=ValueError(CANARY);stream=Mock();stream.write.side_effect=first;stream.close.side_effect=OSError('SECONDARY')
+        with patch.object(Path,'open',return_value=stream),patch.object(Path,'replace') as replace,self.assertRaises(ValueError) as error:n['save']()
+        self.assertIs(error.exception,first);replace.assert_not_called();self.assertEqual(n['FIRST_SAVE_IO']['phase'],'TEMP_WRITE');self.assertEqual(n['FIRST_SAVE_IO']['exception_class'],'ValueError')
+    def test_diagnostics_are_closed_metadata_and_later_failure_cannot_overwrite(self):
+        n=self.core()
+        class Evil(Exception):
+            @property
+            def winerror(self):raise RuntimeError(CANARY)
+        n['_remember_first_save_io']('TEMP_WRITE',Evil(CANARY));self.assertEqual(n['FIRST_SAVE_IO'],{'phase':'TEMP_WRITE','exception_class':'OTHER','winerror':None});n['_remember_first_save_io']('TEMP_CLOSE',OSError(CANARY));self.assertEqual(n['FIRST_SAVE_IO']['phase'],'TEMP_WRITE');self.assertNotIn(CANARY,json.dumps(n['report']))
+if __name__=='__main__':unittest.main()

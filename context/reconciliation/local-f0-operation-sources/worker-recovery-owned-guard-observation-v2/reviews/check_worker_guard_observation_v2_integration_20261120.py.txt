@@ -1,0 +1,62 @@
+"""New owned Worker integration checks; all actual processes/network forbidden."""
+from pathlib import Path
+from copy import deepcopy
+import hashlib,io,json,runpy,subprocess,unittest,shutil,types
+from contextlib import redirect_stdout
+from unittest.mock import Mock,patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+B=runpy.run_path(str(T/'check_local_f0_worker_recovery_guard_observation_v2_operation.py'))
+CORE=T/'execute_local_f0_worker_recovery_guard_observation_v2_20261119.py';STEPS=T/'local_f0_worker_recovery_guard_observation_v2_operation_steps.py'
+
+class InitializationTests(unittest.TestCase):
+ setUp=B['WorkerOperationTests'].setUp
+ prepared=B['WorkerOperationTests'].prepared
+ def actual(self,manifest):
+  path=self.directory/'actual-initializer-manifest.json';path.write_text(json.dumps(manifest),encoding='utf8');module=runpy.run_path(str(CORE));module['initialize'](path);return path,module['initialize'].__globals__
+ def reviewed_data(self,manifest):
+  value=deepcopy(manifest);pins=value['prepared_source_file_inventory_sha256'];value.update(source_commit='b'*40,source_tree='c'*40,packet_files_sha256=pins,packet_sha256=hashlib.sha256(''.join(k+'\0'+pins[k]+'\n'for k in sorted(pins)).encode()).hexdigest(),review_status='APPROVED_LOCAL_F0_WORKER_RECOVERY_ATTEMPT');return value
+ def test_actual_initialize_supplies_scope_names_and_source_state_without_injected_globals(self):
+  _,value=self.prepared();path,n=self.actual(value)
+  self.assertEqual(n['TASK'],T);self.assertEqual(n['ROOT'],R);self.assertEqual(n['COMMIT'],'TO_BE_PINNED');self.assertEqual(n['TARGETS'],value['targets']);self.assertEqual(n['RESOURCE_CONTAINERS'],('wa-p0c-'+value['run_id'][:8]+'-worker21',));self.assertEqual(n['RESOURCE_VOLUMES'],(n['RESOURCE_CONTAINERS'][0]+'-data',));self.assertEqual(n['report']['worker_recovery']['prepared_protocols'],21);self.assertFalse(n['created_containers']);self.assertFalse(n['bootstrapped']);self.assertFalse(n['finalized']);self.assertFalse(n['OUT'].exists())
+ def test_actual_launch_pending_flag_stops_without_process_or_evidence_directory(self):
+  _,value=self.prepared();path,n=self.actual(value);printed=io.StringIO()
+  with redirect_stdout(printed):code=n['launch'](['--execute-reviewed-worker-recovery','--manifest',str(path)])
+  self.assertEqual(code,1);self.assertEqual(json.loads(printed.getvalue())['status'],'HELD');self.assertFalse(n['OUT'].exists());self.assertFalse(n['created_containers']);self.assertFalse(n['passwords'])
+ def test_actual_initialized_whole_verifier_real_inventory_and_eight_helpers(self):
+  _,value=self.prepared();value=self.reviewed_data(value);_,n=self.actual(value);exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+  # Only the outer real Git+review gate is mocked: all state came from the
+  # actual initializer and source/snapshot/catalog/import admission is real.
+  n['OUT'].mkdir();n['verify_common_packet']=Mock();n['verify_guard_observation_review']=Mock();n['verify_worker_recovery_packet']();self.assertEqual(len(n['HELPERS']),8);self.assertEqual(len(n['WORKER_FIXTURES']['cases']),21);self.assertEqual(n['report']['catalog_preparation']['closed_source_files'],16);self.assertFalse(n['created_containers']);self.assertFalse(n['finalized'])
+ def test_initialized_missing_scoped_helper_rejects_before_first_project_compile(self):
+  _,value=self.prepared();value=self.reviewed_data(value);key='scripts/sql-review/run-scoped-read-companion-rehearsal.py';value['packet_files_sha256'].pop(key);_,n=self.actual(value);exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n);n['verify_common_packet']=Mock()
+  with patch('builtins.compile',side_effect=AssertionError('UNADMITTED_COMPILE')),self.assertRaises(n['Stop']):n['verify_worker_recovery_packet']()
+  n['verify_common_packet'].assert_not_called();self.assertFalse(n['HELPERS']);self.assertFalse(n['OUT'].exists())
+ def test_actual_launch_current_and_committed_source_gate_without_state_injection(self):
+  _,template=self.prepared();clone=self.directory/'real-launch-clone';clone.mkdir();root=clone/'workinants-correction-pass';root.mkdir();cfg=runpy.run_path(str(T/'build_worker_guard_observation_v2_20261120.py'))
+  for name in cfg['NEW']:shutil.copyfile(T/name,clone/name)
+  for name in template['prepared_source_file_inventory_sha256']:
+   dest=root/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(R/name,dest)
+  for name in template['catalog']['tool_source_files_sha256']:
+   dest=root/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(R/name,dest)
+  validation=root/cfg['VAL'];record=json.loads(validation.read_bytes());
+  for key in ('independent_safety_sql_review','independent_guard_observation_review','Root_source_review'):record[key]={'decision':'SOURCE_APPROVED','scope':'OFFLINE_ISOLATED_FIXTURE_ONLY_NOT_RUNTIME'}
+  child=root/cfg['CVAL'];cv=json.loads(child.read_bytes())
+  for key in ('independent_source_review','Root_source_review'):cv[key]={'decision':'SOURCE_APPROVED','scope':'OFFLINE_ISOLATED_FIXTURE_ONLY_NOT_RUNTIME'}
+  child.write_text(json.dumps(cv,indent=2)+'\n',encoding='utf8');record['child_validation']['sha256']=hashlib.sha256(child.read_bytes()).hexdigest();validation.write_text(json.dumps(record,indent=2)+'\n',encoding='utf8')
+  base=clone/'baseline.json';base.write_bytes(B['BASELINE'].read_bytes());prep=runpy.run_path(str(clone/cfg['NEW'][2]));result=prep['prepare'](base,hashlib.sha256(base.read_bytes()).hexdigest(),B['RUN']);path=Path(result['operation_manifest']);value=self.reviewed_data(json.loads(path.read_bytes()));path.write_text(json.dumps(value),encoding='utf8')
+  core=runpy.run_path(str(clone/cfg['NEW'][0]));n=core['launch'].__globals__;calls=[]
+  def command(args,**options):
+   calls.append(tuple(args))
+   if args[0]=='git':
+    if args[-1]=='HEAD':raw=('b'*40+'\n').encode()
+    elif args[-1]=='HEAD^{tree}':raw=('c'*40+'\n').encode()
+    else:self.assertEqual(args[-2],'show');raw=(root/args[-1].split(':',1)[1]).read_bytes()
+    return types.SimpleNamespace(returncode=0,stdout=raw.decode()if options.get('text')else raw,stderr=''if options.get('text')else b'')
+   self.assertEqual(args[:3],['docker','--context','desktop-linux'])
+   if args[3:5]==['context','inspect']:raise n['Stop']('SOURCE_ADMISSION_SENTINEL')
+   self.assertIn(args[3],('container','volume'));return types.SimpleNamespace(returncode=0,stdout='',stderr='')
+  printed=io.StringIO()
+  with patch.object(subprocess,'run',side_effect=command),redirect_stdout(printed):code=core['launch'](['--execute-reviewed-worker-recovery','--manifest',str(path)])
+  self.assertEqual(code,1);self.assertEqual(n['report']['primary_failure']['code'],'SOURCE_ADMISSION_SENTINEL');self.assertEqual(n['ROOT'],root);self.assertEqual(n['report']['source_verification']['file_count'],len(value['packet_files_sha256']));self.assertEqual(len(n['HELPERS']),8);self.assertEqual(n['RESOURCE_CONTAINERS'],('wa-p0c-'+B['RUN'][:8]+'-worker21',));self.assertFalse(n['created_containers']);self.assertFalse(n['passwords']);self.assertTrue(any(c[0]=='git'for c in calls));self.assertFalse(any('create'in c or'psql'in c for c in calls))
+
+if __name__=='__main__':unittest.main(verbosity=2)

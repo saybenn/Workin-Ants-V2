@@ -1,0 +1,68 @@
+"""Prepare or stage exact reviewed checkpoint; preserve unfinished work."""
+from pathlib import Path
+import datetime,hashlib,io,json,re,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';PARENT='7ef509191423135f29d618e147250ea163523ac9'
+FOLLOW='context/reconciliation/local-f0-source-followups/7ef-closed-priv56-reviewed-sources-20261120'
+ADMISSION='context/reconciliation/local-f0-7ef-source805-closed-priv56-admission-20261120.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(b)
+def git(*args):return subprocess.check_output(['git','-c','core.longpaths=true',*args],cwd=R)
+assert git('rev-parse','HEAD').decode().strip()==PARENT and not git('diff','--cached','--name-only').strip()
+if '--stage'in sys.argv:
+    record=json.loads((R/ADMISSION).read_bytes());files={**record['admitted_files_sha256'],ADMISSION:sha((R/ADMISSION).read_bytes())}
+    for n,h in files.items():assert sha((R/n).read_bytes())==h
+    path=T/'7ef_source805_priv56_exact_stage_paths_20261120.nul';put(path,('\0'.join(sorted(files))+'\0').encode());git('add','--pathspec-from-file='+str(path),'--pathspec-file-nul')
+    assert set(git('diff','--cached','--name-only','-z').decode().split('\0'))-{''}==set(files)
+    data=subprocess.check_output(['git','-c','core.longpaths=true','cat-file','--batch'],cwd=R,input=''.join(':'+n+'\n'for n in sorted(files)).encode());stream=io.BytesIO(data)
+    for n in sorted(files):
+        head=stream.readline().decode().split();assert len(head)==3 and head[1]=='blob';raw=stream.read(int(head[2]));assert stream.read(1)==b'\n'and sha(raw)==files[n]
+    assert not stream.read();proof={'schema':'workinants.7ef-source805-priv56-exact-staged-byte-proof.v1','parent':PARENT,'files_sha256':files,'staged_files':len(files),'all_staged_blobs_match':True,'unfinished_work_staged':False,'Posture':'D'};p=T/'7ef_source805_priv56_exact_staged_byte_proof_20261120.json';put(p,encoded(proof));print(json.dumps({'staged_files':len(files),'proof_sha256':sha(p.read_bytes()),'all_staged_blobs_match':True}));raise SystemExit(0)
+sources=T/'7ef_reviewed_source_union_805_20261120.json';raw=sources.read_bytes();assert sha(raw)=='b24f7ca4486f4b43db09d886efa650c4f96f140c71f5ef0dcce93a23447873ab';source_record=json.loads(raw);files=dict(source_record['files_sha256']);assert len(files)==805
+closed_path=T/'7ef_priv56a87_closed_attempt_preserved_inventory_20261120.json';raw=closed_path.read_bytes();assert sha(raw)=='b0f98ccc28d989ba22b7eb578b9e6f4a35d3ceba11c3c8cb67d50859d15fd4b8';closed=json.loads(raw);files.update(closed['assets_sha256']);files[closed['record']]=closed['record_sha256'];assert len(files)==837
+progress_path=T/'7ef_priv56_source805_progress_checkpoint_inventory_20261120.json';raw=progress_path.read_bytes();assert sha(raw)=='69734dd82e80d38c8fe396fbb267fb187c6eab756a3b5e6e8971a234dfe0d805';files.update(json.loads(raw)['files_sha256']);assert len(files)==843
+followups={
+ 'publication-full-commit-proof.json':'7ef5091_publication_full_commit_verification_20261120.json',
+ 'original-checkouts-preserved.json':'7ef5091_original_checkout_preservation_recheck_20261120.json',
+ 'reviewed-source805-inventory.json':sources.name,
+ 'reviewed-source805-content-helper.py.txt':'prepare_7ef_reviewed_source_union_20261120.py',
+ 'approved-Worker-INSTALL-metadata-admission.json':'7ef_approved_Worker_INSTALL_actual_metadata_admission_20261120.json',
+ 'metadata-admission-first-Windows-audit-shape.py.txt':'check_7ef_approved_worker_install_metadata_admission_20261120.first-windows-audit-shape.py.txt',
+ 'metadata-admission-Windows-audit-recheck.py.txt':'recheck_7ef_install_metadata_windows_audit_boundary_20261120.py',
+ 'approved-AppFix2-actual-prepare-validate.json':'app_owned_fix2_actual_approved_prepare_validate_20261120.json',
+ 'repository-context-check.log.txt':'7ef_source805_closed_priv56_context_check_20261120.log',
+ 'Root-progress-update-helper.py.txt':'record_7ef_priv56_closed_and_source805_progress_20261120.py',
+ 'Root-progress-inference-clarification.py.txt':'clarify_7ef_progress_source_inference_20261120.py',
+ 'PENDING-privilege-metadata-v6-source-plan.json':'privilege_metadata_v6_bounded_source_correction_plan_20261120.json',
+ 'PENDING-read13-concrete-fixture-source-plan.json':'read13_concrete_fixture_recipe_source_supplement_v4_20261120.json',
+ 'PENDING-remaining28-write-partial-source-plan.json':'remaining28_app_write_bounded_static_partial_source_plan_20261120.json',
+ 'HOLD-RestoreV4-independent-source-review.json':'restore_bound_evidence_v4_independent_source_review_20261120.json',
+ 'HOLD-RestoreV4-transaction-classifier-probe.json':'restore_v4_independent_transaction_classifier_probe_20261120.json',
+ 'Root-RestoreV4-bounded-fix2-ACK.json':'restore_v4_transaction_options_fix2_Root_ACK_20261120.json',
+ 'Root-exact-admission-helper.py.txt':Path(__file__).name
+}
+for name,original in followups.items():b=(T/original).read_bytes();put(R/FOLLOW/name,b);files[FOLLOW+'/'+name]=sha(b)
+context=(T/'7ef_source805_closed_priv56_context_check_20261120.log').read_bytes();assert b'Structural checks PASSED'in context
+check={'schema':'workinants.7ef-source805-priv56-applicable-checks.v1','known_context_check_exit':0,'known_context_check_session':54068,'log_sha256':sha(context),'existing_warning':'124 mapped Prisma models missing from historical migration static coverage; not a replay','source_checks':'Family author and separate focused checks are bound in each reviewed source validation. Real approved App and Worker prepare/validate passed; INSTALL real current-source pinner gates reached read-only Git audit barrier with no process. Actual committed pins await this publication.','not_repeated':'Unchanged canonical SQL750/501/75mutation and broad model suites; source hashes stable','DB_or_runtime_invoked_by_checks':False,'counts_unchanged':'615PASS32PARTIAL348NOT_RUN32DEPENDENCY_BLOCKED7UNRESOLVED_SOURCE;4PASS73PARTIAL17NOT_RUN cases','pending_plans_and_HOLD_reports':'Documentation only; these are not source/runtime approval and their unreviewed code is excluded.','Posture':'D'}
+name=FOLLOW+'/applicable-checks.json';put(R/name,encoded(check));files[name]=sha((R/name).read_bytes())
+json_count=0;sizes={}
+patterns=(rb'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b',rb'\b(?:sk|rk)_live_[A-Za-z0-9]{20,}\b',rb'\bxox[baprs]-[A-Za-z0-9-]{25,}\b',rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----\r?\n(?:[A-Za-z0-9+/=]{40,}\r?\n){2,}')
+for name,h in files.items():
+    p=R/name;assert p.is_file()and not p.is_symlink()and not{'private','.env','.pgpass'}.intersection(p.parts);b=p.read_bytes();assert sha(b)==h and len(b)<50*1024*1024 and b'\0'not in b;txt=b.decode('utf-8-sig');sizes[name]=len(b)
+    if name.endswith('.json'):
+        def pairs(rows):
+            v={}
+            for k,x in rows:assert k not in v;v[k]=x
+            return v
+        json.loads(txt,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')));json_count+=1
+    assert not any(re.search(pattern,b)for pattern in patterns),('HIGH_CONFIDENCE_SECRET_PATTERN',name)
+assert sha((R/'vercel.json').read_bytes())=='81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f'and json.loads((R/'vercel.json').read_bytes())['git']['deploymentEnabled']['codex/p0c-candidate-corrections-2026-10-31']is False
+common=Path(git('rev-parse','--git-common-dir').decode().strip());common=common if common.is_absolute()else(R/common).resolve();assert not[p for p in(common/'hooks').iterdir()if p.is_file()and not p.name.endswith('.sample')]
+hooks=subprocess.run(['git','config','--get','core.hooksPath'],cwd=R,capture_output=True);assert hooks.returncode==1 and not hooks.stdout;assert not git('ls-tree','-r','--name-only','HEAD','--','.github/workflows').strip()
+content={'schema':'workinants.7ef-source805-priv56-outgoing-content-check.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS','files':len(files),'strict_JSON_files':json_count,'all_UTF8_NUL_free':True,'binary_or_private_files_admitted':False,'high_confidence_token_private_key_findings':False,'bytes':sum(sizes.values()),'largest_bytes':max(sizes.values()),'Vercel_branch_deployment_disabled':True,'active_hooks_or_GitHub_workflows':False,'Posture':'D'}
+name=FOLLOW+'/outgoing-content-check.json';put(R/name,encoded(content));files[name]=sha((R/name).read_bytes())
+rows=[x for x in git('status','--porcelain=v1','-z','--untracked-files=all').decode().split('\0')if x];excluded=sorted(x[3:]for x in rows if x[3:]not in files);changed=set(git('diff','--name-only','-z').decode().split('\0'))-{''}
+record={'schema':'workinants.7ef-source805-priv56-checkpoint-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'parent':PARENT,'admitted_files_sha256':dict(sorted(files.items())),'source_only_reviewed_families':source_record['family_counts'],'closed_actual_attempt':{'record':closed['record'],'sha256':closed['record_sha256'],'assets':31,'independent_cleanup':'PASS_EXACT1C1V_PRIVATE_ABSENT_IMAGE_RETAINED'},'qualification_counts_unchanged':True,'unfinished_code_excluded':'RestoreV4fix2; PrivilegeMetadataV6 not implemented; Read13/Write28 plans only. PENDING/HOLD documents do not confer runtime authority.','preserved_unstaged_paths':excluded,'reviewed_tracked_changes':sorted(changed.intersection(files)),'excluded_tracked_WIP':sorted(changed-set(files)),'normal_authenticated_fast_forward_only':True,'Posture':'D','continue_after_checkpoint':True}
+put(R/ADMISSION,encoded(record));p=T/'7ef_source805_priv56_admission_prepared_20261120.json';receipt={'schema':'workinants.7ef-source805-priv56-admission-prepared.v1','admission':ADMISSION,'admission_sha256':sha((R/ADMISSION).read_bytes()),'files_excluding_admission':len(files),'preserved_unstaged_paths':len(excluded),'content':'PASS','Git_mutation':False,'Posture':'D'};put(p,encoded(receipt));print(json.dumps(receipt))

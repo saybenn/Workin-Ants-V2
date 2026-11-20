@@ -1,0 +1,20 @@
+{
+  "schema": "workinants.install-watch-v2-late-absence-independent-probe.v1",
+  "recorded_at_utc": "2026-11-20T00:34:16.249002+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "source_sha256": "26b16dcf2dda60c9b1b2b12f0ae1e8d80e0f16445e1ed49f5921ebd9357151b9",
+  "method": "Actual wait_ready with exact synthetic handoff; only lstat timing/monotonic/sleep projected. No process/DB/network.",
+  "observed_absence_at": 0.0,
+  "modeled_ready_publish_and_coordinator_timer_start_at": 1.0,
+  "delayed_absence_return_at": 30.0,
+  "handoff_read_at": 31.0,
+  "returned_local_220_deadline": 250.0,
+  "coordinator_240_deadline_in_scenario": 241.0,
+  "late_by_seconds": 9.0,
+  "all_handles_closed": true,
+  "actual_approval_created": false,
+  "finding": "last_absent timestamp is sampled after failed lstat. Descheduling/delayed absence return can refresh it beyond real ready publication, so the promised conservative220-second deadline can exceed the coordinator240-second hold. Coordinator own240-second gate still rejects late approval, limiting impact to inaccurate reviewer budget/late ineffective approval.",
+  "minimal_correction": "Sample monotonic before each ready lstat and retain that pre-poll time only on confirmed absence. Never reset deadline after a delayed result or handoff reads. Add this actual-method regression.",
+  "actual_INSTALL7923_cause": "UNOBSERVED; unrelated source-only timing finding, no historical backfill.",
+  "scratch_absent_after": true
+}

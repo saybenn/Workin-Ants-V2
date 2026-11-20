@@ -1,0 +1,100 @@
+{
+  "schema": "workinants.app-owned-independent-frozen-probe.v2",
+  "source_only_mock": true,
+  "five_sha256": {
+    "execute_local_f0_app_write_two_owned_resource_v1_20261119.py": "4b675aafbe270a4117b2406450369863c34c77c4850ba8b88d2fe47109c27f13",
+    "local_f0_app_write_two_owned_resource_v1_operation_steps.py": "8f828ffa7dd3927f7331fb8a829515405b7b89310b400436bf346761f6ae9eeb",
+    "prepare_local_f0_app_write_two_owned_resource_v1_plan.py": "c0582abf5f19a9f0f59a078283f524682699970fd6d4c4175a5a7b123e6e065c",
+    "check_local_f0_app_write_two_owned_resource_v1_operation.py": "d2e7456a8b887acfc40b1ed94cde04e5413f352e5dc132bbaf311d7e89148752",
+    "pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py": "070731825d46b584d4ba1ef8652669538599922afdc2c5ee19cd9a1a66c7ad8e"
+  },
+  "freeze_sha256": "776d417903cab098cc5c55bf1370e7da88d9c5630f718be2121a9a0b39dec389",
+  "loaded_checker_sha256": "d2e7456a8b887acfc40b1ed94cde04e5413f352e5dc132bbaf311d7e89148752",
+  "checker_unchanged": true,
+  "actual_full_CLI": {
+    "exit_code": 0,
+    "status": "PASS_LOCAL_APP_WRITE_TWO_SQL_SUBSET_ONLY",
+    "one_deploy": 1,
+    "native_checks": {
+      "PASS": 29089
+    },
+    "results": 14,
+    "operations": 221,
+    "complete42_states": 32,
+    "after_readonly": {
+      "native_checks": 29089,
+      "oracle_expression_hashes": 416,
+      "private_ledger_checks": 22,
+      "full42_data_unchanged": true,
+      "same_first_install": true,
+      "second_install_attempted": false
+    },
+    "cleanup_actions_confirmed": true,
+    "private_absent": true
+  },
+  "probes": [
+    {
+      "probe": "actual_full_wrapper_after_same_length_in_place_child_file_corruption",
+      "outcome": "ADMITTED_AS_PASS",
+      "wrapper_status": "PASS_LOCAL_APP_WRITE_TWO_SQL_SUBSET_ONLY",
+      "child_disk_status": "FAIL_FINITE_TWO_APP_WRITE_CRITERIA_ONLY",
+      "recorded_reference_sha256_matches_disk": false,
+      "original_producer_sha256": "ecb2524bd698464cfc4c5efe623f5f62f7161d5cad04b3a5f2c46a76e4d298c2",
+      "corrupt_disk_sha256": "3eaff7403320faa4a9156acb541e63f6f0d676b216bc266f2908cbb298c1c079"
+    },
+    {
+      "probe": "actual_producer_missing_required_current_case",
+      "outcome": "ADMITTED"
+    },
+    {
+      "probe": "actual_producer_unrelated_table_hash_discontinuity_between_cases",
+      "outcome": "ADMITTED"
+    },
+    {
+      "probe": "same_length_same_inode_reference_changed_during_read",
+      "outcome": "ADMITTED",
+      "mtime_changed": true,
+      "retained_sha256_matches_disk": false,
+      "read_status": "RETAINED"
+    },
+    {
+      "probe": "raw_source_alias_to_different_in_root_approved_same_bytes",
+      "outcome": "ADMITTED"
+    }
+  ],
+  "source_result_sha256": "3eaff7403320faa4a9156acb541e63f6f0d676b216bc266f2908cbb298c1c079",
+  "source_result_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-owned-independent-private-review-v2-20261119\\proof\\actual-producer-original-child.json",
+  "proof_files_sha256": {
+    "actual-child-on-disk-after-reference-read.json": "3eaff7403320faa4a9156acb541e63f6f0d676b216bc266f2908cbb298c1c079",
+    "actual-producer-original-child.json": "ecb2524bd698464cfc4c5efe623f5f62f7161d5cad04b3a5f2c46a76e4d298c2",
+    "actual-wrapper-report-after-corruption.json": "b8cf3250fde6319d2891ee2a44459771c4d31081ff53146b96378f6bf3a7035b",
+    "missing-current-case.json": "85db3079428bc909fafe3894931fc5ee7352cde22d3f6e3fd93de47441961f80",
+    "nonempty-user-hash-discontinuity.json": "25259f9f7825268f553231d665f1512232cccc386d31353621ab7b1a70bb1cd2"
+  },
+  "original_source_result_sha256": "ecb2524bd698464cfc4c5efe623f5f62f7161d5cad04b3a5f2c46a76e4d298c2",
+  "nonempty_unrelated_table_mutated": "app.users",
+  "source_runtime_manifest_sha256": "1b15e65fdfc3a40a4e498ae42d9f141a437f3dde2ce50259338091c60ac78a7b",
+  "seconds": 51.39000000001397,
+  "fixture_projection": {
+    "scope": "HISTORICAL_OFFLINE_MOCK_ONLY_NOT_RUNTIME_ATTESTATION",
+    "baseline_original_sha256": "92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5",
+    "baseline_only_path_fields_rebound": true,
+    "historical_Owner_assets_sha256": {
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1"
+    },
+    "destination_label_only": "b9703d7-native-catalog-23bd8979 expected by authored checker; copied verified Owner7293 bytes",
+    "private_source_approval_and_operational_projection": "Only authored Fixture private mirror; live four gates unchanged"
+  },
+  "limits": [
+    "All actual OS Docker/Git/DB/network operations forbidden or mocked",
+    "No project Source/gate/progress changes",
+    "Mutants use actual producer evidence; no handmade positive PASS object",
+    "No actual runtime assertion/case qualification"
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "schema": "workinants.install-b778-generated-RI-name-parity-independent-probe.v1",
+  "reviewer": "/root/review_track_ports",
+  "recorded_at_utc": "2026-11-20T05:10:35.523257+00:00",
+  "scope": "Closed evidence and static source analysis only; no replacement operator implemented.",
+  "run_id": "b778f794-0c22-4bb4-9af4-3818e8e0eab8",
+  "source_commit": "c820e39622843d9fc3b565cee6578a340970fba2",
+  "source_tree": "c004c3488cba127833d4a5052853c67d7d50c98f",
+  "packet_sha256": "985a1527ef70492c5f0563d1138864c128beedc4d5ec219d7c3d32f7d8c6e9f2",
+  "inputs_sha256": {
+    "local-f0-install-controls-20261119-b778f794\\run-evidence.json": "06a00d5bb87fbdb41a0e099dee0ff9fe921ab2c74ed3d757972497d436fb69cf",
+    "local-f0-install-controls-20261119-b778f794\\install-controls\\install-controls-results.json": "9de0f98b19b8512df44b561350b6aa0dcf074ba2abc87c8c070653a6a73dced4",
+    "local-f0-install-controls-20261119-b778f794\\canonical-native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "local-f0-install-controls-20261119-b778f794\\recovered-native-before.json": "24c5d8392ab622e1a0f27c5bca84c8dfa8c64fd9f372d8125ee37616a3178a72",
+    "local-f0-install-controls-20261119-b778f794\\canonical-catalog-comparison.json": "34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e",
+    "local-f0-install-controls-20261119-b778f794\\recovered-catalog-comparison.json": "f7daa67ff3ec72667dd2b6073d66a6541b9c5231796807c1a2d8e5663217611c",
+    "install_c820_b778f794_independent_cleanup_20261119.json": "03bb1d48f872f99ec90363f896ea7fcc6f534eca8a9c304d4b5b501f8dbad231",
+    "local_f0_install_controls_operation_steps_review_ready_v3.py": "a2439fa0e0e733afa01b231deedee2608b5dab3b9baf3b4529aeb732a541e348",
+    "workinants-correction-pass\\scripts\\sql-review\\collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+    "workinants-correction-pass\\scripts\\sql-review\\compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+    "workinants-correction-pass\\scripts\\sql-review\\pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342"
+  },
+  "old_comparison": {
+    "source": "local_f0_install_controls_operation_steps_review_ready_v3.py",
+    "function": "main",
+    "line": 866,
+    "expression": "exact(canonical.native_sha256,division_failure.native_sha256)",
+    "canonical_native_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6",
+    "recovered_native_sha256": "91b6a849f368759f783df1247dcbf89ecc06b1e302220f7c23bf6f2a13049ae9",
+    "raw_digest_equality": false,
+    "actual_stop": "RECOVERED_NATIVE_DIFFERS_FROM_CANONICAL"
+  },
+  "closed_difference": {
+    "total_sections": 27,
+    "nontrigger_sections": 26,
+    "all26_nontrigger_sections_exact_equal": true,
+    "trigger_rows_each": 412,
+    "internal_rows_each": 312,
+    "external_rows_each": 100,
+    "external_rows_exact_equal": true,
+    "internal_semantic_identity_keys_unique_equal": true,
+    "all_nonname_internal_fields_exact_equal": true,
+    "only_changed_field": "name",
+    "changed_name_count": 312,
+    "all_names_match_RI_ac_digit_shape": true,
+    "nonname_fields_per_internal_row": 20,
+    "review_only_all_nonname_field_mutation_differences_detected": [
+      "argument_count",
+      "arguments_sha256",
+      "constraint",
+      "constraint_index",
+      "constraint_name",
+      "constraint_table",
+      "deferrable",
+      "dependencies",
+      "enabled",
+      "function",
+      "function_identity",
+      "function_release_builtin",
+      "has_constraint_index",
+      "has_constraint_relation",
+      "initially_deferred",
+      "internal",
+      "referenced_table",
+      "table_name",
+      "type_bits",
+      "when_sha256"
+    ],
+    "within_target_before_afterOracle_afterLedger_all_exact": true
+  },
+  "source_semantics": {
+    "collector": "trigger_rows projects tgname plus complete source identity/flags/functions/index/reference/dependency fields; snapshot trigger array sorts by table_name,name.",
+    "pg17_internal_identity": [
+      "constraint_table",
+      "constraint_name",
+      "table_name",
+      "function",
+      "type_bits"
+    ],
+    "pg17_rule": "internal_trigger_matrix declares exact per-function RI_c_ or RI_a_ prefix; native_internal_name_matches requires that exact prefix plus digits. Existing comparator maps unique semantic identities and validates every field plus source-generated-name separately.",
+    "existing_comparator_lines": [
+      400,
+      440
+    ],
+    "rules_lines": [
+      153,
+      200
+    ],
+    "collector_lines": [
+      150,
+      176
+    ]
+  },
+  "actual_prerequisites_observed": {
+    "canonical": {
+      "catalog": "PASS",
+      "catalog_PASS_checks": 29089,
+      "oracle_expressions": 416,
+      "ledger": "PASS",
+      "ledger_PASS_checks": 22
+    },
+    "recovered": {
+      "catalog": "PASS",
+      "catalog_PASS_checks": 29090,
+      "oracle_expressions": 416,
+      "ledger": "PASS",
+      "ledger_PASS_checks": 23
+    },
+    "both_individual_full_comparators_completed_before_outer_equality": true,
+    "no_recomputed_whole_runtime_qualification": true
+  },
+  "historical_scope": {
+    "this312_name_difference": "DIRECTLY_OBSERVED_FROM_RETAINED_COMPLETE_SNAPSHOTS",
+    "old7923_or_other_opaque_stop_cause": "NOT_EXPLAINED",
+    "new_runtime": "NOT_RUN",
+    "Posture": "D"
+  },
+  "no_database_process_network_Git_or_resource_commands": true
+}

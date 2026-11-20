@@ -1,0 +1,27 @@
+"""Genuine qualification->semantic-parity composition using only closed data as offline process responses."""
+from pathlib import Path
+import copy,io,json,runpy,subprocess,sys,tempfile,types,unittest
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';B=runpy.run_path(str(T/'check_local_f0_install_controls_operation_owned_parity_v4.py'))
+def audit(event,args):
+ if event in ('subprocess.Popen','os.system','os.posix_spawn','socket.connect','socket.bind','socket.getaddrinfo'):raise AssertionError('REAL_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(audit)
+class ActualNativeQualificationTests(unittest.TestCase):
+ setUp=B['Tests'].setUp
+ def test_genuine_both_qualifiers_then_parity_only_process_responses_are_mocked(self):
+  n=self.n;helper=B['SemanticParityTests']();helper.n=n;rules,oracle,expected,natives,closed=helper.source_inputs();tools=type(helper)._closed_source_tools[0];old=json.loads((closed/'run-evidence.json').read_bytes());child=json.loads((closed/'install-controls/install-controls-results.json').read_bytes());tmp=tempfile.TemporaryDirectory(prefix='offline-install-actual-qualifiers-',dir=T);self.addCleanup(tmp.cleanup);n['OUT']=Path(tmp.name);(n['OUT']/'install-controls').mkdir()
+  for name in ('rollback-proof-for-review.json','independent-recovery-approval.json'):(n['OUT']/'install-controls'/name).write_bytes((closed/'install-controls'/name).read_bytes())
+  n['MANIFEST']=copy.deepcopy(old['run_manifest']);n['RUN_ID']=old['run_id'];n['COMMIT']=old['approved_commit'];n['TREE']=old['approved_tree'];n['PACKET']=old['approved_packet_sha256'];n['TARGETS']=n['MANIFEST']['targets'];n['RESOURCE_CONTAINERS']=tuple(t['name']for t in n['TARGETS']);n['RESOURCE_VOLUMES']=tuple(t['volume']for t in n['TARGETS']);n['CONNECTION_TAG']='wa-first-'+n['RUN_ID'];n['report']['targets']=copy.deepcopy(old['targets']);n['report']['install']={};n['created_containers']={t['name']:child['targets'][t['kind']]['cli_'+('canonical'if t['kind']=='canonical'else'division_failure'if t['kind']=='division_failure'else'late_function_grant')+'_deploy']['container_id']for t in n['TARGETS']};n['finalized']={t['name']for t in n['TARGETS']if child['targets'][t['kind']]['original_cleanup']=={'original_grantor':'postgres','temporary_memberships':0,'leaf_create':False,'other_clients':0}}
+  n['CATALOG'].update(expected=expected,tools=tools,plan=oracle.build_plan(expected,R),public=json.loads((R/'review-output/native-catalog/public-schema-registration.json').read_bytes()),oracle_sql=(R/'review-output/native-catalog/expression-oracle.sql').read_text());n['CATALOG']['strings'],n['CATALOG']['generated_names']=n['metadata_allowlist'](expected,tools)
+  ledger=runpy.run_path(str(R/'scripts/sql-review/install_ledger_proof_v3.py'));blobs={p:(R/p).read_bytes()for p in ledger['INPUTS']};n['INSTALL'].update(ledger=ledger,protocol=runpy.run_path(str(R/'scripts/install_control_protocol_v2.py')),qualified_result=child,packet=json.loads((R/'review-output/install-control-rehearsal-v4/fixtures.json').read_bytes()),adapter_blobs=blobs,adapter_hashes={p:B['sha'](b)for p,b in blobs.items()});calls=[]
+  def process(args,**kw):
+   self.assertIn('psql',args);text=kw['input'];calls.append({'sql_sha256':B['sha'](text.encode()),'stage':n['report']['stage']});prefix=n['INSTALL'].get('artifact_prefix')
+   if text==n['_required_safety_text']('GLOBAL_BACKENDS'):value=json.dumps({'migrator':0,'other_client_backends':0})
+   else:
+    self.assertIn(prefix,('canonical-','recovered-'));names={'scripts/sql-review/catalog-acl-preflight.sql':'acl-preflight.json','scripts/sql-review/catalog-text-preflight.sql':'text-preflight.json','scripts/sql-review/collect_native_catalog.sql':'native-before.json','scripts/sql-review/collect_prisma_ledger.sql':'ledger-observation.json'};match=next((name for source,name in names.items()if text==(R/source).read_text()),None)
+    if match:value=json.dumps(json.loads((closed/(prefix+match)).read_bytes()))
+    elif text==n['CATALOG']['oracle_sql']:value='\n'.join(json.dumps(json.loads((closed/(prefix+name)).read_bytes()))for name in ('oracle-preflight.json','oracle-results.json','oracle-closure.json'))
+    else:raise AssertionError('ONLY_SOURCE_DECLARED_SQL_BOUNDARIES_ALLOWED')
+   return types.SimpleNamespace(returncode=0,stdout=value,stderr='')
+  subprocess.run.side_effect=process;n['qualify_install_catalog']('canonical','canonical-');n['qualify_install_catalog']('division_failure','recovered-');out=n['install_cross_target_semantic_parity']();self.assertEqual(out['counts']['internal_rows'],312);self.assertEqual(out['counts']['generated_names_differed'],312);self.assertEqual(out['individual_source_comparisons']['canonical'],{'catalog_PASS_checks':29089,'ledger_PASS_checks':22,'oracle_expressions':416});self.assertEqual(out['individual_source_comparisons']['division_failure'],{'catalog_PASS_checks':29090,'ledger_PASS_checks':23,'oracle_expressions':416});self.assertGreater(len(calls),16);self.assertNotIn(B['CANARY'],json.dumps(n['report']));self.assertFalse(out['raw_snapshots_rewritten']);self.assertNotEqual(*out['raw_snapshot_native_sha256'].values())
+if __name__=='__main__':unittest.main(verbosity=2)

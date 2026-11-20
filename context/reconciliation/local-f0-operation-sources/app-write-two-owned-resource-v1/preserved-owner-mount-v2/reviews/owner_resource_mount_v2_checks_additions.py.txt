@@ -1,0 +1,124 @@
+ def test_actual_two_mount_prestart_and_old_predicate_regression(self):
+  import ast
+  value,_=self.resource();value['State']['Running']=False;n=self.n;n['docker']=Mock(side_effect=AssertionError('NO_PRESTART_EXEC'))
+  self.assertEqual(len(value['Mounts']),2);n['inspect_owner'](NAME,running=False);n['docker'].assert_not_called();self.assertTrue(n['report']['resource_inspection_checks'][-1]['confirmed'])
+  old=TASK/'local_f0_owner_read_operation_steps_safety_sql_v1.py';node=next(x for x in ast.parse(old.read_bytes()).body if isinstance(x,ast.FunctionDef)and x.name=='inspect_owner');exec(compile(ast.Module(body=[node],type_ignores=[]),str(old),'exec'),n)
+  with self.assertRaises(n['Stop'])as stopped:n['inspect_owner'](NAME,running=False)
+  self.assertEqual(stopped.exception.code,'OWNER_READ_EXACT_MOUNT_SET');n['docker'].assert_not_called()
+
+ def test_optional_one_exact_tmpfs_API_row_and_mode_spelling(self):
+  for mode in('mode=0700','mode=700'):
+   for optional in(False,True):
+    with self.subTest(mode=mode,optional=optional):
+     value,_=self.resource();value['HostConfig']['Tmpfs']['/run/wa-secrets']='rw,nosuid,noexec,nodev,'+mode
+     if optional:value['Mounts'].append({'Type':'tmpfs','Destination':'/run/wa-secrets','RW':True})
+     self.n['inspect_owner'](NAME);self.assertTrue(self.n['report']['resource_kernel_checks'][-1]['confirmed'])
+
+ def test_exact_host_tmpfs_multiset_rejects_missing_extra_duplicate_conflicting_tokens(self):
+  options=['','rw,nosuid,noexec,mode=0700','rw,nosuid,noexec,nodev,mode=0700,ro','rw,nosuid,noexec,nodev,mode=0700,exec','rw,nosuid,noexec,nodev,mode=0700,suid','rw,nosuid,noexec,nodev,mode=0700,dev','rw,nosuid,noexec,nodev,mode=0700,rw','rw,nosuid,noexec,nodev,mode=0700,mode=700','rw,nosuid,noexec,nodev,mode=700,','rw,nosuid,noexec,nodev,mode=0777',None,True]
+  for option in options:
+   with self.subTest(option=option):
+    value,_=self.resource();value['State']['Running']=False;value['HostConfig']['Tmpfs']['/run/wa-secrets']=option;command=Mock();self.n['docker']=command
+    with self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+    command.assert_not_called();self.assertFalse(self.n['report']['resource_inspection_checks'][-1]['confirmed'])
+  for change in('missing','extra','wrongkey'):
+   value,_=self.resource();value['State']['Running']=False
+   if change=='missing':value['HostConfig']['Tmpfs']={}
+   elif change=='extra':value['HostConfig']['Tmpfs']['/outside']='rw'
+   else:value['HostConfig']['Tmpfs']={'/outside':'rw,nosuid,noexec,nodev,mode=0700'}
+   with self.subTest(change=change),self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+
+ def test_API_mount_missing_duplicate_unknown_or_bad_tmpfs_row_rejects(self):
+  for change in('missing-data','missing-bind','duplicate-data','duplicate-bind','duplicate-tmpfs','wrong-tmpfs-target','readonly-tmpfs','unknown','malformed'):
+   value,_=self.resource();value['State']['Running']=False
+   if change=='missing-data':value['Mounts'].pop(0)
+   elif change=='missing-bind':value['Mounts'].pop()
+   elif change=='duplicate-data':value['Mounts'].append(deepcopy(value['Mounts'][0]))
+   elif change=='duplicate-bind':value['Mounts'].append(deepcopy(value['Mounts'][1]))
+   elif change=='duplicate-tmpfs':value['Mounts'] +=[{'Type':'tmpfs','Destination':'/run/wa-secrets','RW':True}]*2
+   elif change=='wrong-tmpfs-target':value['Mounts'].append({'Type':'tmpfs','Destination':'/outside','RW':True})
+   elif change=='readonly-tmpfs':value['Mounts'].append({'Type':'tmpfs','Destination':'/run/wa-secrets','RW':False})
+   elif change=='unknown':value['Mounts'].append({'Type':'nfs','Destination':'/run/wa-secrets','RW':True,'Source':CANARY})
+   else:value['Mounts'][0]=CANARY
+   with self.subTest(change=change),self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME,running=False)
+   self.assertNotIn(CANARY,json.dumps(self.n['report']))
+
+ def kernel_model(self,args,input=None,timeout=60,entries=None,stat_value='directory:700:0:0'):
+  n=self.n;self.assertEqual(args,['exec','-i',CID,'sh','-ceu',n['OWNER_SECRET_TMPFS_SCRIPT']]);self.assertIsNone(input);self.assertEqual(timeout,30)
+  script=args[-1]
+  for fixed in('done < /proc/mounts','[ "$count" -eq 1 ]',"stat -c '%F:%a:%u:%g' -- /run/wa-secrets","'directory:700:0:0'",'ro|exec|suid|dev','set -f'):
+   self.assertIn(fixed,script)
+  for flag in('rw','noexec','nosuid','nodev'):self.assertIn('[ "$seen_'+flag+'" -eq 1 ]',script)
+  rows=entries if entries is not None else[{'target':'/run/wa-secrets','filesystem':'tmpfs','options':'rw,nosuid,nodev,noexec,relatime,size=65536k,mode=700'}]
+  selected=[r for r in rows if r['target']=='/run/wa-secrets'];good=len(selected)==1
+  if good:
+   row=selected[0];options=row['options'].split(',');good=row['filesystem']=='tmpfs'and all(options.count(flag)==1 for flag in('rw','noexec','nosuid','nodev'))and not any(flag in options for flag in('ro','exec','suid','dev'))and all(options)
+  good=good and stat_value=='directory:700:0:0'
+  return types.SimpleNamespace(returncode=0 if good else 24,stdout=n['OWNER_SECRET_TMPFS_TOKEN']+'\n'if good else'',stderr='')
+
+ def test_real_kernel_helper_fixed_script_model_checks_fs_flags_directory_and_owner(self):
+  self.resource();self.n['docker']=self.kernel_model;self.n['inspect_owner'](NAME)
+  cases=[([], 'directory:700:0:0'),([{'target':'/elsewhere','filesystem':'tmpfs','options':'rw,noexec,nosuid,nodev'}],'directory:700:0:0')]
+  for filesystem,options in[('ext4','rw,noexec,nosuid,nodev'),('tmpfs','rw,nosuid,nodev'),('tmpfs','rw,noexec,nodev'),('tmpfs','rw,noexec,nosuid'),('tmpfs','ro,noexec,nosuid,nodev'),('tmpfs','rw,noexec,nosuid,nodev,exec'),('tmpfs','rw,noexec,nosuid,nodev,suid'),('tmpfs','rw,noexec,nosuid,nodev,dev'),('tmpfs','rw,rw,noexec,nosuid,nodev')]:cases.append(([{'target':'/run/wa-secrets','filesystem':filesystem,'options':options}],'directory:700:0:0'))
+  cases.append(([{'target':'/run/wa-secrets','filesystem':'tmpfs','options':'rw,noexec,nosuid,nodev'}]*2,'directory:700:0:0'))
+  for state in('regular file:700:0:0','symbolic link:700:0:0','directory:777:0:0','directory:700:1:0','directory:700:0:1',CANARY):cases.append((None,state))
+  for index,(entries,state)in enumerate(cases):
+   with self.subTest(index=index):
+    self.n['docker']=lambda args,input=None,timeout=60,entries=entries,state=state:self.kernel_model(args,input,timeout,entries,state)
+    with self.assertRaises(self.n['Stop']):self.n['inspect_owner'](NAME)
+    self.assertFalse(self.n['report']['resource_kernel_checks'][-1]['confirmed']);self.assertNotIn(CANARY,json.dumps(self.n['report']))
+
+ def test_kernel_probe_strict_output_exit_types_timeout_and_transport_are_sanitized(self):
+  self.resource();n=self.n;token=n['OWNER_SECRET_TMPFS_TOKEN']+'\n'
+  bad=[types.SimpleNamespace(returncode=False,stdout=token,stderr=''),types.SimpleNamespace(returncode=True,stdout=token,stderr=''),types.SimpleNamespace(returncode=0.0,stdout=token,stderr=''),types.SimpleNamespace(returncode=3,stdout=token,stderr=''),types.SimpleNamespace(returncode=0,stdout=token+'\n',stderr=''),types.SimpleNamespace(returncode=0,stdout=token.rstrip(),stderr=''),types.SimpleNamespace(returncode=0,stdout=CANARY,stderr=''),types.SimpleNamespace(returncode=0,stdout=token,stderr=CANARY),types.SimpleNamespace(returncode=0,stdout=token.encode(),stderr=''),types.SimpleNamespace(returncode=0,stdout=token,stderr=None),subprocess.TimeoutExpired(CANARY,30,output=CANARY,stderr=CANARY),UnicodeError(CANARY),RuntimeError(CANARY)]
+  for item in bad:
+   with self.subTest(kind=type(item).__name__):
+    n['docker']=Mock(side_effect=item)if isinstance(item,BaseException)else Mock(return_value=item)
+    with self.assertRaises(n['Stop'])as stopped:n['inspect_owner'](NAME)
+    self.assertEqual(stopped.exception.code,'OWNER_READ_SECRET_TMPFS_KERNEL_UNCONFIRMED');self.assertNotIn(CANARY,json.dumps(n['report']));self.assertFalse(n['report']['resource_kernel_checks'][-1]['confirmed'])
+  n['docker']=Mock()
+  with self.assertRaises(n['Stop']):n['verify_running_secret_tmpfs'](NAME,'f'*64)
+  n['docker'].assert_not_called()
+
+ def creation_world(self,kernel_bad=False):
+  n=self.n;value,volume=self.resource();n['OUT'].mkdir();containers={};volumes={};trace=[];running=False
+  # All real APIs, including Docker and Windows ACL, terminate at this one
+  # command transport mock. Core creation/inspection/readiness/cleanup are real.
+  n=namespace();self.n=n;n.update(OUT=self.directory/'out',PRIVATE=self.directory/'out/private',RUN_ID=RUN,TARGETS=[{'name':NAME,'volume':VOLUME,'kind':'ok'}],RESOURCE_CONTAINERS=(NAME,),RESOURCE_VOLUMES=(VOLUME,),ROLES=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),created_containers={},created_volumes={},attempted_containers=set(),attempted_volumes=set(),passwords={},secret_paths=[],all_secrets=[],save=lambda:None,event=lambda *a,**k:None)
+  n['report']['image']={'image_id':value['Image']};value['State']['Running']=False
+  def command(args,input=None,timeout=60):
+   nonlocal running
+   if args[0]=='powershell.exe':trace.append('OWNER_DACL');return types.SimpleNamespace(returncode=0,stdout='OWNER_ONLY_VERIFIED\n',stderr='')
+   self.assertEqual(args[:3],['docker','--context','desktop-linux']);parts=args[3:];code=0;stdout=''
+   if parts==['container','ls','-a','--format','{{.Names}}']:stdout='\n'.join(containers)
+   elif parts==['volume','ls','--format','{{.Name}}']:stdout='\n'.join(volumes)
+   elif parts[:2]==['volume','create']:volumes[VOLUME]=deepcopy(volume);trace.append('CREATE_VOLUME')
+   elif parts[:2]==['container','create']:containers[NAME]=deepcopy(value);trace.append('CREATE_CONTAINER')
+   elif parts==['container','inspect',NAME]:
+    trace.append('INSPECT_RUNNING'if running else'INSPECT_PRESTART');stdout=json.dumps([containers[NAME]])if NAME in containers else'';code=0 if NAME in containers else 1
+   elif parts==['volume','inspect',VOLUME]:stdout=json.dumps([volumes[VOLUME]])if VOLUME in volumes else'';code=0 if VOLUME in volumes else 1
+   elif parts==['container','start',CID]:running=True;containers[NAME]['State']['Running']=True;trace.append('START')
+   elif parts==['exec','-i',CID,'sh','-ceu',n['OWNER_SECRET_TMPFS_SCRIPT']]:
+    trace.append('KERNEL_PROOF');self.assertEqual(timeout,30);self.assertIsNone(input);code=24 if kernel_bad else 0;stdout=''if kernel_bad else n['OWNER_SECRET_TMPFS_TOKEN']+'\n'
+   elif parts[:3]==['exec',CID,'pg_isready']:trace.append('READINESS')
+   elif parts[:5]==['exec','-i',CID,'sh','-ceu']and 'cat > /run/wa-secrets/pgpass'in parts[5]:trace.append('PGPASS');stdout='600:0:0\n'
+   elif parts==['container','rm','-f',CID]:containers.pop(NAME);trace.append('REMOVE_CONTAINER')
+   elif parts==['volume','rm',VOLUME]:volumes.pop(VOLUME);trace.append('REMOVE_VOLUME')
+   else:raise AssertionError('UNMODELED_COMMAND_BOUNDARY')
+   return types.SimpleNamespace(returncode=code,stdout=stdout,stderr='')
+  n['command']=command;return trace,containers,volumes
+
+ def test_actual_core_creation_order_kernel_before_pgpass_with_two_API_mounts(self):
+  trace,containers,volumes=self.creation_world();n=self.n
+  with patch.object(n['secrets'],'token_hex',side_effect=[CANARY+str(i)for i in range(6)]):n['create_resources']()
+  self.assertLess(trace.index('INSPECT_PRESTART'),trace.index('START'));self.assertLess(trace.index('START'),trace.index('KERNEL_PROOF'));self.assertLess(trace.index('KERNEL_PROOF'),trace.index('READINESS'));self.assertLess(trace.index('READINESS'),trace.index('PGPASS'));self.assertEqual(len(containers[NAME]['Mounts']),2)
+  n['cleanup']();self.assertFalse(containers);self.assertFalse(volumes);self.assertTrue(n['report']['cleanup_actions_confirmed']);self.assertNotIn(CANARY,json.dumps(n['report']))
+
+ def test_actual_core_kernel_failure_stops_credentials_and_cleanup_survives_persistent_IO(self):
+  trace,containers,volumes=self.creation_world(kernel_bad=True);n=self.n
+  def save():
+   if 'KERNEL_PROOF'in trace:raise OSError(CANARY)
+  n['save']=save
+  with patch.object(n['secrets'],'token_hex',side_effect=[CANARY+str(i)for i in range(6)]),self.assertRaises(BaseException):n['create_resources']()
+  self.assertNotIn('READINESS',trace);self.assertNotIn('PGPASS',trace)
+  n['cleanup']();self.assertIn('REMOVE_CONTAINER',trace);self.assertIn('REMOVE_VOLUME',trace);self.assertFalse(containers);self.assertFalse(volumes);self.assertFalse(n['report']['evidence_complete']);self.assertFalse(n['PRIVATE'].exists());self.assertNotIn(CANARY,json.dumps(n['report']))

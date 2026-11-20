@@ -1,0 +1,82 @@
+"""New guard/outcome regressions; all process/DB/network boundaries mocked."""
+import ast,hashlib,json,runpy
+from pathlib import Path
+import unittest
+from unittest.mock import patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'worker-guard-observation-v2-author-20261120'
+W=runpy.run_path(str(R/'scripts/check-worker-recovery-control-coordinator.py'));P=W['P'];M=W['M'];CANARY=W['CANARY']
+B=runpy.run_path(str(T/'check_local_f0_worker_recovery_guard_observation_v2_operation.py'))
+
+class GuardObservationTests(unittest.TestCase):
+ @classmethod
+ def setUpClass(cls):W['CoordinatorTests'].setUpClass.__func__(cls)
+ setUp=W['CoordinatorTests'].setUp
+ enable_preflight=W['CoordinatorTests'].enable_preflight
+ outer=W['CoordinatorTests'].outer
+ def test_malformed_received_response_close_and_global_failure_preserve_first(self):
+  self.enable_preflight();name=self.packet['cases'][2]['name'];original=self.coordinator.session
+  def session(role):
+   value=original(role);call=value.call;close=value.close
+   def invoke(text):
+    if self.coordinator.evidence.value['current_case']==name and text.startswith("SELECT 'WA_WR_BEFORE_"):
+     value.fail_close=True;return ([CANARY],)
+    return call(text)
+   def finish():
+    if getattr(value,'fail_close',False):raise M['HeldFailure']('RESTRICTED_CONNECTION_CLOSURE_REQUIRED')
+    return close()
+   value.call=invoke;value.close=finish;return value
+  self.coordinator.session=session;result=self.outer();row=next(r for r in result['operations']if r.get('name')==name);v=row['operation_observation']
+  self.assertIs(v['result_received'],True);self.assertIs(v['client_exit_received'],False);self.assertIsNone(v['client_exit_code']);self.assertIsNone(v['commit_acknowledged']);self.assertFalse(v['response_shape_valid']);self.assertIs(row['operation_closed'],False);self.assertEqual(result['unexpected'][0]['code'],'TYPED_OPERATION_RESULT');self.assertTrue(any(r['code']=='GLOBAL_BACKEND_CLOSURE_UNCONFIRMED'for r in result['unexpected']));self.assertEqual(len(result['results']),2);self.assertNotIn(CANARY,json.dumps(result))
+ def test_primary_response_failure_plus_persistent_IO_retains_safe_memory_and_closes(self):
+  self.enable_preflight();name=self.packet['cases'][2]['name'];original=self.coordinator.session
+  def session(role):
+   value=original(role);call=value.call
+   def invoke(text):
+    if self.coordinator.evidence.value['current_case']==name and text.startswith("SELECT 'WA_WR_BEFORE_"):raise M['HeldFailure']('SOURCE_FILE_UNAVAILABLE')
+    return call(text)
+   value.call=invoke;return value
+  self.coordinator.session=session;actual=Path.open
+  def opened(path,*a,**k):
+   active=any(r.get('name')==name and 'operation_observation'in r for r in self.coordinator.evidence.value['operations'])
+   if active and path.name=='worker-recovery-results.json.tmp'and a and 'w'in a[0]:raise OSError(CANARY)
+   return actual(path,*a,**k)
+  with patch.object(Path,'open',opened):result=self.outer()
+  row=next(r for r in result['operations']if r.get('name')==name);v=row['operation_observation'];self.assertFalse(v['result_received']);self.assertIsNone(v['commit_acknowledged']);self.assertTrue(row['operation_closed']);self.assertEqual(result['unexpected'][0]['code'],'SOURCE_FILE_UNAVAILABLE');self.assertFalse(result['evidence_complete']);self.assertEqual(len(result['results']),2);self.assertTrue(all(s.closed for s in self.transport.sessions));self.assertTrue(result['fixture_owner_bypass_restored']);self.assertTrue(any(r.get('stage')=='GLOBAL_BACKEND_CLOSURE'and r.get('other_clients_zero')is True for r in result['operations']));self.assertNotIn(CANARY,json.dumps(result))
+ def test_exact_trigger_guard_rejects_malformed_ambiguous_wrong_frames_and_later_RLS(self):
+  name=self.packet['cases'][16]['name'];good=self.transport.diagnostic(W['SqlFailure']('P0001','fixed Track binding denied','track_binding'));self.assertTrue(P.diagnostic(name,good,self.application)['matched'])
+  bad=[good.replace('P0001','42501'),good.replace('fixed Track binding denied','unrelated'),good.replace('track_binding()','runtime_transition()'),good.replace('line 7','line 8'),good.replace('exec_stmt_raise','ExecWithCheckOptions'),good+'ERROR:  P0001: '+CANARY+'\n',good.replace('\nCONTEXT:', ' ERROR: invalid\nCONTEXT:'),'ERROR:  42501: new row violates row-level security policy for table "track_subscriptions"\nLOCATION:  ExecWithCheckOptions, execMain.c:2231\n',good+CANARY]
+  for text in bad:
+   with self.subTest(sha=P.sha(text.encode())):
+    self.assertFalse(P.diagnostic(name,text,self.application)['matched']);v=P.operation_observation(self.packet['cases'][16],3,self.packet['cases'][16]['expected_records'],False,text,self.application,result_received=True,client_exit_received=True);self.assertEqual(v['diagnostic'],'UNLISTED_DISCARDED');self.assertIsNone(v['source_guard']);self.assertNotIn(CANARY,json.dumps(v))
+  self.assertTrue(P.diagnostic(name,good.replace('\n','\r\n'),self.application)['matched'])
+  with self.assertRaises(P.HeldFailure):P.diagnostic(name,'x'*16385,self.application)
+
+class SourceGateTests(unittest.TestCase):
+ setUp=B['WorkerOperationTests'].setUp
+ prepared=B['WorkerOperationTests'].prepared
+ real_verifier=B['WorkerOperationTests'].real_verifier
+ def test_all_five_review_gates_pending_reject_before_any_project_compile(self):
+  _,m=self.prepared();n=self.real_verifier(m);owned=n['ROOT']/n['OWNED_VALIDATION'];child=n['ROOT']/n['CHILD_VALIDATION'];own_raw=owned.read_bytes();child_raw=child.read_bytes();original=dict(n['MANIFEST']['packet_files_sha256'])
+  for family,key in [('own','independent_safety_sql_review'),('own','independent_guard_observation_review'),('own','Root_source_review'),('child','independent_source_review'),('child','Root_source_review')]:
+   ov=json.loads(own_raw);cv=json.loads(child_raw);(ov if family=='own'else cv)[key]={'decision':'PENDING_OFFLINE_GATE_MUTANT'};child.write_text(json.dumps(cv,indent=2)+'\n');ov['child_validation']['sha256']=hashlib.sha256(child.read_bytes()).hexdigest();owned.write_text(json.dumps(ov,indent=2)+'\n');n['MANIFEST']['packet_files_sha256'].update({n['CHILD_VALIDATION']:hashlib.sha256(child.read_bytes()).hexdigest(),n['OWNED_VALIDATION']:hashlib.sha256(owned.read_bytes()).hexdigest()})
+   with self.subTest(family=family,key=key),patch('builtins.compile',side_effect=AssertionError('NO_COMPILE_BEFORE_ALL_REVIEWS')),self.assertRaises(n['Stop']):n['admit_worker_recovery_sources']()
+   child.write_bytes(child_raw);owned.write_bytes(own_raw);n['MANIFEST']['packet_files_sha256']=dict(original)
+  self.assertFalse(n['HELPERS']);self.assertFalse(n['OUT'].exists())
+ def test_real_pending_metadata_never_opens_output_or_launches_any_process(self):
+  path,m=self.prepared();core=runpy.run_path(str(B['CORE']));printed=B['io'].StringIO()
+  with B['redirect_stdout'](printed):code=core['launch'](['--execute-reviewed-worker-recovery','--manifest',str(path)])
+  self.assertEqual(code,1);self.assertEqual(json.loads(printed.getvalue())['status'],'HELD');self.assertFalse(Path(m['evidence_directory']).exists());self.assertFalse(core['initialize'].__globals__['created_containers'])
+ def test_SQL_fixture_semantics_and_old220_five_30_assets_preserved(self):
+  before=json.loads((D/'before-manifest.json').read_bytes());old=json.loads((D/'before/ROOT/review-output/worker-recovery-control-rehearsal/fixtures.json').read_bytes());current=json.loads((R/'review-output/worker-recovery-control-rehearsal/fixtures.json').read_bytes())
+  for k in old:
+   if k not in('source_files_sha256','source_only_packet_sha256'):self.assertEqual(current[k],old[k],k)
+  for name,h in before['old220_archive_sha256'].items():self.assertEqual(P.sha((R/name).read_bytes()),h)
+  for name,h in before['old5_sha256'].items():self.assertEqual(P.sha((T/name).read_bytes()),h)
+  for name,h in before['closed30_assets_sha256'].items():self.assertEqual(P.sha((R/name).read_bytes()),h)
+  self.assertEqual(P.sha((R/'review-output/foundation-application.review.sql').read_bytes()),P.APPLICATION_SHA)
+  self.assertEqual(P.sha((R/'context/reconciliation/foundation-sql-draft-access.json').read_bytes()),'f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea')
+ def test_core_only_namespace_and_child_only_transaction_and_safe_code_changed(self):
+  old=(D/'before/TASK/execute_local_f0_worker_recovery_owned_v1_20261119.py').read_text();new=B['CORE'].read_text();self.assertEqual(old.replace('local_f0_worker_recovery_owned_v1_operation_steps.py','local_f0_worker_recovery_guard_observation_v2_operation_steps.py'),new)
+  a=ast.parse((D/'before/ROOT/scripts/sql-review/run-worker-recovery-control-rehearsal.py').read_bytes());b=ast.parse((R/'scripts/sql-review/run-worker-recovery-control-rehearsal.py').read_bytes());oldf={n.name:ast.dump(n,include_attributes=False)for n in ast.walk(a)if isinstance(n,ast.FunctionDef)};newf={n.name:ast.dump(n,include_attributes=False)for n in ast.walk(b)if isinstance(n,ast.FunctionDef)};changed={k for k in oldf if oldf[k]!=newf[k]};self.assertEqual(changed,{'coordinator_type','transaction','safe_code'})
+
+if __name__=='__main__':unittest.main(verbosity=2)

@@ -1,0 +1,28 @@
+"""Attach independent metadata closure; keep code and old evidence exact."""
+from pathlib import Path
+import hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+A='context/reconciliation/local-f0-operation-sources/scoped-read-companion-owned-resource-v1'
+V='context/reconciliation/local-f0-scoped-read-companion-owned-resource-v1-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,raw):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(raw)
+old=(R/V).read_bytes();assert sha(old)=='759ce7d31199f32a2b106c62487a1630fba4c52315138b071d2fabe8a7ba3c1f'
+v=json.loads(old);assert len(v['archive_files_sha256'])==120
+peer=(T/'six_read_review_gate_metadata_independent_closure_20261120.json').read_bytes();assert sha(peer)=='b6c8b9548557b2315da6901b2dafdb6e9a6dc6940c483e7dbc900c5a00016d90'
+decision=json.loads(peer);assert decision['decision']=='METADATA_CLOSURE_APPROVED_EXACT_SOURCE_UNCHANGED'and decision['operator_sources_sha256']==v['operator_sources_sha256']and decision['validation']['after_sha256']==sha(old)
+actual=(T/'six_read_metadata_corrected_actual_prepare_validate_20261120.json').read_bytes();assert sha(actual)=='a6931a946ddf793edf66fddc808cac82d85c510be9e1b27f6b5bed63f87ed27c'
+for name,h in v['operator_sources_sha256'].items():assert sha((T/name).read_bytes())==h
+for name,h in v['archive_files_sha256'].items():assert sha((R/name).read_bytes())==h
+added={A+'/reviews/Root-validation-before-metadata-review-attachment.json':old,A+'/reviews/independent-review-gate-metadata-closure.json':peer,A+'/reviews/Root-actual-prepare-validate-metadata-correction.json':actual,A+'/reviews/Root-close-review-gate-metadata-helper.py.txt':Path(__file__).read_bytes()}
+for name,b in added.items():put(R/name,b)
+v['archive_files_sha256'].update({n:sha(b)for n,b in added.items()});assert len(v['archive_files_sha256'])==124
+v['review_gate_metadata_correction'].update(status=decision['decision'],independent_metadata_review={'path':A+'/reviews/independent-review-gate-metadata-closure.json','sha256':sha(peer)},actual_unmodified_prepare_validate={'path':A+'/reviews/Root-actual-prepare-validate-metadata-correction.json','sha256':sha(actual)},source_code_unchanged=True,fresh_publication_and_pin_required=True)
+(R/V).write_bytes(encoded(v))
+first=json.loads((T/'six_read_review_gate_metadata_correction_inventory_20261120.json').read_bytes())
+files={**first['files_sha256'],**{n:sha(b)for n,b in added.items()},V:sha((R/V).read_bytes())};assert len(files)==9
+for name,h in files.items():assert sha((R/name).read_bytes())==h
+receipt={'schema':'workinants.six-read-review-gate-metadata-closed-committable.v1','status':'METADATA_CLOSURE_APPROVED_SOURCE_UNCHANGED_PUBLICATION_PIN_LITERAL_REQUIRED','files_sha256':files,'validation_sha256':files[V],'archive_files':124,'source_five_sha256_unchanged':v['operator_sources_sha256'],'independent_metadata_review_sha256':sha(peer),'runtime':'NOT_RUN','Posture':'D'}
+path=T/'six_read_review_gate_metadata_final_committable_inventory_20261120.json';put(path,encoded(receipt));print(json.dumps({'receipt_sha256':sha(path.read_bytes()),'validation_sha256':files[V],'archive_files':124,'committable_files':9,'code_changed':False}))

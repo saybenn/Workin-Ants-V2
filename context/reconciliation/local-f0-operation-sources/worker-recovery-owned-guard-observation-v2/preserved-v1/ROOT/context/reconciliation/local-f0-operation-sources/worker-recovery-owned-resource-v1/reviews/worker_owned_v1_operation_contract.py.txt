@@ -1,0 +1,34 @@
+def verify_worker_operations(operations,results):
+    # Every admitted row is a fixed producer shape from the pinned coordinator
+    # or its pinned CTX/scoped-read base; metadata never changes SQL verdicts.
+    native={'PRE_FIXTURE_FULL_NATIVE','POST_FIXTURE_FULL_NATIVE','PRE_CHECKPOINT_FULL_NATIVE','GENUINE_LEASED_CHECKPOINT_NATIVE','FINAL_FULL_NATIVE_PARITY','FINALLY_FULL_NATIVE_PARITY'}
+    transaction_names={c['name']for c in WORKER_FIXTURES['cases']}|{'source-'+x for x in 'ABC'}|{'schedule-'+x for x in 'ABC'}|{x+'-claim'for x in 'ABC'}|{'B-genuine-leased-group'}
+    stages={'RESOURCE_PREFLIGHT','SYNTHETIC_USER_CATALOG_ONLY','INDEPENDENT_SYNTHETIC_SERVICE_BOOTSTRAP','RESTRICTED_TRANSACTION','SEPARATE_ISSUER_COMMIT','GLOBAL_BACKEND_CLOSURE','IMMUTABLE_ISSUER_RETENTION','LIVE_HOLDER_CONTROL','GENUINE_LEASED_CHECKPOINT','ACTUAL_HASH_READ','EXACT_TWO_RECLAIM_CLIENTS','ACTUAL_RECLAIM_ORDERING'}|native
+    need(type(operations)is list and len(operations)==295,'WORKER_RECOVERY_EXACT_FINITE_OPERATION_COUNT')
+    for row in operations:
+        need(type(row)is dict and type(row.get('stage'))is str and row['stage']in stages,'WORKER_RECOVERY_UNKNOWN_OPERATION_PRODUCER');stage=row['stage']
+        if stage in native:
+            need(set(row)=={'stage','native_catalog_match','native_sha256'}and row['native_catalog_match']is True and row['native_sha256']==report['qualified_native_snapshot_sha256'],'WORKER_RECOVERY_EXACT_NATIVE_OPERATION')
+        elif stage=='RESOURCE_PREFLIGHT':exact(row,{'stage':stage,'immutable_created_CID_verified':True},'WORKER_RECOVERY_RESOURCE_OPERATION')
+        elif stage in {'SYNTHETIC_USER_CATALOG_ONLY','INDEPENDENT_SYNTHETIC_SERVICE_BOOTSTRAP'}:exact(row,{'stage':stage,'actual_login':'postgres'if stage=='SYNTHETIC_USER_CATALOG_ONLY'else'wa_identity_service_authority','commit_acknowledged':True,'operation_closed':True},'WORKER_RECOVERY_SETUP_COMMIT_OPERATION')
+        elif stage=='GLOBAL_BACKEND_CLOSURE':exact(row,{'stage':stage,'other_clients_zero':True},'WORKER_RECOVERY_GLOBAL_CLOSURE_OPERATION')
+        elif stage=='SEPARATE_ISSUER_COMMIT':exact(row,{'stage':stage,'issuer_committed':True,'commit_acknowledged':True,'created_at_return_verified':True,'operation_closed':True},'WORKER_RECOVERY_ISSUER_OPERATION')
+        elif stage=='IMMUTABLE_ISSUER_RETENTION':
+            need(set(row)=={'stage','instances','all_21_fields_match','issuer_owned','unrevoked','unexpired_required','current_unexpired_match'}and type(row['instances'])is int and 0<row['instances']<=80 and all(row[k]is True for k in('all_21_fields_match','issuer_owned','unrevoked'))and type(row['unexpired_required'])is bool and (row['current_unexpired_match']is True if row['unexpired_required']else row['current_unexpired_match']is None),'WORKER_RECOVERY_RETENTION_OPERATION')
+        elif stage=='LIVE_HOLDER_CONTROL':need(set(row)=={'stage','root','exact_live_holder','independent_epoch_current'}and type(row['root'])is str and row['root']in('A','B','C')and row['exact_live_holder']is True and row['independent_epoch_current']is True,'WORKER_RECOVERY_LIVE_OPERATION')
+        elif stage=='ACTUAL_HASH_READ':exact(row,{'stage':stage,'current_preimage_hash_matches_readable_column':True,'raw_value_retained':False},'WORKER_RECOVERY_HASH_OPERATION')
+        elif stage=='EXACT_TWO_RECLAIM_CLIENTS':exact(row,{'stage':stage,'two_captured_workers_only':True,'all_other_database_role_tag_clients_absent':True},'WORKER_RECOVERY_TWO_CLIENT_OPERATION')
+        elif stage=='GENUINE_LEASED_CHECKPOINT':exact(row,{'stage':stage,'actual_worker_commit':True,'all_deferred_guards_preserved':True,'work_still_leased_with_exact_committed_effect_inbox':True},'WORKER_RECOVERY_CHECKPOINT_OPERATION')
+        elif stage=='ACTUAL_RECLAIM_ORDERING':
+            flags=('distinct_overlapping_original_sessions','original_tuple_retained','new_reclaim_commit_before_old_action','old_current_unrevoked_unexpired_grant','effect_link_retained','actual_clock_expiry')
+            need(set(row)=={'stage','old_protected_change_count','clock_polls',*flags}and all(row[k]is True for k in flags)and type(row['old_protected_change_count'])is int and row['old_protected_change_count']==0 and type(row['clock_polls'])is int and row['clock_polls']>0,'WORKER_RECOVERY_ORDERING_OPERATION')
+        elif stage=='RESTRICTED_TRANSACTION':
+            need(set(row)=={'stage','name','login','issuer_committed','same_tuple_verified','operation_closed','exit_code','verdict'}and type(row['name'])is str and row['name']in transaction_names and all(row[k]is True for k in('issuer_committed','same_tuple_verified','operation_closed'))and type(row['exit_code'])is int,'WORKER_RECOVERY_TRANSACTION_OPERATION')
+            name=row['name'];template=WORKER_FIXTURES['grants'][next(c['grant']for c in WORKER_FIXTURES['cases']if c['name']==name)]if name in {c['name']for c in WORKER_FIXTURES['cases']}else WORKER_FIXTURES['grants'][name[-1]+'-source_customer'if name.startswith('source-')else name[-1]+'-schedule'if name.startswith('schedule-')else name if name.endswith('-claim')else'B-process']
+            need(row['login']==template['database_login_role'],'WORKER_RECOVERY_TRANSACTION_LOGIN')
+            match=next((r for r in results if r['case']==name),None);guard=match['source_guard']if match else None
+            need(row['exit_code']==(3 if guard else 0),'WORKER_RECOVERY_TRANSACTION_EXACT_EXIT');exact(row['verdict'],{'status':'PASS_FINITE_WORKER_PROTOCOL_ONLY','source_guard':guard,'complete_record_sequence_match':True},'WORKER_RECOVERY_TRANSACTION_VERDICT')
+    for stage in {'RESOURCE_PREFLIGHT','SYNTHETIC_USER_CATALOG_ONLY','INDEPENDENT_SYNTHETIC_SERVICE_BOOTSTRAP','GENUINE_LEASED_CHECKPOINT','ACTUAL_HASH_READ','EXACT_TWO_RECLAIM_CLIENTS','ACTUAL_RECLAIM_ORDERING',*native}:need(sum(r['stage']==stage for r in operations)==1,'WORKER_RECOVERY_REQUIRED_OPERATION_COUNT')
+    for stage,count in {'RESTRICTED_TRANSACTION':31,'SEPARATE_ISSUER_COMMIT':33,'IMMUTABLE_ISSUER_RETENTION':88,'GLOBAL_BACKEND_CLOSURE':87,'LIVE_HOLDER_CONTROL':43}.items():need(sum(r['stage']==stage for r in operations)==count,'WORKER_RECOVERY_EXACT_PRODUCER_COUNTS')
+    transactions=[r for r in operations if r['stage']=='RESTRICTED_TRANSACTION'];need(len(transactions)==len(transaction_names)and [r['name']for r in transactions]==['source-'+x for x in 'ABC']+['schedule-'+x for x in 'ABC']+['B-claim','C-claim','B-genuine-leased-group','A-claim']+[c['name']for c in WORKER_FIXTURES['cases']],'WORKER_RECOVERY_EXACT_TRANSACTION_SET')
+    checkpoint=next(i for i,r in enumerate(operations)if r['stage']=='GENUINE_LEASED_CHECKPOINT');ordering=next(i for i,r in enumerate(operations)if r['stage']=='ACTUAL_RECLAIM_ORDERING');need(checkpoint<ordering,'WORKER_RECOVERY_CHECKPOINT_BEFORE_RECLAIM')

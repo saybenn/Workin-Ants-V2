@@ -13,7 +13,7 @@ RESULT_SCHEMA='urn:workinants:database-review:foundation-payloads:v1#/$defs/assi
 DIAGNOSTICS={
  'nonnull-effect-relink-denied':('P0001','effect link must be one exact protected attachment','runtime_transition'),
  'null-pointer-foreign-same-fence-effect-denied':('P0001','effect link must be one exact protected attachment','runtime_transition'),
- 'valid-current-Free-selection-survives-duplicate-attempt':('42501','new row violates row-level security policy for table "track_subscriptions"',None),
+ 'valid-current-Free-selection-survives-duplicate-attempt':('P0001','fixed Track binding denied','track_binding'),
  'terminal-work-trigger-denial-rolls-back-completion':('P0001','terminal work/regressive attempt','runtime_transition')}
 
 class HeldFailure(Exception):
@@ -38,7 +38,37 @@ def marker(name,stage):
  return 'WA_WR_'+stage+'_'+name.upper().replace('-','_')
 def operation_sql(name,body):return 'SELECT '+quote(marker(name,'BEFORE'))+';\n'+body.rstrip()+'\nSELECT '+quote(marker(name,'AFTER'))+';\nCOMMIT;\n'
 
+def bounded_text(value,limit):
+ if type(value) is not str:return False
+ try:return len(value)<=limit and len(value.encode('utf8'))<=limit
+ except UnicodeError:return False
+
+def operation_observation(case,code,rows,ack,stderr,application,*,result_received,client_exit_received):
+ """Closed, value-free comparison; defaults never become observed responses."""
+ received=result_received is True;exited=client_exit_received is True
+ exit_valid=exited and type(code) is int and -255<=code<=255
+ rows_valid=received and type(rows) is list and len(rows)<=64 and all(bounded_text(x,65536) for x in rows)
+ error_valid=received and bounded_text(stderr,16384)
+ ack_valid=received and type(ack) is bool
+ expected=case['expected_records'];negative=case['name'] in DIAGNOSTICS
+ count_match=rows_valid and len(rows)==len(expected);sequence_match=False
+ if count_match:
+  try:
+   parsed=[unique_json(raw) if type(wanted) is dict else raw for raw,wanted in zip(rows,expected)]
+   sequence_match=canonical(parsed)==canonical(expected)
+  except (HeldFailure,TypeError,ValueError,UnicodeError):pass
+ kind='UNLISTED_DISCARDED';proof=None
+ if error_valid:
+  if stderr=='':kind='NO_DIAGNOSTIC'
+  elif negative:
+   if not bounded_text(application,2*1024*1024) or sha(application.encode())!=APPLICATION_SHA:kind='SOURCE_UNCONFIRMED'
+   else:
+    candidate=diagnostic(case['name'],stderr,application)
+    if candidate['matched']:kind='EXACT_SOURCE_GUARD';proof=candidate
+ return {'result_received':received,'client_exit_received':exited,'client_exit_type_valid':bool(exit_valid),'client_exit_code':code if exit_valid else None,'commit_acknowledged':ack if ack_valid else None,'response_shape_valid':bool(rows_valid and error_valid and ack_valid),'expected_exit_match':bool(exit_valid and code==(3 if negative else 0)),'expected_ack_match':bool(ack_valid and ack is (not negative)),'record_count_match':bool(count_match),'record_sequence_match':bool(sequence_match),'diagnostic':kind,'source_guard':proof}
+
 def diagnostic(name,stderr,application):
+ need(bounded_text(stderr,16384),'BOUNDED_OPERATION_DIAGNOSTIC')
  need(name in DIAGNOSTICS and sha(application.encode())==APPLICATION_SHA,'EXACT_DIAGNOSTIC_SOURCE_REQUIRED')
  state,message,function=DIAGNOSTICS[name];text=stderr.replace('\r\n','\n').rstrip('\n').split('\n');body_sha=None;body_line=None
  header=r'(?:psql:(?:<stdin>|-):[0-9]+: )?ERROR:[ \t]+'+state+r':[ \t]+'+re.escape(message)
@@ -52,7 +82,8 @@ def diagnostic(name,stderr,application):
  return {'matched':bool(matched),'sqlstate':state if matched else None,'classification':name if matched else 'UNLISTED_DISCARDED','source_body_sha256':body_sha if matched else None,'source_body_line':body_line if matched else None,'native_location':('exec_stmt_raise@pl_exec.c' if function else 'ExecWithCheckOptions@execMain.c') if matched else None}
 
 def verdict(case,code,rows,ack,stderr,application):
- need(type(code) is int and type(rows) is list and all(type(x) is str for x in rows) and type(ack) is bool and type(stderr) is str,'TYPED_OPERATION_RESULT')
+ observed=operation_observation(case,code,rows,ack,stderr,application,result_received=True,client_exit_received=True)
+ need(observed['response_shape_valid'] and observed['client_exit_type_valid'],'TYPED_OPERATION_RESULT')
  expected=case['expected_records'];need(type(expected) is list,'FIXED_RECORD_SEQUENCE')
  parsed=[]
  for raw,wanted in zip(rows,expected):parsed.append(unique_json(raw) if type(wanted) is dict else raw)

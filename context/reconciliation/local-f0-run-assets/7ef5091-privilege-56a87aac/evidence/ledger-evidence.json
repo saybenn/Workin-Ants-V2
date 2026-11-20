@@ -1,0 +1,286 @@
+{
+  "format": "workinants.prisma-ledger-evidence.v1",
+  "registration_sha256": "dfcea70c00848ca2b5599cbe21c338380eb896c9d4691d7c0eb5ded8dfdb9238",
+  "collector_sql_sha256": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+  "run_id": "56a87aac-655f-4db9-890e-15c94381d6e0",
+  "target_attestation_sha256": "730c68726846303ecc31719d81884fd6bc00eaa7ba769a8b2c0807b116cbaf6a",
+  "native_catalog_before_sha256": "89cdb3a7beb84c64e9dc45574b9f56d9ac8540457639fabd16ded6ea237658a5",
+  "native_catalog_after_sha256": "89cdb3a7beb84c64e9dc45574b9f56d9ac8540457639fabd16ded6ea237658a5",
+  "observation": {
+    "format": "workinants.prisma-ledger-native.v1",
+    "columns": [
+      {
+        "name": "id",
+        "type": "pg_catalog.varchar",
+        "typmod": 40,
+        "ordinal": 1,
+        "identity": "",
+        "is_local": true,
+        "nullable": false,
+        "generated": "",
+        "compression": "",
+        "default_sha256": null,
+        "inherited_count": 0,
+        "array_dimensions": 0,
+        "storage_is_type_default": true,
+        "collation_is_type_default": true
+      },
+      {
+        "name": "checksum",
+        "type": "pg_catalog.varchar",
+        "typmod": 68,
+        "ordinal": 2,
+        "identity": "",
+        "is_local": true,
+        "nullable": false,
+        "generated": "",
+        "compression": "",
+        "default_sha256": null,
+        "inherited_count": 0,
+        "array_dimensions": 0,
+        "storage_is_type_default": true,
+        "collation_is_type_default": true
+      },
+      {
+        "name": "finished_at",
+        "type": "pg_catalog.timestamptz",
+        "typmod": -1,
+        "ordinal": 3,
+        "identity": "",
+        "is_local": true,
+        "nullable": true,
+        "generated": "",
+        "compression": "",
+        "default_sha256": null,
+        "inherited_count": 0,
+        "array_dimensions": 0,
+        "storage_is_type_default": true,
+        "collation_is_type_default": true
+      },
+      {
+        "name": "migration_name",
+        "type": "pg_catalog.varchar",
+        "typmod": 259,
+        "ordinal": 4,
+        "identity": "",
+        "is_local": true,
+        "nullable": false,
+        "generated": "",
+        "compression": "",
+        "default_sha256": null,
+        "inherited_count": 0,
+        "array_dimensions": 0,
+        "storage_is_type_default": true,
+        "collation_is_type_default": true
+      },
+      {
+        "name": "logs",
+        "type": "pg_catalog.text",
+        "typmod": -1,
+        "ordinal": 5,
+        "identity": "",
+        "is_local": true,
+        "nullable": true,
+        "generated": "",
+        "compression": "",
+        "default_sha256": null,
+        "inherited_count": 0,
+        "array_dimensions": 0,
+        "storage_is_type_default": true,
+        "collation_is_type_default": true
+      },
+      {
+        "name": "rolled_back_at",
+        "type": "pg_catalog.timestamptz",
+        "typmod": -1,
+        "ordinal": 6,
+        "identity": "",
+        "is_local": true,
+        "nullable": true,
+        "generated": "",
+        "compression": "",
+        "default_sha256": null,
+        "inherited_count": 0,
+        "array_dimensions": 0,
+        "storage_is_type_default": true,
+        "collation_is_type_default": true
+      },
+      {
+        "name": "started_at",
+        "type": "pg_catalog.timestamptz",
+        "typmod": -1,
+        "ordinal": 7,
+        "identity": "",
+        "is_local": true,
+        "nullable": false,
+        "generated": "",
+        "compression": "",
+        "default_sha256": "28a4dae0461e17af56e979c2095abfbe0bfc45fe9ca8abf3144338a518a1bb8f",
+        "inherited_count": 0,
+        "array_dimensions": 0,
+        "storage_is_type_default": true,
+        "collation_is_type_default": true
+      },
+      {
+        "name": "applied_steps_count",
+        "type": "pg_catalog.int4",
+        "typmod": -1,
+        "ordinal": 8,
+        "identity": "",
+        "is_local": true,
+        "nullable": false,
+        "generated": "",
+        "compression": "",
+        "default_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "inherited_count": 0,
+        "array_dimensions": 0,
+        "storage_is_type_default": true,
+        "collation_is_type_default": true
+      }
+    ],
+    "history": [
+      {
+        "steps": 1,
+        "started": true,
+        "finished": true,
+        "logs_state": "NULL",
+        "name_sha256": "45bda41cbf8bc23eda6a6cb1005a51bdcdb00281848b9caa7e1b8a7ca9e940d8",
+        "rolled_back": false,
+        "id_is_uuid_v4": true,
+        "checksum_sha256": "0b49ce958ac762acad2705f29e480cc7d38354e5c46ddc8c38096767639ee38c",
+        "time_order_valid": true,
+        "checksum_format_valid": true
+      }
+    ],
+    "indexes": [
+      {
+        "keys": [
+          {
+            "column": "id",
+            "opclass": "pg_catalog.text_ops",
+            "included": false,
+            "position": 1,
+            "descending": false,
+            "nulls_first": false,
+            "opclass_default": true,
+            "collation_is_type_default": true
+          }
+        ],
+        "live": true,
+        "owner": "wa_migrator",
+        "ready": true,
+        "valid": true,
+        "object": "public._prisma_migrations_pkey",
+        "unique": true,
+        "primary": true,
+        "clustered": false,
+        "immediate": true,
+        "key_count": 1,
+        "no_options": true,
+        "persistence": "p",
+        "total_count": 1,
+        "no_index_acl": true,
+        "no_predicate": true,
+        "access_method": "btree",
+        "no_expressions": true,
+        "replica_identity": false,
+        "default_tablespace": true,
+        "nulls_not_distinct": false
+      }
+    ],
+    "database": "wa_p0c_rehearsal",
+    "isolation": "repeatable read",
+    "read_only": true,
+    "relations": [
+      {
+        "rls": false,
+        "kind": "r",
+        "owner": "wa_migrator",
+        "object": "public._prisma_migrations",
+        "force_rls": false,
+        "no_options": true,
+        "persistence": "p",
+        "access_method": "heap",
+        "not_partition": true,
+        "no_inheritance": true,
+        "replica_identity": "d",
+        "default_tablespace": true
+      }
+    ],
+    "table_acl": [
+      {
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "DELETE",
+        "grant_option": false
+      },
+      {
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "INSERT",
+        "grant_option": false
+      },
+      {
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "MAINTAIN",
+        "grant_option": false
+      },
+      {
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "REFERENCES",
+        "grant_option": false
+      },
+      {
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "SELECT",
+        "grant_option": false
+      },
+      {
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "TRIGGER",
+        "grant_option": false
+      },
+      {
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "TRUNCATE",
+        "grant_option": false
+      },
+      {
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "UPDATE",
+        "grant_option": false
+      }
+    ],
+    "column_acl": [],
+    "constraints": [
+      {
+        "kind": "p",
+        "name": "_prisma_migrations_pkey",
+        "columns": [
+          "id"
+        ],
+        "validated": true,
+        "deferrable": false,
+        "index_name": "public._prisma_migrations_pkey",
+        "no_inherit": true,
+        "no_expression": true,
+        "initially_deferred": false,
+        "no_referenced_relation": true
+      }
+    ],
+    "rules_count": 0,
+    "collected_as": "postgres",
+    "session_user": "postgres",
+    "policies_count": 0,
+    "triggers_count": 0,
+    "history_ids_unique": true,
+    "server_version_num": 170011,
+    "collector_is_superuser": true
+  }
+}

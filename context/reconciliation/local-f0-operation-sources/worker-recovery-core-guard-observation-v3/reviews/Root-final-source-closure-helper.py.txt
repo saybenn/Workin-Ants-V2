@@ -1,0 +1,38 @@
+"""Attach separate reviewed Worker source closure; no runtime or Git."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+C='context/reconciliation/local-f0-operation-sources/worker-recovery-core-guard-observation-v3'
+O='context/reconciliation/local-f0-operation-sources/worker-recovery-owned-guard-observation-v2'
+CV='context/reconciliation/local-f0-worker-recovery-core-guard-observation-v3-source-validation.json'
+OV='context/reconciliation/local-f0-worker-recovery-owned-guard-observation-v2-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(b)
+child_old=(R/CV).read_bytes();owned_old=(R/OV).read_bytes();assert sha(child_old)=='9e79d4c771942a54bd3e3fd872c90cbe05a4983bb198b7b764e01af94809a697'and sha(owned_old)=='7c075cc0cf82ff990fed6a8b1db19853400e3e42cb0072a714332dc1e97c16db'
+child=json.loads(child_old);owned=json.loads(owned_old);assert len(child['archive_files_sha256'])==72 and len(owned['archive_files_sha256'])==345
+d_raw=(T/'worker_guard_observation_v2_frozen_author_delivery_20261120.json').read_bytes();assert sha(d_raw)=='b6bfd9920267d49ac4d8fd5c135f99843696ffd5a58827ae941da3e5c15b4568';d=json.loads(d_raw);initial=d['Root_committable_files_sha256'];assert len(initial)==425
+for name,h in initial.items():assert sha((R/name).read_bytes())==h
+peer_path=T/'worker_guard_observation_v2_independent_review_20261120/review.json';peer_raw=peer_path.read_bytes();assert sha(peer_raw)=='e4a141ca4992e27ef0d88a9a37d86b31006d01aee1e473435e14e0747d4bd616';peer=json.loads(peer_raw);five=owned['operator_sources_sha256'];assert peer['decision']=='SOURCE_APPROVED'and peer['findings']==[]and peer['exact_owned_five_sha256']==five and peer['exact_child_five_sha256']==child['source_files_sha256']
+for name,h in five.items():assert sha((T/name).read_bytes())==h and(R/O/(name+'.txt')).read_bytes()==(T/name).read_bytes()
+checks=Path(peer['checks']['path']).read_bytes();assert sha(checks)=='99f7ee4001a0cb255764264477aa9c478136e4a57a29727038b715e704543527'
+integrity=Path(peer['integrity']['path']).read_bytes();assert sha(integrity)=='2314c7983717d7fd366406cd0e23d21c56f96c20189fa068d7a34c717161d92e'
+author=Path(d['author_review']['path']).read_bytes();assert sha(author)=='ca7c741ea48b1f34fe26e78edb2f36c1e3e6719e124698b2be79f3270ade0892'
+root={'schema':'workinants.worker-guard-observation-v2-Root-source-closure.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'reviewer':'/root','decision':'SOURCE_APPROVED','findings':[],'operator_sources_sha256':five,'child_sources_sha256':child['source_files_sha256'],'independent_source_review_sha256':sha(peer_raw),'Root_inspection':['Read complete pure observation/diagnostic/verdict functions and coordinator transaction/finally ordering. Case17 now requires exact source-derived BEFORE track_binding P0001 message/body7/hash/location; generic or later RLS failures reject.','Fixed typed Boolean/enum/count outcomes distinguish actual received response and client exit from defaults. Body rows/ACK/stderr are cleared before call; malformed response cannot retain bind-call ACK. No rows, handles, stderr or arbitrary messages are retained.','Operation closes first; bounded observation is saved in finally before primary failure, retention or verdict can escape. Primary failure, persistent evidence-I/O state and required global closure remain independently sticky.','Frozen owned-source paths/hashes and child validation are bound before helpers; all40SQL bytes/grants/21cases/caps/timing/currentness/canonical5ae/worker32 unchanged.'],'actual_checks':{'author_unique_methods':171,'independent_selected_methods':42,'independent_seconds':178.217,'actual_services':'NOT_RUN_PROCESS_BOUNDARIES_MOCKED'},'historical_limit':'Original6282 complete cause, failure ACK/exit/SQLSTATE/diagnostic remain UNOBSERVED. Completed historical16 records are preserved without automatic links or whole-case promotion.','runtime':'NOT_RUN_FRESH_PUBLICATION_PIN_AND_LITERAL_REQUIRED','Posture':'D'}
+root_raw=encoded(root);helper=Path(__file__).read_bytes()
+child_add={C+'/reviews/Root-validation-before-source-closure.json':child_old,C+'/reviews/independent-final-source-review.json':peer_raw,C+'/reviews/independent-final-focused-checks.json':checks,C+'/reviews/Root-final-source-review.json':root_raw,C+'/reviews/Root-final-source-closure-helper.py.txt':helper}
+for name,b in child_add.items():put(R/name,b)
+child['archive_files_sha256'].update({n:sha(b)for n,b in child_add.items()});assert len(child['archive_files_sha256'])==77
+child['independent_source_review']={'decision':'SOURCE_APPROVED','path':C+'/reviews/independent-final-source-review.json','sha256':sha(peer_raw),'source_files_sha256':child['source_files_sha256'],'reviewer':peer['reviewer']}
+child['Root_source_review']={'decision':'SOURCE_APPROVED','path':C+'/reviews/Root-final-source-review.json','sha256':sha(root_raw),'source_files_sha256':child['source_files_sha256']};child['status']='SOURCE_APPROVED_GUARD_OBSERVATION_ONLY_FRESH_REVIEWED_RUNTIME_REQUIRED';(R/CV).write_bytes(encoded(child))
+owned_add={O+'/reviews/Root-validation-before-source-closure.json':owned_old,O+'/reviews/independent-final-source-review.json':peer_raw,O+'/reviews/independent-final-integrity.json':integrity,O+'/reviews/independent-final-focused-checks.json':checks,O+'/reviews/author-final-source-review.json':author,O+'/reviews/Root-final-source-review.json':root_raw,O+'/reviews/Root-final-source-closure-helper.py.txt':helper}
+for name,b in owned_add.items():put(R/name,b)
+owned['archive_files_sha256'].update({n:sha(b)for n,b in owned_add.items()});assert len(owned['archive_files_sha256'])==352
+for gate in('independent_safety_sql_review','independent_guard_observation_review'):owned[gate]={'decision':'SOURCE_APPROVED','path':O+'/reviews/independent-final-source-review.json','sha256':sha(peer_raw),'operator_sources_sha256':five,'reviewer':peer['reviewer']}
+owned['Root_source_review']={'decision':'SOURCE_APPROVED','path':O+'/reviews/Root-final-source-review.json','sha256':sha(root_raw),'operator_sources_sha256':five};owned['child_validation']={'path':CV,'sha256':sha((R/CV).read_bytes())};owned['status']='SOURCE_APPROVED_GUARD_OBSERVATION_V2_FRESH_PUBLICATION_PIN_LITERAL_REQUIRED';(R/OV).write_bytes(encoded(owned))
+files={**initial,**{n:sha(b)for n,b in{**child_add,**owned_add}.items()},CV:sha((R/CV).read_bytes()),OV:sha((R/OV).read_bytes())};assert len(files)==437
+for name,h in files.items():assert sha((R/name).read_bytes())==h
+receipt={'schema':'workinants.worker-guard-observation-v2-source-approved-committable.v1','files_sha256':files,'child_validation_sha256':files[CV],'owned_validation_sha256':files[OV],'child_archive_files':77,'owned_archive_files':352,'external_five_sha256':five,'independent_source_review_sha256':sha(peer_raw),'all40_SQL_and_source_guards_unchanged':True,'runtime':'NOT_RUN','Posture':'D'}
+p=T/'worker_guard_observation_v2_source_approved_committable_inventory_20261120.json';put(p,encoded(receipt));print(json.dumps({'inventory_sha256':sha(p.read_bytes()),'child_validation_sha256':files[CV],'owned_validation_sha256':files[OV],'committable_files':437,'code_changed':False}))

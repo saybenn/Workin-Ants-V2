@@ -1,0 +1,81 @@
+"""Typed Worker-owned result admission; all process boundaries remain forbidden."""
+from copy import deepcopy
+import json,runpy,unittest
+from pathlib import Path
+T=Path(__file__).resolve().parent;B=runpy.run_path(str(T/'check_local_f0_worker_recovery_owned_v1_operation.py'))
+class ContractTests(unittest.TestCase):
+ setUp=B['WorkerOperationTests'].setUp;component=B['WorkerOperationTests'].component
+ def baseline(self):
+  self.component();n=self.n;n['worker_recovery_experiment']();value=json.loads((n['OUT']/'worker-recovery-component/worker-recovery-results.json').read_bytes());return n,value
+ def rejected(self,n,value):
+  with self.assertRaises(n['Stop']):n['verify_worker_result'](value,{})
+ def test_actual_295_producer_records_and_21_typed_results_admit(self):
+  n,v=self.baseline();out=n['verify_worker_result'](v,{});self.assertEqual(out['completed_protocols'],21);self.assertEqual(len(v['operations']),295)
+ def test_each_result_wrong_order_extra_field_or_noninteger_count_rejects(self):
+  n,v=self.baseline()
+  for i in range(21):
+   for field,bad in [('tables_observed',42.0),('tables_observed',True),('grants_retained',1.0),('connections_closed_before_terminal_observers',1),('complete_record_sequence_match',1),('case','UNKNOWN_SECRET_CANARY')]:
+    x=deepcopy(v);x['results'][i][field]=bad;self.rejected(n,x)
+  for mode in ('extra','reordered','missing'):
+   x=deepcopy(v)
+   if mode=='extra':x['results'][0]['unlisted']='SECRET_CANARY'
+   elif mode=='reordered':x['results'].reverse()
+   else:x['results'].pop()
+   self.rejected(n,x)
+ def test_intended_source_guard_requires_exact_body_line_location_and_types(self):
+  n,v=self.baseline();guards=[i for i,r in enumerate(v['results'])if r['source_guard']]
+  for i in guards:
+   for field,bad in [('matched',1),('sqlstate','P0001'if v['results'][i]['source_guard']['sqlstate']!='P0001'else'42501'),('classification','UNKNOWN'),('source_body_sha256','f'*64),('source_body_line',True),('native_location','UNKNOWN')]:
+    x=deepcopy(v);x['results'][i]['source_guard'][field]=bad;self.rejected(n,x)
+  x=deepcopy(v);x['results'][0]['source_guard']={'matched':True,'sqlstate':'P0001'};self.rejected(n,x)
+ def test_every_operation_producer_unknown_extra_or_false_closure_rejects(self):
+  n,v=self.baseline();indices={r['stage']:i for i,r in enumerate(v['operations'])}
+  for stage,i in indices.items():
+   for mode in ('unknown','extra','missing'):
+    x=deepcopy(v)
+    if mode=='unknown':x['operations'][i]['stage']=['UNKNOWN']
+    elif mode=='extra':x['operations'][i]['unlisted']='SECRET_CANARY'
+    else:x['operations'].pop(i)
+    self.rejected(n,x)
+  for i,r in enumerate(v['operations']):
+   for field in ('operation_closed','issuer_committed','same_tuple_verified','other_clients_zero','native_catalog_match','old_current_unrevoked_unexpired_grant'):
+    if field in r:
+     x=deepcopy(v);x['operations'][i][field]=1;self.rejected(n,x)
+ def test_operation_guard_and_role_must_match_its_exact_contract(self):
+  n,v=self.baseline()
+  for i,r in enumerate(v['operations']):
+   if r['stage']=='RESTRICTED_TRANSACTION':
+    for field,bad in [('login','wa_context_issuer'),('exit_code',3.0),('name','UNKNOWN')]:
+     x=deepcopy(v);x['operations'][i][field]=bad;self.rejected(n,x)
+    x=deepcopy(v);x['operations'][i]['verdict']['source_guard']={'matched':True,'sqlstate':'P0001'};self.rejected(n,x)
+ def test_expiry_ordering_current_grant_checkpoint_and_native_are_mandatory(self):
+  n,v=self.baseline()
+  for stage,field,bad in [('ACTUAL_RECLAIM_ORDERING','clock_polls',1.0),('ACTUAL_RECLAIM_ORDERING','old_protected_change_count',False),('ACTUAL_RECLAIM_ORDERING','original_tuple_retained',False),('GENUINE_LEASED_CHECKPOINT','actual_worker_commit',False),('FINALLY_FULL_NATIVE_PARITY','native_sha256','f'*64)]:
+   x=deepcopy(v);next(r for r in x['operations']if r['stage']==stage)[field]=bad;self.rejected(n,x)
+ def test_complete42_setup_counts_and_hash_types_require_all_tables(self):
+  n,v=self.baseline()
+  for field,bad in [('count',0.0),('count',True),('rows_sha256','SECRET_CANARY')]:
+   x=deepcopy(v);next(iter(x['setup_complete_state'].values()))[field]=bad;self.rejected(n,x)
+  x=deepcopy(v);x['setup_complete_state'].pop(next(iter(x['setup_complete_state'])));self.rejected(n,x)
+ def test_authentication_hba_and_wrong_password_controls_are_not_optional(self):
+  n,v=self.baseline()
+  for i in range(6):
+   x=deepcopy(v);x['authentication'][i]['wrong_password_exit_code']=2.0;self.rejected(n,x)
+  for field in v['authentication_comparison']:
+   x=deepcopy(v);x['authentication_comparison'][field]=False;self.rejected(n,x)
+  x=deepcopy(v);x['effective_hba_selections'][0]['method']='trust';self.rejected(n,x)
+ def test_source_CID_restoration_evidence_and_no_promotion_required(self):
+  n,v=self.baseline()
+  for field,bad in [('source_commit','f'*40),('packet_sha256','f'*64),('container_id','f'*64),('fixture_owner_bypass_restored',False),('evidence_complete',1),('subsequent_cases_stopped',True),('cleanup_required',False)]:
+   x=deepcopy(v);x[field]=bad;self.rejected(n,x)
+  x=deepcopy(v);x['selected_controls'][0]['status']='PASS';self.rejected(n,x)
+ def test_native_gate_requires_exact_integer29089_and22_first_ledger_checks(self):
+  n,v=self.baseline()
+  for bad in (29089.0,True,29088,'29089'):
+   n['report']['catalog_comparison']['check_counts']['PASS']=bad
+   with self.assertRaises(n['Stop']):n['worker_native_gate']()
+  n['report']['catalog_comparison']['check_counts']['PASS']=29089;n['report']['ledger_comparison']['checks'].pop()
+  with self.assertRaises(n['Stop']):n['worker_native_gate']()
+ def test_unknown_values_never_enter_exported_summary(self):
+  n,v=self.baseline();v['untrusted']={'uri':'SECRET_CANARY'};self.rejected(n,v);self.assertNotIn('SECRET_CANARY',json.dumps(n['report']))
+if __name__=='__main__':unittest.main(verbosity=2)

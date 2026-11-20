@@ -1,0 +1,76 @@
+{
+  "schema": "workinants.worker-owned-offline-checks.v1",
+  "status": "PASS_SOURCE_ONLY_INDEPENDENT_REVIEW_REQUIRED",
+  "runtime": "NOT_RUN",
+  "posture": "D",
+  "completed": [
+    {
+      "suite": "owned resource/source/pinner/global closure/IO",
+      "tests": 57,
+      "seconds": 102.512,
+      "outcome": "PASS_MOCK_ONLY",
+      "log": "worker_owned_v1_final_outer_checks_20261119.txt",
+      "log_sha256": "1db9b80c098d8349f090ffdcb5fcd86a6da8a20316908071be3430a3fae38a13"
+    },
+    {
+      "suite": "real Core initialize/launch/current+committed source admission",
+      "tests": 5,
+      "seconds": 47.555,
+      "outcome": "PASS_MOCK_ONLY",
+      "log": "worker_owned_v1_final_initializer_checks_20261119.txt",
+      "log_sha256": "48f3395cd8e28bd6e6af25e4e52eef5ca490793d8733b37c3095147b06bf8649"
+    },
+    {
+      "suite": "real Worker/CTX Session process boundary plus real read-only29089/416/22 comparators",
+      "tests": 4,
+      "seconds": 83.754,
+      "outcome": "PASS_MOCK_ONLY",
+      "log": "worker_owned_v1_final_transport_checks_20261119.txt",
+      "log_sha256": "8c814d9350a118e647c1add432791303dc01f151f7491c74b2f34b3b24b947f8"
+    },
+    {
+      "suite": "typed21-result295-operation mutation matrix",
+      "tests": 11,
+      "seconds": 4.728,
+      "outcome": "PASS_MOCK_ONLY",
+      "log": "worker_owned_v1_final_contract_checks_20261119.txt",
+      "log_sha256": "61735631e724a2fcfffc85d868585f62a00246c7d624101c5110342253f35d9a"
+    }
+  ],
+  "intermediate_harness_outcomes": [
+    {
+      "tests": 57,
+      "seconds": 83.676,
+      "outcome": "6failure14error",
+      "cause": "Inherited Owner mock scaffolding had not admitted Worker safe artifact names/ROLES and had wrong component CLI schema; corrected new mock baseline only."
+    },
+    {
+      "tests": 57,
+      "seconds": 54.257,
+      "outcome": "1failure3error",
+      "cause": "Source snapshots intentionally reject live draft change while suite was still in progress; no source admission bypass. Full final57 rerun PASS after restaging."
+    },
+    {
+      "tests": 4,
+      "seconds": 77.934,
+      "outcome": "2PASS1failure1error",
+      "cause": "Pretty historical JSON fixtures did not model psql single-line JSON output; corrected mock projection serialization only."
+    }
+  ],
+  "no_actual_Docker_database_network_Git_credentials_resources": true,
+  "recorded_at_utc": "2026-11-20T01:07:27.550200+00:00",
+  "final_suite_total": 77,
+  "source_files_sha256": {
+    "execute_local_f0_worker_recovery_owned_v1_20261119.py": "00c5bd4514aae61f12379f8fd322b5b332bd6aa6736e13444fab5c0f9a44927c",
+    "local_f0_worker_recovery_owned_v1_operation_steps.py": "5954b5961340a375ec4a4f9e0792bd25299ac96f9db9369381181f0abacee161",
+    "prepare_local_f0_worker_recovery_owned_v1_plan.py": "a99b8322b16cc9303c9fe3c3da010dc091504ff9c7c7cb01ef9ff3567ffb55e1",
+    "check_local_f0_worker_recovery_owned_v1_operation.py": "48e465e894f5a516355ae2a5a8c3b3c5b59789a3150a67f77a50e0189a086bb0",
+    "pin_local_f0_worker_recovery_owned_v1_plan_20261119.py": "031e1346891050187fb37448fdd6738e9078b4ad61f91ae0f259a482084c72cb"
+  },
+  "explicit_limits": [
+    "All process/database/network boundaries modeled; no real runtime or Prisma/SQL execution.",
+    "Whole launch source-gate test stops at its first mocked endpoint boundary. Component integration uses explicit synthetic first-install preconditions, actual frozen coordinator/CTX Session/loader; no patched coordinator factory or injected application object.",
+    "Read-only after-proof tests use immutable b970 sanitized catalog/oracle/ledger records only as mock process fixtures; actual three comparator implementations execute on CPU.",
+    "No whole selected-case, production adapter, grant/worker-loop, paid/reverse/reservation qualification."
+  ]
+}

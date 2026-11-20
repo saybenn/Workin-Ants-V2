@@ -1,0 +1,119 @@
+WORKER_INSTALL={}
+
+def worker_native_gate():
+    comparison=report.get('catalog_comparison');ledger=report.get('ledger_comparison')
+    need(type(comparison)is dict and comparison.get('status')=='PASS'and comparison.get('source_expected_sha256')==EXPECTED_SHA and comparison.get('findings')==[],'WORKER_RECOVERY_FULL_NATIVE_REQUIRED')
+    counts=comparison.get('check_counts');need(type(counts)is dict and set(counts)=={'PASS'}and type(counts['PASS'])is int and counts['PASS']==29089,'WORKER_RECOVERY_NATIVE_COUNT_REQUIRED')
+    need(type(ledger)is dict and ledger.get('status')=='PASS'and type(ledger.get('checks'))is list and len(ledger['checks'])==22 and all(type(r)is dict and r.get('status')=='PASS'for r in ledger['checks']),'WORKER_RECOVERY_FULL_LEDGER_REQUIRED')
+    need(report['steps']['CATALOG-ORACLE']=='PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE'and type(WORKER_INSTALL.get('attestation_sha256'))is str and re.fullmatch('[0-9a-f]{64}',WORKER_INSTALL['attestation_sha256'])and type(WORKER_INSTALL.get('registration'))is dict,'WORKER_RECOVERY_FIRST_INSTALL_PROOF_REQUIRED')
+    need(type(report.get('qualified_native_snapshot_sha256'))is str and comparison.get('native_snapshot_sha256')==report['qualified_native_snapshot_sha256'],'WORKER_RECOVERY_NATIVE_SNAPSHOT_BINDING')
+
+def worker_complete_state(name,expected_counts,grant_count):
+    need(type(grant_count)is int and 0<grant_count<=80,'WORKER_RECOVERY_TYPED_GRANT_COUNT')
+    with _RequiredSafetyBoundary('CLOSE',name,'WORKER_RECOVERY_COMPLETE_STATE'):
+        result=run_catalog_query(name,read_pinned(WORKER_PACKET+'/complete-state-observe.sql').decode(),'WORKER_RECOVERY_COMPLETE42');successful_query(result);rows=records(result.stdout)
+    need(len(rows)==1 and type(rows[0])is dict and set(rows[0])==set(expected_counts)and len(rows[0])==42,'WORKER_RECOVERY_COMPLETE42_FIELDS')
+    value=rows[0]
+    for table,row in value.items():
+        wanted=grant_count if table=='platform.database_action_grant'else expected_counts[table]
+        need(type(row)is dict and set(row)=={'count','rows_sha256'}and type(row['count'])is int and row['count']==wanted and type(row['rows_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['rows_sha256']),'WORKER_RECOVERY_COMPLETE42_TYPED_COUNTS')
+    return value
+
+def verify_worker_result(value,plan):
+    fields={'schema','status','current_stage','current_case','run_id','container_id','source_commit','source_tree','packet_sha256','reviewed_packet_sha256','reviewed_content_sha256','selected_controls','results','operations','authentication','unexpected','subsequent_cases_stopped','cleanup_required','fixture_owner_bypass_restored','evidence_complete','database_posture','limits','effective_hba_selections','current_auth_role','authentication_comparison','setup_complete_state','source_packet_unchanged_after','sanitization'}
+    need(type(value)is dict and set(value)<=fields,'WORKER_RECOVERY_RESULT_FIELDS')
+    identity={'schema':'workinants.worker-recovery-evidence.v1','run_id':RUN_ID,'container_id':created_containers[TARGETS[0]['name']],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'reviewed_packet_sha256':WORKER_FIXTURES_SHA,'reviewed_content_sha256':WORKER_CONTENT_SHA,'database_posture':'D'}
+    exact({k:value.get(k)for k in identity},identity,'WORKER_RECOVERY_SOURCE_RUN_CID_RESULT')
+    need(value.get('status')=='PASS_FINITE_WORKER_RECOVERY_CORE_ONLY'and value.get('current_stage')=='COMPLETE'and value.get('current_case')is None and value.get('evidence_complete')is True and value.get('subsequent_cases_stopped')is False and value.get('unexpected')==[]and value.get('cleanup_required')is True and value.get('fixture_owner_bypass_restored')is True and value.get('source_packet_unchanged_after')is True,'WORKER_RECOVERY_COMPONENT_NOT_QUALIFIED')
+    exact(value.get('selected_controls'),[{'id':x,'status':'NOT_RUN'}for x in WORKER_FIXTURES['selected_control_ids']],'WORKER_RECOVERY_NO_ASSERTION_PROMOTION')
+    exact(value.get('limits'),WORKER_FIXTURES['scope_limits'],'WORKER_RECOVERY_SCOPE_LIMITS')
+    exact(value.get('sanitization'),{'context_and_lease_secrets_or_hashes_found':False,'raw_errors_handles_statement_bodies_or_row_values_retained':False},'WORKER_RECOVERY_SECRET_EXCLUSION_REQUIRED')
+    cases=WORKER_FIXTURES['cases'];results=value.get('results');need(type(results)is list and len(results)==21 and [r.get('case')for r in results if type(r)is dict]==[c['name']for c in cases],'WORKER_RECOVERY_EXACT21_ORDERED_CASES')
+    guards={'nonnull-effect-relink-denied':('P0001',15,'exec_stmt_raise@pl_exec.c'),'null-pointer-foreign-same-fence-effect-denied':('P0001',15,'exec_stmt_raise@pl_exec.c'),'valid-current-Free-selection-survives-duplicate-attempt':('42501',None,'ExecWithCheckOptions@execMain.c'),'terminal-work-trigger-denial-rolls-back-completion':('P0001',11,'exec_stmt_raise@pl_exec.c')};prior=0
+    for row,case in zip(results,cases):
+        need(set(row)=={'case','status','connections_closed_before_terminal_observers','tables_observed','complete_state_sha256','grants_retained','source_guard','complete_record_sequence_match'},'WORKER_RECOVERY_RESULT_ROW_FIELDS')
+        need(row['status']=='PASS_FINITE_WORKER_PROTOCOL_ONLY'and row['connections_closed_before_terminal_observers']is True and row['complete_record_sequence_match']is True and type(row['tables_observed'])is int and row['tables_observed']==42 and type(row['complete_state_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['complete_state_sha256'])and type(row['grants_retained'])is int and prior<=row['grants_retained']<=80 and row['grants_retained']>0,'WORKER_RECOVERY_RESULT_TYPED_CONTRACT');prior=row['grants_retained']
+        proof=row['source_guard']
+        if case['name']not in guards:need(proof is None,'WORKER_RECOVERY_ORDINARY_GUARD_MUST_BE_NULL');continue
+        state,line,location=guards[case['name']]
+        expected={'matched':True,'sqlstate':state,'classification':case['name'],'source_body_sha256':'10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038'if line is not None else None,'source_body_line':line,'native_location':location}
+        need(type(proof)is dict and set(proof)==set(expected)and proof.get('matched')is True and (proof.get('source_body_line')is None if line is None else type(proof.get('source_body_line'))is int),'WORKER_RECOVERY_EXACT_GUARD_TYPES');exact(proof,expected,'WORKER_RECOVERY_EXACT_SOURCE_GUARD')
+    auth=value.get('authentication');need(type(auth)is list and len(auth)==6 and {x.get('role')for x in auth if type(x)is dict}==set(ROLES),'WORKER_RECOVERY_SIX_AUTH_CONTROLS')
+    for row in auth:
+        need(type(row)is dict and set(row)=={'role','transport','correct_password','wrong_password','wrong_password_exit_code'}and row['transport']=='TCP_127.0.0.1_5432'and row['correct_password']=='PASS_SCRAM'and row['wrong_password']=='PASS_REJECTED'and type(row['wrong_password_exit_code'])is int and row['wrong_password_exit_code']==2,'WORKER_RECOVERY_AUTH_VERDICT')
+    setup=value.get('setup_complete_state');need(type(setup)is dict and set(setup)==set(WORKER_FIXTURES['setup_expected_counts'])and len(setup)==42,'WORKER_RECOVERY_SETUP42_FIELDS')
+    for table,row in setup.items():
+        count=row.get('count')if type(row)is dict else None
+        need(type(row)is dict and set(row)=={'count','rows_sha256'}and type(count)is int and (0<count<=prior if table=='platform.database_action_grant'else count==WORKER_FIXTURES['setup_expected_counts'][table])and type(row['rows_sha256'])is str and re.fullmatch('[0-9a-f]{64}',row['rows_sha256']),'WORKER_RECOVERY_SETUP_TYPED_COUNTS')
+    operations=value.get('operations');need(type(operations)is list and operations and all(type(x)is dict and type(x.get('stage'))is str for x in operations),'WORKER_RECOVERY_OPERATIONS_REQUIRED')
+    for row in operations:
+        if row['stage']=='RESTRICTED_TRANSACTION':need(row.get('issuer_committed')is True and row.get('same_tuple_verified')is True and row.get('operation_closed')is True and type(row.get('exit_code'))is int and row['exit_code']in(0,3),'WORKER_RECOVERY_RESTRICTED_CLOSURE_REQUIRED')
+        if row['stage']=='SEPARATE_ISSUER_COMMIT':need(all(row.get(k)is True for k in('issuer_committed','commit_acknowledged','created_at_return_verified','operation_closed')),'WORKER_RECOVERY_ISSUER_COMMIT_REQUIRED')
+        if row['stage']=='GLOBAL_BACKEND_CLOSURE':need(row.get('other_clients_zero')is True,'WORKER_RECOVERY_GLOBAL_CLOSURE_REQUIRED')
+    checkpoint=[x for x in operations if x['stage']=='GENUINE_LEASED_CHECKPOINT'];need(len(checkpoint)==1 and all(checkpoint[0].get(k)is True for k in('actual_worker_commit','all_deferred_guards_preserved','work_still_leased_with_exact_committed_effect_inbox')),'WORKER_RECOVERY_GENUINE_CHECKPOINT_REQUIRED')
+    ordering=[x for x in operations if x['stage']=='ACTUAL_RECLAIM_ORDERING'];need(len(ordering)==1 and all(ordering[0].get(k)is True for k in('distinct_overlapping_original_sessions','original_tuple_retained','new_reclaim_commit_before_old_action','old_current_unrevoked_unexpired_grant','effect_link_retained','actual_clock_expiry'))and type(ordering[0].get('old_protected_change_count'))is int and ordering[0]['old_protected_change_count']==0 and type(ordering[0].get('clock_polls'))is int and ordering[0]['clock_polls']>0,'WORKER_RECOVERY_TWO_SESSION_ORDER_REQUIRED')
+    need(any(x['stage']=='FINAL_FULL_NATIVE_PARITY'and x.get('native_catalog_match')is True for x in operations)and any(x['stage']=='FINALLY_FULL_NATIVE_PARITY'and x.get('native_catalog_match')is True for x in operations),'WORKER_RECOVERY_FINAL_NATIVE_REQUIRED')
+    return {'schema':'workinants.worker-recovery-component-summary.v1','status':value['status'],'completed_protocols':21,'complete_state_sha256':results[-1]['complete_state_sha256'],'grants_retained':prior,'component_report_sha256':digest(value),'selected_assertions':'NOT_PROMOTED_PENDING_INDEPENDENT_EVIDENCE_REVIEW'}
+
+def worker_recovery_experiment():
+    name=TARGETS[0]['name'];inspect_owner(name);need(name in finalized and report['targets'][name].get('finalization')=='PASS','WORKER_RECOVERY_ORIGINAL_GRANTOR_REQUIRED');closed_backends(name,'WORKER_RECOVERY_PRE_COMPONENT');worker_native_gate()
+    native_path=OUT/'native-before.json';comparison_path=OUT/'catalog-comparison.json'
+    attestation={'schema':'workinants.worker-recovery-native-attestation.v1','run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'collector_sha256':MANIFEST['packet_files_sha256']['scripts/sql-review/collect_native_catalog.sql'],'source_expected_sha256':EXPECTED_SHA,'native_snapshot_sha256':report['qualified_native_snapshot_sha256'],'native_comparison_file_sha256':hashlib.sha256(comparison_path.read_bytes()).hexdigest(),'original_grantor_finalized':True,'operation_backends_absent':True,'comparison_status':'PASS'}
+    write_safe('worker-recovery-native-attestation.json',attestation)
+    plan={'schema':'workinants.worker-recovery-run.v1','scope':'REVIEWED_SELECTED94_WORKER_RECOVERY_SQL_SUBSET_ONLY','run_id':RUN_ID,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'packet_files_sha256':MANIFEST['packet_files_sha256'],'reviewed_packet_sha256':WORKER_FIXTURES_SHA,'reviewed_content_sha256':WORKER_CONTENT_SHA,'target_manifest':unique_json(read_target_manifest(MANIFEST['migration_targets']['ok'])),'immutable_container_id':created_containers[name],'native_snapshot':{'path':str(native_path),'sha256':hashlib.sha256(native_path.read_bytes()).hexdigest()},'native_comparison':{'path':str(comparison_path),'sha256':hashlib.sha256(comparison_path.read_bytes()).hexdigest()},'native_attestation':{'path':str(OUT/'worker-recovery-native-attestation.json'),'sha256':hashlib.sha256((OUT/'worker-recovery-native-attestation.json').read_bytes()).hexdigest()},'scenario_names':[c['name']for c in WORKER_FIXTURES['cases']]}
+    write_safe('worker-recovery-run-plan.json',plan);module=load_reviewed_helper(WORKER_COORDINATOR);failure=None;code=None;raw=None;printed=None
+    report['worker_recovery'].update(component_closure_attempted=False,component_closure_confirmed=False)
+    try:
+        try:
+            stdout=io.StringIO();stderr=io.StringIO()
+            with contextlib.redirect_stdout(stdout),contextlib.redirect_stderr(stderr):code=module['main'](['--execute-reviewed-worker-recovery','--run-plan',str(OUT/'worker-recovery-run-plan.json'),'--evidence-directory',str(OUT/'worker-recovery-component')])
+            need(stderr.getvalue()==''and len(stdout.getvalue().encode())<=8192,'WORKER_RECOVERY_CLI_OUTPUT_REJECTED');printed=unique_json(stdout.getvalue())
+        except BaseException:
+            failure=Stop('WORKER_RECOVERY_COMPONENT_UNEXPECTED_STOP');remember_failure('WORKER_RECOVERY_COMPONENT',failure.code)
+        finally:
+            fixed=OUT/'worker-recovery-component/worker-recovery-results.json';reference={'artifact':'worker-recovery-component/worker-recovery-results.json','present':None,'read_status':'UNAVAILABLE'};report['worker_recovery']['component_report_reference']=reference
+            try:
+                import stat
+                try:metadata=fixed.lstat()
+                except FileNotFoundError:reference.update(present=False,read_status='ABSENT');raise Stop('WORKER_RECOVERY_COMPONENT_REFERENCE_ABSENT')from None
+                reference['present']=True;size=metadata.st_size;limit=16*1024*1024
+                need(type(metadata.st_mode)is int and stat.S_ISREG(metadata.st_mode)and type(size)is int and size>=0,'WORKER_RECOVERY_COMPONENT_REFERENCE_SHAPE')
+                if size>limit:reference['read_status']='OVERSIZED';raise Stop('WORKER_RECOVERY_COMPONENT_REFERENCE_LIMIT')
+                with fixed.open('rb')as stream:raw=stream.read(limit+1)
+                need(type(raw)is bytes,'WORKER_RECOVERY_COMPONENT_REFERENCE_SHAPE')
+                if len(raw)>limit:reference['read_status']='OVERSIZED';raise Stop('WORKER_RECOVERY_COMPONENT_REFERENCE_LIMIT')
+                reference.update(read_status='RETAINED',artifact_sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw))
+            except BaseException:
+                remember_failure('WORKER_RECOVERY_COMPONENT_REFERENCE','WORKER_RECOVERY_COMPONENT_REFERENCE_UNCONFIRMED')
+                if failure is None:failure=Stop('WORKER_RECOVERY_COMPONENT_REFERENCE_UNCONFIRMED')
+    finally:
+        report['worker_recovery']['component_closure_attempted']=True
+        try:closed_backends(name,'WORKER_RECOVERY_POST_COMPONENT');report['worker_recovery']['component_closure_confirmed']=True
+        except BaseException:
+            remember_failure('WORKER_RECOVERY_COMPONENT_CLOSURE','WORKER_RECOVERY_COMPONENT_GLOBAL_CLOSURE_UNCONFIRMED')
+            if failure is None:failure=Stop('WORKER_RECOVERY_COMPONENT_GLOBAL_CLOSURE_UNCONFIRMED')
+        finally:
+            if not persist_best_effort('WORKER_RECOVERY_COMPONENT_FINALLY')and failure is None:failure=Stop('WORKER_RECOVERY_COMPONENT_EVIDENCE_UNCONFIRMED')
+    if failure is not None:raise failure
+    need(type(code)is int and code==0,'WORKER_RECOVERY_COMPONENT_STOPPED');summary=verify_worker_result(unique_json(raw),plan)
+    exact(printed,{'status':'PASS_FINITE_WORKER_RECOVERY_CORE_ONLY','completed_protocols':21,'raw_output_discarded':True},'WORKER_RECOVERY_CLI_RESULT_CONTRACT')
+    write_safe('worker-recovery-component-result.json',summary);report['worker_recovery'].update(component_report_sha256=summary['component_report_sha256'],completed_protocols=21);save()
+    worker_after_proofs(name,summary)
+    report['steps']['WORKER-RECOVERY-COMPONENT']='PASS_FINITE_PREPARED_SQL_ONLY';report['worker_recovery']['selected_assertions']='NOT_PROMOTED_PENDING_INDEPENDENT_EVIDENCE_REVIEW';save()
+
+def worker_after_proofs(name,summary):
+    worker_native_gate();closed_backends(name,'WORKER_RECOVERY_AFTER_PROOF_BOUNDARY');tools=CATALOG['tools'];manifest=CATALOG['expected'];recipe=CATALOG['public'];registration=WORKER_INSTALL['registration']
+    state=worker_complete_state(name,WORKER_FIXTURES['final_expected_counts'],summary['grants_retained']);need(digest(state)==summary['complete_state_sha256'],'WORKER_RECOVERY_FINAL_STATE_SOURCE_HASH')
+    native=collect_native(name,'WORKER_RECOVERY_AFTER_NATIVE','worker-recovery-native-final.json');need(digest(native)==report['qualified_native_snapshot_sha256'],'WORKER_RECOVERY_NATIVE_CHANGED')
+    result=run_catalog_query(name,CATALOG['oracle_sql'],'WORKER_RECOVERY_AFTER_ORACLE');parts=worker_oracle_records(result.stdout);successful_query(result);need(len(parts)==3 and all(v is True for v in parts[0]['outcomes'].values()),'WORKER_RECOVERY_AFTER_ORACLE_REQUIRED')
+    second=collect_native(name,'WORKER_RECOVERY_AFTER_ORACLE_NATIVE','worker-recovery-after-oracle-native.json');need(digest(second)==digest(native),'WORKER_RECOVERY_ORACLE_NATIVE_CHANGED')
+    oracle={'format':'workinants.reviewed-expression-oracle-evidence.v1','database':DB,'oracle_sql_sha256':hashlib.sha256(CATALOG['oracle_sql'].encode()).hexdigest(),'preflight':parts[0],'results':parts[1],'closure':parts[2],'connection_closed_before_observation':True,'pre_oracle_catalog_sha256':digest(native),'post_rollback_catalog_sha256':digest(second)}
+    tools['catalog_expression_oracle'].validate_evidence(manifest,native,oracle,database=DB,grantor='postgres',root=ROOT);write_safe('worker-recovery-after-oracle-evidence.json',oracle)
+    result=run_catalog_query(name,read_pinned('scripts/sql-review/collect_prisma_ledger.sql').decode(),'WORKER_RECOVERY_AFTER_LEDGER');parsed=records(result.stdout);need(len(parsed)==1 and type(parsed[0])is dict,'WORKER_RECOVERY_AFTER_LEDGER_RECORD');value=parsed[0]
+    need(set(value)==set(tools['prisma_ledger_proof'].schema_expectation())|{'format','server_version_num','database','read_only','isolation','collected_as','session_user','collector_is_superuser','history','history_ids_unique'},'WORKER_RECOVERY_LEDGER_FIELDS')
+    spec=tools['prisma_ledger_proof'].schema_expectation();shapes={k:' '.join(rows[0])for k,rows in spec.items()if type(rows)is list and rows};shapes.update({'column_acl':'column '+ACL_FIELDS,'history':'name_sha256 checksum_sha256 checksum_format_valid id_is_uuid_v4 started finished rolled_back time_order_valid steps logs_state'});row_shapes(value,shapes);filter_metadata(value);successful_query(result);write_safe('worker-recovery-after-ledger-observation.json',value)
+    third=collect_native(name,'WORKER_RECOVERY_AFTER_LEDGER_NATIVE','worker-recovery-after-ledger-native.json');need(digest(third)==digest(native),'WORKER_RECOVERY_LEDGER_NATIVE_CHANGED')
+    ledger={'format':'workinants.prisma-ledger-evidence.v1','registration_sha256':digest(registration),'collector_sql_sha256':MANIFEST['packet_files_sha256']['scripts/sql-review/collect_prisma_ledger.sql'],'run_id':RUN_ID,'target_attestation_sha256':WORKER_INSTALL['attestation_sha256'],'native_catalog_before_sha256':digest(second),'native_catalog_after_sha256':digest(third),'observation':value};write_safe('worker-recovery-after-ledger-evidence.json',ledger)
+    verdict=tools['prisma_ledger_proof'].compare_proof(registration,ledger,native,bootstrap_grantor='postgres',source_expected_sha256=EXPECTED_SHA,root=ROOT);need(type(verdict)is dict and verdict.get('status')=='PASS'and type(verdict.get('checks'))is list and len(verdict['checks'])==22 and all(r.get('status')=='PASS'for r in verdict['checks']),'WORKER_RECOVERY_AFTER_LEDGER_REQUIRED');write_safe('worker-recovery-after-ledger-comparison.json',verdict)
+    comparison=tools['compare_native_catalog'].compare_manifest(manifest,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=recipe['full_acl'],ledger_registration=registration,ledger_evidence=ledger,expression_oracle_evidence=oracle,oracle_database=DB,root=ROOT);counts=comparison.get('check_counts');need(comparison.get('status')=='PASS'and comparison.get('findings')==[]and type(counts)is dict and set(counts)=={'PASS'}and type(counts['PASS'])is int and counts['PASS']==29089,'WORKER_RECOVERY_AFTER_NATIVE_REQUIRED');write_safe('worker-recovery-after-catalog-comparison.json',comparison)
+    after=worker_complete_state(name,WORKER_FIXTURES['final_expected_counts'],summary['grants_retained']);exact(after,state,'WORKER_RECOVERY_AFTER_ORACLE_DATA_CHANGED');report['worker_recovery']['after_readonly_proofs']={'native_checks':29089,'oracle_expressions':416,'private_ledger_checks':22,'full42_data_unchanged':True,'same_first_install_attestation':True,'second_install_attempted':False};save()

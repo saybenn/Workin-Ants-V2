@@ -1,0 +1,418 @@
+{
+  "schema": "workinants.install-review-ready-v3-bounded-implementation-source-plan.v1",
+  "author": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T23:34:10.584846+00:00",
+  "status": "PROPOSED_PENDING_ROOT_ACK_AND_INDEPENDENT_PLAN_REVIEW",
+  "posture": "D",
+  "implementation": "NOT_AUTHORED",
+  "runtime": "NOT_RUN",
+  "Catalog_plan_independent_review": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923-read-sharing-scratch-review-20261119\\watcher-v2-and-save-diagnostic-source-plan.json",
+    "sha256": "bb4f51d60680ee2f739651f7285f40c7860b0a5c01e2b9241b0e2375be329e07",
+    "decision": "SUPPORTED_WITH_CONCRETE_VERSIONED_SOURCE_AND_HANDLE_CLOSURES_BELOW",
+    "findings_or_clarifications": [
+      "Prefer immutable ready after every preceding save is complete and quiescent review; FILE_SHARE_DELETE alone is rejected as remedy by the recorded control.",
+      "Always create an immutable child-result snapshot because the live result resumes mutation after approval; snapshot/proof/plan/outer identity references must be immutable for the entire run, including timeout/finally.",
+      "No mutable outer result reads are needed: add a minimal immutable outer CID/plan identity projection, not a broad copied report. Reader handles must be closed before atomic approval publication.",
+      "First-save metadata must include TEMP_CLOSE; an earlier write/serialization/flush failure cannot be replaced by a later close failure or later best-effort save.",
+      "V3 SQL namespace requires explicit ledger adapter admission: old00fb hardcodes its V2 FAULT/INPUTS path. Use new namespace-only V3 ledger/test copies; preserve old pair and all semantic rules.",
+      "Old watcher canonical newline is already correct (AST codepoint10). There is no newline fix. New source fingerprints cannot be truthfully supplied until implementation; this plan fixes exact names/bases/allowed deltas and mandates a complete future freeze before any approval/pin/literal."
+    ]
+  },
+  "evidence_and_current_fingerprints": {
+    "old_external_five_sha256": {
+      "check_local_f0_install_controls_operation_safety_sql_v1.py": "01f485846d752077415de795b163ad197a912eb23667c6944600e0199a49de64",
+      "execute_local_f0_install_controls_20261119_safety_sql_v1.py": "5c71ead1bbb7ced7d45a36f258cc271f9a8c19275f94bc55875d3526c0c02b87",
+      "local_f0_install_controls_operation_steps_safety_sql_v1.py": "d56aee699dba89eb6fc94be38a7d8419f9b437e1e5c1c0ad142a3595af451f3f",
+      "pin_local_f0_install_controls_plan_20261119_safety_sql_v1.py": "3bc39a1efc3ae27e7c5a8fefd83a53fa6b067e4132f981d8cf56fb6eab77d2ca",
+      "prepare_local_f0_install_controls_plan_safety_sql_v1.py": "22caf5e6dc0c722b0c4e5ddb5887f32adcaa4e3d433b0bf552a5507429af0435"
+    },
+    "old_Root_sources_sha256": {
+      "scripts/sql-review/run-install-control-rehearsal-v2.py": "973e89417e204aef113fddddaee39d5161ab3c7620fc2b43e2043eaeea033fac",
+      "scripts/prepare-install-control-rehearsal-v2.py": "307fb1aab002fcae97aca465bce6abb9afe5c6ad552dab2511a54f82afacbea9",
+      "scripts/check-install-control-rehearsal-v2.py": "52713b357a2a35809f9799251e87f41ba9b653ae735b81cc97dd7aa3a8f2effc",
+      "scripts/sql-review/install-controls-coordinator-v2.md": "57955987668f88126acc232906638282be852eba06b403385fc6b9a3bb298964",
+      "scripts/install_control_protocol_v2.py": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f",
+      "scripts/sql-review/install_ledger_proof_v2.py": "00fb5603e8507b1206437223cd427c6c0ad59d9df80696e6c9728864c93e996e",
+      "scripts/sql-review/test_install_ledger_proof_v2.py": "ca214a78c4f07c9d35c3a387bfd14249a23d1234a975a64d408150ae8660c044"
+    },
+    "old_packet": {
+      "path": "review-output/install-control-rehearsal-v2/fixtures.json",
+      "sha256": "5ca39feda50e48e5359d8b77c5eac3b314f2f1837848e244786e00e5389a35fe",
+      "source_files": 24,
+      "prepared_nonmanifest_files": 12
+    },
+    "original_watcher": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923-catalog-stopped-watch-review-20261119\\original-watch-stdin.py",
+      "sha256": "c2736ecd0224bdfc33bf5393de8acbea060eb6817f10b127de2401763fd7a026",
+      "source_preservation_addendum_sha256": "0bba2927b9734b49c96d67e5a471edc158cc70498daaf02c945e866018cd8aec",
+      "canonical_suffix_AST_codepoints": [
+        10
+      ]
+    },
+    "scratch": {
+      "result_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\install7923-read-sharing-scratch-review-20261119\\result-v2.json",
+      "result_sha256": "5bc6dd5f6c26904d8df9231d3a74855d150253927e50b897734f1d243db905b7",
+      "source_sha256": "14340231da1d8870774f8fcdbd104e377d791e0ad841fc093b3d63f811892486",
+      "first_failed_control_sha256": "889bf3ebb135cb086e26215fa46d6c8b24db3f9c1e7e3c0e4db9b10640ffde05",
+      "observed": "Ordinary held reader AND Win32 share-delete held reader both caused original save atomic replace PermissionError/WinError5 in scratch; closed reader save succeeded. Later save after reader close succeeded while sticky failure remained.",
+      "interpretation_correction": "The retained result plain-English generic sentence suggesting shared-delete avoids the failure is not supported by its actual cases. Preserve that artifact; this plan uses the recorded cases and explicitly supersedes that sentence only."
+    },
+    "actual7923_stop": {
+      "safe_raw_evidence_sha256": "11a711247181560764a68ad0983e15d14dfaad131f659fdb1bc141dd25b52cb8",
+      "physical_cleanup_sha256": "ef9dff2f968b6dbe3cb42d3ac11c9974ad95d4f9ee06a714a568278de83ef83c",
+      "cause": "UNOBSERVED. Original exception class and failing IO phase not retained; no reader/writer cause, sharing fix or newline defect inferred. Overall cleanup/evidence flags remain their recorded NOT_RUN/incomplete values despite physical absence proof."
+    }
+  },
+  "new_exact_source_surface": {
+    "Root_new_sources": {
+      "scripts/sql-review/run-install-control-rehearsal-v3.py": {
+        "basis": "scripts/sql-review/run-install-control-rehearsal-v2.py",
+        "delta": "Closed V3 source/run-plan admission; immutable evidence publication and quiescent review() transport only. Preserve all SQL/roles/activation/failure/recovery/240s/finally behavior.",
+        "basis_sha256": "973e89417e204aef113fddddaee39d5161ab3c7620fc2b43e2043eaeea033fac",
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/prepare-install-control-rehearsal-v3.py": {
+        "basis": "scripts/prepare-install-control-rehearsal-v2.py",
+        "delta": "New SELF/check/coordinator/doc/ready-protocol/watcher/ledger source closure and V3 output namespace. Reproduce all eleven SQL bodies byte-identically.",
+        "basis_sha256": "307fb1aab002fcae97aca465bce6abb9afe5c6ad552dab2511a54f82afacbea9",
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/check-install-control-rehearsal-v3.py": {
+        "basis": "scripts/check-install-control-rehearsal-v2.py",
+        "delta": "Retarget immutable source names and extend actual publication/quiescence/source-admission tests; no runtime execution.",
+        "basis_sha256": "52713b357a2a35809f9799251e87f41ba9b653ae735b81cc97dd7aa3a8f2effc",
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/sql-review/install-controls-coordinator-v3.md": {
+        "basis": "scripts/sql-review/install-controls-coordinator-v2.md",
+        "delta": "Exact immutable ready/snapshot/hash/handle/clock/monitoring/delivery contract and unchanged actual independent approval.",
+        "basis_sha256": "57955987668f88126acc232906638282be852eba06b403385fc6b9a3bb298964",
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/install_independent_review_protocol_v1.py": {
+        "basis": null,
+        "delta": "NEW pure ready/identity/snapshot binding validators and constants only. Does not issue approvals or replace protocol6c authority.",
+        "basis_sha256": null,
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/test_install_independent_review_protocol_v1.py": {
+        "basis": null,
+        "delta": "Pure schema/source/hash/shape/canonical/clock and first-failure-independent mutation vectors.",
+        "basis_sha256": null,
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/sql-review/watch-install-independent-review-v2.py": {
+        "basis": "TASK/install7923-catalog-stopped-watch-review-20261119/original-watch-stdin.py",
+        "delta": "Versioned preserved source file, no ad hoc stdin watcher. Poll only fixed ready existence; bounded closed immutable reads; no live mutable report polling; no automatic approval.",
+        "basis_sha256": "c2736ecd0224bdfc33bf5393de8acbea060eb6817f10b127de2401763fd7a026",
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/sql-review/test_watch_install_independent_review_v2.py": {
+        "basis": null,
+        "delta": "File-open/close trace, no mutable read, actual scratch reader/writer barrier/Windows overlap and explicit independent publication tests; no actual paths/resources.",
+        "basis_sha256": null,
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/sql-review/install_ledger_proof_v3.py": {
+        "basis": "scripts/sql-review/install_ledger_proof_v2.py",
+        "delta": "Namespace-only SELF and FAULT path to V3 artifact namespace; schema/history/approval/native comparison rules and protocol6c exact unchanged.",
+        "basis_sha256": "00fb5603e8507b1206437223cd427c6c0ad59d9df80696e6c9728864c93e996e",
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      },
+      "scripts/sql-review/test_install_ledger_proof_v3.py": {
+        "basis": "scripts/sql-review/test_install_ledger_proof_v2.py",
+        "delta": "Retarget namespace-only V3 helper/fault identity; retain fourteen pure semantic tests plus V3 path admission negative.",
+        "basis_sha256": "ca214a78c4f07c9d35c3a387bfd14249a23d1234a975a64d408150ae8660c044",
+        "new_sha256_state": "NOT_AUTHORED_PLAN_ONLY_MUST_FREEZE_FULL_SHA256_BEFORE_SOURCE_APPROVAL"
+      }
+    },
+    "TASK_external_new_five": [
+      "execute_local_f0_install_controls_20261119_review_ready_v3.py",
+      "local_f0_install_controls_operation_steps_review_ready_v3.py",
+      "prepare_local_f0_install_controls_plan_review_ready_v3.py",
+      "check_local_f0_install_controls_operation_review_ready_v3.py",
+      "pin_local_f0_install_controls_plan_20261119_review_ready_v3.py"
+    ],
+    "Root_source_archive": "context/reconciliation/local-f0-operation-sources/install-controls-review-ready-v3",
+    "Root_source_validation": "context/reconciliation/local-f0-install-controls-review-ready-v3-source-validation.json",
+    "SQL_artifact_namespace": "review-output/install-control-rehearsal-v3",
+    "future_source_freeze": "TASK/install_review_ready_v3_frozen_source_plan_20261119.json",
+    "new_fingerprints_contract": "The author freeze must contain full SHA256 for every listed new Root source/test/doc/helper, exact external five and physical archive snapshots, every generated V3 artifact, full recursive archive/validation fingerprints and actual executed watcher source. No TO_BE hash may reach source approval, pinner, watch arming or an operational literal.",
+    "no_dynamic_fallback": "Never silently fall back to V2 coordinator/generator/packet/watcher/ledger or unpreserved stdin code. Old sources remain byte-preserved historical inputs only."
+  },
+  "unchanged_contracts": {
+    "protocol": "Keep scripts/install_control_protocol_v2.py exact6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f. It remains sole exact seven-field actual recovery approval validator.",
+    "approval_fields": [
+      "schema",
+      "decision",
+      "run_id",
+      "container_id",
+      "source_sql_sha256",
+      "proof_sha256",
+      "reviewer"
+    ],
+    "approval_schema": "workinants.install-independent-rollback-review.v1",
+    "approval_decision": "APPROVED_STANDARD_RESOLVE_ROLLED_BACK",
+    "reviewer_allowlist": [
+      "/root/review_track_ports",
+      "/root/restricted_controls_operator",
+      "/root/catalog_v4_review"
+    ],
+    "migration_and_SQL": "Canonical5ae/divisiondd088/lateGRANTbb411, migrationID, all eleven nonmanifest SQL bodies below, 32WorkerACL, roles/grants/original grantor/activation gates/CLI and standard resolve/recovery/noop semantics unchanged.",
+    "old_SQL_bytes_sha256_in_new_namespace": {
+      "canonical/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "division_failure/20261117000100_f0_local_initial/migration.sql": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+      "late_function_grant/20261117000100_f0_local_initial/migration.sql": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+      "bootstrap.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+      "finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+      "authority-observe.sql": "b5791265492feb42a4e68b5538d41f33c1b3a77518e8b62f48ce3852b7f4b3e5",
+      "inactive-observe.sql": "3c81794dce2ef746695500f7539313f27fefd0590f12275deb8f471aef8bb92f",
+      "fresh-observe.sql": "674f92c95bbb627ba74abbc91dea0067ffd7cb25a01f1537487a21f354c09138",
+      "inventory.sql": "4364890304d7c112b69c1e25d20a6ccbbf99bf7b32c44183403bb216a5c7f453",
+      "ledger-observe.sql": "42ac58118727dbdc03c54e5ad6fb3cbedb3187f2ff2063eac4258336f0dfbb3c",
+      "rearm.sql": "40a2f1a0b2472a16af7b6b5544e330486b296c2265dba726c6264fd190f6b94b"
+    },
+    "four_histories": "Same four fresh immutable seven-file histories, exact all10300 tool maps/610e closure/481b archive before helper compile; recovery is canonical on the same division CID. No checksum rewrite, failed-row drop, fake P3018 or old proof overwrite.",
+    "cleanup": "Same all eligible original-grantor finalizers/global backend closure/secret scan/exact3C3V labels+CID/CreatedAt/four private paths/absence/source preservation and strict sticky IO failures. No cleanup before live review window closes.",
+    "outside_scope": "No source SQL/permission/policy/schema/owner ports/Auth semantics/provider/hosted/worker loop change. No old literal rerun or source/metadata/actual approval alteration in this plan task."
+  },
+  "immutable_file_contract": {
+    "child_directory": "Exact fresh OUT/install-controls directory from the new literal; never arbitrary paths supplied by ready data.",
+    "fixed_files": {
+      "ready": "OUT/install-controls/independent-review-ready.json",
+      "rollback": "OUT/install-controls/rollback-proof-for-review.json",
+      "closed_child": "OUT/install-controls/independent-review-child-snapshot.json",
+      "approval": "OUT/install-controls/independent-recovery-approval.json",
+      "outer_identity": "OUT/independent-review-outer-identity.json",
+      "child_plan": "OUT/install-coordinator-run-plan.json"
+    },
+    "ready_exact_schema": "workinants.install-independent-review-ready.v1",
+    "ready_exact_fields": [
+      "schema",
+      "run_id",
+      "source_commit",
+      "source_tree",
+      "packet_sha256",
+      "container_id",
+      "source_sql_sha256",
+      "rollback_proof_sha256",
+      "closed_child_snapshot_sha256",
+      "outer_identity_sha256",
+      "child_run_plan_sha256",
+      "review_timeout_seconds"
+    ],
+    "ready_values": "Exact UUID4/run/source40hex/tree40hex/packet64hex, actual captured division CID64hex, dd088 fault SQL SHA, four immutable artifact digests and exact integer240. No paths, credentials, raw output, timestamp used as authority or approval decision.",
+    "outer_identity_exact_fields": [
+      "schema",
+      "run_id",
+      "source_commit",
+      "source_tree",
+      "packet_sha256",
+      "child_run_plan_sha256",
+      "operator_sources_sha256",
+      "targets"
+    ],
+    "outer_identity_schema": "workinants.install-independent-review-outer-identity.v1",
+    "outer_identity_target_fields": "Exactly canonical/division_failure/late_function_grant with each actual captured container_id and immutable expected SQL SHA; all five operator hashes. No credential bundle, verifier, raw baseline, SQL body or handle.",
+    "no_digest_cycle": "Write immutable child plan first, hash it, then write outer identity carrying that hash. Do not embed outer identity digest back into the plan. The coordinator derives fixed outer-identity path and validates identities/plan hash; ready binds both artifact digests.",
+    "bounds_bytes": {
+      "ready": 65536,
+      "rollback": 65536,
+      "closed_child_snapshot": 16777216,
+      "outer_identity": 65536,
+      "child_plan": 1048576,
+      "approval": 8192
+    },
+    "file_admission": "Fresh regular non-symlink single-link files, exact fixed paths under run-owned TASK OUT, bounded read cap+1 and strict UTF8/duplicate-free/nonfinite-free JSON; fstat/lstat identity checked as required. Canonical ready/proof/identity bytes plus exactly codepoint10 newline; snapshot binds exact completed child-save bytes, not reconstructed expected observations.",
+    "immutability": "Plan, identity, proof and child snapshot are written once, closed and never replaced/deleted during normal review/recovery/finally. Snapshot is retained because live child results resumes mutation after review. No ready field can redirect the reader to mutable outer/child results or private files."
+  },
+  "coordinator_V3_sequence": [
+    "Outer writes existing closed child run plan, computes its SHA, writes the minimal immutable outer identity from actual captured CIDs/source hashes, closes every handle, then calls admitted V3 coordinator synchronously as before.",
+    "After existing genuine division failure, original-grantor finalization, actual zero inventory/failed ledger/server deltas/inactive-role controls and global closure, build unchanged canonical rollback proof from actual validated observations. Preserve old proof schema and values; do not substitute proof hardcoded zeros for checking actual recorded inventory.",
+    "Write proof once to fresh fixed path and finish existing review_hold record and INDEPENDENT_ROLLBACK_REVIEW_REQUIRED child save completely. Evidence.save may return the exact serialized bytes only after file close and successful replace; snapshot those returned closed bytes without reopening a live report.",
+    "Write fixed immutable child snapshot once from those exact closed bytes. Revalidate closed plan/outer identity/proof/snapshot bindings. All data/file handles close before ready publication. Any save/serialization/close/hash/publication failure means no ready marker and no approval/recovery.",
+    "Publish ready LAST using fresh exclusive temporary file, complete write/flush/fsync/close and atomic fresh non-overwriting publication to fixed independent-review-ready.json. Refuse preexisting ready/snapshot/proof/approval; never retry or overwrite a published immutable file.",
+    "Only AFTER ready publication successfully completes set the unchanged monotonic deadline now+240. During wait, no self.record/evidence.save/stage update/mutable outer callback/report read or referenced-file write. Poll only fixed approval existence once per second as before.",
+    "On approval, bounded read closes its handle, then unchanged protocol6c validates all exact seven fields/run/CID/source/canonical proof hash/allowed distinct reviewer before any record/resume. Only then standard resolve and existing same-target recovery/noop proceed.",
+    "Timeout, invalid approval or evidence uncertainty stops exactly as before and progresses finally/cleanup. Mutable child status may resume saving after timeout/failure, but immutable review artifacts remain untouched and watchers never read the mutable targets. No extension or alternative approval accepted."
+  ],
+  "watcher_V2_and_reviewer_sequence": [
+    "Execute the reviewed watcher FILE with exact approved SHA and explicit fixed literal/arming identity; preserve argv/source SHA and Root assignment. No ad hoc reconstructed stdin watcher. Arm before launch and verify fixed ready/proof/approval paths absent.",
+    "While writer runs, poll ONLY existence/lstat of fixed ready marker; never open run-evidence.json or install-controls-results.json. Root monitors stdout/executor completion only, and every other live reader follows that same prohibition.",
+    "Upon first ready existence, use conservative local deadline last-verified-absence monotonic+220 and unchanged overall watch budget. Reject expired/late/no-fresh-absence/invalid ready; no retry on read uncertainty. Load only the exact bounded immutable ready/proof/closed snapshot/outer identity/closed child plan using context-managed reads.",
+    "Validate all hashes/identities, actual native snapshot inventory, failed CLI/run/CID/source, failed ledger immutable/checksum/log-state, original authority/cleanup and all completed-operation closures. Recompute unchanged protocol failure_verdict from actual before/after diagnostics: exactly genuine22012 with25P02NULL branch or predeclared NONEMPTY branch; no foreign42501/malformed data or fake P3018. Full native/oracle comparison remains pending until recovery.",
+    "Loader returns detached parsed data and fixed digests only after every handle is closed. Watch success is transport readiness, NOT actual recovery approval. The assigned independent allowed reviewer must separately decide on actual evidence; no unattended autoapproval path or watch CLI flag can infer that decision.",
+    "Only explicit actual reviewer decision may call the fixed publisher. It rechecks deadline/exact ready identity and requires all managed read handles closed, writes exactly seven fields through fresh sibling temporary/flush/fsync/close/atomic approval publication, and closes before coordinator can observe it. Reviewer identity cannot be Root or relabeled author.",
+    "After publication, watcher stops immutable-input reads. On insufficient proof/time/IO, publish no approval and notify Root; timeout then safe cleanup. Use Root executor-completion notification/stdout control to stop waiting; only after writer process exit may final mutable reports be read for audit.",
+    "Close/invalid/timeout paths are finite and preserve watch/scratch/source records. FILE_SHARE_DELETE is not a claimed fix, no original cause is inferred, and no newline transformation is made."
+  ],
+  "required_Core_first_save_IO_diagnostic": {
+    "mandatory": true,
+    "only_new_Core": "execute_local_f0_install_controls_20261119_review_ready_v3.py",
+    "in_memory_first_only": "Module first-save-IO record is initialized/reset by actual initialize and first-write-wins; mirror only the same fixed record into report when possible. No recursive save, new logging IO, automatic retry or success reset.",
+    "phases": [
+      "TEMP_OPEN",
+      "SERIALIZE_REDACT",
+      "TEMP_WRITE",
+      "TEMP_FLUSH",
+      "TEMP_FSYNC",
+      "TEMP_CLOSE",
+      "ATOMIC_REPLACE"
+    ],
+    "exception_class_enum": [
+      "PermissionError",
+      "FileNotFoundError",
+      "OSError",
+      "TypeError",
+      "ValueError",
+      "UnicodeError",
+      "OTHER"
+    ],
+    "allowlisted_winerror": [
+      5,
+      32,
+      33
+    ],
+    "exact_record_fields": [
+      "phase",
+      "exception_class",
+      "winerror"
+    ],
+    "classifier": "Use fixed safe class mapping, with PermissionError/FileNotFoundError before OSError and UnicodeError before ValueError; never serialize type names, repr/str/args/filename/traceback/path/body/handle. Winerror exact int in allowlist else null; property access failure is contained.",
+    "first_exception_preservation": "Capture failure at each operation boundary before cleanup-close can throw. Close is attempted once; an earlier operation exception remains the rethrown first exception and its metadata cannot be overwritten by close or later best-effort save failure. Never perform replace after incomplete write/flush/fsync/close.",
+    "existing_behavior": "Mark evidence incomplete/sticky, preserve existing first operation Stop, rethrow and stop normal behavior. Existing all-branch finalization/closure/cleanup/postchecks continue independently. Successful later best-effort save cannot clear failure.",
+    "export": "Existing bounded final stdout summary may include only the same fixed three-field first_save_io record (or null) so persistent disk failure still leaves minimal diagnosis. Diagnostic export failure remains nonzero/incomplete; no exception strings or new paths."
+  },
+  "Source_admission_and_namespace_closure": {
+    "new_gates": "New Root validation starts independent_source_review, independent_ledger_source_review, independent_safety_sql_review and independent_review_publication_source_review all PENDING_ROOT_AND_INDEPENDENT_REVIEW. Runtime and pinner require exact new source approval; old4b9/a65 are historical basis only.",
+    "prepare_graph": "V3 packet generator INPUTS closes new coordinator/check/doc/ready-protocol+test/watcher+test/ledger3+test and all original unchanged source dependencies. External preparer caches/hashes this complete graph, exact tool basis and every four-history map before helper compile, and includes all listed sources/Root archive/validation in prepared inventory.",
+    "runtime_graph": "Retarget external Steps INSTALL_PACKET/FIXTURES/CONTENT/COOR/GEN/LEDGER/COOR_MODULES/FIXED_RUNTIME/SOURCE_ROOT and strict run-plan transport constants. Cache verified bytes before compiling any helper. Shared ready protocol loads only admitted bytes; watcher is a source-admitted independent program, not an unverified runtime import.",
+    "ledger3_path_reason": "Current00fb INPUTS/FAULT and registration path hardcode review-output/install-control-rehearsal-v2/division_failure. New ledger3 copies change only SELF and that namespace; keep protocol6c, original1cb schema AST,8columns/PK/privateACL/all retained-history proofs and collector6dfa/tool metadata exact. New fixtures and registration reference V3 fault path with same dd088 bytes, never a hidden V2 runtime fallback.",
+    "after_return": "New outer qualifier verifies immutable ready/snapshot/identity/plan/proof hash bindings after coordinator return, retains bounded references, verifies unchanged final child result and constructs unchanged failure proof/native/ledger contract through new ledger3. Reference return/throw/read/stat/save uncertainty still independently closes all three original CIDs.",
+    "pin_and_watch": "Actual Root pinner must admit every required transitive source as current AND committed, exact external5 snapshots and full recursive archive/validation before pin. Watcher source/ready helper full SHA hashes must be present in literal/source packet and independent watch arming receipt. No untracked omission or source-self-approval.",
+    "frozen_output_required": [
+      "all_new_Root_source_test_doc_SHA256",
+      "all_external_five_SHA256_and_physical_snapshots",
+      "eleven_identical_SQL_SHA256",
+      "all_generated_manifest_artifact_SHA256",
+      "recursive_archive_map_and_validation_SHA256",
+      "watcher_executed_source_SHA256",
+      "four_seven_file_history_maps_and10300_tool_basis"
+    ]
+  },
+  "mandatory_checks_before_new_source_freeze": [
+    "Compare actual V3 generator build with V2: all eleven SQL bytes/variant checksums exact; original protocol6c/allows7 reviewer fields/allowlist/migration7b7/helper33fe/tools10300/cleanup/privateACL/history remain exact. Freeze full future hashes; do not invent them in this plan.",
+    "Actual coordinator review through command-only database/process mocks: proof and complete child saves precede closed snapshot, all handles close, ready last, timer begins only after ready publication. Pre-ready save/open/write/flush/fsync/close/rename/hash failures yield no ready and no approval/resume.",
+    "Trace all file opens: watcher cannot open mutable outer/child reports before ready, during hold or after approval while process runs. Every referenced file is immutable, exact path/type/link/bounds/duplicate-free/canonical/source-hash bound. Unknown/extra path, partial/oversize/Unicode/nonfinite data rejects.",
+    "Require all managed reader handles closed at explicit atomic seven-field publication; no autoapproval. Withhold/invalid/wrong run/source/tree/packet/CID/proof/snapshot/outer identity/plan/reviewer/hash/window evidence must never run standard resolve.",
+    "Clock vectors use previous verified absence+220, first/late/expired readiness, interrupted watch, existing marker, timeout and240 deadline; no report save in wait and no cleanup before wait ends. Actual process exit notification stops watch without mutable polling.",
+    "Actual exclusive TASK scratch Windows reader/writer test, no Docker/SQL/network/Git: preserve ordinary-held and share-delete-held failed controls; new watcher reads only immutable published files, close barrier precedes approval, then actual new save resumes mutable replace without overlapping target handles. Real success must be observed, not assumed; scratch cleanup paths verified within test-tmp.",
+    "Inject each of seven new Core save phases and all fixed exception/allowlisted versus unlisted OS-code categories. Write failure plus close failure retains first phase/class and first exception. Later successful or failed best-effort save never clears sticky evidence or first diagnostic.",
+    "Run actual initialized new Core/global state and owning main/finalizer/cleanup/closure under persistent IO/stdout/diagnostic export failure; initial/final save cannot return/emit PASS, all eligible original-grantor/four-private-path/3CID3volume/post-preservation branches progress. No manual-global fixture masks runtime initialization.",
+    "Actual new outer full verifier/five snapshots/V3 complete source graph/all four seven-file histories/ledger3 fourteen pure tests/full schema/ACL/row-retention mutations/current+simulated-committed pinner and explicit isolated PENDING gates; every source/tool discrepancy stops before helper compile.",
+    "Actual independent reviewer integration is synthetic only at scratch paths: ready transport success does not autoapprove; explicit reviewer decision produces exact seven-field artifact only after full actual-source-contract fixture review and handles close. No test touches actual stopped7923 proof/approval/private/resource paths.",
+    "Before-author and final preservation prove all old external five, V2 packet/generator/coordinator/doc/tests/ledger2/originalwatcher/scratchfailedcontrol/stoppedrecords/oldliterals/SQL/other-family work unchanged. Independent new source review then fresh publication/full pin and literal/arming review before any actual attempt."
+  ],
+  "source_line_evidence": {
+    "old_coordinator973e": {
+      "mutable_Evidence_save": [
+        149,
+        154
+      ],
+      "actual_failure_finalizer_inventory_ledger_diagnostics": [
+        270,
+        275
+      ],
+      "proof_hold_save_and_stage_before_original_timer": [
+        276,
+        283
+      ],
+      "review_before_standard_resolve_and_recovery": [
+        288,
+        294
+      ],
+      "finally_and_stopped_save": [
+        295,
+        321
+      ]
+    },
+    "old_external_Core5c71": {
+      "save_current_exception_information_loss": [
+        62,
+        71
+      ],
+      "sticky_IO_and_first_failure_interfaces": [
+        73,
+        108
+      ],
+      "bounded_final_stdout": [
+        114,
+        125
+      ]
+    },
+    "old_external_Stepsd56a": {
+      "fixed_V2_sources_graph": [
+        539,
+        553
+      ],
+      "synchronous_child_and_after_return_closure": [
+        686,
+        732
+      ],
+      "proof_approval_references_and_ledger_binding": [
+        756,
+        781
+      ]
+    },
+    "old_generator307f": {
+      "V2namespace_and24closed_inputs": [
+        13,
+        23
+      ],
+      "variant_SQL_generation_and11SQL_bodies": [
+        30,
+        53
+      ],
+      "manifest_provenance": [
+        55,
+        60
+      ],
+      "fresh_seven_history": [
+        61,
+        66
+      ]
+    },
+    "original_watcher_c273": {
+      "closed_synchronous_read_handles": [
+        5,
+        16
+      ],
+      "live_child_and_outer_reads": [
+        20,
+        36
+      ],
+      "correct_canonical_newline": 24
+    }
+  },
+  "required_sequence": [
+    "Root ACK and separate independent review of this exact implementation source plan before code.",
+    "Author only new named files/new V3 SQL artifact namespace/new archive/PENDING validation after approval; preserve old sources and actual stopped/scratch records.",
+    "Freeze all exact new source fingerprints and meaningful test evidence; separate independent source review of coordinator/publication/helper/ledger3/external5/watcher required.",
+    "Root-only publish/admit all transitive current+committed sources and prepare/pin a fresh literal. Independent literal plus concrete actual reviewer/watch arming must precede runtime.",
+    "Root monitors stdout/executor completion only. Actual rollback approval remains a later independent seven-field decision; no source/literal/watch plan can serve as that approval."
+  ],
+  "limits": {
+    "this_task_only_new_TASK_plan_written": true,
+    "existing_repo_source_metadata_Git_Docker_DB_SQL_network_or_runtime_modified": false,
+    "scratch_or_original_watcher_executed_in_this_review": false,
+    "new_code_authored": false,
+    "actual_stop_cause_unobserved": true,
+    "newline_fix": false,
+    "shared_delete_only_remedy_claimed": false,
+    "actual_recovery_preapproved": false,
+    "old_identical_literal_retry_authorized": false,
+    "Restore_bf820_source_self_reviewed": false
+  },
+  "plain_english": "Wait until the writer finishes and puts out a sealed review packet. The reviewer opens only that sealed packet, closes every file, and then decides whether to send the retry ticket. The normal logs can keep changing later. A tiny first-error note says which save step failed, without showing secrets. This is a plan only; the old failure cause is still unknown."
+}

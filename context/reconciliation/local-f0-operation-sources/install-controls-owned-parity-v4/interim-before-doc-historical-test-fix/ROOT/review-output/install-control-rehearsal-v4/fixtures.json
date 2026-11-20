@@ -1,0 +1,335 @@
+{
+  "schema": "workinants.install-control-fixtures.v1",
+  "status": "NOT_RUN",
+  "posture": "D",
+  "database_contacted": false,
+  "selected_control_ids": [
+    "P0C-INSTALL-01",
+    "P0C-INSTALL-02"
+  ],
+  "source_definitions": {
+    "P0C-INSTALL-01": {
+      "id": "P0C-INSTALL-01",
+      "phase": "P0-C",
+      "stage": "F0_FOUNDATION",
+      "requirement": [
+        "DBP-06",
+        "DBP-10"
+      ],
+      "setup": "Approved immutable SQL history and captured disposable identity; empty application state, provider-managed stand-ins explicitly listed",
+      "action": "Apply only selected F0 history with dedicated migrator, then apply again",
+      "expected": "First deploy completes; second deploy has zero pending work and unchanged applied checksums",
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "INSTALL-CLEANUP",
+          "positive": "Bootstrap/application succeeds, then ORIGINAL grantor runs finalize in a separate connection",
+          "adversarial": "Inject application rollback, then the same grantor finalizes; wrong grantor cannot clean up",
+          "expected": "Both outcomes leave zero helper/verifier memberships on schema owner and zero CREATE on platform_private for leaf roles; runtime credentials stay inactive until verified",
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "FUNCTION-ACL-AUTHORITY",
+          "positive": "Install as actual wa_migrator, SET LOCAL ROLE wa_schema_owner; exact function grants and managed-role revocations precede every transfer to NOINHERIT leaf owners",
+          "adversarial": "Move a grant/revocation after transfer without SET ROLE actual owner",
+          "expected": "Install commits with expected ACL; original grantor then removes every temporary membership and CREATE privilege",
+          "status": "NOT_RUN"
+        }
+      ]
+    },
+    "P0C-INSTALL-02": {
+      "id": "P0C-INSTALL-02",
+      "phase": "P0-C",
+      "stage": "F0_FOUNDATION",
+      "requirement": [
+        "DBP-10"
+      ],
+      "setup": "Disposable clone only; injected failure before initial transactional migration COMMIT",
+      "action": "Run approved failed migration, inspect app catalog/ledger and perform reviewed rollback/forward-repair procedure",
+      "expected": "Failure is nonzero and not accepted; app transaction rolled back; ledger failure preserved until actual verified repair",
+      "status": "NOT_RUN",
+      "p0c03a_vectors": [
+        {
+          "id": "FUNCTION-ACL-FAILURE-CLEANUP",
+          "positive": "Original grantor finalizes after application ROLLBACK as well as COMMIT",
+          "adversarial": "Inject a failure after function setup but before application COMMIT; attempt runtime activation before independent cleanup verification",
+          "expected": "No application objects survive failed application transaction; zero temporary memberships/leaf CREATE after separate finalization",
+          "status": "NOT_RUN"
+        }
+      ]
+    }
+  },
+  "source_assertions": {
+    "P0C-INSTALL-01": {
+      "id": "P0C-INSTALL-01",
+      "kind": "FOUNDATION_CONTROL",
+      "model": null,
+      "source_register_status": "NOT_RUN",
+      "status": "NOT_RUN",
+      "requirement_ids": [
+        "DBP-06",
+        "DBP-10"
+      ],
+      "source_register": "database-candidate-tests.json#P0C-INSTALL-01",
+      "assertions": [
+        {
+          "id": "control.empty_deploy",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "Actual pinned Prisma deploy applies the single integrated history from empty application state as wa_migrator; bootstrap/finalization stay separate.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "control.private_ledger",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "Actual public._prisma_migrations is migrator-owned/private; successful migration name, file checksum, finished state and applied-step evidence match the reviewed history.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "control.second_deploy",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "A genuine second Prisma deployment has no pending migration, unchanged applied checksums and no duplicate objects or application DDL changes.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "control.success_cleanup",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "After successful install connection closes, original grantor finalizes; temporary memberships and leaf CREATE privileges are independently zero.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "vector.INSTALL-CLEANUP.positive",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_REGISTERED_VECTOR_POSITIVE",
+          "expected_assertion": "Bootstrap/application succeeds, then ORIGINAL grantor runs finalize in a separate connection",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN",
+          "vector_expected": "Both outcomes leave zero helper/verifier memberships on schema owner and zero CREATE on platform_private for leaf roles; runtime credentials stay inactive until verified",
+          "source_scope_limit": null
+        },
+        {
+          "id": "vector.INSTALL-CLEANUP.adversarial",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_REGISTERED_VECTOR_ADVERSARIAL",
+          "expected_assertion": "Inject application rollback, then the same grantor finalizes; wrong grantor cannot clean up",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN",
+          "vector_expected": "Both outcomes leave zero helper/verifier memberships on schema owner and zero CREATE on platform_private for leaf roles; runtime credentials stay inactive until verified",
+          "source_scope_limit": null
+        },
+        {
+          "id": "vector.FUNCTION-ACL-AUTHORITY.positive",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_REGISTERED_VECTOR_POSITIVE",
+          "expected_assertion": "Install as actual wa_migrator, SET LOCAL ROLE wa_schema_owner; exact function grants and managed-role revocations precede every transfer to NOINHERIT leaf owners",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN",
+          "vector_expected": "Install commits with expected ACL; original grantor then removes every temporary membership and CREATE privilege",
+          "source_scope_limit": null
+        },
+        {
+          "id": "vector.FUNCTION-ACL-AUTHORITY.adversarial",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_REGISTERED_VECTOR_ADVERSARIAL",
+          "expected_assertion": "Move a grant/revocation after transfer without SET ROLE actual owner",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN",
+          "vector_expected": "Install commits with expected ACL; original grantor then removes every temporary membership and CREATE privilege",
+          "source_scope_limit": null
+        }
+      ]
+    },
+    "P0C-INSTALL-02": {
+      "id": "P0C-INSTALL-02",
+      "kind": "FOUNDATION_CONTROL",
+      "model": null,
+      "source_register_status": "NOT_RUN",
+      "status": "NOT_RUN",
+      "requirement_ids": [
+        "DBP-10"
+      ],
+      "source_register": "database-candidate-tests.json#P0C-INSTALL-02",
+      "assertions": [
+        {
+          "id": "control.intended_failure",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "Prisma applies a recorded immutable failure-history snapshot; the intended injected database failure is distinguished from connection/parser/permission failures.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "control.failed_ledger",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "The genuine Prisma ledger retains its failed migration record/checksum while all transactional application objects roll back.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "control.failed_cleanup",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "Original grantor cleanup runs after failure; no active install connection, temporary membership or leaf CREATE remains.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "control.recovery",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "Only after exact rollback/catalog verification, use the reviewed pinned migration recovery command; retain failure history, deploy reviewed valid bytes and prove the recovered ledger and second no-op deploy.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "control.immutable_applied_history",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_EXACT_OBSERVED_RESULT",
+          "expected_assertion": "Never edit an applied migration/checksum, mark absent objects applied, reset, db push or directly manipulate the ledger.",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN"
+        },
+        {
+          "id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.positive",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_REGISTERED_VECTOR_POSITIVE",
+          "expected_assertion": "Original grantor finalizes after application ROLLBACK as well as COMMIT",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN",
+          "vector_expected": "No application objects survive failed application transaction; zero temporary memberships/leaf CREATE after separate finalization",
+          "source_scope_limit": null
+        },
+        {
+          "id": "vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial",
+          "mandatory_for_case": true,
+          "expected_outcome": "REQUIRE_REGISTERED_VECTOR_ADVERSARIAL",
+          "expected_assertion": "Inject a failure after function setup but before application COMMIT; attempt runtime activation before independent cleanup verification",
+          "availability": "CANDIDATE_LOCAL_SQL_PATH",
+          "dependency_ids": [],
+          "status": "NOT_RUN",
+          "vector_expected": "No application objects survive failed application transaction; zero temporary memberships/leaf CREATE after separate finalization",
+          "source_scope_limit": null
+        }
+      ]
+    }
+  },
+  "source_files_sha256": {
+    "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/reconciliation/local-f0-tooling/prisma-tools-closure.json": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+    "prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "scripts/check-install-control-rehearsal-v4.py": "02e75bd72cffd8b44231194fa06009cae3ac2a264224380c603cf366e0fc9b0c",
+    "scripts/install_control_protocol_v2.py": "6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f",
+    "scripts/install_independent_review_protocol_v2.py": "24bb1179c12bccdc1e7f1237e9bb9b0c06b09c9a3dbbde11bfd1f3e59cfc76eb",
+    "scripts/prepare-install-control-rehearsal-v4.py": "611a9f2303900f4c2dd613d9e8330bffd9595a7e816d336276684ff02eef8aa3",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+    "scripts/sql-review/collect_prisma_ledger.sql": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+    "scripts/sql-review/install-controls-coordinator-v4.md": "04a1cb03e91d7d56f912192c672b5846c0b90983129beae993bc1453cf2417e1",
+    "scripts/sql-review/install_ledger_proof_v3.py": "44211b9a783271dd336c03df9104686980e528575181365583aca214ca44dc05",
+    "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+    "scripts/sql-review/prisma_ledger_proof.py": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+    "scripts/sql-review/rehearsal-diagnostics.py": "c595883eb8013defc967feb0fc94db1366227ce89b843eeea2235b5a3adbeb7e",
+    "scripts/sql-review/run-context-control-rehearsal.py": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+    "scripts/sql-review/run-first-rehearsal.py": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e",
+    "scripts/sql-review/run-install-control-rehearsal-v4.py": "8d679c737691b781978424a6743f03d1312b0b8a17264c07f55d4cfd0ad5127b",
+    "scripts/sql-review/run-local-f0-migrate.py": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+    "scripts/sql-review/test_install_ledger_proof_v3.py": "bd34a3fa2c724988661e8cddccf1f9272ad53035d98fe5e02fee3a7407fcff8a",
+    "scripts/sql-review/test_watch_install_independent_review_v3.py": "0d39561350b3e350efc466505856ccf8388eef1e0ed3b5b6362adbb6d92bcabe",
+    "scripts/sql-review/watch-install-independent-review-v3.py": "7b1f3ebe021390fbca3b2424926adf15075096bfabb6ed1e387e2a3a5e361bc8",
+    "scripts/test_install_independent_review_protocol_v2.py": "17edfa894987a3ea7c45e2aec16b9120363b486f5dace3bdc1e40aa8f6d79c23"
+  },
+  "prepared_files_sha256": {
+    "canonical/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "division_failure/20261117000100_f0_local_initial/migration.sql": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+    "late_function_grant/20261117000100_f0_local_initial/migration.sql": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+    "bootstrap.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "authority-observe.sql": "b5791265492feb42a4e68b5538d41f33c1b3a77518e8b62f48ce3852b7f4b3e5",
+    "inactive-observe.sql": "3c81794dce2ef746695500f7539313f27fefd0590f12275deb8f471aef8bb92f",
+    "fresh-observe.sql": "674f92c95bbb627ba74abbc91dea0067ffd7cb25a01f1537487a21f354c09138",
+    "inventory.sql": "4364890304d7c112b69c1e25d20a6ccbbf99bf7b32c44183403bb216a5c7f453",
+    "ledger-observe.sql": "42ac58118727dbdc03c54e5ad6fb3cbedb3187f2ff2063eac4258336f0dfbb3c",
+    "rearm.sql": "40a2f1a0b2472a16af7b6b5544e330486b296c2265dba726c6264fd190f6b94b",
+    "README.md": "91255e819a337c0d3a234a2377d567f82cac44c1505fd9114ab70eae98f1013b"
+  },
+  "source_only_packet_sha256": "8c2a400531dc79a27359281218aa447d4518e6c0ff549100c7fbb1d7e26a0f8f",
+  "tool_closure_source": {
+    "path": "context/reconciliation/local-f0-tooling/prisma-tools-closure.json",
+    "sha256": "610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b",
+    "file_count": 10300
+  },
+  "variants": {
+    "canonical": {
+      "path": "canonical/20261117000100_f0_local_initial/migration.sql",
+      "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "state": "NOT_RUN",
+      "derivation": "UNCHANGED_CANONICAL"
+    },
+    "division_failure": {
+      "path": "division_failure/20261117000100_f0_local_initial/migration.sql",
+      "sha256": "dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c",
+      "state": "NOT_RUN",
+      "derivation": "ONE_IMMUTABLE_INJECTED_22012_BEFORE_RESET_ROLE"
+    },
+    "late_function_grant": {
+      "path": "late_function_grant/20261117000100_f0_local_initial/migration.sql",
+      "sha256": "bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f",
+      "state": "NOT_RUN",
+      "derivation": "ONE_EXACT_EXISTING_GRANT_MOVED_AFTER_ITS_OWNER_TRANSFER"
+    }
+  },
+  "migration_id": "20261117000100_f0_local_initial",
+  "runtime_roles": [
+    "wa_context_issuer",
+    "wa_identity_service_authority",
+    "wa_app_runtime",
+    "wa_worker"
+  ],
+  "source_assessment": {
+    "unchanged_guard_accepts_explicit_SQL_hash": "SOURCE_VERIFIED_OFFLINE_REPRODUCTION_REQUIRED",
+    "late_GRANT_requires_zero_effective_privileges": "PG17_PRIMARY_RESTRICT_AND_CHECK_GRANT",
+    "current_bootstrap_activates_no_passwords": "FOUR_RUNTIME_ROLES_REMAIN_NULL_UNTIL_NEW_COORDINATOR_ACTIVATION",
+    "old_masked_ledger_mode": "42501_SPECIFIC_NOT_REUSED_FOR22012"
+  },
+  "primary_sources": [
+    "https://www.postgresql.org/docs/17/sql-grant.html",
+    "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/aclchk.c"
+  ],
+  "limits": {
+    "all_assertions": "NOT_RUN",
+    "posture": "D",
+    "whole_94_or_451_promotion": false,
+    "root_canonical_or_history_modified": false,
+    "full_masked_22012_native_ledger_adapter": "NOT_IMPLEMENTED_EXISTING_ADAPTER_UNCHANGED",
+    "runtime_requires_independent_source_and_literal_review": true
+  }
+}

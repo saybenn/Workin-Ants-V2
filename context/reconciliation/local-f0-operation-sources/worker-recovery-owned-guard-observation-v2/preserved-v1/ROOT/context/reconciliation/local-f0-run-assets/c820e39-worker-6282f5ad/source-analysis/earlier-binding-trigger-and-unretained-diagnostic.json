@@ -1,0 +1,50 @@
+{
+  "schema": "workinants.worker6282-bounded-closed-failure-analysis.v1",
+  "recorded_at_utc": "2026-11-20T04:33:12.331566+00:00",
+  "actual_origin": "FINITE_WORKER_PROTOCOL/valid-current-Free-selection-survives-duplicate-attempt/INTENDED_SOURCE_GUARD_REQUIRED",
+  "complete_original_cause": "UNOBSERVED",
+  "failed_operation_exit_ACK_SQLSTATE_and_diagnostic": "NOT_RETAINED_BEFORE_VERDICT_RAISED",
+  "completed_protocol_records": 16,
+  "operations": 250,
+  "remaining_after_failed_case": "NOT_RUN",
+  "completed_record_names": [
+    "genuine-effect-committed-work-still-leased",
+    "current-worker-read-TrackSubscription",
+    "current-worker-read-TrackEntitlementGrant",
+    "current-worker-read-RuntimeCommandReceipt",
+    "current-worker-read-RuntimeOutboxMessage",
+    "current-worker-read-RuntimeEffectReceipt",
+    "current-worker-read-RuntimeAttempt",
+    "current-worker-read-RuntimeInboxReceipt",
+    "current-worker-read-OwnerMutationEvidence",
+    "current-worker-read-TrackBaseSelection",
+    "current-worker-read-TrackEnrollmentReceipt",
+    "copied-readable-hash-is-not-preimage",
+    "nonnull-effect-relink-denied",
+    "null-pointer-foreign-same-fence-effect-denied",
+    "real-higher-fence-reclaim-with-retained-effect",
+    "fresh-holder-recognizes-original-lower-fence-effect"
+  ],
+  "completed_prefix_is_runtime_observation_not_automatic_assertion_qualification": true,
+  "observed_genuine_leased_checkpoint_and_read_prefix": "RETAINED_IN_RAW_EVIDENCE_REQUIRES_INDEPENDENT_ASSERTION_MAPPING",
+  "fixture_owner_bypass_restored": true,
+  "last_full_native_parity": {
+    "stage": "FINALLY_FULL_NATIVE_PARITY",
+    "native_catalog_match": true,
+    "native_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6"
+  },
+  "source_analysis": "Duplicate INSERT reaches the subscription_binding BEFORE trigger, which invokes worker_track_allowed and raises exact P0001 fixed Track binding denied on false. Current oracle expects a later42501 RLS WITH CHECK denial, so the same false predicate cannot reach that later guard. Test mock ordering and minimal diagnostic observability require focused review/correction. This is proven source analysis consistent with the stop; actual original SQLSTATE was not retained.",
+  "canonical_source": {
+    "path": "review-output/foundation-application.review.sql",
+    "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "track_binding_line": 4975,
+    "subscription_binding_trigger_line": 5018
+  },
+  "protocol_source": {
+    "path": "scripts/worker_recovery_control_protocol.py",
+    "sha256": "0c6411a24f844d4c91e07d8f842c5b5179ef701a4b34d42d1460309d16ca9161"
+  },
+  "wrapper_required_global_stage": "Finally attribution, not proof that backend closure failed.",
+  "new_assertion_links": "NONE_PENDING_COMPLETE_CLOSED_EVIDENCE_REVIEW",
+  "Posture": "D"
+}

@@ -1,0 +1,1734 @@
+{
+  "Posture": "D",
+  "access_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+  "author": "/root/restricted_controls_operator",
+  "canonical_SQL_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "context_inputs_sha256": {
+    "context/clusters/Moderation holds Audits and Ops/Audit Event Ledger Module/audit-event-ledger-module-architecture.md": "c57324436ba0b155b62f0781443735c98882d62235c4949f520bbe62ea29f3ed",
+    "context/clusters/Moderation holds Audits and Ops/Audit Event Ledger Module/audit-event-ledger-module-implementation-plan.md": "563371a16575f1d44057df48904b880dacf6805ac988402e25b8c414e7ed6ac8",
+    "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-architecture.md": "4f6a1749d41c461cae5d66e9ac3e91aef851ffa544eda2078125c2c7bcce5f7c",
+    "context/clusters/Privacy & Location Safety/Privacy Data Erasure Module/privacy-data-erasure-module-implementation-plan.md": "94c0bb3a07818fb63ebb90c19e5d0354646c75e9bc08abff394fd8d88b3041b4",
+    "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-implementation-plan.md": "c89880cf98e7b41470687b7be805a9a24fe9cf4802fe212980d5fbfdf07935f8",
+    "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-module-architecture.md": "6675a6cbe9c10f48d07c6933c6a0f72fe7b7ffeafee24186749cba3b99d3784b",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md": "1264589c05d92a40746ebf71de3b04368ce511755f538dc58e7bc3e80ede0853",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md": "9c9c86fc035b151c31060269a69342d80f729cebdcdd090747b2681de9ca7f3b",
+    "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md": "a99147effb732761118bb4959bfee4810239a88359660f68cea434e7f4609e52",
+    "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-implementation-plan.md": "2cf19c6e2e06972bd403dc747de28a42af99c7c6fea8ae191ca1de0e8fc4aa9d",
+    "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md": "2b2281b86b3521023c25bee656dffbefd64a5cda34e1a45c9289f9fd175b8e29",
+    "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md": "9af7a7c3142fba550c13727f0143f9612b180d4ab6fd96975846d562d4ec17d5",
+    "context/context-map.md": "91ae472067d5336f0b0bf6d73c4a9e86b235df85aa2634adec74e93bf6f0ad6d",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+    "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/reconciliation/local-f0-selected-gap-plan-after-f161d454.json": "39b5ca35d79bf4f7272e057801042dd1a826c002451aa28c325c6fd2f08f0257",
+    "context/reconciliation/platform-architecture-rulings.md": "a15e71747452980e74944b2b01e59d89b4d6bff95c3ac335b4acfdb3a8868f7b",
+    "context/shared/contracts/SH-001.md": "5a868290d885f989823a8cf28798f16b62eab76b4a4c80d5164e001d32f53087",
+    "context/shared/contracts/SH-002.md": "eb35c3d5a753cb0d30b16d7a1d8f146f09c6db5a79326632eeca7b29d2684661",
+    "context/shared/contracts/SH-003.md": "493a3524f33224cfd774192535789ad95cb04c56e1e0e15a11ae5e067c7bf1b2",
+    "context/shared/contracts/SH-004.md": "114d4269db29edf0946d01fa2f9ac21769b22244aca940fe8270445ddd33d1bd",
+    "context/shared/contracts/SH-007.md": "b1821e94f4b09c1fda5cff58a72018e49d8473e15ad36c51ad32ea6011505124",
+    "context/shared/contracts/SH-009.md": "a372b67adda8123884ec7a63938554954142daca359dc727eaaa3e4ee180fe02",
+    "context/shared/contracts/SH-010.md": "54893ec684bd23b74945c6a662f79820650e20f9913d03d81dde700c7afab464",
+    "context/shared/contracts/SH-014.md": "b01fe30d704558b9053dfe9c359ecef6e1bbcaf0b8fbe73797e15b4b9ba461a7",
+    "context/shared/contracts/SH-029.md": "9689026381d1d707984958946aec68a88f79e9b31c92df1707826c016be6f6da",
+    "context/shared/contracts/SH-030.md": "e1ad2127b8a8521960d8ba6c1c9d199acd8ba6639700e957fa71b03356a52a31",
+    "context/shared/contracts/SH-031.md": "76cae876dad9116c16c58c1d2ded86ab2a18b0a40e303f6dba1e27ab7df1183d",
+    "context/shared/contracts/SH-044.md": "25ec251bb07bc39958c8e1a7d174197856a4dc9e7f0ac9ed7a2fbf5d2a4fe6ad",
+    "context/shared/contracts/SH-045.md": "aae09d8fdd2f552dfe3b119703396e69779f1a813e4e8c2f9beb931e117fc390",
+    "context/shared/contracts/SH-046.md": "2b29a053816ea57aab3b73e5bbcebc056f566f410d8258a071f958ab267fd49d",
+    "context/shared/contracts/SH-047.md": "9c2d733dd1a2c72c448c91d9ddeaf4e0d113a918a022a8ed8208bae03827bcc2",
+    "context/shared/contracts/SH-049.md": "7591a32d419f7576ad46cfa932c2b842f2094cd97c56a7b2875919fb92a62f0d",
+    "context/shared/contracts/SH-051.md": "296215aa7deae1fcb20352f8b0aaf27531ee97c140c8780925466c491b3251be",
+    "context/shared/contracts/SH-052.md": "744fccc1f795e056ce633abf0b835b3c6aa714d646c2ffe17d25afe862e99403",
+    "context/shared/contracts/SH-053.md": "733af65e0866860c940c7b905cded4a5aed8ed3c91cd59079f69944ee8387423",
+    "context/shared/contracts/SH-054.md": "3cd480d9a43f37a2a0c8a0ab289ed83d1d765e21d70df2686f0aaf19161b941e",
+    "context/shared/contracts/SH-055.md": "6933a41fa9134f5d12833eb5e421591a74694a13d11f80fa2721314a02a59a2e",
+    "context/shared/contracts/SH-056.md": "4ecd1b0f3edbb3a7cb2f606c25df03c08eafceed29ee98481dad43c18a97db68",
+    "context/shared/contracts/SH-072.md": "8c993b51b297b9757be6e1f9d2cc52d9f348af0680df6559a593f54a011c38ea",
+    "context/shared/contracts/SH-076.md": "f6fd4b48decb395acbd0aad5753dec86ff16ec36f2035d409cf05b0d1c89e0d6",
+    "context/shared/contracts/SH-080.md": "f41ba125f04142fbeaebde2a5b538ea433e1f6d7ec01ee8ae58190ee25d5808c",
+    "context/shared/contracts/SH-114.md": "0e64528881253c3b4cf2e2275453f038099dcffe65ab257796e5dc66521f7650",
+    "context/shared/shared-operations.md": "6e4607e9fdaf6c25c8e5f87857b84d778f866a97c4dcd778e03b6e07b6fe8c67",
+    "context/workflows/WF-01.md": "d4aed154df1f762ae10e70b77d6ba5a5a744a492cc419f19e56aab8b1a4d3f5a",
+    "context/workflows/WF-02.md": "1cf6d5e54cdc48e35ee4b8af7923f8cc091c87a15f3cda05026d194bf5e91142",
+    "context/workflows/WF-11.md": "fe7620880cc858434ba3f5b0fd7f026ab909ad4560ebd954628619fbdf8c5c13",
+    "context/workflows/WF-12.md": "8e173d35199d49e06bb85326a011a70d521f6a53996615cce3dda4ab9b7b2875"
+  },
+  "current_counts_preserved": {
+    "DEPENDENCY_BLOCKED": 32,
+    "FAILED": 0,
+    "NOT_RUN": 348,
+    "PARTIAL": 32,
+    "PASS": 615,
+    "UNRESOLVED_SOURCE": 7
+  },
+  "exact28_rows": [
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-ConsentLog-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5120,
+        "definition_sha256": "d8cc16177a9a9a9cc9a8cb3415b7ad282ed05930ef53aeed4c2c0930d75603ea",
+        "name": "platform_private.commit_consentlog"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "user_id",
+          "type",
+          "version",
+          "accepted_at",
+          "ip_hash",
+          "user_agent",
+          "acceptance_key",
+          "fingerprint",
+          "action_owner",
+          "action",
+          "context_kind",
+          "context_id",
+          "context_owner",
+          "presentation_hash",
+          "content_revision_id",
+          "presentation_id"
+        ],
+        "fields": [
+          "id",
+          "userId",
+          "type",
+          "version",
+          "acceptedAt",
+          "ipHash",
+          "userAgent",
+          "acceptanceKey",
+          "fingerprint",
+          "actionOwner",
+          "action",
+          "contextKind",
+          "contextId",
+          "contextOwner",
+          "presentationHash",
+          "contentRevisionId",
+          "presentationId"
+        ],
+        "model": "ConsentLog",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3627,
+        "definition_sha256": "63cdc13c5c0d407c5a9c9f7336f7bd12bb2fbfc0a5e530f152a9e95d8f94f6f3",
+        "name": "platform_private.guard_consentlog"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-PrivacyRequest-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5146,
+        "definition_sha256": "2ba449413b90d3dcab0fe382c4160d0be28d519d128db64c5dbac6871f95e852",
+        "name": "platform_private.commit_privacyrequest"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "user_id",
+          "type",
+          "status",
+          "requested_at",
+          "verified_at",
+          "due_at",
+          "completed_at",
+          "rejection_reason",
+          "admin_note",
+          "updated_at",
+          "revision",
+          "privacy_generation",
+          "instruction_generation"
+        ],
+        "fields": [
+          "id",
+          "userId",
+          "type",
+          "status",
+          "requestedAt",
+          "verifiedAt",
+          "dueAt",
+          "completedAt",
+          "rejectionReason",
+          "adminNote",
+          "updatedAt",
+          "revision",
+          "privacyGeneration",
+          "instructionGeneration"
+        ],
+        "model": "PrivacyRequest",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3651,
+        "definition_sha256": "3a9ebf249a2b7b10920e75660cd16087e2247c818c125e96795e5a9ab956cc4a",
+        "name": "platform_private.guard_privacyrequest"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-PrivacyRequest-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5146,
+        "definition_sha256": "2ba449413b90d3dcab0fe382c4160d0be28d519d128db64c5dbac6871f95e852",
+        "name": "platform_private.commit_privacyrequest"
+      },
+      "exact_access_row": {
+        "columns": [
+          "type",
+          "status",
+          "requested_at",
+          "verified_at",
+          "due_at",
+          "completed_at",
+          "rejection_reason",
+          "admin_note",
+          "updated_at",
+          "revision",
+          "privacy_generation",
+          "instruction_generation"
+        ],
+        "fields": [
+          "type",
+          "status",
+          "requestedAt",
+          "verifiedAt",
+          "dueAt",
+          "completedAt",
+          "rejectionReason",
+          "adminNote",
+          "updatedAt",
+          "revision",
+          "privacyGeneration",
+          "instructionGeneration"
+        ],
+        "model": "PrivacyRequest",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3651,
+        "definition_sha256": "3a9ebf249a2b7b10920e75660cd16087e2247c818c125e96795e5a9ab956cc4a",
+        "name": "platform_private.guard_privacyrequest"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5172,
+        "definition_sha256": "b47967eb0859d295f5a6b47c43a77b738715b4f071512cb48238ec6537bf858e",
+        "name": "platform_private.commit_agegateattempt"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "user_id",
+          "ip_hash",
+          "device_hash",
+          "region",
+          "result",
+          "birth_year",
+          "age_band",
+          "blocked_until"
+        ],
+        "fields": [
+          "id",
+          "userId",
+          "ipHash",
+          "deviceHash",
+          "region",
+          "result",
+          "birthYear",
+          "ageBand",
+          "blockedUntil"
+        ],
+        "model": "AgeGateAttempt",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3685,
+        "definition_sha256": "3cd3fc91f796bd5e99de237e676d95e78b1e82327c4c4bbe0d8d6c8cbc59a54f",
+        "name": "platform_private.guard_agegateattempt"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5198,
+        "definition_sha256": "198f307da4ea11a45c29e7f929e2e1e44986b101a21ab141950780db87551cc0",
+        "name": "platform_private.commit_agegateblock"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "ip_hash",
+          "device_hash",
+          "reason",
+          "blocked_until"
+        ],
+        "fields": [
+          "id",
+          "ipHash",
+          "deviceHash",
+          "reason",
+          "blockedUntil"
+        ],
+        "model": "AgeGateBlock",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3705,
+        "definition_sha256": "bf03c9117a6a7a5d863e4ab833acc7aa83d07e806103d6d0b3c36a4f6da7606c",
+        "name": "platform_private.guard_agegateblock"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5224,
+        "definition_sha256": "532970626a48773dec6eb3ebb4b93ae370db513ea0cfaa1ffaac51f4eef52ff6",
+        "name": "platform_private.commit_accessauditlog"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "actor_user_id",
+          "target_type",
+          "target_id",
+          "action",
+          "sensitivity",
+          "access_decision",
+          "request_id",
+          "ip_hash",
+          "user_agent",
+          "previous_hash",
+          "entry_hash"
+        ],
+        "fields": [
+          "id",
+          "actorUserId",
+          "targetType",
+          "targetId",
+          "action",
+          "sensitivity",
+          "accessDecision",
+          "requestId",
+          "ipHash",
+          "userAgent",
+          "previousHash",
+          "entryHash"
+        ],
+        "model": "AccessAuditLog",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3725,
+        "definition_sha256": "df12229801d2f7d735e32e326a93fab171517c4b89fb024da7e35341d37ca0d9",
+        "name": "platform_private.guard_accessauditlog"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-User-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5250,
+        "definition_sha256": "e8a0716e0d3b31550f70d9bc063143b709bddbe8bed43be92ffa24aa706821d8",
+        "name": "platform_private.commit_user"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "email",
+          "handle",
+          "display_name",
+          "avatar_url",
+          "bio",
+          "city",
+          "state",
+          "country",
+          "is_public",
+          "updated_at",
+          "privacy_erased_at",
+          "privacy_erasure_status",
+          "revision",
+          "privacy_generation"
+        ],
+        "fields": [
+          "id",
+          "email",
+          "handle",
+          "displayName",
+          "avatarUrl",
+          "bio",
+          "city",
+          "state",
+          "country",
+          "isPublic",
+          "updatedAt",
+          "privacyErasedAt",
+          "privacyErasureStatus",
+          "revision",
+          "privacyGeneration"
+        ],
+        "model": "User",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3745,
+        "definition_sha256": "135a3d89c71a7fda4df4c36dd6b80de94d97de0eb09c356bb285fd0a332f3ce9",
+        "name": "platform_private.guard_user"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-User-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5250,
+        "definition_sha256": "e8a0716e0d3b31550f70d9bc063143b709bddbe8bed43be92ffa24aa706821d8",
+        "name": "platform_private.commit_user"
+      },
+      "exact_access_row": {
+        "columns": [
+          "email",
+          "handle",
+          "display_name",
+          "avatar_url",
+          "bio",
+          "city",
+          "state",
+          "country",
+          "is_public",
+          "updated_at",
+          "privacy_erased_at",
+          "privacy_erasure_status",
+          "revision",
+          "privacy_generation"
+        ],
+        "fields": [
+          "email",
+          "handle",
+          "displayName",
+          "avatarUrl",
+          "bio",
+          "city",
+          "state",
+          "country",
+          "isPublic",
+          "updatedAt",
+          "privacyErasedAt",
+          "privacyErasureStatus",
+          "revision",
+          "privacyGeneration"
+        ],
+        "model": "User",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3745,
+        "definition_sha256": "135a3d89c71a7fda4df4c36dd6b80de94d97de0eb09c356bb285fd0a332f3ce9",
+        "name": "platform_private.guard_user"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5276,
+        "definition_sha256": "94101e51ee2f6fcde2479fbab752d2181d7ee4af6bb11815ad4750030755c5f9",
+        "name": "platform_private.commit_userrole"
+      },
+      "exact_access_row": {
+        "columns": [
+          "user_id",
+          "role",
+          "revision"
+        ],
+        "fields": [
+          "userId",
+          "role",
+          "revision"
+        ],
+        "model": "UserRole",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3776,
+        "definition_sha256": "001217b0b3d31010fc912ce54d3c69ba8488de997203a822ade79546f5d0a827",
+        "name": "platform_private.guard_userrole"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5276,
+        "definition_sha256": "94101e51ee2f6fcde2479fbab752d2181d7ee4af6bb11815ad4750030755c5f9",
+        "name": "platform_private.commit_userrole"
+      },
+      "exact_access_row": {
+        "columns": [
+          "revision"
+        ],
+        "fields": [
+          "revision"
+        ],
+        "model": "UserRole",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3776,
+        "definition_sha256": "001217b0b3d31010fc912ce54d3c69ba8488de997203a822ade79546f5d0a827",
+        "name": "platform_private.guard_userrole"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-CustomerProfile-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5302,
+        "definition_sha256": "fdc3df8fa8c3f85764f169c20eae07588681b1a4e16b1ddeb9161ffe8764a49d",
+        "name": "platform_private.commit_customerprofile"
+      },
+      "exact_access_row": {
+        "columns": [
+          "status",
+          "display_name",
+          "avatar_media_id",
+          "city",
+          "state",
+          "country",
+          "updated_at",
+          "archived_at",
+          "revision",
+          "privacy_generation"
+        ],
+        "fields": [
+          "status",
+          "displayName",
+          "avatarMediaId",
+          "city",
+          "state",
+          "country",
+          "updatedAt",
+          "archivedAt",
+          "revision",
+          "privacyGeneration"
+        ],
+        "model": "CustomerProfile",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3834,
+        "definition_sha256": "589bbd4a8d82db55b96c8aa8f5142c148a659bd5b9fe7c4f968bf52610ed75c7",
+        "name": "platform_private.guard_customerprofile"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5328,
+        "definition_sha256": "1d8f6d120386361a63d9579364feec6f8ca789b962f5be6a8b035247645f485a",
+        "name": "platform_private.commit_auditevent"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "actor_user_id",
+          "entity_type",
+          "entity_id",
+          "action",
+          "metadata"
+        ],
+        "fields": [
+          "id",
+          "actorUserId",
+          "entityType",
+          "entityId",
+          "action",
+          "metadata"
+        ],
+        "model": "AuditEvent",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3898,
+        "definition_sha256": "e24462ea6084fcf4cd363dd1e334f79608b77a60aa972264d4a664bcec139192",
+        "name": "platform_private.guard_auditevent"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-UserSecurityProfile-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5354,
+        "definition_sha256": "cbd785c3ba04a2606385c3708eead96569710e354b4d41c87ac7e0e7d94cbcc5",
+        "name": "platform_private.commit_usersecurityprofile"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "user_id",
+          "security_tier",
+          "phone_number_encrypted",
+          "phone_number_hash",
+          "phone_verified_at",
+          "phone_last_changed_at",
+          "passkeys_enabled",
+          "sms_mfa_enabled",
+          "backup_password_configured",
+          "sensitive_action_mfa_required",
+          "last_step_up_at",
+          "last_sensitive_action_at",
+          "locked_until",
+          "lock_reason",
+          "updated_at",
+          "revision",
+          "security_generation"
+        ],
+        "fields": [
+          "id",
+          "userId",
+          "securityTier",
+          "phoneNumberEncrypted",
+          "phoneNumberHash",
+          "phoneVerifiedAt",
+          "phoneLastChangedAt",
+          "passkeysEnabled",
+          "smsMfaEnabled",
+          "backupPasswordConfigured",
+          "sensitiveActionMfaRequired",
+          "lastStepUpAt",
+          "lastSensitiveActionAt",
+          "lockedUntil",
+          "lockReason",
+          "updatedAt",
+          "revision",
+          "securityGeneration"
+        ],
+        "model": "UserSecurityProfile",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3920,
+        "definition_sha256": "05ab0e0ac4aaf1110d396248e1c0b6633319be0ce2bca518926316fc69120e1a",
+        "name": "platform_private.guard_usersecurityprofile"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-UserSecurityProfile-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5354,
+        "definition_sha256": "cbd785c3ba04a2606385c3708eead96569710e354b4d41c87ac7e0e7d94cbcc5",
+        "name": "platform_private.commit_usersecurityprofile"
+      },
+      "exact_access_row": {
+        "columns": [
+          "security_tier",
+          "phone_number_encrypted",
+          "phone_number_hash",
+          "phone_verified_at",
+          "phone_last_changed_at",
+          "passkeys_enabled",
+          "sms_mfa_enabled",
+          "backup_password_configured",
+          "sensitive_action_mfa_required",
+          "last_step_up_at",
+          "last_sensitive_action_at",
+          "locked_until",
+          "lock_reason",
+          "updated_at",
+          "revision",
+          "security_generation"
+        ],
+        "fields": [
+          "securityTier",
+          "phoneNumberEncrypted",
+          "phoneNumberHash",
+          "phoneVerifiedAt",
+          "phoneLastChangedAt",
+          "passkeysEnabled",
+          "smsMfaEnabled",
+          "backupPasswordConfigured",
+          "sensitiveActionMfaRequired",
+          "lastStepUpAt",
+          "lastSensitiveActionAt",
+          "lockedUntil",
+          "lockReason",
+          "updatedAt",
+          "revision",
+          "securityGeneration"
+        ],
+        "model": "UserSecurityProfile",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3920,
+        "definition_sha256": "05ab0e0ac4aaf1110d396248e1c0b6633319be0ce2bca518926316fc69120e1a",
+        "name": "platform_private.guard_usersecurityprofile"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5380,
+        "definition_sha256": "f4b0265db991d73da00e14903343632dbecfadcb3977d3a642b3a1d490603f62",
+        "name": "platform_private.commit_authprovideraccount"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "user_id",
+          "security_profile_id",
+          "provider_type",
+          "provider_user_id",
+          "provider_account_id",
+          "email",
+          "email_verified_at",
+          "status",
+          "linked_at",
+          "last_used_at",
+          "revoked_at",
+          "updated_at",
+          "revision"
+        ],
+        "fields": [
+          "id",
+          "userId",
+          "securityProfileId",
+          "providerType",
+          "providerUserId",
+          "providerAccountId",
+          "email",
+          "emailVerifiedAt",
+          "status",
+          "linkedAt",
+          "lastUsedAt",
+          "revokedAt",
+          "updatedAt",
+          "revision"
+        ],
+        "model": "AuthProviderAccount",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3952,
+        "definition_sha256": "e9f858e94ac171b5c9d3a7899c9b630e39a9ae87b78c422c3a9b89422dbccbcc",
+        "name": "platform_private.guard_authprovideraccount"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5380,
+        "definition_sha256": "f4b0265db991d73da00e14903343632dbecfadcb3977d3a642b3a1d490603f62",
+        "name": "platform_private.commit_authprovideraccount"
+      },
+      "exact_access_row": {
+        "columns": [
+          "provider_type",
+          "email",
+          "email_verified_at",
+          "status",
+          "linked_at",
+          "last_used_at",
+          "revoked_at",
+          "updated_at",
+          "revision"
+        ],
+        "fields": [
+          "providerType",
+          "email",
+          "emailVerifiedAt",
+          "status",
+          "linkedAt",
+          "lastUsedAt",
+          "revokedAt",
+          "updatedAt",
+          "revision"
+        ],
+        "model": "AuthProviderAccount",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3952,
+        "definition_sha256": "e9f858e94ac171b5c9d3a7899c9b630e39a9ae87b78c422c3a9b89422dbccbcc",
+        "name": "platform_private.guard_authprovideraccount"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-TrackPlan-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5406,
+        "definition_sha256": "842bb45574b5376d7df43ee380e1ce7f30c08a3d6e5113959732bb7b558b4629",
+        "name": "platform_private.commit_trackplan"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "track",
+          "key",
+          "name",
+          "status",
+          "billing_model",
+          "monthly_price_cents",
+          "currency",
+          "description",
+          "display_order",
+          "metadata",
+          "updated_at",
+          "revision",
+          "version",
+          "content_hash"
+        ],
+        "fields": [
+          "id",
+          "track",
+          "key",
+          "name",
+          "status",
+          "billingModel",
+          "monthlyPriceCents",
+          "currency",
+          "description",
+          "displayOrder",
+          "metadata",
+          "updatedAt",
+          "revision",
+          "version",
+          "contentHash"
+        ],
+        "model": "TrackPlan",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3980,
+        "definition_sha256": "fe81b630c58c46e3740005d51e7b2209a2d5305126d2f10a51014b446351cb2e",
+        "name": "platform_private.guard_trackplan"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-TrackPlan-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5406,
+        "definition_sha256": "842bb45574b5376d7df43ee380e1ce7f30c08a3d6e5113959732bb7b558b4629",
+        "name": "platform_private.commit_trackplan"
+      },
+      "exact_access_row": {
+        "columns": [
+          "track",
+          "key",
+          "name",
+          "status",
+          "billing_model",
+          "monthly_price_cents",
+          "currency",
+          "description",
+          "display_order",
+          "metadata",
+          "updated_at",
+          "revision",
+          "version",
+          "content_hash"
+        ],
+        "fields": [
+          "track",
+          "key",
+          "name",
+          "status",
+          "billingModel",
+          "monthlyPriceCents",
+          "currency",
+          "description",
+          "displayOrder",
+          "metadata",
+          "updatedAt",
+          "revision",
+          "version",
+          "contentHash"
+        ],
+        "model": "TrackPlan",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 3980,
+        "definition_sha256": "fe81b630c58c46e3740005d51e7b2209a2d5305126d2f10a51014b446351cb2e",
+        "name": "platform_private.guard_trackplan"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5432,
+        "definition_sha256": "8799462ab1655e7c9e1944f5d14467aee28819bd2f2f82024f285ee1cc8661f6",
+        "name": "platform_private.commit_trackentitlementdefinition"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "key",
+          "label",
+          "description",
+          "value_type",
+          "track",
+          "is_active",
+          "updated_at",
+          "revision"
+        ],
+        "fields": [
+          "id",
+          "key",
+          "label",
+          "description",
+          "valueType",
+          "track",
+          "isActive",
+          "updatedAt",
+          "revision"
+        ],
+        "model": "TrackEntitlementDefinition",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4013,
+        "definition_sha256": "9c5289cab6f90bf76b1bfa5792e31418187f4b185288d2c89515d740161a81d6",
+        "name": "platform_private.guard_trackentitlementdefinition"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5432,
+        "definition_sha256": "8799462ab1655e7c9e1944f5d14467aee28819bd2f2f82024f285ee1cc8661f6",
+        "name": "platform_private.commit_trackentitlementdefinition"
+      },
+      "exact_access_row": {
+        "columns": [
+          "key",
+          "label",
+          "description",
+          "value_type",
+          "track",
+          "is_active",
+          "updated_at",
+          "revision"
+        ],
+        "fields": [
+          "key",
+          "label",
+          "description",
+          "valueType",
+          "track",
+          "isActive",
+          "updatedAt",
+          "revision"
+        ],
+        "model": "TrackEntitlementDefinition",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4013,
+        "definition_sha256": "9c5289cab6f90bf76b1bfa5792e31418187f4b185288d2c89515d740161a81d6",
+        "name": "platform_private.guard_trackentitlementdefinition"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5458,
+        "definition_sha256": "db048083019b3cc03500fe91abaa916c65662e4b84738b542614d7658715c822",
+        "name": "platform_private.commit_trackplanentitlement"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "plan_id",
+          "entitlement_id",
+          "value_type",
+          "boolean_value",
+          "int_value",
+          "decimal_value",
+          "string_value",
+          "json_value",
+          "usage_period",
+          "updated_at",
+          "revision"
+        ],
+        "fields": [
+          "id",
+          "planId",
+          "entitlementId",
+          "valueType",
+          "booleanValue",
+          "intValue",
+          "decimalValue",
+          "stringValue",
+          "jsonValue",
+          "usagePeriod",
+          "updatedAt",
+          "revision"
+        ],
+        "model": "TrackPlanEntitlement",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4041,
+        "definition_sha256": "3e25ca72bad6772735cfde65c173322f979183b1382d33eddc94d2e35e4da1ec",
+        "name": "platform_private.guard_trackplanentitlement"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5458,
+        "definition_sha256": "db048083019b3cc03500fe91abaa916c65662e4b84738b542614d7658715c822",
+        "name": "platform_private.commit_trackplanentitlement"
+      },
+      "exact_access_row": {
+        "columns": [
+          "value_type",
+          "boolean_value",
+          "int_value",
+          "decimal_value",
+          "string_value",
+          "json_value",
+          "usage_period",
+          "updated_at",
+          "revision"
+        ],
+        "fields": [
+          "valueType",
+          "booleanValue",
+          "intValue",
+          "decimalValue",
+          "stringValue",
+          "jsonValue",
+          "usagePeriod",
+          "updatedAt",
+          "revision"
+        ],
+        "model": "TrackPlanEntitlement",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4041,
+        "definition_sha256": "3e25ca72bad6772735cfde65c173322f979183b1382d33eddc94d2e35e4da1ec",
+        "name": "platform_private.guard_trackplanentitlement"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-ConsentContentRevision-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5588,
+        "definition_sha256": "66ca1a7c76c14404f1825a96f5f20c73600f99552e4482bd7eef10864e377714",
+        "name": "platform_private.commit_consentcontentrevision"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "type",
+          "version",
+          "locale",
+          "jurisdiction_scope",
+          "content_text",
+          "content_hash",
+          "review_state",
+          "legal_approval_ref",
+          "effective_from",
+          "effective_until"
+        ],
+        "fields": [
+          "id",
+          "type",
+          "version",
+          "locale",
+          "jurisdictionScope",
+          "contentText",
+          "contentHash",
+          "reviewState",
+          "legalApprovalRef",
+          "effectiveFrom",
+          "effectiveUntil"
+        ],
+        "model": "ConsentContentRevision",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4208,
+        "definition_sha256": "da4b9d6e02e27e615f1610681ccd946a37725bb65d8aec79102142a8501f4926",
+        "name": "platform_private.guard_consentcontentrevision"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-ConsentPresentation-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5614,
+        "definition_sha256": "d20e4ba6b66a33c18f3fed5de26362588084bb08225e896840cbcf4ac7a1e3af",
+        "name": "platform_private.commit_consentpresentation"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "content_revision_id",
+          "user_id",
+          "action_owner",
+          "action",
+          "render_version",
+          "rendered_text",
+          "rendered_hash",
+          "context_owner",
+          "context_kind",
+          "context_id"
+        ],
+        "fields": [
+          "id",
+          "contentRevisionId",
+          "userId",
+          "actionOwner",
+          "action",
+          "renderVersion",
+          "renderedText",
+          "renderedHash",
+          "contextOwner",
+          "contextKind",
+          "contextId"
+        ],
+        "model": "ConsentPresentation",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4232,
+        "definition_sha256": "e0249e7d1f7de2337b30c722f3465eeb5528559e3933dada8605bcc41fe41f74",
+        "name": "platform_private.guard_consentpresentation"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-ConsentDisposition-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": {
+        "declaration_line": 5640,
+        "definition_sha256": "12b66ea8abdcba6e2d869ca6246912fe8dbeed99535ba4c4ada0b5a270ff6fda",
+        "name": "platform_private.commit_consentdisposition"
+      },
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "proof_id",
+          "user_id",
+          "presentation_id",
+          "kind",
+          "semantic_key",
+          "fingerprint"
+        ],
+        "fields": [
+          "id",
+          "proofId",
+          "userId",
+          "presentationId",
+          "kind",
+          "semanticKey",
+          "fingerprint"
+        ],
+        "model": "ConsentDisposition",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4255,
+        "definition_sha256": "2482a221d99ae638037f8b5cb525d11d6419a9cb5b02defa9e666761d1efaa67",
+        "name": "platform_private.guard_consentdisposition"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": null,
+      "exact_access_row": {
+        "columns": [
+          "operation",
+          "subject_scope",
+          "semantic_key",
+          "fingerprint",
+          "state",
+          "source_revision",
+          "result_schema_version",
+          "result_digest",
+          "result_body"
+        ],
+        "fields": [
+          "operation",
+          "subjectScope",
+          "semanticKey",
+          "fingerprint",
+          "state",
+          "sourceRevision",
+          "resultSchemaVersion",
+          "resultDigest",
+          "resultBody"
+        ],
+        "model": "RuntimeCommandReceipt",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4277,
+        "definition_sha256": "c0796f12a482076f7c9a6c69eea8a601f1725668255f549f1b583efac3588ed9",
+        "name": "platform_private.guard_runtimecommandreceipt"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": null,
+      "exact_access_row": {
+        "columns": [
+          "id",
+          "command_receipt_id",
+          "owner_module_id",
+          "resource_kind",
+          "resource_key",
+          "semantic_key",
+          "quantity",
+          "state",
+          "fence",
+          "effect_receipt_id",
+          "expires_at"
+        ],
+        "fields": [
+          "id",
+          "commandReceiptId",
+          "ownerModuleId",
+          "resourceKind",
+          "resourceKey",
+          "semanticKey",
+          "quantity",
+          "state",
+          "fence",
+          "effectReceiptId",
+          "expiresAt"
+        ],
+        "model": "RuntimeReservation",
+        "operation": "INSERT",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4430,
+        "definition_sha256": "2cf900caabaeda644a58cf0b3b565bf3e4ad3c40bdb27b5a564a43073adda0a6",
+        "name": "platform_private.guard_runtimereservation"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "current_status": "NOT_RUN",
+      "deferred_owner_proof_source": null,
+      "exact_access_row": {
+        "columns": [
+          "resource_kind",
+          "resource_key",
+          "semantic_key",
+          "quantity",
+          "state",
+          "fence",
+          "expires_at",
+          "effect_receipt_id"
+        ],
+        "fields": [
+          "resourceKind",
+          "resourceKey",
+          "semanticKey",
+          "quantity",
+          "state",
+          "fence",
+          "expiresAt",
+          "effectReceiptId"
+        ],
+        "model": "RuntimeReservation",
+        "operation": "UPDATE",
+        "role": "wa_app_runtime"
+      },
+      "next_analysis": "Trace actual registered target/action/purpose, physical guard, command/evidence/codec/source-currentness and atomic proof requirements with owning context. Do not bypass the target guard, invent contracts or infer an unavailable positive path from denial.",
+      "physical_guard_source": {
+        "declaration_line": 4430,
+        "definition_sha256": "2cf900caabaeda644a58cf0b3b565bf3e4ad3c40bdb27b5a564a43073adda0a6",
+        "name": "platform_private.guard_runtimereservation"
+      },
+      "registered_dependency_ids": [],
+      "runtime_attainability": "NOT_ASSESSED_SOURCE_FACTS_ONLY"
+    }
+  ],
+  "factual_inventory": {
+    "path": "remaining28_app_write_source_fact_inventory_20261120.json",
+    "sha256": "540aa9931e481bfff25b1d7cd5cb33ee0aacd83f0d13e232a5920534b5b3ffcf"
+  },
+  "groups": [
+    {
+      "exact_assertions": [
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-ConsentLog-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-ConsentContentRevision-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-ConsentPresentation-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-ConsentDisposition-ALLOW",
+          "operation": "INSERT"
+        }
+      ],
+      "limits": "Published-content legal approval, actual rendering/affirmative acceptance and owner/API qualification cannot be inferred from hashes. Standalone SH009/010 read routes do not authorize INSERT. No target owner_commit/physical/consent bypass.",
+      "minimal_graph": "A/B existing Users; immutable applicable non-draft ContentRevision with real time interval; Presentation A and B bound to each User, action/context and content; affirmative ConsentLog A points to exact A presentation/content; Disposition references same user/presentation and optional original proof. Nonempty context_id because global_context_registered is false.",
+      "models": [
+        "ConsentLog",
+        "ConsentContentRevision",
+        "ConsentPresentation",
+        "ConsentDisposition"
+      ],
+      "owner": "consent_disclosure",
+      "questions": [
+        "Q01_RESULT_IDENTITY_CODEC"
+      ],
+      "routes": [
+        "SH-007.v1 / ConsentLog / owner:recordConsentProof",
+        "publishConsentVersion.v1 / ConsentContentRevision / consent.publish_version",
+        "recordConsentPresentation.v1 / ConsentPresentation / consent.record_presentation",
+        "recordConsentDisposition.v1 / ConsentDisposition / consent.record_disposition"
+      ],
+      "rows": 4
+    },
+    {
+      "exact_assertions": [
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-User-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-User-ALLOW",
+          "operation": "UPDATE"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-UserRole-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-UserRole-ALLOW",
+          "operation": "UPDATE"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-UserSecurityProfile-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-UserSecurityProfile-ALLOW",
+          "operation": "UPDATE"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+          "operation": "UPDATE"
+        }
+      ],
+      "limits": "Provider identity/credential/step-up proof and action-scoped authority remain external owner obligations. UserRole UPDATE exposes revision only; no invented reaffirmation or role change. Generation changes must account for bound_grant currentness through deferred reads.",
+      "minimal_graph": "A/B User+security roots for currentness tests; exact UserRole composite userId:role; ProviderAccount references its own UserSecurityProfile/User; Age attempt/block controlled synthetic IP/device inputs. New anonymous account bootstrap must use an actually registered Identity port rather than grant itself a principal row.",
+      "models": [
+        "AgeGateAttempt",
+        "AgeGateBlock",
+        "User",
+        "UserRole",
+        "UserSecurityProfile",
+        "AuthProviderAccount"
+      ],
+      "owner": "identity_access",
+      "questions": [
+        "Q01_RESULT_IDENTITY_CODEC",
+        "Q02_IDENTITY_BOOTSTRAP",
+        "Q03_IDENTITY_ACTION",
+        "Q04_USERROLE_UPDATE"
+      ],
+      "routes": "SQL declares write-capable SH014/053/provider/temporary-grant/privacy family routes for these roots; no inspected direct provisionUserAfterAgeGate/evaluateAgeGate/assignPlatformRole alias may be invented.",
+      "rows": 10
+    },
+    {
+      "exact_assertions": [
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-PrivacyRequest-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-PrivacyRequest-ALLOW",
+          "operation": "UPDATE"
+        }
+      ],
+      "limits": "Completed/partially_completed/completed_at remains explicit0A000 source gate; it does not prohibit ordinary intake. Do not invent statutory verification or full owner accounting.",
+      "minimal_graph": "A/B subject Users; ordinary request starts submitted with no verification/completion/due-date claim. Prefer inspected cancelPrivacyRequest source flow for an ordinary update once exact binding/result is reviewed; arbitrary adminNote edits are not policy.",
+      "models": [
+        "PrivacyRequest"
+      ],
+      "owner": "privacy_data_erasure",
+      "questions": [
+        "Q01_RESULT_IDENTITY_CODEC",
+        "Q07_PRIVACY_ORDINARY"
+      ],
+      "routes": "Existing SQL family roots include SH049/053/095/099 etc, but intake/cancel must bind exact actual submitPrivacyRequest/cancelPrivacyRequest owner operation, purpose and result; do not treat generic family as alias.",
+      "rows": 2
+    },
+    {
+      "exact_assertions": [
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+          "operation": "INSERT"
+        }
+      ],
+      "limits": "F0 AuditEvent columns and versioned metadata mapping must be chosen by existing Audit source contract, not guessed. Generic Audit row is not a domain lifecycle event.",
+      "minimal_graph": "Existing synthetic caller A and unrelated B; registered action/target/request/correlation/outcome and minimal declared metadata. Keep previousHash/entryHash NULL under WA-R060; no audit-of-audit outbox or cryptographic-chain claim.",
+      "models": [
+        "AccessAuditLog",
+        "AuditEvent"
+      ],
+      "owner": "audit_event_ledger",
+      "questions": [
+        "Q01_RESULT_IDENTITY_CODEC",
+        "Q10_AUDIT_SOURCE_SHAPE"
+      ],
+      "routes": [
+        "SH-029.v1 / AuditEvent / owner:appendAuditEvent",
+        "SH-030.v1 / AccessAuditLog / owner:recordSensitiveAccess"
+      ],
+      "rows": 2
+    },
+    {
+      "exact_assertions": [
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-CustomerProfile-ALLOW",
+          "operation": "UPDATE"
+        }
+      ],
+      "limits": "SH004/114 provision result is not an update result. No borrowed digest, automaticFree enrollment replay, Media avatar ownership guess or archive policy mutation.",
+      "minimal_graph": "Two genuine existing Customer roots A/B from the reviewed complete creation source; update only the permitted display/coarse-location field on A with OLD revision r and NEW r+1, immutable User/profile identity, complete prior/committed evidence and exact same-xid command.",
+      "models": [
+        "CustomerProfile"
+      ],
+      "owner": "customer_buyer_profile",
+      "questions": [
+        "Q05_CUSTOMER_UPDATE",
+        "Q01_RESULT_IDENTITY_CODEC"
+      ],
+      "routes": [
+        "updateCustomerProfileIdentity.v1 / CustomerProfile / profile_update"
+      ],
+      "rows": 1
+    },
+    {
+      "exact_assertions": [
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-TrackPlan-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-TrackPlan-ALLOW",
+          "operation": "UPDATE"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+          "operation": "UPDATE"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+          "operation": "UPDATE"
+        }
+      ],
+      "limits": "No active historical price/content mutation, commercial activation, benefit meaning, paid/provider/usage execution, or app impersonation of the worker assignDefaultFreeTrack handler.",
+      "minimal_graph": "Two separate inactive/draft synthetic catalog graphs: plan A/B; typed entitlement definition A/B; plan-entitlement links stay within their matching graph; preserve exact FK/typed-value arms, revisions and published/draft rules.",
+      "models": [
+        "TrackPlan",
+        "TrackEntitlementDefinition",
+        "TrackPlanEntitlement"
+      ],
+      "owner": "track_subscription_entitlement",
+      "questions": [
+        "Q01_RESULT_IDENTITY_CODEC",
+        "Q06_CATALOG_BINDING"
+      ],
+      "routes": [
+        "SH-080.v1 / exact catalog root / owner:manageVersionedRules"
+      ],
+      "rows": 6
+    },
+    {
+      "exact_assertions": [
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+          "operation": "UPDATE"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.insert",
+          "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+          "operation": "INSERT"
+        },
+        {
+          "assertion_id": "positive.wa_app_runtime.update",
+          "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+          "operation": "UPDATE"
+        }
+      ],
+      "limits": "No invented resource policy or NULL-body/no-result digest. Pending/unknown storage predicates do not establish successful owner completion/replay. SH004/114 provision allows only SELECT/INSERT; worker handler cannot simply be assigned to app.",
+      "minimal_graph": "Reservation A/B each links its own command; active/null-effect entry, immutable quantity/resource/semantic identity, fence/currentness. Terminal outcome needs exact command/effect owner, operation/fingerprint, RuntimeReservation:id subject, semantic key/fence; release also same-xid fenced_noncommit.",
+      "models": [
+        "RuntimeCommandReceipt",
+        "RuntimeReservation"
+      ],
+      "owner": "platform mechanism plus exact consuming owner",
+      "questions": [
+        "Q08_RESERVATION_OUTCOME",
+        "Q09_APP_COMMAND_UPDATE"
+      ],
+      "routes": [
+        "runtime.reservation.v1 / RuntimeReservation:<id> / reservation",
+        "a separately legitimate owner UPDATE-capable action/root for command UPDATE"
+      ],
+      "rows": 3
+    }
+  ],
+  "next_smallest_source_closure_candidates": [
+    "Audit two append commands: exact current F0 persistence mapping + actual SH029/030 result/replay binding, no domain-event outbox; then a finite two-root packet can be proposed.",
+    "Consent four exact named routes: exact registered result binding first; isolated content\u2192presentation\u2192proof/disposition graph is coherent without global context or target bypass.",
+    "Customer single UPDATE: reuse real existing creation fixtures, but exact update result identity/codec must be reviewed before write code.",
+    "Reservation nonterminal/terminal storage recipes require exact owner/resource/result registration first; do not fabricate resource names or completed no-result digests."
+  ],
+  "performed_now": {
+    "Git_Docker_database_SQL_network_runtime": false,
+    "executable_or_generated_repository_packets_source_gates_status_progress_writes": false,
+    "only_TASK_non_executable_plan_receipt_written": true,
+    "read_only_source_and_context": true,
+    "tests": 0
+  },
+  "plain_english": "Having a table key does not prove the whole owner action can finish. The missing result promises need exact owner answers, and the old counts stay unchanged. This note only saves the plan; no database was touched.",
+  "prior_plan_comparison": {
+    "note": "Prior30 plan identified exactly these28 precise contract-question rows after its two separate AppOwned2 rows. This receipt independently confirms key SQL constraints; it does not approve/alter those questions.",
+    "path": "app-write30-bounded-source-plan-v3-20261119.json",
+    "sha256": "7582a848b2ad46fc15b86e21ce4d083d98ef6e0c72d28daea75076c5bd94ace8"
+  },
+  "recorded_at_utc": "2026-11-20T06:22:44.011440+00:00",
+  "remaining_work": "Complete detailed owner/consumer/schema mapping and focused per-row positive/adversarial recipes after Root resumes; obtain separate plan review and Root ACK before any implementation.",
+  "runtime": "NOT_RUN",
+  "schema": "workinants.remaining28-app-write-static-partial-source-plan.v1",
+  "shared_protocol_if_later_approved": {
+    "adversarial": "A/B wrong principal/root/parent/field/verb/revision/generation; wrong command action/result/schema/digest/decisionRef/prior/transaction; missing evidence/command; extra sibling row; stale grant and zero/multirow results; exact expected SQLSTATE+allowlisted source diagnostic; no pass from genericP0001/42501.",
+    "binding": "Real restricted app login; capture actual same backend/PID/start/xid in memory; separate issuer COMMIT then exact21-field immutable grant; exact owner/action/purpose/root/allowed columns+row/SELECT/revision caps; bind request context and preserve tuple.",
+    "complete_proof": "Target write with physical/behavior/deferred owner guards active; correct source generation only for matched root; actual OLD preimage/r\u2192r+1, same-xid closed evidence/body digest and command/result; source-required message only. No unregistered outbox names or genericSH003 write.",
+    "evidence_cleanup": "Close affected operation before observations; global all-other-client closure; complete42 state/coherence/digest observations and native parity; stopped prefix/IO sticky partial evidence, no secrets/PID/xid/raw stderr/SQL retained. Fixture-only bypass needs exact source identity/hash and restore/native proof, never target behavior under test.",
+    "qualification_limits": "SQL row/guard evidence only where actually exercised; no real owner/API/provider adapter, production or wholecase readiness from synthetic source data."
+  },
+  "source_findings": {
+    "25_rows_deferred_owner_commit": "Require exact same-xid owner evidence, closed per-model JSON codec, prior/new revision or zero immutable revision, matching decisionRef and committed same-owner/action command. Reverse evidence_source_commit proves actual source row; no synthetic orphan proof.",
+    "infrastructure3": "Real physical/registered scope routes exist, but a legitimate app command UPDATE/resource policy and exact result binding are not yet established here. Do not qualify owner completion from a denied/unknown persistence change.",
+    "no_full_positive_recipe_asserted_yet": "A successful full atomic positive must be bound to an actual source contract before implementation; this partial plan establishes no waiver or impossibility proof.",
+    "not_blocked_by_missing_harness": "All28 current NOT_RUN and empty registered dependency ids remain unchanged. Unresolved route/result contracts are plan questions, not newly minted DEPENDENCY_BLOCKED records.",
+    "result_boundary": "SQL4699 result_json_boundary accepts nonNULL bodies only SH004/SH114/assignDefaultFreeTrack; SQL4710 committed_result requires nonNULL digest for any committed command. SQL4667 fixes jsonb::text UTF8 storage hash only when corresponding body exists, not an omitted-body replay contract."
+  },
+  "status": "PARTIAL_READ_ONLY_PLAN_PAUSED_FOR_ROOT_PRIORITY_PRIVILEGE_METADATA_DIAGNOSIS"
+}

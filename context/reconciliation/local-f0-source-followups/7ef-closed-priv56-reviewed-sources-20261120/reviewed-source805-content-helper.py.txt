@@ -1,0 +1,36 @@
+"""Read-only exact union of reviewed source families; do not stage or run."""
+from pathlib import Path
+import hashlib,json,re
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+inputs={
+ 'six_read_review_gate_metadata_final_committable_inventory_20261120.json':'8d69298db363e4ebb9db39105d62b7e09e5c2b827bb4c59535990185028f5b56',
+ 'app_owned_fix2_source_approved_committable_inventory_20261120.json':'a80aded1d049508cf72c6604bb70b371bdb582ba5a3296ce559875394b976d8f',
+ 'worker_guard_observation_v2_source_approved_committable_inventory_20261120.json':'f476b5e1c9ad13899021ee1f15e2b8462a923ea59378d8cd939ce1c1f3b0b433',
+ 'install_owned_parity_v4_source_approved_committable_inventory_20261120.json':'9e0fe814575e86f165404e5336512cf1940ad1f9723a35b522bb345f83385693'
+}
+files={};counts={};sizes={};json_count=0;binary=[]
+for name,h in inputs.items():
+    raw=(T/name).read_bytes();assert sha(raw)==h;v=json.loads(raw);mapping=v['files_sha256'];counts[name]=len(mapping)
+    for path,wanted in mapping.items():
+        assert path not in files or files[path]==wanted
+        files[path]=wanted
+assert len(files)==805
+for name,h in files.items():
+    p=R/name;assert p.is_file()and not p.is_symlink();raw=p.read_bytes();assert sha(raw)==h;sizes[name]=len(raw)
+    if b'\0'in raw:
+        binary.append({'path':name,'sha256':h,'bytes':len(raw)});continue
+    text=raw.decode('utf-8-sig')
+    if name.endswith('.json'):
+        def pairs(items):
+            v={}
+            for k,x in items:assert k not in v;v[k]=x
+            return v
+        json.loads(text,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')));json_count+=1
+    patterns=(rb'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b',rb'\b(?:sk|rk)_live_[A-Za-z0-9]{20,}\b',rb'\bxox[baprs]-[A-Za-z0-9-]{25,}\b',rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----\r?\n(?:[A-Za-z0-9+/=]{40,}\r?\n){2,}')
+    assert not any(re.search(pattern,raw)for pattern in patterns),('HIGH_CONFIDENCE_CONTENT_MATCH',name)
+assert not binary,binary
+v={'schema':'workinants.7ef-reviewed-source-union.v1','parent_context':'7ef509191423135f29d618e147250ea163523ac9','inputs_sha256':inputs,'family_counts':counts,'files_sha256':dict(sorted(files.items())),'files':len(files),'total_bytes':sum(sizes.values()),'largest_bytes':max(sizes.values()),'strict_JSON_files':json_count,'all_files_UTF8_NUL_free':True,'high_confidence_token_or_private_key_matches':False,'Git_mutation':False,'runtime':'NOT_RUN_BY_THIS_HELPER','scope':'Reviewed source/metadata only; exclude unreviewed RestoreV4/Read13/Write28 work and any still-active V5 output. Root must preserve closed actual evidence and progress before publication.','Posture':'D'}
+p=T/'7ef_reviewed_source_union_805_20261120.json'
+with p.open('xb')as f:f.write((json.dumps(v,indent=2,allow_nan=False)+'\n').encode())
+print(json.dumps({'inventory_sha256':sha(p.read_bytes()),'files':805,'total_bytes':v['total_bytes'],'largest_bytes':v['largest_bytes'],'strict_JSON_files':json_count,'content':'PASS','Git_mutation':False}))

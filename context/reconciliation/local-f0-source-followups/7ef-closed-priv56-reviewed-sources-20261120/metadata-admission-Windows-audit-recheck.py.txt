@@ -1,0 +1,27 @@
+"""Correct only reviewer audit argument-shape expectation; no source edits."""
+from pathlib import Path
+import hashlib,json,runpy,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+worker_path=T/'7ef_approved_Worker_actual_prepare_validate_20261120.json';worker_raw=worker_path.read_bytes();proof=json.loads(worker_raw);assert proof['Worker']['status']=='PASS_REAL_PREPARE_AND_COMPLETE_UNMODIFIED_VALIDATE'and proof['Worker']['admitted_files']==601
+manifest=T/'local-f0-install-controls-plan-4b35e08b/operation-manifest.json';before=manifest.read_bytes();m=json.loads(before);assert m['source_commit']=='TO_BE_PINNED'and m['review_status']=='PENDING_OPERATIONAL_REVIEW'and not Path(m['evidence_directory']).exists()and not manifest.with_name('operation-manifest-before-source-pin.json').exists()
+assert m['wrapper_sha256']=='a35fdfbe43b2bb9c3ca7214e174f22cfb765f1518037bf4d12d4b6cd95c97891'and m['steps_sha256']=='4c06dc967ee92aad86131515577d71626ecc021712f7d9535675ac5d8daf2b6c'
+helper=T/'check_7ef_approved_worker_install_metadata_admission_20261120.py';original=helper.read_bytes();preserved=T/'check_7ef_approved_worker_install_metadata_admission_20261120.first-windows-audit-shape.py.txt';preserved.open('xb').write(original)
+path=T/'pin_local_f0_install_controls_plan_20261120_owned_parity_v4.py';assert sha(path.read_bytes())=='e5445d74568ea66e93a3e2be93cb4c46fc754d3e86993c77e59fd4eb35edd53d'
+events=[]
+class ReadOnlyGitBoundaryReached(RuntimeError):pass
+def audit(event,args):
+    if event=='subprocess.Popen':
+        expected=['git','-c','core.longpaths=true','rev-parse','HEAD'];command=args[1]
+        assert command==expected if type(command)is list else type(command)is str and command==subprocess.list2cmdline(expected)
+        assert Path(args[2]).resolve()==R.resolve();events.append('REAL_UNMODIFIED_PINNER_CURRENT_SOURCE_GATES_PASS_FIRST_READ_ONLY_GIT_BLOCKED');raise ReadOnlyGitBoundaryReached()
+    if event in('os.system','socket.connect','socket.bind'):raise RuntimeError('OFFLINE_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(audit);pin=runpy.run_path(str(path),run_name='_unchanged_real_install_pinner')
+try:pin['pin'](manifest)
+except ReadOnlyGitBoundaryReached:pass
+else:raise AssertionError('READ_ONLY_GIT_BOUNDARY_NOT_REACHED')
+assert len(events)==1 and manifest.read_bytes()==before and not manifest.with_name('operation-manifest-before-source-pin.json').exists()
+proof['INSTALL']={'status':'PASS_REAL_PREPARER_AND_ALL_REAL_PINNER_CURRENT_SOURCE_GATES_BEFORE_GIT','manifest':str(manifest),'manifest_sha256':sha(before),'run_id':m['run_id'],'four_histories':list(m['install']['histories']),'actual_committed_pin':'NOT_RUN_AWAIT_PUBLICATION','review_status':'PENDING_OPERATIONAL_REVIEW','source_code_or_production_functions_injected':False,'process_audit_events':events}
+proof['review_harness_history']={'first_helper_sha256':sha(original),'first_stop':'Reviewer audit expected list; Windows subprocess audit supplies command-line string after list2cmdline. Real pinner reached its intended first read-only Git boundary after all current-source gates. No process or source change occurred.','correction':'Exact equivalent list or Windows list2cmdline of fixed five-token read-only Git command; cwd must equal Root. The audit still raises before process launch.','Worker_full_validate_rerun':False}
+p=T/'7ef_approved_Worker_INSTALL_actual_metadata_admission_20261120.json'
+with p.open('xb')as f:f.write((json.dumps(proof,indent=2,allow_nan=False)+'\n').encode())
+print(json.dumps({'proof_sha256':sha(p.read_bytes()),'Worker':'PASS_FULL_REAL_VALIDATE_601','INSTALL':'PASS_CURRENT_SOURCE_GATES_REAL_PINNER_BEFORE_GIT_NO_PROCESS','runtime':'NOT_RUN'}))

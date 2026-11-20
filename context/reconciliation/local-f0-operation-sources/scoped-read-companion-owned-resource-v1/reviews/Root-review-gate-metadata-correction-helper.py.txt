@@ -1,0 +1,41 @@
+"""Complete required review annotations from the immutable existing review."""
+from pathlib import Path
+import datetime,hashlib,json,runpy
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+A='context/reconciliation/local-f0-operation-sources/scoped-read-companion-owned-resource-v1'
+V='context/reconciliation/local-f0-scoped-read-companion-owned-resource-v1-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encode(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(b)
+old=(R/V).read_bytes();assert sha(old)=='58d728cb15ec8ca6ffaad2533cd3c3e71ac4e113b52d0e3ff3aeb32efd67b931'
+v=json.loads(old);assert len(v['archive_files_sha256'])==116
+review_path=A+'/reviews/independent-owned-source-review.json';review_raw=(R/review_path).read_bytes();assert sha(review_raw)=='91f426c7cfbeedffee7c7eba173fb734ca82e09140e491b55d83938f34d0b4bc'
+review=json.loads(review_raw);five=v['operator_sources_sha256'];assert review['decision']=='SOURCE_APPROVED'and review['operator_sources_sha256']==five and len(five)==5
+for name,h in five.items():assert sha((T/name).read_bytes())==h
+for name,h in v['archive_files_sha256'].items():assert sha((R/name).read_bytes())==h
+additions={
+    A+'/reviews/Root-validation-before-complete-gate-binding.json':old,
+    A+'/reviews/Root-offline-pin-stop-before-Git.json':(T/'six_read_9c3c33e0_pin_stage_diagnosis_20261120.json').read_bytes(),
+    A+'/reviews/Root-review-gate-metadata-correction-helper.py.txt':Path(__file__).read_bytes()
+}
+correction={'schema':'workinants.six-read-review-gate-metadata-correction.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'author':'/root','status':'METADATA_ONLY_PENDING_NONAUTHOR_CLOSURE','preserved_validation_sha256':sha(old),'proven_failure':'Actual unchanged pinner validate_basis line86 requires operator_sources_sha256 inside each of the two review gates. Both Root-written gates omitted that annotation. The actual offline call stopped with KeyError before Git or resources.','correction':'Copy the exact existing five-file map from immutable independently approved review91f426 into both corresponding gate records. No source-code or review decision changes.','independent_review':{'path':review_path,'sha256':sha(review_raw)},'operator_sources_sha256':five,'source_SQL_five_unchanged':True,'original_plan':'local-f0-scoped-reads-resource-v1-plan-9c3c33e0/operation-manifest.json','original_plan_unchanged':True,'runtime':'NOT_RUN','Posture':'D'}
+additions[A+'/reviews/Root-review-gate-metadata-correction.json']=encode(correction)
+for name,b in additions.items():put(R/name,b)
+for gate in('independent_safety_sql_review','independent_owned_resource_review'):
+    record=v[gate];assert record['decision']=='SOURCE_APPROVED'and record['path']==review_path and record['sha256']==sha(review_raw)and'operator_sources_sha256'not in record
+    record['operator_sources_sha256']=dict(five)
+v['archive_files_sha256'].update({n:sha(b)for n,b in additions.items()});assert len(v['archive_files_sha256'])==120
+v['review_gate_metadata_correction']={'path':A+'/reviews/Root-review-gate-metadata-correction.json','sha256':sha(additions[A+'/reviews/Root-review-gate-metadata-correction.json']),'status':'PENDING_NONAUTHOR_METADATA_CLOSURE'}
+(R/V).write_bytes(encode(v))
+receipt={'schema':'workinants.six-read-review-gate-metadata-changed-files.v1','validation_before_sha256':sha(old),'validation_after_sha256':sha((R/V).read_bytes()),'files_sha256':{**{n:sha(b)for n,b in additions.items()},V:sha((R/V).read_bytes())},'all_five_source_hashes_unchanged':five,'new_archive_count':120,'runtime':'NOT_RUN','Posture':'D'}
+path=T/'six_read_review_gate_metadata_correction_inventory_20261120.json';put(path,encode(receipt));print(json.dumps({'receipt_sha256':sha(path.read_bytes()),'validation_sha256':receipt['validation_after_sha256'],'archive_files':120,'code_changed':False}),flush=True)
+n=runpy.run_path(str(T/'pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py'),run_name='_pure_metadata_recheck')
+# Old plan pins the preserved old metadata. Prepare a new offline plan first;
+# old plan/evidence remain immutable and are never silently rewritten.
+prep=runpy.run_path(str(T/'prepare_local_f0_scoped_reads_owned_resource_v1_plan.py'),run_name='_fresh_metadata_plan')
+result=prep['prepare'](T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json','92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5')
+validated=n['validate'](Path(result['operation_manifest']))
+proof={'schema':'workinants.six-read-real-pinner-validate-metadata-closure.v1','status':'PASS_REAL_UNMODIFIED_VALIDATE_ALL_BOUNDARIES','result':result,'admitted_files':len(validated[3]),'pinner_sha256':sha((T/'pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py').read_bytes()),'source_code_changed':False,'Git_or_runtime_processes':'NOT_INVOKED','review_and_publication':'PENDING','Posture':'D'}
+path=T/'six_read_metadata_corrected_actual_prepare_validate_20261120.json';put(path,encode(proof));print(json.dumps({'real_validate':'PASS','proof_sha256':sha(path.read_bytes()),'result':result}),flush=True)

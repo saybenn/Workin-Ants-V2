@@ -1,0 +1,30 @@
+"""Focused source gates after approval; phase change affects temp fixture only."""
+from pathlib import Path
+import datetime,hashlib,importlib.util,json,time,unittest
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+source=T/'check_local_f0_install_controls_operation_review_ready_v3.py'
+spec=importlib.util.spec_from_file_location('Root_approved_install_v3_source_checks',source)
+m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+original=m.ReviewReadySourceGateTests.full_fixture
+def fixture(self):
+ n,master,clone,g=original(self)
+ if self._testMethodName=='test_real_pinner_pending_publication_gate_and_isolated_approved_clone_committed_graph':
+  name='context/reconciliation/local-f0-install-controls-review-ready-v3-source-validation.json';path=clone/name
+  value=json.loads(path.read_bytes());value['independent_review_publication_source_review']={'decision':'PENDING','scope':'ISOLATED_TEMP_FIXTURE_PUBLICATION_PHASE_ONLY'}
+  raw=g['encoded'](value);path.write_bytes(raw);pins=master['packet_files_sha256'];pins[name]=m.sha(raw)
+  master.update(packet_sha256=g['aggregate'](pins),prepared_source_file_inventory_sha256=dict(pins),prepared_source_files_aggregate_sha256=g['aggregate'](pins))
+  Path(n['MANIFEST_PATH']).write_bytes(g['encoded'](master))
+ return n,master,clone,g
+m.ReviewReadySourceGateTests.full_fixture=fixture
+suite=unittest.TestSuite([
+ m.Tests('test_actual_full_verifier_real_four_seven_histories_and_five_snapshots'),
+ m.ReviewReadySourceGateTests('test_actual_outer_closed_plan_identity_enters_real_coordinator_source_gate_before_runtime'),
+ m.ReviewReadySourceGateTests('test_each_of_four_real_runtime_gates_blocks_before_any_helper_or_command'),
+ m.ReviewReadySourceGateTests('test_real_pinner_pending_publication_gate_and_isolated_approved_clone_committed_graph'),
+])
+started=time.perf_counter();result=unittest.TextTestRunner(verbosity=2).run(suite)
+record={'schema':'workinants.install-v3-approved-metadata-phase-Root-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'elapsed_seconds':round(time.perf_counter()-started,3),'status':'PASS' if result.wasSuccessful() else 'FAIL','source_check_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'validation_sha256':hashlib.sha256((R/'context/reconciliation/local-f0-install-controls-review-ready-v3-source-validation.json').read_bytes()).hexdigest(),'phase_fixture_only':'New live validation is SOURCE_APPROVED; only temporary pinner fixture sets publication gate PENDING before unchanged original case. Temporary inventory and aggregate rehashed. No production code or approval weakened.','all_process_Docker_database_Git_boundaries_mocked':True,'actual_resources_or_recovery_approval':False,'Posture':'D'}
+p=T/'install_v3_approved_metadata_phase_Root_checks_20261119.json'
+with p.open('x',encoding='utf8') as f:json.dump(record,f,indent=2)
+print(json.dumps({'path':str(p),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'status':record['status'],'methods':result.testsRun}))
+raise SystemExit(0 if result.wasSuccessful() else 1)

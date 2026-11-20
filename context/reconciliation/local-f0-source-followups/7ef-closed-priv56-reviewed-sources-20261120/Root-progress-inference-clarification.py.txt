@@ -1,0 +1,10 @@
+from pathlib import Path
+import hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+receipt=T/'7ef_priv56_source805_progress_checkpoint_inventory_20261120.json';old=receipt.read_bytes();assert sha(old)=='7b2c282057eeb72b0394f25d18f3ce52603ce5eb8e964f1e0166544a4c2516ae';v=json.loads(old)
+before=T/'7ef-progress-prose-before-source-inference-clarification-20261120';before.mkdir(exist_ok=False);(before/receipt.name).write_bytes(old)
+a='The fixed key check worked. Thirty-three safety tests passed, then the test runner asked the database the wrong kind of question and stopped. Its exact hidden error was not saved.'
+b='The fixed key check worked, and thirty-three safety tests passed. Source code shows that the next database check uses an unsupported kind of question. That fits the stop, but the full hidden error was not saved.'
+for name in('context/progress-tracker.md','context/reconciliation/phase0-foundation-report.md','context/reconciliation/foundation-sql-draft-review.md'):
+    p=R/name;raw=p.read_bytes();text=raw.decode();assert text.count(a)==1;q=before/name;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(raw);p.write_bytes(text.replace(a,b,1).encode());v['files_sha256'][name]=sha(p.read_bytes())
+receipt.write_bytes((json.dumps(v,indent=2,allow_nan=False)+'\n').encode());print(json.dumps({'inventory_sha256':sha(receipt.read_bytes()),'only_three_prose_sentences_clarified':True,'counts_unchanged':True}))

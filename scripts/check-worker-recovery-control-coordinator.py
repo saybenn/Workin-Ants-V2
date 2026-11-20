@@ -136,7 +136,9 @@ class Transport:
  def statement(self,node,session):
   if isinstance(node,ast.InsertStmt):
    table=self.table(node.relation);values={col.name:self.expression(value,session) for col,value in zip(node.cols,node.selectStmt.valuesLists[0])};values['mutation_transaction_id']=session.backend['xid'];key=values.get('id',values.get('service_principal'))
-   if table=='app.track_subscriptions' and session.role=='wa_worker' and any(r['user_id']==values['user_id'] and r['status']=='active' for r in self.view(session,table).values()):raise SqlFailure('42501','new row violates row-level security policy for table "track_subscriptions"')
+   if table=='app.track_subscriptions' and session.role=='wa_worker':
+    self.subscription_before_trigger(session,values)
+    self.events.append(('source-insert-stage','RLS_WITH_CHECK'))
    if key in self.view(session,table):raise SqlFailure('23505','mock duplicate key')
    if table=='platform.runtime_work_item':values.update(lease_token_hash=None,lease_expires_at=None,effect_receipt_id=None)
    if table in ('app.track_subscriptions','app.track_entitlement_grants','app.track_base_selection'):values.setdefault('revision',0)
@@ -162,6 +164,24 @@ class Transport:
    return changed
   if isinstance(node,ast.SelectStmt):return self.select(node,session)
   raise AssertionError('UNREGISTERED_STATEMENT_'+type(node).__name__)
+ def subscription_before_trigger(self,session,values):
+  # Source-derived finite model of the existing valid-selection rejection.
+  # It reads neither the diagnostic oracle nor the case expected records.
+  trigger=re.findall(r'CREATE TRIGGER subscription_binding BEFORE INSERT OR UPDATE ON app\.track_subscriptions FOR EACH ROW EXECUTE FUNCTION (platform_private\.[a-z_]+)\(\);',self.application)
+  assert len(trigger)==1 and trigger[0]=='platform_private.track_binding','SOURCE_BEFORE_TRIGGER_REQUIRED'
+  body=re.search(r'CREATE FUNCTION '+re.escape(trigger[0])+r'\(\).*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',self.application,re.S)[2]
+  failure=re.search(r"IF NOT platform_private\.worker_track_allowed\(CASE TG_TABLE_NAME WHEN 'track_subscriptions' THEN 'TrackSubscription'.*?END,to_jsonb\(NEW\),TG_OP\)\s+THEN RAISE EXCEPTION '([^']+)'; END IF;\s+RETURN NEW;",body,re.S)
+  assert failure is not None,'SOURCE_BEFORE_PREDICATE_REQUIRED'
+  helper=re.search(r'CREATE FUNCTION platform_private\.worker_track_allowed\(.*?AS\s+(\$[a-z_0-9]*\$)(.*?)\1;',self.application,re.S)[2]
+  for source in ("IF model_name='TrackSubscription' THEN","RETURN NOT EXISTS(SELECT 1 FROM app.track_base_selection b JOIN app.track_subscriptions a ON a.id=b.subscription_id","WHERE b.user_id=u AND b.track='customer' AND a.status IN ('active','trialing') AND a.ended_at IS NULL","AND (a.current_period_end IS NULL OR a.current_period_end>clock_timestamp())"):
+   assert source in helper,'SOURCE_SELECTION_PREDICATE_REQUIRED'
+  self.events.append(('source-insert-stage','BEFORE_SUBSCRIPTION_BINDING'))
+  subscriptions=self.view(session,'app.track_subscriptions')
+  for selection in self.view(session,'app.track_base_selection').values():
+   selected=subscriptions.get(selection['subscription_id'])
+   if selection['user_id']==values['user_id'] and selection['track']=='customer' and selected and selected['status'] in ('active','trialing') and selected.get('ended_at') is None:
+    period=selected.get('current_period_end')
+    if period is None or datetime.fromisoformat(period)>self.clock_origin+timedelta(seconds=self.now):raise SqlFailure('P0001',failure[1],trigger[0].split('.')[-1])
  def diagnostic(self,error):
   result='ERROR:  '+error.state+': '+error.message+'\n'
   if error.function:
@@ -305,6 +325,55 @@ class CoordinatorTests(unittest.TestCase):
     grant['allowed_fields']=old
  def test_copied_hash_zero_has_independent_live_control_and_own_backend_closed(self):
   self.prepare_through(1);case=self.packet['cases'][11];self.coordinator.run_case(case);self.assertTrue(all(s.closed for s in self.transport.sessions));self.assertEqual(self.transport.rows['platform.runtime_work_item'][self.packet['roots']['A']['ids']['work']]['state'],'leased');self.assertTrue(any(x.get('stage')=='ACTUAL_HASH_READ' for x in self.evidence.value['operations']))
+ def test_actual_source_before_trigger_precedes_RLS_and_preserves_valid_selection(self):
+  self.prepare_through(16);before=P.digest(self.transport.rows['app.track_base_selection']);start=len(self.transport.events);self.coordinator.run_case(self.packet['cases'][16]);row=self.evidence.value['results'][-1]
+  self.assertEqual((row['source_guard']['sqlstate'],row['source_guard']['source_body_line'],row['source_guard']['native_location']),('P0001',7,'exec_stmt_raise@pl_exec.c'));self.assertEqual(before,P.digest(self.transport.rows['app.track_base_selection']))
+  stages=[r[1]for r in self.transport.events[start:]if r[0]=='source-insert-stage'];self.assertEqual(stages,['BEFORE_SUBSCRIPTION_BINDING'])
+ def test_old_later_RLS_oracle_restoration_is_detected_by_actual_transaction(self):
+  self.prepare_through(16);name=self.packet['cases'][16]['name']
+  with patch.dict(P.DIAGNOSTICS,{name:('42501','new row violates row-level security policy for table "track_subscriptions"',None)}),self.assertRaises(P.HeldFailure)as error:self.coordinator.run_case(self.packet['cases'][16])
+  self.assertEqual(error.exception.code,'INTENDED_SOURCE_GUARD_REQUIRED');self.assertEqual(len(self.evidence.value['results']),16);row=next(r for r in self.evidence.value['operations']if r.get('name')==name);self.assertEqual(row['operation_observation']['diagnostic'],'UNLISTED_DISCARDED');self.assertEqual(row['operation_observation']['client_exit_code'],3)
+ def test_old_actual_mock_order_restoration_is_detected(self):
+  import ast as python_ast
+  self.prepare_through(16);old=ROOT/'context/reconciliation/local-f0-operation-sources/worker-recovery-core-guard-observation-v3/preserved/scripts/check-worker-recovery-control-coordinator.py.txt';tree=python_ast.parse(old.read_bytes());cls=next(x for x in tree.body if isinstance(x,python_ast.ClassDef)and x.name=='Transport');node=next(x for x in cls.body if isinstance(x,python_ast.FunctionDef)and x.name=='statement');namespace=dict(globals());exec(compile(python_ast.Module(body=[node],type_ignores=[]),str(old),'exec'),namespace);self.transport.statement=types.MethodType(namespace['statement'],self.transport)
+  with self.assertRaises(P.HeldFailure)as error:self.coordinator.run_case(self.packet['cases'][16])
+  self.assertEqual(error.exception.code,'INTENDED_SOURCE_GUARD_REQUIRED');self.assertEqual(len(self.evidence.value['results']),16)
+ def test_operation_projection_bounds_types_no_defaults_or_secret_values(self):
+  case=self.packet['cases'][16];good=self.transport.diagnostic(SqlFailure('P0001','fixed Track binding denied','track_binding'))
+  def observe(code=3,rows=None,ack=False,stderr=good,received=True,exited=True,application=None):return P.operation_observation(case,code,case['expected_records']if rows is None else rows,ack,stderr,self.application if application is None else application,result_received=received,client_exit_received=exited)
+  value=observe();self.assertTrue(value['record_sequence_match']);self.assertEqual(value['diagnostic'],'EXACT_SOURCE_GUARD')
+  absent=observe(code=None,ack=True,received=False,exited=False);self.assertFalse(absent['result_received']);self.assertIsNone(absent['client_exit_code']);self.assertIsNone(absent['commit_acknowledged']);self.assertFalse(absent['response_shape_valid'])
+  for code in(True,3.0,'3',None,{},-256,256):
+   with self.subTest(code=code):v=observe(code=code);self.assertFalse(v['client_exit_type_valid']);self.assertIsNone(v['client_exit_code'])
+  for rows,ack,stderr in[([{'secret':CANARY}],False,good),([CANARY]*65,False,good),(['x'*65537],False,good),(case['expected_records'],1,good),(case['expected_records'],False,CANARY),(case['expected_records'],False,'x'*16385),(case['expected_records'],False,'\ud800')]:
+   with self.subTest(kind=type(rows[0]).__name__):v=observe(rows=rows,ack=ack,stderr=stderr);self.assertNotIn(CANARY,json.dumps(v));self.assertFalse(v['response_shape_valid']and v['record_sequence_match']and v['diagnostic']=='EXACT_SOURCE_GUARD')
+  self.assertEqual(observe(application='\ud800')['diagnostic'],'SOURCE_UNCONFIRMED')
+ def test_actual_failure_retains_outcome_before_verdict_and_stops_later_cases(self):
+  self.enable_preflight();name=self.packet['cases'][2]['name'];self.transport.fail_case=name;result=self.outer();row=next(r for r in result['operations']if r.get('name')==name);v=row['operation_observation']
+  self.assertEqual(len(result['results']),2);self.assertIs(v['result_received'],True);self.assertIs(v['client_exit_received'],True);self.assertEqual(v['client_exit_code'],3);self.assertIs(v['commit_acknowledged'],False);self.assertEqual(v['diagnostic'],'UNLISTED_DISCARDED');self.assertIs(row['operation_closed'],True);self.assertNotIn(CANARY,json.dumps(result));self.assertTrue(result['subsequent_cases_stopped'])
+ def test_actual_primary_exception_retains_unreceived_response_and_closes(self):
+  self.prepare_through(1);original=self.coordinator.session
+  def session(role):
+   value=original(role);call=value.call
+   def invoke(text):
+    if text.startswith("SELECT 'WA_WR_BEFORE_"):raise M['HeldFailure']('SOURCE_FILE_UNAVAILABLE')
+    return call(text)
+   value.call=invoke;return value
+  self.coordinator.session=session
+  with self.assertRaises(M['HeldFailure'])as error:self.coordinator.run_case(self.packet['cases'][1])
+  self.assertEqual(error.exception.code,'SOURCE_FILE_UNAVAILABLE');row=next(r for r in self.evidence.value['operations']if r.get('name')==self.packet['cases'][1]['name']);v=row['operation_observation'];self.assertFalse(v['result_received']);self.assertIsNone(v['commit_acknowledged']);self.assertEqual(v['client_exit_code'],0);self.assertTrue(row['operation_closed']);self.assertEqual(self.evidence.value['unexpected'][0]['code'],'SOURCE_FILE_UNAVAILABLE');self.assertTrue(all(s.closed for s in self.transport.sessions))
+ def test_actual_retention_failure_preserves_preverdict_observation(self):
+  self.prepare_through(1);original=self.coordinator.retention;name=self.packet['cases'][1]['name']
+  def retention(*a,**k):
+   if any(r.get('name')==name and 'operation_observation'in r for r in self.evidence.value['operations']):raise P.HeldFailure('IMMUTABLE_21_FIELD_ISSUER_RETENTION')
+   return original(*a,**k)
+  self.coordinator.retention=retention
+  with self.assertRaises(P.HeldFailure):self.coordinator.run_case(self.packet['cases'][1])
+  retained=json.loads(self.evidence.path.read_bytes());row=next(r for r in retained['operations']if r.get('name')==name);self.assertIs(row['operation_observation']['commit_acknowledged'],True);self.assertTrue(row['operation_closed']);self.assertNotIn('verdict',row);self.assertEqual(len(retained['results']),1)
+ def test_old_transaction_restoration_loses_required_partial_evidence_tripwire(self):
+  import ast as python_ast
+  old=ROOT/'context/reconciliation/local-f0-operation-sources/worker-recovery-core-guard-observation-v3/preserved/scripts/sql-review/run-worker-recovery-control-rehearsal.py.txt';tree=python_ast.parse(old.read_bytes());factory=next(x for x in tree.body if isinstance(x,python_ast.FunctionDef)and x.name=='coordinator_type');cls=next(x for x in factory.body if isinstance(x,python_ast.ClassDef));node=next(x for x in cls.body if isinstance(x,python_ast.FunctionDef)and x.name=='transaction');namespace={**M,'context':self.context};exec(compile(python_ast.Module(body=[node],type_ignores=[]),str(old),'exec'),namespace);self.coordinator.transaction=types.MethodType(namespace['transaction'],self.coordinator);self.enable_preflight();name=self.packet['cases'][2]['name'];self.transport.fail_case=name;result=self.outer();row=next(r for r in result['operations']if r.get('name')==name)
+  with self.assertRaises(AssertionError):self.assertIn('operation_observation',row)
  def test_exact_guard_diagnostics_pass_and_generic_codes_or_raw_suffix_reject(self):
   for name in P.DIAGNOSTICS:
    state,message,function=P.DIAGNOSTICS[name];good=self.transport.diagnostic(SqlFailure(state,message,function));self.assertTrue(P.diagnostic(name,good,self.application)['matched'])

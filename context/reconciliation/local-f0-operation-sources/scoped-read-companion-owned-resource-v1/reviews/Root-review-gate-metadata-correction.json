@@ -1,0 +1,25 @@
+{
+  "schema": "workinants.six-read-review-gate-metadata-correction.v1",
+  "recorded_at_utc": "2026-11-20T05:43:34.483342+00:00",
+  "author": "/root",
+  "status": "METADATA_ONLY_PENDING_NONAUTHOR_CLOSURE",
+  "preserved_validation_sha256": "58d728cb15ec8ca6ffaad2533cd3c3e71ac4e113b52d0e3ff3aeb32efd67b931",
+  "proven_failure": "Actual unchanged pinner validate_basis line86 requires operator_sources_sha256 inside each of the two review gates. Both Root-written gates omitted that annotation. The actual offline call stopped with KeyError before Git or resources.",
+  "correction": "Copy the exact existing five-file map from immutable independently approved review91f426 into both corresponding gate records. No source-code or review decision changes.",
+  "independent_review": {
+    "path": "context/reconciliation/local-f0-operation-sources/scoped-read-companion-owned-resource-v1/reviews/independent-owned-source-review.json",
+    "sha256": "91f426c7cfbeedffee7c7eba173fb734ca82e09140e491b55d83938f34d0b4bc"
+  },
+  "operator_sources_sha256": {
+    "execute_local_f0_scoped_reads_owned_resource_v1_20261119.py": "d35491a05064d58c05ec7437b16668554394854f0e7b3d7ee2675fbb963b64ec",
+    "local_f0_scoped_reads_owned_resource_v1_operation_steps.py": "6cdbffd04fa950663ba94f40503b2d987284b57ff6ea0a8619f4a3c9eaa5bb71",
+    "prepare_local_f0_scoped_reads_owned_resource_v1_plan.py": "009f41028bea52513e1050efce4662b3de9167818e1f95a1fffb4830e5e49ab0",
+    "check_local_f0_scoped_reads_owned_resource_v1_operation.py": "6d69f6df83eee156605766d82683a29a5890b7436bac4428d890c28cca3b9aa9",
+    "pin_local_f0_scoped_reads_owned_resource_v1_plan_20261119.py": "9f644efc10b9e5e68756d51e38c744e06404ac84fc0c4e36386c82c608c33bdd"
+  },
+  "source_SQL_five_unchanged": true,
+  "original_plan": "local-f0-scoped-reads-resource-v1-plan-9c3c33e0/operation-manifest.json",
+  "original_plan_unchanged": true,
+  "runtime": "NOT_RUN",
+  "Posture": "D"
+}

@@ -1,0 +1,52 @@
+"""Preserve known-exited sanitized V5 attempt after independent cleanup."""
+from pathlib import Path
+import collections,datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+H='7ef509191423135f29d618e147250ea163523ac9';TREE='0aae299d97abd14e4a6dcdfe2cdd85dda0df8f09'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    with p.open('xb')as f:f.write(b)
+assert subprocess.check_output(['git','-c','core.longpaths=true','rev-parse','HEAD'],cwd=R).decode().strip()==H
+mp=T/'local-f0-privilege-ceiling-plan-56a87aac/operation-manifest.json';mb=mp.read_bytes();assert sha(mb)=='79036eea578f6926a6ff28364bc7394e17728c22e8ea251d99ae7ccb13a052ef';m=json.loads(mb)
+out=Path(m['evidence_directory']);assert out==T/'local-f0-privilege-ceiling-56a87aac'and not(out/'private').exists()
+rb=(out/'run-evidence.json').read_bytes();assert sha(rb)=='8f940ab8c82c425a22a30381029ffbbcf8b725ab79d6eb9cecdfc5b821b9e3e5';raw=json.loads(rb);assert raw['status']=='STOPPED_ATTEMPT_PRESERVED'and raw['finished_at']and raw['approved_commit']==H and raw['approved_tree']==TREE and raw['evidence_complete']is True
+cb=(out/'privilege-ceiling-component/privilege-ceiling-results.json').read_bytes();assert sha(cb)=='82ecc9ac9b14378bddb95f011b8678570f275b0f940fe53b387bd405a3c7b17e';c=json.loads(cb)
+assert c['status']=='STOPPED_PARTIAL_EVIDENCE_PRESERVED'and c['current_stage']=='PRIVILEGE_METADATA'and c['current_case']=='GRANT-wa_app_runtime-DELETE'and c['failure']['code']=='UNEXPECTED_PRIVILEGE_CONTROL_FAILURE'
+assert len(c['results'])==33 and len(c['operations'])==76 and c['facets']==[]and len(c['native_controls'])==40 and len(c['definer_metadata'])==16
+assert all(r['status']=='PASS_FINITE_PRIVILEGE_CONTRAST_ONLY'and r['closed_before_observers']is True and r['complete_state_unchanged']is True and r['diagnostic']['matched']is True and r['whole_case_promoted']is False for r in c['results'])
+assert len(c['issuer_protocols'])==2 and all(r['status']=='PASS_FINITE_ISSUER_PROTOCOL_ONLY'and r['all_operation_backends_closed_before_observation']is True and r['complete_state_verified']is True for r in c['issuer_protocols'])
+person=next(r for r in c['operations']if r['name']=='ISSUER-LEGITIMATE-PERSON-ISSUE-OWN-READ-BOUND-SCALARS');assert person['caller_path_comparisons']==[True,True]and len(person['caller_path_comparison_outcomes'])==2 and all(len(v)==12 and all(x is True for x in v.values())for v in person['caller_path_comparison_outcomes'])
+assert all(x['all100_guards_restored']is True and x['native205_unchanged']is True for x in c['native_controls'])and len(c['global_client_boundaries'])==148 and all(x['confirmed']is True for x in c['global_client_boundaries'])
+assert raw['privilege_ceiling']['component_closure_confirmed']is True and'executed_sql_sha256'not in c['current']and'actors'not in c['current']
+cleanup=T/'privilege_7ef_56a87aac_independent_cleanup_20261120.json';cleanb=cleanup.read_bytes();assert sha(cleanb)=='0a561aba444c8fce07e994bb64c987a5a7f20291789ebb7a09d3e5400806d339'and json.loads(cleanb)['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+asset=R/'context/reconciliation/local-f0-run-assets/7ef5091-privilege-56a87aac';assert not asset.exists();copies={}
+for p in out.rglob('*'):
+    if not p.is_file():continue
+    rel=p.relative_to(out);assert'private'not in rel.parts and not p.is_symlink()and(p.suffix=='.json'or rel.as_posix()=='set-private-acl.ps1')
+    target=asset/'evidence'/rel
+    if p.suffix=='.ps1':target=target.with_name(target.name+'.txt')
+    copies[target]=p.read_bytes()
+for p in mp.parent.iterdir():
+    if p.is_file()and p.suffix=='.json':copies[asset/'manifest'/p.name]=p.read_bytes()
+for kind,binding in m['migration_targets'].items():
+    b=Path(binding['manifest_path']).read_bytes();assert sha(b)==binding['manifest_sha256'];copies[asset/'manifest'/('migration-'+kind+'.json')]=b
+extra={
+ 'independent-cleanup.json':cleanup.name,
+ 'independent-literal-review.json':'privilege_v5_56a87aac_independent_operational_literal_review_20261120.json',
+ 'independent-literal-review-bundle.json':'privilege_v5_56a87aac_independent_literal_review_bundle_20261120.json',
+ 'Root-literal-approval.json':'privilege_v5_56a87aac_Root_literal_approval_receipt_20261120.json',
+ 'Root-independent-cleanup-helper.py.txt':'verify_7ef_priv56a87_completed_cleanup_20261120.py'
+}
+for name,original in extra.items():copies[asset/name]=(T/original).read_bytes()
+facts={'schema':'workinants.priv56a87-observed-prefix-and-source-analysis.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'observed':{'failure_stage':c['current_stage'],'current_case':c['current_case'],'failure_code':c['failure']['code'],'completed_negative_contrasts':33,'completed_names':[r['name']for r in c['results']],'completed_assertion_groups':dict(collections.Counter(r['assertion_id']for r in c['results'])),'all33_exact_diagnostics_closed_complete_state_unchanged':True,'completed_issuer_protocols':[r['name']for r in c['issuer_protocols']],'person_fixed12_comparisons_both_paths':person['caller_path_comparison_outcomes'],'person_same_app_tuple_and_separate_issuer_COMMIT':person['same_app_tuple_and_separate_issuer_COMMIT'],'native_validity_controls':40,'all100_guards_restored_and205_facts_unchanged':True,'definer_metadata_observations':16,'global_boundaries_confirmed':148,'operations':76,'current_negative_body_executed':False,'remaining_negative_cases200_minus33':167,'wrapper_component_closure_confirmed':True,'physical_cleanup_independently_confirmed':True},'source_analysis':{'classification':'PROVEN_UNSUPPORTED_METADATA_FUNCTION_ARGUMENT_CONSISTENT_WITH_STOP','path':'scripts/sql-review/run-privilege-ceiling-control-rehearsal.py','sha256':sha((R/'scripts/sql-review/run-privilege-ceiling-control-rehearsal.py').read_bytes()),'line':294,'source_fact':'Metadata generates has_column_privilege for referenced id with verb DELETE. The frozen case DELETE predicate references id; PostgreSQL column privilege function accepts SELECT/INSERT/UPDATE/REFERENCES, whereas DELETE is a table privilege.','official_primary_reference':'https://www.postgresql.org/docs/17/functions-info.html','reference_verified_UTC_date':'2026-11-20','complete_original_cause':'UNOBSERVED','actual_metadata_query_exit_SQLSTATE_stderr':'NOT_RETAINED','needed_correction_review':'Prepare explicit source-backed table/column requirements for actual statement clauses and safe fixed metadata-query failure evidence. Preserve all200 SQL bodies/grants/case scope and diagnostic/cause-isolation limits. No implementation authorized by this record.'},'wrapper_origin_reconciliation':'The repeated REQUIRED_GLOBAL_BACKEND_CLOSURE wrapper label carries the component failure during finally. Actual component closure is confirmed; do not report that label as a failed closure or the original failure location. Raw reports remain unchanged.','qualification':'Preserve actual33/two-issuer/40/16 prefix only. No automatic assertion mapping, third service issuer protocol, remaining167 controls, whole94/451 or owner API qualification.','Posture':'D'}
+copies[asset/'source-analysis/observed-prefix-and-bounded-source-analysis.json']=encoded(facts);copies[asset/'source-analysis/preservation-helper.py.txt']=Path(__file__).read_bytes()
+for p,b in copies.items():
+    assert len(b)<50*1024*1024 and b'\0'not in b;b.decode('utf-8-sig')
+    if p.suffix=='.json':json.loads(b)
+    put(p,b)
+assets={p.relative_to(R).as_posix():sha(b)for p,b in copies.items()}
+record={'schema':'workinants.local-f0-7ef-version-qualified-stopped-execution-record.v1','recorded_at_utc':facts['recorded_at_utc'],'run_id':m['run_id'],'source_commit':H,'source_tree':TREE,'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(mb),'known_executor_exit':{'session':4590,'exit_code':1},'started_at_utc':raw['started_at'],'finished_at_utc':raw['finished_at'],'actual_wrapper_status':raw['status'],'actual_steps':raw['steps'],'raw_evidence_sha256':sha(rb),'raw_child_sha256':sha(cb),'raw_reports_unchanged':True,'independent_cleanup_sha256':sha(cleanb),'facts':facts,'assets_sha256':assets,'source_preservation':{k:v for k,v in raw.items()if k.endswith('_unchanged_after_run')or k=='all_source_and_external_inputs_preserved_after_run'},'limits':{'assertion_mapping':'NOT_AUTOMATIC_FROM_STOPPED_COMPONENT','remaining167_negative_bodies':'NOT_RUN','third_issuer_service_protocol':'NOT_RUN','whole94_451':'NOT_PROMOTED','Posture':'D'}}
+p=R/'context/reconciliation/local-f0-privilege-7ef5091-56a87aac-execution.json';put(p,encoded(record));receipt={'schema':'workinants.7ef-priv56a87-closed-attempt-preserved.v1','record':p.relative_to(R).as_posix(),'record_sha256':sha(p.read_bytes()),'asset_count':len(assets),'assets_sha256':assets,'runtime_or_Git_mutated':False,'Posture':'D'}
+p=T/'7ef_priv56a87_closed_attempt_preserved_inventory_20261120.json';put(p,encoded(receipt));print(json.dumps({'inventory_sha256':sha(p.read_bytes()),'record':receipt['record'],'record_sha256':receipt['record_sha256'],'assets':len(assets)}))

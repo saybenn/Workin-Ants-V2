@@ -1,0 +1,20 @@
+{
+  "schema": "workinants.install-owned-parity-v4-independent-unnamed-FK-probe.v1",
+  "outcome": "PASS_OFFLINE_SOURCE_ONLY",
+  "cases": [
+    {
+      "table": "platform_private.identity_service_authorization",
+      "duplicate_has_distinct_name": true,
+      "refusal": "INSTALL_PARITY_SOURCE_CONSTRAINT_IDENTITY"
+    },
+    {
+      "table": "platform_private.identity_service_receipt",
+      "duplicate_has_distinct_name": true,
+      "refusal": "INSTALL_PARITY_SOURCE_CONSTRAINT_IDENTITY"
+    }
+  ],
+  "methods": 2,
+  "process_network_real_boundaries": "FORBIDDEN",
+  "runtime": "NOT_RUN",
+  "prior_environment_only_attempt": "Missing offline-python PYTHONPATH caused PARSER_OR_HELPER_COMPILE_FAILED before review probes; repeated with correct pinned parser environment, no source or test changes."
+}

@@ -1,0 +1,102 @@
+--- old_steps_after_exact_declared_namespace_and_hash_binding
++++ local_f0_install_controls_operation_steps_owned_parity_v4.py
+@@ -113,8 +113,8 @@
+ BOOL_KEYS = {'read_only','collector_is_superuser','rolsuper','rolinherit','rolcreaterole','rolcreatedb','rolcanlogin','rolreplication','rolbypassrls','admin','inherit','set','rls','force_rls','nullable','collation_is_type_default','storage_is_type_default','is_local','deferrable','initially_deferred','validated','no_inherit','has_index','unique','primary','valid','ready','live','immediate','clustered','nulls_not_distinct','included','opclass_default','descending','nulls_first','returns_set','security_definer','strict','leakproof','variadic','support_function','internal','constraint','function_release_builtin','has_constraint_relation','has_constraint_index','permissive','grant_option','history_ids_unique','checksum_format_valid','id_is_uuid_v4','started','finished','rolled_back','time_order_valid','no_options','default_tablespace','not_partition','no_inheritance','no_index_acl','no_expressions','no_predicate','no_referenced_relation','no_expression'}
+ INT_KEYS = {'server_version_num','rolconnlimit','ordinal','typmod','array_dimensions','inherited_count','key_count','total_count','position','default_count','type_bits','argument_count','object_subid','referenced_subid','triggers_count','policies_count','rules_count','steps'}
+ META_KEYS = NATIVE_LISTS | BOOL_KEYS | INT_KEYS | {'format','collected_as','public_schema_owner','object','owner','name','rolvaliduntil','rolconfig','role','member','grantor','kind','persistence','replica_identity','table_name','type','identity','generated','compression','default_sha256','category','element','relation','labels','columns','references','referenced_columns','match','update_action','delete_action','expression_sha256','definition_sha256','referenced_unique_index','index_name','access_method','keys','predicate_sha256','column','opclass','language','return_type','volatility','parallel','cost','rows','settings','defaults_sha256','body_sha256','parameters','mode','enabled','function','function_identity','arguments_sha256','when_sha256','constraint_name','constraint_table','referenced_table','constraint_index','dependencies','direction','class','dependency_type','command','roles','using_sha256','with_check_sha256','grantee','privilege','creator','schema','entries','database','isolation','session_user','history','logs_state','name_sha256','checksum_sha256'}
+-BASE_SAFE_FILES = {'text-preflight.json','acl-preflight.json','native-before.json','native-after-oracle.json','native-after-ledger.json','oracle-preflight.json','oracle-results.json','oracle-closure.json','oracle-evidence.json','ledger-registration.json','ledger-observation.json','ledger-evidence.json','catalog-comparison.json'}
+-SAFE_FILES={prefix+name for prefix in ('canonical-','recovered-') for name in BASE_SAFE_FILES|{'install-failure-proof.json'}}|{'install-coordinator-run-plan.json','install-native-summary.json'}
++BASE_SAFE_FILES = {'text-preflight.json','acl-preflight.json','native-before.json','native-after-oracle.json','native-after-ledger.json','oracle-preflight.json','oracle-results.json','oracle-closure.json','oracle-evidence.json','ledger-registration.json','ledger-observation.json','ledger-evidence.json','ledger-comparison.json','catalog-comparison.json'}
++SAFE_FILES={prefix+name for prefix in ('canonical-','recovered-') for name in BASE_SAFE_FILES|{'install-failure-proof.json'}}|{'install-coordinator-run-plan.json','install-native-summary.json','install-semantic-parity.json'}
+ ACL_FIELDS='grantee grantor privilege grant_option'
+ NATIVE_ROWS={
+  'schemas':'object owner','roles':'name rolsuper rolinherit rolcreaterole rolcreatedb rolcanlogin rolreplication rolbypassrls rolconnlimit rolvaliduntil rolconfig',
+@@ -837,11 +837,14 @@
+     ledger_result=ledger.compare_proof(registration,ledger_evidence,native,bootstrap_grantor='postgres',source_expected_sha256=EXPECTED_SHA,root=ROOT)
+     report['ledger_comparison']=ledger_result;save()
+     need(ledger_result['status']=='PASS','NATIVE_LEDGER_COMPARISON_NOT_PASS')
++    write_safe('ledger-comparison.json',ledger_result)
+     report['steps']['CATALOG-LEDGER']='PASS_SOURCE_BOUND_NATIVE_SUBSET';save()
+     comparison=compare_with_install_ledger(ledger,manifest,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=recipe['full_acl'],ledger_registration=registration,ledger_evidence=ledger_evidence,expression_oracle_evidence=oracle_evidence,oracle_database=DB,root=ROOT)
+     write_safe('catalog-comparison.json',comparison);report['catalog_comparison']=comparison;save()
+     need(comparison['status']=='PASS','NATIVE_CATALOG_COMPARISON_NOT_PASS')
+-    report['install'].setdefault('native',{})[kind]={'native_sha256':digest(native),'full_comparison':'PASS','oracle_expressions':416,'ledger_checks':ledger_result['checks'],'comparison_artifact_sha256':hashlib.sha256((OUT/(prefix+'catalog-comparison.json')).read_bytes()).hexdigest()}
++    closed_backends(name,'INSTALL_PARITY_INPUT_CLOSED_'+kind)
++    INSTALL.setdefault('parity_inputs',{})[kind]={'native':native,'comparison':comparison,'ledger':ledger_result,'oracle':oracle_evidence,'identity':{'run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET},'original_grantor_finalized':True,'operation_backends_absent':True}
++    report['install'].setdefault('native',{})[kind]={'native_sha256':digest(native),'full_comparison':'PASS','catalog_check_counts':comparison['check_counts'],'oracle_expressions':416,'ledger_checks':ledger_result['checks'],'comparison_artifact_sha256':hashlib.sha256((OUT/(prefix+'catalog-comparison.json')).read_bytes()).hexdigest()}
+     report['steps']['CATALOG-COMPARE']='PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY';event('NATIVE_CATALOG_REHEARSAL','PASS_SUBSET_ONLY')
+ 
+ 
+@@ -863,7 +866,7 @@
+         need(best_effort_save(),'EVIDENCE_WRITE_UNCONFIRMED');verify_packet();preflight();ensure_image();create_resources();prepare_install_credentials_and_baselines();provision_migration_tools();install_coordinator_experiment()
+         for target in TARGETS:ensure_original_cleanup(target['name'])
+         qualify_install_catalog('canonical','canonical-');qualify_install_catalog('division_failure','recovered-')
+-        exact(report['install']['native']['canonical']['native_sha256'],report['install']['native']['division_failure']['native_sha256'],'RECOVERED_NATIVE_DIFFERS_FROM_CANONICAL')
++        install_cross_target_semantic_parity()
+         report['install']['protocols']='PASS_SOURCE_BOUND_FINITE_PROTOCOLS_ONLY';report['install']['full_native']='PASS_CANONICAL_AND_RECOVERED_SOURCE_BOUND_NATIVE_ONLY';report['status']='PASS_FINITE_INSTALL_PROTOCOLS_AND_NATIVE_SUBSET_ONLY'
+         INSTALL['artifact_prefix']='';write_safe('install-native-summary.json',report['install']['native']);save()
+     except BaseException as error:
+@@ -887,3 +890,63 @@
+         except BaseException:report['external_sources_unchanged_after_run']=False;record_failure('EXTERNAL_SOURCE_PRESERVATION','EXTERNAL_SOURCE_DRIFT_OR_UNVERIFIED_PACKET')
+         report['all_source_and_external_inputs_preserved_after_run']=all(report.get(key) is True for key in ('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_input_archives_and_fresh_history_unchanged_after_run','external_sources_unchanged_after_run'))
+     return finish_report('PASS_FINITE_INSTALL_PROTOCOLS_AND_NATIVE_SUBSET_ONLY')
++
++def install_semantic_native_view(native,expected,pg17):
++    need(type(native)is dict and set(native)==NATIVE_LISTS|{'format','server_version_num','read_only','collected_as','collector_is_superuser','public_schema_owner'},'INSTALL_PARITY_NATIVE_SHAPE')
++    need(native['format']=='workinants.native-catalog.v1'and type(native['server_version_num'])is int and native['server_version_num']==170011 and native['read_only']is True and native['collected_as']=='postgres'and native['collector_is_superuser']is True,'INSTALL_PARITY_NATIVE_IDENTITY')
++    need(type(native['triggers'])is list and type(native['constraints'])is list,'INSTALL_PARITY_ROW_LISTS')
++    fields=set(NATIVE_ROWS['triggers'].split());need(len(fields)==21,'INSTALL_PARITY_SOURCE_TRIGGER_FIELDS')
++    constraints={}
++    for row in native['constraints']:
++        need(type(row)is dict and type(row.get('table_name'))is str and type(row.get('name'))is str,'INSTALL_PARITY_CONSTRAINT_SHAPE');key=(row['table_name'],row['name']);need(key not in constraints,'INSTALL_PARITY_DUPLICATE_CONSTRAINT');constraints[key]=row
++    wanted={}
++    for table,info in expected['tables'].items():
++        for constraint in info['constraints']:
++            if constraint['kind']!='FOREIGN'and not(constraint['kind']in('PRIMARY','UNIQUE')and constraint['deferrable']):continue
++            candidates=[r for (t,n),r in constraints.items()if t==table and (n==constraint['name']if constraint['name']else r['kind']=={'FOREIGN':'f','PRIMARY':'p','UNIQUE':'u'}[constraint['kind']]and r['columns']==constraint['columns']and (constraint['kind']!='FOREIGN'or r['references']==constraint['references']and r['referenced_columns']==constraint['referenced_columns']))]
++            need(len(candidates)==1,'INSTALL_PARITY_SOURCE_CONSTRAINT_IDENTITY');row=candidates[0];index=row.get('referenced_unique_index')if constraint['kind']=='FOREIGN'else row.get('index_name')
++            for item in pg17.internal_trigger_matrix(table,info,constraint,row['name'],index):
++                identity=pg17.internal_identity(item);need(identity not in wanted,'INSTALL_PARITY_SOURCE_IDENTITY_DUPLICATE');wanted[identity]=item
++    internals={};externals={};names=set();raw_names={}
++    for row in native['triggers']:
++        need(type(row)is dict and set(row)==fields and type(row['internal'])is bool and type(row['table_name'])is str and type(row['name'])is str,'INSTALL_PARITY_TRIGGER_SHAPE')
++        name=(row['table_name'],row['name']);need(name not in names,'INSTALL_PARITY_DUPLICATE_TRIGGER_NAME');names.add(name)
++        if row['internal']is False:
++            key=row['table_name']+'/'+row['name'];need(key in expected['triggers']and key not in externals,'INSTALL_PARITY_EXTERNAL_IDENTITY');externals[key]=dict(row);continue
++        need(all(type(row[k])is str for k in('constraint_table','constraint_name','table_name','function'))and type(row['type_bits'])is int,'INSTALL_PARITY_INTERNAL_IDENTITY_SHAPE')
++        identity=pg17.internal_identity(row);need(identity in wanted and identity not in internals,'INSTALL_PARITY_INTERNAL_IDENTITY');want=wanted[identity]
++        need(pg17.native_internal_name_matches(row['name'],want['name_prefix']),'INSTALL_PARITY_SOURCE_GENERATED_NAME')
++        clean={k:v for k,v in row.items()if k!='name'};source={k:v for k,v in want.items()if k!='name_prefix'};source['internal']=True
++        exact(clean,source,'INSTALL_PARITY_INTERNAL_SOURCE_FIELDS')
++        internals[identity]=clean;raw_names[identity]=row['name']
++    need(set(internals)==set(wanted)and set(externals)==set(expected['triggers'])and len(native['triggers'])==len(wanted)+len(expected['triggers']),'INSTALL_PARITY_COMPLETE_TRIGGER_SET')
++    nontriggers={k:v for k,v in native.items()if k!='triggers'}
++    return {'format':'workinants.install-source-semantic-native-view.v1','nontrigger_sections':nontriggers,'external_triggers':externals,'internal_triggers':[[list(key),internals[key]]for key in sorted(internals)]},raw_names
++
++
++def install_cross_target_semantic_parity():
++    inputs=INSTALL.get('parity_inputs');need(type(inputs)is dict and set(inputs)=={'canonical','division_failure'},'INSTALL_PARITY_BOTH_QUALIFIED_INPUTS_REQUIRED');views={};names={};counts={};raw={}
++    for kind,prefix in(('canonical','canonical-'),('division_failure','recovered-')):
++        item=inputs[kind];native=item['native'];comparison=item['comparison'];ledger=item['ledger'];oracle=item['oracle'];summary=report['install']['native'][kind];name=next(t['name']for t in TARGETS if t['kind']==kind)
++        closed_backends(name,'INSTALL_PARITY_FINAL_CLOSED_'+kind)
++        need(name in finalized and item.get('original_grantor_finalized')is True and item.get('operation_backends_absent')is True,'INSTALL_PARITY_FINALIZATION_REQUIRED')
++        need(item['identity']=={'run_id':RUN_ID,'container_id':created_containers[name],'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET},'INSTALL_PARITY_SAME_RUN_CID_SOURCE')
++        exact(summary['native_sha256'],digest(native),'INSTALL_PARITY_NATIVE_SNAPSHOT_BINDING')
++        need(summary.get('full_comparison')=='PASS'and type(summary.get('oracle_expressions'))is int and summary['oracle_expressions']==416,'INSTALL_PARITY_QUALIFIED_SUMMARY_REQUIRED')
++        need(comparison.get('format')=='workinants.catalog-comparison.v1'and comparison.get('status')=='PASS'and comparison.get('findings')==[]and comparison.get('source_expected_sha256')==EXPECTED_SHA and comparison.get('native_snapshot_sha256')==digest(native),'INSTALL_PARITY_INDIVIDUAL_CATALOG_PASS_REQUIRED')
++        check_counts=comparison.get('check_counts');need(type(check_counts)is dict and set(check_counts)=={'PASS'}and type(check_counts['PASS'])is int and check_counts['PASS']==(29089 if kind=='canonical'else 29090),'INSTALL_PARITY_CATALOG_COUNT_SHAPE')
++        need(type(ledger)is dict and ledger.get('status')=='PASS'and type(ledger.get('checks'))is list and len(ledger['checks'])==(22 if kind=='canonical'else 23)and all(type(r)is dict and r.get('status')=='PASS'for r in ledger['checks']),'INSTALL_PARITY_INDIVIDUAL_LEDGER_PASS_REQUIRED')
++        exact(summary.get('catalog_check_counts'),check_counts,'INSTALL_PARITY_CATALOG_COUNT_BINDING')
++        exact(summary.get('ledger_checks'),ledger['checks'],'INSTALL_PARITY_LEDGER_CHECK_BINDING')
++        need(type(oracle)is dict and oracle.get('connection_closed_before_observation')is True and oracle.get('pre_oracle_catalog_sha256')==digest(native)==oracle.get('post_rollback_catalog_sha256'),'INSTALL_PARITY_ORACLE_BINDING')
++        CATALOG['tools']['catalog_expression_oracle'].validate_evidence(CATALOG['expected'],native,oracle,database=DB,grantor='postgres',root=ROOT)
++        for suffix,value in(('native-before.json',native),('catalog-comparison.json',comparison),('ledger-comparison.json',ledger)):
++            path=OUT/(prefix+suffix);meta=path.lstat();need(not path.is_symlink()and path.is_file()and meta.st_nlink==1 and type(meta.st_size)is int and 0<=meta.st_size<=32*1024*1024,'INSTALL_PARITY_RETAINED_ARTIFACT_BOUNDS')
++            with path.open('rb')as stream:blob=stream.read(32*1024*1024+1)
++            need(len(blob)<=32*1024*1024 and canonical(unique_json(blob))==canonical(value),'INSTALL_PARITY_RETAINED_ARTIFACT_BINDING')
++            if suffix=='catalog-comparison.json':need(hashlib.sha256(blob).hexdigest()==summary['comparison_artifact_sha256'],'INSTALL_PARITY_COMPARISON_ARTIFACT_BINDING')
++        views[kind],names[kind]=install_semantic_native_view(native,CATALOG['expected']['expected'],CATALOG['tools']['compare_native_catalog'].pg17)
++        counts[kind]={'catalog_PASS_checks':check_counts['PASS'],'ledger_PASS_checks':len(ledger['checks']),'oracle_expressions':416};raw[kind]=digest(native)
++    exact(views['canonical'],views['division_failure'],'INSTALL_RECOVERED_SEMANTIC_NATIVE_DIFFERS_FROM_CANONICAL')
++    left=views['canonical'];outcome={'format':'workinants.install-source-semantic-parity.v1','status':'PASS_SOURCE_DERIVED_SEMANTIC_PARITY_ONLY','raw_snapshot_native_sha256':raw,'semantic_view_sha256':{k:digest(v)for k,v in views.items()},'counts':{'trigger_rows':len(names['canonical'])+len(left['external_triggers']),'internal_rows':len(names['canonical']),'external_rows':len(left['external_triggers']),'other_sections':len(left['nontrigger_sections']),'generated_names_differed':sum(names['canonical'][key]!=names['division_failure'][key]for key in names['canonical'])},'individual_source_comparisons':counts,'raw_snapshots_rewritten':False,'only_validated_internal_name_equality_omitted':True}
++    INSTALL['artifact_prefix']='';write_safe('install-semantic-parity.json',outcome);report['install']['semantic_parity']=outcome;save();return outcome

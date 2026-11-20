@@ -1,0 +1,35 @@
+"""New owned Worker integration checks; all actual processes/network forbidden."""
+from pathlib import Path
+from copy import deepcopy
+import hashlib,io,json,runpy,subprocess,unittest
+from contextlib import redirect_stdout
+from unittest.mock import Mock,patch
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+B=runpy.run_path(str(T/'check_local_f0_worker_recovery_owned_v1_operation.py'))
+CORE=T/'execute_local_f0_worker_recovery_owned_v1_20261119.py';STEPS=T/'local_f0_worker_recovery_owned_v1_operation_steps.py'
+
+class InitializationTests(unittest.TestCase):
+ setUp=B['WorkerOperationTests'].setUp
+ prepared=B['WorkerOperationTests'].prepared
+ def actual(self,manifest):
+  path=self.directory/'actual-initializer-manifest.json';path.write_text(json.dumps(manifest),encoding='utf8');module=runpy.run_path(str(CORE));module['initialize'](path);return path,module['initialize'].__globals__
+ def reviewed_data(self,manifest):
+  value=deepcopy(manifest);pins=value['prepared_source_file_inventory_sha256'];value.update(source_commit='b'*40,source_tree='c'*40,packet_files_sha256=pins,packet_sha256=hashlib.sha256(''.join(k+'\0'+pins[k]+'\n'for k in sorted(pins)).encode()).hexdigest(),review_status='APPROVED_LOCAL_F0_WORKER_RECOVERY_ATTEMPT');return value
+ def test_actual_initialize_supplies_scope_names_and_source_state_without_injected_globals(self):
+  _,value=self.prepared();path,n=self.actual(value)
+  self.assertEqual(n['TASK'],T);self.assertEqual(n['ROOT'],R);self.assertEqual(n['COMMIT'],'TO_BE_PINNED');self.assertEqual(n['TARGETS'],value['targets']);self.assertEqual(n['RESOURCE_CONTAINERS'],('wa-p0c-'+value['run_id'][:8]+'-worker21',));self.assertEqual(n['RESOURCE_VOLUMES'],(n['RESOURCE_CONTAINERS'][0]+'-data',));self.assertEqual(n['report']['worker_recovery']['prepared_protocols'],21);self.assertFalse(n['created_containers']);self.assertFalse(n['bootstrapped']);self.assertFalse(n['finalized']);self.assertFalse(n['OUT'].exists())
+ def test_actual_launch_pending_flag_stops_without_process_or_evidence_directory(self):
+  _,value=self.prepared();path,n=self.actual(value);printed=io.StringIO()
+  with redirect_stdout(printed):code=n['launch'](['--execute-reviewed-worker-recovery','--manifest',str(path)])
+  self.assertEqual(code,1);self.assertEqual(json.loads(printed.getvalue())['status'],'HELD');self.assertFalse(n['OUT'].exists());self.assertFalse(n['created_containers']);self.assertFalse(n['passwords'])
+ def test_actual_initialized_whole_verifier_real_inventory_and_eight_helpers(self):
+  _,value=self.prepared();value=self.reviewed_data(value);_,n=self.actual(value);exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n)
+  # Only the outer real Git+review gate is mocked: all state came from the
+  # actual initializer and source/snapshot/catalog/import admission is real.
+  n['verify_common_packet']=Mock();n['verify_worker_recovery_packet']();self.assertEqual(len(n['HELPERS']),8);self.assertEqual(len(n['WORKER_FIXTURES']['cases']),21);self.assertEqual(n['report']['catalog_preparation']['closed_source_files'],16);self.assertFalse(n['OUT'].exists());self.assertFalse(n['finalized'])
+ def test_initialized_missing_scoped_helper_rejects_before_first_project_compile(self):
+  _,value=self.prepared();value=self.reviewed_data(value);key='scripts/sql-review/run-scoped-read-companion-rehearsal.py';value['packet_files_sha256'].pop(key);_,n=self.actual(value);exec(compile(STEPS.read_bytes(),str(STEPS),'exec'),n);n['verify_common_packet']=Mock()
+  with patch('builtins.compile',side_effect=AssertionError('UNADMITTED_COMPILE')),self.assertRaises(n['Stop']):n['verify_worker_recovery_packet']()
+  n['verify_common_packet'].assert_not_called();self.assertFalse(n['HELPERS']);self.assertFalse(n['OUT'].exists())
+
+if __name__=='__main__':unittest.main(verbosity=2)

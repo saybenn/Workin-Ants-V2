@@ -1,0 +1,15 @@
+from pathlib import Path
+import io,json,runpy,sys,time,unittest,hashlib
+T=Path(__file__).resolve().parent
+sys.dont_write_bytecode=True
+def audit(event,args):
+ if event in ('subprocess.Popen','os.system','os.posix_spawn','socket.connect','socket.bind','socket.getaddrinfo'):raise AssertionError('REAL_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(audit)
+n=runpy.run_path(str(T/'check_local_f0_install_controls_operation_owned_parity_v4.py'));suite=unittest.TestSuite();excluded=[]
+for key,value in n.items():
+ if isinstance(value,type)and issubclass(value,unittest.TestCase):
+  for test in unittest.defaultTestLoader.loadTestsFromTestCase(value):
+   if test._testMethodName=='test_actual_closed_coordinator_entry_uses_real_factory_and_process_failure_retains_closure':excluded.append(str(test))
+   else:suite.addTest(test)
+stream=io.StringIO();start=time.perf_counter();r=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite);record={'schema':'workinants.install-owned-parity-v4-pre-binding-checks.v1','status':'PASS'if r.wasSuccessful()else'FAIL','tests':r.testsRun,'seconds':round(time.perf_counter()-start,3),'excluded_pending_material_binding_decision':excluded,'log':stream.getvalue(),'failures':[{'test':str(t),'detail':s}for t,s in r.failures+r.errors],'runtime':'NOT_RUN','boundary':'AUDIT_FORBIDS_REAL_PROCESS_NETWORK','new_five_sha256':{name:hashlib.sha256((T/name).read_bytes()).hexdigest()for name in json.loads((T/'install_owned_parity_v4_Root_plan_review_ACK_20261120.json').read_bytes())['new_five']}}
+p=T/'install_owned_parity_v4_pre_binding_author_checks_20261120.json';p.open('xb').write((json.dumps(record,sort_keys=True,indent=2)+'\n').encode());print(json.dumps({k:v for k,v in record.items()if k not in('log','failures','new_five_sha256')}));print(stream.getvalue()[-10000:]);raise SystemExit(0 if r.wasSuccessful()else 1)

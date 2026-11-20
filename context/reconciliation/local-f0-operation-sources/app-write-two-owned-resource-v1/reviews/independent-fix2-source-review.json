@@ -1,0 +1,419 @@
+{
+  "schema": "workinants.app-write-two-owned-resource-v1.fix2-independent-source-review.v1",
+  "recorded_at_utc": "2026-11-20T05:57:43.914442+00:00",
+  "reviewer": "/root/install_outer_review",
+  "decision": "SOURCE_APPROVED",
+  "scope": "Exact frozen Fix2 composed five only. Three original source findings closed. No source gate changed and no operational literal/runtime/actual assertion authority.",
+  "independence": {
+    "reviewed_five_author": "/root/catalog_v4_review",
+    "reviewer_authored_fix2_or_reviewed_five": false,
+    "lineage": "Reviewer previously authored accepted unchanged common/Owner/Six inputs and reviewed AppOwned plan/original source. No self-reapproval of those accepted bases; this report independently reviews Catalog AppOwned Fix2 delta and actual composition."
+  },
+  "operator_sources_sha256": {
+    "execute_local_f0_app_write_two_owned_resource_v1_20261119.py": "4b675aafbe270a4117b2406450369863c34c77c4850ba8b88d2fe47109c27f13",
+    "local_f0_app_write_two_owned_resource_v1_operation_steps.py": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+    "prepare_local_f0_app_write_two_owned_resource_v1_plan.py": "c0582abf5f19a9f0f59a078283f524682699970fd6d4c4175a5a7b123e6e065c",
+    "check_local_f0_app_write_two_owned_resource_v1_operation.py": "31fd7030921eb8ea43b59839968a88a0f76282152dacdbaacf73ba9df513c549",
+    "pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py": "070731825d46b584d4ba1ef8652669538599922afdc2c5ee19cd9a1a66c7ad8e"
+  },
+  "delivery": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_write_two_owned_resource_v1_frozen_source_plan_fix2_20261120.json",
+    "sha256": "4642f1dbe94d357f0fa65958d31f0f71e2efffb83416567c694456c7372d481c"
+  },
+  "author_report": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_write_two_owned_resource_v1_source_author_review_fix2_20261120.json",
+    "sha256": "79e19d31bed1d8917fe5419261630f04ddb1f89da77ee2049cdae5f2e793080b"
+  },
+  "freeze": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-write-two-owned-resource-v1-author-freeze-fix2-20261120\\freeze-manifest.json",
+    "sha256": "8bb2b54dbf6c5695f39167eec91f4b562982a5774508c6def325527e071b000c",
+    "all388_snapshot_hashes_verified": true
+  },
+  "validation": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass\\context\\reconciliation\\local-f0-app-write-two-owned-resource-v1-source-validation.json",
+    "sha256": "c5d36b9f62907c11942185f567ded78427b1a2b92876842fd71180433023366c",
+    "archive_count": 67,
+    "exact_archive_tree_hashes_verified": true,
+    "source_reviews": {
+      "author": "PENDING",
+      "offline": "PENDING",
+      "independent": "PENDING",
+      "Root": "PENDING"
+    }
+  },
+  "prior_held_review": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_write_two_owned_resource_v1_independent_source_review_20261119.json",
+    "sha256": "23cff7a78de1eed27f6fe5c148e49765cfe1213ba206b8edb86b377e33e02392",
+    "qualification": "Original exact-source WITHHELD decision retained unchanged; Fix2 approval does not rewrite history."
+  },
+  "findings": [],
+  "original_findings_closure": [
+    {
+      "id": "APP-OWNED-REFERENCE-MUTATION-01",
+      "decision": "CLOSED_EXACT_FIX2",
+      "implementation": [
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 959,
+          "function": "app_read_closed_reference",
+          "detail": "Six mandatory integer common fields: mode/dev/ino/nlink/size/mtime_ns. ctime_ns also mandatory and checked within each API representation."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 971,
+          "function": "app_read_closed_reference",
+          "detail": "Coherent before-path/open-handle/post-handle/after-path bounded read; all handles close before the second read."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 991,
+          "function": "app_read_closed_reference",
+          "detail": "Fresh second closed byte/hash read rejects same-size preserved-mtime mutation even when all metadata is projected stable."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 1001,
+          "function": "app_reference_integrity_barrier",
+          "detail": "Later fresh closed hash/length barrier retains the original artifact binding."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 1043,
+          "function": "app_write_two_experiment",
+          "detail": "Barrier before component summary publication and public PASS record."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 1064,
+          "function": "app_after_proofs",
+          "detail": "Barrier after readonly measurement."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 1103,
+          "function": "main",
+          "detail": "Final barrier after cleanup and source preservation, before final PASS normalization."
+        }
+      ],
+      "independent_proof": "Actual whole CLI rejects normal and preserved-mtime same-inode same-size PASS-to-FAIL rewrites before readonly after; cleanup and independent global closure complete. Late cleanup rewrite stops final PASS. Restored-old reader admits original stale bytes, while Fix2 rejects both natural and forced-stable metadata rewrites."
+    },
+    {
+      "id": "APP-OWNED-STATE-CONTINUITY-02",
+      "decision": "CLOSED_EXACT_FIX2",
+      "implementation": [
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 913,
+          "function": "validate_app_result",
+          "detail": "Chronological previous-state pointer follows all32 actual states."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 923,
+          "function": "validate_app_result",
+          "detail": "Only declared two-table app.users/app.user_security_profiles setup transition differs; existing typed expected counts require two users and two security rows."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 928,
+          "function": "validate_app_result",
+          "detail": "Every first snapshot of a new case must equal the immediately preceding complete42 state, including post-fixture/first case and both schedule boundaries."
+        }
+      ],
+      "independent_proof": "Actual complete221 producer evidence accepted. Recomputed nonempty-user pair discontinuities at first case, next case, genuine schedule and first Work case all reject; restoring only old validator admits each. Approved fixture creation and allowed within-pair transitions still pass."
+    },
+    {
+      "id": "APP-OWNED-TOP-SCHEMA-03",
+      "decision": "CLOSED_EXACT_FIX2",
+      "implementation": [
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 895,
+          "function": "validate_app_result",
+          "detail": "Exact27 successful-document keys and literal builtin types; current_case must be explicitly present and null."
+        },
+        {
+          "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local_f0_app_write_two_owned_resource_v1_operation_steps.py",
+          "sha256": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+          "line": 901,
+          "function": "validate_app_result",
+          "detail": "Finite canonical JSON required before detailed validation."
+        }
+      ],
+      "independent_proof": "Actual full producer defines27 fields. Every required-key omission, each wrong top builtin type, extra key and nonfinite nested value rejects. Restored old validator admits missing current_case."
+    }
+  ],
+  "independent_checks": {
+    "record_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_owned_fix2_independent_checks_v2_20261120.json",
+    "record_sha256": "ce41d9e2f61995517d6de2d1c43936c4fa599a03ce8a9c4a084cd87f3de4b107",
+    "script_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_owned_fix2_independent_checks_v2_20261120.py",
+    "script_sha256": "eed07dbc57cecb21a1f126e76da447bf22f161dceb7a7afe0551ddb859d5a254",
+    "methods": [
+      {
+        "method": "<run_path>.SourceTests.test_actual_initialize_raw_five_full_verifier_and_real_catalog_reproduction",
+        "seconds": 18.172,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.SourceTests.test_live_pending_source_metadata_rejects_before_source_import",
+        "seconds": 5.797,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.SourceTests.test_actual_pinner_rejects_committed_blob_drift_without_writing_pin",
+        "seconds": 4.328,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.ComposedTests.test_actual_launch_install_coordinate_CTX_processes_and_readonly_after",
+        "seconds": 48.172,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.ComposedTests.test_actual_full_parent_rejects_reference_mutation_normal_and_preserved_mtime",
+        "seconds": 80.234,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.ComposedTests.test_final_pass_reference_barrier_rejects_post_scan_cleanup_mutation",
+        "seconds": 40.672,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.ComposedTests.test_actual_parent_component_finally_global_sql_survives_persistent_io_and_blocks_after",
+        "seconds": 44.422,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.ReferenceSafetyTests.test_fresh_byte_recheck_and_restored_old_reader_tripwire",
+        "seconds": 11.734,
+        "status": "PASS"
+      },
+      {
+        "method": "<run_path>.ReferenceSafetyTests.test_atomic_replace_accepts_common_version_and_stable_per_representation_ctime",
+        "seconds": 8.563,
+        "status": "PASS"
+      },
+      {
+        "method": "__main__.IndependentMetadataTests.test_independent_metadata_representations_fresh_bytes_and_actual_atomic_scratch",
+        "seconds": 13.141,
+        "status": "PASS"
+      }
+    ],
+    "tests_run": 10,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 298.984,
+    "reviewer_specific_vectors": [
+      {
+        "vector": "different_cross_API_ctime_stable_within_each",
+        "result": "ACCEPTED_VALID"
+      },
+      {
+        "vector": "mandatory_six_common_and_ctime_metadata",
+        "subcases": 7,
+        "result": "REJECTED_MISSING_FIELDS"
+      },
+      {
+        "vector": "all_six_common_metadata_changes",
+        "subcases": 6,
+        "result": "REJECTED"
+      },
+      {
+        "vector": "ctime_changes_within_either_API",
+        "subcases": 2,
+        "result": "REJECTED"
+      },
+      {
+        "vector": "all_metadata_forced_stable_same_size_rewrite",
+        "result": "NEW_REJECTS_OLD_ADMITS"
+      },
+      {
+        "vector": "actual_private_atomic_replace_metadata",
+        "iterations": 8,
+        "results": [
+          {
+            "six_common_equal_all_four": true,
+            "path_ctime_stable": true,
+            "handle_ctime_stable": true,
+            "cross_API_ctime_equal": false
+          },
+          {
+            "six_common_equal_all_four": true,
+            "path_ctime_stable": true,
+            "handle_ctime_stable": true,
+            "cross_API_ctime_equal": false
+          },
+          {
+            "six_common_equal_all_four": true,
+            "path_ctime_stable": true,
+            "handle_ctime_stable": true,
+            "cross_API_ctime_equal": false
+          },
+          {
+            "six_common_equal_all_four": true,
+            "path_ctime_stable": true,
+            "handle_ctime_stable": true,
+            "cross_API_ctime_equal": false
+          },
+          {
+            "six_common_equal_all_four": true,
+            "path_ctime_stable": true,
+            "handle_ctime_stable": true,
+            "cross_API_ctime_equal": false
+          },
+          {
+            "six_common_equal_all_four": true,
+            "path_ctime_stable": true,
+            "handle_ctime_stable": true,
+            "cross_API_ctime_equal": false
+          },
+          {
+            "six_common_equal_all_four": true,
+            "path_ctime_stable": true,
+            "handle_ctime_stable": true,
+            "cross_API_ctime_equal": false
+          },
+          {
+            "six_common_equal_all_four": true,
+            "path_ctime_stable": true,
+            "handle_ctime_stable": true,
+            "cross_API_ctime_equal": false
+          }
+        ],
+        "scope": "Known-data scratch only; no claim about any old actual failure cause"
+      }
+    ],
+    "full_CLI_compositions": 5,
+    "full_CLI_scope": "One successful real CLI, two original corruption variants, one late-cleanup corruption and one persistent parent-evidence-IO; all Python producers/helpers/coordinator/CTXSession actual, only OS process/network boundaries mocked or forbidden.",
+    "author23_601_833_seconds": "Version-qualified author-only evidence; not counted as reviewer rerun."
+  },
+  "actual_offline_producer": {
+    "required_top_keys": 27,
+    "results": 14,
+    "issuer_grants": 15,
+    "operations": 221,
+    "full42_snapshots": 32,
+    "stage_counts": {
+      "ACTUAL_SH004_SOURCE_EFFECT_COHERENCE": 12,
+      "ALL_GUARDS_UNCHANGED_AFTER_PROTOCOL": 14,
+      "COMPLETE42_STATE": 32,
+      "FINALLY_FULL_NATIVE_PARITY": 1,
+      "FINAL_FULL_NATIVE_PARITY": 1,
+      "GENUINE_APP_SCHEDULE_PREREQUISITE": 1,
+      "GLOBAL_BACKEND_CLOSURE": 69,
+      "IMMUTABLE_ISSUER_RETENTION": 44,
+      "PENDING_WORK_CONTROL": 13,
+      "POST_FIXTURE_ALL_GUARDS_RESTORED": 1,
+      "PRE_FIXTURE_FULL_NATIVE": 1,
+      "RESOURCE_PREFLIGHT": 1,
+      "RESTRICTED_APP_TRANSACTION": 15,
+      "SEPARATE_ISSUER_COMMIT": 15,
+      "SYNTHETIC_USER_PREREQUISITES_ONLY": 1
+    },
+    "first_native_checks": {
+      "PASS": 29089
+    },
+    "separate_after_readonly": {
+      "native_checks": 29089,
+      "oracle_expression_hashes": 416,
+      "private_ledger_checks": 22,
+      "full42_data_unchanged": true,
+      "same_first_install": true,
+      "second_install_attempted": false
+    },
+    "cleanup_actions_confirmed": true,
+    "all_four_post_preservation_flags": {
+      "packet_unchanged_after_run": true,
+      "tool_source_data_unchanged_after_run": true,
+      "external_sources_unchanged_after_run": true,
+      "external_inputs_unchanged_after_run": true
+    },
+    "proof_directory": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app-owned-fix2-independent-private-review-v2-20261120\\proof",
+    "proof_files_sha256": {
+      "app-write-two-results.json": "7b45e32b31a304dcca9ea9ae4dcb1a433915b96401d9426ea18f7b25ee438f7f",
+      "run-evidence.json": "3fac99b1a276bd1679e650698c6de4caf9ed6de7f230753348aa8702eeab54f8"
+    }
+  },
+  "ctime_scope": {
+    "accepted_narrowing": "Do not compare Windows path ctime directly with handle ctime after atomic replace. Six common fields, including nanosecond mtime, remain equal across all representations; ctime must be stable within path snapshots and handle snapshots and path ctime remains bound across the two reads. Fresh bytes/hash and later barriers remain mandatory.",
+    "independent_evidence": "Eight actual known-data atomic-replace scratch iterations plus independent forced path/handle representation tests; missing any mandatory metadata, changing any common field, or changing ctime within either representation rejects.",
+    "author_scratch_preserved_sha256": "3a1fb66820f690b6f7fd03e0469fafff03eb5e9d53f9cbcf1922b539bc4db328",
+    "old_actual_failure_cause": "UNOBSERVED; scratch does not establish any old runtime cause.",
+    "bound": "Finite closed-read/hash barriers only; no perpetual filesystem atomicity claim."
+  },
+  "delta_and_preservation": {
+    "changed_external_files_only": [
+      "check_local_f0_app_write_two_owned_resource_v1_operation.py",
+      "local_f0_app_write_two_owned_resource_v1_operation_steps.py"
+    ],
+    "Core_Preparer_Pinner_byte_identical_to_original": true,
+    "changed_Steps_declarations_only": [
+      "app_after_proofs",
+      "app_read_closed_reference",
+      "app_write_two_experiment",
+      "main",
+      "validate_app_result"
+    ],
+    "added_Steps_declarations_only": [
+      "app_reference_integrity_barrier"
+    ],
+    "all_other_Steps_AST_unchanged": true,
+    "old376_and_new388_all_preserved_hashes": true,
+    "current_five_and_archive67_match": true,
+    "child_validation36389_unchanged": true,
+    "child_source_maps_unchanged": {
+      "root_sources_sha256": 5,
+      "source_and_artifact_inventory_sha256": 59,
+      "generated_artifacts_sha256": 24,
+      "archive_files_sha256": 159
+    },
+    "application_SQL_canonical5ae_ACL32_two_claim_caps_and_other28writes": "Unchanged; no SQL/role/permission/timeout/fixture or child code fix authored."
+  },
+  "reviewer_setup_history": {
+    "initial_record_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\app_owned_fix2_independent_checks_20261120.json",
+    "initial_record_sha256": "b56e2c58c9e4d195a1997bcd29d9cdf7fe8bf9dcdac9ec03796c8ee6d7fac200",
+    "result": "Initial reviewer clone omitted two tool package metadata JSON files, so0 tests ran and4 setUpClass errors occurred. Preserved unchanged; no product finding inferred.",
+    "correction": "New exclusive reviewer clone copied only two existing hash-admitted tool metadata JSON files before unchanged checker load; exact hashes recorded in successful check record.",
+    "tool_metadata_sha256": {
+      "node_modules/@prisma/engines-version/package.json": "2dd9793255d6bbb5c399a624ecbfb6323d39233860863d172946b7f750f528bd",
+      "node_modules/prisma/package.json": "6cdfef6df08d9a37f28908855797fe8bfc97a2d3d886a8d5cbe2e502d6848151"
+    }
+  },
+  "prior_nonblocking_observation": "The original review raw-source-alias observation concerns unchanged inherited pinner read_source and identical approved bytes. Fix2 does not claim to close or broaden that separate policy observation; no unapproved-code execution bypass was established.",
+  "limits": {
+    "reviewer_writes": "Only exclusive TASK scripts/JSON/known-data scratch/private mocked clones",
+    "source_gate_or_progress_or_repo_changes": false,
+    "Git_Docker_DB_SQL_network_resources_or_actual_credentials": false,
+    "actual_assertions_or_AppOwned_runtime_qualification": "NOT_RUN_BY_REVIEWER",
+    "live_Native_or_INSTALL_mutable_OUT_read": false,
+    "private_fixture_projection": {
+      "historical_Owner7293_assets_OFFLINE_MOCK_ONLY": {
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+        "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1"
+      },
+      "baseline_original_sha256": "92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5",
+      "private_source_approvals_only": true,
+      "modeled_commit_tree_only": true
+    },
+    "future_publication_fresh_literal_and_Runtime_authority": "Root only; separate review required",
+    "Posture": "D"
+  },
+  "plain_english": "The three missing checks now catch the bad examples. The checker notices changed report files, makes each data picture follow the last one, and refuses missing boxes. These were pretend-process tests; no database run was approved."
+}

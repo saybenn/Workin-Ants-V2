@@ -1,0 +1,143 @@
+{
+  "schema": "workinants.owner-resource-mount-v2-independent-plan-review.v1",
+  "reviewer": "/root/install_outer_review",
+  "recorded_at_utc": "2026-11-19T20:54:50.099458+00:00",
+  "decision": "PLAN_APPROVED",
+  "findings": [],
+  "scope": "Bounded new-five source implementation proposal only; no authored source or literal approval and no runtime authorization.",
+  "plan": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\owner_resource_mount_v2_source_plan_20261119.json",
+    "sha256": "7b9fa625958973c5d6a4db5ea05afcfd20c2149220ab331d9b0085c68df0ac92"
+  },
+  "source_bindings": {
+    "retained_run_evidence": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-owner-read-44ac7d8f\\run-evidence.json",
+      "sha256": "431974385be89aede305c950348e8a20816d6a9326a263f8bc0c57561daccace"
+    },
+    "independent_cleanup": {
+      "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\owner44ac_independent_cleanup_20261119.json",
+      "sha256": "a57d21e832e8655e0bda8ba53047310f55e96e8a01d9a7a6067e6f586cc6f6c7"
+    },
+    "accepted_owner_safety_five_sha256": {
+      "execute_local_f0_owner_read_20261119_safety_sql_v1.py": "7d3dd946a950003ad93b9f58a152532d0332846e290d45753bb013da70dc594d",
+      "local_f0_owner_read_operation_steps_safety_sql_v1.py": "85fe0992743806757cef39fac2a24d3b08166d741d60993209b1c5b033e4d935",
+      "prepare_local_f0_owner_read_plan_safety_sql_v1.py": "21cdf556fde8adb92ecdfa8cbbb27ade7bc26281506af17679d10bbcbaba58d3",
+      "check_local_f0_owner_read_operation_safety_sql_v1.py": "8425fb5f58cae333c40c85541321518871abcd33d6cf437f9d449f16d01c74ec",
+      "pin_local_f0_owner_read_plan_20261119_safety_sql_v1.py": "9dee0e646338b155c6a8805271b69b8b02e8932a1e7e57824002b9537ca6c6cc"
+    },
+    "accepted_owner_source_review_sha256": "58a5a8c6eab9b586b7b1cbd78760d953cf219293f0faeb17532d75af5af985f8",
+    "remaining_four_source_composition_review_sha256": "4b9f4e1e5113623ab5e71e500732a7602be92a8d0878605a240793407d652093"
+  },
+  "observed_diagnosis": {
+    "basis": "Retained safe metadata and exact current source predicate only.",
+    "actual_retained_Mounts_count": 2,
+    "old_classifications": [
+      "bootstrap",
+      "data"
+    ],
+    "old_required_classifications": [
+      "bootstrap",
+      "data",
+      "secret"
+    ],
+    "old_mount_set_predicate": false,
+    "retained_HostConfig_Tmpfs_matches_fixed_configuration": true,
+    "failure_code": "OWNER_READ_EXACT_MOUNT_SET",
+    "container_start_reached": false,
+    "running_kernel_proof": "NOT_RUN",
+    "bootstrap_auth_install_behavior": "NOT_RUN",
+    "cleanup": "PASS independently confirmed; no unobserved cleanup failure inferred"
+  },
+  "source_line_evidence": {
+    "execute_local_f0_owner_read_20261119_safety_sql_v1.py": {
+      "command_transport": [
+        102,
+        105
+      ],
+      "create_resources": [
+        218,
+        251
+      ],
+      "unchanged_reviewed_create_flags": 230,
+      "prestart_inspect": 239,
+      "start_owned_CID": 240,
+      "running_inspect": 241,
+      "readiness": [
+        242,
+        246
+      ],
+      "first_container_pgpass_write": [
+        247,
+        249
+      ],
+      "existing_safe_mount_projection": [
+        234,
+        238
+      ],
+      "sticky_failure_and_primary": [
+        69,
+        100
+      ],
+      "cleanup_finally_progress": [
+        440,
+        471
+      ]
+    },
+    "local_f0_owner_read_operation_steps_safety_sql_v1.py": {
+      "inspect_owner": [
+        660,
+        676
+      ],
+      "identity_and_isolation": [
+        661,
+        665
+      ],
+      "exact_data_and_bootstrap_mount_checks": [
+        666,
+        670
+      ],
+      "overstrict_current_mount_set": 672,
+      "current_tmpfs_options": 673,
+      "volume_identity_CreatedAt": 674
+    }
+  },
+  "assessment": {
+    "new_five_only_preservation": true,
+    "placement_feasible_without_changing_Core_create_resources_AST": true,
+    "prestart_configuration_proof_and_running_kernel_proof_are_distinct": true,
+    "two_mounts_configuration_can_be_admitted_without_invented_third_entry": true,
+    "running_probe_before_pgpass_and_later_custom_SQL_or_role_bootstrap": true,
+    "fixed_readonly_probe_adds_no_mount_permission_SQL_or_install_command": true,
+    "existing_Docker_flags_SQL_roles_common_safety_ordinary_transport_and_cleanup_preserved": true,
+    "diagnostic_phase_and_boolean_only_probe_results_sufficient": true,
+    "mandatory_offline_checks_cover_actual_composition_and_initial_failure": true
+  },
+  "implementation_acceptance_details_already_within_plan_contract": [
+    "Treat HostConfig.Tmpfs as exactly the reviewed one-key configuration. Parse an exact token multiset: one rw, nosuid, noexec, nodev and one permitted mode spelling; reject duplicates, empty/unknown/extra tokens and contradictory ro/exec/suid/dev flags.",
+    "The running fixed script must establish directory type in addition to numeric mode700, uid0 and gid0. A bare mode/owner stat tuple alone does not prove the planned directory property.",
+    "Parse only literal /run/wa-secrets mountpoint rows from fixed /proc/mounts, count exactly one tmpfs target, and require rw,noexec,nosuid,nodev without conflicting options. Do not report raw proc/stat output or source paths.",
+    "Dispatch through the captured, identity-validated immutable owned CID with the fixed sh -ceu script and30second bound. Success requires integer exit0 (not bool), the exact one declared success token rendering, and empty stderr; timeout, Unicode/transport errors, extra output or malformed return values must produce fixed sanitized Stop codes.",
+    "Set fixed inspection phase and bounded comparison/count classifications before assertions. New results use booleans/fixed classifications, while the prior approved safe target projection remains unchanged with Core.create_resources.",
+    "Default command-only fixtures must reproduce actual two Mounts plus HostConfig.Tmpfs. Restore only the old inspect_owner function as a negative mutant and show the same fixture fails its exact mount-set predicate before start.",
+    "Run actual new inspect_owner/helper and actual Core.create_resources or owning main through command-only mocks. Prove order inspect-pre\u2192start\u2192inspect-running/kernel\u2192readiness\u2192pgpass; observer failure prevents later credentials/custom bootstrap and actual finally cleanup continues under persistent evidence IO.",
+    "Revalidate new whole-source/current/committed/pinner/physical-five graph, pending gate negatives, actual accepted common AST and all byte preservation before freezing the new candidate. Source approval then publication and a fresh literal review remain separate."
+  ],
+  "separate_Restore_boundary": {
+    "classification": "Independent analogous source-oracle question; execution held by Root.",
+    "basis": "Root independently reported Restore Steps883 requires a tmpfs Mounts entry for source/target; no Restore runtime result inferred by this reviewer.",
+    "effect_on_4b9_review": "Existing4b9 approval remains exact-version SafetySQL composition approval only. It does not close this resource-oracle question or approve any held Restore literal.",
+    "no_Restore_fix_or_source_expansion_authorized_here": true
+  },
+  "limits": {
+    "source_changes": false,
+    "metadata_changes": false,
+    "only_this_exclusive_TASK_review_JSON_written": true,
+    "code_import_or_execution": false,
+    "tests": "NOT_RUN: source implementation does not exist yet; only pure retained-metadata predicate comparison performed.",
+    "Docker_DB_SQL_network_Git": "NOT_RUN",
+    "resources_credentials_fresh_run_manifest": "NOT_CREATED",
+    "old44ac_attempt_or_old_literals_retried": false,
+    "status_or_assertion_promotions": false
+  },
+  "plain_english": "The old check expected three mount-list entries, but the saved list had the two correct entries and the secret-memory setting was saved elsewhere. The plan checks both places, then checks the real memory folder before copying more passwords. This approves building and testing new files; it does not approve a real run."
+}

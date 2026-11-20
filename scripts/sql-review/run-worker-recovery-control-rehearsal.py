@@ -156,7 +156,7 @@ def coordinator_type(context,base):
    self.native_parity('FULL_NATIVE_FIXTURE_GUARD_PARITY')
   def transaction(self,name,grant_name,filename,expected_records,lease=None,fence=None,global_after=True):
    template=self.packet['grants'][grant_name];record={'stage':'RESTRICTED_TRANSACTION','name':name,'login':template['database_login_role'],'issuer_committed':False,'same_tuple_verified':False,'operation_closed':False};self.record(record)
-   session=None;instance=None;primary=None;rows=[];ack=False;errors='';code=None;backend=None
+   session=None;instance=None;primary=None;rows=None;ack=None;errors=None;code=None;backend=None;result_received=False;client_exit_received=False
    try:
     session=self.session(template['database_login_role']);session.begin('read committed');backend=session.capture();instance=self.issue(template,backend);record['issuer_committed']=True;self.retention([instance],True)
     rows,ack,errors=session.call('SELECT pg_current_xact_id()::text='+quote(backend['xid'])+';');need(rows==['t'] and ack is True and errors=='','SAME_RESTRICTED_XID');record['same_tuple_verified']=True;self.evidence.save()
@@ -166,20 +166,38 @@ def coordinator_type(context,base):
      rows,ack,errors=session.call('SET LOCAL wa.lease_secret='+quote(secret)+'; SET LOCAL wa.fence='+quote(str(fence))+';');need(rows==[] and ack is True and errors=='','PRIVATE_LEASE_BINDING_REQUIRED')
     if not global_after:
      need(name==self.protocol['CASE_NAMES'][14],'ONLY_DECLARED_RECLAIM_HAS_OVERLAP');self.reclaim_clients(session)
-    body=context['re'].sub(r'\A(?:(?:\s|--[^\n]*\n)*)BEGIN;','',self.text(filename),count=1);rows,ack,errors=session.call(body)
+    body=context['re'].sub(r'\A(?:(?:\s|--[^\n]*\n)*)BEGIN;','',self.text(filename),count=1);rows=None;ack=None;errors=None
+    response=session.call(body);result_received=True
+    need(type(response) in (tuple,list) and len(response)==3,'TYPED_OPERATION_RESULT');rows,ack,errors=response
    except BaseException as error:primary=error
    finally:
     if session is not None:
-     try:code=session.close()
+     try:code=session.close();client_exit_received=True
      except BaseException as error:
       if primary is None:primary=error
-     record['operation_closed']=session.closed
+     record['operation_closed']=session.closed is True
     prior=self.evidence.finalizing;self.evidence.finalizing=True
     try:
-     if global_after:self.global_closure()
-     self.evidence.save()
-    except BaseException as error:
-     if primary is None:primary=error
+     if primary is not None:self.evidence.stop(safe_code(primary))
+     try:record['operation_observation']=self.protocol['operation_observation']({'name':name,'expected_records':expected_records},code,rows,ack,errors,self.application,result_received=result_received,client_exit_received=client_exit_received)
+     except BaseException as error:
+      if primary is None:primary=error
+      self.evidence.stop(safe_code(error))
+     try:
+      if self.evidence.save() is not True and primary is None:primary=HeldFailure('SANITIZED_EVIDENCE_WRITE_UNCONFIRMED')
+     except BaseException as error:
+      if primary is None:primary=error
+      self.evidence.stop(safe_code(error))
+     try:
+      if global_after:self.global_closure()
+     except BaseException as error:
+      if primary is None:primary=error
+      self.evidence.stop(safe_code(error))
+     try:
+      if self.evidence.save() is not True and primary is None:primary=HeldFailure('SANITIZED_EVIDENCE_WRITE_UNCONFIRMED')
+     except BaseException as error:
+      if primary is None:primary=error
+      self.evidence.stop(safe_code(error))
     finally:self.evidence.finalizing=prior
    if primary is not None:raise primary
    need(record['operation_closed'] is True,'RESTRICTED_CONNECTION_CLOSURE_REQUIRED');self.retention([instance],True)
@@ -308,7 +326,7 @@ def coordinator_type(context,base):
 
 def safe_code(error):
  allowed={'GENUINE_LEASED_CHECKPOINT_REQUIRED_BEFORE_RECOVERY','GENUINE_CHECKPOINT_BEFORE_ANY_CLOCK','ACKNOWLEDGED_SOURCE_COMMIT_REQUIRED','INTENDED_SOURCE_GUARD_REQUIRED','EXACT_STAGE_AND_RECORD_SEQUENCE','EXACT_RECORD_COUNT','FULL42_TABLE_SET','FULL42_TYPED_COUNTS_HASHES','UNDECLARED_COMPLETE42_DATA_CHANGE','LIVE_LEASE_AND_INDEPENDENT_IDENTITY_REQUIRED','IMMUTABLE_21_FIELD_ISSUER_RETENTION','EXACT_WORK_POINTER_FENCE_AND_TRANSACTION','EXACT_CURRENT_AUDIT_ATTEMPT_REQUIRED','ACTUAL_EXPIRY_BUDGET_EXHAUSTED','OLD_HOLDER_MUST_BIND_WHILE_LIVE','ACTUAL_EXPIRY_NOT_OBSERVED','ORIGINAL_HOLDER_TUPLE_RETAINED','TWO_ACTUAL_DISTINCT_WORKER_TUPLES','SANITIZED_EVIDENCE_WRITE_UNCONFIRMED','GLOBAL_BACKEND_CLOSURE_UNCONFIRMED','NATIVE_TRIGGER_FUNCTION_ACL_DRIFT','RESTRICTED_CONNECTION_CLOSURE_REQUIRED','SOURCE_FILE_DRIFT','SOURCE_FILE_UNAVAILABLE','PREPARED_SQL_DRIFT'}
- allowed|={'ACTUAL_CLOCK_OBSERVER_TIMEOUT','BOUNDED_ACTUAL_CLOCK_OBSERVER_UNCONFIRMED'}
+ allowed|={'ACTUAL_CLOCK_OBSERVER_TIMEOUT','BOUNDED_ACTUAL_CLOCK_OBSERVER_UNCONFIRMED','TYPED_OPERATION_RESULT','BOUNDED_OPERATION_DIAGNOSTIC'}
  code=getattr(error,'code',None);return code if type(code) is str and code in allowed else 'UNEXPECTED_WORKER_PROTOCOL_FAILURE'
 
 def coordinate(plan,evidence_directory):

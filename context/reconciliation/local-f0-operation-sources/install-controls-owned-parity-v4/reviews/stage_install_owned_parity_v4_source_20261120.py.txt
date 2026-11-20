@@ -1,0 +1,35 @@
+from pathlib import Path
+import hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';S='context/reconciliation/local-f0-operation-sources/install-controls-owned-parity-v4';V='context/reconciliation/local-f0-install-controls-owned-parity-v4-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return (json.dumps(v,sort_keys=True,indent=2)+'\n').encode()
+def put(path,raw):
+ path.parent.mkdir(parents=True,exist_ok=True)
+ if path.exists():
+  if path.read_bytes()!=raw:raise ValueError('PRESERVED_ARCHIVE_DRIFT')
+ else:path.open('xb').write(raw)
+def stage():
+ old=json.loads((R/'context/reconciliation/local-f0-install-controls-review-ready-v3-source-validation.json').read_bytes());names=json.loads((T/'install_owned_parity_v4_Root_plan_review_ACK_20261120.json').read_bytes())['new_five']
+ for name in names:
+  p=R/S/(name+'.txt');p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((T/name).read_bytes())
+ preservation=T/'install-owned-parity-v4-before-author-20261120'
+ for p in preservation.rglob('*'):
+  if p.is_file():
+   rel=p.relative_to(preservation).as_posix();put(R/S/'preserved'/ (rel+'.txt'if rel.endswith('.py')else rel),p.read_bytes())
+ for name in ['install_owned_parity_v4_bounded_source_correction_plan_20261120.json','install_owned_parity_v4_Root_plan_review_ACK_20261120.json','install_b778f794_closed_generated_RI_name_parity_independent_probe_20261120.json']:
+  put(R/S/'reviews'/name,(T/name).read_bytes())
+ put(R/S/'reviews'/'historical-review-ready-v3-source-validation.json',(R/'context/reconciliation/local-f0-install-controls-review-ready-v3-source-validation.json').read_bytes())
+ mapping=json.loads((T/'install_owned_parity_v4_transport_namespace_20261120.json').read_bytes())['mapping'];roots={mapping.get(p,p):sha((R/mapping.get(p,p)).read_bytes())for p in old['root_sources_sha256']};roots['scripts/sql-review/test_run_install_control_rehearsal_v4.py']=sha((R/'scripts/sql-review/test_run_install_control_rehearsal_v4.py').read_bytes())
+ for rel in roots:
+  target=R/S/'sources'/(rel+'.txt');target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((R/rel).read_bytes())
+ for p in (T/'install-owned-parity-v4-before-transport-binding-20261120').rglob('*'):
+  if p.is_file():put(R/S/'interim-before-transport-binding'/p.relative_to(T/'install-owned-parity-v4-before-transport-binding-20261120'),p.read_bytes())
+ for name in ('install_owned_parity_v4_transport_Root_scope_ACK_20261120.json','install_owned_parity_v4_transport_material_finding_20261120.json','install_owned_parity_v4_original_preservation_verification_20261120.json','install_owned_parity_v4_pre_binding_author_checks_20261120.json','install_owned_parity_v4_namespace_20261120.json','install_owned_parity_v4_transport_namespace_20261120.json','build_install_owned_parity_v4_namespace_closure_20261120.py','run_install_owned_parity_v4_pre_binding_author_checks_20261120.py'):
+  put(R/S/'reviews'/(name+'.txt'if name.endswith('.py')else name),(T/name).read_bytes())
+ for p in (T/'install-owned-parity-v4-before-doc-historical-test-fix-20261120').rglob('*'):
+  if p.is_file():put(R/S/'interim-before-doc-historical-test-fix'/p.relative_to(T/'install-owned-parity-v4-before-doc-historical-test-fix-20261120'),p.read_bytes())
+ for name in ('install_owned_parity_v4_complete_author_checks_first_20261120.json','run_install_owned_parity_v4_complete_author_checks_20261120.py','install_owned_parity_v4_actual_native_composition_checks_20261120.json','check_install_owned_parity_v4_actual_native_composition_20261120.py','install_owned_parity_v4_source_derivation_20261120.json','install_owned_parity_v4_normalized_steps_delta_20261120.diff.txt','install_owned_parity_v4_native_input_disjointness_20261120.json','install_owned_parity_v4_closed_fixture_semantic_outcome_20261120.json','install_owned_parity_v4_source_author_review_20261120.json','stage_install_owned_parity_v4_source_20261120.py'):
+  put(R/S/'reviews'/(name+'.txt'if name.endswith('.py')else name),(T/name).read_bytes())
+ v={'schema':old['schema'],'root_sources_sha256':roots};v.update(source_root=S,all_five_sources_sha256={n:sha((T/n).read_bytes())for n in names},archive_files_sha256={p.relative_to(R).as_posix():sha(p.read_bytes())for p in (R/S).rglob('*')if p.is_file()},independent_source_review={'decision':'PENDING'},independent_ledger_source_review={'decision':'PENDING'},independent_safety_sql_review={'decision':'PENDING'},independent_review_publication_source_review={'decision':'PENDING'},author_checks={'status':'IN_PROGRESS_NOT_A_FREEZE','runtime':'NOT_RUN'},execution_hold='New parity source pending independent CODE review, Root metadata closure, publication, fresh committed pin/literal and fresh armed actual peer review. All runtime NOT_RUN; Posture D.',historical_input_validation_sha256=sha((R/'context/reconciliation/local-f0-install-controls-review-ready-v3-source-validation.json').read_bytes()),limits='Cross-target generated internal trigger-name semantic parity only after unchanged individual complete catalog/oracle/ledger/closure checks. No new SQL/ACL/config/timeout/case semantics; old evidence outcomes unchanged.')
+ (R/V).write_bytes(encoded(v));return v
+if __name__=='__main__':print(json.dumps({'status':'NEW_PENDING_ARCHIVE_STAGED','files':len(stage()['archive_files_sha256'])}))

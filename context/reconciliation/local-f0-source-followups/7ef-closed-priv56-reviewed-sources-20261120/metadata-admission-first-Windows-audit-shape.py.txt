@@ -1,0 +1,39 @@
+"""Exercise unchanged reviewed source admission with approved real metadata."""
+from pathlib import Path
+import datetime,hashlib,json,runpy,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def put(p,v):
+    with p.open('xb')as f:f.write((json.dumps(v,indent=2,allow_nan=False)+'\n').encode())
+for name,h in{
+ 'prepare_local_f0_worker_recovery_guard_observation_v2_plan.py':'b245e93aa35d16c80221f9b496f0fa0681cd4b193af7706087e432f73e142d99',
+ 'pin_local_f0_worker_recovery_guard_observation_v2_plan_20261119.py':'ccd22bb3f11e0b104b59430d372870800f2c16d4c0fae9aa88da4a7c1157d25f',
+ 'prepare_local_f0_install_controls_plan_owned_parity_v4.py':'0e73f25f10a3c157168a718d8915e478658d84c2c3a84e409ca3acb989209b98',
+ 'pin_local_f0_install_controls_plan_20261120_owned_parity_v4.py':'e5445d74568ea66e93a3e2be93cb4c46fc754d3e86993c77e59fd4eb35edd53d'
+}.items():assert sha((T/name).read_bytes())==h
+events=[]
+class ReadOnlyGitBoundaryReached(RuntimeError):pass
+phase='NO_PROCESS_EXPECTED'
+def audit(event,args):
+    if event=='subprocess.Popen':
+        if phase=='INSTALL_PIN_EXPECT_READ_ONLY_GIT':
+            command=args[1];assert type(command)is list and command==['git','-c','core.longpaths=true','rev-parse','HEAD'];events.append('REAL_PINNER_REACHED_FIRST_READ_ONLY_GIT_AFTER_CURRENT_SOURCE_GATES');raise ReadOnlyGitBoundaryReached()
+        raise RuntimeError('UNEXPECTED_OFFLINE_PROCESS')
+    if event in('os.system','socket.connect','socket.bind'):raise RuntimeError('OFFLINE_NETWORK_OR_PROCESS_FORBIDDEN')
+sys.addaudithook(audit)
+base=T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';base_sha='92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5';assert sha(base.read_bytes())==base_sha
+worker_prep=runpy.run_path(str(T/'prepare_local_f0_worker_recovery_guard_observation_v2_plan.py'),run_name='_real_reviewed_worker_prep')
+worker=worker_prep['prepare'](base,base_sha)
+worker_pin=runpy.run_path(str(T/'pin_local_f0_worker_recovery_guard_observation_v2_plan_20261119.py'),run_name='_real_reviewed_worker_validate');validated=worker_pin['validate'](Path(worker['operation_manifest']))
+proof={'schema':'workinants.approved-worker-install-metadata-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'Worker':{'status':'PASS_REAL_PREPARE_AND_COMPLETE_UNMODIFIED_VALIDATE','result':worker,'admitted_files':len(validated[3]),'source_code_or_production_functions_injected':False},'runtime':'NOT_RUN','Posture':'D'}
+put(T/'7ef_approved_Worker_actual_prepare_validate_20261120.json',proof);print(json.dumps({'Worker':'PASS_REAL_PREPARE_VALIDATE','run':worker['run_id'],'admitted_files':len(validated[3])}),flush=True)
+prep=runpy.run_path(str(T/'prepare_local_f0_install_controls_plan_owned_parity_v4.py'),run_name='_real_reviewed_install_prepare');directory,master,files=prep['prepare'](R,T,json.loads(base.read_bytes()));directory.mkdir(exist_ok=False)
+for name,b in files.items():p=directory/name;p.parent.mkdir(parents=True,exist_ok=True);p.open('xb').write(b)
+manifest=directory/'operation-manifest.json';manifest.open('xb').write(prep['encoded'](master));before=manifest.read_bytes();assert master['source_commit']=='TO_BE_PINNED'and master['review_status']=='PENDING_OPERATIONAL_REVIEW'and not Path(master['evidence_directory']).exists()
+pin=runpy.run_path(str(T/'pin_local_f0_install_controls_plan_20261120_owned_parity_v4.py'),run_name='_real_reviewed_install_pin');phase='INSTALL_PIN_EXPECT_READ_ONLY_GIT'
+try:pin['pin'](manifest)
+except ReadOnlyGitBoundaryReached:pass
+else:raise AssertionError('EXPECTED_READ_ONLY_GIT_BARRIER_NOT_REACHED')
+assert events==['REAL_PINNER_REACHED_FIRST_READ_ONLY_GIT_AFTER_CURRENT_SOURCE_GATES']and manifest.read_bytes()==before and not manifest.with_name('operation-manifest-before-source-pin.json').exists()
+proof['INSTALL']={'status':'PASS_REAL_PREPARER_AND_REAL_PINNER_ALL_CURRENT_SOURCE_GATES_BEFORE_READ_ONLY_GIT','manifest':str(manifest),'manifest_sha256':sha(before),'run_id':master['run_id'],'review_status':'PENDING_OPERATIONAL_REVIEW','four_histories':list(master['install']['histories']),'real_Git_calls':'AUDIT_BARRIER_PREVENTED_FIRST_READ_ONLY_REV_PARSE','actual_committed_pin':'NOT_RUN_AWAIT_PUBLICATION','source_code_or_production_functions_injected':False};proof['process_audit_events']=events
+p=T/'7ef_approved_Worker_INSTALL_actual_metadata_admission_20261120.json';put(p,proof);print(json.dumps({'INSTALL':'PASS_CURRENT_SOURCE_GATES_REAL_PINNER_BLOCKED_AT_FIRST_READ_ONLY_GIT','manifest':str(manifest),'proof_sha256':sha(p.read_bytes())}),flush=True)

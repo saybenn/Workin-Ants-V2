@@ -1,0 +1,28 @@
+from pathlib import Path
+import hashlib,json,datetime
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+namespace=json.loads((T/'install_owned_parity_v4_namespace_20261120.json').read_bytes());five=namespace['new_five'];old5=list(namespace['mapping'])
+mapping={'scripts/install_independent_review_protocol_v1.py':'scripts/install_independent_review_protocol_v2.py','scripts/sql-review/watch-install-independent-review-v2.py':'scripts/sql-review/watch-install-independent-review-v3.py','scripts/sql-review/run-install-control-rehearsal-v3.py':'scripts/sql-review/run-install-control-rehearsal-v4.py','scripts/prepare-install-control-rehearsal-v3.py':'scripts/prepare-install-control-rehearsal-v4.py','scripts/check-install-control-rehearsal-v3.py':'scripts/check-install-control-rehearsal-v4.py','scripts/test_install_independent_review_protocol_v1.py':'scripts/test_install_independent_review_protocol_v2.py','scripts/sql-review/test_watch_install_independent_review_v2.py':'scripts/sql-review/test_watch_install_independent_review_v3.py','scripts/sql-review/install-controls-coordinator-v3.md':'scripts/sql-review/install-controls-coordinator-v4.md','review-output/install-control-rehearsal-v3':'review-output/install-control-rehearsal-v4',**namespace['mapping']}
+prior=T/'install-owned-parity-v4-before-transport-binding-20261120';prior.mkdir(exist_ok=False);pins={}
+for p in [*(T/n for n in five),T/'install_owned_parity_v4_pre_binding_author_checks_20261120.json',T/'install_owned_parity_v4_transport_material_finding_20261120.json',T/'install_owned_parity_v4_transport_Root_scope_ACK_20261120.json']:
+ raw=p.read_bytes();(prior/(p.name+'.txt'if p.suffix=='.py'else p.name)).open('xb').write(raw);pins[p.name]=sha(raw)
+(prior/'preservation.json').open('xb').write((json.dumps({'files_sha256':pins,'source_only':True},sort_keys=True,indent=2)+'\n').encode())
+def transform(text):
+ for a,b in mapping.items():text=text.replace(a,b)
+ return text
+for old,new in list(mapping.items())[:8]:
+ dest=R/new;dest.parent.mkdir(parents=True,exist_ok=True);dest.open('xb').write(transform((R/old).read_text()).encode())
+# Test-only extra path deliberately does not change any runtime function/source input.
+new=R/'scripts/sql-review/test_run_install_control_rehearsal_v4.py';new.open('xb').write(b'''"""Additional V4 namespace tripwires; no processes, databases or network."""\nimport ast,runpy,unittest\nfrom pathlib import Path\nR=Path(__file__).resolve().parents[2]\nclass BindingTests(unittest.TestCase):\n def test_new_transport_exact_five_and_old_tuple_rejects(self):\n  old=runpy.run_path(str(R/'scripts/install_independent_review_protocol_v1.py'));new=runpy.run_path(str(R/'scripts/install_independent_review_protocol_v2.py'));self.assertEqual(len(new['OPERATORS']),5);self.assertTrue(all('owned_parity_v4'in n for n in new['OPERATORS']));self.assertFalse(set(old['OPERATORS'])&set(new['OPERATORS']))\n  f=runpy.run_path(str(R/'scripts/test_install_independent_review_protocol_v2.py'));raws,_=f['fixture']();identity=new['decode'](raws[new['IDENTITY']],True);self.assertEqual(new['identity'](identity),identity);identity['operator_sources_sha256']={n:'d'*64 for n in old['OPERATORS']}\n  with self.assertRaises(new['Held']):new['identity'](identity)\n def test_authority_and_deadlines_stay_frozen(self):\n  p=runpy.run_path(str(R/'scripts/install_independent_review_protocol_v2.py'));w=runpy.run_path(str(R/'scripts/sql-review/watch-install-independent-review-v3.py'));self.assertEqual(p['TIMEOUT'],240);self.assertEqual(w['AUTHORITY_SHA'],'6c1474dc12a603b07346fff014c8ab8bd15dec5be0b972ec1d504342115ba48f');self.assertIn('220',(R/'scripts/sql-review/watch-install-independent-review-v3.py').read_text())\nif __name__=='__main__':unittest.main(verbosity=2)\n''')
+for name in five:
+ p=T/name;s=transform(p.read_text())
+ # Ledger v3 comparison source and registration remain their original exact path.
+ if name.startswith('local_f0_'):
+  s=s.replace("INSTALL_PACKET+'/division_failure/'+MIGRATION+'/migration.sql'", "'review-output/install-control-rehearsal-v3/division_failure/'+MIGRATION+'/migration.sql'")
+ if name.startswith('prepare_'):
+  s=s.replace("'path':'review-output/install-control-rehearsal-v4/'+packet['variants']['division_failure']['path']", "'path':'review-output/install-control-rehearsal-v3/'+packet['variants']['division_failure']['path']")
+  s=s.replace("EXTRA=(", "EXTRA=('review-output/install-control-rehearsal-v3/division_failure/20261117000100_f0_local_initial/migration.sql','scripts/sql-review/test_run_install_control_rehearsal_v4.py',")
+ p.write_bytes(s.encode())
+(T/'install_owned_parity_v4_transport_namespace_20261120.json').open('xb').write((json.dumps({'mapping':mapping,'new_test':'scripts/sql-review/test_run_install_control_rehearsal_v4.py','ledger_comparison_source_path_unchanged':'review-output/install-control-rehearsal-v3/division_failure/20261117000100_f0_local_initial/migration.sql','Root_scope_ACK_sha256':'6e79f40f0db54d18d1636232c4c8961bd489e5b9d9f959d71defbe97e7d32389'},sort_keys=True,indent=2)+'\n').encode())
+print(json.dumps({'new_root_files':9,'old_unchanged':True,'preserved_interim_five':len(pins)}))

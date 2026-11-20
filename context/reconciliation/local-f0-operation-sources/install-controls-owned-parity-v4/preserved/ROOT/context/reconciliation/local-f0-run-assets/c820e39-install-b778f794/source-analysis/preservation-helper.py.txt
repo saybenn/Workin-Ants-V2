@@ -1,0 +1,90 @@
+"""Preserve closed INSTALL/recovery evidence and exact generated-name difference."""
+from pathlib import Path
+import datetime, hashlib, json, re
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+def encoded(value):
+    return (json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+def put(path,raw):
+    path.parent.mkdir(parents=True,exist_ok=True)
+    with path.open('xb') as handle:
+        handle.write(raw)
+plan_path = T / 'local-f0-install-controls-plan-b778f794/operation-manifest.json'
+assert sha(plan_path) == '53450b8a2375ada83bb99ca07b6b4447dba05f84c3c7f0e580c5d0d7c6edb38d'
+m = json.loads(plan_path.read_bytes())
+out = Path(m['evidence_directory'])
+assert out == T / 'local-f0-install-controls-20261119-b778f794' and not (out / 'private').exists()
+assert sha(out / 'run-evidence.json') == '06a00d5bb87fbdb41a0e099dee0ff9fe921ab2c74ed3d757972497d436fb69cf'
+raw = json.loads((out / 'run-evidence.json').read_bytes())
+assert raw['status'] == 'STOPPED_ATTEMPT_PRESERVED' and raw['finished_at']
+assert raw['unexpected'] == [{'stage':'NATIVE_CATALOG_REHEARSAL','code':'RECOVERED_NATIVE_DIFFERS_FROM_CANONICAL'}]
+assert raw['approved_commit'] == m['source_commit'] == 'c820e39622843d9fc3b565cee6578a340970fba2'
+assert raw['approved_tree'] == m['source_tree'] == 'c004c3488cba127833d4a5052853c67d7d50c98f'
+cleanup = T / 'install_c820_b778f794_independent_cleanup_20261119.json'
+assert sha(cleanup) == '03bb1d48f872f99ec90363f896ea7fcc6f534eca8a9c304d4b5b501f8dbad231'
+assert json.loads(cleanup.read_bytes())['status'] == 'PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+child_path = out / 'install-controls/install-controls-results.json'
+assert sha(child_path) == '9de0f98b19b8512df44b561350b6aa0dcf074ba2abc87c8c070653a6a73dced4'
+child = json.loads(child_path.read_bytes())
+assert child['status'] == 'PASS_FINITE_INSTALL_PROTOCOLS_PENDING_FULL_NATIVE_COMPARISON'
+a = json.loads((out / 'canonical-native-before.json').read_bytes())
+b = json.loads((out / 'recovered-native-before.json').read_bytes())
+assert set(a) == set(b) and len(a) == 27
+assert all(a[k] == b[k] for k in a if k != 'triggers')
+assert len(a['triggers']) == len(b['triggers']) == 412
+assert [x for x in a['triggers'] if not x['internal']] == [x for x in b['triggers'] if not x['internal']]
+changed = [(x,y) for x,y in zip(a['triggers'],b['triggers']) if x['name'] != y['name']]
+assert len(changed) == 312
+for x,y in zip(a['triggers'],b['triggers']):
+    assert {k:v for k,v in x.items() if k != 'name'} == {k:v for k,v in y.items() if k != 'name'}
+for x,y in changed:
+    assert x['internal'] is True and y['internal'] is True
+    assert re.fullmatch(r'RI_ConstraintTrigger_[ac]_[0-9]+',x['name']) and re.fullmatch(r'RI_ConstraintTrigger_[ac]_[0-9]+',y['name'])
+comparisons = {kind:json.loads((out / (prefix+'-catalog-comparison.json')).read_bytes()) for kind,prefix in [('canonical','canonical'),('recovered','recovered')]}
+assert comparisons['canonical']['check_counts'] == {'PASS':29089} and comparisons['recovered']['check_counts'] == {'PASS':29090}
+assert all(v['status'] == 'PASS' and v['findings'] == [] for v in comparisons.values())
+facts = {'schema':'workinants.installb778-normalized-closed-facts.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'actual_origin':'FINAL_CROSS_TARGET_RAW_NATIVE_DIGEST_EQUALITY','actual_stop':'RECOVERED_NATIVE_DIFFERS_FROM_CANONICAL','child_status':child['status'],'individual_catalog_comparisons':{k:v['check_counts'] for k,v in comparisons.items()},'ledger_checks':{'canonical':22,'recovered':23},'oracle_expressions_each':416,'independently_reviewed_standard_resolve_retry':{'approval_sha256':'411af3585488f4fc862abec3d39dd308e7fb91efb99e181885f1a6ec80086b62','proof_sha256':'14f81e574d454d3fa7534397fd086458b1be5d86eff9db5a0c8cc5ea0c6bfea0','peer_receipt_sha256':'19b57b132253e0757a1161ce6f449c4f4454bf56240208ba41483cfa74b0c150','P3018_claimed':False},'actual_raw_snapshots':{'canonical':{'path':'canonical-native-before.json','sha256':sha(out / 'canonical-native-before.json'),'native_sha256':'a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6'},'recovered':{'path':'recovered-native-before.json','sha256':sha(out / 'recovered-native-before.json'),'native_sha256':'91b6a849f368759f783df1247dcbf89ecc06b1e302220f7c23bf6f2a13049ae9'}},'observed_difference':{'sections_total':27,'other_sections_exact':26,'triggers_each':412,'external100_exact':True,'internal312_only_name_different':True,'all20_nonname_fields_exact':True,'unknown_semantic_difference':False},'source_correction':'NEW_SEMANTIC_PARITY_V4_PLAN_APPROVED_NOT_IMPLEMENTED','full_INSTALL_or_recovery_qualification':False,'old7923_complete_cause':'UNOBSERVED_NOT_RETROSPECTIVELY_EXPLAINED','exact3C3V_private_absence':'INDEPENDENTLY_CONFIRMED','Posture':'D'}
+asset = R / 'context/reconciliation/local-f0-run-assets/c820e39-install-b778f794'
+assert not asset.exists()
+copies = {}
+for source in out.rglob('*'):
+    if not source.is_file():
+        continue
+    relative = source.relative_to(out)
+    assert 'private' not in relative.parts
+    assert source.suffix == '.json' or relative.as_posix() == 'set-private-acl.ps1'
+    destination = asset / 'evidence' / relative
+    if source.suffix == '.ps1':
+        destination = destination.with_name(destination.name+'.txt')
+    copies[destination] = source.read_bytes()
+for source in plan_path.parent.iterdir():
+    if source.is_file() and source.suffix == '.json':
+        copies[asset / 'manifest' / source.name] = source.read_bytes()
+for kind,target in m['migration_targets'].items():
+    source = Path(target['manifest_path'])
+    assert sha(source) == target['manifest_sha256']
+    copies[asset / 'manifest' / ('migration-'+kind+'.json')] = source.read_bytes()
+    snapshot = Path(target['source_snapshot'])
+    for name,wanted in target['source_files_sha256'].items():
+        source = snapshot / name
+        assert sha(source) == wanted
+        copies[asset / 'history-source-seven' / kind / name] = source.read_bytes()
+for label,name in [('independent-cleanup.json',cleanup.name),('independent-literal-review.json','installb778f794_independent_operational_literal_review_20261119.json'),('Root-literal-approval-receipt.json','install_b778f794_root_literal_approval_receipt_20261119.json'),('Root-cleanup-helper.py.txt','verify_c820_installb778_completed_cleanup_20261119.py'),('review/Root-sealed-watch-arming.json','install_b778f794_sealed_ready_watch_arming_20261119.json'),('review/independent-peer-ARMACK.json','install_b778f794_review_track_ports_ARMACK_20261119.json'),('review/actual-sealed-independent-review-receipt.json','install_b778f794_actual_sealed_independent_recovery_review_20261119.json'),('review/four-history-literal-proof.json','installb778_four_history_literal_supplement_20261119.json'),('source-analysis/independent-internal-name-only-probe.json','install_b778f794_closed_generated_RI_name_parity_independent_probe_20261120.json'),('source-analysis/bounded-source-correction-plan.json','install_owned_parity_v4_bounded_source_correction_plan_20261120.json'),('source-analysis/Root-plan-review-ACK.json','install_owned_parity_v4_Root_plan_review_ACK_20261120.json')]:
+    copies[asset / label] = (T / name).read_bytes()
+copies[asset / 'source-analysis/normalized-closed-facts.json'] = encoded(facts)
+copies[asset / 'source-analysis/preservation-helper.py.txt'] = Path(__file__).read_bytes()
+for destination,content in copies.items():
+    assert len(content) < 50*1024*1024
+    content.decode('utf8')
+    if destination.suffix == '.json':
+        json.loads(content)
+    put(destination,content)
+assets = {p.relative_to(R).as_posix():sha(p) for p in copies}
+record = {'schema':'workinants.local-f0-c820-install-version-qualified-stopped-execution-record.v1','recorded_at_utc':facts['recorded_at_utc'],'run_id':m['run_id'],'source_commit':m['source_commit'],'source_tree':m['source_tree'],'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(plan_path),'started_at_utc':raw['started_at'],'finished_at_utc':raw['finished_at'],'actual_wrapper_status':raw['status'],'actual_steps':raw['steps'],'raw_evidence_sha256':sha(out / 'run-evidence.json'),'raw_child_sha256':sha(child_path),'raw_reports_unchanged':True,'independent_cleanup_sha256':sha(cleanup),'facts':facts,'assets_sha256':assets,'source_preservation':{k:v for k,v in raw.items() if k.endswith('_unchanged_after_run') or k=='all_source_and_external_inputs_preserved_after_run'},'limits':{'assertion_links':'NONE_AUTOMATICALLY_PROMOTED_FROM_STOPPED_OUTER','whole_INSTALL_or94_or451_promoted':False,'Posture':'D'}}
+p = R / 'context/reconciliation/local-f0-install-c820e39-b778f794-execution.json'
+put(p,encoded(record))
+receipt = {'schema':'workinants.c820-installb778-stopped-attempt-preserved.v1','record':p.relative_to(R).as_posix(),'record_sha256':sha(p),'asset_count':len(assets),'assets_sha256':assets,'Git_runtime_or_network_mutations':False,'Posture':'D'}
+p = T / 'c820_installb778_stopped_attempt_preserved_inventory_20261120.json'
+put(p,encoded(receipt))
+print(json.dumps({'inventory_sha256':sha(p),'record':receipt['record'],'record_sha256':receipt['record_sha256'],'asset_count':len(assets)}))

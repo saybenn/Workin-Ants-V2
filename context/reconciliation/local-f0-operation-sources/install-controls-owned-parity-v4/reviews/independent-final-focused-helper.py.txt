@@ -1,0 +1,14 @@
+import pathlib,json,hashlib,runpy,unittest,time,sys,copy
+T=pathlib.Path(__file__).parent;R=T/'workinants-correction-pass';D=json.loads((T/'install_owned_parity_v4_frozen_source_delivery_20261120.json').read_bytes());I=json.loads((T/D['new_committable_inventory']['path']).read_bytes())
+def pinned():
+ for name,wanted in I['files_sha256'].items():assert hashlib.sha256((R/name).read_bytes()).hexdigest()==wanted,'ROOT_FROZEN_DRIFT'
+ for name,wanted in D['external_five_sha256'].items():assert hashlib.sha256((T/name).read_bytes()).hexdigest()==wanted,'EXTERNAL_FROZEN_DRIFT'
+def audit(event,args):
+ if event in ('subprocess.Popen','os.system','os.posix_spawn','socket.connect','socket.bind','socket.getaddrinfo'):raise AssertionError('REAL_PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(audit);pinned();start=time.monotonic();B=runpy.run_path(str(T/'check_local_f0_install_controls_operation_owned_parity_v4.py'));suite=unittest.TestSuite()
+for cls in ('SemanticParityTests','ActualEntryCompositionTests','ReviewReadySourceGateTests'):suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(B[cls]))
+for method in ('test_parity_stop_is_primary_and_persistent_io_still_runs_all_cleanup_postchecks','test_individual_qualification_stop_prevents_semantic_proof_and_success_summary'):suite.addTest(B['FinallySafetyTests'](method))
+for path,cls in [('scripts/test_install_independent_review_protocol_v2.py','Tests'),('scripts/sql-review/test_watch_install_independent_review_v3.py','Tests'),('scripts/sql-review/test_run_install_control_rehearsal_v4.py','BindingTests')]:
+ m=runpy.run_path(str(R/path));suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(m[cls]))
+m=runpy.run_path(str(T/'check_install_owned_parity_v4_actual_native_composition_20261120.py'));suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(m['ActualNativeQualificationTests']))
+result=unittest.TextTestRunner(verbosity=2).run(suite);pinned();print(json.dumps({'methods':result.testsRun,'success':result.wasSuccessful(),'seconds':round(time.monotonic()-start,3),'runtime':'NOT_RUN','process_network_audit_forbidden':True,'all274Root_and5external_hashes_unchanged':True}));sys.exit(0 if result.wasSuccessful()else 1)

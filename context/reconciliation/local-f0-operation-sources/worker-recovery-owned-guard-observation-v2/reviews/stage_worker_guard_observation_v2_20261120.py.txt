@@ -1,0 +1,30 @@
+"""Refresh only new unfrozen Worker archives/metadata; every review gate PENDING."""
+import hashlib,json,runpy
+from pathlib import Path
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';D=T/'worker-guard-observation-v2-author-20261120';B=runpy.run_path(str(T/'build_worker_guard_observation_v2_20261120.py'))
+def sha(b):return hashlib.sha256(b).hexdigest()
+def enc(x):return(json.dumps(x,indent=2)+'\n').encode()
+def put(path,raw):path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+def stage():
+ ca=R/B['CARC'];ca.mkdir(exist_ok=True)
+ for n in B['CHILD']:put(ca/'current'/(n+'.txt'),(R/n).read_bytes())
+ old=D/'before/ROOT'
+ for p in(old/'review-output/worker-recovery-control-rehearsal').iterdir():
+  if p.is_file():put(ca/'preserved'/'review-output/worker-recovery-control-rehearsal'/p.name,p.read_bytes())
+ for n in('worker_6282_guard_observation_v2_source_correction_plan_20261119.json','worker_6282_guard_observation_v2_independent_source_probe_20261119.json','worker_6282_guard_observation_v2_Root_plan_review_ACK_20261119.json'):put(ca/'reviews'/n,(T/n).read_bytes())
+ child_files={n:sha((R/n).read_bytes())for n in B['CHILD']};packet=json.loads((R/'review-output/worker-recovery-control-rehearsal/fixtures.json').read_bytes());full={**packet['source_files_sha256'],**{'review-output/worker-recovery-control-rehearsal/'+n:h for n,h in packet['prepared_files_sha256'].items()},'review-output/worker-recovery-control-rehearsal/fixtures.json':sha((R/'review-output/worker-recovery-control-rehearsal/fixtures.json').read_bytes())};assert len(full)==100
+ child={'schema':'workinants.worker-recovery-core-guard-observation-source-validation.v1','status':'SOURCE_PREPARED_DISTINCT_REVIEW_REQUIRED','source_version':'worker-recovery-core-guard-observation-v3','source_files_sha256':child_files,'full100_source_and_artifact_files_sha256':full,'archive_files_sha256':{p.relative_to(R).as_posix():sha(p.read_bytes())for p in ca.rglob('*')if p.is_file()},'independent_source_review':{'decision':'PENDING','scope':'EXACT_NEW_CASE17_GUARD_AND_SAFE_OBSERVATION_ONLY'},'Root_source_review':{'decision':'PENDING'},'original_6282_exit_ACK_SQLSTATE_diagnostic_and_complete_cause':'UNOBSERVED','canonical_SQL_sha256':B['sha']((R/'review-output/foundation-application.review.sql').read_bytes()),'all40_SQL_bytes_grants_cases_timing_currentness_unchanged':True,'runtime':'NOT_RUN','Posture':'D'}
+ put(R/B['CVAL'],enc(child))
+ own=R/B['ARC'];own.mkdir(exist_ok=True)
+ for n in B['NEW']:put(own/(n+'.txt'),(T/n).read_bytes())
+ for p in(D/'before').rglob('*'):
+  if p.is_file():put(own/'preserved-v1'/p.relative_to(D/'before'),p.read_bytes())
+ for n in('worker_6282_guard_observation_v2_source_correction_plan_20261119.json','worker_6282_guard_observation_v2_Root_plan_review_ACK_20261119.json','worker_6282_guard_observation_v2_independent_source_probe_20261119.json','worker_6282_guard_observation_v2_plan_preservation_20261119.json','build_worker_guard_observation_v2_20261120.py','stage_worker_guard_observation_v2_20261120.py'):
+  put(own/'reviews'/(n+'.txt'if n.endswith('.py')else n),(T/n).read_bytes())
+ image_peer=R/B['OLDARC']/'reviews/image-proof-independent-source.json';put(own/'reviews/image-proof-independent-source.json',image_peer.read_bytes())
+ for p in T.glob('check_worker_guard_observation_v2_*_20261120.py'):put(own/'reviews'/(p.name+'.txt'),p.read_bytes())
+ for modeled in(T/'worker_guard_observation_v2_MOCK_ONLY_component_result_20261120.json',T/'worker_guard_observation_v2_MOCK_ONLY_final42_20261120.json'):
+  if modeled.exists():put(own/'reviews'/modeled.name,modeled.read_bytes())
+ value={'schema':'workinants.worker-recovery-owned-operator-source-validation.v1','status':'SOURCE_PREPARED_DISTINCT_REVIEW_REQUIRED','source_version':'worker-recovery-owned-guard-observation-v2','operator_sources_sha256':{n:sha((T/n).read_bytes())for n in B['NEW']},'archive_files_sha256':{p.relative_to(R).as_posix():sha(p.read_bytes())for p in own.rglob('*')if p.is_file()},'independent_safety_sql_review':{'decision':'PENDING','scope':'NEW_OWNED_WORKER_GUARD_OBSERVATION_V2_ONLY'},'independent_guard_observation_review':{'decision':'PENDING'},'Root_source_review':{'decision':'PENDING'},'child_validation':{'path':B['CVAL'],'sha256':sha((R/B['CVAL']).read_bytes())},'Root_plan_ACK_sha256':sha((T/'worker_6282_guard_observation_v2_Root_plan_review_ACK_20261119.json').read_bytes()),'before_preservation_sha256':sha((D/'before-manifest.json').read_bytes()),'runtime':'NOT_RUN','Posture':'D','no_assertion_or_case_promotion':True}
+ put(R/B['VAL'],enc(value));print(json.dumps({'child_archive_files':len(child['archive_files_sha256']),'child_validation_sha256':sha((R/B['CVAL']).read_bytes()),'owned_archive_files':len(value['archive_files_sha256']),'owned_validation_sha256':sha((R/B['VAL']).read_bytes()),'all5_review_gates':'PENDING'}))
+if __name__=='__main__':stage()

@@ -1,0 +1,19 @@
+{
+  "schema": "workinants.restore-v4-transaction-options-fix2-Root-ACK.v1",
+  "status": "BOUNDED_SOURCE_FIX_AUTHORIZED_PENDING_SAME_REVIEWER_REREVIEW",
+  "review_sha256": "23698acc74ce85e0095b339ff1de115c90c7235f3c4d2a055642e8843dce26e6",
+  "probe_sha256": "832e93e7659bb4132687c41bf1fadc1662c5184ab922f6a0f66f8d2630a7fa81",
+  "finding": "RESTORE-V4-TRANSACTION-OPTIONS-01",
+  "prior_frozen_delivery_sha256": "6935ff067a38c4eecda590a630c5b2c99237f45afe74ab9297abbc28d72759d8",
+  "prior_freeze_sha256": "7e29837b6973b82fcda74fa916e6aad961b38a1aa66052a9d282671577478619",
+  "authorized_changes": [
+    "Preserve exact prior312 snapshots, live five, validation2b1a8716/archive129, independent HOLD/probe/check receipts before changing only new RestoreV4 drafts. Existing older V3 source and all67 source/25 artifacts remain immutable.",
+    "Correct only the bounded top-level transaction-control classifier and corresponding focused regressions. Recognize optional LOCAL/SESSION scopes and comments/quoted/unquoted identifiers for SET TRANSACTION, SESSION CHARACTERISTICS AS TRANSACTION and the six transaction/default_transaction isolation/read_only/deferrable GUC names. Include applicable RESET forms for those same six GUCs in the lexical contract; explicitly document behavior of RESET ALL rather than accidentally treating it as ordinary business SQL.",
+    "Preserve intended SET LOCAL search_path controls and business strings/quoted identifiers/dollar bodies/comments that merely contain transaction words. Avoid broad SET bans, semantic function-call interpretation, runtime parser dependencies or changes to actual business statement bytes.",
+    "Keep optional one leading bare BEGIN, exactly one bare terminal COMMIT and rejection of other transaction envelopes. Preserve strict stderr/exit/ACK/markers/complete-state/operation closure and fixed sanitized metadata; no warning waiver.",
+    "Bind the independent74-vector probe and add restoration tripwires showing the old classifier admits unsupported transaction-option forms while the corrected helper rejects them. Cross-check supported/rejected forms with offline pglast only. Rerun affected actual full-entry and source/pinner checks as justified by changed source.",
+    "Leave all four source gates PENDING, issue a new exact freeze and obtain the same separate reviewer's code decision. No runtime, physical restore qualification, permission changes or Source policy modification."
+  ],
+  "historical_limits": "None of the pinned three positive programs contain the newly found variants. This is a source helper-contract defect, with no actual runtime/permission failure inference. Historical980a full cause/error text remain UNOBSERVED.",
+  "Posture": "D"
+}

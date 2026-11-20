@@ -1,0 +1,63 @@
+{
+  "schema": "workinants.worker6282-independent-closed-evidence-source-analysis.v1",
+  "decision": "SOURCE_DEFECT_AND_OBSERVABILITY_GAP_PROVEN_PLAN_ONLY",
+  "record_sha256": "a96842de6d0a214e0df1e67eda1ec6d8be0fa29f0f62f43a6f1ac17e6b90f771",
+  "assets": 30,
+  "raw_wrapper_sha256": "46e28776944da858d0b2e77b60d189405973e0a3db3b86e9c528015bb0f6dbca",
+  "raw_child_sha256": "9833a915898edd468edac9f5491ec5cecf03369f7de350d311f877f429171408",
+  "cleanup_sha256": "4353d59ee0501d951e56b057aae05808fda754e37212b8b2824d5caf6cd91151",
+  "observed": {
+    "completed_protocol_records": 16,
+    "operations": 250,
+    "stop_case": "valid-current-Free-selection-survives-duplicate-attempt",
+    "failure_code": "INTENDED_SOURCE_GUARD_REQUIRED",
+    "failed_operation_closed": true,
+    "failed_exit_ACK_SQLSTATE_diagnostic": "NOT_RETAINED",
+    "later_cases": "NOT_RUN",
+    "fixture_owner_bypass_restored": true,
+    "full_native_parity_in_finally": {
+      "stage": "FINALLY_FULL_NATIVE_PARITY",
+      "native_catalog_match": true,
+      "native_sha256": "a048478f5e834dc1686b558954ea9bdaeaba4278afcf63976510c114680f1fc6"
+    },
+    "physical_cleanup": "PASS_AS_RETAINED_INDEPENDENT_CLOSED_EVIDENCE_NO_NEW_RESOURCE_QUERY"
+  },
+  "source_proven": {
+    "canonical_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "track_binding_declaration_line": 4972,
+    "track_binding_body_sha256": "1fec48baf827823dcb077f79c507120e91cbf8179d77fb550fbf8be635d9f865",
+    "raise_body_line": 7,
+    "trigger_line": 5018,
+    "expected_first_guard": {
+      "sqlstate": "P0001",
+      "message": "fixed Track binding denied",
+      "function": "platform_private.track_binding()",
+      "body_line": 7,
+      "location": "exec_stmt_raise@pl_exec.c"
+    },
+    "old_protocol_expects_later_RLS_42501": true,
+    "same_false_predicate_cannot_reach_later_RLS_from_this_BEFORE_trigger": true
+  },
+  "actual_environment_free_probes": {
+    "old_protocol_intended_trigger_rejected": true,
+    "old_protocol_stale_RLS_accepted": true,
+    "old_verdict_reproduced_fixed_INTENDED_SOURCE_GUARD_REQUIRED": true,
+    "old_mock_statement_emits": {
+      "sqlstate": "42501",
+      "message": "new row violates row-level security policy for table \"track_subscriptions\"",
+      "function": null
+    },
+    "probe_input_intended_sha256": "dc4183a875121e5c99d65967acbbd592ef41d47f606859fdea78cce3b168068a",
+    "probe_input_stale_sha256": "ae117036b8e3e875992ae62158e403a245af10afbfc4e522782d763775c4e428",
+    "all_process_Docker_DB_SQL_network_socket_boundaries_blocked": true,
+    "these_are_source_derived_simulations_not_original_runtime_diagnostic": true
+  },
+  "complete_original_cause": "UNOBSERVED",
+  "preservation": {
+    "all30_raw_assets": true,
+    "old220_archive": true,
+    "old5": true,
+    "active_Restore_INSTALL_Native_status_sources": true
+  },
+  "Posture": "D"
+}

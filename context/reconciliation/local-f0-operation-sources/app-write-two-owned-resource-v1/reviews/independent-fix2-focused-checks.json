@@ -1,0 +1,178 @@
+{
+  "schema": "workinants.app-owned-fix2-independent-checks.v1",
+  "status": "PASS",
+  "source_only_mock": true,
+  "five_sha256": {
+    "execute_local_f0_app_write_two_owned_resource_v1_20261119.py": "4b675aafbe270a4117b2406450369863c34c77c4850ba8b88d2fe47109c27f13",
+    "local_f0_app_write_two_owned_resource_v1_operation_steps.py": "f1b5c79354226ccb534f47475805e91abe430a958cc9a703e9fa80fac30d3feb",
+    "prepare_local_f0_app_write_two_owned_resource_v1_plan.py": "c0582abf5f19a9f0f59a078283f524682699970fd6d4c4175a5a7b123e6e065c",
+    "check_local_f0_app_write_two_owned_resource_v1_operation.py": "31fd7030921eb8ea43b59839968a88a0f76282152dacdbaacf73ba9df513c549",
+    "pin_local_f0_app_write_two_owned_resource_v1_plan_20261119.py": "070731825d46b584d4ba1ef8652669538599922afdc2c5ee19cd9a1a66c7ad8e"
+  },
+  "freeze_manifest_sha256": "8bb2b54dbf6c5695f39167eec91f4b562982a5774508c6def325527e071b000c",
+  "snapshot_count": 388,
+  "methods": [
+    {
+      "method": "<run_path>.SourceTests.test_actual_initialize_raw_five_full_verifier_and_real_catalog_reproduction",
+      "seconds": 18.172,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.SourceTests.test_live_pending_source_metadata_rejects_before_source_import",
+      "seconds": 5.797,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.SourceTests.test_actual_pinner_rejects_committed_blob_drift_without_writing_pin",
+      "seconds": 4.328,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.ComposedTests.test_actual_launch_install_coordinate_CTX_processes_and_readonly_after",
+      "seconds": 48.172,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.ComposedTests.test_actual_full_parent_rejects_reference_mutation_normal_and_preserved_mtime",
+      "seconds": 80.234,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.ComposedTests.test_final_pass_reference_barrier_rejects_post_scan_cleanup_mutation",
+      "seconds": 40.672,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.ComposedTests.test_actual_parent_component_finally_global_sql_survives_persistent_io_and_blocks_after",
+      "seconds": 44.422,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.ReferenceSafetyTests.test_fresh_byte_recheck_and_restored_old_reader_tripwire",
+      "seconds": 11.734,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.ReferenceSafetyTests.test_atomic_replace_accepts_common_version_and_stable_per_representation_ctime",
+      "seconds": 8.563,
+      "status": "PASS"
+    },
+    {
+      "method": "__main__.IndependentMetadataTests.test_independent_metadata_representations_fresh_bytes_and_actual_atomic_scratch",
+      "seconds": 13.141,
+      "status": "PASS"
+    }
+  ],
+  "tests_run": 10,
+  "failures": 0,
+  "errors": 0,
+  "seconds": 298.984,
+  "reviewer_vectors": [
+    {
+      "vector": "different_cross_API_ctime_stable_within_each",
+      "result": "ACCEPTED_VALID"
+    },
+    {
+      "vector": "mandatory_six_common_and_ctime_metadata",
+      "subcases": 7,
+      "result": "REJECTED_MISSING_FIELDS"
+    },
+    {
+      "vector": "all_six_common_metadata_changes",
+      "subcases": 6,
+      "result": "REJECTED"
+    },
+    {
+      "vector": "ctime_changes_within_either_API",
+      "subcases": 2,
+      "result": "REJECTED"
+    },
+    {
+      "vector": "all_metadata_forced_stable_same_size_rewrite",
+      "result": "NEW_REJECTS_OLD_ADMITS"
+    },
+    {
+      "vector": "actual_private_atomic_replace_metadata",
+      "iterations": 8,
+      "results": [
+        {
+          "six_common_equal_all_four": true,
+          "path_ctime_stable": true,
+          "handle_ctime_stable": true,
+          "cross_API_ctime_equal": false
+        },
+        {
+          "six_common_equal_all_four": true,
+          "path_ctime_stable": true,
+          "handle_ctime_stable": true,
+          "cross_API_ctime_equal": false
+        },
+        {
+          "six_common_equal_all_four": true,
+          "path_ctime_stable": true,
+          "handle_ctime_stable": true,
+          "cross_API_ctime_equal": false
+        },
+        {
+          "six_common_equal_all_four": true,
+          "path_ctime_stable": true,
+          "handle_ctime_stable": true,
+          "cross_API_ctime_equal": false
+        },
+        {
+          "six_common_equal_all_four": true,
+          "path_ctime_stable": true,
+          "handle_ctime_stable": true,
+          "cross_API_ctime_equal": false
+        },
+        {
+          "six_common_equal_all_four": true,
+          "path_ctime_stable": true,
+          "handle_ctime_stable": true,
+          "cross_API_ctime_equal": false
+        },
+        {
+          "six_common_equal_all_four": true,
+          "path_ctime_stable": true,
+          "handle_ctime_stable": true,
+          "cross_API_ctime_equal": false
+        },
+        {
+          "six_common_equal_all_four": true,
+          "path_ctime_stable": true,
+          "handle_ctime_stable": true,
+          "cross_API_ctime_equal": false
+        }
+      ],
+      "scope": "Known-data scratch only; no claim about any old actual failure cause"
+    }
+  ],
+  "additional_hash_verified_tool_metadata": {
+    "node_modules/@prisma/engines-version/package.json": "2dd9793255d6bbb5c399a624ecbfb6323d39233860863d172946b7f750f528bd",
+    "node_modules/prisma/package.json": "6cdfef6df08d9a37f28908855797fe8bfc97a2d3d886a8d5cbe2e502d6848151"
+  },
+  "initial_clone_setup_stop_record_sha256": "b56e2c58c9e4d195a1997bcd29d9cdf7fe8bf9dcdac9ec03796c8ee6d7fac200",
+  "actual_baseline_proof_sha256": {
+    "app-write-two-results.json": "7b45e32b31a304dcca9ea9ae4dcb1a433915b96401d9426ea18f7b25ee438f7f",
+    "run-evidence.json": "3fac99b1a276bd1679e650698c6de4caf9ed6de7f230753348aa8702eeab54f8"
+  },
+  "fixture_projection": {
+    "historical_Owner7293_assets_OFFLINE_MOCK_ONLY": {
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+      "context/reconciliation/local-f0-run-assets/da5ad66-owner-72934689/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1"
+    },
+    "baseline_original_sha256": "92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5",
+    "private_source_approvals_only": true,
+    "modeled_commit_tree_only": true
+  },
+  "limits": [
+    "No actual OS process/SQL/Docker/Git/network operations; audited forbidden or mocked",
+    "No live source/gate/progress edits",
+    "No actual runtime authority or assertion promotion"
+  ]
+}

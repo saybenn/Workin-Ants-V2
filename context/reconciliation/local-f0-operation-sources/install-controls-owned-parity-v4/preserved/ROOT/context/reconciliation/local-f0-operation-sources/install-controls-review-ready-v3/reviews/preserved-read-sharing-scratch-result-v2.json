@@ -1,0 +1,87 @@
+{
+  "schema": "workinants.install7923-windows-read-sharing-scratch-experiment.v1",
+  "recorded_at_utc": "2026-11-19T22:29:34.412958+00:00",
+  "reviewer": "/root/catalog_v4_review",
+  "source_sha256": "5c71ead1bbb7ced7d45a36f258cc271f9a8c19275f94bc55875d3526c0c02b87",
+  "manifest_sha256": "70a1415f1cbe86ce1403b883124c7b4613bde341139649fd0a2ec717d8a5277a",
+  "actual_function": "Unmodified module.save(), source lines62-71; initialize actual manifest first, then override OUT to fresh verified TASK/test-tmp child",
+  "cases": [
+    {
+      "case": "ORDINARY_PATH_OPEN_HELD",
+      "initial_save": "PASS",
+      "save_returned": false,
+      "failure": {
+        "class": "PermissionError",
+        "allowlisted_winerror": 5,
+        "source_frames": [
+          {
+            "function": "save",
+            "line": 69
+          }
+        ]
+      },
+      "target_unchanged": true,
+      "evidence_failed_sticky": true,
+      "evidence_complete": false,
+      "status": "STOPPED_ATTEMPT_PRESERVED",
+      "persistence_failure": true,
+      "fixed_unexpected": [
+        {
+          "stage": "EVIDENCE",
+          "code": "EVIDENCE_WRITE_UNCONFIRMED"
+        }
+      ],
+      "after_handle_close": {
+        "save_returned": true,
+        "sticky_failure_retained": true,
+        "evidence_complete": false,
+        "disk_status": "STOPPED_ATTEMPT_PRESERVED"
+      }
+    },
+    {
+      "case": "WIN32_SHARE_DELETE_HELD",
+      "initial_save": "PASS",
+      "save_returned": false,
+      "failure": {
+        "class": "PermissionError",
+        "allowlisted_winerror": 5,
+        "source_frames": [
+          {
+            "function": "save",
+            "line": 69
+          }
+        ]
+      },
+      "target_unchanged": true,
+      "evidence_failed_sticky": true,
+      "evidence_complete": false,
+      "status": "STOPPED_ATTEMPT_PRESERVED",
+      "persistence_failure": true,
+      "fixed_unexpected": [
+        {
+          "stage": "EVIDENCE",
+          "code": "EVIDENCE_WRITE_UNCONFIRMED"
+        }
+      ]
+    },
+    {
+      "case": "ORDINARY_HANDLE_ALREADY_CLOSED",
+      "initial_save": "PASS",
+      "save_returned": true,
+      "failure": null,
+      "target_unchanged": false,
+      "evidence_failed_sticky": false,
+      "evidence_complete": true,
+      "status": "IN_PROGRESS",
+      "persistence_failure": false,
+      "fixed_unexpected": []
+    }
+  ],
+  "scratch_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\test-tmp\\install7923-sharing-96971430-fb32-486a-a102-ee3aac873288",
+  "scratch_absent_after": true,
+  "process_DB_Docker_Git_network_calls": [],
+  "existing_run_source_or_secret_files_modified": false,
+  "conclusion": "Controlled observed outcomes are recorded without promoting either control. Assess the actual cases and their fixed exception metadata; original INSTALL cause remains unobserved.",
+  "actual_INSTALL7923_cause": "UNOBSERVED; controlled mechanism reproduction does not establish actual timing, original exception class, or failing operation.",
+  "plain_english": "If a reader holds the old page open, Windows can refuse to swap in the new page. A reader that allows the swap avoids this. This small test does not prove that this is why the real test stopped."
+}

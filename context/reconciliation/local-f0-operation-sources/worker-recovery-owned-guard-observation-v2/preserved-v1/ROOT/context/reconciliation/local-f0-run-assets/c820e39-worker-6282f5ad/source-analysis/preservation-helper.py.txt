@@ -1,0 +1,86 @@
+"""Preserve closed worker partial evidence, without promoting assertion rows."""
+from pathlib import Path
+import datetime, hashlib, json
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+def encoded(value):
+    return (json.dumps(value, indent=2, allow_nan=False) + '\n').encode()
+def put(path, raw):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('xb') as handle:
+        handle.write(raw)
+plan_path = T / 'local-f0-worker-recovery-plan-6282f5ad/operation-manifest.json'
+assert sha(plan_path) == 'dabbd74564aab585400bf33b1ab74455eb7788a824c25acbac8e193c7c3340f6'
+m = json.loads(plan_path.read_bytes())
+out = Path(m['evidence_directory'])
+assert out == T / 'local-f0-worker-recovery-6282f5ad' and not (out / 'private').exists()
+assert sha(out / 'run-evidence.json') == '46e28776944da858d0b2e77b60d189405973e0a3db3b86e9c528015bb0f6dbca'
+raw = json.loads((out / 'run-evidence.json').read_bytes())
+assert raw['status'] == 'STOPPED_ATTEMPT_PRESERVED' and raw['finished_at']
+assert raw['approved_commit'] == m['source_commit'] == 'c820e39622843d9fc3b565cee6578a340970fba2'
+assert raw['approved_tree'] == m['source_tree'] == 'c004c3488cba127833d4a5052853c67d7d50c98f'
+child_path = out / 'worker-recovery-component/worker-recovery-results.json'
+assert sha(child_path) == '9833a915898edd468edac9f5491ec5cecf03369f7de350d311f877f429171408'
+c = json.loads(child_path.read_bytes())
+assert len(c['results']) == 16 and len(c['operations']) == 250
+assert c['current_case'] == 'valid-current-Free-selection-survives-duplicate-attempt'
+assert c['unexpected'] == [{'stage':'FINITE_WORKER_PROTOCOL', 'case':c['current_case'], 'code':'INTENDED_SOURCE_GUARD_REQUIRED'}]
+assert c['fixture_owner_bypass_restored'] is True and c['evidence_complete'] is True
+cleanup = T / 'worker_c820_6282f5ad_independent_cleanup_20261119.json'
+assert sha(cleanup) == '4353d59ee0501d951e56b057aae05808fda754e37212b8b2824d5caf6cd91151'
+assert json.loads(cleanup.read_bytes())['status'] == 'PASS_INDEPENDENT_PHYSICAL_CLEANUP'
+facts = {
+    'schema':'workinants.worker6282-bounded-closed-failure-analysis.v1', 'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'actual_origin':'FINITE_WORKER_PROTOCOL/valid-current-Free-selection-survives-duplicate-attempt/INTENDED_SOURCE_GUARD_REQUIRED',
+    'complete_original_cause':'UNOBSERVED', 'failed_operation_exit_ACK_SQLSTATE_and_diagnostic':'NOT_RETAINED_BEFORE_VERDICT_RAISED',
+    'completed_protocol_records':16, 'operations':250, 'remaining_after_failed_case':'NOT_RUN',
+    'completed_record_names':[x['case'] for x in c['results']],
+    'completed_prefix_is_runtime_observation_not_automatic_assertion_qualification':True,
+    'observed_genuine_leased_checkpoint_and_read_prefix':'RETAINED_IN_RAW_EVIDENCE_REQUIRES_INDEPENDENT_ASSERTION_MAPPING',
+    'fixture_owner_bypass_restored':c['fixture_owner_bypass_restored'],
+    'last_full_native_parity':c['operations'][-1],
+    'source_analysis':'Duplicate INSERT reaches the subscription_binding BEFORE trigger, which invokes worker_track_allowed and raises exact P0001 fixed Track binding denied on false. Current oracle expects a later42501 RLS WITH CHECK denial, so the same false predicate cannot reach that later guard. Test mock ordering and minimal diagnostic observability require focused review/correction. This is proven source analysis consistent with the stop; actual original SQLSTATE was not retained.',
+    'canonical_source':{'path':'review-output/foundation-application.review.sql', 'sha256':sha(R / 'review-output/foundation-application.review.sql'), 'track_binding_line':4975, 'subscription_binding_trigger_line':5018},
+    'protocol_source':{'path':'scripts/worker_recovery_control_protocol.py', 'sha256':sha(R / 'scripts/worker_recovery_control_protocol.py')},
+    'wrapper_required_global_stage':'Finally attribution, not proof that backend closure failed.',
+    'new_assertion_links':'NONE_PENDING_COMPLETE_CLOSED_EVIDENCE_REVIEW', 'Posture':'D',
+}
+asset = R / 'context/reconciliation/local-f0-run-assets/c820e39-worker-6282f5ad'
+assert not asset.exists()
+copies = {}
+for source in out.rglob('*'):
+    if not source.is_file():
+        continue
+    relative = source.relative_to(out)
+    assert 'private' not in relative.parts
+    assert source.suffix == '.json' or relative.as_posix() == 'set-private-acl.ps1'
+    destination = asset / 'evidence' / relative
+    if source.suffix == '.ps1':
+        destination = destination.with_name(destination.name + '.txt')
+    copies[destination] = source.read_bytes()
+for source in plan_path.parent.iterdir():
+    if source.is_file() and source.suffix == '.json':
+        copies[asset / 'manifest' / source.name] = source.read_bytes()
+for kind, target in m['migration_targets'].items():
+    source = Path(target['manifest_path'])
+    assert sha(source) == target['manifest_sha256']
+    copies[asset / 'manifest' / ('migration-' + kind + '.json')] = source.read_bytes()
+for label, name in [('independent-cleanup.json',cleanup.name), ('independent-literal-review.json','worker_6282f5ad_independent_operational_literal_review_20261119.json'), ('independent-literal-timing-lineage.json','worker_6282f5ad_independent_literal_review_timing_and_lineage_20261119.json'), ('Root-literal-approval-receipt.json','worker_6282f5ad_root_literal_approval_receipt_20261119.json'), ('Root-cleanup-helper.py.txt','verify_c820_worker6282_completed_cleanup_20261119.py')]:
+    copies[asset / label] = (T / name).read_bytes()
+copies[asset / 'source-analysis/earlier-binding-trigger-and-unretained-diagnostic.json'] = encoded(facts)
+copies[asset / 'source-analysis/preservation-helper.py.txt'] = Path(__file__).read_bytes()
+for destination, content in copies.items():
+    assert len(content) < 50 * 1024 * 1024
+    content.decode('utf8')
+    if destination.suffix == '.json':
+        json.loads(content)
+    put(destination, content)
+assets = {p.relative_to(R).as_posix():sha(p) for p in copies}
+record = {'schema':'workinants.local-f0-c820-worker-version-qualified-stopped-execution-record.v1', 'recorded_at_utc':facts['recorded_at_utc'], 'run_id':m['run_id'], 'source_commit':m['source_commit'], 'source_tree':m['source_tree'], 'operation_packet_sha256':m['packet_sha256'], 'operation_manifest_sha256':sha(plan_path), 'started_at_utc':raw['started_at'], 'finished_at_utc':raw['finished_at'], 'actual_wrapper_status':raw['status'], 'actual_steps':raw['steps'], 'raw_evidence_sha256':sha(out / 'run-evidence.json'), 'raw_child_sha256':sha(child_path), 'raw_reports_unchanged':True, 'independent_cleanup_sha256':sha(cleanup), 'facts':facts, 'assets_sha256':assets, 'source_preservation':{k:v for k,v in raw.items() if k.endswith('_unchanged_after_run') or k=='all_source_and_external_inputs_preserved_after_run'}, 'limits':{'whole21_or_selected94_or451_promoted':False, 'unexercised_cases':'NOT_RUN', 'Posture':'D'}}
+p = R / 'context/reconciliation/local-f0-worker-c820e39-6282f5ad-execution.json'
+put(p, encoded(record))
+receipt = {'schema':'workinants.c820-worker6282-stopped-attempt-preserved.v1', 'record':p.relative_to(R).as_posix(), 'record_sha256':sha(p), 'asset_count':len(assets), 'assets_sha256':assets, 'runtime_or_Git_mutation':False, 'Posture':'D'}
+p = T / 'c820_worker6282_stopped_attempt_preserved_inventory_20261119.json'
+put(p, encoded(receipt))
+print(json.dumps({'inventory_sha256':sha(p), 'record':receipt['record'], 'record_sha256':receipt['record_sha256'], 'asset_count':len(assets)}))

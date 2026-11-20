@@ -1,0 +1,52 @@
+"""Exclusive source-only derivation from accepted OwnerMountV2; no processes."""
+from pathlib import Path
+import ast,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+OLD=('execute_local_f0_owner_read_20261119_resource_mount_v2.py','local_f0_owner_read_operation_steps_resource_mount_v2.py','prepare_local_f0_owner_read_plan_resource_mount_v2.py','check_local_f0_owner_read_operation_resource_mount_v2.py','pin_local_f0_owner_read_plan_20261119_resource_mount_v2.py')
+NEW=('execute_local_f0_worker_recovery_owned_v1_20261119.py','local_f0_worker_recovery_owned_v1_operation_steps.py','prepare_local_f0_worker_recovery_owned_v1_plan.py','check_local_f0_worker_recovery_owned_v1_operation.py','pin_local_f0_worker_recovery_owned_v1_plan_20261119.py')
+ARCHIVE='context/reconciliation/local-f0-operation-sources/worker-recovery-owned-resource-v1'
+VALIDATION='context/reconciliation/local-f0-worker-recovery-owned-resource-v1-source-validation.json'
+WORKER_VALIDATION='context/reconciliation/local-f0-worker-recovery-core-source-validation.json'
+COOR='scripts/sql-review/run-worker-recovery-control-rehearsal.py';PEER='context/reconciliation/local-f0-operation-sources/worker-recovery-core-clock-count-v2/reviews/worker21-independent-source-review-v2-clock-count-20261119.json'
+HELPERS=(COOR,'scripts/worker_recovery_control_protocol.py','scripts/sql-review/run-scoped-read-companion-rehearsal.py','scripts/sql-review/run-context-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/sql-review/run-local-f0-migrate.py','scripts/prepare-local-f0-history.py')
+def rename(s):
+ for a,b in zip(OLD,NEW):s=s.replace(a,b)
+ for a,b in [('owner-read-resource-mount-v2','worker-recovery-owned-resource-v1'),('owner-read-control-rehearsal','worker-recovery-control-rehearsal'),('7f8d292ddc8ca11e12ae91e94ac62cca6cdd09d0c1f8a427ac5eefa414e66aca','2985c82acca090c21f47dcb3e1debafc9b5fcf83832a306ad80c16290bbe62d9'),('fd722b13789f1afcf244bafd4484acf4d331e1ba97387be88317718c6e42605c','ac5a69f2f5e8b4956da19b1e46d4534297e8cbd89d49195c707e22335151392f'),('scripts/sql-review/run-owner-read-control-rehearsal.py',COOR),('8b55f608573459531d15dd732da5947f0cfda0aeb2b2632ca6ec9223e8dae6a5','a9a8bc39f21a7e2455cb2e3e6064fcd4aa3e84e101c45bb225922da3775ecb27'),('context/reconciliation/local-f0-operation-sources/owner-read-controls-v1/reviews/independent-final.json',PEER),('f6931e2a7c56a09ddd30e26171b54468368a2c4e6f660c160222b013c706fe31','4729d158220339afd1417cdbc5c1e14afb3980843c8e321635b687c260b79da5'),('scripts/owner_read_control_protocol.py','scripts/worker_recovery_control_protocol.py'),('OWNER_PACKET','WORKER_PACKET'),('OWNER_FIXTURES','WORKER_FIXTURES'),('OWNER_CONTENT','WORKER_CONTENT'),('OWNER_COORDINATOR','WORKER_COORDINATOR'),('OWNER_PEER','WORKER_PEER'),('OWNER_READ','WORKER_RECOVERY'),('OWNER-READ','WORKER-RECOVERY'),('owner_read','worker_recovery'),('owner-read','worker-recovery'),('-ownerreads','-worker21'),('OwnerOperationTests','WorkerOperationTests')]:s=s.replace(a,b)
+ return s
+def node(s,name):return next(n for n in ast.walk(ast.parse(s))if isinstance(n,(ast.FunctionDef,ast.ClassDef))and n.name==name)
+def replace(s,name,body):
+ n=node(s,name);lines=s.splitlines(keepends=True);return ''.join(lines[:n.lineno-1])+' '*n.col_offset+body.rstrip()+'\n'+''.join(lines[n.end_lineno:])
+def build():
+ assert sha((T/'worker_recovery_owned_resource_v1_source_plan_20261119.json').read_bytes())=='0d4c809d34cd001872231cb22cd63b5eb8dca399b17923fef0551ff13d9d0b96'
+ assert sha((T/'worker_recovery_owned_resource_v1_independent_source_plan_review_20261119.json').read_bytes())=='156cad7451258f1d51e6254c54ef85107c091730241fd5300a8b33c8de32ee33'
+ v=json.loads((R/WORKER_VALIDATION).read_bytes());assert sha((R/WORKER_VALIDATION).read_bytes())=='d00faf2812822e7235456bc38866943068fcf3d181140c2da147818a3103522c'
+ for k in('source_files_sha256','full100_source_and_artifact_files_sha256','archive_files_sha256'):
+  for n,h in v[k].items():assert sha((R/n).read_bytes())==h,n
+ base=json.loads((R/'context/reconciliation/local-f0-owner-read-resource-mount-v2-source-validation.json').read_bytes());assert base['independent_safety_sql_review']['decision']=='SOURCE_APPROVED'
+ for n,h in base['operator_sources_sha256'].items():assert sha((T/n).read_bytes())==h,n
+ texts={b:rename((T/a).read_text())for a,b in zip(OLD,NEW)}
+ texts[NEW[0]]=texts[NEW[0]].replace("'prepared_protocols':121","'prepared_protocols':21").replace('--execute-reviewed-worker-recoverys','--execute-reviewed-worker-recovery').replace('execute_reviewed_worker_recoverys','execute_reviewed_worker_recovery')
+ s=texts[NEW[1]]
+ s='\n'.join('HELPER_FILES='+repr(HELPERS)if line.startswith('HELPER_FILES=')else line for line in s.splitlines())+'\n'
+ s=s.replace("len(fixtures['cases'])==121","len(fixtures['cases'])==21").replace("len(fixtures['source_files_sha256'])==67 and len(fixtures['prepared_files_sha256'])==140","len(fixtures['source_files_sha256'])==59 and len(fixtures['prepared_files_sha256'])==40").replace('workinants.worker-recovery-fixtures.v1','workinants.worker-recovery-fixtures.v1')
+ s=s.replace("need(type(installed['attestation_sha256'])", "need(type(installed['attestation_sha256'])",1)
+ marker="    write_safe('ledger-registration.json', registration)";assert s.count(marker)==1;s=s.replace(marker,"    WORKER_INSTALL.update(attestation_sha256=installed['attestation_sha256'],registration=unique_json(canonical(registration)))\n"+marker)
+ adapter=(T/'worker_owned_resource_v1_adapter.py.txt').read_text()
+ s=replace(s,'worker_recovery_experiment',ast.get_source_segment(adapter,node(adapter,'worker_recovery_experiment')))
+ for name in('worker_native_gate','worker_complete_state','verify_worker_result','verify_worker_operations','worker_after_proofs'):s+='\n'+ast.get_source_segment(adapter,node(adapter,name))+'\n'
+ s+='\nWORKER_INSTALL={}\n'
+ original=ast.get_source_segment(s,node(s,'oracle_records'));after=original.replace('def oracle_records(', 'def worker_oracle_records(').replace("('oracle-preflight.json','oracle-results.json','oracle-closure.json')","('worker-recovery-after-oracle-preflight.json','worker-recovery-after-oracle-results.json','worker-recovery-after-oracle-closure.json')").replace("'oracle_records'","'worker_after_oracle_records'")
+ s+='\n'+after+'\n'
+ s=s.replace("'worker-recovery-native-final.json'","'worker-recovery-native-final.json','worker-recovery-after-oracle-native.json','worker-recovery-after-oracle-preflight.json','worker-recovery-after-oracle-results.json','worker-recovery-after-oracle-closure.json','worker-recovery-after-oracle-evidence.json','worker-recovery-after-ledger-observation.json','worker-recovery-after-ledger-native.json','worker-recovery-after-ledger-evidence.json','worker-recovery-after-ledger-comparison.json','worker-recovery-after-catalog-comparison.json'",1)
+ texts[NEW[1]]=s
+ for f in(NEW[2],NEW[4]):
+  s=texts[f].replace("len(packet['cases'])==121","len(packet['cases'])==21")
+  if f==NEW[2]:s=s.replace("validation='context/reconciliation/local-f0-worker-recovery-operation-source-validation.json'","validation='"+WORKER_VALIDATION+"'").replace('Only the exact121prepared worker-recovery protocols,4restricted Consent fixture inserts and1finiteworker claim; no owner-create/API/publisher qualification or enrollment/effects/workerloop.','Only exact21 finite leased-effect/recovery protocols with ten worker SELECTs and maximum13PASS4PARTIAL links after actual review; no productionworkerloop or broad owner qualification.')
+  else:
+   start=s.index('HELPERS=');end=s.index('\nclass Held',start);s=s[:start]+'HELPERS=set('+repr(HELPERS)+')\n'+s[end:]
+  texts[f]=s
+ for n,s in texts.items():
+  compile(s,str(T/n),'exec')
+  with(T/n).open('x',encoding='utf8',newline='\n')as out:out.write(s)
+ print(json.dumps({n:sha((T/n).read_bytes())for n in NEW},indent=2))
+if __name__=='__main__':build()
