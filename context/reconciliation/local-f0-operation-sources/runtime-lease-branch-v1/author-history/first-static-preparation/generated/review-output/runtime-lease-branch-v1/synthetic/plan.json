@@ -1,0 +1,113 @@
+{
+  "schema": "workinants.runtime-lease-branch-v1-synthetic-reproduction.v1",
+  "status": "NOT_RUN",
+  "source_review": "PENDING",
+  "scope": "PG17_11_DIAGNOSTIC_MECHANISM_ONLY_NO_BUSINESS_PROMOTION",
+  "schema_name": "wa_lease_branch_v1_repro",
+  "roles": [
+    "wa_lease_v1_app",
+    "wa_lease_v1_worker",
+    "wa_lease_v1_verifier"
+  ],
+  "cases": [
+    {
+      "id": "old-pending",
+      "variant": "OLD",
+      "role": "wa_lease_v1_app",
+      "file": "pending-update.sql",
+      "expected": "42501_EXACT_PRIVATE_HELPER_ACL_AND_SYNTHETIC_GUARD_FRAME_NO_COMMIT"
+    },
+    {
+      "id": "nested-pending",
+      "variant": "NESTED",
+      "role": "wa_lease_v1_app",
+      "file": "pending-update.sql",
+      "expected": "ONE_EXACT_ROW_CLEAN_ACK_COMMIT_ONLY_TIMESTAMP_CHANGE"
+    },
+    {
+      "id": "restored-old-pending",
+      "variant": "RESTORED_OLD",
+      "role": "wa_lease_v1_app",
+      "planned_baseline_reset_under_nested": "reset-pending-baseline.sql",
+      "file": "pending-update.sql",
+      "expected": "42501_AGAIN_OLD_EXPRESSION_TRIPWIRE"
+    },
+    {
+      "id": "app-helper-before",
+      "variant": "OLD",
+      "role": "wa_lease_v1_app",
+      "file": "direct-helper.sql",
+      "expected": "42501_NATIVE_FUNCTION_ACL"
+    },
+    {
+      "id": "app-helper-after",
+      "variant": "NESTED",
+      "role": "wa_lease_v1_app",
+      "file": "direct-helper.sql",
+      "expected": "42501_NATIVE_FUNCTION_ACL"
+    },
+    {
+      "id": "worker-helper",
+      "variant": "NESTED",
+      "role": "wa_lease_v1_worker",
+      "file": "direct-helper.sql",
+      "expected": "TRUE"
+    },
+    {
+      "id": "verifier-helper",
+      "variant": "NESTED",
+      "role": "wa_lease_v1_verifier",
+      "file": "direct-helper.sql",
+      "expected": "TRUE"
+    },
+    {
+      "id": "worker-current",
+      "variant": "NESTED",
+      "role": "wa_lease_v1_worker",
+      "target_row": 2,
+      "file": "worker-current.sql",
+      "expected": "ONE_ROW_COMMIT"
+    },
+    {
+      "id": "worker-expired",
+      "variant": "NESTED",
+      "role": "wa_lease_v1_worker",
+      "target_row": 3,
+      "file": "worker-expired.sql",
+      "expected": "P0001_EXACT_EXPIRED_OR_FOREIGN_WORKER_RAISE_ROLLBACK"
+    },
+    {
+      "id": "worker-wrong-secret",
+      "variant": "NESTED",
+      "role": "wa_lease_v1_worker",
+      "target_row": 4,
+      "file": "worker-wrong-secret.sql",
+      "expected": "P0001_EXACT_EXPIRED_OR_FOREIGN_WORKER_RAISE_ROLLBACK"
+    },
+    {
+      "id": "worker-wrong-fence",
+      "variant": "NESTED",
+      "role": "wa_lease_v1_worker",
+      "target_row": 5,
+      "file": "worker-wrong-fence.sql",
+      "expected": "P0001_EXACT_EXPIRED_OR_FOREIGN_WORKER_RAISE_ROLLBACK"
+    }
+  ],
+  "source_inputs": {
+    "runtime_transition_body_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+    "helper_body_sha256": "152bb759ae050d08a9501cffef2ff9f7900c0cb53500642e75d1675bf6995c0d"
+  },
+  "privileges": "Real independent SCRAM logins; app never granted helper EXECUTE; worker AND verifier allowed. No SET ROLE masquerade for behavioral actor.",
+  "mandatory_external_protocol": [
+    "NEW separately reviewed oneC1V/noports/networknone exact PG17.11 manifest and original-grantor bootstrap/cleanup; all source/literal gates required before real execution. No operator/credentials are prepared here.",
+    "Provision independent owner-only credentials outside these SQL files; loopbackSCRAM correct/wrong/HBA/method verification, disabled statement/error-statement logging. No password placeholders in SQL.",
+    "Original grantor creates fresh synthetic schema/roles. Before every actor ensure exactly one target row, source body/owner/ACL identity, exact intended column grants and enabled trigger. Never infer target visibility from zero updates.",
+    "The initial setup inserts five synthetic rows before creating its synthetic trigger. Each worker case has a different fixed row2/3/4/5. No trigger is disabled or reset between cases; independently verify exact enabled trigger before every actor. No canonical guard or object is touched.",
+    "Before the planned restore-old contrast, reset only the pending scheduling timestamp through the actual app login while nested source is installed; require one clean committed row and independently exact original baseline. Then original grantor installs ONLY the old guard definition. This planned baseline step is forbidden after any unexpected result.",
+    "Run each actor from a fresh real login/process. On error close it and prove backend absence before rollback observations. Stop later cases on any unlisted result; original/nested/old-restoration are separately planned contrasts, never repairs during an unexpected failure.",
+    "Retain typed result/exit/ACK/marker/SQLSTATE/source-frame/hash comparisons only. Public repeat(a,64) is dummy source data, not a retained login password or real worker secret.",
+    "Require source-sensitive native42501 helper attribution (schema/function identity/location plus synthetic guard line), not SQLSTATE alone. P0001 must name exact synthetic expired-or-foreign-worker RAISE line and bodyhash.",
+    "Clean only exact run-owned sandbox resources/test files after identity labels. Retain image; independently confirm absence. Synthetic proof does not promote old App8f2a/0a, worker or94/451 assertions."
+  ],
+  "Posture": "D"
+}

@@ -1,0 +1,35 @@
+test_25_binary_normal_and_empty_payload (check_local_f0_lease_mechanism_v1_operation.Transport.test_25_binary_normal_and_empty_payload) ... ok
+test_26_held_stdin_is_inside_whole_deadline (check_local_f0_lease_mechanism_v1_operation.Transport.test_26_held_stdin_is_inside_whole_deadline) ... ok
+test_27_held_flush_is_inside_whole_deadline (check_local_f0_lease_mechanism_v1_operation.Transport.test_27_held_flush_is_inside_whole_deadline) ... ok
+test_28_broken_and_short_stdin_are_not_success (check_local_f0_lease_mechanism_v1_operation.Transport.test_28_broken_and_short_stdin_are_not_success) ... ok
+test_29_capture_limits_and_pipe_closure (check_local_f0_lease_mechanism_v1_operation.Transport.test_29_capture_limits_and_pipe_closure) ... ok
+test_30_terminate_failure_still_kills_and_preserves_timeout (check_local_f0_lease_mechanism_v1_operation.Transport.test_30_terminate_failure_still_kills_and_preserves_timeout) ... ok
+test_31_unconfirmed_kill_and_closes_are_bounded_and_not_pass (check_local_f0_lease_mechanism_v1_operation.Transport.test_31_unconfirmed_kill_and_closes_are_bounded_and_not_pass) ... ok
+test_32_old_only_restoration_reproduces_blocked_write (check_local_f0_lease_mechanism_v1_operation.Transport.test_32_old_only_restoration_reproduces_blocked_write) ... ok
+test_33_wrong_file_warning_comes_from_actual_argv (check_local_f0_lease_mechanism_v1_operation.PasswordProjection.test_33_wrong_file_warning_comes_from_actual_argv) ... ok
+test_34_wrong_auth_malformed_extra_and_secret_vectors_reject (check_local_f0_lease_mechanism_v1_operation.PasswordProjection.test_34_wrong_auth_malformed_extra_and_secret_vectors_reject) ... ok
+test_35_old_auth_only_restoration_rejects_real_file_warning (check_local_f0_lease_mechanism_v1_operation.PasswordPipeline.test_35_old_auth_only_restoration_rejects_real_file_warning) ... FAIL
+test_01_actual_pipeline_eleven_and_exact_cleanup (check_local_f0_lease_mechanism_v1_operation.Case.test_01_actual_pipeline_eleven_and_exact_cleanup) ... ok
+test_05_login_null_loopback_wrong_identity_method_database (check_local_f0_lease_mechanism_v1_operation.Case.test_05_login_null_loopback_wrong_identity_method_database) ... ok
+test_10_persistent_writer_failure_still_cleanup_and_first_origin (check_local_f0_lease_mechanism_v1_operation.Case.test_10_persistent_writer_failure_still_cleanup_and_first_origin) ... ok
+test_11_closure_failure_prevents_observers_and_retains_reply (check_local_f0_lease_mechanism_v1_operation.Case.test_11_closure_failure_prevents_observers_and_retains_reply) ... ok
+test_13_secret_safe_sanitized_partial (check_local_f0_lease_mechanism_v1_operation.Case.test_13_secret_safe_sanitized_partial) ... ok
+test_15_constructor_and_output_failure_safe_cleanup (check_local_f0_lease_mechanism_v1_operation.Case.test_15_constructor_and_output_failure_safe_cleanup) ... ok
+test_18_intended_primary_retained_before_secondary_writer_failure (check_local_f0_lease_mechanism_v1_operation.Case.test_18_intended_primary_retained_before_secondary_writer_failure) ... ok
+
+======================================================================
+FAIL: test_35_old_auth_only_restoration_rejects_real_file_warning (check_local_f0_lease_mechanism_v1_operation.PasswordPipeline.test_35_old_auth_only_restoration_rejects_real_file_warning)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\runtime-lease-mechanism-v1-transport-v2-author-20261122\check_local_f0_lease_mechanism_v1_operation.py", line 484, in test_35_old_auth_only_restoration_rejects_real_file_warning
+    code,o=self.run_operator();self.assertEqual(code,1);self.assertEqual(o.report['primary_failure']['code'],'WRONG_PASSWORD_REQUIRED');self.assertEqual(o.report['cases'],[]);self.assertTrue(o.report['cleanup']['physical_absence'])
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PENDING_OPERATIONAL_LITERAL' != 'WRONG_PASSWORD_REQUIRED'
+- PENDING_OPERATIONAL_LITERAL
++ WRONG_PASSWORD_REQUIRED
+
+
+----------------------------------------------------------------------
+Ran 18 tests in 135.856s
+
+FAILED (failures=1)

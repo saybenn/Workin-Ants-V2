@@ -1,0 +1,3 @@
+BEGIN;
+SELECT platform_private.customer_current_for_track(NULL::uuid,NULL::uuid,NULL::bigint,NULL::bigint,NULL::uuid);
+ROLLBACK;

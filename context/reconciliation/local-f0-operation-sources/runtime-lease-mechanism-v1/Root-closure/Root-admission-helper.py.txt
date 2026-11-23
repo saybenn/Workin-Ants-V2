@@ -1,0 +1,74 @@
+"""Root admission of the exact peer-reviewed primitive probe; no service or Git calls."""
+from pathlib import Path
+import argparse,datetime,hashlib,json,sys,types,uuid
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+VAL='context/reconciliation/local-f0-runtime-lease-mechanism-v1-source-validation.json'
+AR='context/reconciliation/local-f0-operation-sources/runtime-lease-mechanism-v1'
+FINAL='ad7c28e25607002f0bb4e18ffb440b6d7a291059efbfe64279e416d008003965'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--review',type=Path,required=True);p.add_argument('--review-sha256',required=True);a=p.parse_args()
+ dr=(T/'runtime_lease_mechanism_v1_transport_v2_FINAL_frozen_author_delivery_20261123.json').read_bytes();assert sha(dr)==FINAL;d=json.loads(dr)
+ F=Path(d['future_root']);author=Path(d['author_directory']);five=d['operator_sources_sha256']
+ review_path=a.review.resolve();assert review_path.is_relative_to(T.resolve())and not review_path.is_relative_to(R.resolve())
+ rr=review_path.read_bytes();assert sha(rr)==a.review_sha256;review=json.loads(rr)
+ assert review['decision']=='SOURCE_APPROVED'and review['findings']==[]and review['operator_sources_sha256']==five and review['author_final_delivery_sha256']==FINAL
+ assert review['reviewer']!='/root/lease_v2_finish'
+ writes={}
+ for n,h in d['Root_candidate_files_sha256'].items():
+  assert not Path(n).is_absolute()and ':'not in n and '\\'not in n and all(x not in('','.','..')for x in n.split('/'))
+  raw=(F/n).read_bytes();assert sha(raw)==h;writes[n]=raw
+ assert len(writes)==271 and sha(writes[VAL])==d['validation']['sha256']
+ value=json.loads(writes[VAL]);fixed=dict(value['source_files_sha256']);assert len(fixed)==60
+ original_root_five={}
+ for n,h in five.items():
+  assert sha((author/n).read_bytes())==h
+  old=T/n
+  if old.exists():
+   raw=old.read_bytes();original_root_five[n]=sha(raw);writes[AR+'/Root-closure/before-T-five/'+n+'.txt']=raw
+ writes[AR+'/Root-closure/author-FINAL-delivery.json']=dr
+ writes[AR+'/Root-closure/independent-security-binary-review.json']=rr
+ writes[AR+'/Root-closure/validation-before-Root.json']=writes[VAL]
+ writes[AR+'/Root-closure/Root-admission-helper.py.txt']=Path(__file__).read_bytes()
+ root_review={'schema':'workinants.lease-v2-Root-source-closure.v1','decision':'SOURCE_APPROVED','reviewer':'/root','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'operator_sources_sha256':five,'independent_review_sha256':sha(rr),'fixed_source60_sha256':fixed,'historical_inactive57_source_review':'3f7b1eae1ccdb9a166df513c47224fab359156ff60419bc2943b3372ca348eb0','fixed_author_validation8d611_preserved_without_rewriting':True,'scope':'Vanilla synthetic four-role eleven-case expression/ACL mechanism only. No canonical application/two-history/worker/business qualification.','runtime':'NOT_RUN','Posture':'D'}
+ writes[AR+'/Root-closure/Root-review.json']=enc(root_review)
+ receipt=AR+'/Root-closure/independent-security-binary-review.json'
+ gate={'decision':'SOURCE_APPROVED','operator_sources_sha256':five,'path':receipt,'sha256':sha(rr)}
+ value['independent_source_review']=dict(gate);value['independent_binary_safety_review']=dict(gate)
+ value['Root_source_admission']={'decision':'SOURCE_APPROVED','path':AR+'/Root-closure/Root-review.json','sha256':sha(writes[AR+'/Root-closure/Root-review.json'])}
+ value['archive_files_sha256']={n:sha(raw)for n,raw in writes.items()if n.startswith(AR+'/')}
+ writes[VAL]=enc(value)
+ for n,raw in writes.items():
+  target=R/n;assert target.resolve().is_relative_to(R.resolve())and not any(x.is_symlink()for x in(target,*target.parents)if x.is_relative_to(R))
+  assert not target.exists()or target.read_bytes()==raw
+ if(R/AR).exists():
+  existing={p.relative_to(R).as_posix()for p in(R/AR).rglob('*')if p.is_file()}
+  assert existing<=set(writes),'UNLISTED_EXISTING_ROOT_ARCHIVE_WORK_PRESERVED'
+ # Validate all Root/external conflicts before copying. Existing T scripts
+ # are exclusively preserved above; original private candidates stay intact.
+ for n,h in five.items():
+  old=T/n
+  if old.exists():assert sha(old.read_bytes())==original_root_five[n]
+ for n,raw in writes.items():
+  if not(R/n).exists():put(R/n,raw)
+ for n,h in five.items():
+  raw=(author/n).read_bytes();target=T/n
+  if not target.exists()or target.read_bytes()!=raw:
+   with target.open('wb')as f:f.write(raw)
+ def forbidden(event,args):
+  if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn'):raise RuntimeError('SOURCE_ONLY_ADMISSION_BOUNDARY_FORBIDDEN')
+ sys.addaudithook(forbidden)
+ prep_name='prepare_local_f0_lease_mechanism_v1_plan.py';raw=(T/prep_name).read_bytes();assert sha(raw)==five[prep_name]
+ mod=types.ModuleType('_Root_exact_reviewed_lease_v2_prepare');mod.__file__=str(T/prep_name);exec(compile(raw,str(T/prep_name),'exec'),mod.__dict__)
+ files,_,actual_five=mod.admit(R,T,True);assert actual_five==five
+ run=str(uuid.uuid4());manifest=mod.prepare(R,T,run)
+ directory=T/('local-f0-lease-v2-reviewed-plan-'+run[:8]);directory.mkdir()
+ mp=directory/'operation-manifest.json';put(mp,enc(manifest))
+ for n,h in fixed.items():assert sha((R/n).read_bytes())==h
+ report={'schema':'workinants.lease-v2-Root-source-admission.v1','Root_files_sha256':{n:sha(b)for n,b in writes.items()},'Root_file_count':len(writes),'fixed60_unchanged':True,'original_T_five_sha256':original_root_five,'external_five_sha256':five,'current_closed_program_files':len(files),'prepared_manifest':str(mp),'prepared_manifest_sha256':sha(mp.read_bytes()),'run_id':run,'source_commit':'UNPINNED','review_status':'PENDING','independent_review_sha256':sha(rr),'runtime':'NOT_RUN','source_only_no_process_network_Git':True,'Posture':'D'}
+ out=T/'lease_v2_FINAL_Root_source_admission_inventory_20261123.json';put(out,enc(report))
+ print(json.dumps({'status':'SOURCE_ADMITTED_FRESH_PREPARED_UNPINNED_PENDING_LITERAL','inventory':out.name,'inventory_sha256':sha(out.read_bytes()),'Root_files':len(writes),'program_files':len(files),'manifest':str(mp),'manifest_sha256':sha(mp.read_bytes()),'run_id':run,'runtime':'NOT_RUN'}))
+if __name__=='__main__':main()

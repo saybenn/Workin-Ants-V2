@@ -1,0 +1,68 @@
+{
+  "schema": "workinants.runtime-lease-branch-v1-targeted-source-overlay.v1",
+  "status": "NOT_RUN",
+  "review_status": "PENDING",
+  "kind": "TARGETED_FUNCTION_OVERLAY_NOT_COMPLETE_CATALOG",
+  "base_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "patch_sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+  "ordered_history": [
+    {
+      "migration": "20261117000100_f0_local_initial",
+      "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad"
+    },
+    {
+      "migration": "20261120000100_f0_runtime_lease_branch_v1",
+      "sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7"
+    }
+  ],
+  "function": {
+    "identity": "platform_private.runtime_transition()",
+    "old_body_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+    "new_body_sha256": "dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965",
+    "language": "plpgsql",
+    "security_definer": false,
+    "volatility": "v",
+    "strict": false,
+    "parallel": "u",
+    "cost": 100,
+    "settings": [
+      "search_path=pg_catalog"
+    ],
+    "return_type": "pg_catalog.trigger",
+    "owner": "wa_schema_owner",
+    "ownership_permissions": "PRESERVED_BY_REPLACE_NO_GRANTS_OR_OWNER_STATEMENTS"
+  },
+  "helper": {
+    "source_definition_sha256": "d02fbe04120c1a130aa03625474d5eff96a1b54eb2608db8b755e73d5dd7cea1",
+    "app_execute": "REMAINS_DENIED",
+    "allowed_explicit_grantees": [
+      "wa_track_verifier",
+      "wa_worker"
+    ]
+  },
+  "worker_acl32_sha256": "85495186b4d6ca384a4bc5d9157e3748302bab61a4cb43309648a2e59da3d774",
+  "source_files_sha256": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/migrations/20260602021702_phase_2_database_truth_layer/migration.sql": "5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055",
+    "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "review-output/app-write-two-guard-observation-v2/pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+    "review-output/app-write-two-guard-observation-v2/fixtures.json": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+    "context/reconciliation/local-f0-operation-sources/runtime-lease-branch-v1/cause-plan.json": "650697274a35632841a9fbfd16e323e401480c232816f892f56c8dc1bef5d568"
+  },
+  "history_limits": "Versioned review/source artifact only, outside every active Prisma migration directory. Original7-file/one-ledger evidence unchanged. Existing one-migration guard/config does not admit this history. A future reviewed2-migration operator may materialize an exact fresh snapshot. No generated full native/oracle/ledger registration; cannot execute using old operators.",
+  "additional_affected_checks_required": [
+    "Versioned exact two-migration history/preparer/guard/config/runner and explicit replace-aware catalog compiler/expected/oracle/ledger source closure.",
+    "Fresh two-row deploy/noop immutable-checksum/registration/catalog/ownerACL/trigger-link proof with new correct counts; never reuse old29089/22 as new authority.",
+    "New App diagnostic body/frame admission and unchanged real R01/R02 recipes after fresh source qualification.",
+    "Actual synthetic PG17.11 old/nested/restored-old/helper/worker contrasts; then actual new-source leased-exit current/expired/secret/fence checks before business assertions."
+  ],
+  "Posture": "D",
+  "effective_ordered_source_sha256": "bcfd92f01a004684293f0bb30a2fce520f91845d6b849d12c3037d5f9088cae5"
+}

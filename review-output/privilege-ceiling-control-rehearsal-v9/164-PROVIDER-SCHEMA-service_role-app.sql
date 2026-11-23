@@ -1,0 +1,3 @@
+BEGIN;
+SELECT 1 FROM app.users LIMIT 1;
+ROLLBACK;

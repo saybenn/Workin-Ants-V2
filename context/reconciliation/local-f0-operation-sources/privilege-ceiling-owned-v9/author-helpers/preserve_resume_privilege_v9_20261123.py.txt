@@ -1,0 +1,53 @@
+"""Preserve the complete unfinished private tree before resuming it. No services or Git."""
+from pathlib import Path
+import datetime,hashlib,json,os,shutil,stat
+T=Path(__file__).resolve().parent
+OLD=T/'privilege-provider-format-v9-private-20261122'
+NEW=T/'privilege-provider-format-v9-private-20261123'
+BEFORE=T/'privilege-provider-format-v9-resume-preservation-20261123'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def files(root):
+ found={}
+ for parent,dirs,names in os.walk(root,followlinks=False):
+  for name in dirs+names:
+   p=Path(parent)/name;s=p.lstat()
+   assert not p.is_symlink()and not(getattr(s,'st_file_attributes',0)&getattr(stat,'FILE_ATTRIBUTE_REPARSE_POINT',1024))
+  for name in names:
+   p=Path(parent)/name;assert p.is_file();found[p.relative_to(root).as_posix()]=p
+ return found
+def copy_all(mapping,dest):
+ result={}
+ for n,p in sorted(mapping.items()):
+  raw=p.read_bytes();q=dest/n;q.parent.mkdir(parents=True,exist_ok=True)
+  with q.open('xb')as f:f.write(raw)
+  result[n]=sha(raw)
+ return result
+assert not NEW.exists()and not BEFORE.exists()
+old_files=files(OLD);BEFORE.mkdir();NEW.mkdir()
+preserved=copy_all(old_files,BEFORE/'OLDPRIVATE')
+cloned=copy_all(old_files,NEW);assert cloned==preserved
+external={}
+for name in [
+ 'build_privilege_provider_format_v9_private_20261122.py',
+ 'complete_privilege_provider_format_v9_private_20261122.py',
+ 'run_privilege_v9_selected_checks_20261122.py',
+ 'privilege_v9_selected_pure_initial_20261122.json',
+ 'privilege_v9_selected_provider_initial_20261122.json',
+ 'privilege_v9_selected_owner_initial_20261122.json',
+ 'privilege_v9_selected_owner_support_corrected_20261122.json',
+ 'privilege_v9_private_safe_pause_for_RestoreV6_audit_20261122.json',
+ 'privilege_v9_formatting_Root_source_plan_ACK_20261122.json',
+ 'privilege_v8_a8dc4614_closed_source_facts_next_plan_final_20261122.json']:
+ p=T/name;raw=p.read_bytes();q=BEFORE/'EXTERNAL'/name;q.parent.mkdir(parents=True,exist_ok=True)
+ with q.open('xb')as f:f.write(raw)
+ external[name]=sha(raw)
+assert {n:sha(p.read_bytes())for n,p in files(OLD).items()}==preserved
+v={'schema':'workinants.privilege-v9-continuation-preservation.v1',
+ 'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ 'original_private':str(OLD),'new_private':str(NEW),'snapshot_root':str(BEFORE),
+ 'original_private_files_sha256':preserved,'file_count':len(preserved),
+ 'bytes':sum(p.stat().st_size for p in old_files.values()),'external_sha256':external,
+ 'old_source_unchanged_after':True,'Root_written':False,'runtime':'NOT_RUN','Posture':'D'}
+p=BEFORE/'preservation.json'
+with p.open('x',encoding='utf8')as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps({'preservation':str(p),'sha256':sha(p.read_bytes()),'files':len(preserved),'new_private':str(NEW)}))

@@ -1,0 +1,95 @@
+"""Root exact source publication; normal fast-forward only; no runtime execution."""
+from pathlib import Path
+import argparse,datetime,hashlib,io,json,re,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+BASE='5e0e231e44d0813ab29a21eda436329951c08c04'
+BRANCH='codex/p0c-candidate-corrections-2026-10-31'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def git(*args,cwd=R,input=None):
+ p=subprocess.run(['git','--no-optional-locks','-c','core.longpaths=true',*args],cwd=cwd,input=input,capture_output=True,timeout=180)
+ assert p.returncode==0,('GIT_COMMAND_FAILED',args[0]);return p.stdout
+def remote():return git('ls-remote','--exit-code','origin','refs/heads/'+BRANCH).decode().split()
+def originals():
+ v=json.loads((T/'652_original_checkouts_before_publication_20261123.json').read_bytes())['checkouts']
+ for item in v.values():
+  root=Path(item['path']);assert git('rev-parse','HEAD',cwd=root).decode().strip()==item['HEAD']
+  assert git('branch','--show-current',cwd=root).decode().strip()==item['branch']
+  assert git('status','--porcelain=v1',cwd=root).decode()==item['status_porcelain']
+  p=Path(git('rev-parse','--git-path','index',cwd=root).decode().strip())
+  if not p.is_absolute():p=root/p
+  assert sha(p.read_bytes())==item['index_sha256']
+def blobs(prefix,files):
+ stream=io.BytesIO(git('cat-file','--batch',input=''.join(prefix+':'+n+'\n'for n in sorted(files)).encode()))
+ for n in sorted(files):
+  h=stream.readline().split();assert len(h)==3 and h[1]==b'blob',('MISSING_COMMITTED_BLOB',n)
+  b=stream.read(int(h[2]));assert sha(b)==files[n]and stream.read(1)==b'\n',('BLOB_HASH',n)
+  assert sha((R/n).read_bytes())==files[n],('CURRENT_HASH',n)
+ assert stream.read()==b''
+def pairs(items):
+ d={}
+ for k,v in items:assert k not in d;d[k]=v
+ return d
+def scan(files):
+ total=0;js=0
+ for n,h in files.items():
+  assert '\\'not in n and ':'not in n and all(p not in ('','.','..')for p in n.split('/'))
+  p=R/n;assert not p.is_symlink()and p.stat().st_nlink==1
+  b=p.read_bytes();assert sha(b)==h;total+=len(b)
+  assert not re.search(rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{50,}|AKIA[0-9A-Z]{16}',b),('CREDENTIAL_PATTERN',n)
+  if n.endswith('.json'):json.loads(b,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in ()).throw(AssertionError('NONFINITE_JSON')));js+=1
+ assert sha((R/'vercel.json').read_bytes())=='81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f'
+ assert json.loads((R/'vercel.json').read_bytes())['git']['deploymentEnabled'][BRANCH]is False
+ assert not(R/'.github/workflows').exists()and not(R/'.husky').exists()
+ q=subprocess.run(['git','config','--get','core.hooksPath'],cwd=R,capture_output=True,timeout=30);assert q.returncode==1 and q.stdout==b''
+ hooks=Path(git('rev-parse','--git-path','hooks').decode().strip())
+ if not hooks.is_absolute():hooks=R/hooks
+ assert not any(p.is_file()and not p.name.endswith('.sample')for p in hooks.iterdir())
+ return {'bytes':total,'strict_json_files':js,'credential_pattern_scan':'CLEAR','branch_deployment_disabled':True,'active_hooks':0,'GHA':0,'Husky':0}
+def main():
+ a=argparse.ArgumentParser();a.add_argument('mode',choices=['prepare','commit','verify']);v=a.parse_args()
+ mp=T/'lease_V9_exact_curated_source_map_20261123.json'
+ if v.mode=='prepare':
+  files={}
+  for name,key in [('lease_v2_FINAL_Root_source_admission_inventory_20261123.json','Root_files_sha256'),('privilege_v9_FINAL_Root_source_admission_inventory_20261123.json','Root_files_sha256'),('lease_V9_reviewed_source_progress_inventory_20261123.json','files_sha256')]:
+   src=json.loads((T/name).read_bytes());assert src['runtime']=='NOT_RUN'
+   for n,h in src[key].items():assert n not in files or files[n]==h;files[n]=h
+  F='context/reconciliation/local-f0-source-followups/lease-V9-reviewed-source-20261123'
+  for name,source in {'context-check.log':'lease_V9_context_check_20261123.log','foundation-check.json':'lease_V9_foundation_check_20261123.json','Root-exact-publisher.py.txt':Path(__file__).name}.items():
+   n=F+'/'+name;body=(T/source).read_bytes();put(R/n,body);files[n]=sha(body)
+  assert b'Structural checks PASSED'in(T/'lease_V9_context_check_20261123.log').read_bytes()
+  check=json.loads((T/'lease_V9_foundation_check_20261123.json').read_bytes());assert check['errors']==[]
+  assert git('rev-parse','HEAD').decode().strip()==BASE and git('diff','--cached','--name-only','-z')==b''
+  originals();assert remote()==[BASE,'refs/heads/'+BRANCH]
+  result={'schema':'workinants.lease-V9-exact-curated-source-map.v1','base_commit':BASE,'files_sha256':dict(sorted(files.items())),'file_count':len(files),'scan':scan(files),'original_checkouts_preserved':True,'runtime':'NOT_RUN','ledger_unchanged':True,'Posture':'D'}
+  put(mp,enc(result));print(json.dumps({'status':'CURATED_SOURCE_READY_FOR_PUBLICATION','files':len(files),'map_sha256':sha(mp.read_bytes()),'scan':result['scan']}));return
+ if v.mode=='verify':
+  p=T/'lease_V9_full_committed_source_pre_push_20261123.json';proof=json.loads(p.read_bytes());c=proof['commit'];files=proof['files_sha256']
+  assert git('rev-parse','HEAD').decode().strip()==c and remote()==[c,'refs/heads/'+BRANCH]
+  blobs(c,files);originals();scan(files)
+  out=T/'lease_V9_full_remote_publication_verification_20261123.json';put(out,enc({'schema':'workinants.lease-V9-independent-full-remote-verification.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'commit':c,'tree':proof['tree'],'full_remote_hash':c,'direct_parent':BASE,'files':len(files),'current_and_committed':True,'normal_fast_forward':True,'originals_preserved':True,'runtime':'NOT_RUN','Posture':'D'}));print(json.dumps({'status':'PUBLISHED_FULL_HASH_AND_ALL_BLOBS_VERIFIED','commit':c,'tree':proof['tree'],'proof_sha256':sha(out.read_bytes())}));return
+ raw=mp.read_bytes();curated=json.loads(raw);files=curated['files_sha256']
+ assert git('rev-parse','HEAD').decode().strip()==BASE and remote()==[BASE,'refs/heads/'+BRANCH]
+ assert git('remote','get-url','origin').decode().strip()=='https://github.com/saybenn/Workin-Ants-V2.git'
+ assert git('diff','--cached','--name-only','-z')==b''
+ originals();scan(files)
+ changed=set()
+ for n,h in files.items():
+  p=subprocess.run(['git','-C',str(R),'cat-file','blob',BASE+':'+n],capture_output=True,timeout=30)
+  if p.returncode!=0 or sha(p.stdout)!=h:changed.add(n)
+ assert set(filter(None,git('diff','--name-only','-z').decode().split('\0')))<=changed
+ names=T/'lease_V9_exact_stage_paths_20261123.nul';put(names,b''.join(n.encode()+b'\0'for n in sorted(files)))
+ git('add','--pathspec-from-file='+str(names),'--pathspec-file-nul')
+ assert set(filter(None,git('diff','--cached','--name-only','-z').decode().split('\0')))==changed
+ blobs('',files);originals();assert remote()==[BASE,'refs/heads/'+BRANCH]
+ git('commit','-m','Review bounded lease transport and privilege diagnostic packets')
+ c=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+ assert git('rev-parse','HEAD^').decode().strip()==BASE
+ assert set(filter(None,git('diff-tree','--no-commit-id','--name-only','-r','-z',c).decode().split('\0')))==changed
+ blobs(c,files);originals()
+ out=T/'lease_V9_full_committed_source_pre_push_20261123.json';put(out,enc({'schema':'workinants.lease-V9-full-committed-source-proof.v1','commit':c,'tree':tree,'direct_parent':BASE,'curated_map_sha256':sha(raw),'files_sha256':files,'changed_files':len(changed),'all_current_committed_equal':True,'originals_preserved':True,'runtime':'NOT_RUN','Posture':'D'}))
+ print(json.dumps({'status':'COMMITTED_READY_NORMAL_FF_PUSH','commit':c,'tree':tree,'curated_files':len(files),'changed_files':len(changed),'proof_sha256':sha(out.read_bytes())}))
+if __name__=='__main__':main()

@@ -1,0 +1,43 @@
+from pathlib import Path
+import hashlib
+import importlib.util
+import io
+import json
+import sys
+import time
+import unittest
+
+sys.dont_write_bytecode=True
+T=Path(r'C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f')
+D=T/'runtime-lease-branch-v1-author-20261120'
+F=D/'future-root'
+LOG=D/'focused14-initial.log'
+REPORT=D/'focused14-initial.json'
+assert not LOG.exists()and not REPORT.exists()
+
+def no_external(event,args):
+    if event in ('subprocess.Popen','os.system','os.posix_spawn','socket.connect','socket.bind','socket.getaddrinfo'):
+        raise AssertionError('PROCESS_OR_NETWORK_BOUNDARY_FORBIDDEN')
+
+sys.addaudithook(no_external)
+source=F/'scripts/check-runtime-lease-branch-v1.py'
+spec=importlib.util.spec_from_file_location('_runtime_lease_branch_v1_focused',source)
+module=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+stream=io.StringIO();start=time.monotonic()
+result=unittest.TextTestRunner(stream=stream,verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(module.LeaseBranchSourceTests))
+elapsed=round(time.monotonic()-start,3)
+log=stream.getvalue().encode('utf-8')
+LOG.write_bytes(log)
+value={'schema':'workinants.runtime-lease-branch-v1-focused-offline-results.v1','PASS':result.wasSuccessful(),
+       'methods':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':elapsed,
+       'log_sha256':hashlib.sha256(log).hexdigest(),
+       'sources_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest()for p in(F/'scripts/prepare-runtime-lease-branch-v1.py',source)},
+       'all_process_network_boundaries':'FORBIDDEN_BY_AUDIT_HOOK','actual_PG_SQL_Docker':'NOT_RUN',
+       'model_limit':'Source-sensitive initialization and truth model only; no actual PostgreSQL permission behavior proof.',
+       'all_review_gates':'PENDING','Posture':'D'}
+REPORT.write_bytes(json.dumps(value,indent=2).encode()+b'\n')
+print(json.dumps(value))
+if not result.wasSuccessful():
+    print(stream.getvalue()[-9000:])
+raise SystemExit(0 if result.wasSuccessful()else 1)

@@ -1,0 +1,1 @@
+BEGIN; TRUNCATE TABLE platform.database_action_grant; ROLLBACK;

@@ -1,0 +1,33 @@
+"""Exclusive continuation snapshot; do not modify the interrupted private candidate."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent
+A=T/'runtime-lease-mechanism-v1-transport-v2-author-20261122'
+N=T/'runtime-lease-mechanism-v1-transport-v2-finish-author-20261123'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+N.mkdir(exist_ok=False);P=N/'preserved-before-finish';P.mkdir()
+old={};copied={};references={}
+immutable={'preserved-before-correction','transport-v2-freeze'}
+for p in A.rglob('*'):
+ if not p.is_file():continue
+ assert not p.is_symlink()and p.resolve().is_relative_to(A.resolve())
+ n=p.relative_to(A).as_posix();raw=p.read_bytes();old[n]=sha(raw)
+ if p.relative_to(A).parts[0]in immutable or '__pycache__'in p.parts:
+  references[n]=old[n];continue
+ for base in(P/'current-author-tree',N):
+  out=base/n;out.parent.mkdir(parents=True,exist_ok=True)
+  with out.open('xb')as f:f.write(raw)
+ copied[n]=old[n]
+for n,h in old.items():assert sha((A/n).read_bytes())==h
+v={'schema':'workinants.lease-transport-v2-finish-preservation.v1',
+ 'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ 'original_private_candidate':str(A),'new_private_candidate':str(N),
+ 'all_original_files_sha256':old,'actual_unfinished_files_copied_sha256':copied,
+ 'already_preserved_immutable_or_machine_cache_references_sha256':references,
+ 'original_candidate_unchanged':True,'provisional5955_is_not_final':True,
+ 'Root_mutated':False,'runtime':'NOT_RUN','Posture':'D'}
+p=N/'before-finish-preservation.json'
+with p.open('x',encoding='utf8')as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps({'candidate':str(N),'preservation_sha256':sha(p.read_bytes()),
+ 'original_files':len(old),'copied_unfinished_files':len(copied),
+ 'immutable_or_cache_references':len(references),'Root_mutated':False}))

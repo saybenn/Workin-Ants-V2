@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "app"."user_security_profiles"("id","user_id","security_tier","phone_number_encrypted","phone_number_hash","phone_verified_at","phone_last_changed_at","passkeys_enabled","sms_mfa_enabled","backup_password_configured","sensitive_action_mfa_required","last_step_up_at","last_sensitive_action_at","locked_until","lock_reason","created_at","updated_at","revision","security_generation","mutation_transaction_id") VALUES ('13aa9b2f-5ef3-53f6-a183-70e3f8e00d11'::pg_catalog.uuid,'f10db05c-76a4-56d3-ae8f-2340aa037a6a'::pg_catalog.uuid,'standard'::app.user_security_tier,NULL::pg_catalog.text,NULL::pg_catalog.text,NULL::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,false,false,false,true,NULL::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,NULL::pg_catalog.text,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'0'::pg_catalog.int8,'0'::pg_catalog.int8,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

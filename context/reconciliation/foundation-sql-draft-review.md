@@ -1,3 +1,19 @@
+## Local F0 continuation - reviewed lease and privilege replacement sources (2026-11-23)
+
+Accepted coverage remains **652 PASS /32 PARTIAL /311 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE**, with684 current rows and selected94 cases **8 PASS /79 PARTIAL /7 NOT_RUN**. The published evidence checkpoint is5e0e231e44d0813ab29a21eda436329951c08c04. No runtime coverage is added by this source checkpoint.
+
+The lease mechanism transport correction is independently source-approved after its original authentication-warning and stdin-deadline HOLD. The final transport preserves bounded binary IO, first-failure evidence, secret exclusion and exact cleanup. A fresh11-case synthetic plan remains unpinned/PENDING/NOT_RUN until publication, committed-byte verification, separate literal review and Root live preflight. The optional historical-fixture checker error is preserved; no whole-suite pass is claimed. Primitive evidence must precede corrected two-history application and affected worker qualification.
+
+PrivilegeV9 is independently source-approved. Only18 provider test statements gain reviewed line formatting; strict diagnostic checks, five guard functions, other182 SQL statements and all32 worker ACL rows remain unchanged. Current and committed drift, PENDING gates and modeled process stopping passed. Hash-pinned Steps definitions compile before the gate, with no external effects; helpers, output creation and processes follow the gate. Its fresh200-case actual remains NOT_RUN.
+
+The two-history compiler/ledger reader and Restore exact-three evidence reader continue privately under separate review. CSP has an approved inactive child and an unimplemented owning lifecycle. Initial5ae/June, A-D, canonical application SQL, requirements1034, selected94 and451register remain unchanged. PostureD and Brain final acceptance remain.
+
+Plain English: Two code fixes passed a second person's check. The scoreboard stays the same until the exact checked files pass their local tests. Old reports and the worker locks stay saved.
+
+Detailed current record: context/reconciliation/local-f0-lease-V9-reviewed-source-progress-20261123.json (SHA-256 d36b26a52e5d95cdc16f70df19f02e7e5e0f200f3cf499c43e839134ad3175df). Earlier sections are version-qualified history.
+
+---
+
 ## Local F0 continuation - verified652 and closed permission/restore runs (2026-11-23)
 
 Actual rebuilt coverage is **652 PASS /32 PARTIAL /311 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE**, with684 current evidence rows. Selected94 cases: **8 PASS /79 PARTIAL /7 NOT_RUN**. Exactly13 SQL SELECT links and one failed-install phase upgrade are admitted. Old670 current rows and the full priorPARTIAL history remain intact; historical validation adds no second current grade. The corrected full684 build and13 applicable legacy checks passed.

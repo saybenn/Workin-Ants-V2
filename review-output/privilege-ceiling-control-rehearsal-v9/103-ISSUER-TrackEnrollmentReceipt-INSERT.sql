@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "app"."track_enrollment_receipt"("id","user_id","track","profile_id","source_owner","source_creation_revision","selection_id","selection_revision","semantic_key","fingerprint","result_code","effect_receipt_id","created_at","mutation_transaction_id") VALUES ('f25adf2f-592e-5ba7-abd5-92c08764b700'::pg_catalog.uuid,'c97555c4-e85d-53e5-8435-9979588fd1ae'::pg_catalog.uuid,'customer'::app.account_track,'54aed17a-a385-50e8-83c2-50acc1ae86e3'::pg_catalog.uuid,'native-acl-3008810452ea9cf8eef97079'::pg_catalog.text,'0'::pg_catalog.int8,'7417e1d4-9d74-5e40-8190-1247cfc96fa0'::pg_catalog.uuid,'0'::pg_catalog.int8,'native-acl-a7609f2f517edf99adae2b86'::pg_catalog.text,'8341c7a4ccde287f5bce578ee1433d3800cf28cd2a230a8ee89327a7cba7acbf'::pg_catalog.bpchar,'native-acl-4a0d0588967e310265db5257'::pg_catalog.text,'022f3d1b-86b8-5ecd-8d40-c4e271e3b025'::pg_catalog.uuid,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

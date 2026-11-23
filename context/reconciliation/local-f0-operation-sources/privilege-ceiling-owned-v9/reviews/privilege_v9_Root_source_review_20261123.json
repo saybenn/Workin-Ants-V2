@@ -1,0 +1,40 @@
+{
+  "schema": "workinants.privilege-v9-Root-source-review.v1",
+  "decision": "SOURCE_APPROVED",
+  "reviewer": "/root",
+  "findings": [],
+  "recorded_at_utc": "2026-11-23T09:09:05.442852+00:00",
+  "source5_sha256": {
+    "scripts/privilege_ceiling_control_protocol_v9.py": "ecfd321740b304e56ec6dbe0f21f2a6213a692cc43ef03907b58bb0b15d2b91d",
+    "scripts/sql-review/run-privilege-ceiling-control-rehearsal-v9.py": "29a9e6112a2c88419e2c6e3c0f4cf28e4c3ecef302b425756c51ca61e516d17f",
+    "scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v9.py": "269e416d3ec4f7197fa8692da01bc2002d4f74d1872aca16940c6bb58d765446",
+    "scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-V9.md": "10e15196bbbae504e0bf75e9c296c42e8eb6ea0ab4315247a6205d30d3f3106d",
+    "scripts/prepare-privilege-ceiling-control-rehearsal-v9.py": "a7930c1b807a6975e95b0d2bdc6d7259182b342c702cfd8c8008d050e5cef3ea"
+  },
+  "operator_sources_sha256": {
+    "execute_local_f0_privilege_ceiling_v9_20261122.py": "0345aeda5c1a237a0c579d2cc2ee2d2d07997e445d5f7823edce0221e7eae156",
+    "local_f0_privilege_ceiling_v9_operation_steps.py": "9243c34c4c3f36dbc136a0f214f3c175a9945583344a998a9c0c842224649e67",
+    "prepare_local_f0_privilege_ceiling_v9_plan.py": "0ebc22c0c268a4e4957d284cf7aedc553ca1ee688906fe6fe42181496ee2aa27",
+    "check_local_f0_privilege_ceiling_v9_operation.py": "322b66a75455c5853b308ccea4ce0b788c228c9bd1daa669b84ed99a4298fb8e",
+    "pin_local_f0_privilege_ceiling_v9_plan_20261122.py": "0d1cce0ed02a4c2c818c1b19331bc1f511bdc65fc3ef1f0c0bbcb92e70ca59d1"
+  },
+  "delivery_sha256": "9494033afece1e7e38eb8d2f1c4c8856797c8ccef3a899e155821db0c566ed3f",
+  "independent_review_sha256": "2255ccf72cd114e7cc684cb9caaeb732b2ea394b72f9a6c73e79fdbdc3df3a11",
+  "Root_verified_candidate_files": 256,
+  "Root_verified_external_files": 5,
+  "Root_protocol_AST": {
+    "existing_functions_changed": [
+      "diagnostic_with_receipt"
+    ],
+    "new_function": "diagnostic_comparison_bits",
+    "strict_verdict_functions_unchanged": true
+  },
+  "Root_current_protected_sources_sha256": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8"
+  },
+  "review_evidence": "Independent frozen source, formatting, diagnostic144, comparison54, owning5 and process2 checks; Root inspected protocol and coordinator source diffs and exact gate bindings. Accepted Steps-before-gate definitions have no external effects.",
+  "runtime": "NOT_RUN",
+  "Posture": "D"
+}

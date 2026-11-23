@@ -1,0 +1,15 @@
+test_01_actual_pipeline_eleven_and_exact_cleanup (check_local_f0_lease_mechanism_v1_operation.Case.test_01_actual_pipeline_eleven_and_exact_cleanup) ... FAIL
+
+======================================================================
+FAIL: test_01_actual_pipeline_eleven_and_exact_cleanup (check_local_f0_lease_mechanism_v1_operation.Case.test_01_actual_pipeline_eleven_and_exact_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\runtime-lease-mechanism-v1-author-20261120\check_local_f0_lease_mechanism_v1_operation.py", line 218, in test_01_actual_pipeline_eleven_and_exact_cleanup
+    code,o=self.run_operator();self.assertEqual(code,0,o.report.get('primary_failure'));self.assertEqual([r['case']for r in o.report['cases']],[c[0]for c in STEPS.CASES]);self.assertTrue(o.report['cleanup']['physical_absence']);self.assertFalse(self.model.created or self.model.volume);self.assertNotIn(b'ALTER ROLE',CORE.data(o.report));self.assertTrue(all(c['operation_closed']for c in o.report['cases']))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'stage': 'LOCAL_PREFLIGHT', 'code': 'PINNED_IMAGE_VERSION_MISMATCH'}
+
+----------------------------------------------------------------------
+Ran 1 test in 5.090s
+
+FAILED (failures=1)

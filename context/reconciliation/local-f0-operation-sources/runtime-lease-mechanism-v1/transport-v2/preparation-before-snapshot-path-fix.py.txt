@@ -1,0 +1,33 @@
+"""Preserve the complete frozen/actual private V1 before bounded private transport correction."""
+from pathlib import Path
+import hashlib,json,shutil,datetime
+T=Path(__file__).resolve().parent
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def put(p,v):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write((json.dumps(v,indent=2,allow_nan=False)+'\n').encode())
+def main():
+ dp=T/'runtime_lease_mechanism_v1_frozen_author_delivery_20261120.json';dr=dp.read_bytes();assert sha(dr)=='817249fa6217c59ef87e5c77c718be5ae2eb001e156aaff489b49b97001fefe4';d=json.loads(dr)
+ hp=T/'runtime_lease_mechanism_v1_independent_owning_source_HOLD_20261120.json';hr=hp.read_bytes();assert sha(hr)=='02c2e5378e20e63614bb369f8f865020b3e48318509783e676e6e84a442b92f6'
+ A=Path(d['author_directory']);F=Path(d['future_root']);freeze=Path(d['freeze_manifest']['path']);fr=freeze.read_bytes();assert sha(fr)==d['freeze_manifest']['sha256'];fm=json.loads(fr)
+ original_files={}
+ for p in A.rglob('*'):
+  assert not p.is_symlink()
+  if p.is_file()and '__pycache__'not in p.parts:original_files[p.relative_to(A).as_posix()]=sha(p.read_bytes())
+ for name,wanted in fm['snapshot_sha256'].items():assert sha((freeze.parent/name).read_bytes())==wanted
+ assert len(fm['snapshot_sha256'])==568
+ for n,h in d['operator_sources_sha256'].items():assert sha((A/n).read_bytes())==h
+ for n,h in d['Root_candidate_files_sha256'].items():assert sha((F/n).read_bytes())==h
+ new=T/'runtime-lease-mechanism-v1-transport-v2-author-20261122';assert not new.exists();new.mkdir()
+ preserved=new/'preserved-before-correction'/'original-author-tree'
+ for name,h in original_files.items():
+  dest=preserved/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(A/name,dest);assert sha(dest.read_bytes())==h
+ for n in d['operator_sources_sha256']:shutil.copyfile(A/n,new/n)
+ shutil.copyfile(A/'run_author_checks.py',new/'run_author_checks.py')
+ shutil.copytree(F,new/'future-root')
+ for src,name in [(dp,'original-frozen-delivery.json'),(hp,'independent-HOLD.json')]:
+  shutil.copyfile(src,new/'preserved-before-correction'/name)
+ note={'schema':'workinants.lease-transport-v2-private-correction-approach.v1','author':'/root/lease_transport_correction','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'frozen_delivery_sha256':sha(dr),'HOLD_sha256':sha(hr),'original_actual_five_match_frozen':True,'original_author_files_sha256':original_files,'all568_original_freeze_snapshots_verified_and_preserved':True,'original130_Root_candidates_verified_and_copied':True,'private_directory':str(new),'changes_authorized':['Require exact known endpoint/role password primary plus exact selected fixed PGPASSFILE warning; record allowlisted booleans before assertion, no retained raw diagnostics/paths/secrets.','Start one monotonic process deadline before spawn; run bounded binary stdin delivery concurrently with bounded stdout/stderr capture and process wait. Bound termination/kill/pipe-close/thread-join attempts without replacing the original failure.','Projection-aware password-file model, old-parser restoration tripwire, blocked write/flush and capture/closure controls; one actual whole modeled eleven-case pipeline.'],'unchanged':['Twelve SQL files, eleven cases/five complete row states, roles/ACLs, binary copy/prosrc hashes, source gates, labels/image/storage/credentials/cleanup scope, inactive57/canonical5ae/worker32.'],'runtime':'NOT_RUN','Root_or_original_private_files_mutated':False,'Git_Docker_database_network_calls':False,'Posture':'D'}
+ put(new/'before-preservation-and-approach.json',note)
+ print(json.dumps({'private_directory':str(new),'original_author_files':len(original_files),'freeze_snapshots':568,'approach_sha256':sha((new/'before-preservation-and-approach.json').read_bytes())}))
+if __name__=='__main__':main()

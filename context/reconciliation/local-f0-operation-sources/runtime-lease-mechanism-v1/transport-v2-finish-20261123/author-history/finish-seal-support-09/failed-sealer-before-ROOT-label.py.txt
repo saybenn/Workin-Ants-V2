@@ -1,0 +1,108 @@
+"""Seal the preserved, source-only continuation. No real process or network boundary."""
+from pathlib import Path
+import ast,datetime,hashlib,json,shutil,sys,types,uuid
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+OLD=T/'runtime-lease-mechanism-v1-transport-v2-author-20261122'
+A=T/'runtime-lease-mechanism-v1-transport-v2-finish-author-20261123';F=A/'future-root'
+AR='context/reconciliation/local-f0-operation-sources/runtime-lease-mechanism-v1'
+VAL='context/reconciliation/local-f0-runtime-lease-mechanism-v1-source-validation.json'
+FIN=AR+'/transport-v2-finish-20261123'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def enc(v):return(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def document(p,v):put(p,enc(v))
+def methods(p):
+ return{c.name+'.'+m.name:ast.dump(m,include_attributes=False)for c in ast.parse(p.read_bytes()).body if isinstance(c,ast.ClassDef)for m in c.body if isinstance(m,ast.FunctionDef)and m.name.startswith('test_')}
+def stripped(p,names):
+ t=ast.parse(p.read_bytes());return ast.dump(ast.Module(body=[x for x in t.body if not(isinstance(x,ast.FunctionDef)and x.name in names)],type_ignores=[]),include_attributes=False)
+def main():
+ def forbidden(event,args):
+  if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn','os.exec'):raise RuntimeError('REAL_BOUNDARY_FORBIDDEN')
+ sys.addaudithook(forbidden)
+ before=json.loads((A/'before-finish-preservation.json').read_bytes())
+ for n,h in before['all_original_files_sha256'].items():assert sha((OLD/n).read_bytes())==h
+ provisional=(T/'runtime_lease_mechanism_v1_transport_v2_frozen_author_delivery_20261122.json').read_bytes()
+ assert sha(provisional)=='5955f7372dd6373c3687b5c1bb457870de632480b48c29e32b9b857182eda0fe'
+ original=json.loads((T/'runtime_lease_mechanism_v1_frozen_author_delivery_20261120.json').read_bytes())
+ original_dir=Path(original['author_directory']);base=json.loads((original_dir/'before-preservation.json').read_bytes())
+ branch=json.loads((T/'runtime_lease_branch_v1_frozen_author_delivery_20261120.json').read_bytes())
+ for n,h in base['original_candidate_sha256'].items():assert sha((F/n).read_bytes())==h
+ assert len(base['original_candidate_sha256'])==57
+ for n,h in base['TASK_refs_sha256'].items():
+  assert n.startswith('T:')and ':'not in n[2:]
+  assert sha((T/n[2:]).read_bytes())==h
+ root_before={n:sha((R/n).read_bytes())for n in base['Root_current_sha256']}
+ parent_changes={n:{'historical_sha256':h,'current_parent_sha256':root_before[n]}for n,h in base['Root_current_sha256'].items()if root_before[n]!=h}
+ five={n:sha((A/n).read_bytes())for n in original['operator_sources_sha256']}
+ for n in five:compile((A/n).read_bytes(),str(A/n),'exec')
+ assert five['execute_local_f0_lease_mechanism_v1_20261120.py']=='8e2c2529727fd8270f709737c3129c1ad650e09c6f70914dedd0ea46354250e9'
+ assert stripped(original_dir/'execute_local_f0_lease_mechanism_v1_20261120.py',{'process'})==stripped(A/'execute_local_f0_lease_mechanism_v1_20261120.py',{'process'})
+ assert stripped(original_dir/'local_f0_lease_mechanism_v1_operation_steps.py',{'auth_one'})==stripped(A/'local_f0_lease_mechanism_v1_operation_steps.py',{'auth_one','wrong_password_comparison'})
+ for n in('prepare_local_f0_lease_mechanism_v1_plan.py','pin_local_f0_lease_mechanism_v1_plan_20261120.py'):assert(A/n).read_bytes()==(original_dir/n).read_bytes()
+ old_methods=methods(original_dir/'check_local_f0_lease_mechanism_v1_operation.py')
+ current_methods=methods(A/'check_local_f0_lease_mechanism_v1_operation.py')
+ assert len(old_methods)==24 and len(current_methods)==37 and all(current_methods.get(k)==v for k,v in old_methods.items())
+ prior_result=json.loads((A/'author-history/transport-v2-cleanup-boundary-07/outcome.json').read_bytes())
+ last=json.loads((A/'author-history/finish-thread-boundary-08/outcome.json').read_bytes())
+ assert prior_result['tests']==5 and last['tests']==2 and all(v['failures']==v['errors']==v['exit_code']==0 for v in(prior_result,last))
+ for name,h in five.items():
+  assert sha((A/'author-history/finish-thread-boundary-08'/name).read_bytes())==h
+  if name!='check_local_f0_lease_mechanism_v1_operation.py':assert sha((A/'author-history/transport-v2-cleanup-boundary-07'/name).read_bytes())==h
+ # Preserve the interrupted version and its provisional archive before updating
+ # only the new candidate's current snapshots.
+ for n in [AR+'/'+name+'.txt'for name in five]+[AR+'/author-scope-and-offline-outcomes.json',VAL]:
+  put(F/FIN/'before-finish-current-metadata'/n,(F/n).read_bytes())
+ for name in five:(F/AR/(name+'.txt')).write_bytes((A/name).read_bytes())
+ report=json.loads((A/'transport-v2-final-author-review.json').read_bytes())
+ report.update(schema='workinants.lease-transport-v2-finish-author-review.v1',author='/root/lease_v2_finish',recorded_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),decision='PENDING_DISTINCT_NONAUTHOR_SOURCE_REVIEW',operator_sources_sha256=five)
+ report['focused_outcomes']['final_explicit_thread_start_join_and_golden2']=last
+ report['focused_outcomes']['distinct_selected_methods_closed_PASS']=20
+ report['focused_outcomes']['new_unique_methods']=13
+ report['focused_outcomes']['qualification_of_results']='Version-qualified20 distinct selected methods, not20 methods rerun under one version: prior18 plus final-Core thread-construction method36 plus finish method37. Final runtime Core8e2 unchanged from prior5PASS39.172s; finish2PASS22.921s adds explicit cleanupThread.start/join primary preservation and unconfirmed-success refusal plus actual whole modeled11. No unchanged18/24/37 broad suite repeated.'
+ report['preservation']['historical_Root303_snapshot_preserved']=True
+ report['preservation']['current_parent_changes_from_historical_Root303']=parent_changes
+ report['preservation']['live_Root303_differences_already_owned_by_parent']=list(parent_changes)
+ report['preservation']['original_interrupted2751_files_unchanged']=True
+ report['preservation']['exclusive_before_finish_preservation_sha256']=sha((A/'before-finish-preservation.json').read_bytes())
+ report['preservation']['runtime_Core_Steps_Prep_Pin_unchanged_in_finish']=True
+ report['source_gates']='PENDING';report['runtime']='NOT_RUN';report['qualification_promotions']=0
+ document(A/'FINAL-author-review-20261123.json',report)
+ (F/AR/'author-scope-and-offline-outcomes.json').write_bytes(enc(report))
+ for name,p in{
+  'before-finish-preservation.json':A/'before-finish-preservation.json',
+  'FINAL-author-review.json':A/'FINAL-author-review-20261123.json',
+  'finish-sealer.py.txt':Path(__file__),
+  'preservation-helper.py.txt':T/'preserve_lease_v2_finish_current_20261123.py',
+  'provisional5955-delivery-DO-NOT-ADMIT.json':T/'runtime_lease_mechanism_v1_transport_v2_frozen_author_delivery_20261122.json'}.items():put(F/FIN/name,p.read_bytes())
+ for p in(A/'author-history').rglob('*'):
+  if p.is_file()and '__pycache__'not in p.parts:
+   n=FIN+'/author-history/'+p.relative_to(A/'author-history').as_posix()
+   put(F/n,p.read_bytes())
+ archive={p.relative_to(F).as_posix():sha(p.read_bytes())for p in(F/AR).rglob('*')if p.is_file()}
+ v=json.loads((F/VAL).read_bytes());v['operator_sources_sha256']=five;v['archive_files_sha256']=archive
+ v['offline_results']['transport_v2_distinct_selected_methods_PASS']=20;v['offline_results']['transport_v2_new_unique_methods']=13
+ v['offline_results']['final_Core_prior_targeted5_seconds']=prior_result['seconds'];v['offline_results']['finish_explicit_thread_start_join_and_golden2_seconds']=last['seconds']
+ v['offline_results']['all_results_version_qualified_not_additive']=True
+ v['offline_results']['no_real_process_network_database_SQL_calls']=True
+ assert v['independent_source_review']=={'decision':'PENDING'}and v['independent_binary_safety_review']=={'decision':'PENDING'}
+ (F/VAL).write_bytes(enc(v))
+ prep=types.ModuleType('_lease_transport_v2_finish_prep');prep.__file__=str(A/'prepare_local_f0_lease_mechanism_v1_plan.py')
+ exec(compile((A/'prepare_local_f0_lease_mechanism_v1_plan.py').read_bytes(),prep.__file__,'exec'),prep.__dict__)
+ run=str(uuid.uuid4());m=prep.prepare(F,A,run);assert enc(m)==enc(prep.prepare(F,A,run))
+ assert m['review_status']=='PENDING'and m['source_commit']=='UNPINNED'
+ document(A/'FINAL-proposed-unpinned-operation-manifest-20261123.json',m)
+ proof={'schema':'workinants.lease-transport-v2-finish-pure-source-proof.v1','status':'PASS_FULL_CURRENT_PREPARE_AND_BYTE_REPRODUCTION','packet_sha256':m['packet_sha256'],'packet_files':len(m['packet_files_sha256']),'operator_sources_sha256':five,'no_factory_source_verifier_substitution':True,'Core_AST_only_process':True,'Steps_AST_only_auth_and_pure_comparison':True,'original24_method_AST_preserved':True,'source_gates':'PENDING','real_process_network_database_SQL_calls':False,'runtime':'NOT_RUN','Posture':'D'}
+ document(A/'FINAL-pure-prepare-20261123.json',proof)
+ assert root_before=={n:sha((R/n).read_bytes())for n in base['Root_current_sha256']}
+ for n,h in before['all_original_files_sha256'].items():assert sha((OLD/n).read_bytes())==h
+ frozen=A/'FINAL-freeze-20261123';frozen.mkdir();snapshots={}
+ for p in A.rglob('*'):
+  if not p.is_file()or p.is_relative_to(frozen)or p.is_relative_to(A/'preserved-before-finish')or '__pycache__'in p.parts:continue
+  n=p.relative_to(A).as_posix();raw=p.read_bytes();put(frozen/'snapshots'/n,raw);snapshots[n]=sha(raw)
+ document(frozen/'freeze-manifest.json',{'schema':'workinants.lease-transport-v2-finish-freeze.v1','snapshot_sha256':snapshots,'count':len(snapshots),'old2751_files_unchanged':True,'source_gates':'PENDING','runtime':'NOT_RUN'})
+ delivery={'schema':'workinants.lease-mechanism-v1-transport-v2-FINAL-frozen-delivery.v1','decision':'READY_FOR_DISTINCT_NONAUTHOR_SOURCE_REVIEW_NOT_EXECUTION','author':'/root/lease_v2_finish','author_directory':str(A),'future_root':str(F),'operator_sources_sha256':five,'Root_candidate_files_sha256':m['packet_files_sha256'],'Root_candidate_file_count':len(m['packet_files_sha256']),'packet_sha256':m['packet_sha256'],'validation':{'path':str(F/VAL),'sha256':sha((F/VAL).read_bytes())},'archive_files_sha256':archive,'archive_prefix':str(F/AR),'author_review':{'path':str(A/'FINAL-author-review-20261123.json'),'sha256':sha((A/'FINAL-author-review-20261123.json').read_bytes())},'pure_prepare':{'path':str(A/'FINAL-pure-prepare-20261123.json'),'sha256':sha((A/'FINAL-pure-prepare-20261123.json').read_bytes())},'freeze_manifest':{'path':str(frozen/'freeze-manifest.json'),'sha256':sha((frozen/'freeze-manifest.json').read_bytes()),'snapshots':len(snapshots)},'previous_provisional_delivery_sha256':sha(provisional),'provisional5955_is_not_final':True,'proposed_manifest':{'path':str(A/'FINAL-proposed-unpinned-operation-manifest-20261123.json'),'sha256':sha((A/'FINAL-proposed-unpinned-operation-manifest-20261123.json').read_bytes()),'run_id':run},'offline_distinct_selected_methods_PASS_version_qualified':20,'new_unique_methods':13,'runtime_Core_unchanged_from_prior5PASS':True,'finish_targeted2_PASS_seconds':last['seconds'],'original24_methods_preserved':True,'all_original_private2751_files_unchanged':True,'Root303_current_unchanged_during_finish':True,'historical_Root303_parent_differences':parent_changes,'runtime':'NOT_RUN','source_gates':'PENDING','Root_mutated':False,'qualification_promotions':0,'Posture':'D'}
+ out=T/'runtime_lease_mechanism_v1_transport_v2_FINAL_frozen_author_delivery_20261123.json';document(out,delivery)
+ print(json.dumps({'delivery':str(out),'sha256':sha(out.read_bytes()),'operator_sources_sha256':five,'packet_files':len(m['packet_files_sha256']),'packet_sha256':m['packet_sha256'],'validation_sha256':delivery['validation']['sha256'],'freeze_snapshots':len(snapshots),'runtime':'NOT_RUN','source_gates':'PENDING'}))
+if __name__=='__main__':main()

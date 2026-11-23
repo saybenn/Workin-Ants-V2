@@ -1,0 +1,206 @@
+"""Environment-free source checks. The initialization model is not PostgreSQL."""
+from pathlib import Path
+import ast
+import copy
+import hashlib
+import importlib.util
+import itertools
+import json
+import tempfile
+import unittest
+
+ROOT=Path(__file__).resolve().parents[1]
+SOURCE=ROOT/'scripts/prepare-runtime-lease-branch-v1.py'
+spec=importlib.util.spec_from_file_location('_runtime_lease_branch_v1_generator',SOURCE)
+G=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(G)
+
+def verify_outputs(root):
+    files,proposal=G.build(root)
+    actual={p.relative_to(root).as_posix() for prefix in(G.OUT,G.HISTORY)
+            for p in(root/prefix).rglob('*')if p.is_file()}
+    G.need(actual==set(files),'EXACT_GENERATED_FILE_SET')
+    for rel,blob in files.items():
+        path=root/rel
+        G.need(not path.is_symlink()and path.read_bytes()==blob,'GENERATED_BYTE_REPRODUCTION')
+    return files,proposal
+
+def sql_and(a,b):
+    return False if a is False or b is False else None if a is None or b is None else True
+
+def sql_or(*terms):
+    return True if True in terms else None if None in terms else False
+
+class ModeledPermission(Exception):
+    pass
+
+class ModeledGuard(Exception):
+    pass
+
+def initialization_model(body,old_state,new_state,execute,expired=False,secret_wrong=False,fence_wrong=False):
+    """Explicit source-shape abstraction of independently reviewed PG17 source.
+
+    Init of a reached SQL expression checks its helper privilege before Boolean
+    evaluation. PL/pgSQL skips an inner expression in an unreached then-body.
+    No real function/connection/server behavior is claimed by this model.
+    """
+    outer=old_state=='leased'and new_state!='leased'
+    if G.OLD in body and G.NEW not in body:
+        if not execute:raise ModeledPermission('42501')
+    elif G.NEW in body and G.OLD not in body:
+        if not outer:return 'ACCEPT'
+        if not execute:raise ModeledPermission('42501')
+    else:raise AssertionError('UNADMITTED_SOURCE_SHAPE')
+    if outer and sql_or(expired,secret_wrong,fence_wrong)is True:
+        raise ModeledGuard('P0001:expired or foreign worker')
+    return 'ACCEPT'
+
+class LeaseBranchSourceTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.files,cls.proposal=G.build(ROOT)
+        cls.original,cls.old=G.extract((ROOT/G.BASE).read_text(encoding='utf-8'),'platform_private.runtime_transition')
+        cls.new=G.patch_body(cls.old)
+
+    def test_01_byte_reproduction_closed_outputs(self):
+        files,proposal=verify_outputs(ROOT)
+        self.assertEqual(files,self.files);self.assertEqual(proposal,self.proposal)
+
+    def test_02_only_one_reversible_body_edit(self):
+        self.assertEqual(self.new.replace(G.NEW,G.OLD,1),self.old)
+        self.assertEqual(self.old.count(G.OLD),1);self.assertEqual(self.new.count(G.NEW),1)
+        self.assertEqual(self.old.replace(G.OLD,''),self.new.replace(G.NEW,''))
+        self.assertEqual(G.sha(self.old.encode()),G.OLD_BODY_SHA)
+        self.assertEqual(self.old.count('platform_private.lease_secret_matches('),3)
+        self.assertEqual(self.new.count('platform_private.lease_secret_matches('),3)
+
+    def test_03_actual_SQL_and_PLpgSQL_parser(self):
+        import pglast
+        self.assertEqual(pglast.__version__,'v7.21')
+        count=0
+        for rel,blob in self.files.items():
+            if rel.endswith('.sql')and rel!=G.HISTORY+'/migrations/'+G.INITIAL+'/migration.sql':
+                tree=pglast.parse_sql(blob.decode());self.assertTrue(tree);count+=1
+        # PL bodies are parsed independently, including the real full function.
+        for definition in [self.original,G.effective_definition(self.new),G.synthetic_function(G.OLD),G.synthetic_function(G.NEW)]:
+            parsed=pglast.parse_plpgsql(definition);self.assertTrue(parsed)
+        self.assertGreaterEqual(count,12)
+
+    def test_04_top_level_migration_has_only_transaction_role_replace(self):
+        from pglast import parse_sql,ast as pgast
+        patch=self.files[G.HISTORY+'/migrations/'+G.SECOND+'/migration.sql'].decode()
+        nodes=[x.stmt for x in parse_sql(patch)]
+        self.assertEqual([type(x).__name__ for x in nodes],['TransactionStmt','VariableSetStmt','CreateFunctionStmt','VariableSetStmt','TransactionStmt'])
+        function=nodes[2];self.assertIs(function.replace,True)
+        self.assertEqual([n.sval for n in function.funcname],['platform_private','runtime_transition'])
+        options={o.defname:o.arg for o in function.options}
+        self.assertEqual(options['language'].sval,'plpgsql')
+        self.assertFalse(options['security'].boolval)
+        self.assertFalse(options['strict'].boolval)
+        self.assertEqual(options['volatility'].sval,'volatile')
+        self.assertEqual(options['parallel'].sval,'unsafe')
+        self.assertEqual(options['cost'].ival,100)
+        self.assertEqual(options['set'].name,'search_path')
+        self.assertEqual(options['set'].args[0].val.sval,'pg_catalog')
+
+    def test_05_unchanged_private_helper_and_worker_ACL(self):
+        overlay=json.loads(self.files[G.OUT+'/overlay.json'])
+        helper,_=G.extract((ROOT/G.BASE).read_text(encoding='utf-8'),'platform_private.lease_secret_matches')
+        self.assertEqual(G.sha(helper.encode()),overlay['helper']['source_definition_sha256'])
+        acl=json.loads((ROOT/'context/reconciliation/foundation-sql-draft-access.json').read_bytes())
+        workers=[r for r in acl if r['role']=='wa_worker'];self.assertEqual(len(workers),32)
+        self.assertEqual(json.loads(self.files[G.OUT+'/worker-acl32.json']),workers)
+        patch=self.files[G.HISTORY+'/migrations/'+G.SECOND+'/migration.sql'].decode()
+        self.assertNotIn('GRANT ',patch);self.assertNotIn('REVOKE ',patch)
+        self.assertNotIn('SECURITY DEFINER',patch);self.assertNotIn('OWNER TO',patch)
+        self.assertNotIn('CREATE TRIGGER',patch)
+
+    def test_06_actual_old_source_initialization_and_only_old_restoration_tripwire(self):
+        # A Python short-circuit-only oracle would miss the old source defect.
+        self.assertFalse(False and not False)
+        with self.assertRaisesRegex(ModeledPermission,'42501'):
+            initialization_model(self.old,'pending','pending',False)
+        self.assertEqual(initialization_model(self.new,'pending','pending',False),'ACCEPT')
+        restored=self.new.replace(G.NEW,G.OLD,1)
+        self.assertEqual(restored,self.old)
+        with self.assertRaisesRegex(ModeledPermission,'42501'):
+            initialization_model(restored,'pending','pending',False)
+
+    def test_07_three_valued_IF_nesting_acceptance(self):
+        for outer,inner in itertools.product((True,False,None),repeat=2):
+            self.assertEqual(sql_and(outer,inner)is True,outer is True and inner is True)
+
+    def test_08_unchanged_worker_secret_expiry_fence_predicates(self):
+        for expired,secret,fence in itertools.product((True,False),repeat=3):
+            with self.subTest(expired=expired,secret=secret,fence=fence):
+                if any((expired,secret,fence)):
+                    with self.assertRaisesRegex(ModeledGuard,'expired or foreign worker'):
+                        initialization_model(self.new,'leased','pending',True,expired,secret,fence)
+                else:self.assertEqual(initialization_model(self.new,'leased','pending',True,expired,secret,fence),'ACCEPT')
+        self.assertEqual(initialization_model(self.new,'leased','pending',True,None,False,False),'ACCEPT')
+        with self.assertRaises(ModeledPermission):initialization_model(self.new,'leased','pending',False)
+
+    def test_09_canonical_body_and_field_mutations_refused(self):
+        for old,new in [('OLD.lease_expires_at<=clock_timestamp()','false'),('OR NOT platform_private.lease_secret_matches','OR platform_private.lease_secret_matches'),("current_setting('wa.fence',true)","current_setting('wa.other_fence',true)"),('SECURITY INVOKER','SECURITY DEFINER')]:
+            changed=self.old.replace(old,new,1)if old in self.old else self.old+'\n'+new
+            with self.assertRaises(G.SourceFailure):G.patch_body(changed)
+
+    def test_10_old_expression_in_generated_migration_rejected(self):
+        # Private small clone; production expected hashes/factories stay exact.
+        with tempfile.TemporaryDirectory(dir=ROOT.parent,prefix='lease-v1-source-mutant-')as tmp:
+            root=Path(tmp)
+            for rel in G.INPUTS:
+                p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((ROOT/rel).read_bytes())
+            for rel,blob in self.files.items():
+                p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(blob)
+            rel=G.HISTORY+'/migrations/'+G.SECOND+'/migration.sql';path=root/rel
+            before=path.read_bytes();path.write_bytes(before.replace(G.NEW.encode(),G.OLD.encode(),1))
+            with self.assertRaisesRegex(G.SourceFailure,'GENERATED_BYTE_REPRODUCTION'):verify_outputs(root)
+
+    def test_11_synthetic_scope_and_no_trigger_bypass(self):
+        packet=json.loads(self.files[G.OUT+'/synthetic/plan.json'])
+        self.assertEqual(len(packet['cases']),11)
+        self.assertEqual(packet['status'],'NOT_RUN');self.assertEqual(packet['source_review'],'PENDING')
+        setup=self.files[G.OUT+'/synthetic/setup-original.sql'].decode()
+        self.assertLess(setup.index('INSERT INTO'),setup.index('CREATE TRIGGER'))
+        self.assertNotIn('DISABLE TRIGGER',''.join(b.decode()for p,b in self.files.items()if p.endswith('.sql')))
+        self.assertNotIn('PASSWORD',setup)
+        self.assertIn('TO wa_lease_v1_worker,wa_lease_v1_verifier',setup)
+        execute=next(line for line in setup.splitlines()if line.startswith('GRANT EXECUTE'))
+        self.assertEqual(execute,'GRANT EXECUTE ON FUNCTION '+G.SYNTH+'.lease_secret_matches(text) TO wa_lease_v1_worker,wa_lease_v1_verifier;')
+        self.assertEqual([c['target_row']for c in packet['cases']if c['id'].startswith('worker-')and 'target_row'in c],[2,3,4,5])
+
+    def test_12_old_history_is_never_relabelled_as_two_migrations(self):
+        files=self.files
+        self.assertEqual(G.sha(files[G.HISTORY+'/migrations/'+G.INITIAL+'/migration.sql']),G.BASE_SHA)
+        self.assertNotEqual(G.sha(files[G.HISTORY+'/migrations/'+G.SECOND+'/migration.sql']),G.BASE_SHA)
+        self.assertTrue(all(p.startswith((G.OUT+'/',G.HISTORY+'/'))for p in files))
+        overlay=json.loads(files[G.OUT+'/overlay.json'])
+        self.assertEqual([r['migration']for r in overlay['ordered_history']],[G.INITIAL,G.SECOND])
+        self.assertEqual(overlay['kind'],'TARGETED_FUNCTION_OVERLAY_NOT_COMPLETE_CATALOG')
+        self.assertEqual(overlay['review_status'],'PENDING')
+        self.assertEqual(self.proposal['runtime_authority'],False)
+        self.assertNotIn('native_checks',overlay);self.assertNotIn('ledger_checks',overlay)
+
+    def test_13_source_hash_and_duplicate_nonfinite_input_tripwires(self):
+        for blob in (b'{"x":1,"x":2}',b'{"x":NaN}',b'{"x":1e999}'):
+            with self.assertRaises(G.SourceFailure):G.decode(blob)
+        with tempfile.TemporaryDirectory(dir=ROOT.parent,prefix='lease-v1-source-hash-')as tmp:
+            root=Path(tmp)
+            for rel in G.INPUTS:
+                p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes((ROOT/rel).read_bytes())
+            path=root/G.BASE;blob=path.read_bytes();path.write_bytes(blob.replace(b'OR NOT platform_private.lease_secret_matches',b'OR     platform_private.lease_secret_matches',1))
+            with self.assertRaisesRegex(G.SourceFailure,'SOURCE_HASH'):G.build(root)
+
+    def test_14_no_production_process_network_SQL_execution_boundary(self):
+        source=SOURCE.read_text(encoding='utf-8');tree=ast.parse(source)
+        imports=[]
+        for node in ast.walk(tree):
+            if isinstance(node,ast.Import):imports.extend(n.name for n in node.names)
+            if isinstance(node,ast.ImportFrom):imports.append(node.module)
+        self.assertEqual(set(imports),{'pathlib','hashlib','json','math','re'})
+        forbidden={'exec','eval','compile','__import__','system','Popen','connect','socket'}
+        self.assertFalse(any(isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id in forbidden for n in ast.walk(tree)))
+
+if __name__=='__main__':
+    unittest.main()

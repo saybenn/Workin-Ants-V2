@@ -1,0 +1,115 @@
+{
+  "schema": "workinants.runtime-lease-branch-v1-frozen-author-review.v1",
+  "decision": "AUTHOR_OFFLINE_COMPLETE_REQUIRES_DISTINCT_NONAUTHOR_SOURCE_REVIEW",
+  "utc": "2026-11-20T16:06:24.046225+00:00",
+  "author": "/root/privilege_mount_v2_review",
+  "Root_authority": "Explicit parent SOURCE-only ACK + inactive-review-artifact clarification; not runtime/Root admission.",
+  "cause_plan_sha256": "650697274a35632841a9fbfd16e323e401480c232816f892f56c8dc1bef5d568",
+  "source_files_sha256": {
+    "scripts/prepare-runtime-lease-branch-v1.py": "9712fb6dd00cc5c84db693636f63ae513e2b591294c319f89b5e1c6ecce0c570",
+    "scripts/check-runtime-lease-branch-v1.py": "c09588aedda35d759d3de4a6b5387a363ffd9e6d8204640d650d2ea325afe634"
+  },
+  "generated_files_sha256": {
+    "review-output/runtime-lease-branch-v1/history-source-artifact/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/runtime-lease-branch-v1/history-source-artifact/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+    "review-output/runtime-lease-branch-v1/history-source-artifact/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+    "review-output/runtime-lease-branch-v1/effective-runtime-transition.sql": "e8c54dc020f0469657424876d4b3668f5234ce7c1708fc15c30644744bef9fff",
+    "review-output/runtime-lease-branch-v1/worker-acl32.json": "6909f3cd9e2a795d1f39379b7f81db4c24f9526e235e802deea5ce1a2da8e5a3",
+    "review-output/runtime-lease-branch-v1/overlay.json": "e658f7eadb30d95c253b00ae52ef7d506110c6d098aa2dea46df9a2d411950aa",
+    "review-output/runtime-lease-branch-v1/synthetic/setup-original.sql": "01f2905de34317293bbb38920c30367c5b30cb1f95ac75aadf1d979d0a27259b",
+    "review-output/runtime-lease-branch-v1/synthetic/install-nested.sql": "aa85b8bb7cb0a4c54d36413b1a272b5be59c6536ae5a69f4abe940eb20eb1581",
+    "review-output/runtime-lease-branch-v1/synthetic/restore-old.sql": "d4d8159e8eb5d7a7d5e492ff1b3217570979f92b390cfa943694e6a3c079c871",
+    "review-output/runtime-lease-branch-v1/synthetic/pending-update.sql": "878fc41806848b068165e029e6cc049928b43303f653d1fe1db6b2630f1bce8b",
+    "review-output/runtime-lease-branch-v1/synthetic/direct-helper.sql": "25a7bd120d3918d7c015399146f31b3a8c4f219088f6f18fcd5b2b3ebca8ff15",
+    "review-output/runtime-lease-branch-v1/synthetic/reset-pending-baseline.sql": "662af8936bd9a4e5ed523597494f4360ba695049758d81b578c0cbbbfdb0b122",
+    "review-output/runtime-lease-branch-v1/synthetic/worker-current.sql": "53caac91c0a1de2babd7582fc575a7b883d91fd9dcebb6138f387bda5f31e04d",
+    "review-output/runtime-lease-branch-v1/synthetic/worker-expired.sql": "8f94787197176733cbd8af7b645007915a8d4c518ce4ddecf0228be329062d13",
+    "review-output/runtime-lease-branch-v1/synthetic/worker-wrong-secret.sql": "4245b58cbe1a750167eb6f8d29e364e798d187a800b66ed59a59b16a754a7169",
+    "review-output/runtime-lease-branch-v1/synthetic/worker-wrong-fence.sql": "6b0e66fb4c6e2d19ce93f0a3f75b978cfcf1723fefe3a6976a6c0dc2ed0cc34c",
+    "review-output/runtime-lease-branch-v1/synthetic/observe.sql": "70858d2f7b85921a9af72148e34c0dd844aff58878fda564b7cd25751036e668",
+    "review-output/runtime-lease-branch-v1/synthetic/observe-preconditions.sql": "3281842730e91c4dd648590c8005c16ccf4e156b201e9c62cd0b724c5dd60870",
+    "review-output/runtime-lease-branch-v1/synthetic/plan.json": "d93b7cbd810251761ff0f0c4e2f28dfa7f10909315e53e16a31dcf667518565f",
+    "review-output/runtime-lease-branch-v1/proposal.json": "afa3e5c1091100ff4f219aef6519162b7d9661c9f9e1296ce9f269b1dc0024df"
+  },
+  "before_preservation_sha256": "0eefc010ac8628e79f2ae80e2d69dd45deaf5f85ce2d816ceb7ce416e94b76fc",
+  "preservation": {
+    "all303Root_current_before_future_exact": true,
+    "all10_closed_TASK_refs_exact": true,
+    "initial_5ae_June5b4_oldfragment8fc_canonical5ae_active_history_and_guard_unchanged": true,
+    "Readstop7287_and_plan3cf6_immutable9plan1b698_RestoreV6delivery707b_exact": true
+  },
+  "body_delta": {
+    "old_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+    "new_sha256": "dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965",
+    "scope": "Single reversible final block only: outer leased-exit PLpgSQL IF, inner unchanged expiry OR NOT helper OR fence predicate and exact RAISE; all other body bytes exact.",
+    "header": "Explicit original language/volatile/called-on-null/invoker/parallelunsafe/cost100/searchpath; same identity/returntype. CREATE OR REPLACE preserves owner/permissions; actual newnative owner/ACL proof remains NOTRUN.",
+    "helper_and_worker_boundary": "Source helper exact and no app EXECUTE; worker AND trackverifier remain allowed,32worker rows exact. Patch has noGRANT/REVOKE/OWNER/TRIGGER/DML statements."
+  },
+  "history": {
+    "artifact_only": true,
+    "active_default_prisma_paths_changed": false,
+    "initial_source_copy_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "second_migration_id": "20261120000100_f0_runtime_lease_branch_v1",
+    "patch_path": "review-output/runtime-lease-branch-v1/history-source-artifact/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+    "patch_sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+    "ordered_effective_source_sha256": "bcfd92f01a004684293f0bb30a2fce520f91845d6b849d12c3037d5f9088cae5",
+    "overlay_kind": "TARGETED_FUNCTION_OVERLAY_NOT_COMPLETE_CATALOG",
+    "no_old7file_oneledger_29089_22_evidence_relabel": true
+  },
+  "offline": {
+    "PASS": true,
+    "methods": 14,
+    "seconds": 1.328,
+    "known_exit": 0,
+    "log_sha256": "ce7a9d2dfa7545df875aab6baa0a6126184a416c204bfc5cbd2459e8efc1db24",
+    "result_sha256": "92007b3fb253b65547c186d4955ce231c33a240349cea523df66b33163d11786",
+    "SQL_files_parsed_excluding_unchanged_full_initial": 14,
+    "PLpgSQL_definitions_parsed": 4,
+    "source_sensitive_old_and_only_old_restoration_tripwire": true,
+    "truth_cases": 9,
+    "worker_boolean_predicate_cases": 8,
+    "no_process_socket_boundary_audit_hook": true,
+    "no_broad_unchanged_suites": true,
+    "limits": "These are source/parser/model checks, not PostgreSQL execution. Model does not prove actual new app permission or canonical worker behavior."
+  },
+  "failure_history": {
+    "pre_suite_whitespace_SyntaxError": "Preserved full failed checker+typed outcome; only test whitespace repaired before firstsuite. No testcase or productiongenerator boundary ran.",
+    "static_preparation_refinement": "First19 generated artifacts and receipt preserved; final20 adds fixed source/precondition hash observer. Direct-helper dummy value, planned app baseline reset, exact GRANT test scope were corrected during static audit before suite, not runtime fixes."
+  },
+  "synthetic_packet": {
+    "cases": 11,
+    "rows": 5,
+    "roles": [
+      "wa_lease_v1_app",
+      "wa_lease_v1_worker",
+      "wa_lease_v1_verifier"
+    ],
+    "guard_source_profiles": {
+      "OLD": {
+        "body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+        "condition_body_line": 3,
+        "raise_body_line": 6
+      },
+      "NESTED": {
+        "body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+        "condition_body_line": 4,
+        "raise_body_line": 7
+      }
+    },
+    "source_review": "PENDING",
+    "runtime": "NOT_RUN",
+    "limits": "Fixed independently authenticated actors required later;3roles/5rows inside one fresh owned isolated PG17.11sandbox only, no canonical object, no password inSQL, publicdummy only. No trigger disabling or sourceguard bypass. Real old/nested/restoredold/helper/worker contrasts, backendclosure and actualnative attribution remain required."
+  },
+  "mandatory_followup": [
+    "Versioned exact two-migration history/preparer/guard/config/runner and explicit replace-aware catalog compiler/expected/oracle/ledger source closure.",
+    "Fresh two-row deploy/noop immutable-checksum/registration/catalog/ownerACL/trigger-link proof with new correct counts; never reuse old29089/22 as new authority.",
+    "New App diagnostic body/frame admission and unchanged real R01/R02 recipes after fresh source qualification.",
+    "Actual synthetic PG17.11 old/nested/restored-old/helper/worker contrasts; then actual new-source leased-exit current/expired/secret/fence checks before business assertions."
+  ],
+  "historical_limits": "0a observed42501/source10f9line33 only; deniedcallee source-supported inference.8f2a completecause UNOBSERVED. No old status/raw rewrite or new business/worker/94/451 promotion.",
+  "all_review_gates": "PENDING",
+  "runtime": "NOT_RUN",
+  "Root_Git_Docker_DB_SQL_network_mutations": false,
+  "Posture": "D",
+  "plain_English": "Keep the old migration. Put the small worker check inside the leased-only branch in a new patch. Offline checks passed; another reviewer and a real isolated Postgres test are still needed."
+}

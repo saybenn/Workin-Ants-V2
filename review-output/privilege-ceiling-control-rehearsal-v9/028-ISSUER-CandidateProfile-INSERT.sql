@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "app"."candidate_profiles"("id","user_id","headline","portfolio_url","availability","city","state","country","status","is_visible","created_at","updated_at","trust_score","verified_at","verification_expires_at","revision","privacy_generation","discovery_preference_revision","discovery_enabled_at","mutation_transaction_id") VALUES ('8a073045-711c-5621-9c3f-bb93ed591b32'::pg_catalog.uuid,'751ef8a8-890a-5be5-a1e8-b72534887166'::pg_catalog.uuid,NULL::pg_catalog.text,NULL::pg_catalog.text,NULL::pg_catalog.text,NULL::pg_catalog.text,NULL::pg_catalog.text,NULL::pg_catalog.text,'draft'::app.profile_status,false,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,NULL::pg_catalog.int4,NULL::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,'0'::pg_catalog.int8,'0'::pg_catalog.int8,'0'::pg_catalog.int8,NULL::pg_catalog.timestamptz,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

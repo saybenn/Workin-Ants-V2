@@ -1,0 +1,3 @@
+BEGIN;
+SELECT platform_private.bind_request_context(NULL::text);
+ROLLBACK;

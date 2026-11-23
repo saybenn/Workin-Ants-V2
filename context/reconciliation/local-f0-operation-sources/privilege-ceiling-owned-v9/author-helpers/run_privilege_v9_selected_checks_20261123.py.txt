@@ -1,0 +1,72 @@
+"""Version-qualified private tests; real process/socket APIs forbidden."""
+from pathlib import Path
+from contextlib import ExitStack, redirect_stdout, redirect_stderr
+import argparse
+import hashlib
+import io
+import json
+import runpy
+import socket
+import subprocess
+import time
+import traceback
+import unittest
+from unittest.mock import patch
+
+T = Path(__file__).resolve().parent
+F = T / 'privilege-provider-format-v9-private-20261123'
+C = F / 'workinants-correction-pass'
+H = lambda b: hashlib.sha256(b).hexdigest()
+
+class Result(unittest.TestResult):
+    def __init__(self): super().__init__(); self.records = []
+    def addSuccess(self, test):
+        super().addSuccess(test); self.records.append({'test': test.id(), 'status': 'PASS'})
+    def failed(self, test, err, status):
+        frames = traceback.extract_tb(err[2]); last = frames[-1] if frames else None
+        code = getattr(err[1], 'code', None)
+        self.records.append({'test': test.id(), 'status': status, 'class': err[0].__name__, 'code': code if type(code) is str and len(code) < 160 and all(c.isupper() or c.isdigit() or c == '_' for c in code) else None, 'frame': {'file': Path(last.filename).name, 'function': last.name, 'line': last.lineno} if last else None, 'traceback_sha256': H(''.join(traceback.format_exception(*err)).encode())})
+    def addFailure(self, test, err):
+        super().addFailure(test, err); self.failed(test, err, 'FAIL')
+    def addError(self, test, err):
+        super().addError(test, err); self.failed(test, err, 'ERROR')
+
+def main():
+    p = argparse.ArgumentParser(); p.add_argument('mode', choices=['pure', 'provider', 'owner']); p.add_argument('--tag', required=True); args = p.parse_args()
+    files = list(F.glob('*v9*.py')) + list((C / 'scripts').glob('*v9.py')) + list((C / 'scripts/sql-review').glob('*v9*'))
+    before = {x.relative_to(F).as_posix(): H(x.read_bytes()) for x in files if x.is_file()}
+    path = C / 'scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v9.py' if args.mode != 'owner' else F / 'check_local_f0_privilege_ceiling_v9_operation.py'
+    start = time.monotonic(); output = io.StringIO(); result = Result()
+    with ExitStack() as guard:
+        for name in ('run', 'Popen', 'check_output', 'check_call', 'call'):
+            guard.enter_context(patch.object(subprocess, name, side_effect=AssertionError('REAL_PROCESS_FORBIDDEN')))
+        guard.enter_context(patch.object(socket, 'create_connection', side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        guard.enter_context(patch.object(socket.socket, 'connect', side_effect=AssertionError('NETWORK_FORBIDDEN')))
+        with redirect_stdout(output), redirect_stderr(output):
+            ns = runpy.run_path(str(path))
+            if args.mode in ('pure', 'provider'):
+                cls = ns['ProviderFormattingV9Tests' if args.mode == 'pure' else 'ProviderProcessV9Tests']
+                tests = [cls(n) for n in cls.__dict__ if n.startswith('test_')]
+            else:
+                cls = ns['PrivilegeMetadataV6ClosureTests']
+                selected = [
+                    'test_actual_prepare_map_has_all202_generated_bytes_and_same_source_digests',
+                    'test_real_unchanged_load_inputs_accepts_only_the_actual_prepare_map',
+                    'test_real_initialized_complete_entry_reaches_only_first_resource_boundary',
+                    'test_real_initialized_entry_refuses_missing_README_before_resources_and_helpers',
+                    'test_isolated_pending_gate_precedes_new_pure_project_compilation',
+                    'test_real_pinner_refuses_missing_current_and_committed_README_without_mutation',
+                    'test_V7_actual_entry_all_new_PENDING_gates_before_helpers_processes_OUT',
+                    'test_V7_actual_entry_missing_maps_fake_review_bytes_duplicate_nonfinite_refused',
+                    'test_V7_preparer_review_JSON_refuses_duplicate_and_nonfinite',
+                ]
+                tests = [cls(n) for n in selected if not n.startswith('test_V7_')] + [ns['V7SourceGateTests'](n) for n in selected if n.startswith('test_V7_')]
+            unittest.TestSuite(tests).run(result)
+    after = {n: H((F / n).read_bytes()) for n in before}
+    record = {'schema': 'workinants.privilege-v9-selected-private-checks.v1', 'status': 'PASS' if result.wasSuccessful() else 'FAIL', 'mode': args.mode, 'tag': args.tag, 'methods': result.testsRun, 'seconds': round(time.monotonic() - start, 3), 'results': result.records, 'source_at_entry_sha256': before, 'all_source_unchanged_at_exit': before == after, 'captured_output_bytes': len(output.getvalue().encode()), 'captured_output_sha256': H(output.getvalue().encode()), 'raw_output_retained': False, 'real_process_network_forbidden': True, 'runtime': 'NOT_RUN'}
+    target = T / ('privilege_v9_selected_' + args.mode + '_' + args.tag + '_20261123.json')
+    with target.open('xb') as w: w.write((json.dumps(record, indent=2, allow_nan=False) + '\n').encode())
+    print(json.dumps({'report': target.name, 'sha256': H(target.read_bytes()), 'status': record['status'], 'methods': result.testsRun, 'seconds': record['seconds'], 'failures': [x for x in result.records if x['status'] != 'PASS']}))
+    return 0 if result.wasSuccessful() else 1
+
+if __name__ == '__main__': raise SystemExit(main())

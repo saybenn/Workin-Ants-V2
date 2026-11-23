@@ -1,0 +1,55 @@
+"""Root progress reconciliation for independently reviewed, unexecuted packets."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+F='context/reconciliation/local-f0-source-followups/lease-V9-reviewed-source-20261123'
+P='context/reconciliation/local-f0-lease-V9-reviewed-source-progress-20261123.json'
+old='context/reconciliation/local-f0-652-closed249e-progress-20261123.json'
+paths=['context/progress-tracker.md','context/reconciliation/phase0-foundation-report.md','context/reconciliation/foundation-sql-draft-review.md','context/reconciliation/local-f0-qualification-board.json','context/reconciliation/foundation-sql-draft-validation.json']
+before={n:(R/n).read_bytes()for n in paths}
+ledger=(R/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes()
+status=(R/'context/reconciliation/local-f0-qualification-status.json').read_bytes()
+assert sha(ledger)=='f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f'
+assert sha(status)=='0f39c42c6fecde007e81d1eb51e17187cc4040244b7699793be1d1c4f954c9c0'
+copies={'lease-Root-admission.json':'lease_v2_FINAL_Root_source_admission_inventory_20261123.json','lease-independent-source-review.json':'runtime_lease_mechanism_v1_transport_v2_independent_code_security_source_review_20261123.json','V9-independent-source-review.json':'privilege_v9_independent_code_source_review_20261123.json','V9-Root-admission.json':'privilege_v9_FINAL_Root_source_admission_inventory_20261123.json','Root-progress-helper.py.txt':Path(__file__).name}
+files={}
+for name,source in copies.items():
+ raw=(T/source).read_bytes();put(R/F/name,raw);files[F+'/'+name]=sha(raw)
+for n,raw in before.items():
+ name=F+'/preserved-progress-before/'+n;put(R/name,raw);files[name]=sha(raw)
+lr=json.loads((T/copies['lease-Root-admission.json']).read_bytes());vr=json.loads((T/copies['V9-Root-admission.json']).read_bytes())
+for receipt in (lr,vr):
+ assert receipt['runtime']=='NOT_RUN'
+ for n,h in receipt['Root_files_sha256'].items():assert sha((R/n).read_bytes())==h
+ for n,h in receipt['external_five_sha256'].items():assert sha((T/n).read_bytes())==h
+text='''## Local F0 continuation - reviewed lease and privilege replacement sources (2026-11-23)
+
+Accepted coverage remains **652 PASS /32 PARTIAL /311 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE**, with684 current rows and selected94 cases **8 PASS /79 PARTIAL /7 NOT_RUN**. The published evidence checkpoint is5e0e231e44d0813ab29a21eda436329951c08c04. No runtime coverage is added by this source checkpoint.
+
+The lease mechanism transport correction is independently source-approved after its original authentication-warning and stdin-deadline HOLD. The final transport preserves bounded binary IO, first-failure evidence, secret exclusion and exact cleanup. A fresh11-case synthetic plan remains unpinned/PENDING/NOT_RUN until publication, committed-byte verification, separate literal review and Root live preflight. The optional historical-fixture checker error is preserved; no whole-suite pass is claimed. Primitive evidence must precede corrected two-history application and affected worker qualification.
+
+PrivilegeV9 is independently source-approved. Only18 provider test statements gain reviewed line formatting; strict diagnostic checks, five guard functions, other182 SQL statements and all32 worker ACL rows remain unchanged. Current and committed drift, PENDING gates and modeled process stopping passed. Hash-pinned Steps definitions compile before the gate, with no external effects; helpers, output creation and processes follow the gate. Its fresh200-case actual remains NOT_RUN.
+
+The two-history compiler/ledger reader and Restore exact-three evidence reader continue privately under separate review. CSP has an approved inactive child and an unimplemented owning lifecycle. Initial5ae/June, A-D, canonical application SQL, requirements1034, selected94 and451register remain unchanged. PostureD and Brain final acceptance remain.
+
+Plain English: Two code fixes passed a second person's check. The scoreboard stays the same until the exact checked files pass their local tests. Old reports and the worker locks stay saved.
+
+'''
+record={'schema':'workinants.lease-V9-reviewed-source-progress.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'previous_progress':{'path':old,'sha256':sha((R/old).read_bytes())},'published_evidence_checkpoint':'5e0e231e44d0813ab29a21eda436329951c08c04','assertion_status_counts':json.loads(status)['assertion_status_counts'],'case_status_counts':json.loads(status)['case_status_counts'],'current_rows':684,'ledger_sha256':sha(ledger),'status_sha256':sha(status),'source_admissions':{k:{'path':F+'/'+k,'sha256':files[F+'/'+k]}for k in ('lease-Root-admission.json','V9-Root-admission.json')},'current_checkpoint':'3.7','exact_blocker':'Primitive11 actual pending before corrected two-history/App/affectedWorker. V9 actual200 pending. Restore exact-three reader and CSP owning lifecycle pending.32 later dependencies and7 unresolved source questions remain.','next_action':'Publish bounded source normally; pin committed packets; obtain separate exact literals and fresh Root endpoint/image/resource preflights; execute one owned local attempt at a time and continue the standing assignment.','repeated_and_why':'Only changed-source focused reviews, reproduction and owning mocks repeated; unchanged750/501/75 suites were not repeated. No full684 status rebuild is needed for source-only changes.','runtime':'NOT_RUN','Posture':'D','Brain_final_acceptance':'PENDING','continue_after_publication':True}
+put(R/P,enc(record));files[P]=sha((R/P).read_bytes())
+for n in paths[:3]:(R/n).write_bytes((text+'Detailed current record: '+P+' (SHA-256 '+files[P]+'). Earlier sections are version-qualified history.\n\n---\n\n').encode()+before[n])
+B=paths[3];b=json.loads(before[B]);b['previous_current_progress_before_reviewed_lease_V9']=b['latest_version_qualified_progress'];b['latest_version_qualified_progress']={'path':P,'sha256':files[P]}
+for k in ('current_checkpoint','exact_blocker','next_action','repeated_and_why'):b[k]=record[k]
+b['current_used_packet_retry_holds']={'App':'REAL_PRIMITIVE_TWO_HISTORY_PROOF_PENDING','V9':'SOURCE_APPROVED_ACTUAL_NOT_RUN','RestoreV6':'CLOSED_PASS_THREE_CLAIM_READER_PENDING','mechanism':'V2_SOURCE_APPROVED_FRESH_ACTUAL_NOT_RUN','CSP1':'CHILD_APPROVED_OWNING_NOT_IMPLEMENTED'}
+b['recorded_local_date']='2026-11-23';(R/B).write_bytes(enc(b))
+V=paths[4];v=json.loads(before[V]);v['lease_V9_reviewed_sources_20261123']={'progress_path':P,'progress_sha256':files[P],'runtime':'NOT_RUN','ledger_unchanged':True,'Posture':'D','source_reviews_only':True};(R/V).write_bytes(enc(v))
+for n in paths:files[n]=sha((R/n).read_bytes())
+assert (R/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes()==ledger
+assert (R/'context/reconciliation/local-f0-qualification-status.json').read_bytes()==status
+out=T/'lease_V9_reviewed_source_progress_inventory_20261123.json';put(out,enc({'schema':'workinants.lease-V9-progress-inventory.v1','files_sha256':files,'count':len(files),'runtime':'NOT_RUN','Posture':'D'}))
+print(json.dumps({'status':'SOURCE_ONLY_PROGRESS_RECORDED','files':len(files),'inventory_sha256':sha(out.read_bytes()),'ledger_unchanged':True}))

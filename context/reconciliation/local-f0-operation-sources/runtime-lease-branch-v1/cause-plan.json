@@ -1,0 +1,355 @@
+{
+  "schema": "workinants.AppV3-0a-runtime-transition-permission-initialization-independent-cause-plan.v1",
+  "decision": "SOURCE_DEFECT_CONFIRMED_BOUNDED_CORRECTION_AND_APPEND_ONLY_HISTORY_PLAN_PROPOSED_FOR_ROOT_ACK",
+  "reviewer": "/root/review_track_ports",
+  "implementation_authority": "NONE_FROM_THIS_REPORT; Root ACK plus separate code/source/literal review remains required.",
+  "authorship_disclosure": "Nonauthor of R01/R02, runtime_transition/lease_secret_matches business SQL and the new V3 diagnostic implementation. I authored older shared harness/SafetySQL and independent App8f2a observability audit, and reviewed V3 code. This independently assesses the new observed cause/source mechanism; Catalog recipe-author context is not independent cause authority.",
+  "closed_input_sha256": {
+    "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-unexpected-diagnostic-v3-owned-0a02569b\\run-evidence.json": "923389e82baa282bb7d5c0d6e7ebf299041d5c02d7f99da351f8d5037c0d8d22",
+    "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-unexpected-diagnostic-v3-owned-0a02569b\\app-write-two-component\\app-write-two-results.json": "6a6a300810118bf2f9c346016075ac5f0806a392e13f64ba5b3c1f2788f8dc03",
+    "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-unexpected-diagnostic-v3-owned-0a02569b\\native-before.json": "e2bc04014b3f3d57ac6669d3364cc15162d923f1fd29ccb782bdc809f7a861f8",
+    "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-unexpected-diagnostic-v3-owned-0a02569b\\catalog-comparison.json": "34d94ba869e1dc969bec09d70d2c74430e9d3af5f9d93bc39dcff67e9a983c0e",
+    "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-app-write-two-unexpected-diagnostic-v3-owned-0a02569b\\app-write-two-run-plan.json": "a62e81060067981e4489fa60525678572d387b3ebf3731f6614b3460b805d7cf"
+  },
+  "source_commit_tree_packet": {
+    "run_id": "0a02569b-40e9-409f-b0df-e0d724977daa",
+    "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
+    "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
+    "packet_sha256": "0f6118df8735570905b90c25ed4dd2d7ada627afae699db71a86154a065be2a9"
+  },
+  "runtime_source_packet_files": 301,
+  "local_source_inputs_sha256": {
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/migrations/20260602021702_phase_2_database_truth_layer/migration.sql": "5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055",
+    "scripts/sql-review/foundation-invariants.sql": "8fc28f505bf100db89c8d441a507f3a8d58532dfb5ef960c8790d729a73f9904",
+    "prisma/foundation/history-manifest.json": "7b7d385b978f43d06ad519be34c00144ae6b3101f92ce6032dc32202353f971e",
+    "review-output/app-write-two-guard-observation-v2/pending-work-next-attempt-update.sql": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b",
+    "review-output/app-write-two-guard-observation-v2/fixtures.json": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962",
+    "scripts/prepare-local-f0-history.py": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+    "scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd"
+  },
+  "observed_actual_facts": {
+    "executor_session": 74646,
+    "known_exit": 1,
+    "outer_status": "STOPPED_ATTEMPT_PRESERVED",
+    "first_outer_failure": {
+      "stage": "FINITE_APP_WRITE_PROTOCOL",
+      "code": "EXACT_RECORD_COUNT"
+    },
+    "completed_child_protocols": 13,
+    "last_actual_operation": {
+      "stage": "RESTRICTED_APP_TRANSACTION",
+      "case": "pending-work-next-attempt-update",
+      "actual_login": "wa_app_runtime",
+      "issuer_committed": true,
+      "same_tuple_verified": true,
+      "bind_stage_reached": true,
+      "write_stage_reached": true,
+      "read_stage_reached": false,
+      "operation_closed": true,
+      "operation_outcome": {
+        "observed_stage": "BUSINESS",
+        "response_received": true,
+        "response_shape_valid": true,
+        "client_exit_received": true,
+        "client_exit": 3,
+        "client_exit_class": "KNOWN",
+        "acknowledged": false,
+        "record_count": 1,
+        "before_marker_matches": true,
+        "after_marker_matches": false,
+        "expected_sequence_matches": false,
+        "diagnostic": null,
+        "unexpected_diagnostic": {
+          "schema": "workinants.app-unexpected-business-diagnostic.v3",
+          "classification": "OBSERVED",
+          "sqlstate": "42501",
+          "header_count": 1,
+          "frame_status": "SOURCE_VERIFIED",
+          "source_frame": {
+            "function": "platform_private.runtime_transition()",
+            "source_body_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+            "source_body_line": 33
+          }
+        },
+        "operation_closed": true,
+        "global_closure_confirmed": true
+      }
+    },
+    "native_before_helper_ACL": [
+      {
+        "kind": "FUNCTION",
+        "column": null,
+        "object": "platform_private.lease_secret_matches(pg_catalog.text)",
+        "grantee": "wa_track_verifier",
+        "grantor": "wa_schema_owner",
+        "privilege": "EXECUTE",
+        "grant_option": false
+      },
+      {
+        "kind": "FUNCTION",
+        "column": null,
+        "object": "platform_private.lease_secret_matches(pg_catalog.text)",
+        "grantee": "wa_worker",
+        "grantor": "wa_schema_owner",
+        "privilege": "EXECUTE",
+        "grant_option": false
+      }
+    ],
+    "native_before_app_role": {
+      "name": "wa_app_runtime",
+      "rolsuper": false,
+      "rolconfig": null,
+      "rolinherit": false,
+      "rolcanlogin": true,
+      "rolcreatedb": false,
+      "rolbypassrls": false,
+      "rolconnlimit": -1,
+      "rolcreaterole": false,
+      "rolvaliduntil": null,
+      "rolreplication": false
+    },
+    "native_before_app_memberships": [],
+    "native_before_trigger_function": {
+      "cost": 100,
+      "kind": "f",
+      "name": "platform_private.runtime_transition",
+      "rows": 0,
+      "owner": "wa_schema_owner",
+      "object": "platform_private.runtime_transition()",
+      "strict": false,
+      "language": "plpgsql",
+      "parallel": "u",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "variadic": false,
+      "leakproof": false,
+      "parameters": [],
+      "volatility": "v",
+      "body_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+      "return_type": "pg_catalog.trigger",
+      "returns_set": false,
+      "default_count": 0,
+      "defaults_sha256": null,
+      "security_definer": false,
+      "support_function": false
+    },
+    "native_before_helper_function": {
+      "cost": 100,
+      "kind": "f",
+      "name": "platform_private.lease_secret_matches",
+      "rows": 0,
+      "owner": "wa_schema_owner",
+      "object": "platform_private.lease_secret_matches(pg_catalog.text)",
+      "strict": false,
+      "language": "sql",
+      "parallel": "u",
+      "settings": [
+        "search_path=pg_catalog"
+      ],
+      "variadic": false,
+      "leakproof": false,
+      "parameters": [
+        {
+          "mode": "i",
+          "name": "expected_hash",
+          "type": "pg_catalog.text"
+        }
+      ],
+      "volatility": "v",
+      "body_sha256": "152bb759ae050d08a9501cffef2ff9f7900c0cb53500642e75d1675bf6995c0d",
+      "return_type": "pg_catalog.bool",
+      "returns_set": false,
+      "default_count": 0,
+      "defaults_sha256": null,
+      "security_definer": false,
+      "support_function": false
+    },
+    "outer_catalog_comparison": {
+      "PASS": 29089
+    },
+    "operation_and_global_closure": true,
+    "wrapper_cleanup_claim": true,
+    "independent_physical_cleanup": "Root-reported EA89568758364547613dadbbf880a1c83a16fe988301d60b3ecd5f80df2a03fe; Catalog separate audit corroborates exact hash. Reviewer issued no physical/resource command.",
+    "retention_limits": "Primary text/callee name/LOCATION were intentionally not retained. write_stage_reached means BUSINESS entered, not successful UPDATE. No R02 write committed result or after-proof is inferred."
+  },
+  "independent_source_conclusion": {
+    "classification": "SOURCE_PROVEN_PERMISSION_INITIALIZATION_DEFECT; observed current failure strongly supports this exact mechanism, with final direct callee/primary attribution still source inference.",
+    "chain": [
+      "The genuine pending Work UPDATE changes only next_attempt_at; OLD.state remains pending, fence/attempt0, null lease/effect. Source ACL and full context include SELECT fields, UPDATE/@row+nextAttemptAt, exact root and revision0.",
+      "work_transition invokes SECURITY INVOKER runtime_transition; its bodyline33 is reached even for pending-to-pending. That condition includes the private lease helper within the same SQL Boolean expression.",
+      "REL_17_11 expression initialization traverses the condition tree, checking function EXECUTE before runtime AND short-circuit. The app lacks that privilege and is neither superuser nor an inheriting/member role. SET search_path keeps the helper from inlining.",
+      "The observed42501/source body10f9/line33 is therefore consistent with\u2014and strongly explained by\u2014the helper EXECUTE initialization failure. No raw permission-denial message or denied callee is asserted as observed."
+    ],
+    "privilege_precision": "The helper is granted to BOTH wa_worker and wa_track_verifier, plus owner rights; app/PUBLIC are not granted. Do not describe it as literally worker-only.",
+    "other_guard_paths": "Claim and renewal helper predicates are already inside separate reached PL/pgSQL branches; this proposed repair is only the final leased-exit compound condition. Preserve all other guards."
+  },
+  "primary_sources_checked": [
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/executor/execExpr.c",
+      "functions_and_ranges": "ExecInitExprWithParams; ExecInitExprRec T_FuncExpr approximately1076-1084/T_BoolExpr1273-1278; ExecInitFunc2465-2468 (web open zero-based lines).",
+      "fact": "Preparing a function expression checks current-user EXECUTE; Boolean initialization recursively prepares every argument before runtime jump evaluation."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/pl/plpgsql/src/pl_exec.c",
+      "functions_and_ranges": "exec_stmt_if2374-2377 and exec_eval_simple_expr5795-5800 (web open zero-based lines).",
+      "fact": "A reached condition prepares its expression. The then-body is dispatched only for a true nonnull outer condition, so a nested condition is not prepared on the skipped pending branch."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/optimizer/util/clauses.c",
+      "functions_and_ranges": "inline_function4311-4325 (web open zero-based lines).",
+      "fact": "A configured SQL function is not inlined; missing EXECUTE also prevents inlining and leaves the later permission check."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/aclchk.c",
+      "functions_and_ranges": "aclcheck_error OBJECT_FUNCTION2593-2595 and ereport2683-2685 (web open zero-based lines).",
+      "fact": "A function privilege failure produces insufficient-privilege SQLSTATE42501; this source fact does not reconstruct unretained actual primary text."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/plpgsql-implementation.html#PLPGSQL-PLAN-CACHING",
+      "fact": "Individual expressions are prepared when execution first reaches them, rather than all SQL expressions being immediately planned on function entry."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/sql-createfunction.html",
+      "fact": "SECURITY INVOKER uses caller privileges. CREATE OR REPLACE preserves ownership and permissions, while other attributes follow its definition and must be explicitly preserved."
+    },
+    {
+      "url": "https://www.postgresql.org/docs/17/sql-expressions.html#SYNTAX-EXPRESS-EVAL",
+      "fact": "SQL Boolean source order is not a general evaluation-order guarantee. CASE is not proposed here because initialization can still visit a protected call in one SQL expression."
+    }
+  ],
+  "minimal_repair_PLAN_ONLY": {
+    "target_identity": "platform_private.runtime_transition()",
+    "target_old_body_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+    "source_body_line": 33,
+    "change": "Separate OLD.state=leased AND NEW.state<>leased into an outer PL/pgSQL IF. Inside it, keep the original exact expiry OR NOT lease_secret_matches(OLD.lease_token_hash::text) OR current fence distinct predicate and identical expired-or-foreign-worker RAISE in an inner IF. No proposed SQL file emitted.",
+    "invariants": [
+      "Same trigger identity/return type/language/SECURITY INVOKER/search_path/volatility/parallel/strict/default attributes/owner/ACL.",
+      "No grant or revocation changes, SECURITY DEFINER conversion, helper-public exposure, capability/RLS/recipe/fixture/clock/expiry/fence/attempt/effect-state weakening.",
+      "Preserve every other body statement and predicate; worker transitions continue to enforce current secret AND expiry AND fence.",
+      "App direct helper call remains42501. Any app attempt actually entering the protected leased-exit branch remains subject to the same private-helper ACL and all row/field policy gates."
+    ],
+    "three_valued_logic_plan_check": [
+      {
+        "outer": true,
+        "inner": true,
+        "original_raises": true,
+        "nested_raises": true
+      },
+      {
+        "outer": true,
+        "inner": false,
+        "original_raises": false,
+        "nested_raises": false
+      },
+      {
+        "outer": true,
+        "inner": null,
+        "original_raises": false,
+        "nested_raises": false
+      },
+      {
+        "outer": false,
+        "inner": true,
+        "original_raises": false,
+        "nested_raises": false
+      },
+      {
+        "outer": false,
+        "inner": false,
+        "original_raises": false,
+        "nested_raises": false
+      },
+      {
+        "outer": false,
+        "inner": null,
+        "original_raises": false,
+        "nested_raises": false
+      },
+      {
+        "outer": null,
+        "inner": true,
+        "original_raises": false,
+        "nested_raises": false
+      },
+      {
+        "outer": null,
+        "inner": false,
+        "original_raises": false,
+        "nested_raises": false
+      },
+      {
+        "outer": null,
+        "inner": null,
+        "original_raises": false,
+        "nested_raises": false
+      }
+    ],
+    "proof_limit": "Nine pure logical cases prove only nesting equivalence of truth acceptance. They do not prove PostgreSQL execution, current permission behavior or patched App runtime."
+  },
+  "minimal_synthetic_reproduction_PLAN_ONLY": {
+    "authority": "Prepare separately reviewed source/manifest first; no local DB experiment is authorized or executed in this task.",
+    "environment": "One fresh owned pinnedPG17.11 sandbox with no ports/network and explicit original-grantor cleanup. Committed synthetic isolated schema/table/helper/trigger only; no current canonical objects or old databases changed. Real restricted SCRAM connections; no elevated session masquerading as app.",
+    "fixture": "Runtime-valued OLD/NEW states and nullable lease fields, not literal FALSE that the planner can fold away. Invoker volatile helper with SET search_path=pg_catalog, PUBLIC/app EXECUTE denied, worker/verifier allowed; synthetic row update has the exact necessary table/column grants. Source-known dummy secret only.",
+    "comparisons": [
+      {
+        "variant": "original compound guard",
+        "pending_to_pending": "Expected native42501 and exact synthetic trigger condition frame; one-row target independently visible beforehand, no update committed."
+      },
+      {
+        "variant": "nested-only guard",
+        "pending_to_pending": "Expected exactly one changed row, acknowledged COMMIT, same unchanged state/fence/attempt/lease/effect and only requested scheduling timestamp changed."
+      },
+      {
+        "variant": "nested worker branch",
+        "leased_exit": "Current matching secret/live expiry/exact fence succeeds; expired, wrong-secret and wrong-fence controls reject with exact source synthetic guard, zero accepted mutation."
+      },
+      {
+        "variant": "restore ONLY old compound expression",
+        "pending_to_pending": "Expected42501 again under unchanged ACL/role/fixture; restoration must trip the regression."
+      },
+      {
+        "variant": "unchanged private helper direct call",
+        "app": "Still42501 before and after; do not grant app execute to make the positive pass."
+      }
+    ],
+    "oracle": "Actual process-boundary records + closed/backend absence before observers, typed one-row/commit/rollback facts and safe SQLSTATE/source receipts. Source-sensitive offline evaluator must model initialization ACL separately from Boolean evaluation; simply short-circuiting Python misses this bug.",
+    "success_limits": "Synthetic engine-mechanism proof only; no App/worker/business assertion promotion."
+  },
+  "append_only_local_history_PLAN_ONLY": {
+    "barrier": "Do not edit source or history until Root closes currently protected old0ff Read/INSTALL plans and separately ACKs concrete versioned implementation.",
+    "immutable": [
+      "Applied initial migration20261117000100_f0_local_initial remains byte-exact5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad.",
+      "June migration remains byte-exact5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055.",
+      "Existing5ae review artifact, old foundation-invariants8fc source, old one-migration manifests/seven-file snapshots/tars/ledgers/closed reports/source reviews stay preserved. No direct ledger edits, replacement checksum adoption or retroactive evidence reclassification."
+    ],
+    "recommended_shape": "New separately reviewed patch source and second provisional local migration in a fresh versioned local history snapshot after the unchanged initial ID/checksum. A new preparer/config namespace can copy the initial exact bytes plus the second migration; never rewrite an applied initial or old root history manifest to look patched. Choose final second migration ID/path under Root ACK, do not infer execution authority from this plan.",
+    "patch_body": "A transaction using existing migration role SET LOCAL ROLE wa_schema_owner and CREATE OR REPLACE of only runtime_transition(), with all original attributes explicitly retained and only the nested condition change. No GRANT/role/trigger recreation/business data DML. Verify owner/ACL/trigger links unchanged.",
+    "source_of_truth": "Treat base5ae plus ordered patch as a new effective versioned source. Catalog compiler must explicitly validate CREATE OR REPLACE semantics: same identity, body replaced, owner/ACL preserved; do not infer expected structure from learned native output or hide a duplicate declaration.",
+    "new_admission_closure": [
+      "Versioned history/preparer/guard/config/runner contracts must explicitly admit exactly two ordered migrations and checksums, while retaining exact image/tool10300/runtime closure/role/credential/source hashes. Existing one-migration guard cannot silently accept this history.",
+      "New effective source/catalog/oracle/ledger registration/expected definition and source maps must bind base hash, patch hash and ordered aggregate distinctly. Do not call the patched effective SQL5ae.",
+      "Versioned App diagnostic/frame declarations must pin the new runtime_transition body/line map; do not reuse old10f9 frame authority. Keep optional frame/function set finite. Original22 R02 SQL recipes remain exact.",
+      "Fresh full native/oracle/ledger qualification must derive correct two-row history counts; old29089/22 and one-row registrations are historical, not new two-migration authority. Preserve both raw source identities."
+    ],
+    "required_validation": [
+      "Dollar-aware SQL/PLpgSQL parser regression proves only intended nested condition/body delta and exact helper ACL/worker32 policies unchanged; old combined-expression restoration is detected.",
+      "Source-sensitive permission-initialization offline model plus separately reviewed actual synthetic PG17.11 comparison above.",
+      "Fresh two-migration deploy/no-op/ledger immutable-checksum and native body-only change checks before unchanged genuine R01/R02 actual recipes; full strict marker/count/ACK/commit/global closure/state observers retained.",
+      "Relevant actual leased-exit current-holder positive and expiry/secret/fence negative checks on the new source; existing old worker successes remain version-qualified, not patched-source proof.",
+      "New source/code/non-author review/publication/pin/exact literal/live preflight before Root sole execution."
+    ]
+  },
+  "historical_and_claim_limits": [
+    "App8f2a complete cause remainsUNOBSERVED; this new observation does not retroactively explain it.",
+    "Current0a actual observed42501/frame is new evidence; denied helper name is a source-supported inference until bounded synthetic/actual proof.",
+    "No statuses, ledger rows, assertions, production/owner API/workerloop/whole case94/451 qualification promoted."
+  ],
+  "mutations": "Only this new TASK plan/audit record. No implementation, SQL generation/execution, Docker/DB/network process, Git mutation, Root/source/gate/status/ledger edit. Browsing limited to primary official PG17 sources/docs as requested.",
+  "runtime_or_source_code_approval": false,
+  "plain_English": "Postgres checks whether a function is allowed before it skips a false part of one big test. Put the private worker check inside a separate small test. Add the repair as a new migration; keep the old migration unchanged.",
+  "Posture": "D"
+}

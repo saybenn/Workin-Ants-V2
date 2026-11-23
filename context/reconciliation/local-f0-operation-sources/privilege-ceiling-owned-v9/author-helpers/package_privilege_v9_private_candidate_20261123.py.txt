@@ -1,0 +1,68 @@
+"""Package reviewed-scope private V9 source and all author histories. No service or Git calls."""
+from pathlib import Path
+import ast,datetime,hashlib,json,re
+T=Path(__file__).resolve().parent;F=T/'privilege-provider-format-v9-private-20261123';C=F/'workinants-correction-pass';R=T/'workinants-correction-pass'
+A='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v9'
+CV='context/reconciliation/privilege-ceiling-v9-source-validation.json';OV='context/reconciliation/local-f0-privilege-ceiling-owned-v9-source-validation.json'
+SOURCE5=('scripts/privilege_ceiling_control_protocol_v9.py','scripts/sql-review/run-privilege-ceiling-control-rehearsal-v9.py','scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v9.py','scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-V9.md','scripts/prepare-privilege-ceiling-control-rehearsal-v9.py')
+FIVE=('execute_local_f0_privilege_ceiling_v9_20261122.py','local_f0_privilege_ceiling_v9_operation_steps.py','prepare_local_f0_privilege_ceiling_v9_plan.py','check_local_f0_privilege_ceiling_v9_operation.py','pin_local_f0_privilege_ceiling_v9_plan_20261122.py')
+PACKET='review-output/privilege-ceiling-control-rehearsal-v9'
+sha=lambda b:hashlib.sha256(b).hexdigest();encoded=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put_same(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ if p.exists():assert p.read_bytes()==b
+ else:
+  with p.open('xb')as f:f.write(b)
+def same_tree(root,mapping):return all(sha((root/n).read_bytes())==h for n,h in mapping.items())
+def main():
+ preservation=json.loads((T/'privilege-provider-format-v9-resume-preservation-20261123/preservation.json').read_bytes())
+ assert same_tree(Path(preservation['original_private']),preservation['original_private_files_sha256'])
+ old_manifest=json.loads((T/'local-f0-privilege-ceiling-plan-a8dc4614/operation-manifest.json').read_bytes())
+ assert same_tree(R,old_manifest['packet_files_sha256'])
+ archive=C/A
+ for p in (F/'continuation-author-history').rglob('*'):
+  if p.is_file():
+   name=p.relative_to(F/'continuation-author-history').as_posix()
+   put_same(archive/'continuation-history'/name,p.read_bytes())
+ for p in (F/'author-history').rglob('*'):
+  if p.is_file():put_same(archive/'earlier-author-history'/p.relative_to(F/'author-history'),p.read_bytes())
+ records=[
+  'privilege_v9_selected_pure_initial_20261122.json','privilege_v9_selected_provider_initial_20261122.json',
+  'privilege_v9_selected_owner_initial_20261122.json','privilege_v9_selected_owner_support_corrected_20261122.json',
+  'privilege_v9_private_safe_pause_for_RestoreV6_audit_20261122.json',
+  'privilege_v9_selected_owner_generated_inventory_fixed_20261123.json',
+  'privilege_v9_selected_owner_final_formatting_gates_20261123.json',
+  'privilege_v9_selected_pure_final_current_20261123.json','privilege_v9_selected_provider_final_current_20261123.json']
+ for name in records:put_same(archive/'author-checks'/name,(T/name).read_bytes())
+ for name in ['preserve_resume_privilege_v9_20261123.py','complete_privilege_v9_resumed_metadata_20261123.py','run_privilege_v9_selected_checks_20261123.py',Path(__file__).name]:
+  put_same(archive/'author-helpers'/(name+'.txt'),(T/name).read_bytes())
+ put_same(archive/'continuation-preservation.json',(T/'privilege-provider-format-v9-resume-preservation-20261123/preservation.json').read_bytes())
+ source5={n:sha((C/n).read_bytes())for n in SOURCE5};five={n:sha((F/n).read_bytes())for n in FIVE}
+ fixture=json.loads((C/PACKET/'fixtures.json').read_bytes())
+ artifact_map={PACKET+'/'+p.name:sha(p.read_bytes())for p in(C/PACKET).iterdir()if p.is_file()};assert len(artifact_map)==202
+ child=json.loads((C/CV).read_bytes());owned=json.loads((C/OV).read_bytes())
+ assert child['source5_sha256']==source5 and owned['operator_sources_sha256']==five
+ assert child['review_gate']=='PENDING'and all(child[k]['decision']=='PENDING'for k in('independent_source_review','independent_formatting_review','Root_source_review'))
+ for key in('independent_safety_sql_review','independent_projection_review','independent_formatting_review','Root_source_review'):assert owned[key]['decision']=='PENDING'
+ archive_map={p.relative_to(C).as_posix():sha(p.read_bytes())for p in archive.rglob('*')if p.is_file()}
+ owned['archive_files_sha256']=archive_map
+ owned['continuation_preservation_sha256']=sha((archive/'continuation-preservation.json').read_bytes())
+ owned['continuation_parent_checkpoint']='5e0e231e44d0813ab29a21eda436329951c08c04'
+ owned['scope_limit']='Source-only V9 provider formatting, strict verdict unchanged; actual runtime and claim admission remain NOT_RUN.'
+ (C/OV).write_bytes(encoded(owned))
+ names=set(SOURCE5)|set(artifact_map)|set(archive_map)|{CV,OV}
+ candidates={n:sha((C/n).read_bytes())for n in sorted(names)}
+ for n,h in candidates.items():
+  b=(C/n).read_bytes();assert sha(b)==h and not(C/n).is_symlink()and b'\0'not in b
+  b.decode('utf8');assert not re.search(rb'(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)',b)
+ v={'schema':'workinants.privilege-v9-private-final-map-before-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+  'private_TASK':str(F),'private_ROOT':str(C),'candidate_Root_files_sha256':candidates,'candidate_Root_file_count':len(candidates),
+  'external5_sha256':five,'child_source5_sha256':source5,'artifacts202_sha256':artifact_map,
+  'archive_files_sha256':archive_map,'fixture_sha256':sha((C/PACKET/'fixtures.json').read_bytes()),
+  'content_sha256':fixture['source_only_packet_sha256'],'Root_original_V8_all1212_unchanged':True,
+  'original_unfinished_private_all1565_unchanged':True,'source_gates':'PENDING','runtime':'NOT_RUN','qualification_promotions':0,
+  'final_whole_graph_after_packaging':'PENDING_CHECK','Posture':'D'}
+ p=T/'privilege_v9_private_candidate_before_final_checks_20261123.json'
+ with p.open('x',encoding='utf8')as f:json.dump(v,f,indent=2);f.write('\n')
+ print(json.dumps({'map':p.name,'sha256':sha(p.read_bytes()),'Root_candidates':len(candidates),'archive_files':len(archive_map),'runtime':'NOT_RUN','gates':'PENDING'}))
+if __name__=='__main__':main()

@@ -1,0 +1,5 @@
+-- Fresh actual authenticated role connection; no context handle/bind or fixture bypass. Stop/close on unexpected output.
+BEGIN;
+SET LOCAL search_path=pg_catalog;
+INSERT INTO "app"."privacy_requests"("id","user_id","type","status","requested_at","verified_at","due_at","completed_at","rejection_reason","admin_note","created_at","updated_at","revision","privacy_generation","instruction_generation","mutation_transaction_id") VALUES ('a4dfc700-cae1-5d9f-b604-b420d170a3e3'::pg_catalog.uuid,'a3b8fb0a-7da4-513b-972b-2ce3e165fdf6'::pg_catalog.uuid,'access'::app.privacy_request_type,'submitted'::app.privacy_request_status,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,NULL::pg_catalog.timestamptz,NULL::pg_catalog.text,NULL::pg_catalog.text,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'2026-11-17T00:00:00Z'::pg_catalog.timestamptz,'0'::pg_catalog.int8,'0'::pg_catalog.int8,'0'::pg_catalog.int8,'native-acl-setup-transaction'::pg_catalog.text);
+ROLLBACK;

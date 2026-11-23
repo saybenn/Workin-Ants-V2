@@ -1,0 +1,31 @@
+"""One private setup diagnostic. No service/process/socket edge is allowed."""
+from pathlib import Path
+import contextlib,hashlib,io,json,os,runpy,socket,subprocess,sys,time,unittest
+T=Path(__file__).resolve().parent;F=T/'privilege-provider-format-v9-private-20261123';C=F/'workinants-correction-pass'
+sys.path.insert(0,str(T/'offline-python'))
+os.environ.update(PYTHONUTF8='1',TMP=str(T/'test-tmp'),TEMP=str(T/'test-tmp'),TMPDIR=str(T/'test-tmp'))
+H=lambda b:hashlib.sha256(b).hexdigest()
+def forbid(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn'):raise RuntimeError('REAL_BOUNDARY_FORBIDDEN')
+sys.addaudithook(forbid)
+class Result(unittest.TestResult):
+ def __init__(self):super().__init__();self.records=[]
+ def addSuccess(self,test):super().addSuccess(test);self.records.append({'test':str(test),'status':'PASS'})
+ def addError(self,test,err):
+  super().addError(test,err);e=err[1];name=getattr(e,'filename',None);relative=None
+  if type(name)is str:
+   p=Path(name)
+   if p.is_relative_to(T):relative=p.relative_to(T).as_posix()
+  self.records.append({'test':str(test),'class':type(e).__name__,'public_task_relative_missing_path':relative,'code':str(e)if type(e).__name__in('Refused','Held')and str(e).replace('_','').isalnum()else None})
+ def addFailure(self,test,err):super().addFailure(test,err);self.records.append({'test':str(test),'class':type(err[1]).__name__,'status':'FAIL'})
+before={p.relative_to(F).as_posix():H(p.read_bytes())for p in list(F.glob('*v9*.py'))+list((C/'scripts').glob('*v9.py'))+list((C/'scripts/sql-review').glob('*v9*'))if p.is_file()}
+started=time.monotonic();output=io.StringIO()
+with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
+ ns=runpy.run_path(str(F/'check_local_f0_privilege_ceiling_v9_operation.py'))
+ cls=ns['PrivilegeMetadataV6ClosureTests'];result=Result()
+ unittest.TestSuite([cls('test_actual_prepare_map_has_all202_generated_bytes_and_same_source_digests')]).run(result)
+after={n:H((F/n).read_bytes())for n in before};assert before==after
+v={'schema':'workinants.privilege-v9-private-owner-setup-probe.v1','tests':result.testsRun,'seconds':round(time.monotonic()-started,3),'records':result.records,'source_at_entry_sha256':before,'source_unchanged':True,'all_process_network_database_boundaries_forbidden':True,'runtime':'NOT_RUN','captured_raw_output_discarded':True}
+p=T/'privilege_v9_owner_setup_probe_20261123.json'
+with p.open('x',encoding='utf8')as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps(v));raise SystemExit(0 if result.wasSuccessful()else 1)

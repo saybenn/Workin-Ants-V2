@@ -1,0 +1,36 @@
+"""Complete only the resumed private metadata and fixed-source artifact fingerprints."""
+from pathlib import Path
+from copy import deepcopy
+import ast,hashlib,json,runpy
+T=Path(__file__).resolve().parent
+F=T/'privilege-provider-format-v9-private-20261123';C=F/'workinants-correction-pass'
+R=T/'workinants-correction-pass';P=T/'privilege-provider-format-v9-before-author-20261122'
+A='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v9'
+CV='context/reconciliation/privilege-ceiling-v9-source-validation.json'
+OV='context/reconciliation/local-f0-privilege-ceiling-owned-v9-source-validation.json'
+GEN='scripts/prepare-privilege-ceiling-control-rehearsal-v9.py'
+COOR='scripts/sql-review/run-privilege-ceiling-control-rehearsal-v9.py'
+PROTO='scripts/privilege_ceiling_control_protocol_v9.py'
+CHECK='scripts/sql-review/test_run_privilege_ceiling_control_rehearsal_v9.py'
+DOC='scripts/sql-review/PRIVILEGE-CEILING-CONTROL-REHEARSAL-V9.md'
+PACKET='review-output/privilege-ceiling-control-rehearsal-v9'
+SOURCE5=(PROTO,COOR,CHECK,DOC,GEN)
+FIVE=('execute_local_f0_privilege_ceiling_v9_20261122.py','local_f0_privilege_ceiling_v9_operation_steps.py','prepare_local_f0_privilege_ceiling_v9_plan.py','check_local_f0_privilege_ceiling_v9_operation.py','pin_local_f0_privilege_ceiling_v9_plan_20261122.py')
+H=lambda b:hashlib.sha256(b).hexdigest()
+D=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+B={'H':H}
+def replace_assignment(text,name,value):
+ tree=ast.parse(text);node=next(n for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id==name for t in n.targets));lines=text.splitlines(keepends=True)
+ return ''.join(lines[:node.lineno-1])+name+'='+repr(value)+'\n'+''.join(lines[node.end_lineno:])
+def main():
+ # The already-applied source patches are not run again. Reuse only the
+ # preserved pure metadata-regeneration recipe with explicit new paths.
+ source=(T/'complete_privilege_provider_format_v9_private_20261122.py').read_text()
+ node=next(n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)and n.name=='refresh')
+ function='\n'.join(source.splitlines()[node.lineno-1:node.end_lineno])+'\n'
+ ns=dict(globals());exec(compile(function,str(Path(__file__)),'exec'),ns)
+ baseline=F/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json'
+ v=json.loads(baseline.read_bytes());v['tool_archive']=str(F/'pinned-prisma-tools.tar.gz');v['migration_targets']['ok']['manifest_path']=str(F/'OFFLINE-baseline-nested.json');baseline.write_bytes(D(v))
+ ns['refresh']()
+ print(json.dumps({'status':'PRIVATE_PENDING_METADATA_REFRESHED','root_written':False,'runtime':'NOT_RUN'}))
+if __name__=='__main__':main()
