@@ -1,0 +1,89 @@
+"""Pure, finite rollback-only Customer predecessor oracle. No process or I/O."""
+import hashlib
+import json
+import re
+
+APPLICATION_SHA='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+GUARD_BODY_SHA='242bc33836b80f24cdcd22495d133678fd8b5d204f145ffa3f689308a91aba95'
+CASE_ORDER=('wrong-predecessor','skipped-revision','same-grant-second-source-update')
+CONTROL='P0C-CAS-01';ASSERTION='control.stale_predecessor'
+ASSERTION_SHA='72f2d75ee3f9af764982f379f5dc82805531d09dc85f0925f8d7c6ab69795d3e'
+SOURCE_FUNCTION='platform_private.guard_customerprofile'
+CONTRACTS={'skipped-revision':('P0001','CAS revision must increment once',9),'same-grant-second-source-update':('42501','field or CAS scope denied',13)}
+HEADER=re.compile(r'(?:psql:<stdin>:[1-9][0-9]{0,8}: )?ERROR:  ([0-9A-Z]{5}): (.+)')
+FRAME=re.compile(r'CONTEXT:  PL/pgSQL function platform_private\.guard_customerprofile\(\) line ([1-9][0-9]{0,3}) at RAISE')
+LOCATION=re.compile(r'LOCATION:  exec_stmt_raise, pl_exec\.c:[1-9][0-9]{0,6}')
+
+def need(ok,code):
+    if not ok:raise ValueError(code)
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)
+def quote(value):return "'"+str(value).replace("'","''")+"'"
+
+def source_guard(application):
+    need(type(application)is bytes and sha(application)==APPLICATION_SHA,'EXACT_CANONICAL_APPLICATION')
+    sql=application.decode('utf8')
+    m=re.search(r'CREATE FUNCTION platform_private\.guard_customerprofile\(\).*?AS \$wa\$(.*?)\$wa\$;',sql,re.S)
+    need(m is not None and sha(m[1].encode())==GUARD_BODY_SHA,'EXACT_CUSTOMER_GUARD_BODY')
+    lines=m[1].splitlines()
+    for state,message,line in CONTRACTS.values():
+        need(message in lines[line-1] and 'RAISE EXCEPTION' in lines[line-1],'EXACT_RAISE_BODY_LINE')
+    # Own revision1 is visible through this actual same-transaction fallback.
+    need("row_transaction=pg_current_xact_id()::text" in sql and "authorized_revision:=(row_revision::bigint-1)::text" in sql,'OWN_UPDATE_SELECT_FALLBACK_SOURCE')
+    need("]::text[],NULL),OLD.\"revision\"::text)" in m[1],'GUARD_OLD_REVISION_WITHOUT_TRANSACTION_FALLBACK')
+    return {'application_sha256':APPLICATION_SHA,'function':SOURCE_FUNCTION,'body_sha256':GUARD_BODY_SHA,'raise_lines':[9,13]}
+
+def diagnostic(raw,case,application):
+    source_guard(application)
+    result={'matched':False,'sqlstate':None,'exact_primary':False,'source_function':False,'source_body':True,'raise_line':False,'bounded_shape':False}
+    if case not in CONTRACTS or type(raw)is not str or len(raw.encode('utf8'))>8192:return result
+    text=raw.replace('\r\n','\n')
+    if any(ord(c)<32 and c!='\n' for c in text):return result
+    rows=text.rstrip('\n').split('\n')
+    if len(rows)!=3:return result
+    h,f,l=HEADER.fullmatch(rows[0]),FRAME.fullmatch(rows[1]),LOCATION.fullmatch(rows[2])
+    if not(h and f and l):return result
+    state,message,line=CONTRACTS[case]
+    result.update(bounded_shape=True,sqlstate=h[1]if h[1]in('P0001','42501')else None,exact_primary=h[1]==state and h[2]==message,source_function=True,raise_line=int(f[1])==line)
+    result['matched']=all(result[k]for k in('bounded_shape','exact_primary','source_function','source_body','raise_line'))
+    return result
+
+def capabilities(acl,identity):
+    select=[r for r in acl if r['model']=='CustomerProfile'and r['role']=='wa_app_runtime'and r['operation']=='SELECT']
+    need(len(select)==1 and len(select[0]['fields'])==14,'EXACT14_CUSTOMER_SELECT_FIELDS')
+    fields={f'CustomerProfile/{identity}/SELECT/'+field for field in select[0]['fields']}
+    fields.update(f'CustomerProfile/{identity}/UPDATE/'+f for f in('@row','displayName','revision','updatedAt'))
+    fields.add(f'CustomerProfile/{identity}/revision/0')
+    return sorted(fields)
+
+def state_shape(value,tables):
+    return type(value)is list and len(value)==42 and [r.get('table')for r in value if type(r)is dict]==tables and all(set(r)=={'table','count','sha256'}and type(r['count'])is int and r['count']>=0 and type(r['sha256'])is str and re.fullmatch('[0-9a-f]{64}',r['sha256'])for r in value)
+
+def unique_json(raw):
+    def pairs(items):
+        result={}
+        for k,v in items:need(k not in result,'DUPLICATE_JSON');result[k]=v
+        return result
+    return json.loads(raw,object_pairs_hook=pairs)
+
+def response_shape(rows,ack,errors):
+    return type(rows)is list and all(type(x)is str for x in rows)and type(ack)is bool and type(errors)is str
+
+def compare_result(case,rows,ack,errors,application):
+    """Only fixed comparison outcomes survive, never returned row/diagnostic text."""
+    need(case in CASE_ORDER,'FIXED_CASE_ONLY')
+    expected=['WA_CSP1_BEFORE','WA_CSP1_FAILED_STATEMENT','WA_CSP1_SQLSTATE '+CONTRACTS[case][0],'WA_CSP1_ROLLBACK']if case!='wrong-predecessor'else ['WA_CSP1_BEFORE','{"rows": 0}','WA_CSP1_AFTER','WA_CSP1_ROLLBACK']
+    shape=response_shape(rows,ack,errors)
+    markers=[r for r in rows if r in {'WA_CSP1_BEFORE','WA_CSP1_AFTER','WA_CSP1_FAILED_STATEMENT','WA_CSP1_UNEXPECTED_SUCCESS','WA_CSP1_ROLLBACK'}]if type(rows)is list else []
+    receipt={'response_received':True,'shape_valid':bool(shape),'acknowledged':ack if type(ack)is bool else None,'exact_output':False,'rollback_acknowledged':False,'diagnostic':None}
+    if not shape:return receipt
+    if case=='wrong-predecessor':
+        try:zero=len(rows)==4 and unique_json(rows[1])=={'rows':0}and type(unique_json(rows[1])['rows'])is int
+        except (ValueError,TypeError,KeyError):zero=False
+        receipt['exact_output']=zero and markers==['WA_CSP1_BEFORE','WA_CSP1_AFTER','WA_CSP1_ROLLBACK']and not errors
+    else:
+        receipt['diagnostic']=diagnostic(errors,case,application)
+        receipt['exact_output']=rows==expected and receipt['diagnostic']['matched']
+    receipt['rollback_acknowledged']=ack and receipt['exact_output'] and rows[-1:] == ['WA_CSP1_ROLLBACK']
+    return receipt

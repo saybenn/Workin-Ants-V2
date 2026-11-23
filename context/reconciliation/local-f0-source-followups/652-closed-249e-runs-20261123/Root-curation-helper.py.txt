@@ -1,0 +1,58 @@
+"""Build the exact publication map; preserve unrelated work and perform no Git mutation."""
+from pathlib import Path
+import datetime,hashlib,json,re,tarfile
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+F='context/reconciliation/local-f0-source-followups/652-closed-249e-runs-20261123'
+extras={
+ 'bridge-independent-focused-runner.py.txt':'review_historical_install_bridge_v1_focused_20261122.py',
+ 'Root-curation-helper.py.txt':Path(__file__).name}
+for name,source in extras.items():put(R/F/name,(T/source).read_bytes())
+foundation={'schema':'workinants.652-foundation-check-observation.v1','command':'python -X utf8 scripts/check-foundation.py','known_exit_code':0,'errors':[],'metrics':{'contracts':132,'workflows':13,'cold_start_routes':6,'current_context_links_checked':2901,'feature_source_files_scanned':0,'authorized_parallel_lanes':0},'stdout_source':'Actual tool result at this checkpoint; summarized once without repeating passed check.','database_contacted':False,'Posture':'D'}
+put(R/F/'foundation-check-result.json',enc(foundation))
+groups=[
+ ('read-install-corrected97','Read1161_INSTALL6850_corrected_historical_bridge_source_inventory_20261122.json','Root_files_sha256'),
+ ('inactive-CSP115','CSP1_Root_inactive_source_admission_inventory_20261120.json','Root_files_sha256'),
+ ('closed-V8-prefix49','249e_V8_a8dc_closed_attempt_preserved_inventory_20261122.json','all_files_sha256'),
+ ('closed-RestoreV6-success61','249e_RestoreV6_04731001_success_preserved_inventory_20261122.json','all_files_sha256'),
+ ('progress25','652_closed249e_progress_inventory_20261123.json','files_sha256')]
+files={};families={}
+for label,name,key in groups:
+ raw=(T/name).read_bytes();v=json.loads(raw);mapping=v[key];families[label]={'inventory':name,'sha256':sha(raw),'files':len(mapping)}
+ for n,h in mapping.items():
+  assert n not in files or files[n]==h;assert sha((R/n).read_bytes())==h,n;files[n]=h
+extra_names=[
+ 'context/reconciliation/local-f0-qualification-status.json','scripts/check-local-f0-status.py',
+ 'context/reconciliation/local-f0-operation-sources/read1161-install6850-Root-integration-v1/historical-bridge-v1/before-legacy-checker.py.txt',
+ *[F+'/'+n for n in extras],F+'/foundation-check-result.json']
+for n in extra_names:files[n]=sha((R/n).read_bytes())
+json_count=0;gz=[];total=0
+for n,h in files.items():
+ assert not Path(n).is_absolute()and ':'not in n and '\\'not in n and all(x not in('','.','..')for x in n.split('/'))
+ p=R/n;assert p.resolve().is_relative_to(R.resolve())and not any(x.is_symlink()for x in(p,*p.parents)if x.is_relative_to(R))
+ b=p.read_bytes();assert sha(b)==h and len(b)<8*1024*1024;total+=len(b)
+ if n.endswith('.tar.gz'):
+  seven={};seen=set()
+  with tarfile.open(p,'r:gz')as tar:
+   for member in tar:
+    assert member.isfile()and member.name not in seen and not Path(member.name).is_absolute()and all(x not in('','.','..')for x in member.name.split('/'))
+    seen.add(member.name);raw=tar.extractfile(member).read();q=p.parent/'source-ok'/member.name
+    assert q.is_file()and q.read_bytes()==raw
+    seven[member.name]=sha(raw)
+  assert len(seen)==7;gz.append({'path':n,'sha256':h,'exact_public_source_members_sha256':seven})
+ else:
+  assert b'\0'not in b;b.decode('utf-8-sig')
+  assert not re.search(rb'(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)',b)
+ if n.endswith('.json'):
+  def pairs(items):
+   value={}
+   for k,x in items:assert k not in value;k_dummy=None;value[k]=x
+   return value
+  json.loads(b.decode('utf8'),object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')));json_count+=1
+aggregate=sha(''.join(n+'\0'+files[n]+'\n'for n in sorted(files)).encode())
+v={'schema':'workinants.652-bounded-checkpoint-curated-map.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'base_commit':'249e6815702537a24cd98fc973ed90a8b0493ac3','base_tree':'6b705e51e464875eb8f84f71d0a27e9a072dc77d','repository':'saybenn/Workin-Ants-V2','branch':'codex/p0c-candidate-corrections-2026-10-31','files_sha256':dict(sorted(files.items())),'aggregate_sha256':aggregate,'file_count':len(files),'bytes':total,'strict_JSON_files':json_count,'public_source_only_archives':gz,'family_inventories':families,'high_confidence_secret_matches':0,'private_transportV2_V9_twohistory_code_excluded':True,'no_Git_mutation':True,'qualification_scope':'Actual652 evidence and closed bounded runs; no whole94/451/PostureD promotion.','Posture':'D','continue_after_publication':True}
+p=T/'652_checkpoint_exact_curated_map_20261123.json';put(p,enc(v))
+print(json.dumps({'map':p.name,'sha256':sha(p.read_bytes()),'aggregate_sha256':aggregate,'files':len(files),'bytes':total,'JSON':json_count,'public_source_archives':len(gz),'Git_mutated':False}))

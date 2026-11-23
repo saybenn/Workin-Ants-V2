@@ -1,0 +1,274 @@
+"""Environment-free finite source/psql-flow checks; every process/socket mocked."""
+import ast
+from copy import deepcopy
+import hashlib
+import io
+import json
+from pathlib import Path
+import queue
+import re
+import runpy
+import socket
+import subprocess
+import threading
+import unittest
+from pglast import parse_sql, ast as pgast
+from unittest.mock import patch
+
+ROOT=Path(__file__).resolve().parents[1];PACKET=ROOT/'review-output/customer-stale-predecessor-v1'
+P=runpy.run_path(str(ROOT/'scripts/customer_stale_predecessor_v1_protocol.py'))
+M=runpy.run_path(str(ROOT/'scripts/sql-review/run-customer-stale-predecessor-v1.py'))
+G=runpy.run_path(str(ROOT/'scripts/prepare-customer-stale-predecessor-v1.py'))
+APP=(ROOT/'review-output/foundation-application.review.sql').read_bytes()
+CANARY='DO_NOT_RETAIN_password://secret-host/raw_handle_0d9f'
+
+def diag(case):
+    state,message,line=P['CONTRACTS'][case]
+    return f'ERROR:  {state}: {message}\nCONTEXT:  PL/pgSQL function platform_private.guard_customerprofile() line {line} at RAISE\nLOCATION:  exec_stmt_raise, pl_exec.c:3911\n'
+
+def constant(node):
+    if isinstance(node,pgast.TypeCast):return constant(node.arg)
+    if isinstance(node,pgast.A_ArrayExpr):return [constant(x)for x in node.elements]
+    if isinstance(node,pgast.A_Const):
+        if node.isnull:return None
+        for key in('sval','ival','boolval'):
+            if hasattr(node.val,key):return getattr(node.val,key)
+    raise AssertionError('UNMODELED_GRANT_VALUE')
+
+class Output:
+    def __init__(self,world,error=False):self.q=queue.Queue();self.world=world;self.error=error;self.once=False
+    def readline(self,n):return self.q.get()
+    def read(self,n):
+        self.world.ended.wait(2)
+        if not self.world.ended.is_set():raise AssertionError('MOCK_STDERR_EOF_WAS_NOT_REQUESTED')
+        if self.once:return ''
+        self.once=True;return self.world.errors
+
+class Input:
+    def __init__(self,process):self.process=process;self.closed=False
+    def write(self,text):
+        if self.closed:raise ValueError('INPUT_CLOSED')
+        self.process.execute(text)
+    def flush(self):pass
+    def close(self):self.closed=True
+
+class Process:
+    def __init__(self,world,args,**kwargs):
+        self.world=world;self.role=args[args.index('-U')+1];self.returncode=None;self.errors='';self.ended=threading.Event();self.stdout=Output(self);self.stderr=Output(self,True);self.stdin=Input(self);self.error=False;self.state='00000';self.aborted=False;self.mode=True;self.branch=True;self.branch_stack=[];self.active=False
+        self.pid=str(800+len(world.processes));self.xid=str(7000+len(world.processes));world.processes.append(self)
+        assert args[:4]==['docker','--context','desktop-linux','exec']and args[args.index('-h')+1]=='127.0.0.1'and args[args.index('-d')+1]=='wa_p0c_rehearsal'
+        assert 'ON_ERROR_STOP=1'in args and 'VERBOSITY=verbose'in args and kwargs.get('shell')is False
+    def poll(self):return self.returncode
+    def wait(self,timeout=None):
+        if not self.ended.wait(2):raise AssertionError('MOCK_PROCESS_EXIT_REQUIRED')
+        return self.returncode
+    def terminate(self):self.exit(1)
+    def kill(self):self.exit(1)
+    def exit(self,code):
+        self.returncode=code;self.world.revision=0;self.stdout.q.put('');self.ended.set()
+    def output(self,line):self.stdout.q.put(line+'\n')
+    def fail(self,case):
+        self.error=True;self.state=P['CONTRACTS'][case][0];self.aborted=True
+        self.errors+=self.world.error_override or diag(case)
+        if self.mode:self.exit(3)
+    def execute(self,text):
+        for line in text.splitlines():
+            if self.returncode is not None:break
+            if line.startswith('\\if '):
+                assert line=='\\if :ERROR';self.branch_stack.append(self.branch);self.branch=self.branch and self.error;continue
+            if line=='\\else':self.branch=self.branch_stack[-1]and not self.error;continue
+            if line=='\\endif':self.branch=self.branch_stack.pop();continue
+            if not self.branch:continue
+            if line.startswith('\\set ON_ERROR_STOP '):self.mode=line.endswith(' on');continue
+            if line.startswith('\\echo '):self.output(line[6:].replace(':SQLSTATE',self.state));continue
+            if line=='\\q':self.exit(0);continue
+            if line.startswith('BEGIN ISOLATION LEVEL '):
+                assert "statement_timeout='5s'"in line and "lock_timeout='1s'"in line;self.active=True;continue
+            if line=='ROLLBACK;':self.world.revision=0;self.aborted=False;self.active=False;self.error=False;self.state='00000';continue
+            if self.aborted:
+                self.errors+='ERROR:  25P02: current transaction is aborted\n';self.exit(3);continue
+            if 'WA_CTX01_TUPLE|'in line:
+                assert all(x in line for x in('session_user','current_user','pg_backend_pid()','pg_current_xact_id()','backend_start','transaction_isolation'))
+                value={'login':self.role,'current_user':self.role,'database':'wa_p0c_rehearsal','isolation':'read committed','pid':self.pid,'xid':self.xid,'started':'2026-11-20 12:00:00+00','clock':'2026-11-20 12:00:00+00'}
+                self.output('WA_CTX01_TUPLE|'+json.dumps(value));continue
+            if line.startswith('INSERT INTO platform.database_action_grant '):
+                parsed=parse_sql(line);assert len(parsed)==2 and isinstance(parsed[1].stmt,pgast.TransactionStmt)
+                stmt=parsed[0].stmt;columns=[x.name for x in stmt.cols];assert columns==list(self.world.columns)
+                args=stmt.selectStmt.valuesLists[0];values={k:constant(v)for k,v in zip(columns,args)if k!='expires_at'}
+                assert self.role=='wa_context_issuer'and values['issuer_service']==self.role and values['mutation_transaction_id']==self.xid
+                assert values['allowed_fields']==self.world.packet['update_grant']['allowed_fields']
+                for key in('database_login_role','owner_module_id','action','purpose','target_kind','target_id','principal_user_id'):
+                    assert values[key]==self.world.packet['update_grant'][key]
+                assert values['security_generation']==values['source_generation']==0 and values['service_principal']is None
+                active=[p for p in self.world.processes if p.role=='wa_app_runtime'and p.poll()is None];assert len(active)==1
+                assert str(values['backend_pid'])==active[0].pid and values['transaction_id']==active[0].xid
+                assert "RETURNING jsonb_build_object('created_at',created_at); COMMIT;"in line
+                self.world.grants.append(values);self.output(json.dumps({'created_at':values['created_at']}));self.active=False;continue
+            if line.startswith('SELECT platform_private.bind_request_context('):
+                handle=line.split("'",2)[1];hashed=hashlib.sha256(bytes.fromhex(handle)).hexdigest()
+                grant=[g for g in self.world.grants if g['token_hash']==hashed];assert len(grant)==1
+                assert str(grant[0]['backend_pid'])==self.pid and grant[0]['transaction_id']==self.xid
+                self.bound=grant[0];continue
+            if line==self.world.sql.get('visible-revision0.sql','').strip():
+                assert hasattr(self,'bound')
+                self.output(json.dumps({'rows':self.world.visible_count,'exact_target':self.world.visible_count==1,'revision_zero':self.world.visible_count==1 and self.world.revision==0,'original_fields':self.world.visible_count==1}));continue
+            if line.startswith('SELECT \'WA_CTX01_ACK|'):
+                self.output(line.split("'",2)[1]);continue
+            if line.startswith('SELECT \'WA_CSP1_'):
+                self.output(line.split("'",2)[1]);continue
+            if 'UPDATE app.customer_profiles SET 'in line:
+                found=re.search(r'revision=revision\+([12]) WHERE id=\'([0-9a-f-]{36})\'::uuid AND revision=([01]) RETURNING id,revision',line);assert found,'ACTUAL_UPDATE_PROJECTION_REQUIRED'
+                self.world.update_calls+=1
+                delta,identity,expected=int(found[1]),found[2],int(found[3]);assert identity==self.world.packet['baseline']['ids']['CustomerProfile']
+                if expected!=self.world.revision:
+                    assert line.startswith('WITH changed AS(')or line.startswith('WITH changed AS (');self.output(json.dumps({'rows':0}));self.error=False;self.state='00000';continue
+                if not self.world.force_success:
+                    if delta!=1:self.fail('skipped-revision');continue
+                    if self.world.revision!=0:self.fail('same-grant-second-source-update');continue
+                self.world.revision+=delta;self.error=False;self.state='00000'
+                if line.startswith('WITH changed AS'):
+                    self.output(json.dumps({'rows':1,'target':True,'revision_one':self.world.revision==1}))
+                continue
+            if line.strip():raise AssertionError('UNMODELED_SCRIPT_STATEMENT')
+
+class World:
+    def __init__(self,packet):self.packet=packet;self.processes=[];self.revision=0;self.error_override=None;self.force_success=False;self.visible_count=1;self.update_calls=0;self.closed_observations=[];self.sql={};self.grants=[];self.columns=();self.native=None;self.observer_closure=[]
+    def popen(self,args,**kwargs):return Process(self,args,**kwargs)
+    def state(self):
+        counts={'app.users':1,'app.user_security_profiles':1,'app.customer_profiles':1,'platform.runtime_command_receipt':1,'app.customer_profile_lifecycle_event':1,'platform.owner_mutation_evidence':1,'platform.runtime_outbox_message':2}
+        return [{'table':t,'count':counts.get(t,0),'sha256':hashlib.sha256((t+':'+str(counts.get(t,0))+':source-fixture-revision0').encode()).hexdigest()}for t in self.packet['full42_tables']]
+    def run(self,args,**kwargs):
+        query=kwargs['input'];role=args[args.index('-U')+1]
+        if 'pg_stat_activity'in query:
+            assert role=='postgres';self.closed_observations.append(all(p.poll()is not None for p in self.processes))
+            if "backend_type='client backend'"in query:output=json.dumps({'other_clients':sum(p.poll()is None for p in self.processes)})
+            else:
+                pid=re.search(r'WHERE pid=([0-9]+)',query)[1];output=str(sum(p.pid==pid and p.poll()is None for p in self.processes))
+        else:
+            closed=all(p.poll()is not None for p in self.processes);self.observer_closure.append(closed);assert closed,'POSTSTATE_BEFORE_OPERATION_EXIT'
+            if query==self.sql.get('all100-trigger-observe.sql'):output=json.dumps({'expected':100,'actual':100,'exact':True,'enabled':True})
+            elif query==self.sql.get('baseline-observe.sql'):output=json.dumps(self.packet['baseline_creation_group'])
+            elif query==self.collector:output=json.dumps(self.native)
+            elif 'FROM platform.database_action_grant g WHERE id='in query:
+                assert role=='wa_context_issuer'and len(self.grants)>0 and all(g['id']in query for g in self.grants)
+                output=json.dumps({'count':len(self.grants),'exact':True})
+            elif query.startswith("SELECT jsonb_agg(jsonb_build_object('table',table_name"):
+                assert role=='postgres'and self.revision==0 and '__EXCLUDED_GRANT_IDS__'not in query
+                assert all(g['id']in query for g in self.grants);output=json.dumps(self.state())
+            else:raise AssertionError('UNMODELED_INDEPENDENT_QUERY')
+        return subprocess.CompletedProcess(args,0,output,'')
+
+class Checks(unittest.TestCase):
+    def setUp(self):
+        for name in('run','Popen','call','check_call','check_output'):
+            patcher=patch.object(subprocess,name,side_effect=AssertionError('REAL_PROCESS_FORBIDDEN'));patcher.start();self.addCleanup(patcher.stop)
+        for owner,name in((socket,'create_connection'),(socket.socket,'connect')):
+            patcher=patch.object(owner,name,side_effect=AssertionError('NETWORK_FORBIDDEN'));patcher.start();self.addCleanup(patcher.stop)
+        self.packet=json.loads((PACKET/'fixtures.json').read_bytes());self.sql={p:(PACKET/p).read_text(encoding='utf8')for p in self.packet['prepared_files_sha256']}
+    def transport(self,open_session=True):
+        ctx=runpy.run_path(str(ROOT/M['CTX']));blobs={p:(ROOT/p).read_bytes()for p in ctx['SOURCE_MODULES']};ctx['load_helpers'](blobs)
+        self.world=World(self.packet);self.world.sql=self.sql;self.world.columns=ctx['GRANT_COLUMNS'];self.world.native=json.loads((ROOT/'tests/offline/customer-stale-predecessor-v1/native-before.json').read_bytes());self.world.collector=(ROOT/M['COLLECTOR']).read_text(encoding='utf8');self.writer=[];e=M['Evidence'](lambda v:self.writer.append(deepcopy(v)))
+        self.e=e;cls=M['coordinator_class'](ctx,P);self.c=cls(self.packet,self.sql,{'review-output/foundation-application.review.sql':APP,M['COLLECTOR']:self.world.collector.encode()},'a'*64,self.world.native,e)
+        self.popen=patch.object(subprocess,'Popen',side_effect=self.world.popen);self.popen.start();self.addCleanup(self.popen.stop)
+        self.process_run_patch=patch.object(subprocess,'run',side_effect=self.world.run);self.process_run_patch.start();self.addCleanup(self.process_run_patch.stop)
+        if open_session:
+            session,backend=self.c.opened('wa_app_runtime');return session
+        return None
+    def script(self,case,text=None,prepare=True):
+        session=self.transport()
+        if prepare and case=='same-grant-second-source-update':
+            rows,ack,errors=self.c.call(session,self.sql['first-update-prefix.sql'],'FIRST_PREFIX')
+            self.assertTrue(ack);self.assertEqual(json.loads(rows[0]),{'rows':1,'target':True,'revision_one':True})
+        response=self.c.call(session,text or self.sql[case+'.sql'],'NEGATIVE_SCRIPT')
+        self.assertEqual(response[2],'','stderr intentionally waits for EOF')
+        rows,ack,errors=self.c.settled_expected_response(session,response[0],response[1]);self.c.global_closed()
+        return P['compare_result'](case,rows,ack,errors,APP)
+    def test_actual_core_no_initial_visibility_never_counts_wrong_predecessor(self):
+        self.transport(False);self.c.baseline_state=self.world.state();self.world.visible_count=0
+        with self.assertRaises(M['HeldFailure'])as failure:self.c.case('wrong-predecessor')
+        self.assertEqual(failure.exception.code,'INITIAL_VISIBLE_ROW_REQUIRED');self.assertEqual(self.world.update_calls,0);self.assertEqual(self.e.value['results'],[])
+        self.assertTrue(all(p.poll()is not None for p in self.world.processes))
+    def test_core_has_no_standalone_execution_command(self):
+        with patch('builtins.compile',side_effect=AssertionError('HELPERS_FORBIDDEN')):
+            with patch('sys.stdout',new_callable=io.StringIO)as output:self.assertEqual(M['main']([]),1)
+        self.assertFalse(json.loads(output.getvalue())['runtime_authorized'])
+    def test_actual_core_three_cases_use_real_issuer_tuple_bind_process_flow(self):
+        self.transport(False);self.c.baseline_state=self.world.state()
+        for name in P['CASE_ORDER']:self.c.case(name)
+        self.assertEqual([r['name']for r in self.e.value['results']],list(P['CASE_ORDER']))
+        self.assertEqual(len(self.world.grants),3);self.assertEqual(self.world.revision,0);self.assertTrue(all(self.world.observer_closure))
+        self.assertNotIn(CANARY,json.dumps(self.e.value));self.assertTrue(all(p.poll()==0 for p in self.world.processes))
+    def test_actual_core_unexpected_failure_stops_later_cases_and_preserves_partial(self):
+        self.transport(False);self.c.baseline_state=self.world.state()
+        # setup's genuine creation composition is a separate future owning gate;
+        # this finite driver test starts from the declared immutable baseline.
+        self.c.setup=lambda:None;self.world.error_override=diag('skipped-revision').replace('CAS revision must increment once',CANARY)
+        with self.assertRaises(M['HeldFailure']):self.c.run()
+        self.assertEqual([r['name']for r in self.e.value['results']],['wrong-predecessor'])
+        self.assertEqual(self.e.value['current_case'],'skipped-revision');self.assertEqual(self.e.value['status'],'STOPPED');self.assertEqual(len(self.world.grants),2)
+        self.assertTrue(all(p.poll()is not None for p in self.world.processes));self.assertNotIn(CANARY,json.dumps(self.e.value))
+    def test_source_and_three_exact_contracts(self):
+        facts=P['source_guard'](APP);self.assertEqual(facts['raise_lines'],[9,13]);self.assertEqual(tuple(self.packet['case_order']),P['CASE_ORDER'])
+        self.assertEqual(self.packet['assertion_expected_sha256'],P['ASSERTION_SHA']);self.assertEqual(self.packet['baseline_creation_group']['history'],1)
+    def test_exact_capabilities_no_revision1_or_companion_write(self):
+        self.assertEqual(self.packet['update_grant']['allowed_fields'],P['capabilities'](json.loads((ROOT/'context/reconciliation/foundation-sql-draft-access.json').read_bytes()),self.packet['baseline']['ids']['CustomerProfile']))
+        caps=self.packet['update_grant']['allowed_fields'];self.assertEqual(len(caps),19);self.assertFalse(any('/revision/1'in x or '/INSERT/'in x for x in caps))
+    def test_reproduction_exact_all_prepared_bytes(self):
+        generated,_=G['build'](ROOT,self.packet['fixture_run_id']);self.assertEqual({k:v.encode()for k,v in generated.items()},{p.name:p.read_bytes()for p in PACKET.iterdir()if p.is_file()})
+    def test_original_baseline_normalization_preserves_creation_semantics(self):
+        old=json.loads((ROOT/G['BASE']/'fixtures.json').read_bytes());self.assertEqual(old['cases'][0]['observer_expected'],self.packet['baseline_creation_group'])
+        self.assertIn('COMMIT;',self.sql['baseline-create.sql']);self.assertNotIn('UPDATE app.customer_profiles',self.sql['baseline-create.sql'])
+        self.assertEqual(self.sql['baseline-create.sql'].count('INSERT INTO '),6)
+    def test_setup_bypasses_only_two_identity_owner_guards_flush_then_restore(self):
+        text=self.sql['trusted-identity-setup.sql'];self.assertEqual(text.count('DISABLE TRIGGER'),2)
+        self.assertNotIn('ALTER TABLE app.customer_profiles',text);self.assertLess(text.index('SET CONSTRAINTS ALL IMMEDIATE'),text.index('ENABLE TRIGGER'))
+        self.assertEqual(len(self.packet['full42_tables']),42);self.assertEqual(self.sql['full42-state-observe.sql'].count('__EXCLUDED_GRANT_IDS__'),1)
+    def test_both_exact_source_diagnostics_and_unrelated_values(self):
+        for case in P['CONTRACTS']:
+            good=diag(case);self.assertTrue(P['diagnostic'](good,case,APP)['matched'])
+            for bad in(good.replace('platform_private.guard_customerprofile','platform_private.row_allowed'),good.replace('line 9','line 8')if case=='skipped-revision'else good.replace('line 13','line 12'),good.replace(P['CONTRACTS'][case][1],CANARY),good+'DETAIL: '+CANARY+'\n',good.replace('ERROR:','FATAL:'),good.replace('pl_exec.c:3911','pl_exec.c, 3911'),good+good,good.replace('ERROR:  '+P['CONTRACTS'][case][0],'ERROR:  42501'if case=='skipped-revision'else'ERROR:  P0001')):
+                outcome=P['diagnostic'](bad,case,APP);self.assertFalse(outcome['matched']);self.assertNotIn(CANARY,json.dumps(outcome))
+    def test_wrong_predecessor_actual_CTX_flow_explicit_rollback(self):
+        receipt=self.script('wrong-predecessor');self.assertTrue(receipt['exact_output']and receipt['rollback_acknowledged']);self.assertTrue(all(self.world.closed_observations))
+    def test_skipped_revision_actual_CTX_delayed_stderr_after_exit(self):
+        receipt=self.script('skipped-revision');self.assertTrue(receipt['diagnostic']['matched']);self.assertTrue(receipt['rollback_acknowledged']);self.assertTrue(all(p.poll()==0 for p in self.world.processes))
+    def test_second_update_actual_CTX_prior_plus_one_then_exact_rollback(self):
+        receipt=self.script('same-grant-second-source-update');self.assertTrue(receipt['exact_output']);self.assertEqual(self.world.revision,0)
+    def test_old_error_stop_restoration_rejects_before_rollback_ack(self):
+        with self.assertRaises(M['HeldFailure']):self.script('skipped-revision',self.sql['skipped-revision.sql'].replace('ON_ERROR_STOP off','ON_ERROR_STOP on'))
+        self.assertTrue(all(p.poll()is not None for p in self.world.processes));self.assertFalse(any(x.get('confirmed')is True for x in self.e.value['operations']))
+    def test_missing_rollback_is_not_manufactured_by_cleanup(self):
+        with self.assertRaises(M['HeldFailure']):self.script('skipped-revision',self.sql['skipped-revision.sql'].replace('ROLLBACK;\n',''))
+    def test_unexpected_success_marker_rejects(self):
+        session=self.transport();self.world.force_success=True
+        rows,ack,_=self.c.call(session,self.sql['skipped-revision.sql'],'UNEXPECTED_SUCCESS')
+        rows,ack,errors=self.c.settled_expected_response(session,rows,ack)
+        receipt=P['compare_result']('skipped-revision',rows,ack,errors,APP);self.assertFalse(receipt['exact_output']);self.assertIn('WA_CSP1_UNEXPECTED_SUCCESS',rows)
+    def test_wrong_guard_and_secret_delayed_error_never_retained(self):
+        session=self.transport();self.world.error_override=diag('skipped-revision').replace('CAS revision must increment once',CANARY)
+        rows,ack,_=self.c.call(session,self.sql['skipped-revision.sql'],'WRONG_GUARD')
+        rows,ack,errors=self.c.settled_expected_response(session,rows,ack);result=P['compare_result']('skipped-revision',rows,ack,errors,APP)
+        self.e.record({'stage':'SAFE_GUARD_COMPARISON','receipt':result});self.assertFalse(result['exact_output']);self.assertNotIn(CANARY,json.dumps(self.e.value))
+    def test_unreceived_malformed_and_zero_row_bool_reject(self):
+        for rows,ack,errors in((None,True,''),([],None,''),(['WA_CSP1_BEFORE','{"rows": false}','WA_CSP1_AFTER','WA_CSP1_ROLLBACK'],True,''),(['WA_CSP1_BEFORE','{"rows":0,"rows":0}','WA_CSP1_AFTER','WA_CSP1_ROLLBACK'],True,'')):
+            result=P['compare_result']('wrong-predecessor',rows,ack,errors,APP);self.assertFalse(result['exact_output'])
+    def test_sticky_writer_failure_still_closes_and_global_attempts_without_confirmation(self):
+        session=self.transport();self.e.writer=lambda _:(_ for _ in()).throw(OSError('FIXED_TEST_IO'))
+        with self.assertRaises(M['HeldFailure']):self.c.call(session,self.sql['wrong-predecessor.sql'],'WRITE_FAILS')
+        with self.assertRaises(M['HeldFailure']):self.c.all_closed()
+        self.assertTrue(all(p.poll()is not None for p in self.world.processes));self.assertFalse(self.e.value['evidence_complete'])
+        observed=[x for x in self.e.value['operations']if x['stage']=='ALL_CLIENT_CLOSURE'];self.assertEqual(len(observed),1);self.assertTrue(observed[0]['attempted']);self.assertFalse(observed[0]['confirmed'])
+    def test_exact42_state_types_no_float_bool_or_extra_fields(self):
+        rows=[{'table':t,'count':0,'sha256':'a'*64}for t in self.packet['full42_tables']];self.assertTrue(P['state_shape'](rows,self.packet['full42_tables']))
+        for value in(False,0.0,-1):
+            bad=deepcopy(rows);bad[0]['count']=value;self.assertFalse(P['state_shape'](bad,self.packet['full42_tables']))
+    def test_pending_source_gate_and_missing_transport_never_compile(self):
+        validation=json.loads((ROOT/M['VALIDATION']).read_bytes());expected={**validation['source_files_sha256'],**validation['packet_files_sha256'],M['VALIDATION']:hashlib.sha256((ROOT/M['VALIDATION']).read_bytes()).hexdigest()}
+        with patch('builtins.compile',side_effect=AssertionError('PROJECT_COMPILATION_FORBIDDEN'))as compiler:
+            with self.assertRaises(M['HeldFailure'])as failure:M['admit_source_graph'](ROOT,expected)
+            self.assertEqual(failure.exception.code,'SOURCE_REVIEW_REQUIRED');self.assertEqual(compiler.call_count,0)
+            del expected[M['CTX']]
+            with self.assertRaises(M['HeldFailure'])as failure:M['admit_source_graph'](ROOT,expected)
+            self.assertEqual(failure.exception.code,'CLOSED_SOURCE_GRAPH_REQUIRED');self.assertEqual(compiler.call_count,0)
+
+if __name__=='__main__':unittest.main(verbosity=2)

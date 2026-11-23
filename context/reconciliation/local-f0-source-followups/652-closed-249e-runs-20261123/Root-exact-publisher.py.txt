@@ -1,0 +1,81 @@
+"""Exact reviewed staging/commit and independent remote verification. Never force-push."""
+from pathlib import Path
+import argparse,datetime,hashlib,io,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+BASE='249e6815702537a24cd98fc973ed90a8b0493ac3'
+BRANCH='codex/p0c-candidate-corrections-2026-10-31'
+CURATED='471c6009e02e45c24b79dc29cbed9d79d195a8e38dffc6f05a231d1b18dd814b'
+F='context/reconciliation/local-f0-source-followups/652-closed-249e-runs-20261123'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def git(*args,cwd=R,input=None):
+ p=subprocess.run(['git','--no-optional-locks','-c','core.longpaths=true',*args],cwd=cwd,input=input,capture_output=True,timeout=150)
+ assert p.returncode==0,('GIT_COMMAND_FAILED',args[0])
+ return p.stdout
+def originals():
+ value=json.loads((T/'652_original_checkouts_before_publication_20261123.json').read_bytes())['checkouts']
+ for _,v in value.items():
+  root=Path(v['path']);assert git('rev-parse','HEAD',cwd=root).decode().strip()==v['HEAD']
+  assert git('branch','--show-current',cwd=root).decode().strip()==v['branch']
+  assert git('status','--porcelain=v1',cwd=root).decode()==v['status_porcelain']
+  p=Path(git('rev-parse','--git-path','index',cwd=root).decode().strip())
+  if not p.is_absolute():p=root/p
+  assert sha(p.read_bytes())==v['index_sha256']
+ return True
+def remote():return git('ls-remote','--exit-code','origin','refs/heads/'+BRANCH).decode().split()
+def blobs(commit,files):
+ raw=io.BytesIO(git('cat-file','--batch',input=''.join(commit+':'+n+'\n'for n in sorted(files)).encode()))
+ for name in sorted(files):
+  header=raw.readline().split();assert len(header)==3 and header[1]==b'blob'
+  body=raw.read(int(header[2]));assert sha(body)==files[name]and raw.read(1)==b'\n'
+  assert sha((R/name).read_bytes())==files[name]
+ assert raw.read()==b''
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('--review',type=Path);parser.add_argument('--review-sha256');parser.add_argument('--verify-remote',action='store_true');args=parser.parse_args()
+ if args.verify_remote:
+  p=T/'652_exact_committed_checkpoint_pre_push_20261123.json';v=json.loads(p.read_bytes());c=v['commit']
+  assert git('rev-parse','HEAD').decode().strip()==c
+  assert remote()==[c,'refs/heads/'+BRANCH];blobs(c,v['files_sha256']);originals()
+  proof={'schema':'workinants.652-independent-full-remote-publication.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'commit':c,'tree':v['tree'],'direct_parent':BASE,'full_remote_hash':c,'current_and_committed_files':len(v['files_sha256']),'normal_fast_forward':True,'original_checkouts_unchanged':True,'Posture':'D','continue_standing_assignment':True}
+  out=T/'652_full_remote_publication_verification_20261123.json';put(out,enc(proof));print(json.dumps({'status':'PUBLISHED_FULL_REMOTE_AND_ALL_BLOBS_VERIFIED','proof':out.name,'proof_sha256':sha(out.read_bytes()),'commit':c,'tree':v['tree'],'files':len(v['files_sha256'])}));return
+ assert args.review and args.review_sha256
+ raw=(T/'652_checkpoint_exact_curated_map_20261123.json').read_bytes();assert sha(raw)==CURATED;curated=json.loads(raw);files=dict(curated['files_sha256'])
+ review_path=args.review.resolve();assert review_path.is_relative_to(T.resolve())and not review_path.is_relative_to(R.resolve())
+ rr=review_path.read_bytes();assert sha(rr)==args.review_sha256;review=json.loads(rr)
+ assert review['decision']=='SOURCE_APPROVED'and review['findings']==[]and review['curated_map_sha256']==CURATED
+ assert git('rev-parse','HEAD').decode().strip()==BASE and git('rev-parse','HEAD^{tree}').decode().strip()=='6b705e51e464875eb8f84f71d0a27e9a072dc77d'
+ assert git('remote','get-url','origin').decode().strip()=='https://github.com/saybenn/Workin-Ants-V2.git'
+ assert remote()==[BASE,'refs/heads/'+BRANCH];originals()
+ assert git('diff','--cached','--name-only','-z')==b''
+ tracked=set(filter(None,git('diff','--name-only','-z').decode().split('\0')));assert tracked<=set(files)
+ for n,h in files.items():assert sha((R/n).read_bytes())==h
+ assert sha((R/'vercel.json').read_bytes())=='81a4eed381a1ebdb732441b2aa90c1933824338a9822859ead828bfdbabdc02f'
+ assert json.loads((R/'vercel.json').read_bytes())['git']['deploymentEnabled'][BRANCH]is False
+ assert not(R/'.github/workflows').exists()and not(R/'.husky').exists()
+ hooks=subprocess.run(['git','config','--get','core.hooksPath'],cwd=R,capture_output=True,timeout=30);assert hooks.returncode==1 and not hooks.stdout
+ context=(T/'652_context_check_20261123.log').read_bytes();assert sha(context)=='fe12ec180f0320b907a4f66e324e0e61a0d390f081a27f7d796fe77245adb9e9'and b'Structural checks PASSED'in context
+ preserve=(T/'652_original_checkouts_before_publication_20261123.json').read_bytes();assert sha(preserve)=='ce33fae7e8df93eba671887f52cc58e793ea65747763a43767e2b6b5c15e5df2'
+ extras={'context-check.log':context,'original-checkouts-before-publication.json':preserve,'independent-publication-review.json':rr,'exact-curated353-map.json':raw,'Root-exact-publisher.py.txt':Path(__file__).read_bytes(),'Root-original-preservation-helper.py.txt':(T/'capture_652_original_checkout_preservation_20261123.py').read_bytes()}
+ for name,body in extras.items():
+  n=F+'/'+name;assert n not in files and not(R/n).exists();put(R/n,body);files[n]=sha(body)
+ admission='context/reconciliation/local-f0-652-publication-admission-20261123.json'
+ v={'schema':'workinants.652-exact-publication-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'base_commit':BASE,'branch':BRANCH,'curated_map_sha256':CURATED,'independent_review_sha256':sha(rr),'files_sha256':dict(sorted(files.items())),'source_files_plus_bounded_proofs':len(files),'private_unfinished_sources_excluded':True,'Vercel_branch_deployment_disabled':True,'original_checkouts_preserved':True,'Posture':'D','continue_after_checkpoint':True}
+ assert not(R/admission).exists();put(R/admission,enc(v));files[admission]=sha((R/admission).read_bytes())
+ names=T/'652_exact_stage_paths_20261123.nul';put(names,b''.join(n.encode()+b'\0'for n in sorted(files)))
+ git('add','--pathspec-from-file='+str(names),'--pathspec-file-nul')
+ staged=set(filter(None,git('diff','--cached','--name-only','-z').decode().split('\0')));assert staged==set(files)
+ blobs('',files)
+ stage={'schema':'workinants.652-exact-staged-proof.v1','files_sha256':files,'file_count':len(files),'no_unrelated_staged_paths':True,'base_commit':BASE}
+ put(T/'652_exact_staged_byte_proof_20261123.json',enc(stage))
+ assert remote()==[BASE,'refs/heads/'+BRANCH]and originals()
+ git('commit','-m','Record verified 652 assertions and disposable recovery evidence')
+ c=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+ assert git('rev-parse','HEAD^').decode().strip()==BASE
+ assert set(filter(None,git('diff-tree','--no-commit-id','--name-only','-r','-z',c).decode().split('\0')))==set(files)
+ blobs(c,files);originals()
+ proof={'schema':'workinants.652-full-committed-checkpoint-proof.v1','commit':c,'tree':tree,'direct_parent':BASE,'files_sha256':files,'all_current_committed_equal':True,'originals_unchanged':True,'Posture':'D'}
+ p=T/'652_exact_committed_checkpoint_pre_push_20261123.json';put(p,enc(proof))
+ print(json.dumps({'status':'COMMITTED_ALL_BLOBS_VERIFIED_READY_NORMAL_FF_PUSH','commit':c,'tree':tree,'files':len(files),'proof_sha256':sha(p.read_bytes())}))
+if __name__=='__main__':main()

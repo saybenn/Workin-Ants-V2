@@ -1,0 +1,48 @@
+"""Root admission of independently reviewed, inactive stale-predecessor source only."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+AR='context/reconciliation/local-f0-operation-sources/customer-stale-predecessor-v1/reviews'
+VAL='context/reconciliation/customer-stale-predecessor-v1-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def main():
+ dp=T/'customer_stale_predecessor_v1_frozen_private_delivery_20261120.json';dr=dp.read_bytes();assert sha(dr)=='87f51c3c52a05186e10b3da7a1695b2e66cf0fe6bc2778a9a65d6d75495fc720';d=json.loads(dr)
+ rp=T/'customer_stale_predecessor_v1_independent_Catalog_source_review_20261120.json';rr=rp.read_bytes();assert sha(rr)=='ef5aba3a88c8a738280bb1510681dc557c143b0c6560620997406794b736c1fb';review=json.loads(rr)
+ assert review['reviewer']=='/root/catalog_v4_review'and review['decision']=='SOURCE_APPROVED'and review['findings']==[]
+ assert review['source5_sha256']==d['source5_sha256']and review['new_Root_files_sha256']==d['new_Root_files_sha256']
+ F=Path(d['private_ROOT']);filemap=d['new_Root_files_sha256'];assert len(filemap)==110
+ writes={}
+ for name,wanted in filemap.items():
+  assert not Path(name).is_absolute()and ':'not in name and '\\'not in name and all(x not in('','.','..')for x in name.split('/'))
+  raw=(F/name).read_bytes();assert sha(raw)==wanted;writes[name]=raw
+ old=bytes(writes[VAL]);v=json.loads(old);assert sha(old)==d['source_validation_sha256']
+ assert v['source_files_sha256']==review['source_files_sha256']and v['packet_files_sha256']==review['packet_files_sha256']
+ # Child gates bind exact source22/packet12. The new owning implementation,
+ # operational packet, database results and qualification remain absent.
+ root_review={'schema':'workinants.CSP1-Root-inactive-source-admission.v1','decision':'SOURCE_APPROVED','reviewer':'/root','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_files_sha256':v['source_files_sha256'],'packet_files_sha256':v['packet_files_sha256'],'independent_source_review_sha256':sha(rr),'scope':'Reviewed inactive child source only. No owning implementation, runtime, committed UPDATE or concurrency qualification.','runtime':'NOT_RUN','Posture':'D'}
+ writes[AR+'/independent-Catalog-source-review.json']=rr
+ writes[AR+'/Root-source-review.json']=encoded(root_review)
+ writes[AR+'/source-validation-before-Root.json']=old
+ writes[AR+'/author-frozen-delivery.json']=dr
+ writes[AR+'/Root-admission-helper.py.txt']=Path(__file__).read_bytes()
+ for key,name in [('independent_source_review',AR+'/independent-Catalog-source-review.json'),('Root_source_review',AR+'/Root-source-review.json')]:
+  v[key]={'decision':'SOURCE_APPROVED','path':name,'sha256':sha(writes[name])}
+ v['review_gate']='SOURCE_APPROVED';v['runtime']='NOT_RUN';v['Root_admission_limit']='Inactive child source only; owning operational implementation and runtime remain NOT_RUN.'
+ writes[VAL]=encoded(v)
+ for directory in('local-f0-restore-plan-04731001','local-f0-privilege-ceiling-plan-a8dc4614'):
+  m=json.loads((T/directory/'operation-manifest.json').read_bytes());assert not(set(writes)&set(m['packet_files_sha256']))
+  for name,wanted in m['packet_files_sha256'].items():assert sha((R/name).read_bytes())==wanted
+ for name,raw in writes.items():
+  p=R/name;assert p.resolve().is_relative_to(R.resolve())and not any(x.is_symlink()for x in(p,*p.parents)if x.is_relative_to(R))
+  assert not p.exists()or p.read_bytes()==raw
+ for name,raw in writes.items():
+  p=R/name
+  if p.exists():continue
+  p.parent.mkdir(parents=True,exist_ok=True)
+  with p.open('xb')as f:f.write(raw)
+ proof={'schema':'workinants.CSP1-Root-committable-source-inventory.v1','Root_files_sha256':{n:sha(b)for n,b in writes.items()},'file_count':len(writes),'child_source_status':'SOURCE_APPROVED','owned_implementation':'NOT_IMPLEMENTED','runtime':'NOT_RUN','status_promotions':0,'active_and_held_packet_inputs_unchanged':True,'no_process_Docker_database_network_Git_calls':True,'Posture':'D'}
+ p=T/'CSP1_Root_inactive_source_admission_inventory_20261120.json'
+ with p.open('xb')as f:f.write(encoded(proof))
+ print(json.dumps({'status':'INACTIVE_CHILD_SOURCE_ADMITTED','file_count':len(writes),'inventory_sha256':sha(p.read_bytes()),'validation_sha256':sha(writes[VAL]),'runtime':'NOT_RUN','status_promotions':0}))
+if __name__=='__main__':main()

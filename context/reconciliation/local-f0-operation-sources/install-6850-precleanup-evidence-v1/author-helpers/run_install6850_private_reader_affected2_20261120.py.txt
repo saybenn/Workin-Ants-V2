@@ -1,0 +1,17 @@
+"""Version-qualified private reader checker with source preservation receipts."""
+from pathlib import Path
+import hashlib,json,runpy,time,unittest,io
+T=Path(__file__).resolve().parent;F=T/'install6850-precleanup-evidence-reader-private-candidate-20261120';D=F/'workinants-correction-pass';R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+pres=json.loads((F/'before-private-reader-preservation.json').read_bytes());protected=pres['Root_protected_files_sha256'];assert all(sha((R/p).read_bytes())==h for p,h in protected.items())
+names=['scripts/local_f0_install_precleanup_evidence.py','scripts/check-local-f0-install-precleanup-evidence.py','scripts/prepare-local-f0-status.py'];entry={n:sha((D/n).read_bytes())for n in names};stream=io.StringIO();started=time.perf_counter();m=runpy.run_path(str(D/names[1]));suite=unittest.TestSuite(m['Checks'](n)for n in ['test_18_actual_private_INSTALL_only_CLI_dispatch_and_final_barrier','test_19_actual_public_final_read_race_and_only_legacy_reader_restoration']);result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite)
+report={'schema':'workinants.install6850-private-reader-author-checks.v1','source_entry_sha256':entry,'source_exit_sha256':{n:sha((D/n).read_bytes())for n in names},'Root_protected297_unchanged':all(sha((R/p).read_bytes())==h for p,h in protected.items()),'tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'successful':result.wasSuccessful(),'seconds':round(time.perf_counter()-started,3),'process_network_database_SQL':'FORBIDDEN_OR_NOT_IN_READER_CODE','Root_full671_builder':'NOT_RUN','Root_files_written':False,'source_gates':'PENDING'}
+idx=1
+while(F/f'author-affected-checks-run{idx}.json').exists():idx+=1
+log=stream.getvalue().encode();lp=F/f'author-affected-checks-run{idx}.log';jp=F/f'author-affected-checks-run{idx}.json'
+with lp.open('xb')as f:f.write(log)
+report['log_sha256']=sha(log)
+with jp.open('xb')as f:f.write((json.dumps(report,indent=2,sort_keys=True)+'\n').encode())
+print(json.dumps({'report':str(jp),'sha256':sha(jp.read_bytes()),'tests_run':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'success':result.wasSuccessful(),'seconds':report['seconds']}))
+if not result.wasSuccessful():print(stream.getvalue())
+assert report['source_entry_sha256']==report['source_exit_sha256']and report['Root_protected297_unchanged']
+raise SystemExit(0 if result.wasSuccessful()else 1)

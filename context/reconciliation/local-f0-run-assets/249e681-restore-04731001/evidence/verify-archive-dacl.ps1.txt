@@ -1,0 +1,9 @@
+$ErrorActionPreference='Stop'
+$target=[System.IO.Path]::GetFullPath($args[0])
+$item=Get-Item -LiteralPath $target -Force
+if ($item.PSIsContainer -or ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)) { throw 'Not a regular private artifact' }
+$sid=[System.Security.Principal.WindowsIdentity]::GetCurrent().User
+$acl=[System.IO.File]::GetAccessControl($target)
+$rules=$acl.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])
+if ($rules.Count -ne 1 -or $rules[0].IdentityReference.Value -ne $sid.Value -or $rules[0].AccessControlType -ne 'Allow' -or $acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -ne $sid.Value) { throw 'Private artifact DACL mismatch' }
+Write-Output 'PRIVATE_ARCHIVE_OWNER_ONLY'

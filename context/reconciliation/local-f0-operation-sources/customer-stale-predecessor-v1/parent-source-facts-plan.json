@@ -1,0 +1,1081 @@
+{
+  "schema": "workinants.selected94-immutable9-customerCAS2-source-facts-minimal-plan.v1",
+  "decision": "READ_ONLY_SOURCE_PLAN_REQUIRES_ROOT_BOUNDED_IMPLEMENTATION_ACK",
+  "utc": "2026-11-20T15:43:51.336933+00:00",
+  "author": "/root/privilege_mount_v2_review",
+  "scope": "Exact9 P0C-IMMUTABLE-01 and2 P0C-CAS-01 NOT_RUN assertion facts; not executable packet or runtime approval.",
+  "immutable_source_files_sha256": {
+    "AGENTS.md": "ca0d1a667fb71a2490fc4662a605099ab0e5b23c149f016d92fed71ff3d4c4b1",
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/reconciliation/local-f0-assertion-evidence.json": "8b7cd04a5681dc7d2b2996c20b896dc352af67e88f968f1ccc9250f9bdda0d64",
+    "context/reconciliation/local-f0-qualification-status.json": "5ab0d974a02f7a99bbb92b30d8f55c5b9c50d1bd962dd0654467243f3b3f2e07",
+    "context/reconciliation/database-candidate-tests.json": "bba9bef6b94e9f4974f2a3a0b19a3277df54ac04aa77ceaa6b70ffcf75d988b8",
+    "context/reconciliation/foundation-sql-draft-controls.json": "0cd875b7f611e5a3c9f7fc67e7e6d6fc353e73e58931d1595acf3e04aa49c4f3",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+    "context/reconciliation/authority-event-contracts.md": "38620917e1f7080382b4dc4785a989afac54af78257597df2cc73e15caee02f8",
+    "context/shared/shared-operations.md": "6e4607e9fdaf6c25c8e5f87857b84d778f866a97c4dcd778e03b6e07b6fe8c67",
+    "context/shared/contracts/SH-004.md": "114d4269db29edf0946d01fa2f9ac21769b22244aca940fe8270445ddd33d1bd",
+    "context/shared/contracts/SH-007.md": "b1821e94f4b09c1fda5cff58a72018e49d8473e15ad36c51ad32ea6011505124",
+    "context/shared/contracts/SH-010.md": "54893ec684bd23b74945c6a662f79820650e20f9913d03d81dde700c7afab464",
+    "context/shared/contracts/SH-044.md": "25ec251bb07bc39958c8e1a7d174197856a4dc9e7f0ac9ed7a2fbf5d2a4fe6ad",
+    "context/shared/contracts/SH-052.md": "744fccc1f795e056ce633abf0b835b3c6aa714d646c2ffe17d25afe862e99403",
+    "context/shared/contracts/SH-076.md": "f6fd4b48decb395acbd0aad5753dec86ff16ec36f2035d409cf05b0d1c89e0d6",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-module-architecture.md": "9c9c86fc035b151c31060269a69342d80f729cebdcdd090747b2681de9ca7f3b",
+    "context/clusters/identity, authority, & consent/Customer Buyer Profile Module/customer-buyer-profile-implementation-plan.md": "1264589c05d92a40746ebf71de3b04368ce511755f538dc58e7bc3e80ede0853",
+    "context/clusters/identity, authority, & consent/Consent & Disclosure Module/consent-disclosure-module-architecture.md": "6675a6cbe9c10f48d07c6933c6a0f72fe7b7ffeafee24186749cba3b99d3784b",
+    "context/clusters/identity, authority, & consent/Identity & Access module/identity-access-module-architecture.md": "a99147effb732761118bb4959bfee4810239a88359660f68cea434e7f4609e52",
+    "scripts/prepare-customer-control-rehearsal.py": "6d67c52ab7c3cc95082c5c82cf007910fcb75a7721d832d3236fe213e3bba174",
+    "scripts/sql-review/run-customer-control-rehearsal.py": "3c9a75b6c5e2585d54069d65265b48b44fea90b2f9238c378155fe837f70bed3",
+    "scripts/privilege_ceiling_control_protocol.py": "faf980151efec719fc54963fc0630c056cba50c40f3f1eb7e7d1f0c7fc18f921",
+    "review-output/customer-control-rehearsal/fixtures.json": "b59ab33ba26a29d2d82ee4f7f289d26e95300b7afb8ce7eaf7806fd5fb08a9c3",
+    "review-output/context-control-rehearsal/fixtures.json": "118454c9171267f8c7696ec3df9019a4e8883676157b57c9a2a5154d272edb69",
+    "review-output/scoped-read-companion-rehearsal/fixtures.json": "7f5bd6e713a1f0eaf330c2acf0267cd45aa2e8f47467e03d6f4c4c6dc754420c",
+    "review-output/remaining-app-read13-rehearsal/fixtures.json": "d6fb661f68f763aafcf00c5b89b0a908e831a81adf06b2a8e3f2bec16da581f1",
+    "review-output/app-write-two-guard-observation-v2/fixtures.json": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962"
+  },
+  "canonical_application_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "access_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+  "worker_ACL_rows": 32,
+  "worker_ACL_canonical_rows_sha256": "85495186b4d6ca384a4bc5d9157e3748302bab61a4cb43309648a2e59da3d774",
+  "source_function_facts": {
+    "bound_grant": {
+      "qualified_name": "platform_private.bound_grant",
+      "declaration_line": 1938,
+      "body_sha256": "b96b6879a5ef3459fcdb6f8009eb1fa9a2f34f9dc3d6e0802ad5b6f1488cbcbf",
+      "source_RAISE_allowlist": []
+    },
+    "bind_request_context": {
+      "qualified_name": "platform_private.bind_request_context",
+      "declaration_line": 1974,
+      "body_sha256": "9583ab7231a98780ac8d8160394fb8bc8185c4f3208dd4af62b43a6425079009",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "invalid context"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "42501",
+          "exact_message": "invalid, stale or unsupported context"
+        }
+      ]
+    },
+    "context_allows": {
+      "qualified_name": "platform_private.context_allows",
+      "declaration_line": 1987,
+      "body_sha256": "f1eea108671ed5283f53875c576c9230849e1749277e24981d6ee778d74a4682",
+      "source_RAISE_allowlist": []
+    },
+    "protected_scope": {
+      "qualified_name": "platform_private.protected_scope",
+      "declaration_line": 1999,
+      "body_sha256": "b5cb52966915d097f84107457a0bc74785d956b983d6ed140847987b37443b5e",
+      "source_RAISE_allowlist": []
+    },
+    "row_allowed": {
+      "qualified_name": "platform_private.row_allowed",
+      "declaration_line": 2411,
+      "body_sha256": "035320d95a6c1228364a26d30004647135dbfd43b6a45e7c290dd1934ea44e8d",
+      "source_RAISE_allowlist": []
+    },
+    "context_subject": {
+      "qualified_name": "platform_private.context_subject",
+      "declaration_line": 2471,
+      "body_sha256": "70229db282cd828ca6f765d39b14c2f20403df57f1c073ced579c355d40d49ff",
+      "source_RAISE_allowlist": []
+    },
+    "context_subject_owner": {
+      "qualified_name": "platform_private.context_subject_owner",
+      "declaration_line": 2440,
+      "body_sha256": "08294b51becd7884f56449afd697e484ce9eea7afafd203804d3dce55d57b1d2",
+      "source_RAISE_allowlist": []
+    },
+    "global_context_registered": {
+      "qualified_name": "platform_private.global_context_registered",
+      "declaration_line": 2464,
+      "body_sha256": "c8c4c167e4d3a76a1c5c32064751eaf8f1f04ca1cb83b5a6293888c26e2855de",
+      "source_RAISE_allowlist": []
+    },
+    "guard_customerprofile": {
+      "qualified_name": "platform_private.guard_customerprofile",
+      "declaration_line": 3834,
+      "body_sha256": "242bc33836b80f24cdcd22495d133678fd8b5d204f145ffa3f689308a91aba95",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 5,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 8,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable identity or ownership"
+        },
+        {
+          "body_line": 9,
+          "SQLSTATE": "P0001",
+          "exact_message": "CAS revision must increment once"
+        },
+        {
+          "body_line": 10,
+          "SQLSTATE": "P0001",
+          "exact_message": "generation/fence regression"
+        },
+        {
+          "body_line": 13,
+          "SQLSTATE": "42501",
+          "exact_message": "field or CAS scope denied"
+        },
+        {
+          "body_line": 15,
+          "SQLSTATE": "P0001",
+          "exact_message": "initial revision must be zero"
+        },
+        {
+          "body_line": 18,
+          "SQLSTATE": "42501",
+          "exact_message": "foreign Customer principal"
+        }
+      ]
+    },
+    "customer_atomic": {
+      "qualified_name": "platform_private.customer_atomic",
+      "declaration_line": 4776,
+      "body_sha256": "804b80f484b9b65bd109b4e011ffa6660d103d6cb96d77dd67e8138e46674f07",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 18,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing atomic Customer lifecycle fact"
+        },
+        {
+          "body_line": 24,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing durable default-Free intent"
+        },
+        {
+          "body_line": 28,
+          "SQLSTATE": "P0001",
+          "exact_message": "extra or missing Customer messages"
+        }
+      ]
+    },
+    "customer_message_commit": {
+      "qualified_name": "platform_private.customer_message_commit",
+      "declaration_line": 4810,
+      "body_sha256": "013bcbfa96053df9be03ca1ddf7cb7cc66446885fb0ec0bf65a3a63bc422eb10",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 19,
+          "SQLSTATE": "P0001",
+          "exact_message": "message does not match exact source/history/count"
+        }
+      ]
+    },
+    "customer_history_commit": {
+      "qualified_name": "platform_private.customer_history_commit",
+      "declaration_line": 4834,
+      "body_sha256": "74895f355c52307d04582d66738cd08f652f1a553ed9c13533738b9a90e4926f",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 11,
+          "SQLSTATE": "P0001",
+          "exact_message": "orphan Customer history"
+        }
+      ]
+    },
+    "commit_customerprofile": {
+      "qualified_name": "platform_private.commit_customerprofile",
+      "declaration_line": 5302,
+      "body_sha256": "21554e147345aca6052153c80ad3ebe67b304e1b36d28db7d0631d756e92cc67",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 17,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing exact atomic owner proof for CustomerProfile"
+        }
+      ]
+    },
+    "guard_agegateattempt": {
+      "qualified_name": "platform_private.guard_agegateattempt",
+      "declaration_line": 3685,
+      "body_sha256": "5937e46d483d7d4f5e7668f5bc97094cbce979356e84de9051bd055fc85284ed",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable evidence or receipt"
+        }
+      ]
+    },
+    "guard_agegateblock": {
+      "qualified_name": "platform_private.guard_agegateblock",
+      "declaration_line": 3705,
+      "body_sha256": "5937e46d483d7d4f5e7668f5bc97094cbce979356e84de9051bd055fc85284ed",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable evidence or receipt"
+        }
+      ]
+    },
+    "guard_consentlog": {
+      "qualified_name": "platform_private.guard_consentlog",
+      "declaration_line": 3627,
+      "body_sha256": "5937e46d483d7d4f5e7668f5bc97094cbce979356e84de9051bd055fc85284ed",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable evidence or receipt"
+        }
+      ]
+    },
+    "guard_consentcontentrevision": {
+      "qualified_name": "platform_private.guard_consentcontentrevision",
+      "declaration_line": 4208,
+      "body_sha256": "5937e46d483d7d4f5e7668f5bc97094cbce979356e84de9051bd055fc85284ed",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable evidence or receipt"
+        }
+      ]
+    },
+    "guard_consentpresentation": {
+      "qualified_name": "platform_private.guard_consentpresentation",
+      "declaration_line": 4232,
+      "body_sha256": "ee860397eb47d9729a8a86ec4e41b446425701190390fe1f6c5dbf6535b17e26",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable evidence or receipt"
+        },
+        {
+          "body_line": 11,
+          "SQLSTATE": "P0001",
+          "exact_message": "foreign Consent presentation principal"
+        }
+      ]
+    },
+    "guard_consentdisposition": {
+      "qualified_name": "platform_private.guard_consentdisposition",
+      "declaration_line": 4255,
+      "body_sha256": "5937e46d483d7d4f5e7668f5bc97094cbce979356e84de9051bd055fc85284ed",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable evidence or receipt"
+        }
+      ]
+    },
+    "guard_ownermutationevidence": {
+      "qualified_name": "platform_private.guard_ownermutationevidence",
+      "declaration_line": 4456,
+      "body_sha256": "5937e46d483d7d4f5e7668f5bc97094cbce979356e84de9051bd055fc85284ed",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable evidence or receipt"
+        }
+      ]
+    },
+    "guard_runtimeeffectreceipt": {
+      "qualified_name": "platform_private.guard_runtimeeffectreceipt",
+      "declaration_line": 4328,
+      "body_sha256": "5937e46d483d7d4f5e7668f5bc97094cbce979356e84de9051bd055fc85284ed",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "direct deletion denied"
+        },
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "immutable evidence or receipt"
+        }
+      ]
+    },
+    "consent_guard": {
+      "qualified_name": "platform_private.consent_guard",
+      "declaration_line": 4738,
+      "body_sha256": "61dc444ce22f462fbbfcfa706f0cfdce5a7e16a028592b51d1fec07fa219e7ae",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 4,
+          "SQLSTATE": "42501",
+          "exact_message": "accepting subject is not current principal"
+        },
+        {
+          "body_line": 17,
+          "SQLSTATE": "P0001",
+          "exact_message": "exact consent binding required"
+        },
+        {
+          "body_line": 22,
+          "SQLSTATE": "P0001",
+          "exact_message": "foreign consent subject"
+        },
+        {
+          "body_line": 25,
+          "SQLSTATE": "P0001",
+          "exact_message": "foreign proof"
+        },
+        {
+          "body_line": 26,
+          "SQLSTATE": "P0001",
+          "exact_message": "withdrawal/supersession needs original proof"
+        }
+      ]
+    },
+    "command_state_guard": {
+      "qualified_name": "platform_private.command_state_guard",
+      "declaration_line": 4716,
+      "body_sha256": "01c6a19be31eb4a29e8ca0e676b0b4d5314291a0196e895e7ebee10e36f658c8",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 7,
+          "SQLSTATE": "P0001",
+          "exact_message": "command action/root does not match protected scope"
+        },
+        {
+          "body_line": 11,
+          "SQLSTATE": "P0001",
+          "exact_message": "terminal receipt or semantic identity immutable"
+        }
+      ]
+    },
+    "evidence_source_commit": {
+      "qualified_name": "platform_private.evidence_source_commit",
+      "declaration_line": 5828,
+      "body_sha256": "b8d628aff5f8747ef01d4545a7c6ca22d09e9a976243d99302a165c7d0e54354",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 147,
+          "SQLSTATE": "P0001",
+          "exact_message": "unsupported source or recursive evidence bootstrap"
+        },
+        {
+          "body_line": 149,
+          "SQLSTATE": "P0001",
+          "exact_message": "orphan or invented source evidence"
+        }
+      ]
+    },
+    "commit_agegateattempt": {
+      "qualified_name": "platform_private.commit_agegateattempt",
+      "declaration_line": 5172,
+      "body_sha256": "c397d066dc9878cacb71d6508e0b77ee9ba06e031b561b1a20d2d73c14e59077",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 17,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing exact atomic owner proof for AgeGateAttempt"
+        }
+      ]
+    },
+    "commit_agegateblock": {
+      "qualified_name": "platform_private.commit_agegateblock",
+      "declaration_line": 5198,
+      "body_sha256": "b368c6ad01b86c2f8c5007f14a5bc9c1ba6029d5cdfb5efcee867f9e5baeab80",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 17,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing exact atomic owner proof for AgeGateBlock"
+        }
+      ]
+    },
+    "commit_consentlog": {
+      "qualified_name": "platform_private.commit_consentlog",
+      "declaration_line": 5120,
+      "body_sha256": "0add8ae4b4f0f86524fbbf6eb827d1571e0d52afcc1b769c796c2bc6f890b0f2",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 17,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing exact atomic owner proof for ConsentLog"
+        }
+      ]
+    },
+    "commit_consentcontentrevision": {
+      "qualified_name": "platform_private.commit_consentcontentrevision",
+      "declaration_line": 5588,
+      "body_sha256": "b8d5b6ad72679fdd4bd5cdca3a094e1e730b24503e67cd2fd76a3ee4783d4174",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 17,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing exact atomic owner proof for ConsentContentRevision"
+        }
+      ]
+    },
+    "commit_consentpresentation": {
+      "qualified_name": "platform_private.commit_consentpresentation",
+      "declaration_line": 5614,
+      "body_sha256": "9144467006dd04c624d6a02c7397f9f6cab88a6b44b5ade1333daa702568ccd2",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 17,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing exact atomic owner proof for ConsentPresentation"
+        }
+      ]
+    },
+    "commit_consentdisposition": {
+      "qualified_name": "platform_private.commit_consentdisposition",
+      "declaration_line": 5640,
+      "body_sha256": "c4258fa722c0bd54da687bb1cc9f580cbb810563afabf36f39fdb196f81e22ae",
+      "source_RAISE_allowlist": [
+        {
+          "body_line": 17,
+          "SQLSTATE": "P0001",
+          "exact_message": "missing exact atomic owner proof for ConsentDisposition"
+        }
+      ]
+    }
+  },
+  "exact_selected_assertions": [
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "control.concurrent_customer_update",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-03"
+      ],
+      "expected_assertion": "Two actual app sessions with the same predecessor race under barriers: exactly one next Customer revision/history/evidence/message group commits.",
+      "expected_assertion_sha256": "9be82007e989e0e43953ac8e278345990d18f24bca81736b02135de613f26968",
+      "whole_assertion_sha256": "3ae901c522a73b606941c6e1dc3c422d7d4d21cd8b51c22fc567e5bdb58e9ce5",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "control.stale_predecessor",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-03"
+      ],
+      "expected_assertion": "Wrong predecessor, skipped revision and same-grant second source update deny, without duplicate state.",
+      "expected_assertion_sha256": "72f2d75ee3f9af764982f379f5dc82805531d09dc85f0925f8d7c6ab69795d3e",
+      "whole_assertion_sha256": "18265ad077864ff37917e24f9db70b3755c7c7f90e14c3293a366ba1c991a248",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "vector.OWNER-REVISIONS.positive",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-03"
+      ],
+      "expected_assertion": "TrackUsageReservation and PrivacyRestoreMarker update with exact OLD revision, +1 and closed prior/committed evidence",
+      "expected_assertion_sha256": "7daf5b7b4d5b5e000e7761a9c8be95f96c28a15e388d85d5e54d3e562c0fc713",
+      "whole_assertion_sha256": "47563ea7157dd326102847be1ca4ceab0c36719d3c95a893d5150bc76b4898f0",
+      "availability": "DEPENDENCY_BLOCKED",
+      "actual_status": "DEPENDENCY_BLOCKED",
+      "dependency_ids": [
+        "P0D_TRACK_USAGE_PERIOD_RECONCILIATION",
+        "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+      ],
+      "source_scope_limit": null
+    },
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "vector.OWNER-REVISIONS.adversarial",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-03"
+      ],
+      "expected_assertion": "Stale predecessor, skipped revision, absent prior object or same-transaction second source update",
+      "expected_assertion_sha256": "6078298ded0ae2a5508fe9c8f7470f376161a3caec0eb1a2b3d437e33a5d57ed",
+      "whole_assertion_sha256": "a62aa0e8a7704dacf8034531ebc0958b301840d9d20d9ea6e1dd3f6e52e3d675",
+      "availability": "DEPENDENCY_BLOCKED",
+      "actual_status": "DEPENDENCY_BLOCKED",
+      "dependency_ids": [
+        "P0D_TRACK_USAGE_PERIOD_RECONCILIATION",
+        "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+      ],
+      "source_scope_limit": null
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.consent_chain",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Named publisher/presentation/proof/disposition paths commit exact immutable content/subject/action/context/hash relationships.",
+      "expected_assertion_sha256": "3d375572690eef12649a72b2afd521e6d6a79e6958781daa0e91d2150c52d450",
+      "whole_assertion_sha256": "1792d0f6c08b43876123f4306d80dd32be771387eb6d19dfe2d09ddc6d5d9691",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.foreign_consent",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Cross-user/content/action/context/rendered hash and missing relationship capability deny independently.",
+      "expected_assertion_sha256": "99b65465f843b9078ffe015e99189aeeca82d82cf0db79cd261489cd90b64518",
+      "whole_assertion_sha256": "22381e6f85057066fdd3d0e9a33776091343fc21a9db1731721309e92b908a76",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.empty_context",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "The actual empty global registry denies null/empty contexts; do not change the registry to invent a global positive.",
+      "expected_assertion_sha256": "d66b619c87e226d08fa575c71b4485f1a6dff355bb8bca2478fca3e77a237fcd",
+      "whole_assertion_sha256": "c28180dca60d725fffdcead90ca05585927f313cf0ee9c04d21c915ff405f254",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.append_only",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Age/source/effect/Consent retained evidence rejects update/delete; valid separate append/withdrawal remains possible.",
+      "expected_assertion_sha256": "547cbb918833bc9730c399aaac45f18928ba0ad9b65cb17ce1a2a290eba26b4b",
+      "whole_assertion_sha256": "e7ec18858dce1383575d1150f6db515eee0d3e86b7eccd6e5411b4bc8b2df39b",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.replay_conflict",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Same-key identical replay and changed-fingerprint storage conflict are distinguished without qualifying production owner adapters.",
+      "expected_assertion_sha256": "f19cdcb7134f4d7d001e62f0148fee7f42db391c7b2211d2bfa25ef3aa8ecb06",
+      "whole_assertion_sha256": "62c333b8c07f2c4ba528fc797891e3175c30ce9b95e88454efdf3b12578bf8ba",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.AGE-APPEND.positive",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Append independently authorized AgeGateAttempt/Block with new semantic ID",
+      "expected_assertion_sha256": "c5886c7210363b0e0c5126269ddf2064bc079392b707143b0b66d443433d163c",
+      "whole_assertion_sha256": "c970edf2b373c53822c0bea6f2970b1b265e0d6be7e0271d8d07dca7c131c90a",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_scope_limit": null
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.AGE-APPEND.adversarial",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "UPDATE/DELETE old age evidence, including an attempted block extension in place",
+      "expected_assertion_sha256": "ba9e777a5f813efec1fb5872f59e910afd34a001d7e7e4cf856ef155c27a7849",
+      "whole_assertion_sha256": "657ec0e70d095fb22e550a7907f3ded44cfefa3553d81edd00bc5714cad77149",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_scope_limit": null
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.CONSENT-EMPTY.positive",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Matching nonempty context; separately reviewed registry fixture may authorize one exact global tuple",
+      "expected_assertion_sha256": "5a7c826bd4c9142297c9ee0c9545fa750462ede1e82ef167b140619824cde6ff",
+      "whole_assertion_sha256": "1493233e16d3dee1c7dd7b9b7f9dcb8fbb9a09218c9f34c5a96787f25b90fdf5",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_scope_limit": "Keep the current global registry empty. The attainable positive is the exact nonempty context; a hypothetical separately reviewed global tuple is not current authority or required permission widening."
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.CONSENT-EMPTY.adversarial",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "NULL/empty context without exact registered global tuple, wrong action or context kind",
+      "expected_assertion_sha256": "9986d460a1bc26c77838b77e39df1f78a614386369c64ea7bc30caa9b1dec8e0",
+      "whole_assertion_sha256": "d2f19a04fe6389718482d65aed220550fd18718321b49f3d12cd6153261178d7",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_scope_limit": "Keep the current global registry empty. The attainable positive is the exact nonempty context; a hypothetical separately reviewed global tuple is not current authority or required permission widening."
+    }
+  ],
+  "source_eligibility_and_scope_ceilings": [
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "control.concurrent_customer_update",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-03"
+      ],
+      "expected_assertion": "Two actual app sessions with the same predecessor race under barriers: exactly one next Customer revision/history/evidence/message group commits.",
+      "expected_assertion_sha256": "9be82007e989e0e43953ac8e278345990d18f24bca81736b02135de613f26968",
+      "whole_assertion_sha256": "3ae901c522a73b606941c6e1dc3c422d7d4d21cd8b51c22fc567e5bdb58e9ce5",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_plan_eligibility": "OWNER_UPDATE_RECEIPT_CONTRACT_REQUIRED_FOR_RETAINED_WINNER",
+      "concrete_bound": "Current update branch permits source UPDATE and INSERT of all companion rows, but no legitimate update result/no-result receipt identity/digest codec is registered. Full race plan retained below; rollback-only two-session conflict cannot satisfy exactly one committed next revision/group.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "control.stale_predecessor",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-03"
+      ],
+      "expected_assertion": "Wrong predecessor, skipped revision and same-grant second source update deny, without duplicate state.",
+      "expected_assertion_sha256": "72f2d75ee3f9af764982f379f5dc82805531d09dc85f0925f8d7c6ab69795d3e",
+      "whole_assertion_sha256": "18265ad077864ff37917e24f9db70b3755c7c7f90e14c3293a366ba1c991a248",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_plan_eligibility": "CANDIDATE_COMPLETE_THREE_NEGATIVES_WITHOUT_UPDATE_COMMIT",
+      "concrete_bound": "Wrong expected revision returns exactly0 rows; skipped revision+2 rejects exact CAS RAISE; first uncommitted+1 then second+1 under same revision0 grant rejects exact field/CAS RAISE. Roll back every case before deferred proof checks; no committed update receipt is invented.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.consent_chain",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Named publisher/presentation/proof/disposition paths commit exact immutable content/subject/action/context/hash relationships.",
+      "expected_assertion_sha256": "3d375572690eef12649a72b2afd521e6d6a79e6958781daa0e91d2150c52d450",
+      "whole_assertion_sha256": "1792d0f6c08b43876123f4306d80dd32be771387eb6d19dfe2d09ddc6d5d9691",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_plan_eligibility": "OWNER_RECEIPT_CONTRACT_REQUIRED_FOR_COMPLETE_COMMIT",
+      "concrete_bound": "Publish exact revision, present exact rendered text, accept and append same-user disposition through their named actual app contexts. Full PASS requires coherent committed owner-command/evidence groups, not preseeded rows or rollback-only INSERT returns.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.foreign_consent",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Cross-user/content/action/context/rendered hash and missing relationship capability deny independently.",
+      "expected_assertion_sha256": "99b65465f843b9078ffe015e99189aeeca82d82cf0db79cd261489cd90b64518",
+      "whole_assertion_sha256": "22381e6f85057066fdd3d0e9a33776091343fc21a9db1731721309e92b908a76",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_plan_eligibility": "CANDIDATE_COMPLETE_NEGATIVE_MATRIX_REQUIRES_ROOT_MAPPING_REVIEW",
+      "concrete_bound": "Ten independent changes: subject1, content1, actionOwner/action2, contextOwner/contextKind/contextId3, renderedHash1, presentation/content relationship capability2. Precreate prerequisite nodes under correct restricted contexts within same rollback-only app transaction or explicit reviewed source-only seed; no Consent guard bypass. All failures must occur at their intended source boundary, never generic P0001/42501.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.empty_context",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "The actual empty global registry denies null/empty contexts; do not change the registry to invent a global positive.",
+      "expected_assertion_sha256": "d66b619c87e226d08fa575c71b4485f1a6dff355bb8bca2478fca3e77a237fcd",
+      "whole_assertion_sha256": "c28180dca60d725fffdcead90ca05585927f313cf0ee9c04d21c915ff405f254",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_plan_eligibility": "CANDIDATE_COMPLETE_TWO_DENIALS_REQUIRES_ROOT_MAPPING_REVIEW",
+      "concrete_bound": "Matching NULL/NULL and empty/empty presentation/proof context pairs, every other value correct. Actual registry remains source-exact false. Require exact consent binding required denial and full rollback.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.append_only",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Age/source/effect/Consent retained evidence rejects update/delete; valid separate append/withdrawal remains possible.",
+      "expected_assertion_sha256": "547cbb918833bc9730c399aaac45f18928ba0ad9b65cb17ce1a2a290eba26b4b",
+      "whole_assertion_sha256": "e7ec18858dce1383575d1150f6db515eee0d3e86b7eccd6e5411b4bc8b2df39b",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_plan_eligibility": "PARTIAL_ONLY_UNTIL_GENUINE_SEPARATE_APPEND_WITHDRAWAL_COMMITS",
+      "concrete_bound": "20 bounded native ACL UPDATE/DELETE attempts across the fixed10 retained tables prove restricted rewrite denial only. Separate valid append/withdrawal commits are still needed; synthetic fixture setup is not that evidence.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.replay_conflict",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Same-key identical replay and changed-fingerprint storage conflict are distinguished without qualifying production owner adapters.",
+      "expected_assertion_sha256": "f19cdcb7134f4d7d001e62f0148fee7f42db391c7b2211d2bfa25ef3aa8ecb06",
+      "whole_assertion_sha256": "62c333b8c07f2c4ba528fc797891e3175c30ce9b95e88454efdf3b12578bf8ba",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_plan_eligibility": "PARTIAL_STORAGE_ONLY_UNTIL_LEGITIMATE_CONSENT_RESULT_REPLAY",
+      "concrete_bound": "Same acceptance/semantic key uniqueness plus read-only fingerprint comparison can prove storage facts. Identical duplicate INSERT and changed-fingerprint INSERT both hit23505; that alone does not distinguish successful owner replay. Never invent a command-result adapter/codec.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.AGE-APPEND.positive",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Append independently authorized AgeGateAttempt/Block with new semantic ID",
+      "expected_assertion_sha256": "c5886c7210363b0e0c5126269ddf2064bc079392b707143b0b66d443433d163c",
+      "whole_assertion_sha256": "c970edf2b373c53822c0bea6f2970b1b265e0d6be7e0271d8d07dca7c131c90a",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_scope_limit": null,
+      "source_plan_eligibility": "OWNER_AGE_ACTION_AND_RECEIPT_CONTRACT_REQUIRED",
+      "concrete_bound": "Identity owns evaluateAgeEligibility+recordAgeGateAttempt; those named actions do not appear in current protected_scope. Do not borrow SH014/step-up merely because its generic SQL branch permits Age INSERT. Need source-owner actual action/purpose, pre-account authority, approved synthetic policy and legitimate result/no-result receipt contract before full append commit.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.AGE-APPEND.adversarial",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "UPDATE/DELETE old age evidence, including an attempted block extension in place",
+      "expected_assertion_sha256": "ba9e777a5f813efec1fb5872f59e910afd34a001d7e7e4cf856ef155c27a7849",
+      "whole_assertion_sha256": "657ec0e70d095fb22e550a7907f3ded44cfefa3553d81edd00bc5714cad77149",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_scope_limit": null,
+      "source_plan_eligibility": "CANDIDATE_NATIVE_ACL_DENIALS_WITH_EXPLICIT_SYNTHETIC_SETUP_BOUNDARY",
+      "concrete_bound": "Four exact attempts: UPDATE old Attempt result; DELETE old Attempt; UPDATE old Block blockedUntil as extension; DELETE old Block. Expect native table42501 because no UPDATE/DELETE ACL. All100 restored/native exact; do not label physical_guard RAISE exercised. Reuse only separately admitted SixRead synthetic setup for negative permission tests, never count its preseed as app append.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.CONSENT-EMPTY.positive",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "Matching nonempty context; separately reviewed registry fixture may authorize one exact global tuple",
+      "expected_assertion_sha256": "5a7c826bd4c9142297c9ee0c9545fa750462ede1e82ef167b140619824cde6ff",
+      "whole_assertion_sha256": "1493233e16d3dee1c7dd7b9b7f9dcb8fbb9a09218c9f34c5a96787f25b90fdf5",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_scope_limit": "Keep the current global registry empty. The attainable positive is the exact nonempty context; a hypothetical separately reviewed global tuple is not current authority or required permission widening.",
+      "source_plan_eligibility": "PARTIAL_ROLLBACK_PREFIX_ONLY_UNTIL_EXACT_NONEMPTY_PROOF_COMMIT",
+      "concrete_bound": "Attainable current positive is exact nonempty context. Empty global positive is neither required nor authorized. A matching INSERT followed by ROLLBACK is source-prefix evidence only; no complete accepted proof claim before legitimate receipt/evidence commit.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.CONSENT-EMPTY.adversarial",
+      "mandatory": true,
+      "requirement_ids": [
+        "SQL-04",
+        "SQL-05"
+      ],
+      "expected_assertion": "NULL/empty context without exact registered global tuple, wrong action or context kind",
+      "expected_assertion_sha256": "9986d460a1bc26c77838b77e39df1f78a614386369c64ea7bc30caa9b1dec8e0",
+      "whole_assertion_sha256": "d2f19a04fe6389718482d65aed220550fd18718321b49f3d12cd6153261178d7",
+      "availability": "CANDIDATE_LOCAL_SQL_PATH",
+      "actual_status": "NOT_RUN",
+      "dependency_ids": [],
+      "source_scope_limit": "Keep the current global registry empty. The attainable positive is the exact nonempty context; a hypothetical separately reviewed global tuple is not current authority or required permission widening.",
+      "source_plan_eligibility": "CANDIDATE_COMPLETE_FOUR_DENIALS_REQUIRES_ROOT_MAPPING_REVIEW",
+      "concrete_bound": "NULL, empty, wrong action and wrong context-kind independently reject. Reuse matching-pair empty tests; registry remains false and unchanged.",
+      "status_change_now": "NONE",
+      "actual_runtime": "NOT_RUN",
+      "proposed_qualification_requires": "Root exact mapping ACK plus distinct source review, reviewed fresh actual run, independent closed-evidence audit; no inferred status promotion"
+    }
+  ],
+  "concrete_current_receipt_gate": {
+    "existing_gate": "CUSTOMER_UPDATE_RECEIPT_NO_RESULT_IDENTITY_AND_CODEC_NOT_REGISTERED",
+    "still_current_source_confirmed": true,
+    "SQL_constraints": {
+      "result_json_boundary": [
+        4699,
+        4708
+      ],
+      "result_version_registered": 4709,
+      "committed_result": [
+        4710,
+        4712
+      ],
+      "result_storage_digest": [
+        4674,
+        4675
+      ]
+    },
+    "permitted_nonnull_operations": [
+      "SH-004.v1",
+      "SH-114.v1",
+      "assignDefaultFreeTrack.v1"
+    ],
+    "unregistered_operations": [
+      "updateCustomerProfileIdentity.v1",
+      "publishConsentVersion.v1",
+      "recordConsentPresentation.v1",
+      "SH-007.v1",
+      "recordConsentDisposition.v1"
+    ],
+    "SQL_NULL_is_not_registered_semantics": "Although SQLNULL may bypass the nonnull JSON predicate for other operations, result_schema_id/version are NOTNULL and committed state requires nonnull result_digest. No arbitrary schemaID/digest/JSONnull-vs-SQLNULL absence codec may be invented.",
+    "forbidden": [
+      "relabel SH004 creation result as update/Consent result",
+      "use all-zero/random/JSONnull digest as undocumented SQLNULL codec",
+      "commit bare source UPDATE by disabling deferred guards",
+      "borrow unrelated SH action for Age append"
+    ]
+  },
+  "minimal_current_CAS_negative_packet": {
+    "baseline": "One genuine complete app SH004 Customer creation revision0 through reviewed context/source creation machinery; creation command/history/evidence/event+default-Free intent all coherent and retained, no Track enrollment loop. Trusted Identity seed exceptions only original users/user_security_profiles owner_commit2; all100 restored before application cases.",
+    "common_grant": {
+      "actual_login": "wa_app_runtime",
+      "owner": "customer_buyer_profile",
+      "action": "updateCustomerProfileIdentity.v1",
+      "purpose": "profile_update",
+      "target_kind": "CustomerProfile",
+      "source_generation": "0",
+      "security_generation": "CURRENT",
+      "capabilities": "Exact all14 role-visible Customer SELECT fields/revision0 token plus UPDATE @row,displayName,revision,updatedAt only; no revision1 token. Issuer commits after capturing same actor PID/XID, then actor verifies unchanged XID and binds."
+    },
+    "cases": [
+      {
+        "name": "wrong-predecessor",
+        "statement_shape": "UPDATE app.customer_profiles SET display_name=:synthetic,revision=revision+1 WHERE id=:fixed AND revision=:wrong RETURNING id,revision",
+        "expect": "Clean exact0row response; no command/history/evidence/message inserts; unconditional ROLLBACK. This is failed CAS row selection, not a named RAISE."
+      },
+      {
+        "name": "skipped-revision",
+        "statement_shape": "UPDATE same fixed current row SET display_name=:synthetic,revision=revision+2 WHERE id=:fixed AND revision=0 RETURNING id,revision",
+        "expect": "P0001 exact CAS revision must increment once, platform_private.guard_customerprofile exact body hash+RAISE line; BEFORE reached, AFTER absent; whole rollback."
+      },
+      {
+        "name": "same-grant-second-source-update",
+        "statement_shape": "Within one fresh bound app transaction UPDATE revision0->1 RETURNING exactly1; without rebinding/widening grant UPDATE revision1->2 RETURNING",
+        "expect": "First RETURN1 is recorded as uncommitted prefix, second42501 exact field or CAS scope denied at guard_customerprofile exact source frame; first update fully rolls back. No positive committed update claim."
+      }
+    ],
+    "after_each": "Close operation connection and independently prove global client absence before full42-table count/hash observation. All business/native state identical; only exact issuer-owned grant rows may accumulate and remain coherent. Unknown SQLSTATE/zero first row/early ACL/binder failure/timeouts/writer failures stop later cases."
+  },
+  "retained_winner_CAS_plan_after_owner_gate": [
+    "Commit the valid create revision0 group and independently observe its exact values.",
+    "Open app A and B as distinct real authenticated wa_app_runtime backends in READ COMMITTED; capture each immutable pid/xid before business reads/locks. Issuer separately commits two fresh handles bound to those exact tuples, same principal/root expected revision0; distinct command/history/evidence/event IDs and semantic keys, exact finite caps per session.",
+    "Bind both handles. A executes UPDATE ... WHERE id=target AND revision=0 RETURNING id,revision; require exactly one row revision1. Keep A open holding its row/source locks.",
+    "B starts its own same-predicate UPDATE; independently confirm it waits on A, rather than inferring overlap from launch order. A appends its exact reviewed command/history/closed prior+committed evidence/event-only group, then commits once the receipt dependency is resolved.",
+    "After A commits, B resumes; require exactly zero returned rows. Explicitly ROLLBACK B. B must append no command/history/evidence/messages. Do not treat zero rows as a committed result or retry with fresh revision in this case.",
+    "Close both clients and independently confirm exact backend absence; privileged observer requires source revision1 and winner field, one update history/evidence/command/event, no loser group, no update Free command; creation group still retained. Audit any timeout/deadlock/42501 or other unlisted result as stopped, not an expected CAS success."
+  ],
+  "CAS_race_additional_requirements": [
+    "Two distinct real TCP SCRAM wa_app_runtime connections READ COMMITTED, same principal/Customer/predecessor0; distinct fresh tuple-bound grants/command/history/evidence/event IDs and keys. No injected high-level success factories.",
+    "Both observe same valid revision0 before barrier. A UPDATE returns exactly1 revision1 and stays open. B same predicate starts; privileged fixed lock observer proves B blocked by A using in-RAM handles, retains Boolean only. Launch order alone is not overlap.",
+    "A complete winner group commits once with exact prior0/committed1 evidence, one update history and lifecycle event; no update default-Free command. B resumes exact0rows and ROLLBACKs, adds no loser group. If current combined RLS/CAS filtering causes the loss, do not claim isolated predicate proof.",
+    "Both connections close before all-client absence and complete-state/coherence observations. Exactly one revision1 winner and all old creation groups retained. No permitted timeout/deadlock/42501 fallback or automatic retry."
+  ],
+  "Consent_prefix_prerequisites": {
+    "owner": "consent_disclosure",
+    "named_source_contexts": [
+      {
+        "action": "publishConsentVersion.v1",
+        "purpose": "consent.publish_version",
+        "target": "ConsentContentRevision"
+      },
+      {
+        "action": "recordConsentPresentation.v1",
+        "purpose": "consent.record_presentation",
+        "target": "ConsentPresentation"
+      },
+      {
+        "action": "SH-007.v1",
+        "purpose": "owner:recordConsentProof",
+        "target": "ConsentLog"
+      },
+      {
+        "action": "recordConsentDisposition.v1",
+        "purpose": "consent.record_disposition",
+        "target": "ConsentDisposition"
+      }
+    ],
+    "capabilities": "All role-visible prerequisite SELECT columns plus exact source relationship tokens ConsentPresentation/<root>/contentRevision/<id>, ConsentLog/<root>/presentation/<id>, ConsentLog/<root>/contentRevision/<id>, ConsentDisposition/<root>/presentation/<id> and /proof/<id>, exact INSERT fields and finite companion IDs. Correct principal must be actual subject. No arbitrary roots/wildcards.",
+    "negative_fixture_method": "Prefer same real app transaction: source INSERT content/presentation under independently committed exact per-action grants rebound to the same actor PID/XID, then attempt proof under its own exact grant; intended failure rolls back uncommitted prerequisite writes. Do not invoke deferred-owner-proof milestone or claim commit. Pre-existing synthetic facts may instead use only separately reviewed explicit setup exceptions and all100 restoration; never count them as named app-source writes.",
+    "content_and_rendering": "Fixed synthetic non-sensitive content, real PG UTF8 content/rendered hashes and valid intervals, acceptedAt after presentation/effectiveFrom and before finite effectiveUntil; reviewState non-draft. No legalApprovedRef, hash, synthetic renderedText or source prefix certifies actual user rendering/affirmative action/legal applicability.",
+    "missing_relationship_capability": "Prove the exact prerequisite SELECT becomes unavailable; the BEFORE consent_guard SELECT INTO STRICT may raise no-data when a capability is missing. Freeze the precise source-derived SQLSTATE/frame contract separately before implementation; do not accept generic no-data/42501/P0001 or relabel RLS invisibility as the exact consent-binding RAISE. If only preread0rows is observed, qualify only that denial boundary."
+  },
+  "allowlisted_denial_contracts": {
+    "source_RAISE": "Fixed per-case SQLSTATE+exact message+source-qualified function signature+bodySHA+RAISE bodyline from source_function_facts; exact stage markers and complete rollback. Foreign principal must reject at accepting subject is not current principal; mismatched coherent binding at exact consent binding required. Other functions/states do not pass.",
+    "native_immutable_ACL": {
+      "SQLSTATE": "42501",
+      "exact_message_template": "permission denied for table <fixed allowlisted relation>",
+      "native_location": "LOCATION aclcheck_error, aclchk.c:<bounded positive line>, using existing strict diagnostic parser grammar; source position must match reviewed statement when present",
+      "metadata": "Actual schema USAGE true; required UPDATE missing table/any-column privileges, DELETE table privilege false. Never call has_column_privilege with DELETE/TRUNCATE. Same actual session role and no inherited bypass/native policy drift.",
+      "scope": "Native table permission denial only, not physical_guard trigger coverage."
+    },
+    "native_constraints": "If included later,23505 must bind exact fixed key constraint/index (Consent acceptance_key or runtime command scoped key),23514 to exact evidence_identity/exact_content_hash/exact_rendered_hash; independent source and marker placement required. No generic class/code verdict."
+  },
+  "immutable_native_matrix": {
+    "models": [
+      "AgeGateAttempt",
+      "AgeGateBlock",
+      "ConsentContentRevision",
+      "ConsentPresentation",
+      "ConsentLog",
+      "ConsentDisposition",
+      "OwnerMutationEvidence",
+      "RuntimeEffectReceipt",
+      "CustomerProfileLifecycleEvent",
+      "RuntimeOutboxMessage"
+    ],
+    "cases": 20,
+    "verbs": [
+      "UPDATE selected meaningful retained field",
+      "DELETE"
+    ],
+    "old_rows_required": true,
+    "role": "wa_app_runtime",
+    "Age_vector_subset": 4,
+    "fixtures": "Age facts may reuse accepted SixRead synthetic setup; Consent facts may reuse accepted Read13 fixture machinery only after its actual source-admission issue is separately corrected/reviewed, or new explicitly reviewed narrowed fixture. Setup owner_commit exceptions are preparation only and must be closed/restored before behavioral denial; never disable physical_guard/consent_guard/evidence_source_commit during behavior. Full append/withdrawal positive remains separately gated.",
+    "observations": "Exact old row value/hash and complete42-table state unchanged after each connection exit/rollback, trigger100/native identities unchanged, no raw subject/secret/handle/log values retained."
+  },
+  "common_owning_wrapper_reuse": [
+    "Use only reviewed resource owning identity/kernel/tmpfs/original-grantor SafetySQL/credential handling and exact cleanup machinery in a NEW source namespace, with new strict source map/gates before compile; do not alias old executable hashes.",
+    "One fresh1container1volume, exact pinned PG17.11 image/local desktop-linux Linuxamd64, networknone/noports, reviewed PGDATA/readonlysecret/tmpfs mounts. Root chooses fresh identity after source/operational review; this plan creates none.",
+    "Full6-role correct/wrong SCRAM/HBA/auth-method controls, original postgres grantor finalizationzero3 temporary memberships/false leafCREATE and all-client absence. Genuine canonical integrated install once, full native29089/oracle416/privateledger22 before and separate readonly after; no seconddeploy.",
+    "Bounded evidence incrementally records only allowlisted typed outcomes before assert, exact source/sql hashes and safe markers; no credentials/rawPID/XID/handle/arbitrary stderr/SQLbody. Required finally closures/restoration/cleanup remain eligible under persistent IO, preserve first safe failure, stop later cases.",
+    "Late closed-reference barriers must compare original saved bytes/hash/length after all cleanup and source postchecks; retain source/currentness proof separately from behavior assertions.",
+    "Every execution requires separate Root authorization after independent source review/publication/current+committed pin/literal/livepreflight. No runtime or adapter implementation is authorized here."
+  ],
+  "later_owner_gates": [
+    "Legitimate source-owned update and Consent/publisher/Identity age result/no-result receipt identity+codec before complete commit groups. This plan does not change canonical SQL or define new owner ports/codecs.",
+    "Age pre-account service authority/action registration, approved policy/jurisdiction/threshold and minimized purpose-scoped identifier hashing remain Identity/legal qualification; synthetic evidence append is not age eligibility.",
+    "Consent production actual rendering, affirmative action, applicable policy/legal content and downstream permission remain owner/legal evidence even after SQL source checks; WA-R019 supersedes earlier catalog/withdrawal architecture unknowns, it does not certify adapters.",
+    "TrackUsageReservation and PrivacyRestoreMarker OWNER-REVISIONS vectors remain dependency-blocked P0D/P0F; do not fold them into Customer CAS assertions."
+  ],
+  "readstop_preservation": {
+    "audit_sha256": "7287fa30675633f3fb5048036ed6996b4cc3bcb75d54ae061cdbd66a362813fa",
+    "plan_sha256": "3cf612232dd68904d785315e8a06d3d550f33752f3bf3143cf3f8b7e9d5a7f55",
+    "unchanged": true
+  },
+  "changes_performed": "Only this new immutable TASK plan JSON. No source/fixture/evidence/status/ledger/Git/runtime changes. No active AppOUT/private reads. No process/database/network boundary invoked beyond the local pure file-reading command. No test suite or SQL executed.",
+  "all_target_assertions_now": "UNCHANGED_NOT_RUN; no whole-case/manual promotion; existing aggregation unchanged",
+  "Posture": "D",
+  "plain_English": "Some tests can check that old notes cannot be changed and bad version numbers are refused. A full two-person race still needs an agreed receipt for the winning change. Do not make up that receipt to get a pass."
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "workinants.historical-install-bridge-independent-proposal-review.v1",
+  "reviewer": "/root/historical_install_bridge_review",
+  "decision": "PROPOSAL_ACCEPTABLE_PENDING_EXACT_CODE_AND_FOCUSED_CHECKS",
+  "source_files_sha256": {
+    "scripts/prepare-local-f0-status.py": "9eecdb01aec5674c5e0f7bb56d49fafe72cdb62fcc7875b55e22eb752bfab953",
+    "scripts/local_f0_install_evidence.py": "8a0c784a0b49689a3593cac253323b6f8e30dd3082a134273b44fc71bff3db80",
+    "context/reconciliation/local-f0-assertion-evidence.json": "f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f",
+    "context/reconciliation/local-f0-operation-sources/install-6850-precleanup-evidence-v1/prior671-ledger.json": "8b7cd04a5681dc7d2b2996c20b896dc352af67e88f968f1ccc9250f9bdda0d64",
+    "context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json": "08f81059dfc828007cbf69ae08b224a6cbd82196800e30650058d128e83d8e39",
+    "context/reconciliation/local-f0-install-0ff2a91-6850ee4c-precleanup-qualified-evidence.json": "912b8ed02988b58e5df0268b5c0038b987f265e658c730d6895ca8d947d45f76"
+  },
+  "findings": [],
+  "confirmed_cause": {
+    "old_expected_claims": 5,
+    "current_old_path_claims": 4,
+    "missing_historical_key": [
+      "P0C-INSTALL-02",
+      "vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial"
+    ],
+    "historical_status": "PARTIAL",
+    "current_replacement_status": "PASS",
+    "current_rows": 684,
+    "archived_prior_rows": 671,
+    "full_old_row_matches_archived_row655": true,
+    "full_old_row_matches_new_claim_prior_evidence": true,
+    "old_record_claim14_status": "PARTIAL"
+  },
+  "requirements": [
+    "Validate new claim before historical bridge",
+    "Bind bridge to exact archived671 SHA, complete prior row and existing old execution allowlist",
+    "Pass PARTIAL and /claims/14 to unchanged old batch",
+    "Keep old final all-file barrier and no duplicate current row",
+    "Count current PASS only; never count or promote historical PARTIAL",
+    "Obtain exact code review and Root actual complete unmocked rebuild before new counts accepted"
+  ],
+  "scope": "Source/data/proposal review only, no implementation or coverage approval",
+  "processes_started": 0,
+  "database_contacted": false,
+  "Root_mutation": false,
+  "runtime": "NOT_RUN_BY_REVIEWER",
+  "Posture": "D",
+  "plain_english": "The old note still needs checking. It stays a partial old result, while only the new result earns today’s grade."
+}

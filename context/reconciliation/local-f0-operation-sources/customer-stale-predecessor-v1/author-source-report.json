@@ -1,0 +1,95 @@
+{
+  "schema": "workinants.customer-stale-predecessor-v1-frozen-author-review.v1",
+  "decision": "AUTHOR_SOURCE_PROPOSAL_FROZEN_PENDING_NONAUTHOR_AND_ROOT_REVIEW",
+  "created_utc": "2026-11-20T16:52:40.290491+00:00",
+  "private_ROOT": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\customer-stale-predecessor-v1-private-candidate-20261120\\workinants-correction-pass",
+  "source5_sha256": {
+    "scripts/customer_stale_predecessor_v1_protocol.py": "865f91ba0d82c77a12b8c2da92c4ae489d8029e33bf18c81ce784f6ad4b26115",
+    "scripts/prepare-customer-stale-predecessor-v1.py": "8e8f37b5292fa377da509cc9a4f5380a25fc3f5291a84e9e5c344e782272ec61",
+    "scripts/sql-review/run-customer-stale-predecessor-v1.py": "2a3cd4730408d294b767448b2d9f563d4f14937ca95edd1be232383c30591b3e",
+    "scripts/check-customer-stale-predecessor-v1.py": "b3e753d2309d9635205b25f4bfed8791bb05594d49dd0c18fb2c95a95644e62a",
+    "scripts/sql-review/CUSTOMER-STALE-PREDECESSOR-V1.md": "62dd266c79b9a189741834bb3348fbca8bedfad4a25c5f705e2e952c0164b9c5"
+  },
+  "fixtures_sha256": "c2074a45f80147833e958d1f02b5d3840b32eb13a46033ebc7f1e75c322eb10b",
+  "content_sha256": "58f803d0ba96e96b543447a9019c03d668b57885c35c9d6be1bcbc6ea00144c6",
+  "artifacts": 12,
+  "SQL_leaves": 11,
+  "SQL_statements": 37,
+  "source_pins": 22,
+  "selected_assertion": {
+    "case_id": "P0C-CAS-01",
+    "assertion_id": "control.stale_predecessor",
+    "expected_sha256": "72f2d75ee3f9af764982f379f5dc82805531d09dc85f0925f8d7c6ab69795d3e",
+    "three_scenarios": [
+      "wrong-predecessor",
+      "skipped-revision",
+      "same-grant-second-source-update"
+    ],
+    "current_status": "NOT_RUN"
+  },
+  "future_owned_plan": {
+    "path": "customer_stale_predecessor_v1_future_owned_source_plan_20261120.json",
+    "sha256": "6869750e378d2dae38add837281b587840a41e36567e4ad8f1c8861a76a03a97",
+    "implementation": "NOT_STARTED"
+  },
+  "offline_results": {
+    "final": {
+      "path": "final-source-and-process-checks-v3.json",
+      "sha256": "2a7fc7bd78277350a727e779c6ff68462b55f0dabfbca797efd2570a256fee44",
+      "methods": 22,
+      "PASS": 22,
+      "seconds": 3.218
+    },
+    "parser": {
+      "path": "sql-parser-final-v2.json",
+      "sha256": "73b5be0011eb198c677b212e332cb3c74245136b4cb620996b26cd397295bc90",
+      "current_all11_leaf_hashes_equal": true,
+      "statements": 37,
+      "metacommands": "Separately actual-CTX/process mocked, not SQL-parsed."
+    },
+    "first_process_failure": {
+      "result": "7PASS3ERROR2FAIL1.985s",
+      "report_sha256": "4d698758cb073aed251b94793218ec3b500852e57587d65c963bc87a8ce611c8",
+      "cause": "Two harness defects: mock returned timestamp used capture SQL text rather than JSON ISO form; test demanded empty delayed stderr even after mutant process had exited. Exact old bytes preserved, only harness corrected.",
+      "production_defect_claimed": false
+    },
+    "prior_checks": "Prior9,12,22 results version-qualified; not additive."
+  },
+  "preservation": {
+    "original77_inputs_private_and_live_exact": true,
+    "private_input_manifest_sha256": "de1514bc209b42a929b3f0ee3c1eb54ee91567c3d881457467500d973d136ba4",
+    "canonical_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "access_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "worker_ACL_rows": 32,
+    "worker_ACL_canonical_rows_sha256": "85495186b4d6ca384a4bc5d9157e3748302bab61a4cb43309648a2e59da3d774",
+    "CTX_source_sha256": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+    "V8_original8c363_plus794_and5_exact": true,
+    "all_history_retained": true
+  },
+  "source_coverage": [
+    "Initial restricted one-row revision0 visibility before interpreting zero UPDATE rows. Exact skipped revision P0001/body9; first uncommitted+1 then same-grant second exact42501/body13.",
+    "Actual CTX Session/psql generated arguments, same PID/XID after independent issuer COMMIT, exact finite capabilities; delayed stderr until EOF, explicit rollback and fixed markers/state/source frame.",
+    "Owned operation exit/readers and exact plus global all-role/database/tag backend closure before guard verdict/state observation.",
+    "Sticky I/O cannot confirm closure/PASS, stops later scenarios and preserves first partial evidence; unknown values/diagnostics/secret canaries are excluded.",
+    "One retained creation history/evidence/command and two outbox messages; no UPDATE COMMIT or result codec. All42 state plus separately current immutable issuer rows,100 trigger restoration, native snapshot preservation.",
+    "Two named Identity fixture-only owner_commit bypasses with exact bodySHA; deferred flush before restoration; no Customer guard bypass.",
+    "Actual positive pure source graph with synthetic isolated review metadata and wrong-prefix/PENDING/path-escape refusals before compilation."
+  ],
+  "unfinished_source_work": [
+    "Separate Root-owned resource/bootstrap/install/auth/finalizer/full-native/oracle/ledger/closed-reference/source-postcheck/exact-cleanup integration remains NOT_IMPLEMENTED; no execution CLI exists.",
+    "The genuine baseline creation, native29089/oracle416/ledger22 and resources were not run. The retained native fixture is offline source context only, never fresh runtime attestation.",
+    "Separate nonauthor exact code/data review and Root closure/publication/pins/literal/live preflight precede any future execution."
+  ],
+  "scope_limits": [
+    "No concurrent retained winner or whole CAS/OWNER-REVISIONS qualification.",
+    "No update/no-result receipt identity/codec, worker loop, enrollment, new permission/guard/schema, hosted/provider/production activation.",
+    "Missing owning harness is unfinished source work, not a new dependency or waiver."
+  ],
+  "source_gates": "PENDING",
+  "assertion_promotions": false,
+  "all_actual_database_runtime": "NOT_RUN",
+  "Posture": "D",
+  "Root_Git_Docker_DB_SQL_status_progress_writes": false,
+  "network": "Only explicitly requested official PG17 psql documentation read; no service mutation.",
+  "metadata_freeze_history": "First archive helper stopped before writes because source subdirectory was missing; empty directory verified before completing. No code/evidence was changed."
+}

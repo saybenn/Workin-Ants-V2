@@ -1,0 +1,43 @@
+"""Private proposed builder and single replacement row; no live Root writes."""
+from pathlib import Path
+import hashlib,json,ast
+T=Path(__file__).resolve().parent;F=T/'install6850-precleanup-evidence-reader-private-candidate-20261120';D=F/'workinants-correction-pass';A=D/'context/reconciliation/local-f0-operation-sources/install-6850-precleanup-evidence-v1';R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+derived_path='context/reconciliation/local-f0-install-0ff2a91-6850ee4c-precleanup-qualified-evidence.json';d=json.loads((D/derived_path).read_bytes());old=json.loads((A/'prior671-ledger.json').read_bytes());ledger=json.loads((A/'prior671-ledger.json').read_bytes());key=('P0C-INSTALL-02','vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial');index=next(i for i,x in enumerate(ledger['assertions'])if(x['case_id'],x['assertion_id'])==key);previous=ledger['assertions'][index]
+assert previous==d['claims'][0]['prior_evidence']and previous['status']=='PARTIAL'
+row={'case_id':key[0],'assertion_id':key[1],'status':'PASS','expected_assertion_sha256':d['claims'][0]['expected_assertion_sha256'],'evidence_path':derived_path,'evidence_sha256':sha((D/derived_path).read_bytes()),'json_pointer':'/claims/0',**{k:d[k]for k in('run_id','source_commit','source_tree','packet_sha256')},'application_sql_sha256':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','qualification_scope':d['claims'][0]['scope_ceiling'],'missing_required_piece':None,'previous_evidence':previous,'previous_evidence_sha256':d['claims'][0]['prior_evidence_sha256'],'previous_evidence_preserved_at':'context/reconciliation/local-f0-operation-sources/install-6850-precleanup-evidence-v1/prior671-ledger.json'}
+ledger['assertions'][index]=row
+ledger['executions'].append({'run_id':d['run_id'],'source_commit':d['source_commit'],'source_tree':d['source_tree'],'packet_sha256':d['packet_sha256'],'scope':'ONE_EXISTING_INSTALL_PRECLEANUP_PARTIAL_REPLACEMENT_ONLY','assertion_links':1,'whole_cases_promoted':False})
+assert len(ledger['assertions'])==len(old['assertions'])==671 and all(a==b for i,(a,b)in enumerate(zip(old['assertions'],ledger['assertions']))if i!=index)
+candidate=F/'candidate671-one-replacement-ledger.json'
+candidate_bytes=(json.dumps(ledger,indent=2,sort_keys=True)+'\n').encode()
+if candidate.exists():assert candidate.read_bytes()==candidate_bytes
+else:
+ with candidate.open('xb')as f:f.write(candidate_bytes)
+source=(A/'prior-builder.py.txt').read_text(encoding='utf8');s=source
+needle='ROOT=Path(__file__).resolve().parents[1]';assert s.count(needle)==1;s=s.replace(needle,'from local_f0_install_precleanup_evidence import prepare_batch as prepare_install_precleanup_batch, EvidenceFailure as InstallPrecleanupEvidenceFailure\n'+needle)
+needle='EVIDENCE_RECORDS={\n';assert s.count(needle)==1;s=s.replace(needle,needle+'    '+repr(derived_path)+':('+repr(row['evidence_sha256'])+','+repr(d['actual_result'])+'),\n')
+needle="    worker_recovery_batch=None\n";assert s.count(needle)==1
+setup="    install_precleanup_batch=None\n    if any(row.get('evidence_path')=="+repr(derived_path)+" for row in ledger['assertions']):\n        try:install_precleanup_batch=prepare_install_precleanup_batch(ROOT)\n        except InstallPrecleanupEvidenceFailure as error:raise AssertionError(str(error)) from None\n"
+s=s.replace(needle,setup+needle)
+needle="                elif row['evidence_path']=='context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json':\n";assert s.count(needle)==1
+branch="                elif row['evidence_path']=="+repr(derived_path)+":\n                    try:install_precleanup_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)\n                    except InstallPrecleanupEvidenceFailure as error:raise AssertionError(str(error)) from None\n"
+s=s.replace(needle,branch+needle)
+needle="    return {'scope':'ACTUAL_ASSERTION_EVIDENCE_OVER_EXACT_EXISTING94_IDS'";assert s.count(needle)==1
+barrier="    if install_precleanup_batch is not None:\n        try:install_precleanup_batch.verify_unchanged();install_precleanup_batch.require_finalized()\n        except InstallPrecleanupEvidenceFailure as error:raise AssertionError(str(error)) from None\n"
+s=s.replace(needle,barrier+needle);ast.parse(s);target=D/'scripts/prepare-local-f0-status.py';target.write_text(s,encoding='utf8',newline='\n')
+# Existing imports use unchanged actual source files in the private futureRoot.
+imports=[]
+for n in ast.parse(s).body:
+ if isinstance(n,ast.ImportFrom)and n.module and n.module.startswith('local_f0_'):
+  path='scripts/'+n.module+'.py';imports.append(path)
+  if not(D/path).exists():
+   raw=(R/path).read_bytes();(D/path).write_bytes(raw)
+v={'schema':'workinants.install6850-private-builder-integration-proposal.v1','decision':'PRIVATE_PENDING_NONA UTHOR_CODE_REVIEW'.replace('NONA UTHOR','NONAUTHOR'),'live_Root_builder_untouched':True,'base_builder_sha256':sha((A/'prior-builder.py.txt').read_bytes()),'proposed_builder_sha256':sha(target.read_bytes()),'reader_path':'scripts/local_f0_install_precleanup_evidence.py','kind':d['actual_result'],'derived_path':derived_path,'derived_sha256':row['evidence_sha256'],'candidate_ledger':str(candidate),'candidate_ledger_sha256':sha(candidate.read_bytes()),'existing_rows':671,'rows_added':0,'single_replaced_row_index':index,'other670_rows_identical':True,'previous_exact_row':previous,'private_replacement_row':row,'existing_import_files_sha256':{p:sha((D/p).read_bytes())for p in imports},'combined_with_Read13_forecast':'684 rows after13 independent appends; actual unchanged Root aggregator decides, no forced count.','Root_full671_or_combined_builder_run':False}
+out=F/'private-integration-proposal.json'
+if out.exists():
+ old=F/'private-integration-proposal-before-source-refresh.json'
+ if not old.exists():
+  with old.open('xb')as f:f.write(out.read_bytes())
+ out.unlink()
+with out.open('xb')as f:f.write((json.dumps(v,indent=2,sort_keys=True)+'\n').encode())
+print(json.dumps({'proposal':str(out),'sha256':sha(out.read_bytes()),'candidate_rows':671,'added':0,'changed':1,'private_builder_sha256':sha(target.read_bytes())}))

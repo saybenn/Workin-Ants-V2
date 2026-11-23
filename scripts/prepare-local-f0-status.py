@@ -14,6 +14,9 @@ from local_f0_native_complete_evidence import prepare_batch as prepare_native_co
 from local_f0_scoped_read_evidence import prepare_batch as prepare_scoped_read_batch, EvidenceFailure as ScopedReadEvidenceFailure
 from local_f0_install_evidence import prepare_batch as prepare_install_batch, EvidenceFailure as InstallEvidenceFailure
 from local_f0_worker_recovery_evidence_v2 import prepare_batch as prepare_worker_recovery_batch, EvidenceFailure as WorkerRecoveryEvidenceFailure
+from local_f0_read1161_evidence import prepare_batch as prepare_read1161_batch, EvidenceFailure as Read1161EvidenceFailure
+from local_f0_install_precleanup_evidence import prepare_batch as prepare_install_precleanup_batch, EvidenceFailure as InstallPrecleanupEvidenceFailure
+from local_f0_install_historical_bridge_v1 import validate_superseded_install_partial, HistoricalInstallFailure
 ROOT=Path(__file__).resolve().parents[1]
 REC=ROOT/'context/reconciliation'
 SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for model in ('CustomerProfile','CustomerProfileLifecycleEvent','RuntimeCommandReceipt','OwnerMutationEvidence','RuntimeOutboxMessage')}|{
@@ -29,6 +32,8 @@ SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for 
     ('P0C-INSTALL-02','vector.FUNCTION-ACL-FAILURE-CLEANUP.positive'),
 }
 EVIDENCE_RECORDS={
+    'context/reconciliation/local-f0-read13-0ff2a91-116153b2-qualified-evidence.json':('c1a93ad627e2276b6eceaf0f863efff24890a5c581fbb19a7c4a5c158ede2451','DERIVED_REVIEWED_REMAINING13_SQL_SELECT_ASSERTIONS_ONLY'),
+    'context/reconciliation/local-f0-install-0ff2a91-6850ee4c-precleanup-qualified-evidence.json':('912b8ed02988b58e5df0268b5c0038b987f265e658c730d6895ca8d947d45f76','DERIVED_REVIEWED_INSTALL6850_PRECLEANUP_ONE_ASSERTION_ONLY'),
     'context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json':('45489b9495ca594034ee9a4d8651813826da464cb12b83b0f82641efb21c897a','DERIVED_REVIEWED_WORKER17_FINITE_SQL_ASSERTIONS_ONLY'),
     'context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json':('08f81059dfc828007cbf69ae08b224a6cbd82196800e30650058d128e83d8e39','DERIVED_REVIEWED_INSTALL17_FINITE_ASSERTIONS_ONLY'),
     'context/reconciliation/local-f0-six-read-5f189aa-c662f807-qualified-evidence.json':('07b49506e56918515816949e628569f89ba12066d2b7ecc2ecf60977bf92fe7f','DERIVED_REVIEWED_SCOPED6_SQL_READ_ASSERTIONS_ONLY'),
@@ -45,6 +50,14 @@ EVIDENCE_RECORDS={
 def build():
     inventory=json.loads((REC/'local-f0-assertions.json').read_text(encoding='utf8'))
     ledger=json.loads((REC/'local-f0-assertion-evidence.json').read_text(encoding='utf8'))
+    read1161_batch=None
+    if any(row.get('evidence_path')=='context/reconciliation/local-f0-read13-0ff2a91-116153b2-qualified-evidence.json' for row in ledger['assertions']):
+        try:read1161_batch=prepare_read1161_batch(ROOT)
+        except Read1161EvidenceFailure as error:raise AssertionError(str(error)) from None
+    install_precleanup_batch=None
+    if any(row.get('evidence_path')=='context/reconciliation/local-f0-install-0ff2a91-6850ee4c-precleanup-qualified-evidence.json' for row in ledger['assertions']):
+        try:install_precleanup_batch=prepare_install_precleanup_batch(ROOT)
+        except InstallPrecleanupEvidenceFailure as error:raise AssertionError(str(error)) from None
     worker_recovery_batch=None
     if any(row.get('evidence_path')=='context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json' for row in ledger['assertions']):
         try:worker_recovery_batch=prepare_worker_recovery_batch(ROOT)
@@ -107,9 +120,17 @@ def build():
                 elif execution.get('actual_result')=='PASS_LOCAL_RESTRICTED_CONTROL_PACKETS_ONLY':
                     try:validate_restricted_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
                     except RestrictedEvidenceFailure as error:raise AssertionError(str(error)) from None
+                elif row['evidence_path']=='context/reconciliation/local-f0-read13-0ff2a91-116153b2-qualified-evidence.json':
+                    try:read1161_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer,ledger_row=row)
+                    except Read1161EvidenceFailure as error:raise AssertionError(str(error)) from None
                 elif row['evidence_path']=='context/reconciliation/local-f0-worker-5f189aa-b42c35d5-qualified-evidence.json':
                     try:worker_recovery_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer,ledger_row=row)
                     except WorkerRecoveryEvidenceFailure as error:raise AssertionError(str(error)) from None
+                elif row['evidence_path']=='context/reconciliation/local-f0-install-0ff2a91-6850ee4c-precleanup-qualified-evidence.json':
+                    try:install_precleanup_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
+                    except InstallPrecleanupEvidenceFailure as error:raise AssertionError(str(error)) from None
+                    try:validate_superseded_install_partial(ROOT,row,execution,install_batch)
+                    except HistoricalInstallFailure as error:raise AssertionError(str(error)) from None
                 elif row['evidence_path']=='context/reconciliation/local-f0-install-5f189aa-4b35e08b-qualified-evidence.json':
                     try:install_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer)
                     except InstallEvidenceFailure as error:raise AssertionError(str(error)) from None
@@ -155,6 +176,12 @@ def build():
     if worker_recovery_batch is not None:
         try:worker_recovery_batch.verify_unchanged();worker_recovery_batch.require_finalized()
         except WorkerRecoveryEvidenceFailure as error:raise AssertionError(str(error)) from None
+    if read1161_batch is not None:
+        try:read1161_batch.verify_unchanged();read1161_batch.require_finalized()
+        except Read1161EvidenceFailure as error:raise AssertionError(str(error)) from None
+    if install_precleanup_batch is not None:
+        try:install_precleanup_batch.verify_unchanged();install_precleanup_batch.require_finalized()
+        except InstallPrecleanupEvidenceFailure as error:raise AssertionError(str(error)) from None
     return {'scope':'ACTUAL_ASSERTION_EVIDENCE_OVER_EXACT_EXISTING94_IDS','database_posture':'D','Brain_acceptance':'PENDING','counts_are_obligations_not_experiments':True,'assertion_status_counts':totals,'case_status_counts':{s:sum(c['status']==s for c in cases) for s in ('PASS','PARTIAL','FAILED','DEPENDENCY_BLOCKED','NOT_RUN')},'selected_cases':94,'executions':ledger['executions'],'cases':cases}
 
 if __name__=='__main__':

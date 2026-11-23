@@ -1,0 +1,74 @@
+"""Root flag-only admission and independent post-exit observation for two exact reviewed packets."""
+from pathlib import Path
+import argparse,datetime,hashlib,io,json,subprocess,sys
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+C='249e6815702537a24cd98fc973ed90a8b0493ac3';TREE='6b705e51e464875eb8f84f71d0a27e9a072dc77d'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+CFG={
+ 'restore':{'dir':'local-f0-restore-plan-04731001','run':'04731001-a27b-4be1-a8ea-ad61e64154a7','sub':'restore','pinner':'pin_local_f0_restore_hba_bytes_v6_plan_20261120.py','flag':'APPROVED_LOCAL_F0_RESTORE_HBA_BYTES_V6_ATTEMPT','steps':'local_f0_restore_hba_bytes_v6_operation_steps.py','containers':['wa-p0c-04731001-restore-source','wa-p0c-04731001-restore-staging','wa-p0c-04731001-restore-target'],'volumes':['wa-p0c-04731001-restore-source-data','wa-p0c-04731001-restore-target-data']},
+ 'privilege':{'dir':'local-f0-privilege-ceiling-plan-a8dc4614','run':'a8dc4614-5502-45ab-b1be-c61a59ed38d6','sub':'privilege_ceiling','pinner':'pin_local_f0_privilege_ceiling_v8_plan_20261120.py','flag':'APPROVED_LOCAL_F0_PRIVILEGE_CEILING_ATTEMPT','steps':'local_f0_privilege_ceiling_v8_operation_steps.py','containers':['wa-p0c-a8dc4614-privilege'],'volumes':['wa-p0c-a8dc4614-privilege-data']}}
+ENV={'PYTHONUTF8':'1','PYTHONPATH':str(T/'offline-python'),'parser':'pglast v7.21','resolved_parser_module_must_be_under_fixed_TASK_offline_python':True,'actual_interpreter_version_location_receipt_before_resources_required':True,'basis_paired_proof_sha256':'19f787e11a0700a57e2f897acf8cc54548126e02fc217d31d8677d02a26eb8d4','independent_environment_review_sha256':'26e8e4666c5d8e2d1a99fc52dc5f5f0f5dd6ba29cd10adb7a11da7bea1b8b15f'}
+def put(p,v):
+ with p.open('xb')as f:f.write((json.dumps(v,indent=2,allow_nan=False)+'\n').encode())
+def git(*a,input=None):return subprocess.check_output(['git','--no-optional-locks','-c','core.longpaths=true',*a],cwd=R,input=input,timeout=150)
+def docker(*a):return subprocess.run(['docker','--context','desktop-linux',*a],cwd=R,capture_output=True,text=True,timeout=30,shell=False)
+def absent(p):
+ try:p.lstat()
+ except FileNotFoundError:return True
+ return False
+def exact_absence(q):
+ observations={}
+ for kind,names in [('container',q['containers']),('volume',q['volumes'])]:
+  for n in names:
+   r=docker(kind,'inspect',n);expected='Error response from daemon: No such container: '+n if kind=='container'else'Error response from daemon: get '+n+': no such volume'
+   assert r.returncode==1 and r.stdout.strip()=='[]'and r.stderr.strip()==expected
+   observations[n]={'kind':kind,'absent_exact_known_diagnostic':True,'raw_output_retained':False}
+ return observations
+def environment():
+ sys.path.insert(0,str(T/'offline-python'));import pglast
+ assert pglast.__version__=='v7.21'and Path(pglast.__file__).resolve().is_relative_to((T/'offline-python').resolve())
+ return {'Python_executable':str(Path(sys.executable).resolve()),'Python_version':list(sys.version_info[:3]),'pglast_version':pglast.__version__,'pglast_resolved_module':str(Path(pglast.__file__).resolve()),'pglast_init_sha256':sha(Path(pglast.__file__).read_bytes())}
+def main():
+ p=argparse.ArgumentParser();p.add_argument('lane',choices=CFG);p.add_argument('--review',type=Path);p.add_argument('--review-sha256');p.add_argument('--pending-sha256');p.add_argument('--packet-sha256');p.add_argument('--packet-files',type=int);p.add_argument('--cleanup',action='store_true');a=p.parse_args()
+ q=CFG[a.lane];path=T/q['dir']/'operation-manifest.json';raw=path.read_bytes();m=json.loads(raw)
+ assert m['run_id']==q['run']and m['source_commit']==C and m['source_tree']==TREE
+ if a.cleanup:
+  # Run only after the Root launch process has a known terminal result.
+  observations=exact_absence(q);out=Path(m['evidence_directory']);assert absent(out/'private')
+  image=docker('image','inspect',m['image']);assert image.returncode==0
+  v={'schema':'workinants.249e-independent-exact-cleanup.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source_commit':C,'lane':a.lane,'run_id':q['run'],'known_closed_launch_required':True,'exact_names':observations,'private_directory_absent':True,'retained_pinned_image_inspect_succeeded':True,'mutation_performed':False,'raw_output_retained':False,'Posture':'D'}
+  proof=T/('249e_'+a.lane+'_independent_cleanup_20261120.json');put(proof,v);print(json.dumps({'proof':str(proof),'sha256':sha(proof.read_bytes()),'cleanup':'INDEPENDENT_EXACT_ABSENCE_CONFIRMED'}));return
+ assert a.review and a.review_sha256 and a.pending_sha256 and a.packet_sha256 and a.packet_files
+ assert sha(raw)==a.pending_sha256 and m['review_status']=='PENDING_OPERATIONAL_REVIEW'
+ rp=a.review.resolve();assert rp.is_relative_to(T.resolve())and not rp.is_relative_to(R.resolve());rr=rp.read_bytes();assert sha(rr)==a.review_sha256;v=json.loads(rr)
+ assert v['decision']=='SOURCE_APPROVED_OPERATIONAL_LITERAL'and v['findings']==[]and v['reviewer']in('/root/catalog_v4_review','/root/privilege_mount_v2_review','/root/review_track_ports','/root/install_outer_review')
+ assert v['pending_literal']=={'path':str(path),'sha256':a.pending_sha256,'run_id':q['run']}
+ assert v['source']['commit']==C and v['source']['tree']==TREE
+ pins=m['packet_files_sha256'];assert len(pins)==a.packet_files==v['source']['full_current_and_committed_files']
+ aggregate=sha(''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode());assert aggregate==a.packet_sha256==m['packet_sha256']==v['source']['packet_sha256']
+ five=dict(m[q['sub']]['external_files_sha256']);five[q['pinner']]=m['pin_helper_sha256'];assert len(five)==5 and five==v['source']['external5_sha256']
+ assert v['Root_flag_only_action_after_fresh_preflight']=={'review_status':q['flag'],'all_other_manifest_fields_and_pins_must_remain_identical':True,'fresh_live_endpoint_platform_image_exact_name_absence_required':True}
+ assert v['mandatory_actual_launch_environment']==ENV;env=environment()
+ assert "MANIFEST['review_status']=='"+q['flag']+"'"in(T/q['steps']).read_text(encoding='utf8')
+ assert git('rev-parse','HEAD').decode().strip()==C and git('rev-parse','HEAD^{tree}').decode().strip()==TREE
+ data=io.BytesIO(git('cat-file','--batch',input=''.join(C+':'+n+'\n'for n in sorted(pins)).encode()))
+ for n in sorted(pins):
+  h=data.readline().split();assert len(h)==3 and h[1]==b'blob';body=data.read(int(h[2]));assert sha(body)==pins[n]and sha((R/n).read_bytes())==pins[n]and data.read(1)==b'\n'
+ assert not data.read()
+ for n,h in five.items():assert sha((T/n).read_bytes())==h
+ assert git('ls-remote','--exit-code','origin','refs/heads/codex/p0c-candidate-corrections-2026-10-31').decode().split()==[C,'refs/heads/codex/p0c-candidate-corrections-2026-10-31']
+ c=docker('context','inspect','desktop-linux');assert c.returncode==0;contexts=json.loads(c.stdout);assert len(contexts)==1 and contexts[0]['Name']=='desktop-linux';endpoint=contexts[0]['Endpoints']['docker']['Host'];assert endpoint=='npipe:////./pipe/dockerDesktopLinuxEngine'
+ s=docker('version','--format','{{json .Server}}');assert s.returncode==0;server=json.loads(s.stdout);assert server['Os']=='linux'and server['Arch']=='amd64'
+ i=docker('image','inspect',m['image']);assert i.returncode==0;hp='scripts/sql-review/local_image_identity.py';hb=(R/hp).read_bytes();assert sha(hb)==pins[hp]=='a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604'
+ ns={'__name__':'_Root_reviewed_local_image_identity','__file__':str(R/hp)};exec(compile(hb,str(R/hp),'exec'),ns);identity=ns['validate_cached_image'](json.loads(i.stdout),(R/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes());assert identity['reference']==m['image']
+ observations=exact_absence(q);out=Path(m['evidence_directory']);assert out.resolve().is_relative_to(T.resolve())and not out.resolve().is_relative_to(R.resolve())and absent(out)
+ assert path.read_bytes()==raw and git('rev-parse','HEAD').decode().strip()==C
+ for n,h in pins.items():assert sha((R/n).read_bytes())==h
+ for n,h in five.items():assert sha((T/n).read_bytes())==h
+ before=path.with_name('operation-manifest-before-operational-review.json')
+ with before.open('xb')as f:f.write(raw)
+ m['review_status']=q['flag'];assert{k for k in m if m[k]!=json.loads(raw)[k]}=={'review_status'}
+ temp=path.with_name('operation-manifest-reviewed.tmp');put(temp,m);temp.replace(path)
+ receipt={'schema':'workinants.249e-Root-exact-literal-approval.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'lane':a.lane,'source_commit':C,'source_tree':TREE,'run_id':q['run'],'review_path':str(rp),'review_sha256':a.review_sha256,'pending_manifest_sha256':a.pending_sha256,'approved_manifest_sha256':sha(path.read_bytes()),'changed_keys':['review_status'],'packet_sha256':a.packet_sha256,'all_current_and_committed_files':len(pins),'external5_sha256':five,'fresh_preflight':{'endpoint':endpoint,'server':{k:server[k]for k in('Version','Os','Arch')},'image_identity':identity,'exact_names':observations,'OUT_private_absent':True,'environment':env},'mandatory_actual_launch_environment':ENV,'runtime':'NOT_RUN_AT_APPROVAL','Posture':'D'}
+ proof=T/('249e_'+a.lane+'_Root_literal_approval_receipt_20261120.json');put(proof,receipt);print(json.dumps({'receipt':str(proof),'receipt_sha256':sha(proof.read_bytes()),'approved_manifest_sha256':receipt['approved_manifest_sha256'],'status':'APPROVED_EXACT_FLAG_ONLY_AFTER_FRESH_LOCAL_PREFLIGHT'}))
+if __name__=='__main__':main()

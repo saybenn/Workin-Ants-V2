@@ -1,0 +1,74 @@
+"""Update existing records from the actual684-row rebuild; preserve previous progress."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+L='context/reconciliation/local-f0-assertion-evidence.json';S='context/reconciliation/local-f0-qualification-status.json'
+lb=(R/L).read_bytes();sb=(R/S).read_bytes();s=json.loads(sb)
+assert sha(lb)=='f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f'
+assert sha(sb)=='0f39c42c6fecde007e81d1eb51e17187cc4040244b7699793be1d1c4f954c9c0'
+prose=['context/progress-tracker.md','context/reconciliation/phase0-foundation-report.md','context/reconciliation/foundation-sql-draft-review.md']
+B='context/reconciliation/local-f0-qualification-board.json';V='context/reconciliation/foundation-sql-draft-validation.json'
+changed=set(prose+[B,V]);before=T/'652-progress-before-update-20261123'
+for dr in ['local-f0-restore-plan-04731001','local-f0-privilege-ceiling-plan-a8dc4614']:
+ m=json.loads((T/dr/'operation-manifest.json').read_bytes());assert not changed&set(m['packet_files_sha256'])
+basis=json.loads((T/'runtime_lease_two_history_v1_static_plan_basis_20261120.json').read_bytes());assert not changed&set(basis['live_Root_paths_sha256'])
+for n in changed:put(before/n,(R/n).read_bytes())
+F='context/reconciliation/local-f0-source-followups/652-closed-249e-runs-20261123'
+copies={
+ 'actual-full684-build.json':'Read1161_INSTALL6850_corrected_combined_Root_build_20261122.json',
+ 'corrected-source97-inventory.json':'Read1161_INSTALL6850_corrected_historical_bridge_source_inventory_20261122.json',
+ 'actual-build-driver.py.txt':'run_Read1161_INSTALL6850_corrected_combined_status_build_20261122.py',
+ 'legacy13-checks.json':'652_existing_legacy_status_checks_20261122.json',
+ 'legacy13-checks.log':'652_existing_legacy_status_checks_20261122.log',
+ 'legacy-check-driver.py.txt':'run_652_legacy_status_checks_20261122.py',
+ 'bridge-focused-checks.json':'historical_install_bridge_v1_independent_focused_checks_20261122.json',
+ 'bridge-independent-review.json':'historical_install_bridge_v1_independent_source_review_20261122.json',
+ 'CSP115-inventory.json':'CSP1_Root_inactive_source_admission_inventory_20261120.json',
+ 'Read-INSTALL-original89-inventory.json':'Read1161_INSTALL6850_Root_source_admission_inventory_20261120.json',
+ 'V8-stopped49-inventory.json':'249e_V8_a8dc_closed_attempt_preserved_inventory_20261122.json',
+ 'Restore-success61-inventory.json':'249e_RestoreV6_04731001_success_preserved_inventory_20261122.json',
+ 'mechanism-source-HOLD.json':'runtime_lease_mechanism_v1_independent_owning_source_HOLD_20261120.json',
+ 'two-history-source-PLAN.json':'runtime_lease_two_history_effective_catalog_v1_source_plan_Catalog_20261120.json',
+ 'two-history-Root-ACK.json':'runtime_lease_two_history_v1_Root_source_plan_ACK_20261120.json',
+ 'V9-formatting-PLAN.json':'privilege_v8_a8dc4614_closed_source_facts_next_plan_final_20261122.json',
+ 'V9-Root-ACK.json':'privilege_v9_formatting_Root_source_plan_ACK_20261122.json',
+ 'CSP-owning-PLAN-only.json':'customer_stale_predecessor_owned_v1_bounded_operator_plan_20261120.json',
+ 'Root-progress-helper.py.txt':Path(__file__).name}
+extra={}
+for name,source in copies.items():
+ raw=(T/source).read_bytes();put(R/F/name,raw);extra[F+'/'+name]=sha(raw)
+old='context/reconciliation/local-f0-0ff-read1161-install6850-V6-V8-progress-20261120.json'
+pn='context/reconciliation/local-f0-652-closed249e-progress-20261123.json'
+p={'schema':'workinants.local-f0-652-closed249e-progress.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'previous_progress':{'path':old,'sha256':sha((R/old).read_bytes())},'published_checkpoint':'249e6815702537a24cd98fc973ed90a8b0493ac3','assertion_status_counts':s['assertion_status_counts'],'case_status_counts':s['case_status_counts'],'current_rows':684,'ledger_sha256':sha(lb),'status_sha256':sha(sb),'actual_full_build':F+'/actual-full684-build.json','legacy13_checks':F+'/legacy13-checks.json','Posture':'D','Brain_final_acceptance':'PENDING','continue_after_checkpoint':True}
+p['accepted_delta']='13 new SQL SELECT rows and one phasePARTIAL replacement. Other670 old current rows and old executions unchanged. The old full PARTIAL remains historical and validates through the unchanged five-claim batch without entering current totals. First full build stopped INCOMPLETE_BATCH; reviewed bridge9checks and corrected full684 build464.062s pass; legacy13 regressions pass174.5s.'
+p['V8']={'path':'context/reconciliation/local-f0-privilege-249e681-a8dc4614-execution.json','sha256':sha((R/'context/reconciliation/local-f0-privilege-249e681-a8dc4614-execution.json').read_bytes()),'status':'STOPPED_ATTEMPT_PRESERVED','completed_contrasts':182,'first_provider_stopped':1,'later_provider_NOT_RUN':17,'links_added':0}
+p['RestoreV6']={'path':'context/reconciliation/local-f0-restore-249e681-04731001-execution.json','sha256':sha((R/'context/reconciliation/local-f0-restore-249e681-04731001-execution.json').read_bytes()),'status':'PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN','eligible_after_separate_reader':{'PASS':2,'PARTIAL':1},'links_added':0,'Privacy_and_activation':'NOT_RUN_DEPENDENCY_BLOCKED'}
+p['current_checkpoint']='3.7'
+p['exact_blocker']='App WorkUPDATE needs real primitive/fulltwo-history/App/affectedWorker proof for its reviewed nested-IF append. Mechanism owningV1 has an auth-warning/stdin-deadline HOLD; privateV2 is not admitted. V8 provider guard is unproven; privateV9 formatting correction is pending. Restore three eligible claims require a strict reader. CSP child is approved but owning execution is unimplemented.32 laterdependencies and7 sourcequestions remain; no ACL/owner-semantic widening.'
+p['next_action']='Publish this bounded652/8 checkpoint normally, preserving original work and deployment suppression. Continue reviewed source/admission/publication/pin/literal/fresh local actuals, Restore exact-three reader, primitive11 before corrected two-history/App/affectedWorker, and CSP owning preparation. Do not stop at publication; finish all attainable selected94 work.'
+p['repeated_and_why']='One corrected full build repeated after a proven historical-batch completeness integration failure. Bridge9 checks and applicable legacy13 passed. Canonical5ae/June/A-D/32workerACL/1034requirements/451register unchanged; unrelated750/501/75 suites not repeated.'
+put(R/pn,enc(p));ph=sha((R/pn).read_bytes())
+b=json.loads((before/B).read_bytes());b['previous_current_progress_before_652']=b['latest_version_qualified_progress'];b['previous_reviewed_operators_before_closed249e']=b['current_reviewed_replacement_operators']
+b['current_reviewed_replacement_operators']={'RestoreV6':p['RestoreV6'],'PrivilegeV8':p['V8']};b['latest_version_qualified_progress']={'path':pn,'sha256':ph}
+for k in ['assertion_status_counts','actual_assertion_counts']:b[k]=s['assertion_status_counts']
+for k in ['case_status_counts','actual_case_counts']:b[k]=s['case_status_counts']
+for k in ['current_checkpoint','exact_blocker','next_action','repeated_and_why']:b[k]=p[k]
+b['recorded_local_date']='2026-11-23';b['privilege_latest_attempt']=p['V8'];b['restore_latest_attempt']=p['RestoreV6']
+b['current_used_packet_retry_holds']={'App':'REAL_PRIMITIVE_TWO_HISTORY_PROOF_PENDING','V8':'CLOSED_STOP_PRIVATE_V9_PENDING','RestoreV6':'CLOSED_PASS_THREE_CLAIM_READER_PENDING','mechanism':'V1_HOLD_PRIVATE_V2_PENDING','CSP1':'CHILD_APPROVED_OWNING_NOT_IMPLEMENTED'}
+for row in b['steps']:
+ if row['id']=='3.3':row['current_limit']='INSTALL02 nowPASS on exact0ff/6850 evidence including failed-target precleanup activation and original-grantor cleanup. PriorPARTIAL remains historical.'
+ if row['id']=='3.7':row['current_limit']='Actual652PASS/32PARTIAL/311NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE;94cases8PASS/79PARTIAL/7NOT_RUN. Only13Read links+oneINSTALLupgrade admitted; V8 completed182 remain preserved without links.'
+ if row['id']=='3.8':row['current_limit']='Prior worker/unique/native passes preserved. New primitive/two-history/affectedWorker proof pending. CSP1 remains source-only, no committed winner or owner adapter.'
+ if row['id']=='3.9':row.update(status='PASS_VERSION_249E_PHYSICAL_SUBSET_PENDING_ASSERTION_ADMISSION',evidence=p['RestoreV6']['path'],current_limit='Audited physical backup/restore/full42 baseline parity passed. Only2PASS+1PARTIAL proposed; reader pending. Quarantined simulations do not qualify Privacy, upstream recovery or activation. Old9cf cause unobserved; rawNOT_RUN labels preserved.')
+ if row['id']=='3.10':row['current_limit']='IN_PROGRESS; final all-attainable94 recommendation pending. No451/whole94/P0D/readiness promotion.'
+(R/B).write_bytes(enc(b));v=json.loads((before/V).read_bytes());v['local_f0_652_closed249e_20261123']=p;(R/V).write_bytes(enc(v))
+text='## Local F0 continuation - verified652 and closed permission/restore runs (2026-11-23)\n\nActual rebuilt coverage is **652 PASS /32 PARTIAL /311 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE**, with684 current evidence rows. Selected94 cases: **8 PASS /79 PARTIAL /7 NOT_RUN**. Exactly13 SQL SELECT links and one failed-install phase upgrade are admitted. Old670 current rows and the full priorPARTIAL history remain intact; historical validation adds no second current grade. The corrected full684 build and13 applicable legacy checks passed.\n\nV8 completed182 finite contrasts, then stopped at the first provider check;17 later checks were not run. Its exact primary/native location is unretained. A proven formatter/projector source limitation is consistent with the stop; proposedV9 changes formatting only and preserves strict checks. No V8 links were added. Exact cleanup is independently confirmed.\n\nRestoreV6 passed its local physical subset: protected real synthetic backup, verify, fresh restore and complete42-table baseline data/ledger/authority parity. Exact3container/2volume/private archive cleanup is independently confirmed; image retained. At most2PASS+1PARTIAL may be added after a strict reader; no Restore links are admitted yet. Privacy, activation and upstream recovery stay unqualified. Raw inheritedNOT_RUN labels and old9cf unobserved cause remain preserved.\n\nPrivate transportV2/V9/two-history work remains pending review/admission/execution; inactiveCSP has no owning runtime. Initial5ae/June, A-D,32workerACL,1034requirements and451register are unchanged. PostureD and Brain final acceptance remain.\n\nPlain English: The saved reports earned more passing checks. Backup-and-restore worked, and temporary resources are gone. We kept the old notes. Remaining repairs still need review and real tests.\n\nDetailed current evidence: '+pn+' (SHA-256 '+ph+'). Continue the authorized work after publication. Earlier sections below are version-qualified history.\n\n---\n\n'
+for n in prose:(R/n).write_bytes(text.encode()+(before/n).read_bytes())
+assert(R/L).read_bytes()==lb and(R/S).read_bytes()==sb
+files={**extra,pn:ph,**{n:sha((R/n).read_bytes())for n in changed}}
+ip=T/'652_closed249e_progress_inventory_20261123.json';put(ip,enc({'files_sha256':files,'progress_sha256':ph,'ledger_status_unchanged_by_progress':True,'Posture':'D'}))
+print(json.dumps({'inventory':ip.name,'sha256':sha(ip.read_bytes()),'progress_sha256':ph,'files':len(files)}))

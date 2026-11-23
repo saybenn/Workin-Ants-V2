@@ -1,0 +1,119 @@
+"""Independent bounded review checks; never runs the full coverage build or any service process."""
+from pathlib import Path
+import ast,copy,hashlib,importlib,io,json,os,re,sys,time,unittest,uuid
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+H='scripts/local_f0_install_historical_bridge_v1.py';B='scripts/prepare-local-f0-status.py';O='scripts/local_f0_install_evidence.py'
+EXPECTED={H:'50532553ac6ad3fdcf2bb13d0da952698d7db2cd90e062fb944ef7c545e3e521',B:'6c049d7eaaf0d2d001e51b1faab70a215a26579f7d6f10467e0df0723c26b5e4',O:'8a0c784a0b49689a3593cac253323b6f8e30dd3082a134273b44fc71bff3db80','scripts/local_f0_read1161_evidence.py':'00ac6f4b1a6103c90afe272a4fe0a8f2135dc170af58efe47ca047ac2b03e38a','scripts/local_f0_install_precleanup_evidence.py':'c40fdf84b6f23a512dcc1341d1a30b0f18de587babee579d3db5bc47ebaf2453','context/reconciliation/local-f0-assertion-evidence.json':'f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f'}
+sha=lambda b:hashlib.sha256(b).hexdigest()
+for n,w in EXPECTED.items():assert sha((R/n).read_bytes())==w
+os.environ.update(PYTHONUTF8='1',PYTHONPATH=str(T/'offline-python'),TMP=str(T/'test-tmp'),TEMP=str(T/'test-tmp'),TMPDIR=str(T/'test-tmp'))
+sys.path[:0]=[str(R/'scripts'),str(T/'offline-python')]
+def forbidden(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn'):raise RuntimeError('REVIEW_EXTERNAL_BOUNDARY_FORBIDDEN')
+sys.addaudithook(forbidden)
+import local_f0_install_historical_bridge_v1 as bridge
+import local_f0_install_evidence as old
+import local_f0_read1161_evidence as read1161
+import local_f0_install_precleanup_evidence as new
+ledger=json.loads((R/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes())
+current=next(r for r in ledger['assertions']if(r['case_id'],r['assertion_id'])==bridge.KEY)
+execution=json.loads((R/bridge.NEW).read_bytes());old_execution=json.loads((R/bridge.OLD).read_bytes())
+old_current=[r for r in ledger['assertions']if r['evidence_path']==bridge.OLD]
+assert len(ledger['assertions'])==684 and len(old_current)==4 and len(old.LEDGER_CHANGES)==5
+class Witness:
+ def __init__(self,fail=False):self.calls=[];self.fail=fail
+ def validate_claim(self,*args,**kw):
+  self.calls.append((args,kw))
+  if self.fail:raise old.EvidenceFailure('DUPLICATE_CLAIM')
+  return True
+class Checks(unittest.TestCase):
+ def rejected(self,row=None,doc=None,root=R,code=None,batch_marker=True):
+  witness=Witness();batch=witness if batch_marker else None
+  with self.assertRaises(bridge.HistoricalInstallFailure)as caught:bridge.validate_superseded_install_partial(root,current if row is None else row,execution if doc is None else doc,batch)
+  if code:self.assertEqual(str(caught.exception),code)
+  self.assertEqual(witness.calls,[])
+ def batch_with_four(self):
+  batch=old.prepare_batch(R)
+  for row in old_current:batch.validate_claim(row['case_id'],row['assertion_id'],row['status'],old_execution,R,json_pointer=row['json_pointer'])
+  return batch
+ def test_01_actual_old_five_batch_rejects_missing_historical_claim(self):
+  batch=self.batch_with_four()
+  with self.assertRaisesRegex(old.EvidenceFailure,'^INCOMPLETE_BATCH$'):batch.verify_unchanged()
+  with self.assertRaises(old.EvidenceFailure):batch.require_finalized()
+  with self.assertRaisesRegex(old.EvidenceFailure,'^BATCH_CLOSED$'):batch.validate_claim(*bridge.KEY,'PARTIAL',old_execution,R,json_pointer='/claims/14')
+ def test_02_actual_old_batch_accepts_four_plus_exact_historical_partial_and_final_barrier(self):
+  batch=self.batch_with_four();before=copy.deepcopy(current)
+  self.assertIs(bridge.validate_superseded_install_partial(R,current,execution,batch),True)
+  self.assertIs(batch.verify_unchanged(),True);self.assertIs(batch.require_finalized(),True)
+  self.assertEqual(current,before);self.assertEqual(len(ledger['assertions']),684)
+  self.assertEqual(sum((x['case_id'],x['assertion_id'])==bridge.KEY for x in ledger['assertions']),1)
+  self.assertEqual(current['status'],'PASS');self.assertEqual(current['previous_evidence']['status'],'PARTIAL')
+ def test_03_current_scope_and_absent_old_batch_reject(self):
+  for k,value in [('case_id','P0C-INSTALL-01'),('assertion_id','control.failed_cleanup'),('status','PARTIAL'),('evidence_path',bridge.OLD),('json_pointer','/claims/1')]:
+   row=copy.deepcopy(current);row[k]=value;self.rejected(row=row,code='HISTORICAL_INSTALL_CURRENT_SCOPE')
+  self.rejected(batch_marker=False,code='HISTORICAL_INSTALL_BATCH_REQUIRED')
+ def test_04_forged_full_embedded_history_or_archive_link_rejects(self):
+  for key,value in [('status','PASS'),('json_pointer','/claims/13'),('source_commit','0'*40),('missing_required_piece',None),('extra_qualification',True)]:
+   row=copy.deepcopy(current);row['previous_evidence'][key]=value;self.rejected(row=row,code='HISTORICAL_INSTALL_EMBEDDED_HISTORY')
+  for key,value in [('previous_evidence',None),('previous_evidence_sha256','0'*64),('previous_evidence_preserved_at',bridge.OLD)]:
+   row=copy.deepcopy(current);row[key]=value;self.rejected(row=row,code='HISTORICAL_INSTALL_EMBEDDED_HISTORY')
+ def test_05_new_claim_history_shapes_and_binding_reject(self):
+  for claims in [None,{},[],[execution['claims'][0],execution['claims'][0]]]:
+   doc=copy.deepcopy(execution);doc['claims']=claims;self.rejected(doc=doc,code='HISTORICAL_INSTALL_NEW_CLAIM')
+  for change in ['scalar','status','hash']:
+   doc=copy.deepcopy(execution)
+   if change=='scalar':doc['claims'][0]=None
+   elif change=='status':doc['claims'][0]['prior_evidence']['status']='PASS'
+   else:doc['claims'][0]['prior_evidence_sha256']='0'*64
+   self.rejected(doc=doc,code='HISTORICAL_INSTALL_NEW_HISTORY_BINDING')
+ def test_06_real_closed_reads_reject_changed_archive_and_old_record_bytes(self):
+  directory=T/('historical-install-bridge-review-fixture-'+uuid.uuid4().hex);directory.mkdir()
+  for relative in (bridge.PRIOR,bridge.OLD):
+   target=directory/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((R/relative).read_bytes())
+  prior=directory/bridge.PRIOR;prior.write_bytes(prior.read_bytes()+b' ')
+  self.rejected(root=directory,code='HISTORICAL_INSTALL_CLOSED_READ_REJECTED')
+  prior.write_bytes((R/bridge.PRIOR).read_bytes())
+  previous=directory/bridge.OLD;previous.write_bytes(previous.read_bytes()+b' ')
+  self.rejected(root=directory,code='HISTORICAL_INSTALL_CLOSED_READ_REJECTED')
+ def test_07_exact_old_validator_arguments_and_failure_remain_fail_closed(self):
+  witness=Witness();self.assertIs(bridge.validate_superseded_install_partial(R,current,execution,witness),True)
+  self.assertEqual(len(witness.calls),1);args,kw=witness.calls[0]
+  self.assertEqual(args,(*bridge.KEY,'PARTIAL',old_execution,R));self.assertEqual(kw,{'json_pointer':'/claims/14'})
+  witness=Witness(fail=True)
+  with self.assertRaisesRegex(bridge.HistoricalInstallFailure,'^HISTORICAL_INSTALL_VALIDATION_REJECTED$'):bridge.validate_superseded_install_partial(R,current,execution,witness)
+  self.assertEqual(len(witness.calls),1)
+ def test_08_only_three_builder_insertions_and_unchanged_old_reader(self):
+  source=(R/B).read_text();before=(R/'context/reconciliation/local-f0-operation-sources/read1161-install6850-Root-integration-v1/historical-bridge-v1/before-builder.py.txt').read_text()
+  insert1='from local_f0_install_historical_bridge_v1 import validate_superseded_install_partial, HistoricalInstallFailure'+chr(10)
+  insert2='                    try:validate_superseded_install_partial(ROOT,row,execution,install_batch)'+chr(10)+'                    except HistoricalInstallFailure as error:raise AssertionError(str(error)) from None'+chr(10)
+  self.assertEqual(source.replace(insert1,'').replace(insert2,''),before)
+  self.assertIs(bridge.closed_read,read1161._read);self.assertEqual(sha((R/O).read_bytes()),EXPECTED[O])
+ def test_09_actual_dispatch_validates_new_claim_first_and_cannot_launder_rejected_new_evidence(self):
+  tree=ast.parse((R/B).read_bytes());branch=next(n for n in ast.walk(tree)if isinstance(n,ast.If)and isinstance(n.test,ast.Compare)and any(isinstance(c,ast.Constant)and c.value==bridge.NEW for c in n.test.comparators))
+  code=compile(ast.fix_missing_locations(ast.Module(body=branch.body,type_ignores=[])),'<actual-new-INSTALL-branch>','exec')
+  events=[]
+  class NewWitness:
+   def __init__(self,reject):self.reject=reject
+   def validate_claim(self,*args,**kw):
+    events.append('new')
+    if self.reject:raise new.EvidenceFailure('NEW_CLAIM_REJECTED')
+  def historical(*args):events.append('history')
+  scope={'case':{'id':bridge.KEY[0]},'item':{'id':bridge.KEY[1]},'row':current,'execution':execution,'ROOT':R,'pointer':'/claims/0','install_batch':Witness(),'validate_superseded_install_partial':historical,'InstallPrecleanupEvidenceFailure':new.EvidenceFailure,'HistoricalInstallFailure':bridge.HistoricalInstallFailure}
+  scope['install_precleanup_batch']=NewWitness(True)
+  with self.assertRaisesRegex(AssertionError,'^NEW_CLAIM_REJECTED$'):exec(code,scope)
+  self.assertEqual(events,['new']);events.clear();scope['install_precleanup_batch']=NewWitness(False);exec(code,scope);self.assertEqual(events,['new','history'])
+class Result(unittest.TestResult):
+ def __init__(self):super().__init__();self.safe=[]
+ def addSuccess(self,test):super().addSuccess(test);self.safe.append({'method':test._testMethodName,'status':'PASS'})
+ def problem(self,test,err,kind):
+  message=str(err[1]);code=message if re.fullmatch('[A-Z][A-Z0-9_]{0,100}',message)else'REVIEW_CHECK_REJECTED'
+  self.safe.append({'method':test._testMethodName,'status':kind,'class':err[0].__name__,'code':code,'raw_exception_discarded':True})
+ def addFailure(self,test,err):super().addFailure(test,err);self.problem(test,err,'FAIL')
+ def addError(self,test,err):super().addError(test,err);self.problem(test,err,'ERROR')
+started=time.monotonic();result=Result();unittest.defaultTestLoader.loadTestsFromTestCase(Checks).run(result)
+unchanged=all(sha((R/n).read_bytes())==w for n,w in EXPECTED.items())
+report={'schema':'workinants.historical-install-bridge-independent-focused-checks.v1','reviewer':'/root/historical_install_bridge_review','source_files_sha256':EXPECTED,'methods':result.testsRun,'passed':sum(x['status']=='PASS'for x in result.safe),'results':result.safe,'seconds':round(time.monotonic()-started,3),'all_source_bytes_unchanged':unchanged,'actual_old_five_claim_batch_constructor_and_final_fresh_barrier_exercised':True,'full671_or684_builder_run':False,'only_test_boundary_witnesses_for_focused_argument_and_rejection_checks':True,'internal_process_network_Docker_database_calls_forbidden':True,'Root_mutations':False,'Posture':'D'}
+output=T/'historical_install_bridge_v1_independent_focused_checks_20261122.json'
+with output.open('x',encoding='utf8')as handle:json.dump(report,handle,indent=2,allow_nan=False);handle.write(chr(10))
+print(json.dumps({'report':str(output),'sha256':sha(output.read_bytes()),'methods':result.testsRun,'passed':report['passed'],'all_source_bytes_unchanged':unchanged,'seconds':report['seconds'],'successful':result.wasSuccessful()and unchanged}),flush=True)
+raise SystemExit(0 if result.wasSuccessful()and unchanged else 1)

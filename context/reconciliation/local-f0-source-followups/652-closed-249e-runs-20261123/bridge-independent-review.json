@@ -1,0 +1,70 @@
+{
+  "schema": "workinants.historical-install-bridge-independent-source-review.v1",
+  "reviewer": "/root/historical_install_bridge_review",
+  "author": "/root",
+  "decision": "SOURCE_APPROVED",
+  "findings": [],
+  "recorded_at_utc": "2026-11-22T15:43:20.785Z",
+  "reviewed_code_sha256": {
+    "scripts/local_f0_install_historical_bridge_v1.py": "50532553ac6ad3fdcf2bb13d0da952698d7db2cd90e062fb944ef7c545e3e521",
+    "scripts/prepare-local-f0-status.py": "6c049d7eaaf0d2d001e51b1faab70a215a26579f7d6f10467e0df0723c26b5e4"
+  },
+  "bound_dependency_and_data_sha256": {
+    "scripts/local_f0_install_historical_bridge_v1.py": "50532553ac6ad3fdcf2bb13d0da952698d7db2cd90e062fb944ef7c545e3e521",
+    "scripts/prepare-local-f0-status.py": "6c049d7eaaf0d2d001e51b1faab70a215a26579f7d6f10467e0df0723c26b5e4",
+    "scripts/local_f0_install_evidence.py": "8a0c784a0b49689a3593cac253323b6f8e30dd3082a134273b44fc71bff3db80",
+    "scripts/local_f0_read1161_evidence.py": "00ac6f4b1a6103c90afe272a4fe0a8f2135dc170af58efe47ca047ac2b03e38a",
+    "scripts/local_f0_install_precleanup_evidence.py": "c40fdf84b6f23a512dcc1341d1a30b0f18de587babee579d3db5bc47ebaf2453",
+    "context/reconciliation/local-f0-assertion-evidence.json": "f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f"
+  },
+  "archived_before_builder": {
+    "path": "context/reconciliation/local-f0-operation-sources/read1161-install6850-Root-integration-v1/historical-bridge-v1/before-builder.py.txt",
+    "sha256": "9eecdb01aec5674c5e0f7bb56d49fafe72cdb62fcc7875b55e22eb752bfab953"
+  },
+  "closed_prior_ledger": {
+    "path": "context/reconciliation/local-f0-operation-sources/install-6850-precleanup-evidence-v1/prior671-ledger.json",
+    "sha256": "8b7cd04a5681dc7d2b2996c20b896dc352af67e88f968f1ccc9250f9bdda0d64",
+    "assertions": 671,
+    "old_row_index": 655,
+    "canonical_row_sha256": "0674eb3d2dca009da5eaa820d15662b608b80c9622f3c4630bc53355cb987d43"
+  },
+  "independent_focused_checks": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\historical_install_bridge_v1_independent_focused_checks_20261122.json",
+    "sha256": "53993a7dcd2ed909c61010c270eb4d42fd25cf5746a1ff3c72ffd62c15afff72",
+    "runner_path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\review_historical_install_bridge_v1_focused_20261122.py",
+    "runner_sha256": "0c0e5bd3ac0000a966787913789096efc10e4d274f133b25babaff75f0f994d6",
+    "session": 38846,
+    "known_exit_code": 0,
+    "methods": 9,
+    "passed": 9,
+    "seconds": 54.297,
+    "actual_unchanged_old_batch_constructor_and_final_all_file_barrier": true,
+    "without_bridge_INCOMPLETE_BATCH_reproduced": true,
+    "with_bridge_four_current_plus_one_historical_partial_finalizes": true,
+    "focused_boundary_witnesses": "Only argument propagation/failure and actual dispatch-order tests; actual constructor, exact closed reads and actual final old-byte barrier were exercised separately.",
+    "full671_or684_builder_run": false
+  },
+  "reviewed_properties": [
+    "Exactly import plus two bridge call/error lines; removing them reproduces complete prior builder byte for byte",
+    "New current claim validation happens before historical bridge; actual dispatch extraction proves new-claim failure stops bridge",
+    "Exact archived671 fixed SHA, index655 full row, canonical prior SHA, current embedded previous_evidence and new execution prior_evidence must agree",
+    "Old execution uses fixed existing allowlisted08f810 SHA and accepted unchanged double-closed-read implementation",
+    "Only historical PARTIAL,/claims/14 reaches unchanged old batch; old expected five and sticky/fresh-finalization rules remain unchanged",
+    "Current ledger retains exactly684 rows and one current row for this key; old partial is not recounted or promoted",
+    "Malformed scope, forged whole-row/status/pointer/hash/archive link, malformed new-claim history and changed source bytes reject; old validator failure remains fail closed",
+    "No service/network/process boundaries occurred inside focused runner; no Root source/data or status writes"
+  ],
+  "qualification_status_unchanged": {
+    "path": "context/reconciliation/local-f0-qualification-status.json",
+    "sha256": "5ab0d974a02f7a99bbb92b30d8f55c5b9c50d1bd962dd0654467243f3b3f2e07"
+  },
+  "limits": [
+    "Source and focused composition approval only",
+    "Root must run the complete actual unmocked combined builder before accepting new coverage counts",
+    "No database, Docker, migration, role, ACL, SQL, posture or runtime approval from this receipt"
+  ],
+  "Root_mutation": false,
+  "database_contacted": false,
+  "Posture": "D",
+  "plain_english": "The old checker now gets its old partial note without adding another grade. The small checks pass. Root still needs to rebuild the full report."
+}

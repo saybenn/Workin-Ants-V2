@@ -1,0 +1,107 @@
+"""Stage only two separately reviewed retrospective readers and their bounded assertion deltas."""
+from pathlib import Path
+import argparse,copy,datetime,difflib,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+AR='context/reconciliation/local-f0-operation-sources/read1161-install6850-Root-integration-v1'
+BN='scripts/prepare-local-f0-status.py';LN='context/reconciliation/local-f0-assertion-evidence.json'
+BASE_BUILDER='cc17de640c624cb9f259d88e71dfff21a461cc2762a204939e8bcd2856d6d4f4'
+BASE_LEDGER='8b7cd04a5681dc7d2b2996c20b896dc352af67e88f968f1ccc9250f9bdda0d64'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def encoded(v):return(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def immutable_doc(path,wanted):
+ raw=path.read_bytes();assert sha(raw)==wanted;return raw,json.loads(raw)
+def additions(base,variant):
+ a=base.decode().splitlines(keepends=True);b=variant.decode().splitlines(keepends=True);out={}
+ for tag,i,j,k,l in difflib.SequenceMatcher(a=a,b=b,autojunk=False).get_opcodes():
+  if tag!='equal':assert tag=='insert'and i==j;out[i]=b[k:l]
+ return out
+def main():
+ p=argparse.ArgumentParser()
+ for lane in('read','install'):
+  p.add_argument('--'+lane+'-review',type=Path,required=True);p.add_argument('--'+lane+'-review-sha256',required=True)
+ a=p.parse_args()
+ rd_raw,rd=immutable_doc(T/'Read1161_evidence_adapter_v1_frozen_author_delivery_20261120.json','a7945ba5331d33a8f4075163195383e631f583db86ed1de59e28ef6fab847c2e')
+ id_raw,idd=immutable_doc(T/'install6850_precleanup_evidence_reader_v1_frozen_private_delivery_20261120.json','e0b7f40273f125cb71c1147deacd47b8bf62126b52febd58a6e4b93f120d1e75')
+ RF=Path(rd['draft'])/'future-root';IF=Path(idd['private_ROOT'])
+ maps=[(RF,rd['proposed_Root_files_sha256']),(IF,idd['candidate_Root_new_files_sha256'])]
+ assert len(maps[0][1])==38 and len(maps[1][1])==40
+ reviews={}
+ for lane,author in [('read','/root/review_track_ports'),('install','/root/catalog_v4_review')]:
+  path=getattr(a,lane+'_review').resolve();assert path.is_relative_to(T.resolve())and not path.is_relative_to(R.resolve())
+  raw,v=immutable_doc(path,getattr(a,lane+'_review_sha256'))
+  assert v['decision']=='SOURCE_APPROVED'and v['findings']==[]and v['reviewer']!=author
+  assert v['reviewer']in('/root/privilege_mount_v2_review','/root/review_track_ports','/root/catalog_v4_review','/root/install_outer_review')
+  wanted_delivery=sha(rd_raw)if lane=='read'else sha(id_raw)
+  code={n:h for n,h in(rd['proposed_Root_files_sha256']if lane=='read'else idd['source_files_sha256']).items()if n.startswith('scripts/')}
+  if lane=='install':code[BN]=idd['proposed_builder_sha256']
+  assert v['author_frozen_delivery_sha256']==wanted_delivery and v['reviewed_code_sha256']==code
+  reviews[lane]=(path,raw,v)
+ before_builder=(R/BN).read_bytes();before_ledger=(R/LN).read_bytes()
+ assert sha(before_builder)==BASE_BUILDER and sha(before_ledger)==BASE_LEDGER
+ base=json.loads(before_ledger);assert len(base['assertions'])==671
+ read_ledger=json.loads((RF/LN).read_bytes());assert read_ledger['assertions'][:671]==base['assertions']and len(read_ledger['assertions'])==684
+ assert read_ledger['executions'][:len(base['executions'])]==base['executions']and read_ledger['scope']==base['scope']
+ proposal_path=Path(idd['private_TASK'])/'private-integration-proposal.json'
+ _,proposal=immutable_doc(proposal_path,idd['private_integration_proposal_sha256'])
+ candidate_raw,candidate=immutable_doc(Path(proposal['candidate_ledger']),proposal['candidate_ledger_sha256'])
+ index=proposal['single_replaced_row_index'];assert index==655 and len(candidate['assertions'])==671
+ assert candidate['assertions'][index]==proposal['private_replacement_row']and base['assertions'][index]==proposal['previous_exact_row']
+ assert all(row==base['assertions'][i]for i,row in enumerate(candidate['assertions'])if i!=index)
+ assert candidate['assertions'][index]['previous_evidence']==base['assertions'][index]
+ assert candidate['executions'][:len(base['executions'])]==base['executions']and len(candidate['executions'])==len(base['executions'])+1
+ merged=copy.deepcopy(read_ledger);merged['assertions'][index]=copy.deepcopy(candidate['assertions'][index]);merged['executions'].extend(candidate['executions'][len(base['executions']):])
+ assert len(merged['assertions'])==684 and all(merged['assertions'][i]==row for i,row in enumerate(base['assertions'])if i!=index)
+ assert len({(x['case_id'],x['assertion_id'])for x in merged['assertions']})==684
+ assert {(x['case_id'],x['assertion_id'])for x in merged['assertions'][671:]}=={(x['case_id'],x['assertion_id'])for x in read_ledger['assertions'][671:]}
+ read_builder=(RF/BN).read_bytes();install_builder=(IF/BN).read_bytes()
+ assert sha(read_builder)==rd['proposed_Root_files_sha256'][BN]and sha(install_builder)==idd['proposed_builder_sha256']
+ changes=[additions(before_builder,read_builder),additions(before_builder,install_builder)]
+ lines=before_builder.decode().splitlines(keepends=True);joined=[]
+ for i in range(len(lines)+1):
+  for delta in changes:joined.extend(delta.get(i,[]))
+  if i<len(lines):joined.append(lines[i])
+ merged_builder=''.join(joined).encode();compile(merged_builder,str(R/BN),'exec')
+ to_write={}
+ for future,filemap in maps:
+  for name,wanted in filemap.items():
+   assert not Path(name).is_absolute()and ':'not in name and '\\'not in name and all(x not in('','.','..')for x in name.split('/'))
+   raw=(future/name).read_bytes();assert sha(raw)==wanted
+   if name==BN:continue
+   assert name not in to_write or to_write[name]==raw;to_write[name]=raw
+ to_write[BN]=merged_builder;to_write[LN]=encoded(merged)
+ for lane,(path,raw,review)in reviews.items():to_write[AR+'/'+lane+'-independent-source-review.json']=raw
+ to_write[AR+'/before-builder.py.txt']=before_builder;to_write[AR+'/before-ledger.json']=before_ledger
+ to_write[AR+'/Read-frozen-delivery.json']=rd_raw;to_write[AR+'/INSTALL-frozen-delivery.json']=id_raw
+ to_write[AR+'/INSTALL-private-integration-proposal.json']=proposal_path.read_bytes()
+ to_write[AR+'/Root-helper.py.txt']=Path(__file__).read_bytes()
+ for lane,name in [('read','context/reconciliation/local-f0-read1161-evidence-adapter-source-validation.json'),('install','context/reconciliation/local-f0-install-precleanup-evidence-source-validation.json')]:
+  raw=to_write[name];to_write[AR+'/'+lane+'-source-validation-before-Root.json']=raw;v=json.loads(raw)
+  gate={'status':'SOURCE_APPROVED','reviewer':reviews[lane][2]['reviewer'],'review_path':AR+'/'+lane+'-independent-source-review.json','review_sha256':sha(reviews[lane][1])}
+  if lane=='read':
+   v['independent_read1161_evidence_review']=gate;v['Root_admission']={'status':'SOURCE_APPROVED','actual_combined_unmocked_builder_required':True,'actual_combined_builder':'NOT_RUN_AT_SOURCE_ADMISSION'}
+  else:
+   v['independent_source_review']=gate;v['Root_source_review']={'decision':'SOURCE_APPROVED','actual_combined_unmocked_builder_required':True,'actual_combined_builder':'NOT_RUN_AT_SOURCE_ADMISSION'}
+  v['status']='SOURCE_APPROVED_RETROSPECTIVE_EVIDENCE_ADAPTER_PENDING_ACTUAL_COMBINED_BUILD'
+  v['Root_merged_builder_sha256']=sha(merged_builder);to_write[name]=encoded(v)
+ # The active runtime and next held packet remain exact. New source-only
+ # readers cannot change any file consumed by either owning run.
+ for directory in('local-f0-restore-plan-04731001','local-f0-privilege-ceiling-plan-a8dc4614'):
+  packet=json.loads((T/directory/'operation-manifest.json').read_bytes());assert not(set(to_write)&set(packet['packet_files_sha256']))
+  for name,wanted in packet['packet_files_sha256'].items():assert sha((R/name).read_bytes())==wanted
+ # Validate all conflicts before the first Root write; preserve only the two
+ # explicitly permitted existing files through immutable history above.
+ for name,raw in to_write.items():
+  path=R/name;assert path.resolve().is_relative_to(R.resolve())and not any(x.is_symlink()for x in(path,*path.parents)if x.is_relative_to(R))
+  if path.exists()and name not in(BN,LN):assert path.read_bytes()==raw
+ assert (R/BN).read_bytes()==before_builder and(R/LN).read_bytes()==before_ledger
+ for name,raw in to_write.items():
+  path=R/name
+  if path.exists()and path.read_bytes()==raw:continue
+  path.parent.mkdir(parents=True,exist_ok=True)
+  with path.open('wb'if name in(BN,LN)else'xb')as f:f.write(raw)
+ inventory={n:sha(b)for n,b in to_write.items()}
+ report={'schema':'workinants.Read1161-INSTALL6850-Root-source-admission.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'Root_files_sha256':inventory,'Root_file_count':len(inventory),'builder_sha256':sha(merged_builder),'ledger_sha256':sha(to_write[LN]),'old_current_rows':671,'current_rows':684,'new_rows':13,'existing_rows_replaced':1,'all_other670_old_rows_identical':True,'previous_phase_PARTIAL_preserved':True,'old_executions_preserved':True,'both_builder_deltas_pure_insertions_only':True,'active_and_held_packet_inputs_unchanged':True,'actual_combined_unmocked_builder':'NOT_RUN_AT_SOURCE_ADMISSION','no_Docker_database_process_network_Git_calls':True,'Posture':'D'}
+ out=T/'Read1161_INSTALL6850_Root_source_admission_inventory_20261120.json'
+ with out.open('xb')as f:f.write(encoded(report))
+ print(json.dumps({'status':'SOURCE_ADMITTED_PENDING_COMBINED_MERGE_REVIEW_AND_ACTUAL_BUILDER','files':len(inventory),'inventory_sha256':sha(out.read_bytes()),'builder_sha256':sha(merged_builder),'ledger_sha256':report['ledger_sha256'],'current_rows':684,'coverage_counts_not_forced':True}))
+if __name__=='__main__':main()

@@ -1,0 +1,20 @@
+{
+  "schema": "workinants.customer-stale-predecessor-derivation-preservation.v1",
+  "old_packet_sha256": "b59ab33ba26a29d2d82ee4f7f289d26e95300b7afb8ce7eaf7806fd5fb08a9c3",
+  "baseline_normalized_bytes_identical": {
+    "transaction_sql": true,
+    "observer_sql": true
+  },
+  "normalization": "Fresh fixture UUID-derived IDs/name/semantic key and associated synthetic-intent fingerprint only; no other creation SQL/observer semantics changed.",
+  "baseline_history": 1,
+  "retained_update_history": 0,
+  "canonical_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "access_sha256": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+  "worker_ACL_rows": 32,
+  "worker_rows_canonical_sha256": "85495186b4d6ca384a4bc5d9157e3748302bab61a4cb43309648a2e59da3d774",
+  "CTX_transport_sha256": "5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33",
+  "initial_visibility_then_second_source_guard": "Same-transaction SELECT fallback authorizes own revision1 using revision0 token; BEFORE guard checks OLD.revision1 without row_transaction argument, requiring unavailable revision1 token.",
+  "explicit_negative_control_flow": "One intended UPDATE inside ON_ERROR_STOP off; source guard diagnostic plus fixed ERROR/SQLSTATE markers, immediate restoration, explicit ROLLBACK/marker/ACK, process EOF and backend closure before guard verdict/state observer.",
+  "source_expected": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+  "source_expected_version": "Existing source manifest/template for canonical5ae, unchanged one-history creation baseline. Not relabeled as a two-history committed-update expectation."
+}

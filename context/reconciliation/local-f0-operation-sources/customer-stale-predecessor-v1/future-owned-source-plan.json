@@ -1,0 +1,161 @@
+{
+  "schema": "workinants.customer-stale-predecessor-future-owned-source-plan.v1",
+  "decision": "PRIVATE_COMPONENT_SOURCE_ONLY_FUTURE_OWNED_IMPLEMENTATION_NOT_STARTED",
+  "created_utc": "2026-11-20T16:49:44.109153+00:00",
+  "author": "/root/restricted_controls_operator",
+  "Root_source_assignment": "Bounded three stale-predecessor rollback controls; Root ACKed one-statement ON_ERROR_STOP adaptation and post-exit/reader settlement. No runtime/Git/liveRoot authority.",
+  "parent_source_plan": {
+    "path": "selected94_immutable9_customer_CAS2_bounded_source_facts_plan_20261120.json",
+    "sha256": "1b6985236eba944177f6055aec5408199f1e2fb5c8ec73218f75a3cea4980d2d"
+  },
+  "exact_assertion": {
+    "case_id": "P0C-CAS-01",
+    "assertion_id": "control.stale_predecessor",
+    "expected": "Wrong predecessor, skipped revision and same-grant second source update deny, without duplicate state.",
+    "expected_sha256": "72f2d75ee3f9af764982f379f5dc82805531d09dc85f0925f8d7c6ab69795d3e",
+    "whole_assertion_sha256": "18265ad077864ff37917e24f9db70b3755c7c7f90e14c3293a366ba1c991a248",
+    "scenario_order": [
+      "wrong-predecessor",
+      "skipped-revision",
+      "same-grant-second-source-update"
+    ],
+    "all_now": "NOT_RUN"
+  },
+  "private_ROOT": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\customer-stale-predecessor-v1-private-candidate-20261120\\workinants-correction-pass",
+  "private_TASK": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\customer-stale-predecessor-v1-private-candidate-20261120",
+  "source5_sha256": {
+    "scripts/customer_stale_predecessor_v1_protocol.py": "865f91ba0d82c77a12b8c2da92c4ae489d8029e33bf18c81ce784f6ad4b26115",
+    "scripts/prepare-customer-stale-predecessor-v1.py": "8e8f37b5292fa377da509cc9a4f5380a25fc3f5291a84e9e5c344e782272ec61",
+    "scripts/sql-review/run-customer-stale-predecessor-v1.py": "2a3cd4730408d294b767448b2d9f563d4f14937ca95edd1be232383c30591b3e",
+    "scripts/check-customer-stale-predecessor-v1.py": "b3e753d2309d9635205b25f4bfed8791bb05594d49dd0c18fb2c95a95644e62a",
+    "scripts/sql-review/CUSTOMER-STALE-PREDECESSOR-V1.md": "62dd266c79b9a189741834bb3348fbca8bedfad4a25c5f705e2e952c0164b9c5"
+  },
+  "packet": {
+    "path": "review-output/customer-stale-predecessor-v1/fixtures.json",
+    "sha256": "c2074a45f80147833e958d1f02b5d3840b32eb13a46033ebc7f1e75c322eb10b",
+    "content_sha256": "58f803d0ba96e96b543447a9019c03d668b57885c35c9d6be1bcbc6ea00144c6",
+    "source_input_pins": 22,
+    "artifacts": 12,
+    "SQL_leaves": 11,
+    "SQL_statements": 37,
+    "fixture_run_id": "36e9cae1-53fc-44a7-b90f-b91fb6e8d2b5"
+  },
+  "baseline": {
+    "method": "Actual restricted app SH004 creation using byte-verified reviewed baseline after fresh ID/name/semantic-key and associated synthetic-intent fingerprint substitution. Trusted Identity seed only.",
+    "expected": {
+      "customer": 1,
+      "command": 1,
+      "history": 1,
+      "evidence": 1,
+      "outbox": 2,
+      "track_enrollments": 0,
+      "coherent": true
+    },
+    "history_version": "ONE creation history, no UPDATE history; never relabel as two-history source expectation.",
+    "setup_bypasses": [
+      {
+        "table": "app.users",
+        "trigger": "owner_commit",
+        "function": "platform_private.commit_user",
+        "body_sha256": "96c1144871cd5d670084a893dc1725577d56b6f67b53a80c4a1e77ad02d0f890",
+        "expected_enabled": "O",
+        "setup_only": true
+      },
+      {
+        "table": "app.user_security_profiles",
+        "trigger": "owner_commit",
+        "function": "platform_private.commit_usersecurityprofile",
+        "body_sha256": "e02564d31f605b7da8872927724215c07236fdb80eeb9d4cd2f070f1edc05067",
+        "expected_enabled": "O",
+        "setup_only": true
+      }
+    ],
+    "restore": "Flush deferred checks before restoring only these2; independently verify all100 external trigger identities/enabled states and unchanged original native snapshot/312 internal triggers. Customer physical/deferred guards are never disabled."
+  },
+  "three_source_recipes": [
+    {
+      "name": "wrong-predecessor",
+      "precondition": "Same restricted row must first be visible at revision0 with exact owner and14 SELECT capabilities.",
+      "action": "UPDATE fixed target with wrong predecessor1; exact zero returned count; explicit ROLLBACK.",
+      "claim": "Failed stale row selection only; no named RAISE or isolated SQL WHERE proof if initial RLS visibility is absent."
+    },
+    {
+      "name": "skipped-revision",
+      "precondition": "Exact visible revision0, current tuple-bound grant with revision0 and finite UPDATE fields.",
+      "action": "NEW.revision=OLD.revision+2, WHERE revision0.",
+      "diagnostic": {
+        "state": "P0001",
+        "message": "CAS revision must increment once",
+        "function": "platform_private.guard_customerprofile",
+        "body_sha256": "242bc33836b80f24cdcd22495d133678fd8b5d204f145ffa3f689308a91aba95",
+        "line": 9
+      }
+    },
+    {
+      "name": "same-grant-second-source-update",
+      "precondition": "Same grant/no rebind/no widening. First+1 returns exactly one revision1 row in the same app transaction.",
+      "action": "Own revision1 remains visible via source same-transaction RLS fallback; second+1 reaches guard OLD.revision1 with no revision1 token and raises exact scope42501. First+1 rolls back.",
+      "diagnostic": {
+        "state": "42501",
+        "message": "field or CAS scope denied",
+        "function": "platform_private.guard_customerprofile",
+        "body_sha256": "242bc33836b80f24cdcd22495d133678fd8b5d204f145ffa3f689308a91aba95",
+        "line": 13
+      }
+    }
+  ],
+  "client_protocol": {
+    "only_expected_UPDATE": "ON_ERROR_STOP off solely around the one intended UPDATE; fixed psql ERROR and SQLSTATE branch markers; restore immediately; explicit ROLLBACK, exact marker and ACK. Unexpected success is forbidden.",
+    "stderr_settlement": "Exit owned app operation after rollback, join readers, inspect bounded complete stderr only in RAM, then retain fixed exact source comparisons. Existing CTX source remains byte-identical.",
+    "closure": "Existing exact PID/start/login/backend absence plus global all-database/role/tag client absence precedes post-state observers. Sticky evidence I/O means no confirmed closure/PASS even if RAM count is zero.",
+    "primary_source": "https://www.postgresql.org/docs/17/app-psql.html"
+  },
+  "source_expected": {
+    "canonical_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "manifest_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+    "version": "Existing canonical5ae source/native template; source creation baseline history1, not an UPDATE receipt template.",
+    "native": 29089,
+    "expression_oracle": 416,
+    "private_ledger": 22,
+    "worker_ACL": 32
+  },
+  "proposed_new_owned_files": [
+    "execute_local_f0_customer_stale_predecessor_v1_20261120.py",
+    "local_f0_customer_stale_predecessor_v1_operation_steps.py",
+    "prepare_local_f0_customer_stale_predecessor_v1_plan.py",
+    "check_local_f0_customer_stale_predecessor_v1_operation.py",
+    "pin_local_f0_customer_stale_predecessor_v1_plan_20261120.py"
+  ],
+  "proposed_resources": {
+    "container": "wa-p0c-<fresh-run8>-customer-stale",
+    "volume": "wa-p0c-<fresh-run8>-customer-stale-data",
+    "external_evidence": "TASK/local-f0-customer-stale-predecessor-<fresh-run8>",
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "isolation": "network none/no published ports; accepted current Owner ResourceMount/SafetySQL source lineage only; private owner DACL and kernel tmpfs proof before credentials."
+  },
+  "future_owned_requirements": [
+    "Separate nonauthor code/data review of exact component and new owning5; PENDING gates stay closed. Do not reuse historical review as fresh packet approval.",
+    "Complete current+committed closed-source and generation map before helper compile; actual whole prepare+pinner/Core.initialize/entry, physical five snapshots, source7/archive/tools10300, no cache resets between factories or injected proof dictionaries.",
+    "One genuine canonical installation through reviewed Prisma pipeline and original postgres grantor finalization, exact provider-source proof/role ceilings, six actual-login HBA/SCRAM/correct+wrong controls, native29089/oracle416/ledger22 before component; same actual CID/run/source/packet attestation. Historical test native fixture can never be that runtime attestation.",
+    "Reuse admitted read-only collectors/comparators after component; no second Prisma/deploy. Source/currentness observations stay separate from behavior.",
+    "Actual genuine baseline creation and typed full42 data/coherence/retained original history1/outbox2/no enrollment; no production owner/result adapter or update/no-result codec fabricated.",
+    "Post-case full42 snapshot excludes only exact new issuer grant IDs and separately requires all retained issuer rows immutable/current. Every other table/hash and original one-history group remains exact.",
+    "Persistent I/O must not skip close/finalizers/each cleanup; first safe STOP remains primary; unclosed/unknown clients block behavioral/native observations and unsafe finalization SQL. Exact C/V labels/CID/volumeCreatedAt/owned secret boundaries and independently confirmed absence.",
+    "Bounded closed evidence reference with direct lstat/regular-file/fstat/read limits/Windows ctime and fresh hash checks after cleanup/source postchecks; no success-first shape masking a stopped child.",
+    "Explicit exact full-or-partial typed3-result contract and safe stopped receipt. No assertion promotion until reviewed actual evidence and Root mapping. Fresh literal/current source pin/live endpoint and resource preflight/Root operational approval required."
+  ],
+  "focused_source_checks": {
+    "final_methods": 22,
+    "passed": 22,
+    "elapsed_seconds": 3.218,
+    "report_sha256": "2a7fc7bd78277350a727e779c6ff68462b55f0dabfbca797efd2570a256fee44",
+    "processes_and_sockets": "ALL_MOCKED_OR_FORBIDDEN",
+    "genuine_creation_full_install_fullcomparators_owned_cleanup": "NOT_RUN"
+  },
+  "limits": [
+    "No source/runtime claim for concurrent retained winner or whole P0C-CAS-01.",
+    "No UPDATE COMMIT/result/no-result codec, Track enrollment loop, worker rights change, OWNER-REVISIONS, Privacy/P0D/provider/hosted/production activation.",
+    "Missing owning harness is unfinished source work, not a new dependency or waiver.",
+    "Private source only; no live repository/Git/status/ledger/progress edits. PostureD unchanged."
+  ]
+}

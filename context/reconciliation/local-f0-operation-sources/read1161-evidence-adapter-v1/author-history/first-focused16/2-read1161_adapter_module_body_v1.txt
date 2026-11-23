@@ -1,0 +1,272 @@
+def _capture(root):
+    blobs={p:_read(root,p,w)for p,w in PINS.items()}
+    need(len(blobs)==GRAPH_FILES and sum(map(len,blobs.values()))<=MAX_BUNDLE_BYTES,'BUNDLE_BOUNDS')
+    return blobs
+
+def _operation_order(f):
+    """Project append sites from pinned coordinator setup/execute/finally.
+
+    This constructs a source recipe, not an expectation copied from output.
+    Transactions append before issue/retention, and always append closure in
+    finally. Observers each close other clients before reading state/catalog.
+    """
+    result=[];instances=0
+    def add(stage,**kw):result.append({'stage':stage,**kw})
+    def global_():add('GLOBAL_BACKEND_CLOSURE')
+    def native(stage):global_();add(stage)
+    def trigger():global_();add('ALL100_GUARDS_RESTORED')
+    def retention(n,live=False):add('EXACT21_GRANT_RETENTION',instances=n,unexpired_required=live)
+    def transaction(name,grant,control=None):
+        nonlocal instances
+        add('ACTUAL_TRANSACTION',case=name)
+        if grant is not None:
+            instances+=1;add('SEPARATE_ISSUER_COMMIT');retention(1,True)
+        if control=='revoked_before_action':retention(1);add('SEPARATE_REVOKE_COMMIT_BEFORE_ACTION')
+        if control=='server_expired':add('ACTUAL_SERVER_EXPIRY')
+        global_()
+    global_();native('PRE_SETUP_NATIVE');global_();trigger()
+    transaction('DISABLE_EXACT15',None)
+    for group in f['setup_groups']:
+        global_();transaction(group['name'],group['grant_id']);global_();add('FIXTURE_GROUP_COMMITTED',name=group['name'])
+    global_();add('EXACT15_RESTORE_ELIGIBILITY');transaction('RESTORE_EXACT15',None)
+    trigger();native('RESTORED_FULL_NATIVE');add('EXACT48_SOURCE_COHERENCE')
+    native('BEFORE_FIRST_SELECTED_READ');global_()
+    for case in f['cases']:
+        trigger();global_();transaction(case['name'],case['grant'],case['control'] if case['kind']=='binder-denial'else None)
+        if case['kind']=='read'and case['grant'] is not None:retention(1,True)
+        if instances:retention(instances)
+        global_();add('EXACT48_SOURCE_COHERENCE');trigger()
+    native('FINAL_FULL_NATIVE_PARITY');global_();trigger();native('FINALLY_FULL_NATIVE_IDENTITY')
+    need(instances==79 and len(result)==1149,'SOURCE_ORDER_RECIPE_BOUNDS')
+    return result
+
+def _validate_order(value,f):
+    order=_operation_order(f)
+    same([{k:row[k]for k in item}for row,item in zip(value,order)],order,'EXACT1149_SOURCE_APPEND_ORDER')
+    need(len(value)==len(order),'EXACT1149_OPERATION_COUNT')
+
+def _claims(blobs):
+    s=doc(blobs[SPEC]);proposal=doc(blobs[AR+'/Read1161_exact13_assertion_link_proposal_20261120.json'])
+    inventory=doc(blobs['context/reconciliation/local-f0-assertions.json']);f=doc(blobs[FIXTURE])
+    lookup={c['id']:c for c in inventory['cases']};out=[]
+    need(len(proposal['claims'])==len(s['claims'])==13,'EXACT13_CLAIMS')
+    same(proposal['claims'],s['claims'],'APPROVED13_PROPOSAL')
+    for index,c in enumerate(proposal['claims']):
+        need(c['index']==index and c['status']=='PASS'and c['assertion_id']=='positive.wa_app_runtime.select'and c['case_id'].endswith('-ALLOW'),'CLOSED_POSITIVE_SELECT_CLAIM')
+        assertion=next(x for x in lookup[c['case_id']]['assertions']if x['id']==c['assertion_id'])
+        need(assertion['availability']=='CANDIDATE_LOCAL_SQL_PATH'and assertion['dependency_ids']==[],'SOURCE_ASSERTION_AVAILABLE')
+        need(sh(assertion['expected_assertion'].encode())==c['expected_assertion_sha256']and digest(assertion)==c['source_whole_assertion_sha256'],'EXACT_SOURCE_REQUIREMENT')
+        pairs=[]
+        for pointer,name in zip(c['actual_child_result_pointers'],c['case_names']):
+            pos=int(pointer.removeprefix('/results/'));case=f['cases'][pos]
+            need(case['name']==name and case['kind']=='read'and case['claim']==c['case_id']+'|'+c['assertion_id'],'EXACT_POSITIVE_PAIR')
+            need('/positive/'in name and case['grant'] is not None and len(case['expected_records'])>0,'MEANINGFUL_A_B_SELECTED_ROWS')
+            need(c['source_SQL_files_sha256'][case['sql']]==f['prepared_files_sha256'][case['sql']],'PAIR_SOURCE_SQL')
+            pairs.append(name)
+        need(len(pairs)==2 and pairs[0].endswith('/A')and pairs[1].endswith('/B'),'EXACT_A_B_PAIR')
+        out.append({k:c[k]for k in ('case_id','assertion_id','status','expected_assertion_sha256','source_whole_assertion_sha256','actual_child_result_pointers','case_names','source_SQL_files_sha256','scope_limit')})
+    need(len({(c['case_id'],c['assertion_id'])for c in out})==13,'UNIQUE13')
+    return out
+
+def _validate_qualifiers(blobs,outer):
+    get=lambda n:doc(blobs[ASSET+'/evidence/'+n+'.json'])
+    native=get('native-before');need(type(native)is dict and type(native['server_version_num'])is int and native['server_version_num']==170011 and native['read_only']is True and native['collected_as']=='postgres'and native['collector_is_superuser']is True,'NATIVE_RELEASE_LOGIN_READONLY')
+    need(digest(native)==NATIVE,'ACTUAL_AUDITED_NATIVE_IDENTITY')
+    for name in ('native-after-oracle','native-after-ledger','post-native-before','post-native-after-oracle','post-native-after-ledger'):same(get(name),native,'ALL_SIX_SAME_NATIVE')
+    for prefix in ('','post-'):
+        comp=get(prefix+'catalog-comparison')
+        need(comp['status']=='PASS'and comp['findings']==[]and comp['native_snapshot_sha256']==NATIVE and comp['source_expected_sha256']=='3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433','FULL_SOURCE_COMPARISON')
+        same(comp['check_counts'],{'PASS':29089},'STRICT_NATIVE_29089')
+        oracle=get(prefix+'oracle-evidence')
+        need(oracle['connection_closed_before_observation']is True and oracle['pre_oracle_catalog_sha256']==oracle['post_rollback_catalog_sha256']==NATIVE,'ORACLE_CLOSED_NATIVE_BINDING')
+        need(set(oracle)=={'format','database','oracle_sql_sha256','preflight','results','closure','connection_closed_before_observation','pre_oracle_catalog_sha256','post_rollback_catalog_sha256'},'ORACLE_ENVELOPE_FIELDS')
+        need(oracle['database']=='wa_p0c_rehearsal'and oracle['format']=='workinants.reviewed-expression-oracle-evidence.v1','ORACLE_IDENTITY')
+        same(oracle['preflight'],get(prefix+'oracle-preflight'),'ORACLE_PREFLIGHT_ARTIFACT')
+        same(oracle['results'],get(prefix+'oracle-results'),'ORACLE_RESULTS_ARTIFACT')
+        same(oracle['closure'],get(prefix+'oracle-closure'),'ORACLE_CLOSURE_ARTIFACT')
+        need(all(v is True for v in oracle['preflight']['outcomes'].values())and len(oracle['preflight']['outcomes'])==10,'ORACLE_PREFLIGHT_TYPED')
+        expressions=oracle['results']['expressions'];need(len(expressions)==416,'SOURCE416_EXPRESSIONS')
+        need(len({(r['category'],r['subject'],r['field'])for r in expressions})==416,'UNIQUE_SOURCE_EXPRESSION_IDS')
+        # Plan contains source expressions, not observed native metadata.
+        plan=doc(blobs['review-output/native-catalog/expression-oracle-plan.json'])
+        need(plan['plan_sha256']==oracle['preflight']['plan_sha256'],'ORACLE_PLAN_SOURCE_BINDING')
+        same([{k:r[k]for k in ('category','subject','field','source_expression_sha256')}for r in expressions],[{k:r[k]for k in ('category','subject','field','source_expression_sha256')}for r in plan['expressions']],'ALL416_SOURCE_EXPRESSION_IDENTITIES')
+        need(all(set(r)=={'category','subject','field','source_expression_sha256','value_sha256'}and all(type(r[k])is str and re.fullmatch('[0-9a-f]{64}',r[k])for k in ('source_expression_sha256','value_sha256'))for r in expressions),'EXPRESSION_HASH_SHAPE')
+        native_expressions={}
+        for r in native['columns']:native_expressions[('columns',r['table_name']+'/'+r['name'],'default')]=r['default_sha256']
+        for r in native['constraints']:native_expressions[('constraints',r['table_name']+'/'+r['name'],'expression')]=r['expression_sha256']
+        for r in native['functions']:native_expressions[('functions',r['object'],'argument-defaults')]=r['defaults_sha256']
+        for r in native['policies']:
+            native_expressions[('policies',r['table_name']+'/'+r['name'],'using')]=r['using_sha256']
+            native_expressions[('policies',r['table_name']+'/'+r['name'],'with-check')]=r['with_check_sha256']
+        need(all(native_expressions[(r['category'],r['subject'],r['field'])]==r['value_sha256']for r in expressions),'ALL416_ORACLE_VALUES_MATCH_NATIVE')
+        need(oracle['closure']['all_oracle_tables_absent']is True and oracle['closure']['all_oracle_functions_absent']is True and oracle['closure']['plan_sha256']==plan['plan_sha256'],'ROLLBACK_TEMP_OBJECTS_ABSENT')
+        oracle_sql=blobs['review-output/native-catalog/expression-oracle.sql']
+        need(sh(oracle_sql)==oracle['oracle_sql_sha256'],'ORACLE_SQL_SOURCE_BINDING')
+        ledger=get(prefix+'ledger-evidence');registration=get('ledger-registration');observation=get(prefix+'ledger-observation')
+        need(ledger['run_id']==RAW_RUN and ledger['target_attestation_sha256']==outer['migration_operations'][0]['attestation_sha256']and ledger['registration_sha256']==digest(registration),'GENUINE_SAME_INSTALL_LEDGER')
+        need(ledger['native_catalog_before_sha256']==ledger['native_catalog_after_sha256']==NATIVE,'LEDGER_NATIVE_PARITY')
+        same(ledger['observation'],observation,'LEDGER_ARTIFACT')
+        need(observation['read_only']is True and observation['collected_as']=='postgres'and observation['session_user']=='postgres'and observation['collector_is_superuser']is True and type(observation['server_version_num'])is int and observation['server_version_num']==170011,'LEDGER_COLLECTOR_IDENTITY')
+        history=observation['history'];need(len(history)==1,'ONE_IMMUTABLE_HISTORY_ROW')
+        h=history[0];need(h['started']is True and h['finished']is True and h['rolled_back']is False and type(h['steps'])is int and h['steps']==1 and h['checksum_sha256']==sh(APP.encode())and h['logs_state']=='NULL'and h['id_is_uuid_v4']is True and h['time_order_valid']is True and h['checksum_format_valid']is True,'GENUINE_APPLIED_INITIAL_HISTORY')
+    checks=outer['ledger_comparison']['checks'];need(outer['ledger_comparison']['status']=='PASS'and len(checks)==22 and len({r['field']for r in checks})==22 and all(r['status']=='PASS'and r['expected_sha256']==r['actual_sha256']for r in checks),'SOURCE_LEDGER22')
+    same(outer['catalog_comparison'],get('catalog-comparison'),'OUTER_FULL_COMPARISON')
+
+def _audit_semantics(blobs):
+    s=doc(blobs[SPEC]);get=lambda n:doc(blobs[ASSET+'/'+n])
+    record=doc(blobs[REC]);outer=get('evidence/run-evidence.json');m=get('manifest/operation-manifest.json');f=doc(blobs[FIXTURE]);child=get('evidence/read13-component/remaining-app-read13-results.json')
+    # Validate actual child semantics BEFORE its envelope hashes. This makes
+    # semantic regression mutants exercise a real false predicate, not merely
+    # the immutable transcript fingerprint.
+    _validate_child(child,f,blobs['review-output/foundation-application.review.sql'].decode(),NATIVE)
+    _validate_order(child['operations'],f)
+    previous=child['baseline']['tables']
+    for row in child['results']:
+        same(row['before_tables'],previous,'CONTIGUOUS_ALL42_BEFORE_AFTER_STATES');previous=row['after_tables']
+    same(f['finite_caps'],{'case_count':82,'positive_select_claims':13,'fixture_rows':48,'nonnull_fixture_fk_links':78,'setup_bypass_triggers':15,'grant_instances_max':79,'setup_grants':10,'read_control_grants':69,'user_triggers_restored':100,'simultaneous_app_sessions_max':1,'worker_loop':False},'EXACT_FINITE_SOURCE_SCOPE')
+    need(sh(blobs['review-output/foundation-application.review.sql'])==APP,'SOURCE_SQL_INITIAL5AE')
+    same(m['packet_files_sha256'],s['source_files_sha256'],'SOURCE1400_MAP')
+    need(len(m['packet_files_sha256'])==1400 and sh(''.join(p+'\0'+h+'\n'for p,h in sorted(m['packet_files_sha256'].items())).encode())==m['packet_sha256']==PACKET,'SOURCE1400_AGGREGATE')
+    need(all(sh(blobs[p])==h for p,h in m['packet_files_sha256'].items()),'ALL_SOURCE_CURRENT_BYTES')
+    same([m['run_id'],m['attempt_id'],m['source_commit'],m['source_tree'],m['review_status']],[RAW_RUN,RUN,COMMIT,TREE,'APPROVED_LOCAL_F0_REMAINING_APP_READ13_OWNED_V2_ATTEMPT'],'APPROVED_ATTEMPT_IDENTITY')
+    before=get('manifest/operation-manifest-before-operational-review.json');expected=dict(before);expected['review_status']=m['review_status'];same(m,expected,'ONLY_REVIEW_FLAG_CHANGED')
+    need(outer['status']=='PASS_LOCAL_READ13_SQL_SUBSET_ONLY'and outer['evidence_complete']is True and outer['persistence_failure']is False and outer['output_complete']is True and outer['unexpected']==[],'CLOSED_SUCCESS_NO_PERSISTENCE_ERROR')
+    same([outer['run_id'],outer['approved_commit'],outer['approved_tree'],outer['approved_packet_sha256']],[RAW_RUN,COMMIT,TREE,PACKET],'RAW_EXECUTION_IDENTITY')
+    same(outer['source_verification']['files_sha256'],m['packet_files_sha256'],'RAW_SOURCE_ADMISSION_MAP')
+    nested=get('manifest/ok-migration-manifest.json')
+    same(nested,get('source/ok-migration-manifest.json'),'NESTED_MANIFEST_SNAPSHOT')
+    need(nested['run_id']==RAW_RUN and nested['source']['integrated_sql_sha256']==APP and nested['tools']['engine_commit']=='d1b3f377ca835d73fd50954a5e22128b9ebdd6b8'and len(nested['tools']['files_sha256'])==10300,'UNCHANGED_GUARDED_HISTORY_AND_TOOL_CLOSURE')
+    tooling=doc(blobs['context/reconciliation/local-f0-tooling/prisma-tools-closure.json'])
+    same(nested['tools']['files_sha256'],tooling['tools_files_sha256'],'EXACT10300_SOURCE_TOOL_FILES')
+    need(type(tooling['file_count'])is int and tooling['file_count']==10300,'TOOL_SOURCE_COUNT')
+    for p,h in m['catalog']['tool_source_files_sha256'].items():need(tooling['tools_files_sha256'][p]==h,'TOOL_PACKAGE_METADATA_SOURCE_BINDING')
+    seven=m['migration_targets']['ok']['source_files_sha256'];need(len(seven)==7,'EXACT_SEVEN_SOURCE_HISTORY')
+    with tarfile.open(fileobj=io.BytesIO(blobs[ASSET+'/source/source-code-only.tar.gz']),mode='r:gz')as archive:
+        members=archive.getmembers();need(len(members)==7 and len({x.name for x in members})==7,'SEVEN_UNIQUE_ARCHIVE_MEMBERS')
+        for member in members:
+            need(member.isfile()and member.name in seven and 0<=member.size<=2*1024*1024,'SOURCE_ONLY_ARCHIVE_MEMBER')
+            source=blobs[ASSET+'/source/source-ok/'+member.name]
+            with archive.extractfile(member)as reader: archived=reader.read(2*1024*1024+1)
+            need(archived==source and sh(source)==seven[member.name],'SEVEN_SOURCE_ARCHIVE_IDENTICAL_BYTES')
+    run_plan=get('evidence/read13-run-plan.json');att=get('evidence/read13-native-attestation.json')
+    same(run_plan['target_manifest'],nested,'ACTUAL_CHILD_NESTED_TARGET')
+    same(run_plan['packet_files_sha256'],m['packet_files_sha256'],'CHILD_PLAN_SOURCE1400')
+    same([run_plan[k]for k in ('run_id','source_commit','source_tree','packet_sha256','immutable_container_id')],[RAW_RUN,COMMIT,TREE,PACKET,CID],'ACTUAL_CHILD_PLAN_IDENTITY')
+    same(run_plan['scenario_names'],[c['name']for c in f['cases']],'ACTUAL_CHILD_FINITE82_PLAN')
+    need(att['run_id']==RAW_RUN and att['container_id']==CID and att['source_commit']==COMMIT and att['source_tree']==TREE and att['packet_sha256']==PACKET and att['native_snapshot_sha256']==NATIVE and att['original_grantor_finalized']is True and att['operation_backends_absent']is True and att['comparison_status']=='PASS','SAME_CID_SOURCE_NATIVE_ATTESTATION')
+    need(att['native_comparison_file_sha256']==sh(blobs[ASSET+'/evidence/catalog-comparison.json'])and run_plan['native_attestation']['sha256']==sh(blobs[ASSET+'/evidence/read13-native-attestation.json']),'CHILD_NATIVE_PROOF_BYTES')
+    need(all(outer[k]is True for k in ('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_sources_unchanged_after_run','external_inputs_unchanged_after_run','cleanup_actions_confirmed')),'SOURCE_TOOL_EXTERNAL_CLEANUP_PRESERVATION')
+    need(len(outer['targets'])==1,'EXACT_OWNED_TARGET')
+    name='wa-p0c-d848e852-read13';target=outer['targets'][name]
+    need(target['container_id']==CID and target['volume']==name+'-data'and target['network_mode']=='none'and target['published_ports']is False and target['bootstrap']=='PASS'and target['finalization']=='PASS','OWNED_CID_ISOLATION_FINALIZATION')
+    same(target['labels'],{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':RAW_RUN},'EXACT_OWNED_LABELS')
+    same(target['connections_before_finalization'],{'migrator':0,'other_client_backends':0},'TYPED_ZERO_CLIENTS_BEFORE_FINALIZER')
+    same(target['finalization_observation'],{'auth':'scram-sha-256:postgres','grantor':'postgres','leaf_create':{r:False for r in ('wa_track_verifier','wa_customer_verifier','wa_private_helper_owner')},'remaining_memberships':0,'active_install_connections':0},'ORIGINAL_GRANTOR_FINALIZATION')
+    need(target['server_settings']['safe']is True and target['server_settings']['diagnostics_safe']is True and target['server_settings']['auth']=='scram-sha-256:postgres','PRIVATE_SAFE_SERVER_SETTINGS')
+    need(len(outer['backend_closures'])==17,'PARENT17_CLOSURES')
+    for row in outer['backend_closures']:
+        need(set(row)=={'stage','scope','observation_completed','counts_valid','migrator_zero','other_clients_zero','all_other_client_backends_absent'}and row['scope']=='ALL_DATABASES_ALL_ROLES_ALL_TAGS'and all(row[k]is True for k in row if k not in ('stage','scope')),'PARENT_TYPED_GLOBAL_CLOSURE')
+    auth=[{'role':r,'transport':'TCP_127.0.0.1_5432','correct_password':'PASS_SCRAM','wrong_password':'PASS_REJECTED','wrong_password_exit_code':2}for r in ROLES]
+    same(outer['authentication'],auth,'PARENT_SIX_SCRAM_POSITIVE_NEGATIVE')
+    ops=outer['migration_operations'];need(len(ops)==1,'ONE_GENUINE_DEPLOY_NO_SECOND_INSTALL')
+    op=ops[0];need(op['operation']=='deploy'and op['status']=='CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS'and type(op['exit_code'])is int and op['exit_code']==0 and op['container_id']==CID and op['run_id']==RAW_RUN and op['source_sql_sha256']==APP and op['raw_output_discarded']is True,'ACTUAL_PRISMA_DEPLOY')
+    _validate_qualifiers(blobs,outer)
+    ref=outer['read13']['component_report_reference'];same(ref,{'artifact':'read13-component/remaining-app-read13-results.json','present':True,'read_status':'CLOSED_BOUNDED_BYTES','closed_recheck_match':True,'bytes':len(blobs[ASSET+'/evidence/read13-component/remaining-app-read13-results.json']),'sha256':sh(blobs[ASSET+'/evidence/read13-component/remaining-app-read13-results.json']),'integrity_recheck_match':True},'COMPONENT_FRESH_CLOSED_REFERENCE')
+    need(outer['read13']['component_closure_attempted']is True and outer['read13']['component_closure_confirmed']is True and outer['read13']['component_report_sha256']==digest(child),'PARENT_CHILD_CLOSED_SAME_BYTES')
+    post=outer['read13']['post_proof'];need(post['status']=='PASS_READ_ONLY_SOURCE_BOUND_SUBSET'and post['second_deploy']is False,'SEPARATE_READONLY_POST_PROOF')
+    for key,wanted in {'native_checks':29089,'oracle_expressions':416,'ledger_checks':22,'independent_tables':42}.items():need(type(post[key])is int and post[key]==wanted,'POST_TYPED_CHECK_COUNTS')
+    final=child['results'][-1]['after_tables']
+    same(get('evidence/post-state-before.json'),final,'INDEPENDENT_COMPLETE42_BEFORE')
+    same(get('evidence/post-state-after.json'),final,'INDEPENDENT_COMPLETE42_AFTER')
+    need(post['before_state_sha256']==post['after_state_sha256']==post['child_final_state_sha256']==digest(final),'COMPLETE42_POST_LINK')
+    cleanup=get('independent-cleanup.json');need(cleanup['status']=='PASS_INDEPENDENT_PHYSICAL_CLEANUP'and cleanup['private_directory_absent']is True and cleanup['wrapper_cleanup_claim']is True and cleanup['known_executor_exit']==0 and type(cleanup['known_executor_exit'])is int,'INDEPENDENT_CLEANUP')
+    same([cleanup['run_id'],cleanup['source_commit'],cleanup['source_tree'],cleanup['packet_sha256'],cleanup['run_evidence_sha256']],[RAW_RUN,COMMIT,TREE,PACKET,sh(blobs[ASSET+'/evidence/run-evidence.json'])],'INDEPENDENT_CLEANUP_SAME_ATTEMPT')
+    need(set(cleanup['exact_name_observations'])=={name,name+'-data'}and all(x['absent_exact_known_diagnostic']is True and x['raw_output_retained']is False for x in cleanup['exact_name_observations'].values()),'EXACT_RESOURCES_ABSENT')
+    same(outer['cleanup_summary']['resource_presence_after'],{name:False,name+'-data':False},'OUTER_ABSENCE')
+    need(outer['cleanup_summary']['private_directory_absent']is True and outer['cleanup_summary']['image_removed']is False and outer['cleanup_summary']['unrelated_resources_changed']is False,'PRIVATE_CLEANUP_AND_IMAGE_RETAINED')
+    same(cleanup['pinned_image_retained_and_validated'],outer['image'],'PINNED_IMAGE_RETAINED')
+    need(record['attempt_id']==RUN and record['fixture_and_resource_run_id']==RAW_RUN and record['run_id']==RAW_RUN and record['raw_reports_unchanged']is True and record['assertion_links_added']==0,'RECORD_RAW_IDENTITY_NOT_REWRITTEN')
+    need(record['source_commit']==COMMIT and record['source_tree']==TREE and record['operation_packet_sha256']==PACKET and record['raw_evidence_sha256']==sh(blobs[ASSET+'/evidence/run-evidence.json']),'NORMALIZED_RECORD_BINDING')
+    need(record['raw_child_literal_sha256']==ref['sha256']and record['raw_child_canonical_sha256']==digest(child),'NORMALIZED_CHILD_BINDING')
+    same(record['assets_sha256'],{p:h for p,h in s['preserved_assets_sha256'].items()if p!=REC},'CLOSED68_ASSETS')
+    return _claims(blobs)
+
+def _expected_row(claim,execution_sha,index):
+    row={k:claim[k]for k in ('case_id','assertion_id','status','expected_assertion_sha256')}
+    row.update(source_commit=COMMIT,source_tree=TREE,packet_sha256=PACKET,application_sql_sha256=APP,run_id=RUN,evidence_path=DERIVED,evidence_sha256=execution_sha,json_pointer='/claims/'+str(index),qualification_scope='Positive exact permitted app SQL SELECT only.',qualification_limit=claim['scope_limit'])
+    return row
+
+def propose_ledger_delta(current,execution):
+    """Pure append-only proposal, preserving arbitrary unrelated future rows."""
+    _typed_json(current);_typed_json(execution)
+    need(type(current)is dict and type(current.get('assertions'))is list and type(current.get('executions'))is list,'LEDGER_SHAPE')
+    need(type(execution)is dict and sh((json.dumps(execution,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode())==PINS[DERIVED],'EXACT_DERIVED_RECORD')
+    result=doc(canonical(current).encode());keys={(r['case_id'],r['assertion_id'])for r in result['assertions']}
+    need(len(keys)==len(result['assertions']),'UNIQUE_CURRENT_ROWS')
+    for i,c in enumerate(execution['claims']):
+        key=(c['case_id'],c['assertion_id']);need(key not in keys,'PRESERVE_EXISTING_ROWS');keys.add(key)
+        result['assertions'].append(_expected_row(c,PINS[DERIVED],i))
+    need(len(result['assertions'])==len(current['assertions'])+13,'EXACT13_APPEND')
+    need(not any(r.get('evidence_path')==DERIVED for r in result['executions']),'NO_DUPLICATE_EXECUTION')
+    result['executions'].append({'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'evidence_path':DERIVED,'evidence_sha256':PINS[DERIVED],'actual_result':KIND,'qualification_scope':'Exactly13 positive SQL SELECT only; no other links or whole-case qualification.'})
+    same(result['assertions'][:-13],current['assertions'],'PRESERVE_ALL_OLD_ROWS');same(result['executions'][:-1],current['executions'],'PRESERVE_ALL_OLD_EXECUTIONS')
+    return result
+
+def validate_bundle(blobs):
+    need(type(blobs)is dict and set(blobs)==set(PINS),'EXACT_CLOSED_GRAPH')
+    need(all(type(b)is bytes and sh(b)==PINS[p]for p,b in blobs.items()),'CAPTURED_HASHES')
+    claims=_audit_semantics(blobs);e=doc(blobs[DERIVED]);s=doc(blobs[SPEC])
+    same(sorted(e),sorted(('schema','derivation','actual_result','run_id','raw_run_id','source_commit','source_tree','packet_sha256','source_record','input_files_sha256','claims','limits')),'DERIVED_CLOSED_FIELDS')
+    same([e['schema'],e['derivation'],e['actual_result'],e['run_id'],e['raw_run_id'],e['source_commit'],e['source_tree'],e['packet_sha256']],['workinants.Read1161-qualified-evidence.v1','EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE',KIND,RUN,RAW_RUN,COMMIT,TREE,PACKET],'DERIVED_EXPLICIT_IDENTITY_ALIAS')
+    same(e['source_record'],{'path':REC,'sha256':PINS[REC]},'DERIVED_RAW_RECORD')
+    same(e['input_files_sha256'],{p:h for p,h in PINS.items()if p!=DERIVED},'DERIVED_EXACT_CLOSED_INPUT_GRAPH')
+    same(e['claims'],claims,'DERIVED13_SOURCE_CLAIMS');same(e['limits'],s['limits'],'DERIVED_CEILINGS')
+    baseline=doc(blobs[BASELINE]);need(len(baseline['assertions'])==671 and Counter(r['status']for r in baseline['assertions'])=={'PASS':638,'PARTIAL':33},'ARCHIVED_ACCEPTED671')
+    return canonical(e)
+
+class QualificationBatch:
+    """Private immutable bytes; no handles/cache escape, sticky first refusal."""
+    def __init__(self,root):
+        path=Path(root);need(not path.is_symlink(),'ROOT_SYMLINK');self.__root=path.resolve(strict=True)
+        b=_capture(self.__root);self.__execution=validate_bundle(b);e=doc(b[DERIVED])
+        self.__rows=MappingProxyType({(c['case_id'],c['assertion_id']):(i,canonical(_expected_row(c,PINS[DERIVED],i)))for i,c in enumerate(e['claims'])})
+        self.__bytes=MappingProxyType(b);self.__seen=set();self.__failed=None;self.__finalized=False
+    def _reject(self,code):
+        if self.__failed is None:self.__failed=code
+        raise EvidenceFailure(self.__failed)from None
+    def validate_claim(self,case_id,assertion_id,status,execution,root=None,json_pointer=None,ledger_row=None):
+        try:
+            need(self.__failed is None and not self.__finalized,'BATCH_CLOSED')
+            need(all(type(x)is str for x in (case_id,assertion_id,status,json_pointer)),'CLAIM_TYPES');key=(case_id,assertion_id)
+            need(key in self.__rows and key not in self.__seen,'EXACT_UNSEEN13_CLAIM');i,wanted=self.__rows[key]
+            need(status=='PASS'and json_pointer=='/claims/'+str(i),'STATUS_AND_POINTER')
+            if root is not None:need(Path(root).resolve(strict=True)==self.__root,'BATCH_ROOT')
+            _typed_json(execution);_typed_json(ledger_row)
+            need(type(execution)is dict and type(ledger_row)is dict and canonical(execution)==self.__execution and canonical(ledger_row)==wanted,'EXACT_DERIVED_AND_LEDGER_ROW')
+            self.__seen.add(key);return True
+        except EvidenceFailure as error:self._reject(str(error))
+        except Exception:self._reject('READ1161_EVIDENCE_REJECTED')
+    def verify_unchanged(self):
+        try:
+            need(self.__failed is None and not self.__finalized,'BATCH_CLOSED');need(self.__seen==set(self.__rows),'COMPLETE13_BATCH_REQUIRED')
+            fresh=_capture(self.__root);need(all(fresh[p]==self.__bytes[p]for p in PINS),'FINAL_ALL_INPUT_BYTES_DRIFT')
+            self.__bytes=None;self.__finalized=True;return True
+        except EvidenceFailure as error:self._reject(str(error))
+        except Exception:self._reject('READ1161_EVIDENCE_REJECTED')
+    def require_finalized(self):
+        if self.__failed is not None:raise EvidenceFailure(self.__failed)
+        need(self.__finalized,'FINAL_FRESH_BYTE_BARRIER_REQUIRED');return True
+
+def prepare_batch(root):
+    try:return QualificationBatch(root)
+    except EvidenceFailure:raise
+    except Exception:raise EvidenceFailure('READ1161_EVIDENCE_REJECTED')from None
+
+def validate_claim(case_id,assertion_id,status,execution,root,json_pointer=None,ledger_row=None):
+    # A fresh standalone call still admits and completes the entire exact13
+    # evidence batch, including its final fresh all-input barrier.
+    b=prepare_batch(root);b.validate_claim(case_id,assertion_id,status,execution,root,json_pointer,ledger_row)
+    for i,c in enumerate(execution['claims']):
+        if (c['case_id'],c['assertion_id'])!=(case_id,assertion_id):b.validate_claim(c['case_id'],c['assertion_id'],'PASS',execution,root,'/claims/'+str(i),_expected_row(c,PINS[DERIVED],i))
+    b.verify_unchanged();return b.require_finalized()

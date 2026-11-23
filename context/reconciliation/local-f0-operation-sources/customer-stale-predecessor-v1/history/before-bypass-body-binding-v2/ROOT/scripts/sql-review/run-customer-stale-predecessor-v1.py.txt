@@ -1,0 +1,301 @@
+"""Dormant three-case Customer predecessor core. No standalone runtime entry.
+
+Future Root-owned runner must perform source/publication/native/oracle/ledger,
+resource/authentication/finalization and exact cleanup admission. This core has
+no provisioning, migration, SQL repair or Customer UPDATE commit path.
+"""
+import argparse
+from copy import deepcopy
+import hashlib
+import io
+import json
+from pathlib import Path
+import re
+import secrets
+import subprocess
+from types import ModuleType
+import uuid
+
+ROOT=Path(__file__).resolve().parents[2]
+SELF='scripts/sql-review/run-customer-stale-predecessor-v1.py'
+PROTOCOL='scripts/customer_stale_predecessor_v1_protocol.py'
+CTX='scripts/sql-review/run-context-control-rehearsal.py'
+CTX_SHA='5ec53d01d7c5b19bea0a584ef9f5b4e6742d9509c21ac7e2250b9bdd62511f33'
+COLLECTOR='scripts/sql-review/collect_native_catalog.sql'
+VALIDATION='context/reconciliation/customer-stale-predecessor-v1-source-validation.json'
+PACKET='review-output/customer-stale-predecessor-v1'
+GLOBAL_CLIENTS="SELECT jsonb_build_object('other_clients',count(*)) FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid();"
+
+class HeldFailure(Exception):
+    def __init__(self,code):self.code=code;super().__init__(code)
+def need(ok,code):
+    if not ok:raise HeldFailure(code)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def canonical(v):return json.dumps(v,sort_keys=True,separators=(',',':'),allow_nan=False)
+def quote(v):return "'"+str(v).replace("'","''")+"'"
+def unique(raw):
+    def pairs(items):
+        result={}
+        for k,v in items:need(k not in result,'DUPLICATE_JSON_FIELD');result[k]=v
+        return result
+    return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(HeldFailure('NONFINITE_JSON')))
+
+def admit_source_graph(root,expected):
+    """All bytes and both independent approvals precede any helper compile.
+
+    No filesystem/helper fallback. This is not an operational admission API;
+    future owning code must first bind expected to its complete committed map.
+    """
+    root=Path(root).resolve();need(type(expected)is dict and expected,'EXACT_SOURCE_MAP_REQUIRED')
+    for name,h in expected.items():need(type(name)is str and not name.startswith('/') and '\\'not in name and all(p not in('','.','..')for p in name.split('/'))and type(h)is str and re.fullmatch('[0-9a-f]{64}',h),'SOURCE_MAP_FIELDS')
+    needed={SELF,PROTOCOL,CTX,COLLECTOR,VALIDATION,PACKET+'/fixtures.json'}
+    need(needed<=set(expected),'CLOSED_SOURCE_GRAPH_REQUIRED')
+    blobs={name:(root/name).read_bytes()for name in expected}
+    need(all(sha(raw)==expected[name]for name,raw in blobs.items()),'SOURCE_BYTE_DRIFT')
+    value=unique(blobs[VALIDATION]);packet=unique(blobs[PACKET+'/fixtures.json'])
+    need(value.get('review_gate')=='SOURCE_APPROVED','SOURCE_REVIEW_REQUIRED')
+    for key in('independent_source_review','Root_source_review'):
+        review=value.get(key);need(type(review)is dict and review.get('decision')=='SOURCE_APPROVED'and type(review.get('path'))is str and review['path'].startswith('context/reconciliation/local-f0-operation-sources/customer-stale-predecessor-v1/reviews/')and expected.get(review['path'])==review.get('sha256'),'SOURCE_REVIEW_RECORD_REQUIRED')
+        reviewed=unique(blobs[review['path']]);need(reviewed.get('decision')=='SOURCE_APPROVED'and reviewed.get('source_files_sha256')==value['source_files_sha256']and reviewed.get('packet_files_sha256')==value['packet_files_sha256'],'SOURCE_REVIEW_RECORD_BINDING')
+    need(value['source_files_sha256']==packet['source_files_sha256'],'SOURCE_VALIDATION_MAP')
+    for name,h in packet['source_files_sha256'].items():need(expected.get(name)==h,'SOURCE_INPUT_NOT_ADMITTED')
+    need(packet['schema']=='workinants.customer-stale-predecessor-fixtures.v1'and packet['status']=='NOT_RUN'and packet['database_posture']=='D'and packet['database_contacted']is False and packet['sql_executed']is False,'SOURCE_ONLY_PACKET')
+    leaves={PACKET+'/'+name:h for name,h in packet['prepared_files_sha256'].items()};leaves[PACKET+'/fixtures.json']=sha(blobs[PACKET+'/fixtures.json'])
+    need(leaves==value['packet_files_sha256']and all(expected.get(name)==h for name,h in leaves.items()),'EXACT_PACKET_FILES')
+    need(packet['case_order']==['wrong-predecessor','skipped-revision','same-grant-second-source-update']and len(packet['cases'])==3,'EXACT_THREE_CASES')
+    def compile_source(path):
+        mod=ModuleType('_customer_stale_'+Path(path).stem.replace('-','_'));mod.__file__=str(root/path);exec(compile(blobs[path],str(root/path),'exec'),mod.__dict__);return mod.__dict__
+    need(sha(blobs[CTX])==CTX_SHA,'EXACT_CTX_TRANSPORT')
+    ctx=compile_source(CTX)
+    need(set(ctx['SOURCE_MODULES'])<=set(blobs),'TRANSITIVE_SOURCE_CLOSURE')
+    ctx['load_helpers']({p:blobs[p]for p in ctx['SOURCE_MODULES']})
+    protocol=compile_source(PROTOCOL);protocol['source_guard'](blobs['review-output/foundation-application.review.sql'])
+    sql={name:blobs[PACKET+'/'+name].decode('utf8')for name in packet['prepared_files_sha256']}
+    return packet,sql,blobs,ctx,protocol
+
+class Evidence:
+    def __init__(self,writer):
+        self.writer=writer;self.value={'schema':'workinants.customer-stale-predecessor-results.v1','status':'NOT_RUN','evidence_complete':True,'current_case':None,'stage':'SOURCE_ONLY','operations':[],'results':[],'first_failure':None}
+    def save(self):
+        try:self.writer(self.value)
+        except BaseException:
+            self.value['evidence_complete']=False
+            if self.value['first_failure']is None:self.value['first_failure']={'stage':'EVIDENCE','code':'PERSISTENCE_UNCONFIRMED'}
+            return False
+        return self.value['evidence_complete']
+    def record(self,record):self.value['operations'].append(record);return self.save()
+    def stage(self,stage):self.value['stage']=stage;need(self.save(),'EVIDENCE_INCOMPLETE')
+    def failure(self,code):
+        if self.value['first_failure']is None:self.value['first_failure']={'stage':self.value['stage'],'code':code}
+        self.value['status']='STOPPED';self.save()
+
+def coordinator_class(ctx,protocol):
+    class Coordinator:
+        def __init__(self,packet,sql,source_blobs,container,native,evidence):
+            need(type(container)is str and re.fullmatch('[0-9a-f]{64}',container),'EXACT_CONTAINER_ID')
+            need(packet['case_order']==list(protocol['CASE_ORDER']),'FIXED_CASE_ORDER')
+            need(type(native)is dict and native.get('format')=='workinants.native-catalog.v1'and type(native.get('server_version_num'))is int and native['server_version_num']==170011 and native.get('read_only')is True and native.get('collected_as')=='postgres'and native.get('collector_is_superuser')is True,'SOURCE_REVIEWED_NATIVE_SNAPSHOT_REQUIRED')
+            self.packet,self.sql,self.blobs,self.container,self.native,self.evidence=packet,sql,source_blobs,container,native,evidence
+            self.live=[];self.grants=[];self.baseline_state=None
+            protocol['source_guard'](source_blobs['review-output/foundation-application.review.sql'])
+        def psql(self,role):
+            need(role in('postgres','wa_context_issuer','wa_app_runtime'),'FIXED_LOGIN')
+            return ctx['API']['psql'](role,self.container)
+        def raw(self,role,text):
+            result=subprocess.run(self.psql(role),input=text,text=True,capture_output=True,timeout=60,shell=False)
+            need(type(result.returncode)is int and result.returncode==0 and type(result.stderr)is str and not result.stderr and type(result.stdout)is str and len(result.stdout.encode())<=16*1024*1024,'INDEPENDENT_QUERY_UNCONFIRMED')
+            return result.stdout.strip()
+        def opened(self,role):
+            # Register the object before init so a constructor failure after
+            # process creation still reaches best-effort close in run.finally.
+            cls=ctx['Session'];session=cls.__new__(cls);self.live.append(session);cls.__init__(session,role,self)
+            session.begin('read committed');backend=session.capture();return session,deepcopy(backend)
+        def close(self,session):
+            record={'stage':'OWNED_OPERATION_CLOSE','attempted':True,'backend_tuple_present':getattr(session,'backend',None)is not None,'closed':False}
+            try:
+                code=session.close();record['closed']=getattr(session,'closed',False)is True and type(code)is int and code==0
+            finally:self.evidence.record(record)
+            need(record['closed'],'OPERATION_CLOSE_UNCONFIRMED')
+        def global_closed(self):
+            record={'stage':'ALL_CLIENT_CLOSURE','scope':'ALL_DATABASES_ROLES_TAGS','attempted':True,'shape_valid':False,'zero':False,'confirmed':False}
+            try:
+                value=unique(self.raw('postgres',GLOBAL_CLIENTS));record['shape_valid']=type(value)is dict and set(value)=={'other_clients'}and type(value['other_clients'])is int and value['other_clients']>=0
+                record['zero']=record['shape_valid']and value['other_clients']==0
+            finally:
+                self.evidence.record(record)
+                record['confirmed']=record['zero']and self.evidence.value['evidence_complete']is True
+                self.evidence.save()
+            need(record['confirmed']and self.evidence.value['evidence_complete'],'GLOBAL_CLOSURE_UNCONFIRMED')
+        def all_closed(self):
+            first=None
+            for s in self.live:
+                if getattr(s,'closed',False):continue
+                try:self.close(s)
+                except BaseException as e:
+                    if first is None:first=e
+            try:self.global_closed()
+            except BaseException as e:
+                if first is None:first=e
+            if first is not None:raise first
+        def call(self,session,sql,stage):
+            self.evidence.stage(stage)
+            receipt={'stage':stage,'response_received':False,'shape_valid':False,'acknowledged':None,'rows':None,'stderr_empty':None}
+            try:
+                result=session.call(sql);receipt['response_received']=True
+                valid=type(result)is tuple and len(result)==3 and protocol['response_shape'](*result);receipt['shape_valid']=valid
+                if valid:receipt.update(acknowledged=result[1],rows=min(len(result[0]),100),stderr_empty=not result[2])
+                need(valid,'OPERATION_RESPONSE_SHAPE');return result
+            finally:self.evidence.record(receipt)
+        def settled_expected_response(self,session,rows,ack):
+            # CTX retains its exact transport. Short stderr may be buffered
+            # until EOF; never judge the guard from the earlier call snapshot.
+            record={'stage':'EXPECTED_RESPONSE_AFTER_OWNED_EXIT','reader_complete':False,'stderr_observed_after_exit':False,'closed':False}
+            failure=None;errors=None
+            try:
+                if ack is True and rows[-1:]==['WA_CSP1_ROLLBACK']:session.active=False
+                if session.process.poll()is None:
+                    session.process.stdin.write(('ROLLBACK;\n'if session.active else'')+'\\q\n');session.process.stdin.close();session.process.wait(timeout=10)
+                for reader in session.readers:reader.join(timeout=5)
+                good=not session.invalid.is_set()and not any(r.is_alive()for r in session.readers)and not any(line for line in list(session.lines.queue))
+                record['reader_complete']=good;need(good,'SETTLED_RESPONSE_INCOMPLETE')
+                errors=''.join(session.errors);need(type(errors)is str and len(errors.encode())<=65536,'SETTLED_DIAGNOSTIC_LIMIT')
+                # The response is now actually observed, not an injected value.
+                session.last_errors=errors;record['stderr_observed_after_exit']=True
+            except BaseException as e:failure=e
+            finally:
+                try:self.close(session);record['closed']=True
+                except BaseException as e:
+                    if failure is None:failure=e
+                self.evidence.record(record)
+            if failure is not None:raise failure
+            return rows,ack,errors
+        def issue(self,template,backend):
+            self.evidence.stage('SEPARATE_ISSUER_COMMIT')
+            identity=str(uuid.uuid4());secret=secrets.token_hex(32);issuer,ib=self.opened('wa_context_issuer')
+            record={'stage':'SEPARATE_ISSUER_COMMIT','acknowledged':False,'created_at_verified':False,'closed':False}
+            failure=None;values=None
+            try:
+                values=ctx['Coordinator'].grant_values(self,template,backend,ib,identity,sha(bytes.fromhex(secret)))
+                rows,ack,errors=self.call(issuer,'INSERT INTO platform.database_action_grant ('+','.join(ctx['GRANT_COLUMNS'])+') VALUES ('+','.join(values[k]for k in ctx['GRANT_COLUMNS'])+") RETURNING jsonb_build_object('created_at',created_at); COMMIT;",'ISSUER_INSERT_AND_COMMIT')
+                record['acknowledged']=ack is True and not errors;need(record['acknowledged'],'ISSUER_COMMIT_UNCONFIRMED')
+                created=ctx['returned_created_at'](rows,ib['clock']);values['created_at']=quote(created)+'::timestamptz';record['created_at_verified']=True
+            except BaseException as e:failure=e
+            finally:
+                try:self.close(issuer);record['closed']=True
+                except BaseException as e:
+                    if failure is None:failure=e
+                self.evidence.record(record)
+            if failure is not None:raise failure
+            need(self.evidence.value['evidence_complete'],'EVIDENCE_INCOMPLETE')
+            self.grants.append({'id':identity,'values':values});return secret
+        def bind(self,session,backend,template):
+            secret=self.issue(template,backend)
+            current=session.capture();same=all(current[k]==backend[k]for k in('login','current_user','database','isolation','pid','xid','started'))
+            self.evidence.record({'stage':'SAME_ACTUAL_APP_TUPLE_AFTER_ISSUER_COMMIT','same':same});need(same,'APPLICATION_TUPLE_CHANGED')
+            rows,ack,errors=self.call(session,'SELECT platform_private.bind_request_context('+quote(secret)+');','BIND_CURRENT_CONTEXT')
+            need(ack is True and rows==[]and not errors and self.evidence.value['evidence_complete'],'CONTEXT_BIND_UNCONFIRMED')
+        def expected(self,text,wanted,stage):
+            self.evidence.stage(stage);value=unique(self.raw('postgres',text));match=canonical(value)==canonical(wanted)
+            self.evidence.record({'stage':stage,'exact_typed_comparison':match});need(match,'EXACT_OBSERVER_MISMATCH')
+        def triggers(self):self.expected(self.sql['all100-trigger-observe.sql'],{'expected':100,'actual':100,'exact':True,'enabled':True},'ALL100_TRIGGER_RESTORATION')
+        def native_same(self):
+            actual=unique(self.raw('postgres',self.blobs[COLLECTOR].decode('utf8')));same=canonical(actual)==canonical(self.native)
+            self.evidence.record({'stage':'NATIVE_SNAPSHOT_PRESERVATION','same':same});need(same,'NATIVE_CATALOG_DRIFT')
+        def snapshot(self):
+            ids=[g['id']for g in self.grants];need(len(ids)<=4 and all(str(uuid.UUID(x))==x and uuid.UUID(x).version==4 for x in ids),'EXACT_ISSUED_GRANT_IDS')
+            excluded='ARRAY['+','.join(quote(x)+'::uuid'for x in ids)+']::uuid[]'if ids else'ARRAY[]::uuid[]'
+            text=self.sql['full42-state-observe.sql'];need(text.count('__EXCLUDED_GRANT_IDS__')==1,'SINGLE_GRANT_EXCLUSION')
+            value=unique(self.raw('postgres',text.replace('__EXCLUDED_GRANT_IDS__',excluded)));valid=protocol['state_shape'](value,self.packet['full42_tables'])
+            self.evidence.record({'stage':'FULL42_STATE','shape_valid':valid,'table_count':42 if valid else None});need(valid,'COMPLETE42_STATE_SHAPE');return value
+        def grant_retention(self):
+            rows=[]
+            for g in self.grants:
+                values=g['values'];comparison=' AND '.join('g.'+k+' IS NOT DISTINCT FROM ('+values[k]+')'for k in ctx['GRANT_COLUMNS'])
+                rows.append('SELECT ('+comparison+") AND g.issuer_service=session_user::text AND g.revoked_at IS NULL AND g.expires_at>clock_timestamp() AS exact FROM platform.database_action_grant g WHERE id="+values['id'])
+            text="SELECT jsonb_build_object('count',count(*),'exact',coalesce(bool_and(exact),false)) FROM ("+' UNION ALL '.join(rows)+") g;"
+            value=unique(self.raw('wa_context_issuer',text));match=canonical(value)==canonical({'count':len(self.grants),'exact':True})
+            self.evidence.record({'stage':'ALL_ISSUER_GRANTS_IMMUTABLE_AND_CURRENT','count':len(self.grants),'exact':match});need(match,'ISSUER_ROWS_CHANGED_OR_STALE')
+        def complete(self):
+            self.global_closed();self.triggers();self.native_same();self.grant_retention()
+            self.expected(self.sql['baseline-observe.sql'],self.packet['baseline_creation_group'],'ORIGINAL_ONE_HISTORY_CREATE_GROUP')
+            current=self.snapshot();same=canonical(current)==canonical(self.baseline_state)
+            self.evidence.record({'stage':'FULL42_ROLLBACK_PARITY','exact':same});need(same,'ROLLBACK_STATE_CHANGED')
+        def setup(self):
+            self.global_closed();self.triggers();self.native_same()
+            need(self.raw('postgres',self.sql['fresh-namespace.sql'])=='t','FRESH_FIXTURE_NAMESPACE')
+            s,_=self.opened('postgres');failure=None
+            try:
+                text=self.sql['trusted-identity-setup.sql'];need(text.startswith('-- Trusted Identity')and '\nBEGIN;\n'in text,'TRUSTED_SETUP_WRAPPER')
+                rows,ack,errors=self.call(s,text.replace('BEGIN;\n','',1),'TRUSTED_IDENTITY_SETUP')
+                need(ack is True and rows==[]and not errors,'TRUSTED_SETUP_COMMIT_UNCONFIRMED')
+            except BaseException as e:
+                failure=e;self.evidence.failure(e.code if type(e)is HeldFailure else'TRUSTED_BASELINE_OPERATION_UNCONFIRMED')
+            finally:
+                try:self.close(s)
+                except BaseException as e:
+                    if failure is None:failure=e
+            self.global_closed();self.triggers();self.native_same()
+            if failure is not None:raise failure
+            app,backend=self.opened('wa_app_runtime');failure=None
+            try:
+                self.bind(app,backend,self.packet['baseline']['grant'])
+                rows,ack,errors=self.call(app,self.sql['baseline-create.sql'],'GENUINE_APP_SH004_CREATE')
+                need(ack is True and rows==['WA_CUSTOMER_CONTROL_READY_TO_COMMIT']and not errors,'GENUINE_CREATE_COMMIT_UNCONFIRMED')
+            except BaseException as e:
+                failure=e;self.evidence.failure(e.code if type(e)is HeldFailure else'TRUSTED_BASELINE_OPERATION_UNCONFIRMED')
+            finally:
+                try:self.close(app)
+                except BaseException as e:
+                    if failure is None:failure=e
+            if failure is not None:raise failure
+            self.global_closed();self.triggers();self.native_same();self.grant_retention()
+            self.expected(self.sql['baseline-observe.sql'],self.packet['baseline_creation_group'],'COMPLETE_ONE_HISTORY_BASELINE')
+            self.baseline_state=self.snapshot()
+        def case(self,name):
+            self.evidence.value['current_case']=name;self.evidence.stage('OPEN_CASE');failure=None;app=None;verdict=None
+            try:
+                app,backend=self.opened('wa_app_runtime');self.bind(app,backend,self.packet['update_grant'])
+                rows,ack,errors=self.call(app,self.sql['visible-revision0.sql'],'INITIAL_RESTRICTED_VISIBILITY')
+                visible=ack is True and not errors and len(rows)==1 and canonical(unique(rows[0]))==canonical({'rows':1,'exact_target':True,'revision_zero':True,'original_fields':True})
+                self.evidence.record({'stage':'VISIBLE_REVISION0_AND_OWNER','exact':visible});need(visible,'INITIAL_VISIBLE_ROW_REQUIRED')
+                if name=='same-grant-second-source-update':
+                    rows,ack,errors=self.call(app,self.sql['first-update-prefix.sql'],'FIRST_UNCOMMITTED_PLUS_ONE')
+                    prefix=ack is True and not errors and len(rows)==1 and canonical(unique(rows[0]))==canonical({'rows':1,'target':True,'revision_one':True})
+                    self.evidence.record({'stage':'FIRST_UNCOMMITTED_PLUS_ONE','exact':prefix,'committed':False});need(prefix,'FIRST_SOURCE_PREFIX_REQUIRED')
+                rows,ack,errors=self.call(app,self.sql[name+'.sql'],'INTENDED_NEGATIVE_AND_EXPLICIT_ROLLBACK')
+                rows,ack,errors=self.settled_expected_response(app,rows,ack)
+                verdict=protocol['compare_result'](name,rows,ack,errors,self.blobs['review-output/foundation-application.review.sql'])
+                self.evidence.record({'stage':'PRE_VERDICT_ALLOWLISTED_COMPARISONS','case':name,**verdict})
+                if verdict['rollback_acknowledged']:app.active=False
+                need(verdict['shape_valid']and verdict['exact_output']and verdict['rollback_acknowledged'],'INTENDED_PREDECESSOR_CONTROL_REQUIRED')
+            except BaseException as e:
+                failure=e;code=e.code if type(e)is HeldFailure else'UNEXPECTED_OPERATION_FAILURE';self.evidence.failure(code)
+            finally:
+                # These operations remain eligible even when writer/metadata fail.
+                try:self.all_closed()
+                except BaseException as e:
+                    if failure is None:failure=e
+            if failure is not None:raise failure
+            need(self.evidence.value['evidence_complete'],'EVIDENCE_INCOMPLETE');self.complete()
+            self.evidence.value['results'].append({'name':name,'status':'PASS_ROLLBACK_CONTROL_ONLY','receipt':verdict});self.evidence.save();need(self.evidence.value['evidence_complete'],'EVIDENCE_INCOMPLETE')
+        def run(self):
+            failure=None
+            try:
+                self.setup()
+                for name in protocol['CASE_ORDER']:self.case(name)
+                need(len(self.evidence.value['results'])==3 and self.evidence.value['evidence_complete'],'FINITE_COMPLETE_EVIDENCE_REQUIRED')
+                self.evidence.value.update(status='PASS_THREE_STALE_PREDECESSOR_ROLLBACK_CONTROLS_ONLY',current_case=None);self.evidence.save();need(self.evidence.value['evidence_complete'],'EVIDENCE_INCOMPLETE')
+            except BaseException as e:
+                failure=e;self.evidence.failure(e.code if type(e)is HeldFailure else'UNEXPECTED_COORDINATOR_FAILURE')
+            finally:
+                try:self.all_closed()
+                except BaseException as e:
+                    if failure is None:failure=e
+                    self.evidence.failure('FINAL_CLOSURE_UNCONFIRMED')
+            if failure is not None:raise failure
+    return Coordinator
+
+def main(argv=None):
+    parser=argparse.ArgumentParser(description=__doc__);parser.parse_args(argv)
+    print(json.dumps({'status':'SOURCE_ONLY_OWNED_OPERATOR_NOT_IMPLEMENTED','runtime_authorized':False}));return 1
+if __name__=='__main__':raise SystemExit(main())

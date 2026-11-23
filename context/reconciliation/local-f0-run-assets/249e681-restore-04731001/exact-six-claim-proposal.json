@@ -1,0 +1,93 @@
+{
+  "approved_manifest_sha256": "77445e3e7abbd40082dcc9b5a8fe6d8f3492c83af1198902ae323aca0b6b3be9",
+  "authority_limit": "Only synthetic credential rotation/Identity SQL revoke0to1/recover1to2 and five quarantined currentness probes. Actual upstream recovery, Privacy reapplication and serving/activation remain unqualified.",
+  "claims": [
+    {
+      "action": "PROPOSE_FOR_SEPARATE_ROOT_ACK_AND_PURE_ADAPTER",
+      "assertion_id": "control.real_backup",
+      "case_id": "P0C-RESTORE-01",
+      "dependency_ids": [],
+      "expected_assertion": "Create a protected real synthetic backup with artifact digest/tool/source/target identities and a manifested fresh restore target.",
+      "expected_assertion_sha256": "f8d7eb3bb2a551566de8ca07ea392ddfcb4c48186bdbb6375f8a8c4c84de4507",
+      "limit": "Candidate real physical artifact only, pending reviewed operator + actual evidence.",
+      "proposed_maximum": "PASS"
+    },
+    {
+      "action": "PROPOSE_FOR_SEPARATE_ROOT_ACK_AND_PURE_ADAPTER",
+      "assertion_id": "control.restored_parity",
+      "case_id": "P0C-RESTORE-01",
+      "dependency_ids": [],
+      "expected_assertion": "Actual restore preserves expected schema, ownership, ledger/checksums and synthetic data; no simultaneous raw-structure/migration application.",
+      "expected_assertion_sha256": "dad5eb44f2a1fefcace3f8fdf9d58b895d19139cd2ef75d24dc03946fde1907e",
+      "limit": "Candidate exact physical schema/data/ledger/authority parity only, pending actual evidence.",
+      "proposed_maximum": "PASS"
+    },
+    {
+      "action": "PROPOSE_FOR_SEPARATE_ROOT_ACK_AND_PURE_ADAPTER",
+      "assertion_id": "control.restored_authority",
+      "case_id": "P0C-RESTORE-01",
+      "dependency_ids": [],
+      "expected_assertion": "Keep target quarantined; independent Identity epoch/revocation/credential procedures precede service activation; stale restored grants fail actual SQL checks.",
+      "expected_assertion_sha256": "4615b1d2ba25a611f90a9887506aaf0e856d186bf544147638a4d60e3b246f1a",
+      "limit": "PARTIAL only: synthetic credential/currentness/tuple simulations; real service activation stays held.",
+      "proposed_maximum": "PARTIAL"
+    },
+    {
+      "action": "NO_LINK_KEEP_DEPENDENCY_BLOCKED",
+      "assertion_id": "control.privacy_reapplication",
+      "case_id": "P0C-RESTORE-01",
+      "dependency_ids": [
+        "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+      ],
+      "expected_assertion": "Actual owner Privacy restriction/restore-marker generation is reapplied before serving; manually seeded markers or a closed harness are not proof of the missing owner port.",
+      "expected_assertion_sha256": "0fdd87e21b25809b6d5f12de2de51ce13c6608508b4da18037e323c1203b2ce2",
+      "limit": "Missing Privacy restore-generation owner port; no vector/whole-case qualification.",
+      "proposed_maximum": null
+    },
+    {
+      "action": "NO_LINK_KEEP_DEPENDENCY_BLOCKED",
+      "assertion_id": "vector.SERVICE-RESTORE.positive",
+      "case_id": "P0C-RESTORE-01",
+      "dependency_ids": [
+        "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+      ],
+      "expected_assertion": "Before any restored service connection, Identity independently revokes/advances every restored service epoch, rotates credentials and issues recovery receipt",
+      "expected_assertion_sha256": "25ebf8cc8fb4361f0b23f22c6b6c38bcfe49e83e3d7d1900b4bbcb10d3fe57f5",
+      "limit": "Missing Privacy restore-generation owner port; no vector/whole-case qualification.",
+      "proposed_maximum": null
+    },
+    {
+      "action": "NO_LINK_KEEP_DEPENDENCY_BLOCKED",
+      "assertion_id": "vector.SERVICE-RESTORE.adversarial",
+      "case_id": "P0C-RESTORE-01",
+      "dependency_ids": [
+        "P0F_PRIVACY_RESTORE_GENERATION_PORT"
+      ],
+      "expected_assertion": "Reuse a restored pre-crash service grant/generation or omit privacy restriction markers",
+      "expected_assertion_sha256": "3ce0187a3ed045dbaaee89f4de5380b2d5a0b8a88a0a2da831cbae85efd3c320",
+      "limit": "Missing Privacy restore-generation owner port; no vector/whole-case qualification.",
+      "proposed_maximum": null
+    }
+  ],
+  "decision": "PROPOSAL_ONLY_ROOT_ACK_REQUIRED_NO_STATUS_WRITES",
+  "maximum_delta": {
+    "PARTIAL": 1,
+    "PASS": 2,
+    "blocked_no_links": 3
+  },
+  "raw_evidence_sha256": "4bf6f996e598d5964634e2510f8b84b26d3de995c2727ffc0662efa2294dc41e",
+  "requirement_inventory_sha256": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+  "reviewer": "/root/review_track_ports",
+  "run_id": "04731001-a27b-4be1-a8ea-ad61e64154a7",
+  "schema": "workinants.restore-v6-exact-six-claim-proposal.v1",
+  "source_admission_normalization": {
+    "actual_source_admission_event": {
+      "stage": "RESTORE-REVIEW",
+      "status": "PASS_SOURCE_ADMISSION_ONLY"
+    },
+    "future_normalized_record": "May add separate source-qualified admission field bound to actual source event/manifest/hash; never rewrite raw step.",
+    "raw_step_RESTORE_REVIEW": "NOT_RUN_PRESERVE"
+  },
+  "source_only_old9cf_cause": "UNOBSERVED; new success does not reconstruct deleted old archive/HBA bytes.",
+  "whole_case": "NOT_RUN"
+}

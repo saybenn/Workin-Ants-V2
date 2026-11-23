@@ -1,0 +1,20 @@
+"""Read-only original checkout preservation evidence."""
+from pathlib import Path
+import datetime,hashlib,json,subprocess
+T=Path(__file__).resolve().parent
+def git(root,*args):
+ p=subprocess.run(['git','--no-optional-locks','-c','core.longpaths=true',*args],cwd=root,capture_output=True,timeout=90)
+ assert p.returncode==0
+ return p.stdout
+result={}
+for label,root in [('original_Windows',Path(r'C:\Users\elijr\source\WorkinAnts-Checkpoint010')),('original_OneDrive',Path(r'C:\Users\elijr\OneDrive\Desktop\Coding\Personal Projects\workin-ants-v2'))]:
+ index=Path(git(root,'rev-parse','--git-path','index').decode().strip())
+ if not index.is_absolute():index=root/index
+ result[label]={'path':str(root),'HEAD':git(root,'rev-parse','HEAD').decode().strip(),'branch':git(root,'branch','--show-current').decode().strip(),'status_porcelain':git(root,'status','--porcelain=v1').decode(),'index_sha256':hashlib.sha256(index.read_bytes()).hexdigest(),'read_only_commands':True}
+assert result['original_Windows']['HEAD']=='8917e2035622017eccd14c99ad7fd2b55740163f'
+assert result['original_Windows']['status_porcelain']==''
+assert ' D context/project-overview-v3.md'in result['original_OneDrive']['status_porcelain'].splitlines()
+v={'schema':'workinants.652-original-checkouts-before-publication.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'checkouts':result,'no_mutations_performed':True}
+p=T/'652_original_checkouts_before_publication_20261123.json'
+with p.open('x',encoding='utf8')as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps({'proof':p.name,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'Windows_clean':True,'OneDrive_existing_deletion_preserved':True}))

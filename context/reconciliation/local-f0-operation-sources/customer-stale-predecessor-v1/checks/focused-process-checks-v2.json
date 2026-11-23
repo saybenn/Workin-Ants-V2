@@ -1,0 +1,33 @@
+{
+  "schema": "workinants.customer-stale-predecessor-focused-process-mocks.v1",
+  "methods": [
+    "test_actual_core_no_initial_visibility_never_counts_wrong_predecessor",
+    "test_core_has_no_standalone_execution_command",
+    "test_actual_core_three_cases_use_real_issuer_tuple_bind_process_flow",
+    "test_actual_core_unexpected_failure_stops_later_cases_and_preserves_partial",
+    "test_wrong_predecessor_actual_CTX_flow_explicit_rollback",
+    "test_skipped_revision_actual_CTX_delayed_stderr_after_exit",
+    "test_second_update_actual_CTX_prior_plus_one_then_exact_rollback",
+    "test_old_error_stop_restoration_rejects_before_rollback_ack",
+    "test_missing_rollback_is_not_manufactured_by_cleanup",
+    "test_unexpected_success_marker_rejects",
+    "test_wrong_guard_and_secret_delayed_error_never_retained",
+    "test_sticky_writer_failure_still_closes_and_global_attempts_without_confirmation"
+  ],
+  "count": 12,
+  "passed": 12,
+  "errors": 0,
+  "failures": 0,
+  "elapsed_seconds": 1.968,
+  "source5_entry_exit_sha256": {
+    "scripts/customer_stale_predecessor_v1_protocol.py": "865f91ba0d82c77a12b8c2da92c4ae489d8029e33bf18c81ce784f6ad4b26115",
+    "scripts/prepare-customer-stale-predecessor-v1.py": "dc6ec7f5033da60817d701c9590492af412d697d574826244fa03f89ebc5eb95",
+    "scripts/sql-review/run-customer-stale-predecessor-v1.py": "93d5f911be4ea3b0ab51ab5d3e1280d114e2ebe6e86314c418e577daaba07e56",
+    "scripts/check-customer-stale-predecessor-v1.py": "2f321b21a88133a29ccc50ccc74f8fc17759903c1953820f6927759792fac8a0",
+    "scripts/sql-review/CUSTOMER-STALE-PREDECESSOR-V1.md": "62dd266c79b9a189741834bb3348fbca8bedfad4a25c5f705e2e952c0164b9c5"
+  },
+  "log": "test_actual_core_no_initial_visibility_never_counts_wrong_predecessor (<run_path>.Checks.test_actual_core_no_initial_visibility_never_counts_wrong_predecessor) ... ok\ntest_core_has_no_standalone_execution_command (<run_path>.Checks.test_core_has_no_standalone_execution_command) ... ok\ntest_actual_core_three_cases_use_real_issuer_tuple_bind_process_flow (<run_path>.Checks.test_actual_core_three_cases_use_real_issuer_tuple_bind_process_flow) ... ok\ntest_actual_core_unexpected_failure_stops_later_cases_and_preserves_partial (<run_path>.Checks.test_actual_core_unexpected_failure_stops_later_cases_and_preserves_partial) ... ok\ntest_wrong_predecessor_actual_CTX_flow_explicit_rollback (<run_path>.Checks.test_wrong_predecessor_actual_CTX_flow_explicit_rollback) ... ok\ntest_skipped_revision_actual_CTX_delayed_stderr_after_exit (<run_path>.Checks.test_skipped_revision_actual_CTX_delayed_stderr_after_exit) ... ok\ntest_second_update_actual_CTX_prior_plus_one_then_exact_rollback (<run_path>.Checks.test_second_update_actual_CTX_prior_plus_one_then_exact_rollback) ... ok\ntest_old_error_stop_restoration_rejects_before_rollback_ack (<run_path>.Checks.test_old_error_stop_restoration_rejects_before_rollback_ack) ... ok\ntest_missing_rollback_is_not_manufactured_by_cleanup (<run_path>.Checks.test_missing_rollback_is_not_manufactured_by_cleanup) ... ok\ntest_unexpected_success_marker_rejects (<run_path>.Checks.test_unexpected_success_marker_rejects) ... ok\ntest_wrong_guard_and_secret_delayed_error_never_retained (<run_path>.Checks.test_wrong_guard_and_secret_delayed_error_never_retained) ... ok\ntest_sticky_writer_failure_still_closes_and_global_attempts_without_confirmation (<run_path>.Checks.test_sticky_writer_failure_still_closes_and_global_attempts_without_confirmation) ... ok\n\n----------------------------------------------------------------------\nRan 12 tests in 1.955s\n\nOK\n",
+  "all_real_processes_and_sockets": "FORBIDDEN",
+  "database_runtime": "NOT_RUN",
+  "limits": "Process model exercises actual CTX Session and emitted psql/update/issuer projections. Historical native fixture is offline context only; genuine baseline creation/full comparator and owned-resource execution remain NOT_RUN."
+}

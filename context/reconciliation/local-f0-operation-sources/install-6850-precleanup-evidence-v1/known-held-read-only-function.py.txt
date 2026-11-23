@@ -1,0 +1,10 @@
+def _read(root,relative,wanted):
+    need(type(relative)is str and relative and not Path(relative).is_absolute()and ':'not in relative and '\\'not in relative and all(x not in('','.','..')for x in relative.split('/')),'RELATIVE_PATH')
+    path=root/relative
+    need(not any(x.is_symlink()for x in(path,*path.parents)if x.is_relative_to(root)),'SYMLINK')
+    need(path.resolve(strict=True).is_relative_to(root),'PATH_ESCAPE')
+    before=path.stat();need(stat.S_ISREG(before.st_mode)and before.st_nlink==1 and 0<=before.st_size<=8*1024*1024,'REGULAR_SINGLE_LINK_BOUNDED_FILE')
+    with path.open('rb')as reader:raw=reader.read(8*1024*1024+1)
+    after=path.stat();need(not path.is_symlink()and (before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns,before.st_nlink)==(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_nlink),'FILE_CHANGED_DURING_READ')
+    need(len(raw)==before.st_size and sh(raw)==wanted,'FILE_BYTES')
+    return raw

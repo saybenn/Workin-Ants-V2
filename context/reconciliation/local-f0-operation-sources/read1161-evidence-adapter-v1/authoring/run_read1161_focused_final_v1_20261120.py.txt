@@ -1,0 +1,12 @@
+from pathlib import Path
+import hashlib,importlib.util,json,time,unittest,sys
+T=Path(__file__).resolve().parent;D=T/'read1161-evidence-adapter-v1-draft-20261120';F=D/'future-root'
+paths=['scripts/local_f0_read1161_evidence.py','scripts/check-local-f0-read1161-evidence.py','scripts/prepare-local-f0-status.py']
+hashes=lambda:{p:hashlib.sha256((F/p).read_bytes()).hexdigest()for p in paths}
+before=hashes();started=time.monotonic()
+spec=importlib.util.spec_from_file_location('read1161_checks',F/paths[1]);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+suite=unittest.defaultTestLoader.loadTestsFromModule(module)
+result=unittest.TextTestRunner(stream=sys.stdout,verbosity=2).run(suite)
+after=hashes();out={'schema':'workinants.Read1161-final-focused-checks.v1','methods':result.testsRun,'passed':result.testsRun-len(result.failures)-len(result.errors)-len(result.skipped),'failed_methods':[t.id()for t,_ in result.failures],'error_methods':[t.id()for t,_ in result.errors],'skipped_methods':[t.id()for t,_ in result.skipped],'seconds':time.monotonic()-started,'source_hashes_at_entry':before,'source_hashes_at_exit':after,'source_bytes_unchanged':before==after,'successful':result.wasSuccessful()and before==after,'process_network_Docker_database_forbidden':True,'actual_Root_status_or_ledger_written':False}
+(D/'final-focused-checks.json').write_text(json.dumps(out,indent=2)+'\n',encoding='utf8',newline='\n')
+raise SystemExit(0 if out['successful']else 1)

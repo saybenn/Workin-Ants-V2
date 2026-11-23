@@ -1,0 +1,105 @@
+"""Preserve audited physical recovery evidence; its three eligible assertion links remain separate."""
+from pathlib import Path
+import datetime,hashlib,json,re,tarfile
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+mp=T/'local-f0-restore-plan-04731001/operation-manifest.json';mb=mp.read_bytes()
+assert sha(mb)=='77445e3e7abbd40082dcc9b5a8fe6d8f3492c83af1198902ae323aca0b6b3be9';m=json.loads(mb)
+out=Path(m['evidence_directory']);assert not(out/'private').exists()and not Path(m['restore']['archive_path']).exists()
+rb=(out/'run-evidence.json').read_bytes();assert sha(rb)=='4bf6f996e598d5964634e2510f8b84b26d3de995c2727ffc0662efa2294dc41e';r=json.loads(rb)
+assert r['status']=='PASS_LOCAL_PHYSICAL_RESTORE_SUBSET_ONLY_FULL_CASE_NOT_RUN'and r['evidence_complete']is True and r['persistence_failure']is False and r['unexpected']==[]
+assert r['steps']['CATALOG-CLEANUP']=='PASS'and r['steps']['RESTORE-CLEANUP']=='PASS_EXACT_OWNED_RESOURCE_AND_ARCHIVE_ABSENCE'
+assert r['restore']['service_activation']is False and r['restore']['physical_artifact_exported']is False
+assert r['restore']['privacy_reapplication']=='NOT_RUN_DEPENDENCY_BLOCKED'
+assert {'stage':'RESTORE-REVIEW','status':'PASS_SOURCE_ADMISSION_ONLY'}in r['events']
+fixed={
+ 'RestoreV6_04731001_independent_closed_actual_audit_20261122.json':'f0902e8850e363bc39f1fb77d3184f6d2ebfd6e08063f762e085149219673b39',
+ 'RestoreV6_04731001_independent_exact_six_claim_proposal_20261122.json':'829e9d4a219af8372bad37c341bfe0822c3756ffd49ff355ae1f5885125901b5',
+ '249e_restore_independent_cleanup_20261120.json':'a579e5f47be7513a43d245564d6876001b7deea6bc461328a0a8f28f017e4ac8'}
+for n,h in fixed.items():assert sha((T/n).read_bytes())==h
+prefix='context/reconciliation/local-f0-run-assets/249e681-restore-04731001'
+assert not(R/prefix).exists();copies={}
+raw_count=json_count=0
+for p in out.rglob('*'):
+ if not p.is_file():continue
+ rel=p.relative_to(out);assert 'private'not in rel.parts and not p.is_symlink()and p.suffix in('.json','.ps1')
+ raw_count+=1;json_count+=int(p.suffix=='.json')
+ copies[prefix+'/evidence/'+rel.as_posix()+('.txt'if p.suffix=='.ps1'else'')]=p.read_bytes()
+assert raw_count==33 and json_count==31
+for p in mp.parent.iterdir():
+ if p.is_file()and p.suffix=='.json':copies[prefix+'/manifest/'+p.name]=p.read_bytes()
+plan=m['migration_targets']['ok'];b=Path(plan['manifest_path']).read_bytes();assert sha(b)==plan['manifest_sha256'];copies[prefix+'/manifest/migration-ok.json']=b
+seven=plan['source_files_sha256'];assert len(seven)==7
+for n,h in seven.items():
+ b=(Path(plan['source_snapshot'])/n).read_bytes();assert sha(b)==h;copies[prefix+'/source-ok/'+n]=b
+archive=Path(plan['source_archive']);ab=archive.read_bytes();assert sha(ab)==plan['source_archive_sha256'];seen=set()
+with tarfile.open(archive,'r:gz')as tar:
+ for member in tar:
+  assert member.isfile()and member.name in seven and member.name not in seen
+  assert sha(tar.extractfile(member).read())==seven[member.name];seen.add(member.name)
+assert seen==set(seven);copies[prefix+'/public-source-only-seven-files.tar.gz']=ab
+five=dict(m['restore']['external_files_sha256']);five['pin_local_f0_restore_hba_bytes_v6_plan_20261120.py']=m['pin_helper_sha256'];assert len(five)==5
+for n,h in five.items():
+ b=(T/n).read_bytes();assert sha(b)==h;copies[prefix+'/external-source/'+n+'.txt']=b
+extra={
+ 'independent-closed-audit.json':'RestoreV6_04731001_independent_closed_actual_audit_20261122.json',
+ 'exact-six-claim-proposal.json':'RestoreV6_04731001_independent_exact_six_claim_proposal_20261122.json',
+ 'independent-cleanup.json':'249e_restore_independent_cleanup_20261120.json',
+ 'independent-literal-review.json':'249e_restore_v6_04731001_independent_exact_literal_review_20261120.json',
+ 'Root-preflight-approval.json':'249e_restore_Root_literal_approval_receipt_20261120.json',
+ 'Root-launch-environment.json':'249e_restore_pinned_environment_launch_receipt_20261120.json',
+ 'Root-preflight-cleanup-helper.py.txt':'control_249e_restore_privilege_exact_literals_20261120.py',
+ 'Root-launcher.py.txt':'launch_249e_restore_privilege_pinned_environment_20261120.py',
+ 'Root-preservation-helper.py.txt':Path(__file__).name}
+for n,p in extra.items():copies[prefix+'/'+n]=(T/p).read_bytes()
+for n,b in copies.items():
+ assert len(b)<8*1024*1024 and (R/n).resolve().is_relative_to(R.resolve())and not(R/n).exists()
+ if not n.endswith('.tar.gz'):
+  assert b'\0'not in b;b.decode('utf-8-sig')
+  assert not re.search(rb'(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)',b)
+ if n.endswith('.json'):json.loads(b,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')))
+for n,b in copies.items():put(R/n,b)
+pins={n:sha(b)for n,b in copies.items()}
+facts={
+ 'real_protected_synthetic_physical_backup':'PASS','source_and_manifest_verify':'PASS',
+ 'restored_before_transition_complete_42_data_ledger_authority_parity':'PASS',
+ 'hba_binary_receipts':len(r['restore']['hba_binary_comparisons']),
+ 'archive_hba_receipts':len(r['restore']['archive_hba_comparisons']),
+ 'basebackup_typed_process_receipts':len(r['restore']['basebackup_process_outcomes']),
+ 'authentication_receipts':len(r['restore']['authentication']),
+ 'global_client_closure_records':len(r['backend_closures']),
+ 'issuer_operations':len(r['restore']['issuer_operations']),
+ 'bound_operations':len(r['restore']['bound_operations']),
+ 'finite_quarantined_simulations':len(r['restore']['probes']),
+ 'source_expected_native_oracle_ledger':'29089/416/22; single genuine initial5ae deployment',
+ 'raw_inherited_RESTORE_REVIEW_step':r['steps']['RESTORE-REVIEW'],
+ 'actual_source_admission_event':'PASS_SOURCE_ADMISSION_ONLY',
+ 'source_admission_normalization_is_separate_from_raw':True,
+ 'source_and_external_inputs_preserved':r['all_source_and_external_inputs_preserved_after_run'],
+ 'exact_three_containers_two_volumes_private_archive_absent':True,
+ 'physical_archive_exported':False,'activation':False,
+ 'Privacy_reapplication':'NOT_RUN_DEPENDENCY_BLOCKED',
+ 'maximum_three_future_claims':{'control.real_backup':'PASS','control.restored_parity':'PASS','control.restored_authority':'PARTIAL'},
+ 'three_dependency_blocked_obligations':'NO_LINK',
+ 'all_other_case_or_owner_provider_activation_qualification':'NOT_RUN',
+ 'original9cf_full_cause_and_deleted_archive_bytes':'UNOBSERVED_NOT_RECONSTRUCTED'}
+record='context/reconciliation/local-f0-restore-249e681-04731001-execution.json'
+v={'schema':'workinants.local-f0-RestoreV6-success-version-qualified-execution.v1',
+ 'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ 'run_id':m['run_id'],'source_commit':m['source_commit'],'source_tree':m['source_tree'],
+ 'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(mb),
+ 'known_executor_exit':{'session':54634,'exit_code':0},
+ 'started_at_utc':r['started_at'],'finished_at_utc':r['finished_at'],
+ 'actual_wrapper_status':r['status'],'actual_steps':r['steps'],'raw_report_sha256':sha(rb),
+ 'raw_report_unchanged':True,'facts':facts,'assets_sha256':pins,
+ 'independent_audit_sha256':fixed['RestoreV6_04731001_independent_closed_actual_audit_20261122.json'],
+ 'independent_cleanup_sha256':fixed['249e_restore_independent_cleanup_20261120.json'],
+ 'qualification':'ACTUAL_PHYSICAL_SUBSET_AUDITED_ELIGIBLE_THREE_REQUIRE_SEPARATE_READER_ADMISSION',
+ 'assertion_links_added':0,'qualification_counts_changed_by_preservation':False,
+ 'Posture':'D','continue_standing_assignment':True}
+put(R/record,enc(v));inventory={'record':record,'record_sha256':sha((R/record).read_bytes()),'assets_sha256':pins,'all_files_sha256':{**pins,record:sha((R/record).read_bytes())},'file_count':len(pins)+1,'assertion_links_added':0,'executable_source_or_Git_changed':False,'Posture':'D'}
+ip=T/'249e_RestoreV6_04731001_success_preserved_inventory_20261122.json';put(ip,enc(inventory))
+print(json.dumps({'inventory':ip.name,'inventory_sha256':sha(ip.read_bytes()),'record_sha256':inventory['record_sha256'],'assets':len(pins),'assertion_links_added':0}))

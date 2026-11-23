@@ -1,0 +1,45 @@
+"""Assemble private one-claim reader from closed actual bytes; never Root writes."""
+import ast,hashlib,json,pprint
+from pathlib import Path
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';F=T/'install6850-precleanup-evidence-reader-private-candidate-20261120';D=F/'workinants-correction-pass';A='context/reconciliation/local-f0-operation-sources/install-6850-precleanup-evidence-v1';B='context/reconciliation/local-f0-run-assets/0ff2a91-install-6850ee4c';REC='context/reconciliation/local-f0-install-0ff2a91-6850ee4c-execution.json';DERIVED='context/reconciliation/local-f0-install-0ff2a91-6850ee4c-precleanup-qualified-evidence.json'
+sha=lambda b:hashlib.sha256(b).hexdigest();canonical=lambda x:json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)
+def read(p):return json.loads(p.read_bytes())
+def write(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ if p.exists():assert p.read_bytes()==b,str(p)
+ else:
+  with p.open('xb')as f:f.write(b)
+inv=T/'0ff_INSTALL6850_audited_success_preserved_inventory_20261120.json';assert sha(inv.read_bytes())=='5bf4b879b0bbdfaa685765e6b4b925a0d4bc7bc09f7e7de99d2c0e8528247fcd';i=read(inv)
+planpath=T/'install_v5_6850ee4c_single_assertion_admission_plan_Catalog_v2_20261120.json';assert sha(planpath.read_bytes())=='fe0d8719f0b3fa90ef758a4072e098ea5f1cbb0defb33da5fda62301daca3b4e';proposal=read(planpath)
+for n,h in i['all_files_sha256'].items():
+ raw=(R/n).read_bytes();assert sha(raw)==h;write(D/n,raw)
+write(D/A/'normalized-record-inventory111.json',inv.read_bytes())
+for source,dest in [(R/B/'independent-closed-final-audit.json',D/A/'independent-final-actual-audit.json'),(R/B/'independent-explicit-seven-field-decision-receipt.json',D/A/'Catalog-explicit-recovery-decision-receipt.json'),(planpath,D/A/'exact-one-claim-admission-plan.json')]:write(dest,source.read_bytes())
+audit_paths=[A+'/prior671-ledger.json',A+'/prior638-status.json',A+'/independent-final-actual-audit.json',A+'/Catalog-explicit-recovery-decision-receipt.json',A+'/exact-one-claim-admission-plan.json',A+'/normalized-record-inventory111.json']
+audit_pins={n:sha((D/n).read_bytes())for n in audit_paths}
+record=read(D/REC);raw=read(D/B/'evidence/run-evidence.json');child=read(D/B/'evidence/install-controls/install-controls-results.json');prior=read(D/A/'prior671-ledger.json')
+assert len(prior['assertions'])==671
+claim=('P0C-INSTALL-02','vector.FUNCTION-ACL-FAILURE-CLEANUP.adversarial');old=next(x for x in prior['assertions']if(x['case_id'],x['assertion_id'])==claim);assert old==proposal['previous_row']
+scope='Exact observed INSTALL failed-after-function-setup/precleanup activation refusal and rollback/authority cleanup only. No full case,42-row business data,owner/API,worker,hosted or production readiness claim.'
+limits={'Posture':'D','maximum_claims':1,'current_rows_added':0,'only_existing_PARTIAL_replaced':True,'full_prior_PARTIAL_preserved':True,'whole_case_promoted':False,'business_COMPLETE42_claimed':False,'owner_API_claimed':False,'worker_loop_claimed':False,'other_links_rerecorded':False}
+pieces=[]
+def piece(path,pointer,why):pieces.append({'path':path,'sha256':sha((D/path).read_bytes()),'json_pointer':pointer,'required_piece':why})
+cp=B+'/evidence/install-controls/install-controls-results.json'
+for v in('division_failure','late_function_grant'):
+ for key in('failed_precleanup_activation','failed_precleanup_closures','failure_verdict','original_cleanup','authority'):
+  piece(cp,'/targets/'+v+'/'+key,'Exact actual '+v+' '+key+'; precleanup10/closure15 then original grantor0/noCREATE.')
+piece(B+'/evidence/install-controls/rollback-proof-for-review.json','/application_inventory','Division failure complete zero-object inventory before reviewed recovery.')
+piece(cp,'/targets/late_function_grant/inventory','Late function-permission failure complete zero-object rollback.')
+piece(B+'/independent-cleanup.json','/exact_name_observations','Independent exact six resources absent; private credentials deleted.')
+piece(B+'/evidence/run-evidence.json','/install/coordinator_reference','Original raw child hash/length before native and after all postchecks.')
+newclaim={'case_id':claim[0],'assertion_id':claim[1],'status':'PASS','expected_assertion_sha256':proposal['expected_assertion_sha256'],'complete_source_assertion_sha256':proposal['complete_source_assertion_sha256'],'action':'REPLACE_ONLY_EXISTING_PARTIAL_KEEP_PRIOR_HISTORY','prior_evidence':old,'prior_evidence_sha256':sha(canonical(old).encode()),'evidence_pieces':pieces,'scope_ceiling':scope}
+kind='DERIVED_REVIEWED_INSTALL6850_PRECLEANUP_ONE_ASSERTION_ONLY'
+derived={'schema':'workinants.install6850-precleanup-derived-evidence.v1','derivation':'EXPLICIT_DERIVED_WRAPPER_NOT_RAW_RUNTIME_EVIDENCE','actual_result':kind,'run_id':proposal['run_id'],'source_commit':proposal['source_commit'],'source_tree':proposal['source_tree'],'packet_sha256':proposal['packet_sha256'],'source_record':{'path':REC,'sha256':i['record_sha256'],'packet_alias_from':'operation_packet_sha256'},'independent_audit_files_sha256':audit_pins,'preserved_prior_ledger':{'path':A+'/prior671-ledger.json','sha256':audit_pins[A+'/prior671-ledger.json'],'rows':671},'claims':[newclaim],'limits':limits}
+write(D/DERIVED,(json.dumps(derived,indent=2,sort_keys=True)+'\n').encode())
+pins={**proposal['source_packet_files_sha256'],**i['all_files_sha256'],**audit_pins,DERIVED:sha((D/DERIVED).read_bytes())}
+constants={'B':B,'REC':REC,'ARCHIVE':A,'DERIVED':DERIVED,'RUN':proposal['run_id'],'COMMIT':proposal['source_commit'],'TREE':proposal['source_tree'],'PACKET':proposal['packet_sha256'],'CLAIM':claim,'ASSERTION_SHA':proposal['expected_assertion_sha256'],'KIND':kind,'PINS':dict(sorted(pins.items())),'AUDIT_PINS':audit_pins,'ASSET_PINS':i['assets_sha256'],'SOURCE_PINS':proposal['source_packet_files_sha256'],'FIVE':proposal['operator_sources_sha256'],'IDENTITY':{k:proposal[k]for k in('run_id','source_commit','source_tree','packet_sha256')},'SQL':{'canonical':'5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad','division_failure':'dd088298a5ffc9b42543c249fd433d7de1d22cabcc9ec108f928737c346b8c5c','late_function_grant':'bb41107428c6a2868abe402c28d14554cfb073113f5687f806b395366189a61f'},'CIDS':{v:read(D/B/'evidence/install-coordinator-run-plan.json')['targets'][v]['container_id']for v in child['targets']},'VARIANTS':('canonical','division_failure','late_function_grant'),'RUNTIME':('wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker'),'PHASE':'POST_FAILED_DEPLOY_PRE_ORIGINAL_GRANTOR_FINALIZATION','MIGRATION':'20261117000100_f0_local_initial','COUNT_FIELDS':('registered','division_22012','function_42501','secondary_25p02','other_migrator_error','malformed','forbidden_body'),'FALSE_GATE':{'install_closed_success':False,'original_cleanup_verified':False,'activated':False},'INACTIVE':{'runtime_roles':4,'all_null_verifiers':True,'flags_exact':True},'AUTHORITY3':{'temporary_memberships':3,'exact_temporary_options':True,'leaf_create':False,'permanent_migrator_edge':True},'AUTHORITY0':{'temporary_memberships':0,'exact_temporary_options':True,'leaf_create':False,'permanent_migrator_edge':True},'CLEANUP':{'original_grantor':'postgres','temporary_memberships':0,'leaf_create':False,'other_clients':0},'CLOSED':{'scope':'ALL_DATABASES_ALL_ROLES_ALL_APPLICATION_NAMES','observation_completed':True,'all_other_clients_absent':True},'CLI_FIELDS':set(child['targets']['canonical']['cli_canonical_deploy']),'PARENT_FIELDS':set(raw),'CHILD_FIELDS':set(child),'RECORD_FIELDS':set(record),'TARGET_FIELDS':{v:set(x)for v,x in child['targets'].items()},'DERIVED_FIELDS':set(derived),'EVIDENCE_PIECES':pieces,'SCOPE':scope,'LIMITS':limits}
+source=(R/'scripts/local_f0_install_evidence.py').read_text(encoding='utf8');nodes={n.name:n for n in ast.parse(source).body if isinstance(n,ast.FunctionDef)};names=['_typed_json','pointer','semantic_view','_read','_capture'];helpers='\n\n'.join(ast.get_source_segment(source,nodes[n])for n in names)
+body=(F/'reader-body.py.txt').read_text(encoding='utf8');assert body.count('# GENERATED_CLOSED_CONSTANTS')==body.count('# REVIEWED_CLOSED_READER_AND_SEMANTIC_HELPERS')==1
+rendered=body.replace('# GENERATED_CLOSED_CONSTANTS','\n'.join(n+'='+pprint.pformat(v,sort_dicts=True,width=110)for n,v in constants.items())).replace('# REVIEWED_CLOSED_READER_AND_SEMANTIC_HELPERS','# Static copies of reviewed pure helpers; old module remains byte-identical.\n'+helpers)
+ast.parse(rendered);module=D/'scripts/local_f0_install_precleanup_evidence.py';module.parent.mkdir(exist_ok=True);module.write_text(rendered,encoding='utf8',newline='\n')
+print(json.dumps({'private_module':str(module),'module_sha256':sha(module.read_bytes()),'pins':len(pins),'bytes':sum((D/n).stat().st_size for n in pins),'derived_sha256':pins[DERIVED],'Root_written':False,'source_gates':'PENDING'}))

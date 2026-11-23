@@ -1,0 +1,60 @@
+{
+  "schema": "workinants.historical-install-bridge-independent-focused-checks.v1",
+  "reviewer": "/root/historical_install_bridge_review",
+  "source_files_sha256": {
+    "scripts/local_f0_install_historical_bridge_v1.py": "50532553ac6ad3fdcf2bb13d0da952698d7db2cd90e062fb944ef7c545e3e521",
+    "scripts/prepare-local-f0-status.py": "6c049d7eaaf0d2d001e51b1faab70a215a26579f7d6f10467e0df0723c26b5e4",
+    "scripts/local_f0_install_evidence.py": "8a0c784a0b49689a3593cac253323b6f8e30dd3082a134273b44fc71bff3db80",
+    "scripts/local_f0_read1161_evidence.py": "00ac6f4b1a6103c90afe272a4fe0a8f2135dc170af58efe47ca047ac2b03e38a",
+    "scripts/local_f0_install_precleanup_evidence.py": "c40fdf84b6f23a512dcc1341d1a30b0f18de587babee579d3db5bc47ebaf2453",
+    "context/reconciliation/local-f0-assertion-evidence.json": "f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f"
+  },
+  "methods": 9,
+  "passed": 9,
+  "results": [
+    {
+      "method": "test_01_actual_old_five_batch_rejects_missing_historical_claim",
+      "status": "PASS"
+    },
+    {
+      "method": "test_02_actual_old_batch_accepts_four_plus_exact_historical_partial_and_final_barrier",
+      "status": "PASS"
+    },
+    {
+      "method": "test_03_current_scope_and_absent_old_batch_reject",
+      "status": "PASS"
+    },
+    {
+      "method": "test_04_forged_full_embedded_history_or_archive_link_rejects",
+      "status": "PASS"
+    },
+    {
+      "method": "test_05_new_claim_history_shapes_and_binding_reject",
+      "status": "PASS"
+    },
+    {
+      "method": "test_06_real_closed_reads_reject_changed_archive_and_old_record_bytes",
+      "status": "PASS"
+    },
+    {
+      "method": "test_07_exact_old_validator_arguments_and_failure_remain_fail_closed",
+      "status": "PASS"
+    },
+    {
+      "method": "test_08_only_three_builder_insertions_and_unchanged_old_reader",
+      "status": "PASS"
+    },
+    {
+      "method": "test_09_actual_dispatch_validates_new_claim_first_and_cannot_launder_rejected_new_evidence",
+      "status": "PASS"
+    }
+  ],
+  "seconds": 54.297,
+  "all_source_bytes_unchanged": true,
+  "actual_old_five_claim_batch_constructor_and_final_fresh_barrier_exercised": true,
+  "full671_or684_builder_run": false,
+  "only_test_boundary_witnesses_for_focused_argument_and_rejection_checks": true,
+  "internal_process_network_Docker_database_calls_forbidden": true,
+  "Root_mutations": false,
+  "Posture": "D"
+}

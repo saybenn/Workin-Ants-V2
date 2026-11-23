@@ -1,0 +1,60 @@
+"""Preserve the independently audited stopped V8 attempt; no assertion promotion."""
+from pathlib import Path
+import collections,datetime,hashlib,json,re,tarfile
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+mp=T/'local-f0-privilege-ceiling-plan-a8dc4614/operation-manifest.json';mb=mp.read_bytes();assert sha(mb)=='92a6cd57c9ce1d95a9a30bcc3790c1a6cf232e36704942d6470aa608bbbfa63c';m=json.loads(mb)
+out=Path(m['evidence_directory']);assert not(out/'private').exists()
+rb=(out/'run-evidence.json').read_bytes();cb=(out/'privilege-ceiling-component/privilege-ceiling-results.json').read_bytes()
+assert sha(rb)=='d78e9a18ebe33325d26e141f8dc780d52aad67185146908f2b14266bd8ee568f'and sha(cb)=='00c961d57432d3959f151570db46c4b8a45912cf89604e864bb95b579469675b'
+r=json.loads(rb);c=json.loads(cb)
+assert r['status']=='STOPPED_ATTEMPT_PRESERVED'and r['evidence_complete']is True and r['cleanup_actions_confirmed']is True and r['finished_at']
+assert c['evidence_complete']is True and c['subsequent_cases_stopped']is True and len(c['results'])==182 and len(c['operations'])==227
+assert c['original_failure']=={'stage':'PRIVILEGE_NEGATIVE_OPERATION','case':'PROVIDER-SCHEMA-anon-app','phase':'VERDICT','code':'INTENDED_PRIVILEGE_GUARD_NOT_PROVEN'}
+assert len(c['global_client_boundaries'])==780 and len(r['backend_closures'])==17
+for k in('packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_sources_unchanged_after_run','external_inputs_unchanged_after_run'):assert r[k]is True
+assert all(r['sanitization'][k]is False for k in('actual_password_values_found','unrestricted_subprocess_output_persisted','raw_context_handles_persisted'))
+fixed={'privilege_v8_a8dc4614_independent_closed_actual_audit_final_20261122.json':'750c280564b83991fe17294ce1c9423566107152711b3eee17049263c16f26a5','privilege_v8_a8dc4614_closed_source_facts_next_plan_final_20261122.json':'69ea47a0f4393be5792abee2e523500584130045c6a024709138622a9ffb67c0','249e_privilege_independent_cleanup_20261120.json':'11691ec72b90a9b2bbf96647deefbe0a214f865b61705f6d5fafe060d0dca81a'}
+for n,h in fixed.items():assert sha((T/n).read_bytes())==h
+prefix='context/reconciliation/local-f0-run-assets/249e681-privilege-a8dc4614';assert not(R/prefix).exists();copies={}
+raw_names=[]
+for p in out.rglob('*'):
+ if not p.is_file():continue
+ rel=p.relative_to(out);assert 'private'not in rel.parts and not p.is_symlink()and(p.suffix=='.json'or rel.as_posix()=='set-private-acl.ps1')
+ raw_names.append(rel.as_posix());copies[prefix+'/evidence/'+rel.as_posix()+('.txt'if p.suffix=='.ps1'else'')]=p.read_bytes()
+assert len(raw_names)==19 and sum(n.endswith('.json')for n in raw_names)==18
+for p in mp.parent.iterdir():
+ if p.is_file()and p.suffix=='.json':copies[prefix+'/manifest/'+p.name]=p.read_bytes()
+plan=m['migration_targets']['ok'];p=Path(plan['manifest_path']);b=p.read_bytes();assert sha(b)==plan['manifest_sha256'];copies[prefix+'/manifest/migration-ok.json']=b
+seven=plan['source_files_sha256'];assert len(seven)==7
+for n,h in seven.items():
+ b=(Path(plan['source_snapshot'])/n).read_bytes();assert sha(b)==h;copies[prefix+'/source-ok/'+n]=b
+archive=Path(plan['source_archive']);ab=archive.read_bytes();assert sha(ab)==plan['source_archive_sha256']
+with tarfile.open(archive,'r:gz')as tar:
+ seen=set()
+ for member in tar:
+  assert member.isfile()and member.name in seven and member.name not in seen;seen.add(member.name)
+  assert sha(tar.extractfile(member).read())==seven[member.name]
+ assert seen==set(seven)
+copies[prefix+'/source-ok.tar.gz']=ab
+for n,h in m['privilege_ceiling']['external_files_sha256'].items():
+ b=(T/n).read_bytes();assert sha(b)==h;copies[prefix+'/external-source/'+n+'.txt']=b
+extra={'independent-cleanup.json':'249e_privilege_independent_cleanup_20261120.json','independent-literal-review.json':'249e_privilege_v8_a8dc4614_independent_exact_literal_review_20261120.json','Root-literal-approval.json':'249e_privilege_Root_literal_approval_receipt_20261120.json','Root-launch-environment.json':'249e_privilege_pinned_environment_launch_receipt_20261120.json','independent-closed-audit.json':'privilege_v8_a8dc4614_independent_closed_actual_audit_final_20261122.json','source-facts-next-plan.json':'privilege_v8_a8dc4614_closed_source_facts_next_plan_final_20261122.json','Root-next-source-plan-ACK.json':'privilege_v9_formatting_Root_source_plan_ACK_20261122.json','Root-launcher.py.txt':'launch_249e_restore_privilege_pinned_environment_20261120.py','Root-preflight-and-cleanup.py.txt':'control_249e_restore_privilege_exact_literals_20261120.py','Root-preservation-helper.py.txt':Path(__file__).name}
+for n,source in extra.items():copies[prefix+'/'+n]=(T/source).read_bytes()
+for n,b in copies.items():
+ assert len(b)<8*1024*1024
+ if not n.endswith('.tar.gz'):
+  assert b'\0'not in b;b.decode('utf-8-sig')
+  assert not re.search(rb'(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{60,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)',b)
+ if n.endswith('.json'):json.loads(b,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')))
+ assert (R/n).resolve().is_relative_to(R.resolve())and not(R/n).exists()
+for n,b in copies.items():put(R/n,b)
+pins={n:sha(b)for n,b in copies.items()}
+facts={'completed_finite_contrasts':182,'total_planned_contrasts':200,'last_completed_case':c['results'][-1]['case'],'stopped_case':'PROVIDER-SCHEMA-anon-app','provider_contrasts_qualified':0,'provider_first_attempted_stopped':1,'provider_subsequent_NOT_RUN':17,'completed_operations':227,'all_operation_backends_closed_before_observers':True,'child_global_boundaries_confirmed':780,'outer_global_closures_confirmed':17,'native_validity_controls':len(c['native_controls']),'definer_metadata_controls':len(c['definer_metadata']),'issuer_protocols':len(c['issuer_protocols']),'facets_linked':len(c['facets']),'original_grantor_finalization':'PASS','native_comparison':'PASS_29089_CHECKS','oracle_comparison':'PASS_416_EXPRESSIONS','ledger_comparison':'PASS_22_CHECKS','source_inputs_and_reference_postchecks_unchanged':True,'physical_cleanup_independently_confirmed':True,'exact_actual_primary_and_native_location':'UNOBSERVED_NOT_RETAINED','nonCREATE_receipt_aggregate_alias_bits':'NOT_INDEPENDENT_MEASURED_MISMATCHES','source_analysis':'The admitted one-line BEGIN/SELECT/ROLLBACK provider template has no eligible line for the unchanged source-position projector. This is a proven projection limitation consistent with the stop; it does not identify the actual primary/native ACL error.','no_retroactive_pass_or_whole_case_promotion':True}
+record='context/reconciliation/local-f0-privilege-249e681-a8dc4614-execution.json'
+v={'schema':'workinants.local-f0-privilege-V8-stopped-version-qualified-execution.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'run_id':m['run_id'],'source_commit':m['source_commit'],'source_tree':m['source_tree'],'operation_packet_sha256':m['packet_sha256'],'operation_manifest_sha256':sha(mb),'known_executor_exit':{'session':55340,'exit_code':1,'terminal_result_observed_on':'2026-11-22'},'started_at_utc':r['started_at'],'finished_at_utc':r['finished_at'],'actual_wrapper_status':r['status'],'actual_steps':r['steps'],'raw_parent_sha256':sha(rb),'raw_child_sha256':sha(cb),'raw_reports_unchanged':True,'facts':facts,'assets_sha256':pins,'independent_audit_sha256':fixed['privilege_v8_a8dc4614_independent_closed_actual_audit_final_20261122.json'],'independent_cleanup_sha256':fixed['249e_privilege_independent_cleanup_20261120.json'],'qualification':'COMPLETED_PREFIX_PRESERVED_REQUIRES_BOUNDED_EVIDENCE_ADMISSION_NO_ASSERTION_PROMOTION','assertion_links_added':0,'qualification_counts_changed_by_preservation':False,'all_unexercised_cases_remain_NOT_RUN':True,'Posture':'D','continue_standing_assignment':True};put(R/record,enc(v))
+inventory={'record':record,'record_sha256':sha((R/record).read_bytes()),'assets_sha256':pins,'all_files_sha256':{**pins,record:sha((R/record).read_bytes())},'file_count':len(pins)+1,'assertion_links_added':0,'executable_source_or_Git_changed':False,'Posture':'D'}
+ip=T/'249e_V8_a8dc_closed_attempt_preserved_inventory_20261122.json';put(ip,enc(inventory));print(json.dumps({'inventory':ip.name,'inventory_sha256':sha(ip.read_bytes()),'record_sha256':inventory['record_sha256'],'assets':len(pins),'assertion_links_added':0}))

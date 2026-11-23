@@ -1,0 +1,266 @@
+{
+  "schema": "workinants.runtime-lease-two-history-effective-catalog-source-plan.v1",
+  "author": "/root/catalog_v4_review",
+  "decision": "PLAN_ONLY_REQUIRES_ROOT_ACK_AND_DISTINCT_PLAN_REVIEW_BEFORE_IMPLEMENTATION",
+  "scope": "NEW_PROVISIONAL_LOCAL_TWO_MIGRATION_HISTORY_AND_SOURCE_DERIVED_EFFECTIVE_CATALOG_MACHINERY",
+  "implementation_started": false,
+  "database_contacted": false,
+  "sql_executed": false,
+  "source_gates": "PENDING",
+  "runtime": "NOT_RUN",
+  "Posture": "D",
+  "basis": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\runtime_lease_two_history_v1_static_plan_basis_20261120.json",
+    "sha256": "d3c18333752cb3c9e527781eb26880d4e54ae90a6a61432539df3b2866749799",
+    "live_static_source_paths": 33,
+    "reviewed_inactive_branch_files": 57,
+    "branch_delivery_sha256": "1a60d3ebaf89112e2d6dbe85858a6a28f6e8a0973c25bfb28e0c27374051679e",
+    "separate_Track_branch_review_sha256": "3f7b1eae1ccdb9a166df513c47224fab359156ff60419bc2943b3372ca348eb0"
+  },
+  "problem_and_limits": {
+    "observed_App_0a": "Actual42501 attributed to original runtime_transition body10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038 line33; no reconstruction of old8f2a complete cause.",
+    "source_repair": "Reviewed inactive append49c nests leased-exit checks so pending app timestamp-only work does not evaluate an app-inaccessible lease helper. This plan does not revise that patch or permissions.",
+    "not_an_execution_approval": true,
+    "not_a_corrected_App_or_Worker_qualification": true,
+    "old_history_relabeling_forbidden": true
+  },
+  "immutable_migration_sources": [
+    {
+      "order": 1,
+      "id": "20261117000100_f0_local_initial",
+      "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "original_path": "prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql",
+      "new_path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261117000100_f0_local_initial/migration.sql"
+    },
+    {
+      "order": 2,
+      "id": "20261120000100_f0_runtime_lease_branch_v1",
+      "sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+      "source_artifact": "review-output/runtime-lease-branch-v1/history-source-artifact/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+      "new_path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+      "body_sha256": "dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965",
+      "transaction_envelope": "Exact append owns one BEGIN, SET LOCAL ROLE wa_schema_owner, one CREATE OR REPLACE FUNCTION, RESET ROLE and final COMMIT."
+    }
+  ],
+  "preservation": {
+    "before_implementation": "Exclusively snapshot all basis33, frozen57, delivery/reviews/plan+ACK and any new-family previous drafts/failed logs before the first edit. Rehash entry/end. All new code/history/assets stay in a private futureRoot until separate code review/Root admission.",
+    "original_initial_and_June_bytes": "Initial5ae and June5b4f44a1b1f989743df227c487a6ecb3dd793e9915d9a635d8e32b99304b2055 remain byte-identical in original paths. Existing applied checksums never change.",
+    "existing_sources": "Old single-history7, default config/prepare/guard/runner/collector/comparator/ledger proof, old expected3be/template9ad, source SQL8fc and all historical operation/evidence/readers remain unchanged. No old raw/source labels or status rows are rewritten.",
+    "old_existing_history_manifest": "Historical55d6-run declaration is preserved as recorded; fresh current runtime hashes and a fresh run-bound manifest are generated, not inferred by reusing its stale run identity."
+  },
+  "inspected_hardcodes": [
+    {
+      "path": "scripts/prepare-local-f0-history.py",
+      "sha256": "33fe46e1b50c8d808ffb95b60cc42750e795582e6a1b15fb82f4fe93321281f8",
+      "line": 81,
+      "current_assumption": "One migration{id,history}, exact old path, one source script and two emitted history leaves. Runtime3+schema+2leaves = six declared files; manifest adds seventh archive member.",
+      "bounded_new_behavior": "NEW typed two-entry ordered history manifest/preparer, exact raw file hashes, three emitted history leaves and eight-member public archive; old helper unchanged."
+    },
+    {
+      "path": "prisma.local-f0.config.mjs",
+      "sha256": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+      "line": 3,
+      "current_assumption": "Default imports old guard; schema/migrations are guarded values.",
+      "bounded_new_behavior": "NEW explicit config imports ONLY new guard and its new migration directory; never use or edit the old/default config."
+    },
+    {
+      "path": "scripts/sql-review/local-f0-migrate-guard.mjs",
+      "sha256": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+      "line": 95,
+      "current_assumption": "Hardcoded old history path, migration_id, six exact declared files and single migration+lock directory inventory.",
+      "bounded_new_behavior": "NEW exact ordered2 schema; seven declared files+manifest, full physical closure and exact source8; no fallback to old ONE_HISTORY_REQUIRED path."
+    },
+    {
+      "path": "scripts/sql-review/local-f0-migrate-runner.mjs",
+      "sha256": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+      "line": 25,
+      "current_assumption": "Operations include single-migration resolve-rolled-back and old migrationId.",
+      "bounded_new_behavior": "NEW deploy/status-only runner. Resolve-applied/resolve-rolled-back, baselining, reset, db push, custom SQL, alternate config and all recovery commands refuse."
+    },
+    {
+      "path": "scripts/sql-review/run-local-f0-migrate.py",
+      "sha256": "4b929dd8c46fea0fa0e09f92cf54e8bb37db194a9ce5c6fd02c0e91542d7909f",
+      "line": 18,
+      "current_assumption": "Imports old preparation API, copies exactly old runtime3, invokes old runner; rollback proof binds a single migration.",
+      "bounded_new_behavior": "NEW namespace loader/wrapper with same safe target/image/mount/source/closure checks, new runtime3/manifest and source-bound two-row evidence. No borrowed old recovery proof."
+    },
+    {
+      "path": "scripts/prepare-native-catalog-review.py",
+      "sha256": "cef4f4f191e478593a679e9b86c7eee410531b01501a896c0b6f0e1bc1ac4fa2",
+      "line": 176,
+      "current_assumption": "Default generator requires semantic expected3be81 and old closed input/module maps; prepares six native assets.",
+      "bounded_new_behavior": "NEW source-registered wrapper derives a distinct effective expected hash and assets without changing this default or learning expected definitions from actual catalogs."
+    },
+    {
+      "path": "scripts/sql-review/catalog_manifest.py",
+      "sha256": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+      "line": 727,
+      "current_assumption": "build_manifest reads exact eight inputs and consumes bootstrap/application/finalize; _function331 already handles replace but assigns current owner and preserves ACL object state only for existing identities.",
+      "bounded_new_behavior": "NEW explicit ordered-source compiler API consumes bootstrap -> initial -> exact append -> finalization; narrowly validates the one replacement and preserves owner/ACL/header invariants. No global INPUTS monkeypatch or file aliasing."
+    },
+    {
+      "path": "scripts/sql-review/catalog_expression_oracle.py",
+      "sha256": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+      "line": 175,
+      "current_assumption": "Generic plan accepts supplied expected manifest and binds its semantic hash/input map; module source closure is separately pinned.",
+      "bounded_new_behavior": "Reuse unchanged code if actual new supplied-manifest tests prove it generic. Recompute full plan/SQL/hash and require the new effective-body preflight; count is measured, not borrowed."
+    },
+    {
+      "path": "scripts/sql-review/compare_native_catalog.py",
+      "sha256": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+      "line": 198,
+      "current_assumption": "Generic supplied-manifest comparator; line504 recognizes a registered real Prisma ledger exception and invokes generic proof.",
+      "bounded_new_behavior": "Reuse unchanged comparator and SQL collector behind closed new loader, if tests prove exact new expected/registration binding and complete old-template rejection."
+    },
+    {
+      "path": "scripts/sql-review/prisma_ledger_proof.py",
+      "sha256": "1cb05b1d82b67580671cccf5f9289fbc481fef2d77532b049658912428604b21",
+      "line": 102,
+      "current_assumption": "build_registration already accepts bounded multiple exact source paths/states/counts; compare_proof244 compares full safe history multiset.",
+      "bounded_new_behavior": "Reuse unchanged generic implementation with a narrow NEW two-row policy wrapper and independent before/noop full-row fingerprints. A two-row ledger is not the old single-row registration."
+    },
+    {
+      "path": "scripts/sql-review/collect_native_catalog.sql",
+      "sha256": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+      "line": 1,
+      "current_assumption": "Read-only collector includes actual function body/header/owner/ACL and full catalog object sets.",
+      "bounded_new_behavior": "Keep byte-identical. Compare against source-derived effective manifest, not the old initial-only expected digest or a post-install learned baseline."
+    },
+    {
+      "path": "scripts/sql-review/collect_prisma_ledger.sql",
+      "sha256": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+      "line": 1,
+      "current_assumption": "Generic guarded private-ledger layout plus safe history rows; safe history deliberately omits raw IDs/timestamps.",
+      "bounded_new_behavior": "Keep byte-identical. Supplement with new bounded read-only per-row/all8column hashes to establish no-op row identity/full-field preservation, not just UUID-format flags."
+    }
+  ],
+  "new_code_paths": [
+    "scripts/prepare-local-f0-runtime-lease-history-v1.py",
+    "prisma.local-f0-runtime-lease-history-v1.config.mjs",
+    "scripts/sql-review/local-f0-runtime-lease-history-v1-guard.mjs",
+    "scripts/sql-review/local-f0-runtime-lease-history-v1-runner.mjs",
+    "scripts/sql-review/run-local-f0-runtime-lease-history-v1.py",
+    "scripts/sql-review/runtime_lease_effective_catalog_v1.py",
+    "scripts/prepare-native-runtime-lease-history-v1-review.py",
+    "scripts/sql-review/runtime_lease_two_row_ledger_v1.py",
+    "scripts/sql-review/collect_runtime_lease_history_fingerprints_v1.sql",
+    "scripts/check-local-f0-runtime-lease-history-v1.py",
+    "scripts/sql-review/check-local-f0-runtime-lease-history-v1-guard.mjs",
+    "scripts/sql-review/test_runtime_lease_effective_catalog_v1.py",
+    "scripts/sql-review/RUNTIME-LEASE-HISTORY-V1.md"
+  ],
+  "new_namespaces": {
+    "history": "prisma/local-f0-runtime-lease-history-v1/migrations",
+    "manifest": "prisma/local-f0-runtime-lease-history-v1/history-manifest.json",
+    "native_assets": "review-output/native-runtime-lease-history-v1",
+    "source_metadata": "context/reconciliation/local-f0-runtime-lease-two-history-v1-source-validation.json",
+    "archive": "context/reconciliation/local-f0-operation-sources/runtime-lease-two-history-v1",
+    "public_archive_member_count": 8,
+    "new_operation_schema": "workinants.local-f0-runtime-lease-history-run.v1",
+    "new_history_schema": "workinants.local-f0-runtime-lease-history.v1",
+    "old_schema_or_old_archive_cannot_select_new_source": true
+  },
+  "exact_source8": {
+    "manifest_path": "prisma/local-f0-runtime-lease-history-v1/history-manifest.json",
+    "manifest_declared_files": [
+      "prisma/local-f0-runtime-lease-history-v1/migrations/migration_lock.toml",
+      "prisma/local-f0-runtime-lease-history-v1/migrations/20261117000100_f0_local_initial/migration.sql",
+      "prisma/local-f0-runtime-lease-history-v1/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+      "prisma/review/foundation-candidate.prisma",
+      "prisma.local-f0-runtime-lease-history-v1.config.mjs",
+      "scripts/sql-review/local-f0-runtime-lease-history-v1-guard.mjs",
+      "scripts/sql-review/local-f0-runtime-lease-history-v1-runner.mjs"
+    ],
+    "count_declared_files": 7,
+    "count_including_manifest": 8,
+    "rules": [
+      "Exactly these two lexicographically ordered distinct migration IDs; exact provider postgresql lock bytes; no extra migration/schema/config/tool file, symlink, absolute/traversal path, duplicate key or nonfinite value.",
+      "New history/source archive directory reserved exclusively. Existing old histories are neither overwritten nor adopted. Python manifest parsing must reject duplicate JSON, bool-as-int counts and nonfinite/unknown/missing fields.",
+      "Source fields explicitly distinguish initial_sql_sha256, append_sql_sha256 and a source-metadata ordered-history digest. Do not call the append, concatenated SQL or effective catalog an integrated5ae initial file.",
+      "Runtime3 and foundation schema bytes are declared and source-hashed, then actual mounted Linux files/lengths/hashes are independently checked before executing Node/Prisma. Reuse pinned10300tool closure, platform/kernel-private-mount/store-image/CID bindings and sanitized environment.",
+      "One Prisma migrate deploy applies both exact ordered files; each owns its own transaction. No outer transaction wrapper, extra COMMIT, manual psql apply, raw structure SQL, second deploy disguised as source projection, direct ledger write, existing-history overwrite or hosted migration adoption."
+    ]
+  },
+  "effective_expected_source": {
+    "new_builder": "scripts/sql-review/runtime_lease_effective_catalog_v1.py",
+    "old_SQL_input_count": 8,
+    "new_SQL_input_count": 9,
+    "ordered_phases": [
+      "unchanged reviewed bootstrap",
+      "unchanged initial5ae",
+      "exact append49c",
+      "unchanged original-grantor finalization"
+    ],
+    "target_function": "platform_private.runtime_transition()",
+    "old_body_sha256": "10f9fbdd4b20513d2fa74af2136bb2a60e07eaf567b3425c365bc68290e54038",
+    "new_body_sha256": "dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965",
+    "explicit_replacement_validation": [
+      "Exact fixed append AST only: BEGIN, SET LOCAL ROLE wa_schema_owner, the reviewed single CREATE OR REPLACE FUNCTION, RESET ROLE, COMMIT; no grants/owners/roles/RLS/policy/table/data/index/trigger changes.",
+      "Replacement identity, parameter/return type, language, owner wa_schema_owner, SECURITY INVOKER, volatile, called-on-null-input, unsafe, cost100 and search_path=pg_catalog are checked before/after. Replacement must preserve current function ACL/defaultACL, same OID/trigger target semantics, explicit helper app EXECUTE denial and all32workerACL rows.",
+      "Use closed prehashed helper namespaces and same verified source bytes. Compose the reviewed compiler through explicit APIs; never rewrite original foundation-application.review.sql or monkeypatch globals/caches to make old build_manifest appear to admit a new packet.",
+      "Compare old source semantic expected template to the new source expected template over every section/field. The only catalog semantic difference may be runtime_transition body hash. Its source definition-AST hash/replace-node provenance changes are separately declared source metadata; all other function/header/owner/ACL/object/default-grant/RLS/constraint/100external+312internal-trigger expectations must remain identical.",
+      "The old compiler supports replace syntax but does not by itself constrain the target/change-set. The new wrapper must independently enforce target/body/current-owner invariants and refuse unknown replacements or creations before using that compiler."
+    ],
+    "effective_projection": "Emit a nonexecutable JSON source projection/provenance, not SQL to be applied. The full expected catalog comes from consuming actual ordered source bytes; an observed catalog is never an expectation.",
+    "existing_overlay_digest": {
+      "sha256": "bcfd92f01a004684293f0bb30a2fce520f91845d6b849d12c3037d5f9088cae5",
+      "meaning": "SHA256(canonical JSON{base_application_sha256,ordered_history,target_function}); neither concatenated SQL bytes nor the full semantic expected-catalog hash."
+    },
+    "new_expected_sha256": null,
+    "new_generated_expected_file_sha256": null,
+    "hashes_must_be_measured_and_independently_reviewed_after_generation": true
+  },
+  "native_oracle_ledger_pipeline": {
+    "new_preparer": "scripts/prepare-native-runtime-lease-history-v1-review.py",
+    "closed_inputs": "Old eight source inputs plus exact append and every compiler/loader/collector/oracle/comparator/ledger module; explicit new-family registration and code maps. All source bytes admitted before compilation, helper caches rejected, pglast7.21 offline path explicit in launch receipt.",
+    "six_new_assets": [
+      "source-pins.json",
+      "expected.json",
+      "expression-oracle-plan.json",
+      "expression-oracle.sql",
+      "public-schema-registration.json",
+      "README.md"
+    ],
+    "collectors_and_comparators": "Reuse hash-identical existing native/ledger collectors, PG17 rules, oracle and generic comparator/Prisma proof only if real supplied-new-manifest tests prove no hidden initial-only hardcode. Add explicit new wrapper rather than editing/relabeling the default old pipeline.",
+    "public_schema_baseline": "Unchanged pre-bootstrap PUBLIC USAGE/pg_database_owner CREATE+USAGE and exact post-bootstrap migrator rows; actual live baseline is verified against source registration, never learned into a new expectation.",
+    "oracle": "Recompute plan/binding/SQL from new full manifest; retain all source preflight/function-body/guard/type/allowed-call/empty-TEMP/ROLLBACK/closure controls.416 may be reproduced because expressions do not change, but must be measured and bound to new source hashes.",
+    "ledger_policy": "NEW narrow wrapper calls existing build_registration with exactly two applied/count1 rows and exact raw checksums5ae+49c. Registration binds fresh run/CID attestation, new effective expected hash, genuine CLI/tool/source closure, not just source filenames.",
+    "history_noop_proof": "New read-only collect_runtime_lease_history_fingerprints_v1.sql adds exact count2 and safe row/all8column fingerprints before/after real Prisma no-op. Generic ledger collector UUID-format/timestamp booleans alone do not establish full-row no-op immutability. No raw logs/IDs/timestamps retained; success rows require NULL logs, finished true/rolledback false, steps1, valid time order and unique UUIDv4 identities.",
+    "check_counts": "Derive actual new comparator/oracle/ledger finite counts from actual generated structures and actual comparisons. Old29089/416/22 is not authority for this family. A generic proof may coincidentally retain the same number of checks when row cardinality becomes2; explicit history_expected length2 and new registration/expected hashes remain mandatory. Do not force22->23 or any predetermined total.",
+    "before_after": "Same immutable CID/run/source. After source deployment/finalization gather native before oracle, run rollback-only oracle, recollect native unchanged, collect guarded genuine ledger/fingerprints and compare full source-derived template. Repeat only read-only observations after future behavior; never a second installation/catalog_experiment."
+  },
+  "future_actual_order_not_authorized_by_this_plan": [
+    "Complete separate review and actual isolated11-case mechanism packet: old-pending/nested-pending/restored-old-pending, app-helper-before/after, worker-helper/verifier-helper and worker-current/expired/wrong-secret/wrong-fence. Actual native body/ACL/source diagnostic and byte transport proof must close first; no source-only14/model check substitutes.",
+    "Publish new source after separate code review+Root source gates; fresh exact operational literal requires current+committed full map, new source8/public tar/tool closure and real endpoint/platform/image/name absence. Root remains sole executor.",
+    "Create only newly named owned resources under accepted MountV2/CommonSafetySQL/image/auth/logging/credential/first-origin/cleanup controls. Original bootstrap grantor finalizes after both migration connections exit. No permissions or credential transport expansion.",
+    "Run one real pinned Prisma deploy of both files, prove two exact applied rows/full effective native/empty-oracle/ledger and independent finalization; run actual no-op and prove zero pending/mutations/unchanged two full-row hashes and native.",
+    "Only subsequently prepare/review fresh App or affected Worker packets binding new source/expected/body/diagnostic hashes. Old single-history labels and old failed App receipts remain immutable historical evidence. Mechanism/native success alone does not qualify AppR02 or worker business behavior."
+  ],
+  "focused_offline_tests_required": [
+    "Byte reproduction of source8 and six native assets; parse exact initial/append/schema source contracts; no SQL/process/network execution during generation/import/help.",
+    "Manifest/guard negative matrix: old single schema, 1/3 migrations, duplicate/reordered IDs, wrong source/body/header, CRLF/BOM checksum drift, unlisted archive member, missing runtime/schema/tool map, traversal/symlink, wrong config, duplicate JSON/nonfinite/type errors and environment overrides reject before processes.",
+    "New JS guard/runner through actual exported APIs and file/environment adapters; only outer process/Git boundaries mocked. Assert deploy/status exact arguments and private environment; recovery/reset/push/custom SQL/config denied. New Python preparation and complete source verifier must run against a real pending private prepared manifest/source8, not a factory-masked verification function.",
+    "Default old history/catalog/guard tests and artifacts remain exact; old API rejects new history; new API rejects old7 and old initial-only expected/ledger. Preserve old failures rather than treating them as passes.",
+    "Full effective expected change-set comparison: all other functions, headers/owners/invoker/proconfig/defaultACL/ACL,100guards/312internal definitions, RLS, constraints and32workerACL identical; wrong owner/security/search_path/helper grants/body/source mutation rejected.",
+    "Projection-aware oracle tests prove new-body preflight acceptance and old-body/header refusal; actual new plan/emission/reproduction binds every source/module hash and records actual count.",
+    "Generic ledger integration with real source files and synthetic typed collector values: two exact applied rows pass; missing/third/duplicate/changed-checksum/failed/rolledback/wrongsteps/logs/time/type values reject. No-op changed ID/timestamp/checksum/any full-row hash rejects. These remain offline evidence-oracle tests.",
+    "Real CLI/parent initialized source graph under process-only mocks, exact eight-file source tar+10300 tools, current+committed file-map tests, PENDING refuses before resources, dirty preloaded cache remains rejected. No manual global proof injection or unknown archived code execution.",
+    "Safety composition: first primary, incremental safe observations, persistent IO still attempts eligible global close/original-grantor finalizers/exact per-resource cleanup; active or unknown clients prevent unsafe finalization. Bounded closed refs recheck original SHA/length after final cleanup/source/tool/archive postchecks before PASS.",
+    "Final independent source review must explicitly cover new history/config/guard/runner/loader/effective catalog/ledger fingerprints and exact code/data/closure maps. Source gating remains PENDING until separate peer+Root closure."
+  ],
+  "open_questions_or_decisions": [
+    "No unresolved product contract is required for this machinery. Source-derived expected digests/counts cannot be filled until implementation/generation and peer review; this is unfinished work, not a dependency waiver.",
+    "The future owning two-history runtime wrapper is a separate review scope; this plan prepares its exact history/source/native interfaces and does not authorize extending any old owning packet.",
+    "If a reused generic helper demonstrably embeds an initial-only assumption, stop that integration and propose the smallest NEW versioned helper. Do not relax old checks, mutate old modules or automatically widen this plan."
+  ],
+  "claims_and_exclusions": {
+    "new_business_assertions_qualified": 0,
+    "status_or_ledger_changes": false,
+    "initial_June_or_existing_applied_history_changes": false,
+    "new_permissions_or_worker_loop": false,
+    "full94_or451_or_production_readiness": false,
+    "permitted_future_evidence_scope": "A genuinely applied exact two-file provisional local history and complete effective-catalog/ledger parity, followed only by separately reviewed affected source subsets.",
+    "all_current_runtime_states": "NOT_RUN"
+  },
+  "plain_english": "Keep the old instruction sheet untouched. Add one clearly numbered second sheet, then make a new checklist for what both sheets should build. Let the real migration tool do the building once, check that both records are there, and make sure running it again changes nothing. No database work or new approval happens from writing this plan."
+}

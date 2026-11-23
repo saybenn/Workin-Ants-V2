@@ -1,3 +1,19 @@
+## Local F0 continuation - verified652 and closed permission/restore runs (2026-11-23)
+
+Actual rebuilt coverage is **652 PASS /32 PARTIAL /311 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE**, with684 current evidence rows. Selected94 cases: **8 PASS /79 PARTIAL /7 NOT_RUN**. Exactly13 SQL SELECT links and one failed-install phase upgrade are admitted. Old670 current rows and the full priorPARTIAL history remain intact; historical validation adds no second current grade. The corrected full684 build and13 applicable legacy checks passed.
+
+V8 completed182 finite contrasts, then stopped at the first provider check;17 later checks were not run. Its exact primary/native location is unretained. A proven formatter/projector source limitation is consistent with the stop; proposedV9 changes formatting only and preserves strict checks. No V8 links were added. Exact cleanup is independently confirmed.
+
+RestoreV6 passed its local physical subset: protected real synthetic backup, verify, fresh restore and complete42-table baseline data/ledger/authority parity. Exact3container/2volume/private archive cleanup is independently confirmed; image retained. At most2PASS+1PARTIAL may be added after a strict reader; no Restore links are admitted yet. Privacy, activation and upstream recovery stay unqualified. Raw inheritedNOT_RUN labels and old9cf unobserved cause remain preserved.
+
+Private transportV2/V9/two-history work remains pending review/admission/execution; inactiveCSP has no owning runtime. Initial5ae/June, A-D,32workerACL,1034requirements and451register are unchanged. PostureD and Brain final acceptance remain.
+
+Plain English: The saved reports earned more passing checks. Backup-and-restore worked, and temporary resources are gone. We kept the old notes. Remaining repairs still need review and real tests.
+
+Detailed current evidence: context/reconciliation/local-f0-652-closed249e-progress-20261123.json (SHA-256 ab7eb0cd13c00c29b0d54f3057e81ed7933d18ad2bfd4be7146f01664592833e). Continue the authorized work after publication. Earlier sections below are version-qualified history.
+
+---
+
 ## Local F0 continuation — audited Read and installation subsets, reviewed V6/V8 (2026-11-20)
 
 Accepted coverage remains **638 PASS /33 PARTIAL /324 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE**;671 current evidence rows and selected94 cases5PASS/78PARTIAL/11NOT_RUN. Normal publication0ff2a910ce081a0c6e0c6a268d6f876b8e061a45/tree886f85d4a919a8a04f85c8fe45a01e0a8801ba1c was independently verified.
