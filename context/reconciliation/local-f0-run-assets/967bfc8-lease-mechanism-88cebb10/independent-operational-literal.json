@@ -1,0 +1,116 @@
+{
+  "decision": "SOURCE_APPROVED_OPERATIONAL_LITERAL",
+  "findings": [],
+  "reviewer": "/root/v9_code_review",
+  "recorded_at_utc": "2026-11-23T09:22:12.178495+00:00",
+  "pending_literal": {
+    "path": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-lease-v2-reviewed-plan-88cebb10\\operation-manifest.json",
+    "sha256": "005523154ca7a292d9070275da60dd8c8e79a755103ebc6b14b518e42fd2424b",
+    "run_id": "88cebb10-2a53-4c65-8d9b-cd655a353676"
+  },
+  "source": {
+    "commit": "967bfc854f46ce884f2eee3b93cc317c88cd2f7c",
+    "tree": "b23941dfefd5780031829f29e5f3502c0f40a44e",
+    "packet_sha256": "6c64f632c678f02e65624ac2c26d27a921e1ec3e4a813c9aeb3a6c83cb6cd58c",
+    "full_current_and_committed_files": 276,
+    "external5_sha256": {
+      "execute_local_f0_lease_mechanism_v1_20261120.py": "8e2c2529727fd8270f709737c3129c1ad650e09c6f70914dedd0ea46354250e9",
+      "local_f0_lease_mechanism_v1_operation_steps.py": "405dbac5e0423107cb3324525fc912cc99030c7ee959b0244a152b21e90cf7e3",
+      "prepare_local_f0_lease_mechanism_v1_plan.py": "2330c3af7ac2dca245e2597e8377ec3c336ef12325e3cbcc7e94ec9bf454b4a2",
+      "check_local_f0_lease_mechanism_v1_operation.py": "2a3e96be80a16ddd72d2c44542bc8b0c1075f4db2a9a3909636821d0a27af9a9",
+      "pin_local_f0_lease_mechanism_v1_plan_20261120.py": "2f1b44a884d6980d0692cbeed49f8af13690cd076760c1b4f74d419a2fccce0d"
+    }
+  },
+  "Root_flag_only_action_after_fresh_preflight": {
+    "review_status": "APPROVED_LOCAL_F0_LEASE_MECHANISM_V1_ATTEMPT",
+    "all_other_manifest_fields_and_pins_must_remain_identical": true,
+    "fresh_live_endpoint_platform_image_exact_name_absence_required": true
+  },
+  "environment_source_check": {
+    "Python_executable": "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "Python_version": [
+      3,
+      12,
+      10
+    ],
+    "pglast_version": "v7.21",
+    "pglast_resolved_module": "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\offline-python\\pglast\\__init__.py",
+    "pglast_init_sha256": "39a953a49f784e016246395f6f28cfaae5298c5436cca5fbd03461154f49b8cc",
+    "database_contacted": false
+  },
+  "actual_endpoint_image_resource_absence_checks": "NOT_RUN_BY_REVIEWER_REQUIRED_ROOT_FRESH_PREFLIGHT",
+  "runtime": "NOT_RUN",
+  "Posture": "D",
+  "schema": "workinants.lease88-independent-operational-literal-review.v1",
+  "authorship_disclosure": "I did not author the lease operator, fixtures, transport/auth corrections, owning preparer/pinner/checker, or its 8b1324 source review. My earlier work was independent V9 review and a separate V9 source-admission helper.",
+  "independent_code_source_review_sha256": "8b1324feeae4a81e2b2918473aa166b1acbb7c540a16d6ec52a3f1c902936aee",
+  "source_admission_inventory_sha256": "eb60708c26dff43b4d839732a00e45a70cdddbe867b640b96689973a3a39b8db",
+  "pinner_verification": {
+    "packet_sha256": "6c64f632c678f02e65624ac2c26d27a921e1ec3e4a813c9aeb3a6c83cb6cd58c",
+    "files": 276,
+    "current_and_committed": true
+  },
+  "scope": {
+    "synthetic_only": true,
+    "cases": 11,
+    "staged_SQL_binary_files": 12,
+    "logins": [
+      "postgres",
+      "wa_lease_v1_app",
+      "wa_lease_v1_worker",
+      "wa_lease_v1_verifier"
+    ],
+    "canonical_application": "NOT_RUN",
+    "Prisma": "NOT_RUN",
+    "native29089": "NOT_RUN",
+    "oracle416": "NOT_RUN",
+    "ledger22": "NOT_RUN",
+    "two_history_qualification": "NOT_RUN",
+    "whole94_and_451": "NOT_PROMOTED",
+    "worker_loop": false
+  },
+  "reviewed_controls": {
+    "endpoint": "desktop-linux / local Windows named pipe",
+    "server": "Linux/amd64 PostgreSQL 17.11",
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "network": "none",
+    "published_ports": false,
+    "storage": "exact PGDATA volume plus readonly test-bootstrap bind plus owner-root0700 tmpfs",
+    "credentials": "owner-only Windows private directory; root0600 pgpass; independent per-role passwords; exact wrong-pgpass warning controls",
+    "authentication": "loopback host() address checks; effective HBA; SCRAM verifier and actual-method; correct/wrong passwords for all four roles",
+    "logging": "log_statement=none; log_min_error_statement=panic; terse C diagnostics and bounded typed byte replies",
+    "binary_transport": "whole-operation monotonic deadline, concurrent bounded readers/writer, 65536 bytes per channel, shared two-second emergency closure, sticky failure",
+    "case_guards": "exact SQLSTATE plus finite diagnostic/body/profile/location; role and markers; global zero-client boundaries before observations; complete five-row state and unchanged helper/ACL authority",
+    "finalization": "original synthetic postgres grantor, read-only role/object authority plus zero clients, including finally handling; no canonical TEMP3 repair",
+    "cleanup": "only attempted exact CID/name/both labels and volume/name/CreatedAt; only test-owned bootstrap secret/empty private directory; independently require C1V/private absence and image retained",
+    "source_evidence": "fresh current+committed full-map reads, final source barrier and closed saved-reference barrier"
+  },
+  "Root_control_helper_sha256": "4af89702239c6701203ca1e18fb864350ed79aa5f065de75e0e8105df4ebbbe1",
+  "source_validation_gate_limits": [
+    {
+      "id": "HISTORICAL_TEST_FIXTURE_PORTABILITY",
+      "classification": "NONBLOCKING_REVIEW_BUNDLE_LIMITATION_NO_RUNTIME_DEPENDENCY",
+      "observed": "Unmodified final checker method32 ERRORs with FileNotFoundError for HERE/preserved-before-correction/original-author-tree/execute_local_f0_lease_mechanism_v1_20261120.py. Final A does not carry that historical external support directory. Method35 has the same historical support path and was not rerun here.",
+      "resolution_of_review_question": "No operator/preparer/pinner/runtime path references this missing test fixture. Final author explicitly version-qualifies historical method32/35 evidence. Independent reviewer supplied exact original aa0a3240/a24b1fc sources by explicit absolute hash binding to reproduce both counterexamples without changing finalfive.",
+      "claims_withheld": "Unmodified final method32 PASS, full final37-method checker PASS and portable standalone complete-checker bundle are not claimed.",
+      "approval_judgment": "The optional historical fixture packaging does not defeat the independently exercised current runtime/auth/deadline/source/cleanup contracts; no substantive owning runtime/security finding remains."
+    }
+  ],
+  "planned_literal": {
+    "interpreter": "C:\\Users\\elijr\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "arguments": [
+      "-X",
+      "utf8",
+      "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\execute_local_f0_lease_mechanism_v1_20261120.py",
+      "--manifest",
+      "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\local-f0-lease-v2-reviewed-plan-88cebb10\\operation-manifest.json",
+      "--root",
+      "C:\\Users\\elijr\\.codex\\visualizations\\2026\\11\\09\\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\\workinants-correction-pass"
+    ]
+  },
+  "pending_manifest_unchanged": true,
+  "readonly_Git_calls": 280,
+  "Docker_database_network_resources_invoked": false,
+  "manifest_or_source_or_gate_mutation": false,
+  "plain_English": "The exact test package is checked. Root still needs a fresh look at the local test computer and names before turning on this one test run; this review records no database result."
+}

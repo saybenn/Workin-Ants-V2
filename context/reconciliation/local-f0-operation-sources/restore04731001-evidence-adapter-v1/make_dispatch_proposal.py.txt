@@ -1,0 +1,29 @@
+"""Materialize an additive builder proposal without changing or running Root."""
+from pathlib import Path
+import ast,difflib,hashlib,json
+A=Path(__file__).resolve().parent;F=A/'future-root';TASK=A.parent;ROOT=TASK/'workinants-correction-pass'
+def sha(b):return hashlib.sha256(b).hexdigest()
+AR=F/'context/reconciliation/local-f0-operation-sources/restore04731001-evidence-adapter-v1'
+source=ROOT/'scripts/prepare-local-f0-status.py';raw=source.read_bytes();before=raw.decode('utf8');after=before
+derived='context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json';record=(F/derived).read_bytes();r=json.loads(record);digest=sha(record)
+anchor='from local_f0_install_historical_bridge_v1 import validate_superseded_install_partial, HistoricalInstallFailure\n'
+assert after.count(anchor)==1
+after=after.replace(anchor,anchor+'from local_f0_restore04731001_evidence import prepare_batch as prepare_restore047_batch, EvidenceFailure as Restore047EvidenceFailure\n')
+anchor='EVIDENCE_RECORDS={\n';assert after.count(anchor)==1
+after=after.replace(anchor,anchor+"    "+repr(derived)+':('+repr(digest)+','+repr(r['actual_result'])+'),\n')
+anchor="    ledger=json.loads((REC/'local-f0-assertion-evidence.json').read_text(encoding='utf8'))\n";assert after.count(anchor)==1
+after=after.replace(anchor,anchor+"    restore047_batch=None\n    if any(row.get('evidence_path')=="+repr(derived)+" for row in ledger['assertions']):\n        try:restore047_batch=prepare_restore047_batch(ROOT)\n        except Restore047EvidenceFailure as error:raise AssertionError(str(error)) from None\n")
+anchor="                elif row['evidence_path']=='context/reconciliation/local-f0-read13-0ff2a91-116153b2-qualified-evidence.json':\n";assert after.count(anchor)==1
+after=after.replace(anchor,"                elif row['evidence_path']=="+repr(derived)+":\n                    try:restore047_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer,ledger_row=row)\n                    except Restore047EvidenceFailure as error:raise AssertionError(str(error)) from None\n"+anchor)
+anchor="    return {'scope':'ACTUAL_ASSERTION_EVIDENCE_OVER_EXACT_EXISTING94_IDS'";assert after.count(anchor)==1
+after=after.replace(anchor,"    if restore047_batch is not None:\n        try:restore047_batch.verify_unchanged();restore047_batch.require_finalized()\n        except Restore047EvidenceFailure as error:raise AssertionError(str(error)) from None\n"+anchor)
+ast.parse(after);assert source.read_bytes()==raw
+out=A/'proposals';out.mkdir(exist_ok=True)
+(out/'prepare-local-f0-status.py.PROPOSAL.txt').write_text(after,encoding='utf8',newline='\n')
+patch=''.join(difflib.unified_diff(before.splitlines(keepends=True),after.splitlines(keepends=True),fromfile='a/scripts/prepare-local-f0-status.py',tofile='b/scripts/prepare-local-f0-status.py'))
+(out/'builder-integration.PROPOSAL.patch').write_text(patch,encoding='utf8',newline='\n')
+(AR/'prior-prepare-local-f0-status.py.txt').write_bytes(raw)
+receipt={'schema':'workinants.restore047-additive-builder-PROPOSAL.v1','decision':'PROPOSAL_ONLY_NOT_APPLIED_OR_EXECUTED','base_path':'scripts/prepare-local-f0-status.py','base_sha256':sha(raw),'proposed_sha256':sha(after.encode()),'diff_sha256':sha(patch.encode()),'record_path':derived,'record_sha256':digest,'reader_sha256':sha((F/'scripts/local_f0_restore04731001_evidence.py').read_bytes()),'changes':['one stdlib-only local reader import','one exact derived record registration','conditional exact3 batch creation and dispatch','final all-input byte barrier before status return'],'all_existing_dispatches_preserved':True,'forced_counts':False,'Root_builder_executed':False,'Root_mutations':False,'source_gates':'PENDING','Posture':'D'}
+(out/'builder-integration-PROPOSAL.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf8',newline='\n')
+for p in out.iterdir():(AR/('proposal-'+p.name)).write_bytes(p.read_bytes())
+print(json.dumps(receipt))

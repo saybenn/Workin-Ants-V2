@@ -1,0 +1,3912 @@
+{
+  "allowed_calls_exercised_during_compilation_only": [
+    "convert_to",
+    "encode",
+    "jsonb_build_object",
+    "jsonb_typeof",
+    "length",
+    "pg_backend_pid",
+    "pg_current_xact_id",
+    "platform_private.json_evidence_accessauditlog",
+    "platform_private.json_evidence_agegateattempt",
+    "platform_private.json_evidence_agegateblock",
+    "platform_private.json_evidence_auditevent",
+    "platform_private.json_evidence_authprovideraccount",
+    "platform_private.json_evidence_consentcontentrevision",
+    "platform_private.json_evidence_consentdisposition",
+    "platform_private.json_evidence_consentlog",
+    "platform_private.json_evidence_consentpresentation",
+    "platform_private.json_evidence_customerprofile",
+    "platform_private.json_evidence_privacyownerreceipt",
+    "platform_private.json_evidence_privacyrequest",
+    "platform_private.json_evidence_privacyrestoremarker",
+    "platform_private.json_evidence_privacytargetinstruction",
+    "platform_private.json_evidence_trackbaseselection",
+    "platform_private.json_evidence_trackentitlementdefinition",
+    "platform_private.json_evidence_trackentitlementgrant",
+    "platform_private.json_evidence_trackplan",
+    "platform_private.json_evidence_trackplanentitlement",
+    "platform_private.json_evidence_tracksubscription",
+    "platform_private.json_evidence_trackusagecounter",
+    "platform_private.json_evidence_trackusageevent",
+    "platform_private.json_evidence_trackusagereservation",
+    "platform_private.json_evidence_user",
+    "platform_private.json_evidence_userrole",
+    "platform_private.json_evidence_usersecurityprofile",
+    "platform_private.json_sh004_result",
+    "platform_private.json_sh114_result",
+    "platform_private.json_track_result",
+    "platform_private.row_allowed",
+    "platform_private.worker_track_allowed",
+    "sha256"
+  ],
+  "by_operation": {
+    "check-not-valid": 93,
+    "column-default": 144,
+    "function-default-list": 4,
+    "policy": 175
+  },
+  "database_contacted": false,
+  "database_posture": "D",
+  "execution_contract": [
+    "Root verifies exact disposable Docker/image/resource/run identity and fresh external evidence directory.",
+    "Fresh original-bootstrap-superuser connection; READ COMMITTED; no other restricted client and no enabled event trigger.",
+    "Require source-pinned original table/column/enum/function identity/header/body prerequisites before any TEMP DDL.",
+    "Create empty TEMP shadows only; no application data access; no source PK/FK/triggers copied.",
+    "CHECK constraints are NOT VALID on empty shadows; original validation flags compare separately.",
+    "Policies are compiled only; no source owner behavior, row access or protected operation is invoked.",
+    "Function-default surrogates return NULL::integer; source function bodies are never copied or invoked.",
+    "Retain only fixed preflight Booleans, source identities and expression hashes; no raw output/messages/SQL.",
+    "ROLLBACK unconditionally on success; on unexpected failure close connection to abort before observations.",
+    "Require explicit rollback/temporary-absence closure and independent original catalog recollection before accepting hashes."
+  ],
+  "expected_columns": 600,
+  "expected_tables": 42,
+  "expression_count": 416,
+  "expressions": [
+    {
+      "category": "columns",
+      "column": "sensitivity",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "b1702b5e055765ee4eabfc98ae42d3e281c26d18dd786d9969a01635f6bfe670",
+      "subject": "app.access_audit_logs/sensitivity",
+      "table": "app.access_audit_logs"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.access_audit_logs/created_at",
+      "table": "app.access_audit_logs"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.access_audit_logs/mutation_transaction_id",
+      "table": "app.access_audit_logs"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.age_gate_attempts/created_at",
+      "table": "app.age_gate_attempts"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.age_gate_attempts/mutation_transaction_id",
+      "table": "app.age_gate_attempts"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.age_gate_blocks/created_at",
+      "table": "app.age_gate_blocks"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.age_gate_blocks/mutation_transaction_id",
+      "table": "app.age_gate_blocks"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.audit_events/created_at",
+      "table": "app.audit_events"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.audit_events/mutation_transaction_id",
+      "table": "app.audit_events"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "121740264e4fda1ca37195fca98140aae68073a1ae958312a2d310077d2c48eb",
+      "subject": "app.audit_events/f0_null_metadata",
+      "table": "app.audit_events"
+    },
+    {
+      "category": "columns",
+      "column": "status",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "871b2b45fa432f683a0b23f3228eb4006a95a4f4fe5c5785dc8134b8d5c62462",
+      "subject": "app.auth_provider_accounts/status",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "columns",
+      "column": "linked_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.auth_provider_accounts/linked_at",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.auth_provider_accounts/created_at",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.auth_provider_accounts/revision",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.auth_provider_accounts/mutation_transaction_id",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.auth_provider_accounts/nonnegative_revision",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "columns",
+      "column": "status",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "d2aad300a61647649c80a0ac1b0665af512341be6ae39abc8626962804d141e4",
+      "subject": "app.candidate_profiles/status",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "is_visible",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "36e5ecc0ef309bb8d88ccfb71761dbed40e787353b5e71eac3a085c74e47f9ba",
+      "subject": "app.candidate_profiles/is_visible",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.candidate_profiles/created_at",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.candidate_profiles/revision",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "privacy_generation",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.candidate_profiles/privacy_generation",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "discovery_preference_revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.candidate_profiles/discovery_preference_revision",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.candidate_profiles/mutation_transaction_id",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.candidate_profiles/nonnegative_revision",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "1fe985bf96f2e64ba15c9a013ae182916677d77b253664103fbd821550106a16",
+      "subject": "app.candidate_profiles/nonnegative_privacy_generation",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "review_state",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "d2aad300a61647649c80a0ac1b0665af512341be6ae39abc8626962804d141e4",
+      "subject": "app.consent_content_revision/review_state",
+      "table": "app.consent_content_revision"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.consent_content_revision/created_at",
+      "table": "app.consent_content_revision"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.consent_content_revision/mutation_transaction_id",
+      "table": "app.consent_content_revision"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "566077ea6a5700019a0fc60d1e20e1c9e0650f7b8cddb5818507dda0b134dfd2",
+      "subject": "app.consent_content_revision/hash_content_hash",
+      "table": "app.consent_content_revision"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "43b012e0450418dd56eba4afedcb2106d9cca6611fca82415bb32a36ac3df95a",
+      "subject": "app.consent_content_revision/ordered_effective_until",
+      "table": "app.consent_content_revision"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "8d4fad3ba0495838aff58f49d10eaafbe530eaa3ca9ba61eaf21297c83c9ae6e",
+      "subject": "app.consent_content_revision/exact_content_hash",
+      "table": "app.consent_content_revision"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.consent_disposition/created_at",
+      "table": "app.consent_disposition"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.consent_disposition/mutation_transaction_id",
+      "table": "app.consent_disposition"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "85d0a3e4238060e7335705a0b07400070e680dd03fe78970a335670b43380bf2",
+      "subject": "app.consent_disposition/hash_fingerprint",
+      "table": "app.consent_disposition"
+    },
+    {
+      "category": "columns",
+      "column": "accepted_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.consent_logs/accepted_at",
+      "table": "app.consent_logs"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.consent_logs/created_at",
+      "table": "app.consent_logs"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.consent_logs/mutation_transaction_id",
+      "table": "app.consent_logs"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "85d0a3e4238060e7335705a0b07400070e680dd03fe78970a335670b43380bf2",
+      "subject": "app.consent_logs/hash_fingerprint",
+      "table": "app.consent_logs"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "15cc0677eaada652ba3fc3d2db5ba5ef261cf0dab96f4895b110f1af855ebc1d",
+      "subject": "app.consent_logs/hash_presentation_hash",
+      "table": "app.consent_logs"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.consent_presentation/created_at",
+      "table": "app.consent_presentation"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.consent_presentation/mutation_transaction_id",
+      "table": "app.consent_presentation"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "62a055c3dc7147a32d5a5837b701bddb1ef66ba7596e5e9c845beb2d01b2e792",
+      "subject": "app.consent_presentation/hash_rendered_hash",
+      "table": "app.consent_presentation"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "116f5d82e679c090f08219e36ea09bf6e37709090451dc4596021413c87cb391",
+      "subject": "app.consent_presentation/exact_rendered_hash",
+      "table": "app.consent_presentation"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.customer_profile_lifecycle_event/created_at",
+      "table": "app.customer_profile_lifecycle_event"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.customer_profile_lifecycle_event/mutation_transaction_id",
+      "table": "app.customer_profile_lifecycle_event"
+    },
+    {
+      "category": "columns",
+      "column": "status",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "871b2b45fa432f683a0b23f3228eb4006a95a4f4fe5c5785dc8134b8d5c62462",
+      "subject": "app.customer_profiles/status",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.customer_profiles/created_at",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.customer_profiles/revision",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "privacy_generation",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.customer_profiles/privacy_generation",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.customer_profiles/mutation_transaction_id",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.customer_profiles/nonnegative_revision",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "1fe985bf96f2e64ba15c9a013ae182916677d77b253664103fbd821550106a16",
+      "subject": "app.customer_profiles/nonnegative_privacy_generation",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.privacy_owner_receipt/created_at",
+      "table": "app.privacy_owner_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.privacy_owner_receipt/mutation_transaction_id",
+      "table": "app.privacy_owner_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "0a508d916b3f7c66f25b14e425569019d93f5caa1ea2f51081c2487a8faafd54",
+      "subject": "app.privacy_owner_receipt/nonnegative_generation",
+      "table": "app.privacy_owner_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "176518bdb34d985d636d2c60ba815cf60dc27a256971b8ce3d59f41c3baae722",
+      "subject": "app.privacy_owner_receipt/hash_artifact_digest",
+      "table": "app.privacy_owner_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "d2c07afccffa22d98c565e49a9c682392407750feb79fd49b70dffce5aeaea89",
+      "subject": "app.privacy_owner_receipt/retained_basis",
+      "table": "app.privacy_owner_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "status",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9f13f17070609bb25e25fc15f90acc34a090ada121247d91495901d9981166bd",
+      "subject": "app.privacy_requests/status",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "columns",
+      "column": "requested_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.privacy_requests/requested_at",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.privacy_requests/created_at",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.privacy_requests/revision",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "columns",
+      "column": "privacy_generation",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.privacy_requests/privacy_generation",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "columns",
+      "column": "instruction_generation",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.privacy_requests/instruction_generation",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.privacy_requests/mutation_transaction_id",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.privacy_requests/nonnegative_revision",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "1fe985bf96f2e64ba15c9a013ae182916677d77b253664103fbd821550106a16",
+      "subject": "app.privacy_requests/nonnegative_privacy_generation",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "dce0d28a9c7c5d8f07748d5933ebfccb70e9a04c7342eb77bbbc947af9c84f1a",
+      "subject": "app.privacy_requests/nonnegative_instruction_generation",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.privacy_restore_marker/created_at",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.privacy_restore_marker/revision",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.privacy_restore_marker/mutation_transaction_id",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.privacy_restore_marker/nonnegative_revision",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "0a508d916b3f7c66f25b14e425569019d93f5caa1ea2f51081c2487a8faafd54",
+      "subject": "app.privacy_restore_marker/nonnegative_generation",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.privacy_target_instruction/created_at",
+      "table": "app.privacy_target_instruction"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.privacy_target_instruction/mutation_transaction_id",
+      "table": "app.privacy_target_instruction"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "0a508d916b3f7c66f25b14e425569019d93f5caa1ea2f51081c2487a8faafd54",
+      "subject": "app.privacy_target_instruction/nonnegative_generation",
+      "table": "app.privacy_target_instruction"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "35329a1d434494a0fd38c78ce6815dcb48b41067ca795209c9631469e16ad8df",
+      "subject": "app.privacy_target_instruction/hash_descriptor_hash",
+      "table": "app.privacy_target_instruction"
+    },
+    {
+      "category": "columns",
+      "column": "status",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "d2aad300a61647649c80a0ac1b0665af512341be6ae39abc8626962804d141e4",
+      "subject": "app.professional_profiles/status",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "rating_count",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.professional_profiles/rating_count",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "stripe_ready",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "36e5ecc0ef309bb8d88ccfb71761dbed40e787353b5e71eac3a085c74e47f9ba",
+      "subject": "app.professional_profiles/stripe_ready",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.professional_profiles/created_at",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.professional_profiles/revision",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "privacy_generation",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.professional_profiles/privacy_generation",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.professional_profiles/mutation_transaction_id",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.professional_profiles/nonnegative_revision",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "1fe985bf96f2e64ba15c9a013ae182916677d77b253664103fbd821550106a16",
+      "subject": "app.professional_profiles/nonnegative_privacy_generation",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_base_selection/revision",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "columns",
+      "column": "source_generation",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_base_selection/source_generation",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_base_selection/created_at",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_base_selection/mutation_transaction_id",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.track_base_selection/nonnegative_revision",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "0e2be30a7ae600c077e5d7b989962950b25cec2fb8c6e58aa401781e1998bf94",
+      "subject": "app.track_base_selection/nonnegative_source_generation",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_enrollment_receipt/created_at",
+      "table": "app.track_enrollment_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_enrollment_receipt/mutation_transaction_id",
+      "table": "app.track_enrollment_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "85d0a3e4238060e7335705a0b07400070e680dd03fe78970a335670b43380bf2",
+      "subject": "app.track_enrollment_receipt/hash_fingerprint",
+      "table": "app.track_enrollment_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "is_active",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "subject": "app.track_entitlement_definitions/is_active",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_entitlement_definitions/created_at",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_entitlement_definitions/revision",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_entitlement_definitions/mutation_transaction_id",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.track_entitlement_definitions/nonnegative_revision",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "columns",
+      "column": "status",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "871b2b45fa432f683a0b23f3228eb4006a95a4f4fe5c5785dc8134b8d5c62462",
+      "subject": "app.track_entitlement_grants/status",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_entitlement_grants/created_at",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_entitlement_grants/revision",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_entitlement_grants/mutation_transaction_id",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "5e051a56db33e1033cae2c3db6b558ee00d3e66efb767abffb8447fb461cd7a8",
+      "subject": "app.track_entitlement_grants/f0_null_json_value",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.track_entitlement_grants/nonnegative_revision",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "d2b8ae041ed0b548d04c6d01bc76c5ed6044568ba26a871d8898b126f0c7c553",
+      "subject": "app.track_entitlement_grants/ordered_expires_at",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "8236b5e6b7cd615e26cef90e6ed0132e20560365d7f0667d2f9a3f1a2f5bafac",
+      "subject": "app.track_entitlement_grants/typed_grant_value",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "b6547a14413d927e2772d8376003a27c1e175979f9b5f8dd284f6026252244c1",
+      "subject": "app.track_entitlement_grants/grant_value_bounds",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_plan_entitlements/created_at",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_plan_entitlements/revision",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_plan_entitlements/mutation_transaction_id",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "5e051a56db33e1033cae2c3db6b558ee00d3e66efb767abffb8447fb461cd7a8",
+      "subject": "app.track_plan_entitlements/f0_null_json_value",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.track_plan_entitlements/nonnegative_revision",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "8236b5e6b7cd615e26cef90e6ed0132e20560365d7f0667d2f9a3f1a2f5bafac",
+      "subject": "app.track_plan_entitlements/typed_plan_value",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "b6547a14413d927e2772d8376003a27c1e175979f9b5f8dd284f6026252244c1",
+      "subject": "app.track_plan_entitlements/plan_value_bounds",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "columns",
+      "column": "status",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "d2aad300a61647649c80a0ac1b0665af512341be6ae39abc8626962804d141e4",
+      "subject": "app.track_plans/status",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "columns",
+      "column": "currency",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "0daa21234116acbd629955744730f5bc01192eb1c73886931516f1fb5d626e2a",
+      "subject": "app.track_plans/currency",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "columns",
+      "column": "display_order",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_plans/display_order",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_plans/created_at",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_plans/revision",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_plans/mutation_transaction_id",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "121740264e4fda1ca37195fca98140aae68073a1ae958312a2d310077d2c48eb",
+      "subject": "app.track_plans/f0_null_metadata",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.track_plans/nonnegative_revision",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "566077ea6a5700019a0fc60d1e20e1c9e0650f7b8cddb5818507dda0b134dfd2",
+      "subject": "app.track_plans/hash_content_hash",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_subscription_events/created_at",
+      "table": "app.track_subscription_events"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_subscription_events/mutation_transaction_id",
+      "table": "app.track_subscription_events"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "121740264e4fda1ca37195fca98140aae68073a1ae958312a2d310077d2c48eb",
+      "subject": "app.track_subscription_events/f0_null_metadata",
+      "table": "app.track_subscription_events"
+    },
+    {
+      "category": "columns",
+      "column": "status",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "871b2b45fa432f683a0b23f3228eb4006a95a4f4fe5c5785dc8134b8d5c62462",
+      "subject": "app.track_subscriptions/status",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "columns",
+      "column": "provider",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "38c5d2466822897277898d3a0cbaf6838561965453ecaf22f1e21fcd0a34c912",
+      "subject": "app.track_subscriptions/provider",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_subscriptions/created_at",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_subscriptions/revision",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_subscriptions/mutation_transaction_id",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.track_subscriptions/nonnegative_revision",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "54bf2de03a67792150fbdb025828b4440b1879987c58810e9076eb1e1f3129f5",
+      "subject": "app.track_subscriptions/ordered_current_period_end",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "columns",
+      "column": "used_quantity",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_usage_counters/used_quantity",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_usage_counters/created_at",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_usage_counters/revision",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_usage_counters/mutation_transaction_id",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.track_usage_counters/nonnegative_revision",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "9f8036ecb4ebcab4d4a96f6ea371ea45031e3005e3a31b4ea20d204594f6a14a",
+      "subject": "app.track_usage_counters/ordered_period_end",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "0d58aa70dc8a23ec09694cd632dab8904d833828c5ed076a5264fec38219013a",
+      "subject": "app.track_usage_counters/counter_bounds",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "columns",
+      "column": "quantity",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "01412f1a64ae77f2775952545b957c60eafe15cbda7ba527befe689424cf7ee8",
+      "subject": "app.track_usage_events/quantity",
+      "table": "app.track_usage_events"
+    },
+    {
+      "category": "columns",
+      "column": "occurred_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_usage_events/occurred_at",
+      "table": "app.track_usage_events"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_usage_events/mutation_transaction_id",
+      "table": "app.track_usage_events"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "121740264e4fda1ca37195fca98140aae68073a1ae958312a2d310077d2c48eb",
+      "subject": "app.track_usage_events/f0_null_metadata",
+      "table": "app.track_usage_events"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "9f8036ecb4ebcab4d4a96f6ea371ea45031e3005e3a31b4ea20d204594f6a14a",
+      "subject": "app.track_usage_events/ordered_period_end",
+      "table": "app.track_usage_events"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "9df9cb561f7ed6c74d86c56c4043a7639673f3f94fe1f3611703283a3db14103",
+      "subject": "app.track_usage_events/usage_window",
+      "table": "app.track_usage_events"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.track_usage_reservation/created_at",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.track_usage_reservation/revision",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.track_usage_reservation/mutation_transaction_id",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.track_usage_reservation/nonnegative_revision",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "9f8036ecb4ebcab4d4a96f6ea371ea45031e3005e3a31b4ea20d204594f6a14a",
+      "subject": "app.track_usage_reservation/ordered_period_end",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "c1b610a678dfbad90a169c27d1b3eba9380780332b65b35b8da7e417ed9b1111",
+      "subject": "app.track_usage_reservation/usage_reservation_window",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.user_roles/created_at",
+      "table": "app.user_roles"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.user_roles/revision",
+      "table": "app.user_roles"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.user_roles/mutation_transaction_id",
+      "table": "app.user_roles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.user_roles/nonnegative_revision",
+      "table": "app.user_roles"
+    },
+    {
+      "category": "columns",
+      "column": "security_tier",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "ebb8450cf786d47e13c6673cdf90e82e0831ceed2b23124bc617157bb004c3ef",
+      "subject": "app.user_security_profiles/security_tier",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "passkeys_enabled",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "36e5ecc0ef309bb8d88ccfb71761dbed40e787353b5e71eac3a085c74e47f9ba",
+      "subject": "app.user_security_profiles/passkeys_enabled",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "sms_mfa_enabled",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "36e5ecc0ef309bb8d88ccfb71761dbed40e787353b5e71eac3a085c74e47f9ba",
+      "subject": "app.user_security_profiles/sms_mfa_enabled",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "backup_password_configured",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "36e5ecc0ef309bb8d88ccfb71761dbed40e787353b5e71eac3a085c74e47f9ba",
+      "subject": "app.user_security_profiles/backup_password_configured",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "sensitive_action_mfa_required",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "subject": "app.user_security_profiles/sensitive_action_mfa_required",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.user_security_profiles/created_at",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.user_security_profiles/revision",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "security_generation",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.user_security_profiles/security_generation",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.user_security_profiles/mutation_transaction_id",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.user_security_profiles/nonnegative_revision",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "fa3546ba7547dced57e0d01094ac3dd880cbf305367b86d890df286999c7cce6",
+      "subject": "app.user_security_profiles/nonnegative_security_generation",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "columns",
+      "column": "is_public",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "subject": "app.users/is_public",
+      "table": "app.users"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "app.users/created_at",
+      "table": "app.users"
+    },
+    {
+      "category": "columns",
+      "column": "revision",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.users/revision",
+      "table": "app.users"
+    },
+    {
+      "category": "columns",
+      "column": "privacy_generation",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "app.users/privacy_generation",
+      "table": "app.users"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "app.users/mutation_transaction_id",
+      "table": "app.users"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "709f8e91c9a46bef24e4df21ee640e0205f52bd447d734ddfc25aab386920b40",
+      "subject": "app.users/nonnegative_revision",
+      "table": "app.users"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "1fe985bf96f2e64ba15c9a013ae182916677d77b253664103fbd821550106a16",
+      "subject": "app.users/nonnegative_privacy_generation",
+      "table": "app.users"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.database_action_grant/created_at",
+      "table": "platform.database_action_grant"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.database_action_grant/mutation_transaction_id",
+      "table": "platform.database_action_grant"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.owner_mutation_evidence/created_at",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.owner_mutation_evidence/mutation_transaction_id",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "3855d5624f91157fb237ee41b58cb35245f4b32953a9da4d4fd41788ce399ccc",
+      "subject": "platform.owner_mutation_evidence/hash_evidence_digest",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "9445087e15e0b7d9bafcdf47f1b3c494b5addc0e7e7d19f54e3f88d4b84949bf",
+      "subject": "platform.owner_mutation_evidence/evidence_identity",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "ff77f73bfdfe6be298f8336253fe4e78b815c7f607b603266c328a8f56e5dc2c",
+      "subject": "platform.owner_mutation_evidence/evidence_storage_digest",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "05e087fba56b8182c3ec2b374576beabdcc1af9e2cfe1ccc6c6b41ed67b6a042",
+      "subject": "platform.owner_mutation_evidence/closed_evidence_json",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.runtime_attempt/created_at",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.runtime_attempt/mutation_transaction_id",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "5fff966a2867b87090e8af52906bdde99506f3c385ad1be6edb88a5f8a03ee74",
+      "subject": "platform.runtime_attempt/nonnegative_fence",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "de954722f1eb62517d3692aaf2cf91d18e419c1af9c210ae8b23b523989d1aad",
+      "subject": "platform.runtime_attempt/ordered_finished_at",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "de9cec0e6f7db461cacefea2f18bf23b635d2599cfd9a15911228fdabea6351a",
+      "subject": "platform.runtime_attempt/attempt_order",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "columns",
+      "column": "state",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "c54d8ca1bf8c97536b0e1c922d3c776d359ee0d735e9d859d44ccfddc0774c00",
+      "subject": "platform.runtime_command_receipt/state",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.runtime_command_receipt/created_at",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.runtime_command_receipt/mutation_transaction_id",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "85d0a3e4238060e7335705a0b07400070e680dd03fe78970a335670b43380bf2",
+      "subject": "platform.runtime_command_receipt/hash_fingerprint",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "beb308b6dd428a87a6c82d78ceae799ec2e5680af94e7f12860df7a65f5f1411",
+      "subject": "platform.runtime_command_receipt/hash_result_digest",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "3abdc2968534bc5fc68276d4697660edebf77dea383486f9897d2cc01c032baf",
+      "subject": "platform.runtime_command_receipt/result_storage_digest",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "8a1edc2f960d7b7a787fd1aeb7c567b5e10bbe64bb2c672e184e67c78cbb5f76",
+      "subject": "platform.runtime_command_receipt/result_json_boundary",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "bb6013b312f2023e4d01d5154e2c4a26835023aef3762f7df5e11263bc6cd7aa",
+      "subject": "platform.runtime_command_receipt/result_version_registered",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "9a5804a6dc58332b268a248d0fc97c3c76cec10e35e63306c994d8d56f34fde5",
+      "subject": "platform.runtime_command_receipt/committed_result",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "state",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "c54d8ca1bf8c97536b0e1c922d3c776d359ee0d735e9d859d44ccfddc0774c00",
+      "subject": "platform.runtime_effect_receipt/state",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "fence",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "platform.runtime_effect_receipt/fence",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.runtime_effect_receipt/created_at",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.runtime_effect_receipt/mutation_transaction_id",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "5fff966a2867b87090e8af52906bdde99506f3c385ad1be6edb88a5f8a03ee74",
+      "subject": "platform.runtime_effect_receipt/nonnegative_fence",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "85d0a3e4238060e7335705a0b07400070e680dd03fe78970a335670b43380bf2",
+      "subject": "platform.runtime_effect_receipt/hash_fingerprint",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "d2b8eaf1ec7bd4cc03fbd4795b7c8ab493397ebaa6ca01b476910222895bdf82",
+      "subject": "platform.runtime_effect_receipt/hash_result_hash",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.runtime_inbox_receipt/created_at",
+      "table": "platform.runtime_inbox_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.runtime_inbox_receipt/mutation_transaction_id",
+      "table": "platform.runtime_inbox_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "6f253c4e313c82512cfe547e89ed0a521acf2cfa5895d10b22213de3f882f01e",
+      "subject": "platform.runtime_inbox_receipt/hash_payload_hash",
+      "table": "platform.runtime_inbox_receipt"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.runtime_outbox_message/created_at",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.runtime_outbox_message/mutation_transaction_id",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "0e2be30a7ae600c077e5d7b989962950b25cec2fb8c6e58aa401781e1998bf94",
+      "subject": "platform.runtime_outbox_message/nonnegative_source_generation",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "6f253c4e313c82512cfe547e89ed0a521acf2cfa5895d10b22213de3f882f01e",
+      "subject": "platform.runtime_outbox_message/hash_payload_hash",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "04548166f1c1e2827aac2a65ec891715e306c20dd6833c058e982c6d016659fe",
+      "subject": "platform.runtime_outbox_message/payload_storage_digest",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "ded372d384c42744de59a0a3cbcaba0f82eb4b98da466b44165c4f4e9b4f44fc",
+      "subject": "platform.runtime_outbox_message/source_message_revision",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "columns",
+      "column": "state",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "871b2b45fa432f683a0b23f3228eb4006a95a4f4fe5c5785dc8134b8d5c62462",
+      "subject": "platform.runtime_reservation/state",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "columns",
+      "column": "fence",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "platform.runtime_reservation/fence",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.runtime_reservation/created_at",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.runtime_reservation/mutation_transaction_id",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "5fff966a2867b87090e8af52906bdde99506f3c385ad1be6edb88a5f8a03ee74",
+      "subject": "platform.runtime_reservation/nonnegative_fence",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "edee00c5be7212e39495d669c502bd103878eb8198323a646208940ab9cc68fd",
+      "subject": "platform.runtime_reservation/positive_reservation",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "columns",
+      "column": "state",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "c54d8ca1bf8c97536b0e1c922d3c776d359ee0d735e9d859d44ccfddc0774c00",
+      "subject": "platform.runtime_work_item/state",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "columns",
+      "column": "fence",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "platform.runtime_work_item/fence",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "columns",
+      "column": "attempt_count",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9fb56ada52033b5c709aa83dc204784733d7ece4f88033f61618fd2321540daa",
+      "subject": "platform.runtime_work_item/attempt_count",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "columns",
+      "column": "created_at",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "9352345bea9a92856ec764e8aa2f3b03d3a349347e20acd97dc43c63d14e6bc6",
+      "subject": "platform.runtime_work_item/created_at",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform.runtime_work_item/mutation_transaction_id",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "5fff966a2867b87090e8af52906bdde99506f3c385ad1be6edb88a5f8a03ee74",
+      "subject": "platform.runtime_work_item/nonnegative_fence",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "eca699801c387d7dc95be539139927b8369367a206a64ca035370a212d33b075",
+      "subject": "platform.runtime_work_item/nonnegative_attempt_count",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "53344f832eefbbe07968639af4d6da10b922428f93ebec24c1d36a397e45809e",
+      "subject": "platform.runtime_work_item/hash_lease_token_hash",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "017a9f97aea2a6d1bb6279d31ff32d4b029fdfdce3e888ced8c81fc817973a08",
+      "subject": "platform.runtime_work_item/lease_shape",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform_private.identity_service_authorization/mutation_transaction_id",
+      "table": "platform_private.identity_service_authorization"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "8918ed8e746f6ad5b910d62e8a055321187572ab126394e64aa0866a03157fe9",
+      "subject": "platform_private.identity_service_authorization/<semantic-1>",
+      "table": "platform_private.identity_service_authorization"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "fa3546ba7547dced57e0d01094ac3dd880cbf305367b86d890df286999c7cce6",
+      "subject": "platform_private.identity_service_authorization/<semantic-2>",
+      "table": "platform_private.identity_service_authorization"
+    },
+    {
+      "category": "columns",
+      "column": "mutation_transaction_id",
+      "field": "default",
+      "operation": "column-default",
+      "source_expression_sha256": "1ce931a3432b3c8d310151bb3d7becce5a9ac62ebe5cb529b0f5e517e9648c38",
+      "subject": "platform_private.identity_service_receipt/mutation_transaction_id",
+      "table": "platform_private.identity_service_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "fa3546ba7547dced57e0d01094ac3dd880cbf305367b86d890df286999c7cce6",
+      "subject": "platform_private.identity_service_receipt/<semantic-2>",
+      "table": "platform_private.identity_service_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "cdb2bbf522a20ea9e19971b1f021c31d7cc27f5ed5911d6dd38d1ab28acbef4a",
+      "subject": "platform_private.identity_service_receipt/<semantic-3>",
+      "table": "platform_private.identity_service_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "20b8ff3d4a1af107dc14795cf2aa1b7c6356a6e3bfff5bb6e4cb11405ee72df1",
+      "subject": "platform_private.identity_service_receipt/<semantic-4>",
+      "table": "platform_private.identity_service_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "528c6cabe43870ad01cdae97de476053b31f24b9f9ce04e6b876f33930eb77b6",
+      "subject": "platform_private.identity_service_receipt/<semantic-6>",
+      "table": "platform_private.identity_service_receipt"
+    },
+    {
+      "category": "constraints",
+      "field": "expression",
+      "operation": "check-not-valid",
+      "source_expression_sha256": "f7a44399f66a0bdab00bb43581908fdf76e84af8883e8d0f5567d9033efc697f",
+      "subject": "platform_private.identity_service_receipt/<semantic-7>",
+      "table": "platform_private.identity_service_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.access_audit_logs/p_app_runtime_insert",
+      "source_expression_sha256": "3cd85f86ab038acf9f9b95722aa2b32a93cc94e4235fa11cc47527282ce31eef",
+      "source_policy_field": "with_check",
+      "subject": "app.access_audit_logs/p_app_runtime_insert",
+      "table": "app.access_audit_logs"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.access_audit_logs/p_app_runtime_select",
+      "source_expression_sha256": "3b6f96d3b62e4496e7f04a1ca8182484f74b56453c3c6ea453a0ff583ac29517",
+      "source_policy_field": "using",
+      "subject": "app.access_audit_logs/p_app_runtime_select",
+      "table": "app.access_audit_logs"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.age_gate_attempts/p_app_runtime_insert",
+      "source_expression_sha256": "6e303860e78264e203350c35e33eb170e916a63b84eb2c235e2ae5e12a687095",
+      "source_policy_field": "with_check",
+      "subject": "app.age_gate_attempts/p_app_runtime_insert",
+      "table": "app.age_gate_attempts"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.age_gate_attempts/p_app_runtime_select",
+      "source_expression_sha256": "e417f78c4bf9ec5899fb09b7dd3e3ac77e82f817c2a8a408fdd4fefb839bd797",
+      "source_policy_field": "using",
+      "subject": "app.age_gate_attempts/p_app_runtime_select",
+      "table": "app.age_gate_attempts"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.age_gate_blocks/p_app_runtime_insert",
+      "source_expression_sha256": "f6c8742b4f21e97205cd0561e490d11173738a9694a6f17d4ee4c66df12f1642",
+      "source_policy_field": "with_check",
+      "subject": "app.age_gate_blocks/p_app_runtime_insert",
+      "table": "app.age_gate_blocks"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.age_gate_blocks/p_app_runtime_select",
+      "source_expression_sha256": "7d486f4fdc0e96eb785ae26d2268b79744fe3ce45134de0c76eea2497838da36",
+      "source_policy_field": "using",
+      "subject": "app.age_gate_blocks/p_app_runtime_select",
+      "table": "app.age_gate_blocks"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.audit_events/p_app_runtime_insert",
+      "source_expression_sha256": "9a9fc39dc41897aff91da302ef3e74fdf1617372e8415b4a5beca58f63788559",
+      "source_policy_field": "with_check",
+      "subject": "app.audit_events/p_app_runtime_insert",
+      "table": "app.audit_events"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.audit_events/p_app_runtime_select",
+      "source_expression_sha256": "06acf0b0e461efa8ea02628ac0eaeb96440c0bfe70f0aa849585b463a98f6d48",
+      "source_policy_field": "using",
+      "subject": "app.audit_events/p_app_runtime_select",
+      "table": "app.audit_events"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.auth_provider_accounts/p_app_runtime_insert",
+      "source_expression_sha256": "bf669b985faf046e2b0f3e6ddf5ef463cd2534e316121750d64917d8d9c2f424",
+      "source_policy_field": "with_check",
+      "subject": "app.auth_provider_accounts/p_app_runtime_insert",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.auth_provider_accounts/p_app_runtime_select",
+      "source_expression_sha256": "1880d64db66ce17f04ca103781d477d8f2f4c0da0e361a6a4fd6b65d898194d4",
+      "source_policy_field": "using",
+      "subject": "app.auth_provider_accounts/p_app_runtime_select",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.auth_provider_accounts/p_app_runtime_update",
+      "source_expression_sha256": "aa127fee21646cc91dacf18488931bb2e6b684bab5917df9e7a7a48ca2c6e54b",
+      "source_policy_field": "using",
+      "subject": "app.auth_provider_accounts/p_app_runtime_update",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.auth_provider_accounts/p_app_runtime_update",
+      "source_expression_sha256": "aa127fee21646cc91dacf18488931bb2e6b684bab5917df9e7a7a48ca2c6e54b",
+      "source_policy_field": "with_check",
+      "subject": "app.auth_provider_accounts/p_app_runtime_update",
+      "table": "app.auth_provider_accounts"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.candidate_profiles/p_app_runtime_select",
+      "source_expression_sha256": "9cb1a393f1404a4f6c15a4b4da42c323e9c1c94c3a0ddfd967e9c4dc4ca0cd04",
+      "source_policy_field": "using",
+      "subject": "app.candidate_profiles/p_app_runtime_select",
+      "table": "app.candidate_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.consent_content_revision/p_app_runtime_insert",
+      "source_expression_sha256": "c60cbbb7dfa655eccb6912db7d898540be4f5dddcdd0880951e20751e8e899af",
+      "source_policy_field": "with_check",
+      "subject": "app.consent_content_revision/p_app_runtime_insert",
+      "table": "app.consent_content_revision"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.consent_content_revision/p_app_runtime_select",
+      "source_expression_sha256": "7bbb33dbf6e2e91739a19c8d3fb23d19051236fb7bbd29a134600036a49d9d0a",
+      "source_policy_field": "using",
+      "subject": "app.consent_content_revision/p_app_runtime_select",
+      "table": "app.consent_content_revision"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.consent_disposition/p_app_runtime_insert",
+      "source_expression_sha256": "4c3f969b0781ba3c0057bae937ce3f7421b8340bbd7e366705485d89c491c170",
+      "source_policy_field": "with_check",
+      "subject": "app.consent_disposition/p_app_runtime_insert",
+      "table": "app.consent_disposition"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.consent_disposition/p_app_runtime_select",
+      "source_expression_sha256": "7bffd126efeb757bcfdc24d6544e33f728590b217d6d2f1f45b056d22073e883",
+      "source_policy_field": "using",
+      "subject": "app.consent_disposition/p_app_runtime_select",
+      "table": "app.consent_disposition"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.consent_logs/p_app_runtime_insert",
+      "source_expression_sha256": "21c27d12d135cb17f6ceb74a042239d702d7fb6accec9464b09197f1692ef45a",
+      "source_policy_field": "with_check",
+      "subject": "app.consent_logs/p_app_runtime_insert",
+      "table": "app.consent_logs"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.consent_logs/p_app_runtime_select",
+      "source_expression_sha256": "bb225e69e30db37d1e4f7e29fbe8e3f5ce98178df84e918ce67ca79ad6625720",
+      "source_policy_field": "using",
+      "subject": "app.consent_logs/p_app_runtime_select",
+      "table": "app.consent_logs"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.consent_presentation/p_app_runtime_insert",
+      "source_expression_sha256": "a548411e99cbd2e34e542048f8ce7e9fa0afa46a686e9f65e206c0419b847e1f",
+      "source_policy_field": "with_check",
+      "subject": "app.consent_presentation/p_app_runtime_insert",
+      "table": "app.consent_presentation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.consent_presentation/p_app_runtime_select",
+      "source_expression_sha256": "dbe810e433af3570b9c6f00ca2c01e74e0813bd45ec12dd71a51fadb3f8c7e14",
+      "source_policy_field": "using",
+      "subject": "app.consent_presentation/p_app_runtime_select",
+      "table": "app.consent_presentation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.customer_profile_lifecycle_event/leaf_wa_customer_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.customer_profile_lifecycle_event/leaf_wa_customer_verifier",
+      "table": "app.customer_profile_lifecycle_event"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.customer_profile_lifecycle_event/p_app_runtime_insert",
+      "source_expression_sha256": "0e40f884778f722acf4362cfc9dde1b5f569bbcdd72f3b757e5e2ec71e80d514",
+      "source_policy_field": "with_check",
+      "subject": "app.customer_profile_lifecycle_event/p_app_runtime_insert",
+      "table": "app.customer_profile_lifecycle_event"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.customer_profile_lifecycle_event/p_app_runtime_select",
+      "source_expression_sha256": "780c4785b904a83ebb738cd4520836fb489abe0c7f4b78881b53946ae90871c9",
+      "source_policy_field": "using",
+      "subject": "app.customer_profile_lifecycle_event/p_app_runtime_select",
+      "table": "app.customer_profile_lifecycle_event"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.customer_profiles/leaf_wa_customer_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.customer_profiles/leaf_wa_customer_verifier",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.customer_profiles/p_app_runtime_insert",
+      "source_expression_sha256": "d3376044629ad44144161327b3ac8d58dcdf6754d21bc85b4292d910ed2cc8ec",
+      "source_policy_field": "with_check",
+      "subject": "app.customer_profiles/p_app_runtime_insert",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.customer_profiles/p_app_runtime_select",
+      "source_expression_sha256": "26bd60b19dcd7ae10a2d90a9006ecd5a29d1744436df5664e7d8604cfca966c3",
+      "source_policy_field": "using",
+      "subject": "app.customer_profiles/p_app_runtime_select",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.customer_profiles/p_app_runtime_update",
+      "source_expression_sha256": "302c4d8aede7aefe19e793f956b9b341fde8aa9d6e182561d10eb73010efbeca",
+      "source_policy_field": "using",
+      "subject": "app.customer_profiles/p_app_runtime_update",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.customer_profiles/p_app_runtime_update",
+      "source_expression_sha256": "302c4d8aede7aefe19e793f956b9b341fde8aa9d6e182561d10eb73010efbeca",
+      "source_policy_field": "with_check",
+      "subject": "app.customer_profiles/p_app_runtime_update",
+      "table": "app.customer_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.privacy_owner_receipt/p_app_runtime_insert",
+      "source_expression_sha256": "6741eb60a48c834471bcd9e1fbb38197a0e72b17b3f4e69a3b9d58e1226a0515",
+      "source_policy_field": "with_check",
+      "subject": "app.privacy_owner_receipt/p_app_runtime_insert",
+      "table": "app.privacy_owner_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.privacy_owner_receipt/p_app_runtime_select",
+      "source_expression_sha256": "00450ecb9f98f9ef10093838ab2c6bd6a9d06e6091bf526c1c8cd00b20542be9",
+      "source_policy_field": "using",
+      "subject": "app.privacy_owner_receipt/p_app_runtime_select",
+      "table": "app.privacy_owner_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.privacy_requests/p_app_runtime_insert",
+      "source_expression_sha256": "ed7bf577767a6ca83458c7244b1375e4b43e490d8a9ad56681801f298ae3b81a",
+      "source_policy_field": "with_check",
+      "subject": "app.privacy_requests/p_app_runtime_insert",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.privacy_requests/p_app_runtime_select",
+      "source_expression_sha256": "5819d27a629c56b54f20e9063c4ebbd1572f892bbad5f92ed8bd2615d1c64eae",
+      "source_policy_field": "using",
+      "subject": "app.privacy_requests/p_app_runtime_select",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.privacy_requests/p_app_runtime_update",
+      "source_expression_sha256": "8c5a0b8b45c280380f95b3de08a3d8272717f5dc78adfcf6ad587081676cc481",
+      "source_policy_field": "using",
+      "subject": "app.privacy_requests/p_app_runtime_update",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.privacy_requests/p_app_runtime_update",
+      "source_expression_sha256": "8c5a0b8b45c280380f95b3de08a3d8272717f5dc78adfcf6ad587081676cc481",
+      "source_policy_field": "with_check",
+      "subject": "app.privacy_requests/p_app_runtime_update",
+      "table": "app.privacy_requests"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.privacy_restore_marker/p_app_runtime_insert",
+      "source_expression_sha256": "a082ee634543443f27956ea8fea9e02b6fd73100ae42ac5cd163ca9443bfe277",
+      "source_policy_field": "with_check",
+      "subject": "app.privacy_restore_marker/p_app_runtime_insert",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.privacy_restore_marker/p_app_runtime_select",
+      "source_expression_sha256": "ea7558f7b31f2adacda733521e53cd93f783a01920fd95bc58e01b130cef9ab2",
+      "source_policy_field": "using",
+      "subject": "app.privacy_restore_marker/p_app_runtime_select",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.privacy_restore_marker/p_app_runtime_update",
+      "source_expression_sha256": "08d30eba6251f0a2bf421698fd36233dcc0ffccf98d17df4d0f0094050d15e72",
+      "source_policy_field": "using",
+      "subject": "app.privacy_restore_marker/p_app_runtime_update",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.privacy_restore_marker/p_app_runtime_update",
+      "source_expression_sha256": "08d30eba6251f0a2bf421698fd36233dcc0ffccf98d17df4d0f0094050d15e72",
+      "source_policy_field": "with_check",
+      "subject": "app.privacy_restore_marker/p_app_runtime_update",
+      "table": "app.privacy_restore_marker"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.privacy_target_instruction/p_app_runtime_insert",
+      "source_expression_sha256": "ffd9d05066f7f0e3ac7af1913d99d132998d8040b502a0719663b84dc22225cc",
+      "source_policy_field": "with_check",
+      "subject": "app.privacy_target_instruction/p_app_runtime_insert",
+      "table": "app.privacy_target_instruction"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.privacy_target_instruction/p_app_runtime_select",
+      "source_expression_sha256": "0dde71c59b6c7a172c8f3c2e8001cdd5315b96b7cebe2959b71a0adf4bae801b",
+      "source_policy_field": "using",
+      "subject": "app.privacy_target_instruction/p_app_runtime_select",
+      "table": "app.privacy_target_instruction"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.professional_profiles/p_app_runtime_select",
+      "source_expression_sha256": "976973de50b41c4cf848ad66f9c493397f8046d1dc747a806990599c7bbf0c46",
+      "source_policy_field": "using",
+      "subject": "app.professional_profiles/p_app_runtime_select",
+      "table": "app.professional_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.track_base_selection/leaf_wa_track_verifier",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/p_app_runtime_insert",
+      "source_expression_sha256": "0794dad1c02476cbb28091a4f865036d947c5720500a9f3ca800d629a1ff247f",
+      "source_policy_field": "with_check",
+      "subject": "app.track_base_selection/p_app_runtime_insert",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/p_app_runtime_select",
+      "source_expression_sha256": "dfd3bbc8c799c972c25f546248171defccb88f040885208240a8aee5f43a0f5f",
+      "source_policy_field": "using",
+      "subject": "app.track_base_selection/p_app_runtime_select",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/p_app_runtime_update",
+      "source_expression_sha256": "9ba70460e7cb59c739bf82fa3675b0749391a69ab76e04608aae638c69e4b6b9",
+      "source_policy_field": "using",
+      "subject": "app.track_base_selection/p_app_runtime_update",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/p_app_runtime_update",
+      "source_expression_sha256": "9ba70460e7cb59c739bf82fa3675b0749391a69ab76e04608aae638c69e4b6b9",
+      "source_policy_field": "with_check",
+      "subject": "app.track_base_selection/p_app_runtime_update",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/p_worker_insert",
+      "source_expression_sha256": "c1ec9698eb08e39805b4fb3d487f74df0f081d4515bcac39e893de0b8f13d36e",
+      "source_policy_field": "with_check",
+      "subject": "app.track_base_selection/p_worker_insert",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/p_worker_select",
+      "source_expression_sha256": "959149a7ac7a4baabb48dacbebadbc682386be1b950bc6cd5ff40e8e80067332",
+      "source_policy_field": "using",
+      "subject": "app.track_base_selection/p_worker_select",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/p_worker_update",
+      "source_expression_sha256": "05a840c6bbe7b3eb0d09f6db9b10bda7e4c3f4f331c51b83716b1fdc3e671e40",
+      "source_policy_field": "using",
+      "subject": "app.track_base_selection/p_worker_update",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_base_selection/p_worker_update",
+      "source_expression_sha256": "05a840c6bbe7b3eb0d09f6db9b10bda7e4c3f4f331c51b83716b1fdc3e671e40",
+      "source_policy_field": "with_check",
+      "subject": "app.track_base_selection/p_worker_update",
+      "table": "app.track_base_selection"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_enrollment_receipt/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.track_enrollment_receipt/leaf_wa_track_verifier",
+      "table": "app.track_enrollment_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_enrollment_receipt/p_app_runtime_insert",
+      "source_expression_sha256": "26194c7e16c33614e5d45f09e66d813c0829baeb18e6fe707084a10d45d2f389",
+      "source_policy_field": "with_check",
+      "subject": "app.track_enrollment_receipt/p_app_runtime_insert",
+      "table": "app.track_enrollment_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_enrollment_receipt/p_app_runtime_select",
+      "source_expression_sha256": "f8a2e82b527b86cd60627c8aee7d2f51089dc26bcacfa3886737b2c256125532",
+      "source_policy_field": "using",
+      "subject": "app.track_enrollment_receipt/p_app_runtime_select",
+      "table": "app.track_enrollment_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_enrollment_receipt/p_worker_insert",
+      "source_expression_sha256": "1ae4a2e6bc9f7af9126e288cd424508a7805c3de6f8b0b6eedf40335e308c727",
+      "source_policy_field": "with_check",
+      "subject": "app.track_enrollment_receipt/p_worker_insert",
+      "table": "app.track_enrollment_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_enrollment_receipt/p_worker_select",
+      "source_expression_sha256": "e2ade59716cb322cf01a1af9ab57a8e6ee8df1f8997d04668be5729046baf89a",
+      "source_policy_field": "using",
+      "subject": "app.track_enrollment_receipt/p_worker_select",
+      "table": "app.track_enrollment_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_definitions/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.track_entitlement_definitions/leaf_wa_track_verifier",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_definitions/p_app_runtime_insert",
+      "source_expression_sha256": "495c7d625a7dc76e6f4a0899ef2b192193b45a6f48f961202a537b5570a1fb37",
+      "source_policy_field": "with_check",
+      "subject": "app.track_entitlement_definitions/p_app_runtime_insert",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_definitions/p_app_runtime_select",
+      "source_expression_sha256": "3ddc5f78983d9e2dc4034d91d912fdcd5f606a5cb466df2b8694db0d8bf0373e",
+      "source_policy_field": "using",
+      "subject": "app.track_entitlement_definitions/p_app_runtime_select",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_definitions/p_app_runtime_update",
+      "source_expression_sha256": "e77b60ae86a5eb236ae2bcf04331b712cca0ea9a5f313f8e867474673c3b516c",
+      "source_policy_field": "using",
+      "subject": "app.track_entitlement_definitions/p_app_runtime_update",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_definitions/p_app_runtime_update",
+      "source_expression_sha256": "e77b60ae86a5eb236ae2bcf04331b712cca0ea9a5f313f8e867474673c3b516c",
+      "source_policy_field": "with_check",
+      "subject": "app.track_entitlement_definitions/p_app_runtime_update",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_definitions/p_worker_select",
+      "source_expression_sha256": "330c348339db4bc63b0b7709455595a9e02681cfddbc7dacf562cf82e3975970",
+      "source_policy_field": "using",
+      "subject": "app.track_entitlement_definitions/p_worker_select",
+      "table": "app.track_entitlement_definitions"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_grants/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.track_entitlement_grants/leaf_wa_track_verifier",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_grants/p_app_runtime_insert",
+      "source_expression_sha256": "e97a049a9d256264763337fd5a9e83a380d8d5f8e723d35230c45b485445e5a7",
+      "source_policy_field": "with_check",
+      "subject": "app.track_entitlement_grants/p_app_runtime_insert",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_grants/p_app_runtime_select",
+      "source_expression_sha256": "3928b3424a3c21b76d59aba6fedf3ff8e974243bded73b3b6997c99dd593c7e4",
+      "source_policy_field": "using",
+      "subject": "app.track_entitlement_grants/p_app_runtime_select",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_grants/p_app_runtime_update",
+      "source_expression_sha256": "f2a2749d193c91c05ec8985885e4bf7ce22f40dacc5b02e062a2e04a59e97315",
+      "source_policy_field": "using",
+      "subject": "app.track_entitlement_grants/p_app_runtime_update",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_grants/p_app_runtime_update",
+      "source_expression_sha256": "f2a2749d193c91c05ec8985885e4bf7ce22f40dacc5b02e062a2e04a59e97315",
+      "source_policy_field": "with_check",
+      "subject": "app.track_entitlement_grants/p_app_runtime_update",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_grants/p_worker_insert",
+      "source_expression_sha256": "aec8864cbd5bbaee1b705e920966bb92ee89bcb26d829415797a43ce25f9b91c",
+      "source_policy_field": "with_check",
+      "subject": "app.track_entitlement_grants/p_worker_insert",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_entitlement_grants/p_worker_select",
+      "source_expression_sha256": "35dd63d5284b1f54e0da2d35b1c747b9471d8ddb3b1f14accc914c1e410d9b44",
+      "source_policy_field": "using",
+      "subject": "app.track_entitlement_grants/p_worker_select",
+      "table": "app.track_entitlement_grants"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_plan_entitlements/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.track_plan_entitlements/leaf_wa_track_verifier",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_plan_entitlements/p_app_runtime_insert",
+      "source_expression_sha256": "bb2c283682dc54a7099744ec10553447fa8a22e42f66606e9a75d16aa25cf3b8",
+      "source_policy_field": "with_check",
+      "subject": "app.track_plan_entitlements/p_app_runtime_insert",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_plan_entitlements/p_app_runtime_select",
+      "source_expression_sha256": "c2dbaaf3c2fe274d33f09ff4237153ce3453de556fe8b1e56ea300c21fb5d524",
+      "source_policy_field": "using",
+      "subject": "app.track_plan_entitlements/p_app_runtime_select",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_plan_entitlements/p_app_runtime_update",
+      "source_expression_sha256": "51830156a5f0b0c12cd5ab6fbbec9884a54646d0e4dbc1e783a697e2afa4f87c",
+      "source_policy_field": "using",
+      "subject": "app.track_plan_entitlements/p_app_runtime_update",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_plan_entitlements/p_app_runtime_update",
+      "source_expression_sha256": "51830156a5f0b0c12cd5ab6fbbec9884a54646d0e4dbc1e783a697e2afa4f87c",
+      "source_policy_field": "with_check",
+      "subject": "app.track_plan_entitlements/p_app_runtime_update",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_plan_entitlements/p_worker_select",
+      "source_expression_sha256": "4c7811f70641c1b91659870fe2fc0858dddba257f4e1d1572a51794c50de01da",
+      "source_policy_field": "using",
+      "subject": "app.track_plan_entitlements/p_worker_select",
+      "table": "app.track_plan_entitlements"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_plans/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.track_plans/leaf_wa_track_verifier",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_plans/p_app_runtime_insert",
+      "source_expression_sha256": "b03c720e9933d6104786cd49b4c69ea016dd96494713a6db5d64b3579912a06f",
+      "source_policy_field": "with_check",
+      "subject": "app.track_plans/p_app_runtime_insert",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_plans/p_app_runtime_select",
+      "source_expression_sha256": "4e1bbc5b35dc298eeb3dfb579f6209f189ed9a570cb0dcf55a1897f9bd641ad8",
+      "source_policy_field": "using",
+      "subject": "app.track_plans/p_app_runtime_select",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_plans/p_app_runtime_update",
+      "source_expression_sha256": "af7b1ba652cbd2c1a9c394ea041bf20198a415f56eda3db87ea343a6750934b5",
+      "source_policy_field": "using",
+      "subject": "app.track_plans/p_app_runtime_update",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_plans/p_app_runtime_update",
+      "source_expression_sha256": "af7b1ba652cbd2c1a9c394ea041bf20198a415f56eda3db87ea343a6750934b5",
+      "source_policy_field": "with_check",
+      "subject": "app.track_plans/p_app_runtime_update",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_plans/p_worker_select",
+      "source_expression_sha256": "001449e9d64b87847d1ad92f4154cb086e0ebc21b8a916178a22cdd14514aff8",
+      "source_policy_field": "using",
+      "subject": "app.track_plans/p_worker_select",
+      "table": "app.track_plans"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_subscription_events/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.track_subscription_events/leaf_wa_track_verifier",
+      "table": "app.track_subscription_events"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_subscription_events/p_app_runtime_insert",
+      "source_expression_sha256": "51d4c754b49cf13092f0d8ec8ac6957b6ae59985d62820d2aead2b8701bd7fc7",
+      "source_policy_field": "with_check",
+      "subject": "app.track_subscription_events/p_app_runtime_insert",
+      "table": "app.track_subscription_events"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_subscription_events/p_app_runtime_select",
+      "source_expression_sha256": "0525fe0078e005d6a5cf3aa8b08e5dff381a063168bd79cc3b18ea69aab5d1bc",
+      "source_policy_field": "using",
+      "subject": "app.track_subscription_events/p_app_runtime_select",
+      "table": "app.track_subscription_events"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_subscription_events/p_worker_insert",
+      "source_expression_sha256": "a821bb4edbc7b9ccd5272ad40bb21afbeed00ee3cee1798acfe11754d638437e",
+      "source_policy_field": "with_check",
+      "subject": "app.track_subscription_events/p_worker_insert",
+      "table": "app.track_subscription_events"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_subscriptions/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.track_subscriptions/leaf_wa_track_verifier",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_subscriptions/p_app_runtime_insert",
+      "source_expression_sha256": "bb8cde09db47287f9457846f4311a60c01edbafa1474c0cf4a13a7500fd60ade",
+      "source_policy_field": "with_check",
+      "subject": "app.track_subscriptions/p_app_runtime_insert",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_subscriptions/p_app_runtime_select",
+      "source_expression_sha256": "94eaa304e17d645d82d993da7a23cb7020584cb9c522ab9dea1e54b039ee8753",
+      "source_policy_field": "using",
+      "subject": "app.track_subscriptions/p_app_runtime_select",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_subscriptions/p_app_runtime_update",
+      "source_expression_sha256": "103c19aea5d77700a4e5aac66036ce69ee84e9b271fa31a68375f93dbab06a24",
+      "source_policy_field": "using",
+      "subject": "app.track_subscriptions/p_app_runtime_update",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_subscriptions/p_app_runtime_update",
+      "source_expression_sha256": "103c19aea5d77700a4e5aac66036ce69ee84e9b271fa31a68375f93dbab06a24",
+      "source_policy_field": "with_check",
+      "subject": "app.track_subscriptions/p_app_runtime_update",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_subscriptions/p_worker_insert",
+      "source_expression_sha256": "57d618fbfe9574202f19ea9e371bc80a9dfdfda79f586812c957614165d54b05",
+      "source_policy_field": "with_check",
+      "subject": "app.track_subscriptions/p_worker_insert",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_subscriptions/p_worker_select",
+      "source_expression_sha256": "1300b178a8a48df38b8785fd26d890ec7af596bed5769c9a5f81ebab282c1eac",
+      "source_policy_field": "using",
+      "subject": "app.track_subscriptions/p_worker_select",
+      "table": "app.track_subscriptions"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_counters/p_app_runtime_insert",
+      "source_expression_sha256": "6652e9c694cd5cedd7f2e7d58f918511342d856418d30a7870bac01606fdc9b8",
+      "source_policy_field": "with_check",
+      "subject": "app.track_usage_counters/p_app_runtime_insert",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_counters/p_app_runtime_select",
+      "source_expression_sha256": "f2345800adc57f83482956adf015c789e0e144325912c69a3b175307d3499339",
+      "source_policy_field": "using",
+      "subject": "app.track_usage_counters/p_app_runtime_select",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_counters/p_app_runtime_update",
+      "source_expression_sha256": "96399482036b59d12f5323ea70c64060df00e2886d1e268a6a7197423c66c13f",
+      "source_policy_field": "using",
+      "subject": "app.track_usage_counters/p_app_runtime_update",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_counters/p_app_runtime_update",
+      "source_expression_sha256": "96399482036b59d12f5323ea70c64060df00e2886d1e268a6a7197423c66c13f",
+      "source_policy_field": "with_check",
+      "subject": "app.track_usage_counters/p_app_runtime_update",
+      "table": "app.track_usage_counters"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_events/p_app_runtime_insert",
+      "source_expression_sha256": "33148f8208c5fc55e347d353554846572d900a6c09e77d9b683daa047f39ced0",
+      "source_policy_field": "with_check",
+      "subject": "app.track_usage_events/p_app_runtime_insert",
+      "table": "app.track_usage_events"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_events/p_app_runtime_select",
+      "source_expression_sha256": "9dbf1393760e2333da692bfd7cbea82cb78159e2f317ce93f08da688e23d5c57",
+      "source_policy_field": "using",
+      "subject": "app.track_usage_events/p_app_runtime_select",
+      "table": "app.track_usage_events"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_reservation/p_app_runtime_insert",
+      "source_expression_sha256": "48a9d38a1718324f48e967c4376c7179d1c0f00737e6b00a9926f243ce5ca9a7",
+      "source_policy_field": "with_check",
+      "subject": "app.track_usage_reservation/p_app_runtime_insert",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_reservation/p_app_runtime_select",
+      "source_expression_sha256": "e20bd518d2275e88204717bc27a2c674f534c33938ed0b1040556fe816d3fb97",
+      "source_policy_field": "using",
+      "subject": "app.track_usage_reservation/p_app_runtime_select",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_reservation/p_app_runtime_update",
+      "source_expression_sha256": "8a62bd44f8cb5b3cfb88816730d89ae1656ab22f04af7c779fba8f211a1c978c",
+      "source_policy_field": "using",
+      "subject": "app.track_usage_reservation/p_app_runtime_update",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.track_usage_reservation/p_app_runtime_update",
+      "source_expression_sha256": "8a62bd44f8cb5b3cfb88816730d89ae1656ab22f04af7c779fba8f211a1c978c",
+      "source_policy_field": "with_check",
+      "subject": "app.track_usage_reservation/p_app_runtime_update",
+      "table": "app.track_usage_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.user_roles/p_app_runtime_insert",
+      "source_expression_sha256": "76994f2caa4ed504a719f3cad540b9465792830a4d7e19d6ceebe7d04584e30f",
+      "source_policy_field": "with_check",
+      "subject": "app.user_roles/p_app_runtime_insert",
+      "table": "app.user_roles"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.user_roles/p_app_runtime_select",
+      "source_expression_sha256": "e994aa0ef0c278acaec08213c996bfb68dd0e682c6d2b569fe3552ed2d1e1ad4",
+      "source_policy_field": "using",
+      "subject": "app.user_roles/p_app_runtime_select",
+      "table": "app.user_roles"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.user_roles/p_app_runtime_update",
+      "source_expression_sha256": "799a06e422aed06b503a7f02f97a0a38beff801f254b5c96491ccb52af33cc7a",
+      "source_policy_field": "using",
+      "subject": "app.user_roles/p_app_runtime_update",
+      "table": "app.user_roles"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.user_roles/p_app_runtime_update",
+      "source_expression_sha256": "799a06e422aed06b503a7f02f97a0a38beff801f254b5c96491ccb52af33cc7a",
+      "source_policy_field": "with_check",
+      "subject": "app.user_roles/p_app_runtime_update",
+      "table": "app.user_roles"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.user_security_profiles/p_app_runtime_insert",
+      "source_expression_sha256": "8799ac94f19905dfafc140bf838ca65a8e123ab15d4f6d081a4631f480c268e7",
+      "source_policy_field": "with_check",
+      "subject": "app.user_security_profiles/p_app_runtime_insert",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.user_security_profiles/p_app_runtime_select",
+      "source_expression_sha256": "9c131dbfba665c71162a91a377ab68a8fbfbf92e7424c07bf74babcd647a948d",
+      "source_policy_field": "using",
+      "subject": "app.user_security_profiles/p_app_runtime_select",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.user_security_profiles/p_app_runtime_update",
+      "source_expression_sha256": "aff3b79b707de198481b1cad56d82479cb3bf3e72b01ebb00c1c82164837a888",
+      "source_policy_field": "using",
+      "subject": "app.user_security_profiles/p_app_runtime_update",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.user_security_profiles/p_app_runtime_update",
+      "source_expression_sha256": "aff3b79b707de198481b1cad56d82479cb3bf3e72b01ebb00c1c82164837a888",
+      "source_policy_field": "with_check",
+      "subject": "app.user_security_profiles/p_app_runtime_update",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.user_security_profiles/security_helper_read",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "app.user_security_profiles/security_helper_read",
+      "table": "app.user_security_profiles"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.users/p_app_runtime_insert",
+      "source_expression_sha256": "604c9f93992c65175a1da88a0442d78fe6aee3696295448287ab9263580bca9d",
+      "source_policy_field": "with_check",
+      "subject": "app.users/p_app_runtime_insert",
+      "table": "app.users"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.users/p_app_runtime_select",
+      "source_expression_sha256": "b6db67f6c06e3651fdad146f529b9b7a5585aab69f0417d3740016fe936e348c",
+      "source_policy_field": "using",
+      "subject": "app.users/p_app_runtime_select",
+      "table": "app.users"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "app.users/p_app_runtime_update",
+      "source_expression_sha256": "888bbab20952d834e6e6840e2ab7479c54cd1f19df6de4c90ba77ed1aeb403a9",
+      "source_policy_field": "using",
+      "subject": "app.users/p_app_runtime_update",
+      "table": "app.users"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "app.users/p_app_runtime_update",
+      "source_expression_sha256": "888bbab20952d834e6e6840e2ab7479c54cd1f19df6de4c90ba77ed1aeb403a9",
+      "source_policy_field": "with_check",
+      "subject": "app.users/p_app_runtime_update",
+      "table": "app.users"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.database_action_grant/grant_helper_read",
+      "source_expression_sha256": "c35708a5d22997fcc4e95deee1553d8766e47b44b004af8297879c23f26bfffb",
+      "source_policy_field": "using",
+      "subject": "platform.database_action_grant/grant_helper_read",
+      "table": "platform.database_action_grant"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.database_action_grant/grant_issuer_insert",
+      "source_expression_sha256": "0d8a50bea2c80f294b2aa8523016ffcfa6d7f159bec121357d4957323e981004",
+      "source_policy_field": "with_check",
+      "subject": "platform.database_action_grant/grant_issuer_insert",
+      "table": "platform.database_action_grant"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.database_action_grant/grant_issuer_revoke",
+      "source_expression_sha256": "0d8a50bea2c80f294b2aa8523016ffcfa6d7f159bec121357d4957323e981004",
+      "source_policy_field": "using",
+      "subject": "platform.database_action_grant/grant_issuer_revoke",
+      "table": "platform.database_action_grant"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.database_action_grant/grant_issuer_revoke",
+      "source_expression_sha256": "0d8a50bea2c80f294b2aa8523016ffcfa6d7f159bec121357d4957323e981004",
+      "source_policy_field": "with_check",
+      "subject": "platform.database_action_grant/grant_issuer_revoke",
+      "table": "platform.database_action_grant"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.database_action_grant/grant_issuer_select",
+      "source_expression_sha256": "0d8a50bea2c80f294b2aa8523016ffcfa6d7f159bec121357d4957323e981004",
+      "source_policy_field": "using",
+      "subject": "platform.database_action_grant/grant_issuer_select",
+      "table": "platform.database_action_grant"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.owner_mutation_evidence/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform.owner_mutation_evidence/leaf_wa_track_verifier",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.owner_mutation_evidence/p_app_runtime_insert",
+      "source_expression_sha256": "faa638fa2155bf6240d797f977bd4d79fa4f6549b4e1c88c7679ace4b1ced2b6",
+      "source_policy_field": "with_check",
+      "subject": "platform.owner_mutation_evidence/p_app_runtime_insert",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.owner_mutation_evidence/p_app_runtime_select",
+      "source_expression_sha256": "ae23c4ef436be3d55a3ad39edbbf28988da2f7736379fbcbc8e7356f9520f7d8",
+      "source_policy_field": "using",
+      "subject": "platform.owner_mutation_evidence/p_app_runtime_select",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.owner_mutation_evidence/p_worker_insert",
+      "source_expression_sha256": "191d20e7971821797d493d2cdaf759da6db9172d0024b5f49c45f6a62b104158",
+      "source_policy_field": "with_check",
+      "subject": "platform.owner_mutation_evidence/p_worker_insert",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.owner_mutation_evidence/p_worker_select",
+      "source_expression_sha256": "733b66c63ebc12bd6b89e1762282ff5260939ff5e2f2db3159f2b871a0b84ac3",
+      "source_policy_field": "using",
+      "subject": "platform.owner_mutation_evidence/p_worker_select",
+      "table": "platform.owner_mutation_evidence"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_attempt/p_app_runtime_insert",
+      "source_expression_sha256": "166fc3ef6a95fc50d264c81764f64bcb79d5f10befd20c7434400712701df3f4",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_attempt/p_app_runtime_insert",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_attempt/p_app_runtime_select",
+      "source_expression_sha256": "a6c6815d04bcd1c7602ca892b0c4e60a00edd6f26cf80efc3831042df6e76f57",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_attempt/p_app_runtime_select",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_attempt/p_worker_insert",
+      "source_expression_sha256": "579e46f75d4ccf3546bf7b6af79d543b52d9de0b5a8b77c9369880f5c67c9d16",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_attempt/p_worker_insert",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_attempt/p_worker_select",
+      "source_expression_sha256": "5303cb6046656d0d3148a92451be12f4ceb6745dddc9d5180bba2304c496ea88",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_attempt/p_worker_select",
+      "table": "platform.runtime_attempt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_command_receipt/leaf_wa_track_verifier",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/p_app_runtime_insert",
+      "source_expression_sha256": "7f94e4299317006a212cac012e1534f5429bbf0f6db7b529d12e2195b46224b4",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_command_receipt/p_app_runtime_insert",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/p_app_runtime_select",
+      "source_expression_sha256": "31bae7505ff6ada566c01377202855e4a39976923cedc7a35cc6453211fca572",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_command_receipt/p_app_runtime_select",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/p_app_runtime_update",
+      "source_expression_sha256": "fcbc8214c7bdbb790c4577b0d54f57a9d4219daae484cf52c0a3acc79b900efc",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_command_receipt/p_app_runtime_update",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/p_app_runtime_update",
+      "source_expression_sha256": "fcbc8214c7bdbb790c4577b0d54f57a9d4219daae484cf52c0a3acc79b900efc",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_command_receipt/p_app_runtime_update",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/p_worker_insert",
+      "source_expression_sha256": "32b4cb64afa9c113dbf63e69939485f9297b7c5a978d8db996f3c59007bc26c9",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_command_receipt/p_worker_insert",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/p_worker_select",
+      "source_expression_sha256": "272048b669c4be996a4abc062a9ae83a59f9d6d1e07cb800e3baef995fb7158e",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_command_receipt/p_worker_select",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/p_worker_update",
+      "source_expression_sha256": "2cd30d2f466009cca0f46fb8bc4529eedda814a7a94272b9980355417a181fa4",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_command_receipt/p_worker_update",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_command_receipt/p_worker_update",
+      "source_expression_sha256": "2cd30d2f466009cca0f46fb8bc4529eedda814a7a94272b9980355417a181fa4",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_command_receipt/p_worker_update",
+      "table": "platform.runtime_command_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_effect_receipt/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_effect_receipt/leaf_wa_track_verifier",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_effect_receipt/p_app_runtime_insert",
+      "source_expression_sha256": "05e587798cbc2b23c903f470416b34c0d361459c2036b9fcf16410027cf2eb42",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_effect_receipt/p_app_runtime_insert",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_effect_receipt/p_app_runtime_select",
+      "source_expression_sha256": "febb2bd0d19507973be042d1f4a8250a241553ce4ade0e085af5665b4a482885",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_effect_receipt/p_app_runtime_select",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_effect_receipt/p_worker_insert",
+      "source_expression_sha256": "a090d5f7cb08a02c6bbf994a73d15a745a41142148d15fc455a60505e339bde5",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_effect_receipt/p_worker_insert",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_effect_receipt/p_worker_select",
+      "source_expression_sha256": "5cf76b208c5c1e7130951ce731aa29f39b55c85c6d76cc1120c9263496185e85",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_effect_receipt/p_worker_select",
+      "table": "platform.runtime_effect_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_inbox_receipt/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_inbox_receipt/leaf_wa_track_verifier",
+      "table": "platform.runtime_inbox_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_inbox_receipt/p_app_runtime_insert",
+      "source_expression_sha256": "1d0203909df5bbfece58f3a3ceb9c4684abc9d8392db428d034715ddb41b768a",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_inbox_receipt/p_app_runtime_insert",
+      "table": "platform.runtime_inbox_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_inbox_receipt/p_app_runtime_select",
+      "source_expression_sha256": "49865a36844997ab6b9792d8ce4d3ded0b660a75a35f23efc9d8c00e782959c3",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_inbox_receipt/p_app_runtime_select",
+      "table": "platform.runtime_inbox_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_inbox_receipt/p_worker_insert",
+      "source_expression_sha256": "c7882952094903bbcd3d6ac3106e570e295e7f0c0232b61cf2bcc91e832a05f4",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_inbox_receipt/p_worker_insert",
+      "table": "platform.runtime_inbox_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_inbox_receipt/p_worker_select",
+      "source_expression_sha256": "5ae623c1341ab85d2df906a7b299b78ce42fe172c5c14cf071dee106d7e53cf0",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_inbox_receipt/p_worker_select",
+      "table": "platform.runtime_inbox_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_outbox_message/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_outbox_message/leaf_wa_track_verifier",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_outbox_message/p_app_runtime_insert",
+      "source_expression_sha256": "3a200db0cc2e36a35d1cb10dbb39d264e4c96fd3bbc503ddb10c3ac27e58dbb0",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_outbox_message/p_app_runtime_insert",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_outbox_message/p_app_runtime_select",
+      "source_expression_sha256": "0734a6263d607bfe4a33090ff471065ff689b76cfe7c7b4a756ff8d38ec7002c",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_outbox_message/p_app_runtime_select",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_outbox_message/p_worker_insert",
+      "source_expression_sha256": "61636400725b478521aaf515d31781ba9dabfea55557aa600505e353b6ab5223",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_outbox_message/p_worker_insert",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_outbox_message/p_worker_select",
+      "source_expression_sha256": "5516bd32359ea8a74037b329ba0340c6027ef53d554bdc4025f452e341b50103",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_outbox_message/p_worker_select",
+      "table": "platform.runtime_outbox_message"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_reservation/p_app_runtime_insert",
+      "source_expression_sha256": "a8092f35758886425e2e199fcccecf58fb628f2051d7e61479475b70c99357a8",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_reservation/p_app_runtime_insert",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_reservation/p_app_runtime_select",
+      "source_expression_sha256": "fb0eca836f15216d6694069e72ae7fe8ff83901caa1c5edc8d83903d81b6b58b",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_reservation/p_app_runtime_select",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_reservation/p_app_runtime_update",
+      "source_expression_sha256": "d37e6f6821850239ee885c7939e5e9fd5925842be0ef95f21f2b11d0cfe5a49b",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_reservation/p_app_runtime_update",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_reservation/p_app_runtime_update",
+      "source_expression_sha256": "d37e6f6821850239ee885c7939e5e9fd5925842be0ef95f21f2b11d0cfe5a49b",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_reservation/p_app_runtime_update",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_reservation/p_worker_insert",
+      "source_expression_sha256": "5432b2bfc95be6e214a4cad0f94cfc38612a8f6236a25d2d06feb63b2824783d",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_reservation/p_worker_insert",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_reservation/p_worker_select",
+      "source_expression_sha256": "470ed0644e05f0b39b547d8c4bf59d5720ad8baa1f7c9f0ad5e8e5f5a639cf90",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_reservation/p_worker_select",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_reservation/p_worker_update",
+      "source_expression_sha256": "d531a6b4b364e3786c7f878226e2c4912003abcdbb0a2b7fa28132fdc2959e56",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_reservation/p_worker_update",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_reservation/p_worker_update",
+      "source_expression_sha256": "d531a6b4b364e3786c7f878226e2c4912003abcdbb0a2b7fa28132fdc2959e56",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_reservation/p_worker_update",
+      "table": "platform.runtime_reservation"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/leaf_wa_track_verifier",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_work_item/leaf_wa_track_verifier",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/p_app_runtime_insert",
+      "source_expression_sha256": "203e172fc7d4b406787edbe299ad660f895ecabe87778725d26f1b64cef2580e",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_work_item/p_app_runtime_insert",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/p_app_runtime_select",
+      "source_expression_sha256": "3a8eb73b3987dc3949b7ec8691ccbe06aeb31715e7c49663340dbbffa1c52c5a",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_work_item/p_app_runtime_select",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/p_app_runtime_update",
+      "source_expression_sha256": "5e299098d71d85436c8b98da66e30f7c584622711e322d58ce478182c9d730df",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_work_item/p_app_runtime_update",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/p_app_runtime_update",
+      "source_expression_sha256": "5e299098d71d85436c8b98da66e30f7c584622711e322d58ce478182c9d730df",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_work_item/p_app_runtime_update",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/p_worker_insert",
+      "source_expression_sha256": "e6f16b3eaa4120c4d8a91e610d7aec27dd763e68af6b1700e7b6c9c0eed22043",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_work_item/p_worker_insert",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/p_worker_select",
+      "source_expression_sha256": "cf0e0e180cad7c9a5368f5f50746a5d1fd1186c9d926e93ed8f3d9b0269c3466",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_work_item/p_worker_select",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/p_worker_update",
+      "source_expression_sha256": "535f8860e0a6a05490bc52e46b4be95c801723eeefd8264f92d33aff3beb27fd",
+      "source_policy_field": "using",
+      "subject": "platform.runtime_work_item/p_worker_update",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform.runtime_work_item/p_worker_update",
+      "source_expression_sha256": "535f8860e0a6a05490bc52e46b4be95c801723eeefd8264f92d33aff3beb27fd",
+      "source_policy_field": "with_check",
+      "subject": "platform.runtime_work_item/p_worker_update",
+      "table": "platform.runtime_work_item"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform_private.identity_service_authorization/identity_service_leaf",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform_private.identity_service_authorization/identity_service_leaf",
+      "table": "platform_private.identity_service_authorization"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform_private.identity_service_authorization/identity_service_owner",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform_private.identity_service_authorization/identity_service_owner",
+      "table": "platform_private.identity_service_authorization"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform_private.identity_service_authorization/identity_service_owner",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "with_check",
+      "subject": "platform_private.identity_service_authorization/identity_service_owner",
+      "table": "platform_private.identity_service_authorization"
+    },
+    {
+      "category": "policies",
+      "field": "using",
+      "operation": "policy",
+      "policy_identity": "platform_private.identity_service_receipt/identity_receipt_owner",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "using",
+      "subject": "platform_private.identity_service_receipt/identity_receipt_owner",
+      "table": "platform_private.identity_service_receipt"
+    },
+    {
+      "category": "policies",
+      "field": "with-check",
+      "operation": "policy",
+      "policy_identity": "platform_private.identity_service_receipt/identity_receipt_owner",
+      "source_expression_sha256": "4677d671b37c2e9f58f5985bfa90b574c3890e782bd3396f61f0716ed982139d",
+      "source_policy_field": "with_check",
+      "subject": "platform_private.identity_service_receipt/identity_receipt_owner",
+      "table": "platform_private.identity_service_receipt"
+    },
+    {
+      "category": "functions",
+      "field": "argument-defaults",
+      "operation": "function-default-list",
+      "source_expression_sha256": "04454fd2f76cc29b4aa0cdd394cfb0432793c8b48cb0d94801ff4ba35c391907",
+      "subject": "platform_private.bound_grant(pg_catalog.bool)"
+    },
+    {
+      "category": "functions",
+      "field": "argument-defaults",
+      "operation": "function-default-list",
+      "source_expression_sha256": "ef9c0f47053a1cad992254745a580fc772bea152b0ed0eb1a7c97016fb5718ea",
+      "subject": "platform_private.row_allowed(pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.text[],pg_catalog.text,pg_catalog.text)"
+    },
+    {
+      "category": "functions",
+      "field": "argument-defaults",
+      "operation": "function-default-list",
+      "source_expression_sha256": "04454fd2f76cc29b4aa0cdd394cfb0432793c8b48cb0d94801ff4ba35c391907",
+      "subject": "platform_private.worker_effect_matches(pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bool)"
+    },
+    {
+      "category": "functions",
+      "field": "argument-defaults",
+      "operation": "function-default-list",
+      "source_expression_sha256": "9c4a39eac35f7bf4ed77c4d5328123e72b925d71befa95eccb70dd266a65b026",
+      "subject": "platform_private.worker_lease_valid(pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bool)"
+    }
+  ],
+  "format": "workinants.expression-oracle-plan.v1",
+  "oracle_modules_sha256": {
+    "scripts/sql-review/catalog_expression_oracle.py": "c5034cc982a5523e42cd721214cbca5820980fafd2c233f83f7706fcee826dfc",
+    "scripts/sql-review/catalog_manifest.py": "1f1deb607dd2b2b4583cabeeae6be3205964d8a5ad897fe7bb1003699bfc9c16",
+    "scripts/sql-review/collect_native_catalog.sql": "9313c892ae3e5ade97167aa1818ed4b371d04b835ac736be7c13c3206bc85b3f",
+    "scripts/sql-review/compare_native_catalog.py": "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6",
+    "scripts/sql-review/pg17_catalog_rules.py": "448b46b7b5a8d6bc62dd25fc85cb12ad488f3e9dfabd70d028a5f6f49afea342"
+  },
+  "parser": "v7.21",
+  "plan_sha256": "c9057ba19503b91827466b4cfaaa0a616bf3c92e41a7d59a5c7d0a7f4a2752ac",
+  "server_version_num": 170011,
+  "source_expected_sha256": "cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4",
+  "source_inputs_aggregate_sha256": "24ba3b217c17d8a6b85327a032b3c30b180f7dc96545e4dfba0d06e9f41b3572",
+  "source_inputs_sha256": {
+    "context/reconciliation/foundation-sql-draft-access.json": "f9d529a7fc481beea3fcb0b2307fce47c44d7168380a7e2dfab6b9be44831eea",
+    "context/reconciliation/foundation-sql-draft-models.json": "d04bf44bd67dceda35199fd1ff1e494eed3016e80d180144018e879f5aee778d",
+    "context/reconciliation/foundation-sql-verifier-access.json": "f84421c4957fcb4cf7fa5b04d3b5f804f8810ee58da2c1529e98daba8ab36bde",
+    "prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "review-output/foundation-application.review.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "review-output/foundation-bootstrap-finalize.review.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98",
+    "review-output/foundation-bootstrap.review.sql": "05c7d98aac1a13158ac2e6a28dcf7b377de8e1c881f347155421e5dd24e39893",
+    "review-output/runtime-lease-branch-v1/history-source-artifact/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+    "scripts/sql-review/foundation-bootstrap-finalize.sql": "afd6d11cb19d8e1cc0c5996221935877fe9b93a0672b25d2718343813c9c6e98"
+  },
+  "sql_executed": false,
+  "status": "DRAFT_PENDING_INDEPENDENT_REVIEW"
+}

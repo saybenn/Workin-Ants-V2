@@ -1,0 +1,147 @@
+"""ROOT-ONLY PROPOSAL: exact Restore047 source admission, never status building.
+
+Inspection is read-only. Mutation requires --admit-reviewed-source and a separate
+Root source receipt. The reviewed dispatcher remains staged as a proposal unless
+Root also supplies --apply-reviewed-additive-builder. No ledger/status writes,
+Git, process, service, archive decompression or producer execution is permitted.
+"""
+from pathlib import Path
+import argparse,ast,copy,datetime,hashlib,json,os,re,stat,sys
+TASK=Path(r'C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f');ROOT=TASK/'workinants-correction-pass'
+DELIVERY=TASK/'RestoreV6_exact_three_evidence_reader_frozen_author_delivery_20261123.json'
+DELIVERY_SHA='6a06546be5fa1a7044b25e376eec713cb767332cd616d2ca9446eef662a69e0e'
+PEER=TASK/'RestoreV6_exact_three_evidence_reader_independent_code_source_review_FINAL_20261123.json'
+PEER_SHA='4774237d631eb3395eaabfb56f78f3371be6a420ba7fe0944d479e19d784bb64'
+VAL='context/reconciliation/local-f0-restore04731001-evidence-source-validation.json'
+AR='context/reconciliation/local-f0-operation-sources/restore04731001-evidence-adapter-v1'
+READER='scripts/local_f0_restore04731001_evidence.py';CHECKER='scripts/check-local-f0-restore04731001-evidence.py'
+DERIVED='context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json'
+DERIVED_SHA='8a885249b41ba0b698e388f1685fd72e3b6b04fbe93b6caeecfffbfabcaca0a0'
+BUILDER='scripts/prepare-local-f0-status.py';BASE='6c049d7eaaf0d2d001e51b1faab70a215a26579f7d6f10467e0df0723c26b5e4'
+PROPOSAL=AR+'/proposal-prepare-local-f0-status.py.PROPOSAL.txt';NEW_BUILDER='7a2aec1c5d66b813fd610447421ca11418812478319d4a623434bf6f1ca61029'
+PRESERVE=AR+'/Root-admission-20261123'
+LEDGER='context/reconciliation/local-f0-assertion-evidence.json';STATUS='context/reconciliation/local-f0-qualification-status.json'
+class Refused(Exception):pass
+def need(value,code):
+ if not value:raise Refused(code)
+def audit(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in ('os.system','os.posix_spawn','os.spawn','os.exec'):raise Refused('PROCESS_OR_NETWORK_FORBIDDEN')
+sys.addaudithook(audit);sys.dont_write_bytecode=True
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def encoded(value):return(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def decoded(raw):
+ need(type(raw)is bytes and len(raw)<=8*1024*1024,'BOUNDED_JSON')
+ def pairs(items):
+  v={}
+  for k,x in items:need(k not in v,'DUPLICATE_JSON_KEY');v[k]=x
+  return v
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(Refused('NONFINITE_JSON')))
+def relative(name):
+ need(type(name)is str and name and not Path(name).is_absolute()and ':'not in name and '\\'not in name and not any(ord(x)<32 for x in name)and all(x not in ('','.','..')for x in name.split('/')),'SAFE_RELATIVE_PATH');return name
+def target(base,name):
+ p=base/relative(name);need(p.resolve().is_relative_to(base.resolve()),'ROOT_ESCAPE')
+ for part in(p,*p.parents):
+  if part==base.parent:break
+  need(not part.is_symlink()and not part.is_junction(),'LINKED_PATH_REFUSED')
+ return p
+def read(path,wanted=None):
+ path=Path(path);need(not path.is_symlink()and not path.is_junction(),'LINKED_READ_REFUSED')
+ def ident(s):return(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_size,s.st_mtime_ns)
+ def once():
+  a=path.stat();need(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and 0<=a.st_size<=8*1024*1024,'REGULAR_SINGLE_LINK_BOUNDED')
+  with path.open('rb')as f:
+   h=os.fstat(f.fileno());need(ident(h)==ident(a),'READ_OPEN_IDENTITY');b=f.read(8*1024*1024+1);z=os.fstat(f.fileno());need(ident(z)==ident(h)and z.st_ctime_ns==h.st_ctime_ns,'READ_HANDLE_CHANGED')
+  after=path.stat();need(ident(a)==ident(after)and after.st_ctime_ns==a.st_ctime_ns and len(b)==a.st_size,'READ_PATH_CHANGED');return b,(ident(a),a.st_ctime_ns)
+ a,x=once();b,y=once();need(a==b and x==y,'CLOSED_READ_CHANGED')
+ if wanted is not None:need(sha(a)==wanted,'INPUT_HASH_MISMATCH')
+ return a
+def new_or_same(path,raw):
+ if path.exists():need(read(path)==raw,'EXISTING_WORK_CONFLICT');return
+ path.parent.mkdir(parents=True,exist_ok=True)
+ with path.open('xb')as f:f.write(raw)
+def replace_exact(path,before,after):
+ need(read(path)==before,'METADATA_CHANGED_BEFORE_WRITE');tmp=path.with_name(path.name+'.restore047-source-admission.tmp');need(not tmp.exists(),'TEMPORARY_CONFLICT')
+ with tmp.open('xb')as f:f.write(after)
+ tmp.replace(path)
+def aggregate(pins):return sha(''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode())
+def normalize_proposal(proposal):
+ class Remove(ast.NodeTransformer):
+  def visit_ImportFrom(self,n):return None if n.module=='local_f0_restore04731001_evidence'else n
+  def visit_Assign(self,n):
+   if any(isinstance(x,ast.Name)and x.id=='restore047_batch'for x in n.targets):return None
+   if any(isinstance(x,ast.Name)and x.id=='EVIDENCE_RECORDS'for x in n.targets):
+    need(isinstance(n.value,ast.Dict),'REVIEWED_BUILDER_DICT');pairs=[(k,v)for k,v in zip(n.value.keys,n.value.values)if not(isinstance(k,ast.Constant)and k.value==DERIVED)];need(len(pairs)==len(n.value.keys)-1,'EXACT_ONE_DERIVED_RECORD');n.value.keys=[p[0]for p in pairs];n.value.values=[p[1]for p in pairs]
+   return self.generic_visit(n)
+  def visit_If(self,n):
+   nodes=list(ast.walk(n.test))
+   if any(isinstance(x,ast.Name)and x.id=='restore047_batch'for x in nodes):return None
+   if any(isinstance(x,ast.Constant)and x.value==DERIVED for x in nodes):
+    if isinstance(n.test,ast.Call)and isinstance(n.test.func,ast.Name)and n.test.func.id=='any':return None
+    need(isinstance(n.test,ast.Compare),'EXACT_DERIVED_DISPATCH');return[self.visit(x)for x in n.orelse]
+   return self.generic_visit(n)
+ return Remove().visit(ast.parse(proposal))
+def verified_inputs():
+ dr=read(DELIVERY,DELIVERY_SHA);d=decoded(dr);F=Path(d['future_root']).resolve();freeze=Path(d['freeze']['path']).resolve();fr=read(freeze,d['freeze']['sha256']);fm=decoded(fr)['snapshots_sha256'];need(len(fm)==1394,'EXACT_FROZEN1394')
+ for n,h in fm.items():read(target(freeze.parent/'files',n),h)
+ candidate=d['Root_candidate_files_sha256'];need(len(candidate)==43 and VAL in candidate,'EXACT_CANDIDATE43');blobs={n:read(target(F,n),h)for n,h in candidate.items()}
+ val=decoded(blobs[VAL]);need(val['independent_source_review']=={'decision':'PENDING'}and val['Root_admission']=={'decision':'PENDING','assertion_links_added':0},'AUTHOR_PENDING_METADATA_REQUIRED')
+ need(val['source_files_sha256']==d['source_files_sha256']and sha(blobs[DERIVED])==d['derived_record_sha256']==DERIVED_SHA,'EXACT_REVIEWED_CODE_AND_RECORD')
+ graph=d['qualification_input_graph_sha256'];need(len(graph)==1349 and graph==val['closed_qualification_input_graph_sha256'],'EXACT_GRAPH1349')
+ pins_node=next(n.value for n in ast.parse(blobs[READER]).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='PINS'for t in n.targets));need(isinstance(pins_node,ast.Call)and isinstance(pins_node.func,ast.Name)and pins_node.func.id=='MappingProxyType'and ast.literal_eval(pins_node.args[0])==graph,'READER_FIXED_GRAPH')
+ spec=decoded(read(target(F,AR+'/closed-inputs-and-claims.json'),graph[AR+'/closed-inputs-and-claims.json']));original=spec['closed_inputs_sha256'];need(len(original)==1346,'EXACT_ORIGINAL1346')
+ for n,h in original.items():read(target(ROOT,n),h)
+ for n,h in graph.items():read(target(F,n),h)
+ archive=val['archive_files_sha256'];actual={p.relative_to(F).as_posix():sha(read(p))for p in(F/AR).rglob('*')if p.is_file()};need(len(archive)==39 and archive==actual,'EXACT_AUTHOR_ARCHIVE39')
+ base=read(ROOT/BUILDER,BASE);proposal=blobs[PROPOSAL];need(sha(proposal)==NEW_BUILDER,'REVIEWED_BUILDER_PROPOSAL')
+ need(ast.dump(normalize_proposal(proposal),include_attributes=False)==ast.dump(ast.parse(base),include_attributes=False),'ALL_OLD_BUILDER_AST_PRESERVED')
+ peer_raw=read(PEER,PEER_SHA);peer=decoded(peer_raw);need(peer['decision']=='SOURCE_APPROVED'and peer['findings']==[]and peer['source_files_sha256']==d['source_files_sha256']and peer['candidate_Root_files_sha256']==candidate and peer['qualification_input_graph_sha256']==graph,'INDEPENDENT_REVIEW_EXACT_BINDING')
+ need(peer['author_delivery_sha256']==DELIVERY_SHA and peer['derived_record_sha256']==DERIVED_SHA,'INDEPENDENT_DELIVERY_AND_RECORD')
+ return d,F,blobs,val,graph,original,base,proposal,peer_raw
+def root_review(path,wanted,d):
+ p=Path(path).resolve();need(p.is_relative_to(TASK.resolve())and not p.is_relative_to(ROOT.resolve()),'SEPARATE_ROOT_RECEIPT_PATH');raw=read(p,wanted);v=decoded(raw)
+ required={'schema':'workinants.restore047-Root-source-review.v1','decision':'SOURCE_APPROVED','reviewer':'/root','findings':[],'author_delivery_sha256':DELIVERY_SHA,'independent_review_sha256':PEER_SHA,'source_files_sha256':d['source_files_sha256'],'derived_record_sha256':DERIVED_SHA,'builder_base_sha256':BASE,'reviewed_builder_proposal_sha256':NEW_BUILDER,'assertion_links_added':0,'runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'}
+ need(all(v.get(k)==x for k,x in required.items()),'DISTINCT_ROOT_SOURCE_APPROVAL_REQUIRED');need(type(v['assertion_links_added'])is int,'ROOT_LINK_COUNT_TYPED');return raw
+def apply(args):
+ d,F,blobs,val,graph,original,base,proposal,peer_raw=verified_inputs();root_raw=root_review(args.root_review,args.root_review_sha256,d)
+ inventory=TASK/'RestoreV6_exact_three_FINAL_Root_admission_inventory_20261123.json';need(not inventory.exists(),'FRESH_ADMISSION_INVENTORY_REQUIRED')
+ protected={n:read(ROOT/n)for n in(LEDGER,STATUS)}
+ current_ledger=decoded(protected[LEDGER]);need(len(current_ledger['assertions'])==684 and sha(protected[LEDGER])=='f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f'and sha(protected[STATUS])=='0f39c42c6fecde007e81d1eb51e17187cc4040244b7699793be1d1c4f954c9c0','CURRENT684_PROTECTED_BYTES_REQUIRED')
+ peer_dest=PRESERVE+'/independent-code-source-review.json';root_dest=PRESERVE+'/Root-source-review.json'
+ additions={peer_dest:peer_raw,root_dest:root_raw,PRESERVE+'/author-source-validation.PENDING.before.json':blobs[VAL],PRESERVE+'/Root-builder.before.py.txt':base,PRESERVE+'/Root-admission-helper.py.txt':read(Path(__file__))}
+ action='APPLY_EXACT_REVIEWED_ADDITIVE_BUILDER'if args.apply_reviewed_additive_builder else'STAGE_PROPOSAL_LEAVE_CURRENT_BUILDER_UNCHANGED'
+ additions[PRESERVE+'/Root-source-admission-receipt.json']=encoded({'schema':'workinants.restore047-Root-source-admission-receipt.v1','action':'EXACT_SOURCE_METADATA_ONLY','builder_action':action,'delivery_sha256':DELIVERY_SHA,'independent_review_sha256':PEER_SHA,'Root_source_review_sha256':sha(root_raw),'source_files_sha256':d['source_files_sha256'],'derived_record_sha256':DERIVED_SHA,'qualification_graph_count':1349,'qualification_graph_aggregate_sha256':aggregate(graph),'author_candidate_count':43,'pending_validation_sha256':sha(blobs[VAL]),'builder_base_sha256':BASE,'reviewed_builder_proposal_sha256':NEW_BUILDER,'assertion_links_added':0,'full_status_builder':'NOT_RUN','runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'})
+ # Check the entire write set and archive before the first Root mutation.
+ existing={p.relative_to(ROOT).as_posix():sha(read(p))for p in(ROOT/AR).rglob('*')if p.is_file()}if(ROOT/AR).exists()else{}
+ need(all(n in val['archive_files_sha256']and val['archive_files_sha256'][n]==h for n,h in existing.items()),'EXISTING_OWNED_WORK_CONFLICT')
+ for n,b in{**blobs,**additions}.items():
+  p=target(ROOT,n);need(not p.exists()or read(p)==b,'EXISTING_ROOT_WORK_CONFLICT')
+ need(read(ROOT/BUILDER,BASE)==base,'BUILDER_CHANGED_BEFORE_ADMISSION')
+ for n,b in blobs.items():new_or_same(target(ROOT,n),b)
+ for n,b in additions.items():new_or_same(target(ROOT,n),b)
+ after=copy.deepcopy(val);after['independent_source_review']={'decision':'SOURCE_APPROVED','path':peer_dest,'sha256':sha(peer_raw),'source_files_sha256':d['source_files_sha256']}
+ after['Root_admission']={'decision':'SOURCE_APPROVED','path':root_dest,'sha256':sha(root_raw),'assertion_links_added':0,'builder_action':action,'full_status_builder':'NOT_RUN'}
+ after['archive_files_sha256']={p.relative_to(ROOT).as_posix():sha(read(p))for p in sorted((ROOT/AR).rglob('*'))if p.is_file()};need(len(after['archive_files_sha256'])==45,'EXACT_ROOT_ARCHIVE45')
+ replace_exact(ROOT/VAL,blobs[VAL],encoded(after))
+ if args.apply_reviewed_additive_builder:replace_exact(ROOT/BUILDER,base,proposal)
+ for n,h in d['Root_candidate_files_sha256'].items():
+  if n!=VAL:read(target(ROOT,n),h)
+ for n,h in original.items():read(target(ROOT,n),h)
+ for n,h in graph.items():read(target(F,n),h)
+ for n,b in protected.items():need(read(ROOT/n)==b,'CURRENT_LEDGER_OR_STATUS_CHANGED')
+ need(read(ROOT/BUILDER)==(proposal if args.apply_reviewed_additive_builder else base),'BUILDER_WRITE_SCOPE')
+ files={n:sha(read(target(ROOT,n)))for n in sorted(set(blobs)|set(additions))}
+ if args.apply_reviewed_additive_builder:files[BUILDER]=NEW_BUILDER
+ result={'schema':'workinants.restore047-FINAL-Root-source-admission-inventory.v1','status':'SOURCE_ADMITTED_NO_LEDGER_LINKS_NO_STATUS_BUILD','files_sha256':files,'file_count':len(files),'source_files_sha256':d['source_files_sha256'],'reader_sha256':d['source_files_sha256'][READER],'checker_sha256':d['source_files_sha256'][CHECKER],'derived_record_sha256':DERIVED_SHA,'reviewed_builder_proposal_sha256':NEW_BUILDER,'newbuilderSHA':NEW_BUILDER,'builder_delta_applied':args.apply_reviewed_additive_builder,'current_builder_sha256':sha(read(ROOT/BUILDER)),'qualification_graph_count':1349,'qualification_graph_aggregate_sha256':aggregate(graph),'closed_original_Root_count':1346,'qualification_graph_unchanged':True,'author_pending_validation_preserved':True,'source_validation_sha256':sha(read(ROOT/VAL)),'archive_files':45,'independent_review_sha256':PEER_SHA,'Root_source_review_sha256':sha(root_raw),'current_ledger_sha256':sha(protected[LEDGER]),'current_status_sha256':sha(protected[STATUS]),'old684_rows_and_executions_unchanged':True,'assertion_links_added':0,'full684_or687_builder_run':False,'runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Git_Docker_database_network_invoked':False,'Posture':'D'}
+ new_or_same(inventory,encoded(result));return{'status':result['status'],'inventory':str(inventory),'inventory_sha256':sha(read(inventory)),'Root_files':len(files),'builder_delta_applied':args.apply_reviewed_additive_builder,'assertion_links_added':0,'full_status_builder':'NOT_RUN'}
+def main():
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--admit-reviewed-source',action='store_true');p.add_argument('--apply-reviewed-additive-builder',action='store_true');p.add_argument('--root-review',type=Path);p.add_argument('--root-review-sha256');args=p.parse_args()
+ try:
+  need(not args.apply_reviewed_additive_builder or args.admit_reviewed_source,'BUILDER_REQUIRES_EXPLICIT_SOURCE_ADMISSION')
+  if args.admit_reviewed_source:
+   need(args.root_review and args.root_review_sha256,'SEPARATE_ROOT_RECEIPT_REQUIRED');result=apply(args)
+  else:
+   d,F,blobs,val,graph,original,base,proposal,peer=verified_inputs();result={'status':'READ_ONLY_INSPECTION_PROPOSAL_NOT_APPLIED','candidate_files':len(blobs),'fixed_graph_files':len(graph),'original_Root_files_verified':len(original),'frozen1394_verified':True,'builder_base_sha256':sha(base),'reviewed_builder_proposal_sha256':sha(proposal),'old_builder_AST_preserved':True,'source_gates_unchanged':'PENDING','runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Root_mutated':False,'Posture':'D'}
+  print(json.dumps(result,indent=2));return 0
+ except BaseException as e:
+  print(json.dumps({'status':'HELD','code':str(e)if isinstance(e,Refused)else'RESTORE047_SOURCE_ADMISSION_REFUSED','raw_error_discarded':True,'runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'}));return 1
+if __name__=='__main__':raise SystemExit(main())

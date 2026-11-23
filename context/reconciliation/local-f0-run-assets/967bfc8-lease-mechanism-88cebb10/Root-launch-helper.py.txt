@@ -1,0 +1,25 @@
+"""Launch one unchanged reviewed primitive; retain only sanitized parent outcomes."""
+from pathlib import Path
+import datetime,hashlib,json,os,subprocess,sys
+from control_lease88_exact_literal_and_cleanup_20261123 import T,R,MP,RUN,FLAG,environment
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def put(p,v):
+ with p.open('xb')as f:f.write((json.dumps(v,indent=2,allow_nan=False)+'\n').encode())
+raw=MP.read_bytes();m=json.loads(raw);ap=T/'lease88_Root_literal_approval_receipt_20261123.json';a=json.loads(ap.read_bytes())
+assert a['approved_manifest_sha256']==sha(raw)and a['run_id']==m['run_id']==RUN
+assert m['review_status']==FLAG and a['external5_sha256']==m['external_files_sha256']
+for k in ('source_commit','source_tree','packet_sha256'):assert m[k]==a[k]
+rb=Path(a['review_path']).read_bytes();assert sha(rb)==a['review_sha256'];review=json.loads(rb)
+assert review['decision']=='SOURCE_APPROVED_OPERATIONAL_LITERAL'and review['findings']==[]
+for n,h in m['external_files_sha256'].items():assert sha((T/n).read_bytes())==h
+assert not Path(m['evidence_directory']).exists()
+e=environment();tmp=T/'test-tmp';assert tmp.is_dir()
+env=os.environ.copy();env.update(PYTHONUTF8='1',PYTHONPATH=str(T/'offline-python'),TMP=str(tmp),TEMP=str(tmp),TMPDIR=str(tmp))
+receipt={'schema':'workinants.lease88-pinned-environment-launch.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'run_id':RUN,'source_commit':m['source_commit'],'source_tree':m['source_tree'],'packet_sha256':m['packet_sha256'],'approved_manifest_sha256':sha(raw),'Root_approval_receipt_sha256':sha(ap.read_bytes()),'review_sha256':a['review_sha256'],'external5_sha256':m['external_files_sha256'],'actual_environment':e,'environment_keys_set':['PYTHONUTF8','PYTHONPATH','TMP','TEMP','TMPDIR'],'database_contacted_at_record':False,'changed_runtime_code':False,'Posture':'D'}
+rp=T/'lease88_pinned_environment_launch_receipt_20261123.json';put(rp,receipt)
+print(json.dumps({'status':'LAUNCHING_UNCHANGED_REVIEWED_SYNTHETIC_PACKET','run_id':RUN,'receipt_sha256':sha(rp.read_bytes())}),flush=True)
+p=subprocess.run([sys.executable,'-X','utf8',str(T/'execute_local_f0_lease_mechanism_v1_20261120.py'),'--manifest',str(MP),'--root',str(R)],cwd=R,env=env,capture_output=True,shell=False)
+done={'schema':'workinants.lease88-known-closed-parent-outcome.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'run_id':RUN,'known_closed':True,'exit_code':p.returncode,'stdout_empty':p.stdout==b'','stderr_empty':p.stderr==b'','raw_output_retained':False,'Posture':'D'}
+out=T/'lease88_known_closed_parent_outcome_20261123.json';put(out,done)
+print(json.dumps({'status':'KNOWN_CLOSED','exit_code':p.returncode,'stdout_empty':p.stdout==b'','stderr_empty':p.stderr==b'','outcome_sha256':sha(out.read_bytes())}),flush=True)
+raise SystemExit(p.returncode)

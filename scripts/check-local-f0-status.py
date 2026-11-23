@@ -143,6 +143,28 @@ class StatusTests(unittest.TestCase):
             return ClosedNewBoundary('context/reconciliation/local-f0-install-0ff2a91-6850ee4c-precleanup-qualified-evidence.json',False,self.install_precleanup_calls)
         new_dispatch=patch.dict(build.__globals__,prepare_read1161_batch=read1161_boundary,prepare_install_precleanup_batch=precleanup_boundary)
         new_dispatch.start();self.addCleanup(new_dispatch.stop)
+        # The exact-three reader has independent domain/race checks and the
+        # real full687 build. Isolate its dispatch during legacy mutations.
+        restore_path='context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json'
+        restore_derived=json.loads((ROOT/restore_path).read_bytes())
+        restore_rows={(r['case_id'],r['assertion_id']):r for r in ledger['assertions'] if r['evidence_path']==restore_path}
+        restore_caps={'control.real_backup':'PASS','control.restored_parity':'PASS','control.restored_authority':'PARTIAL'}
+        self.assertEqual(len(restore_rows),3);self.assertEqual({key[0] for key in restore_rows},{'P0C-RESTORE-01'})
+        self.assertEqual({key[1]:r['status'] for key,r in restore_rows.items()},restore_caps)
+        self.restore047_calls=[]
+        class ClosedRestoreBoundary:
+            def __init__(self):self.seen=set();self.finalized=False
+            def validate_claim(self,case,assertion,status,execution,root,json_pointer=None,ledger_row=None):
+                key=(case,assertion);test.assertIn(key,restore_rows);wanted=restore_rows[key]
+                test.assertEqual(status,restore_caps[assertion]);test.assertEqual(root,ROOT)
+                test.assertEqual(json_pointer,wanted['json_pointer']);test.assertEqual(execution,restore_derived)
+                test.assertEqual(ledger_row,wanted);test.assertNotIn(key,self.seen)
+                self.seen.add(key);test.restore047_calls.append(key);return True
+            def verify_unchanged(self):test.assertEqual(self.seen,set(restore_rows));self.finalized=True;return True
+            def require_finalized(self):test.assertTrue(self.finalized);return True
+        def restore_boundary(root):test.assertEqual(root,ROOT);return ClosedRestoreBoundary()
+        restore_dispatch=patch.dict(build.__globals__,prepare_restore047_batch=restore_boundary)
+        restore_dispatch.start();self.addCleanup(restore_dispatch.stop)
     def test_recorded_subset_does_not_promote_compound_cases(self):
         namespace=build.__globals__;restricted=namespace['validate_restricted_claim'];migration=namespace['validate_claim'];native=namespace['validate_native_prefix_claim']
         restricted_calls=[];migration_calls=[];native_calls=[]
@@ -157,8 +179,8 @@ class StatusTests(unittest.TestCase):
             return native(*args,**kwargs)
         with patch.dict(namespace,validate_restricted_claim=restricted_dispatch,validate_claim=migration_dispatch,validate_native_prefix_claim=native_dispatch):result=build()
         self.assertEqual(result['selected_cases'],94)
-        self.assertEqual(result['assertion_status_counts'],{'PASS':652,'PARTIAL':32,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':311,'UNRESOLVED_SOURCE':7})
-        self.assertEqual(result['case_status_counts'],{'PASS':8,'PARTIAL':79,'FAILED':0,'DEPENDENCY_BLOCKED':0,'NOT_RUN':7})
+        self.assertEqual(result['assertion_status_counts'],{'PASS':654,'PARTIAL':33,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':308,'UNRESOLVED_SOURCE':7})
+        self.assertEqual(result['case_status_counts'],{'PASS':8,'PARTIAL':80,'FAILED':0,'DEPENDENCY_BLOCKED':0,'NOT_RUN':6})
         self.assertEqual({c['id'] for c in result['cases'] if c['status']=='PASS'},{'P0C-UNIQUE-01','P0C-TABLE-DatabaseActionGrant-ALLOW','P0C-TABLE-ProfessionalProfile-ALLOW','P0C-TABLE-CandidateProfile-ALLOW','P0C-INSTALL-01','P0C-INSTALL-02','P0C-TABLE-OwnerMutationEvidence-ALLOW','P0C-TABLE-CustomerProfileLifecycleEvent-ALLOW'})
         self.assertEqual(len(restricted_calls),70)
         self.assertEqual(len(migration_calls),5)
@@ -171,6 +193,7 @@ class StatusTests(unittest.TestCase):
         self.assertEqual(len(self.worker_recovery_calls),16)
         self.assertEqual(len(self.read1161_calls),13)
         self.assertEqual(len(self.install_precleanup_calls),1)
+        self.assertEqual(len(self.restore047_calls),3)
         self.assertTrue(all(row[2]=='STOPPED_ATTEMPT_PRESERVED' for row in native_calls))
         self.assertNotIn('STOPPED_ATTEMPT_PRESERVED',migration_calls)
         catalog=next(c for c in result['cases'] if c['id']=='P0C-CATALOG-01')
@@ -284,6 +307,6 @@ class StatusTests(unittest.TestCase):
             if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json','local-f0-native-access-0a29cf6-495976eb-execution.json','local-f0-owner-da5ad66-72934689-qualified-evidence.json','local-f0-lease-da5ad66-a560e05b-qualified-evidence.json','local-f0-native-1110fa4-4c894dba-qualified-evidence.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
             return original(path,*args,**kwargs)
         with patch.object(Path,'read_text',second_read_trap):result=build()
-        self.assertEqual(result['assertion_status_counts']['PASS'],652)
+        self.assertEqual(result['assertion_status_counts']['PASS'],654)
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -1,0 +1,68 @@
+"""Reconcile existing progress from actual whole687 proof and two closed attempts."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+F='context/reconciliation/local-f0-source-followups/654-lease11-privilege200-restore3-20261123'
+P='context/reconciliation/local-f0-654-closed-mechanism-privilege-restore-progress-20261123.json'
+old='context/reconciliation/local-f0-lease-V9-reviewed-source-progress-20261123.json'
+L='context/reconciliation/local-f0-assertion-evidence.json';S='context/reconciliation/local-f0-qualification-status.json'
+lb=(R/L).read_bytes();sb=(R/S).read_bytes();assert sha(lb)=='64526edb985855c83766e19c26f9f306526b81ecb0eede492cedde09b200efd8'and sha(sb)=='2cec3c700db0c46f0be4a12e6dd1ba8ee5b6b62e549da0b89862cfee6c1c8ade'
+status=json.loads(sb);assert len(json.loads(lb)['assertions'])==687
+prose=['context/progress-tracker.md','context/reconciliation/phase0-foundation-report.md','context/reconciliation/foundation-sql-draft-review.md']
+B='context/reconciliation/local-f0-qualification-board.json';V='context/reconciliation/foundation-sql-draft-validation.json';paths=prose+[B,V]
+for mp in [T/'local-f0-privilege-ceiling-plan-485517b0/operation-manifest.json',T/'local-f0-restore-plan-04731001/operation-manifest.json']:
+ m=json.loads(mp.read_bytes());assert not set(paths)&set(m['packet_files_sha256'])
+before={n:(R/n).read_bytes()for n in paths};files={}
+for n,b in before.items():d=F+'/preserved-progress-before/'+n;put(R/d,b);files[d]=sha(b)
+copies={'actual-full687-build.json':'Restore047_real_full687_Root_build_20261123.json','actual-full687-driver.py.txt':'run_Restore047_real_full687_Root_build_20261123.py','Root-exact-three-ledger-delta.json':'Restore047_reviewed_exact_three_ledger_delta_20261123.json','legacy13-checks.json':'654_existing_legacy_status_checks_20261123.json','legacy13-checks.log':'654_existing_legacy_status_checks_20261123.log','legacy13-driver.py.txt':'run_654_legacy_status_checks_20261123.py','legacy-checker-before-Restore.py.txt':'check-local-f0-status.before-Restore687-20261123.py.txt','Restore50-admission-inventory.json':'RestoreV6_exact_three_FINAL_Root_admission_inventory_20261123.json','lease19-preservation-inventory.json':'967b_lease88_closed_mechanism_preserved_inventory_20261123.json','V9-56-preservation-inventory.json':'967b_V9_485517b0_closed_actual_preserved_inventory_20261123.json','two-history-owning-PLAN.json':'runtime_lease_two_history_owned_v1_private_source_plan_20261123.json','two-history-owning-Root-ACK.json':'runtime_lease_two_history_owned_v1_Root_plan_ACK_20261123.json','two-history-owning-transport-HOLD.json':'runtime_lease_two_history_owned_v1_independent_plan_HOLD_transport_20261123.json','two-history-owning-transport-ADDENDUM.json':'runtime_lease_two_history_owned_v1_transport_plan_addendum_20261123.json','two-history-owning-transport-Root-ACK.json':'runtime_lease_two_history_owned_v1_Root_transport_addendum_ACK_20261123.json','two-history-owning-PLAN-HOLD-CLOSURE.json':'runtime_lease_two_history_owned_v1_independent_transport_plan_HOLD_closure_20261123.json','Root-progress-helper.py.txt':Path(__file__).name}
+for n,src in copies.items():b=(T/src).read_bytes();put(R/F/n,b);files[F+'/'+n]=sha(b)
+build=json.loads((T/copies['actual-full687-build.json']).read_bytes());assert build['status']=='PASS_REAL_FULL687_ROOT_BUILD'and build['old684_rows_and_old_executions_unchanged']is True
+checks=json.loads((T/copies['legacy13-checks.json']).read_bytes());assert checks['tests']==checks['passed']==13 and checks['failed_methods']==checks['error_methods']==[]
+record={'schema':'workinants.654-closed-actuals-progress.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'previous_progress':{'path':old,'sha256':sha((R/old).read_bytes())},'published_source_checkpoint':'967bfc854f46ce884f2eee3b93cc317c88cd2f7c','assertion_status_counts':status['assertion_status_counts'],'case_status_counts':status['case_status_counts'],'current_rows':687,'ledger_sha256':sha(lb),'status_sha256':sha(sb),'actual_full_build':{'path':F+'/actual-full687-build.json','sha256':files[F+'/actual-full687-build.json'],'seconds':build['seconds']},'legacy13_checks':{'path':F+'/legacy13-checks.json','sha256':files[F+'/legacy13-checks.json'],'seconds':checks['seconds']},'current_checkpoint':'3.7','Posture':'D','Brain_final_acceptance':'PENDING','continue_after_publication':True}
+record['lease11']={'path':'context/reconciliation/local-f0-lease-mechanism-967bfc8-88cebb10-execution.json','sha256':sha((R/'context/reconciliation/local-f0-lease-mechanism-967bfc8-88cebb10-execution.json').read_bytes()),'result':'PASS_SYNTHETIC_PG_EXPRESSION_ACL_MECHANISM_ONLY','actual_cases':11,'auth_pairs':16,'global_closures':233,'selected94_links':0,'cleanup':'INDEPENDENT_EXACT_C1V_PRIVATE_ABSENCE_IMAGE_RETAINED'}
+record['V9']={'path':'context/reconciliation/local-f0-privilege-967bfc8-485517b0-execution.json','sha256':sha((R/'context/reconciliation/local-f0-privilege-967bfc8-485517b0-execution.json').read_bytes()),'result':'PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY','negative_contrasts':200,'closed_operations':244,'child_global_boundaries':849,'parent_global_boundaries':18,'issuer_protocols':3,'native_controls':40,'definers':16,'provider_strict_positions':18,'selected94_links':0,'proposed_maxima_only':{'PASS':41,'PARTIAL':3},'DAG_business_write_umbrella':'NO_LINK','cleanup':'INDEPENDENT_EXACT_C1V_PRIVATE_ABSENCE_IMAGE_RETAINED'}
+record['Restore']={'path':'context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json','sha256':'8a885249b41ba0b698e388f1685fd72e3b6b04fbe93b6caeecfffbfabcaca0a0','new_current_rows':3,'maxima':{'control.real_backup':'PASS','control.restored_parity':'PASS','control.restored_authority':'PARTIAL'},'privacy_generation_and_activation':'NOT_RUN_DEPENDENCY_BLOCKED','source':'249e6815702537a24cd98fc973ed90a8b0493ac3','old_raw_labels':'PRESERVED_NOT_RETCONNED'}
+record['exact_blocker']='Canonical corrected App/affectedWorker require new two-history owning machinery and actual qualification; its transport plan HOLD is closed but private implementation/code review remain pending. CSP owning source is private and unqualified. Audited V9 maxima require a strict retrospective reader and real status build.32 later dependencies and7 unresolved source questions remain; no owner/ACL widening.'
+record['next_action']='Publish bounded654 evidence normally with deployment suppressed, then continue. Review/publish/pin/literal/execute new two-history machinery before corrected App/affectedWorker. Finish CSP owning code review and V9 exact44 reader/history-preserving admission. Complete attainable94 and return evidence-backed recommendation to Brain beforeP0D.'
+record['repeated_and_why']='Real full687 builder402.359s validated new exact3 batch plus all old684 rows/executions. Legacy13 fixtures updated only for654 counts/new dispatch caps;13 passed234.422s. V9 audit independently reproduced200/244/849 and native29089/oracle416/ledger22. Canonical5ae/June/A-D/worker32/requirements1034/451register unchanged; no unrelated750/501/75 rerun.'
+put(R/P,enc(record));files[P]=sha((R/P).read_bytes())
+text='''## Local F0 continuation - 654 verified assertions and closed local probes (2026-11-23)
+
+Actual accepted coverage is **654 PASS /33 PARTIAL /308 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**, with687 current rows. Selected94 cases: **8 PASS /80 PARTIAL /6 NOT_RUN**. The real complete builder passed402.359s; all684 older rows and executions remain unchanged. Thirteen applicable legacy checks passed after fixture-only count/dispatch updates.
+
+Exactly three Restore047 claims are admitted: real_backup PASS, restored_parity PASS and restored_authority PARTIAL. Privacy generation, activation and three excluded obligations stay blocked/unexercised. Raw inherited NOT_RUN labels remain unchanged. This is version-qualified physical synthetic recovery evidence, not whole-service or production restoration.
+
+The fresh967b lease mechanism passed all11 real PostgreSQL contrasts: old failure, nested success and restored-old failure; app helper denial before/after; worker/verifier helper success and four worker controls.16 correct/wrong auth pairs,233 global closures and24 complete five-row observations passed. Exact C1V/private cleanup is independently verified. This closes only the isolated mechanism prerequisite; canonical corrected App/Prisma/Worker qualification remains pending.
+
+V9 completed all200 finite negative contrasts,244 closed operations,849 child plus18 parent global boundaries,40 native controls,16 definer records and3 issuer protocols. All18 provider source-position checks matched strictly. Independent audit reproduced source-bound native29089/oracle416/ledger22 prerequisites and the fresh post-component native digest. The42-table/205-row projections exclude only scoped issued grants; no unfiltered immutability or post-component oracle/ledger rerun is claimed. Exact C1V/private cleanup passed; image retained. At most41PASS+3PARTIAL assertions are proposed, with no DAG business-write umbrella or whole-case promotion. Their reader/admission remains pending; no V9 links enter these totals.
+
+New two-history owning transport has a separately approved bounded plan and is privately being implemented. Source13/oldCore, initial5ae/June, A-D and all32 worker ACL rows stay unchanged. CSP owning code is private with pending gates. PostureD and Brain final acceptance remain.
+
+Plain English: The saved backup proof earned two passing answers and one partial answer. Two more local tests finished and cleaned up. Their narrow proof stays separate from the scoreboard until checked admission. The next repaired application path still needs its real tests.
+
+'''
+for n in prose:(R/n).write_bytes((text+'Detailed current record: '+P+' (SHA-256 '+files[P]+'). Earlier sections below are version-qualified history.\n\n---\n\n').encode()+before[n])
+b=json.loads(before[B]);b['previous_current_progress_before654']=b['latest_version_qualified_progress'];b['latest_version_qualified_progress']={'path':P,'sha256':files[P]}
+for k in ('current_checkpoint','exact_blocker','next_action','repeated_and_why'):b[k]=record[k]
+for k in ('assertion_status_counts','actual_assertion_counts'):b[k]=status['assertion_status_counts']
+for k in ('case_status_counts','actual_case_counts'):b[k]=status['case_status_counts']
+b['current_used_packet_retry_holds']={'App':'TWO_HISTORY_OWNING_ACTUAL_PENDING','V9':'ACTUAL200_PASS_AUDITED_READER_PENDING','RestoreV6':'EXACT3_READER_ADMITTED_REAL687_BUILD_PASS','mechanism':'ACTUAL11_PASS_AUDITED_CLEANED','CSP1':'CHILD_APPROVED_OWNING_PRIVATE_CODE_REVIEW_PENDING'}
+b['recorded_local_date']='2026-11-23';b['privilege_latest_attempt']=record['V9'];b['restore_latest_attempt']=record['Restore'];b['mechanism_latest_attempt']=record['lease11']
+b['previous_reviewed_operators_before654']=b['current_reviewed_replacement_operators']
+b['current_reviewed_replacement_operators']={'PrivilegeV9':record['V9'],'RestoreV6':record['Restore'],'LeaseMechanismTransportV2':record['lease11']}
+b['inflight_private_sources']={'two_history_owning':'PLAN_APPROVED_PRIVATE_IMPLEMENTATION_CODE_REVIEW_PENDING','CSP1_owning':'PRIVATE_FINAL_CHECKS_CODE_REVIEW_PENDING','V9_retrospective_reader':'PLAN_ONLY_NOT_IMPLEMENTED'}
+for step in b['steps']:
+ if step['id']=='3.7':step['current_limit']='654PASS/33PARTIAL/308NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE;94cases8PASS/80PARTIAL/6NOT_RUN. V9 actual200 passed but no new links without strict reader.'
+ if step['id']=='3.8':step['current_limit']='Isolated11 mechanism PASS with exact cleanup; new two-history/correctedApp/affectedWorker and CSP actuals remain unqualified. No winner/owner-codec invention.'
+ if step['id']=='3.9':step.update(status='PASS_VERSION249E_PHYSICAL_SUBSET_EXACT3_ADMITTED',current_limit='Real_backupPASS/restored_parityPASS/restored_authorityPARTIAL admitted after independent reader and actual full687 build. Privacy/activation unqualified; no wholecase promotion.')
+ if step['id']=='3.10':step['current_limit']='IN_PROGRESS_ALL_ATTAINABLE94; preserve32latergates/7sourcequestions; Brain acceptance beforeP0D.'
+(R/B).write_bytes(enc(b));v=json.loads(before[V]);v['closed_actuals_654_20261123']={'progress_path':P,'progress_sha256':files[P],'current_ledger_sha256':sha(lb),'current_status_sha256':sha(sb),'actual_full687_build_sha256':files[F+'/actual-full687-build.json'],'legacy13_checks_sha256':files[F+'/legacy13-checks.json'],'V9_links_added':0,'mechanism_links_added':0,'Restore_links_added':3,'Posture':'D'};(R/V).write_bytes(enc(v))
+for n in paths:files[n]=sha((R/n).read_bytes())
+assert (R/L).read_bytes()==lb and(R/S).read_bytes()==sb
+put(T/'654_closed_actuals_progress_inventory_20261123.json',enc({'schema':'workinants.654-closed-actuals-progress-inventory.v1','files_sha256':files,'count':len(files),'Posture':'D'}))
+print(json.dumps({'status':'ACTUAL654_PROGRESS_RECORDED','files':len(files),'progress_sha256':files[P],'ledger_unchanged':True}))

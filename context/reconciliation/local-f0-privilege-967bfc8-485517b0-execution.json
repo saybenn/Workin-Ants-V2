@@ -1,0 +1,406 @@
+{
+  "schema": "workinants.local-f0-V9-closed-actual.v1",
+  "recorded_at_utc": "2026-11-23T10:29:40.217702+00:00",
+  "run_id": "485517b0-46a3-495e-b5cc-96b910257fa4",
+  "source_commit": "967bfc854f46ce884f2eee3b93cc317c88cd2f7c",
+  "source_tree": "b23941dfefd5780031829f29e5f3502c0f40a44e",
+  "operation_packet_sha256": "f51068bcc4286a9bf3613c10f28916e7b015cd1d4dc7ad5fab81929668ea7a6d",
+  "source_files": 455,
+  "status": "PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY",
+  "child_status": "PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN",
+  "known_executor_exit": {
+    "code": 0,
+    "parent_observation_path": "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/known-closed-parent.json",
+    "sha256": "b13f0106250541b63b6dff6906ebab70f351632f66d8b2d0a6c646453373fd61"
+  },
+  "operator_reported_started_at": "2026-11-23T09:29:19.061654+00:00",
+  "operator_reported_finished_at": "2026-11-23T10:00:09.026079+00:00",
+  "raw_parent": {
+    "path": "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/run-evidence.json",
+    "sha256": "fe71cc8ef3739a6aa7c6e8af1207af7a00ba2f358f898ba5f5ff336fe17024ab"
+  },
+  "raw_child": {
+    "path": "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/privilege-ceiling-component/privilege-ceiling-results.json",
+    "sha256": "56c37c1ec6ff44304e97ced9187fbe06ec62be967e23012d270be60b55160e6c"
+  },
+  "independent_actual_audit": {
+    "path": "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-actual-audit-FINAL.json",
+    "sha256": "1d84330f884ed26b99046363a7306247b883c22e1eef8a911299056b3c4667f9"
+  },
+  "exact_narrow_assertion_proposal": {
+    "path": "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-narrow-assertion-PROPOSAL.json",
+    "sha256": "71704b2f652bf29f9d9500d85f0798e0955dd1acc319c26c0026dabd92fe6f65"
+  },
+  "independent_exact_cleanup": {
+    "path": "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-exact-cleanup.json",
+    "sha256": "39b7bca57b7310a8b0c4c12c1e6b21235606555093f946edaaa7da807d727c79"
+  },
+  "measured_results": {
+    "negative_contrasts": 200,
+    "closed_operations": 244,
+    "child_global_zero_boundaries": 849,
+    "parent_global_zero_boundaries": 18,
+    "definer_metadata": 16,
+    "native_rollback_validity_controls": 40,
+    "issuer_protocols": 3,
+    "complete_state_projection_tables": 42,
+    "complete_state_projection_rows": 205,
+    "identical_projection_observations": 244,
+    "provider_strict_present_position_cases": 18,
+    "source_bound_metadata_query_receipts": 197,
+    "native_comparison_PASS": 29089,
+    "oracle_expressions": 416,
+    "ledger_checks": 22,
+    "parent_six_auth_pairs": 6,
+    "parent_provider_auth_pairs": 3,
+    "child_nine_auth_pairs": 9
+  },
+  "source_and_external_five_unchanged": true,
+  "actual_steps": {
+    "CATALOG-SETUP": "PASS",
+    "CATALOG-AUTH": "PASS",
+    "CATALOG-TOOLS": "PASS",
+    "CATALOG-INSTALL": "PASS",
+    "CATALOG-ACL-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-TEXT-COMPAT": "PASS_NEW_SOURCE_COMPATIBILITY_CONTROL",
+    "CATALOG-NATIVE": "PASS_OBSERVED_NOT_QUALIFIED",
+    "CATALOG-ORACLE": "PASS_ROLLBACK_OBSERVED_NOT_WHOLE_CASE",
+    "CATALOG-LEDGER": "PASS_SOURCE_BOUND_NATIVE_SUBSET",
+    "CATALOG-COMPARE": "PASS_SOURCE_BOUND_NATIVE_CATALOG_ONLY",
+    "CATALOG-SANITIZED_EXPORT": "NOT_RUN",
+    "CATALOG-CLEANUP": "PASS",
+    "PRIVILEGE-CEILING-REVIEW": "PASS_SOURCE_ADMISSION_ONLY",
+    "PRIVILEGE-CEILING-COMPONENT": "PASS_FINITE_PREPARED_SQL_ONLY",
+    "NATIVE-PROVIDER-PREINSTALL": "PASS_LOCAL_SIMULATION_ONLY",
+    "NATIVE-PROVIDER-POSTINSTALL": "PASS_NINE_SOURCE_REVOKES_OBSERVED"
+  },
+  "raw_labels_preserved": {
+    "CATALOG_SANITIZED_EXPORT": "NOT_RUN",
+    "selected_cases_and_controls": [
+      {
+        "id": "P0C-TABLE-ConsentLog-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-PrivacyRequest-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-AgeGateAttempt-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-AgeGateBlock-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-AccessAuditLog-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-User-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-UserRole-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-ProfessionalProfile-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-CustomerProfile-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-CandidateProfile-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-AuditEvent-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-UserSecurityProfile-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-AuthProviderAccount-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackPlan-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackSubscription-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackUsageEvent-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackUsageCounter-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-ConsentContentRevision-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-ConsentPresentation-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-ConsentDisposition-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-DatabaseActionGrant-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-RuntimeWorkItem-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-RuntimeAttempt-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-RuntimeReservation-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackBaseSelection-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-TrackUsageReservation-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      },
+      {
+        "id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+        "status": "NOT_RUN",
+        "source_vectors_status": "NOT_RUN",
+        "allow_case_status": "NOT_RUN"
+      }
+    ],
+    "child_status": "PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN"
+  },
+  "facts": {
+    "finite200_completed": true,
+    "all244_operation_connections_closed": true,
+    "all849_child_global_zero_boundaries": true,
+    "complete42_table205_row_projections": "All244 equal under only source-scoped issued-grant exclusions; this is not an unfiltered all-row immutability claim.",
+    "provider18_positions_strictly_matched": true,
+    "native29089_oracle416_ledger22": "Genuine source-bound prerequisites. After component, a fresh native collection/digest matched. Oracle/ledger were not separately rerun after behavior.",
+    "provider_simulation_only": true,
+    "original_grantor_finalization": "Original postgres grantor verified after install connection exit; zero temporary memberships and false leaf CREATE.",
+    "raw_auth_limit": "Exact recorded role summaries and source auth controls are bound; missing per-role raw probe values are not reconstructed.",
+    "assertion_links_added": 0,
+    "proposed_maxima_only": "41PASS+3PARTIAL across44 identities;43 new plus history-preserving issuerPARTIAL replacement requires separate reviewed reader/global status build. DAG business-write umbrella has NO_LINK."
+  },
+  "limits": {
+    "Posture": "D",
+    "full94_or451_promoted": false,
+    "production_readiness": false,
+    "hosted_adoption": false,
+    "worker_loop": false,
+    "App_Worker_business_qualification": false
+  },
+  "cleanup": {
+    "independently_absent_exact_C1V": true,
+    "private_credentials_absent": true,
+    "pinned_image_retained": true
+  },
+  "assets_sha256": {
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/Root-control-helper.py.txt": "59cb0e93e064ce1ab50626d8387e9a65e2791ffe56239d112db8cbb2ed1604e1",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/Root-fresh-preflight.json": "e13580d969d8c1b4b7c213c53c054a3a0503078ee700f11a78d96031302739f1",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/Root-launch-helper.py.txt": "8ae1388bc2267f9795a35d41e32c1f0ba09340148121dddee995b822c54ec67c",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/Root-preservation-helper.py.txt": "84b2d8c8461b472e9b8f111366f93c75c058f91d2f335325b11f219d3ee65162",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/audit-history/V9-485517b0-independent-closed-audit-20261123/source-order-support-error.json": "079621230fb7c7aeac5418ff7e65e9fef04468b30653d288a330559631731975",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/audit-history/V9-485517b0-independent-closed-audit-run2-20261123/interactive-close-mode-support-error.json": "b9b9a1655e9ca7547b76bffebd60dda6f5176d86ee657e5d26baa9a131bd9b7d",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/audit-history/V9-485517b0-independent-closed-audit-run3-20261123/manifest-order-support-error.json": "33cad5bd80c6f983c8e26345d3ae0ad7d3b871222465d3f63dcf8048a2612bcb",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/audit-history/V9_485517b0_independent_closed_actual_audit_20261123.json": "aa11a53146133280deb8ba201f5065a1459d6b73567ae764abdac59dd385a236",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/catalog-comparison.json": "9107fb1c023f63c4cd5b2eb12eb1642fac0dca46c9f30324bcd0e3cdae76f2c2",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/ledger-evidence.json": "ce0df4bdd84537b780552bf6b97ffe25578481fbf8ddbf09b6128ae4489986c5",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/ledger-registration.json": "9fb7ba0644b56ef0d84c74fddc8deef39a19433a4dbe434d2a1158f3544e52d8",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/native-after-ledger.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/native-after-oracle.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/native-before.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/oracle-evidence.json": "bda360a485bcbca59d4eeef1e703fd74f7d902bbc7974c45039f4ed2358714ba",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/privilege-ceiling-component-result.json": "761359e7eb17238f7392c9dd55d36890c451669f4cab79bf9227bc388187c142",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/privilege-ceiling-component/privilege-ceiling-results.json": "56c37c1ec6ff44304e97ced9187fbe06ec62be967e23012d270be60b55160e6c",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/privilege-ceiling-native-attestation.json": "31ef2a9060f3d6c8444798a4b2148b204ee8410910e484863891ed2fc1d61c22",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/privilege-ceiling-native-final.json": "ba0f0adb37ee74f5f6994e0d4f98f949386168240b4853d53c68685f5a9e6abb",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/privilege-ceiling-run-plan.json": "a48a70b130e341e40fc6d8055b16acbb51d1b0830dc7032db8efe74acad9cdb4",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/provider-preinstall-proof.json": "a575a854c5045f7089c46b57a37eb10feaef28bc43dfcfdafc1b67ed5fe68c08",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/run-evidence.json": "fe71cc8ef3739a6aa7c6e8af1207af7a00ba2f358f898ba5f5ff336fe17024ab",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/set-private-acl.ps1.txt": "802c8f04cf13b8ccd44a89c9458dd596f0ef3f2f29d8529efa7833a78ef31eb2",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/external-source/check_local_f0_privilege_ceiling_v9_operation.py.txt": "322b66a75455c5853b308ccea4ce0b788c228c9bd1daa669b84ed99a4298fb8e",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/external-source/execute_local_f0_privilege_ceiling_v9_20261122.py.txt": "0345aeda5c1a237a0c579d2cc2ee2d2d07997e445d5f7823edce0221e7eae156",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/external-source/local_f0_privilege_ceiling_v9_operation_steps.py.txt": "9243c34c4c3f36dbc136a0f214f3c175a9945583344a998a9c0c842224649e67",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/external-source/pin_local_f0_privilege_ceiling_v9_plan_20261122.py.txt": "0d1cce0ed02a4c2c818c1b19331bc1f511bdc65fc3ef1f0c0bbcb92e70ca59d1",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/external-source/prepare_local_f0_privilege_ceiling_v9_plan.py.txt": "0ebc22c0c268a4e4957d284cf7aedc553ca1ee688906fe6fe42181496ee2aa27",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-actual-audit-FINAL.json": "1d84330f884ed26b99046363a7306247b883c22e1eef8a911299056b3c4667f9",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-exact-cleanup.json": "39b7bca57b7310a8b0c4c12c1e6b21235606555093f946edaaa7da807d727c79",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-full-audit-helper.py.txt": "c2ba6e54800324622e91bed70f764d64b870faec809a4862ecdec4b49e104f63",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-metadata-closure-helper.py.txt": "b6df1c915aa301245a0a8a9749c86eebb6df5bb991f085175f169526a48a570e",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-narrow-assertion-PROPOSAL.json": "71704b2f652bf29f9d9500d85f0798e0955dd1acc319c26c0026dabd92fe6f65",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/independent-operational-literal.json": "0cff940f6863a69190210900a06dfce060fe0188fe2809d84673e522c8e0e3e3",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/known-closed-parent.json": "b13f0106250541b63b6dff6906ebab70f351632f66d8b2d0a6c646453373fd61",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/manifest/ok-migration-manifest.json": "0a51e8d4970fa6671a8d5136ac4df4ca3878499bc666ec0714afc418fd8550da",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/manifest/operation-manifest-before-operational-review.json": "46df87e7be1a6f7fa294850beaf3511450f476791178fe1ceb6078ecc378a6ef",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/manifest/operation-manifest-before-source-pin.json": "e2befd039198d7f5c3abafbce2f316e0f5b9f990f900fc04898977719bf6be6a",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/manifest/operation-manifest.json": "dd943f9eb917738a017d44d22bf0b664e194bc7d8dcd058942cf37b16009cad7",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/pinned-environment-launch.json": "2eaffadb06c0677e98e24a5338f5bea705453b29ebeda6d0af785e1cbb5f2779",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/public-source-only-seven-files.tar.gz": "063a02fa0276b39dd37388a977546c6bc8b43b66245af9490c07b5582f6f70fd",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/source-ok/prisma.local-f0.config.mjs": "ca19d1de07215b7f3304f8693745a446f051b4e46f833db1479d125dbdf46684",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/source-ok/prisma/foundation/history-manifest.json": "5a62bb655631dda33554bc726860e2348c537432e2c51497107b5270ec3b2f7d",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/source-ok/prisma/foundation/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/source-ok/prisma/foundation/migrations/migration_lock.toml": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/source-ok/prisma/review/foundation-candidate.prisma": "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/source-ok/scripts/sql-review/local-f0-migrate-guard.mjs": "7c78a4238e0df137f6f97e1b651a856506d86ec27a1e73b9318fcac093de227b",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/source-ok/scripts/sql-review/local-f0-migrate-runner.mjs": "7b3c705b2cc29149e9d9e644803d6ea8a968dd9eea8e045caa6c74a3487f52fd",
+    "context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0/source-only-audit-expectations.json": "77c730f8f8f08826f9cbccff2a4e12f469ae6ca1651882d86eaa2ad43cdff467"
+  }
+}

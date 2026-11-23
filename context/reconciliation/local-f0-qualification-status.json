@@ -4,19 +4,19 @@
   "Brain_acceptance": "PENDING",
   "counts_are_obligations_not_experiments": true,
   "assertion_status_counts": {
-    "PASS": 652,
-    "PARTIAL": 32,
+    "PASS": 654,
+    "PARTIAL": 33,
     "FAILED": 0,
     "DEPENDENCY_BLOCKED": 32,
-    "NOT_RUN": 311,
+    "NOT_RUN": 308,
     "UNRESOLVED_SOURCE": 7
   },
   "case_status_counts": {
     "PASS": 8,
-    "PARTIAL": 79,
+    "PARTIAL": 80,
     "FAILED": 0,
     "DEPENDENCY_BLOCKED": 0,
-    "NOT_RUN": 7
+    "NOT_RUN": 6
   },
   "selected_cases": 94,
   "executions": [
@@ -187,6 +187,16 @@
       "source_commit": "0ff2a910ce081a0c6e0c6a268d6f876b8e061a45",
       "source_tree": "886f85d4a919a8a04f85c8fe45a01e0a8801ba1c",
       "whole_cases_promoted": false
+    },
+    {
+      "run_id": "04731001-a27b-4be1-a8ea-ad61e64154a7",
+      "source_commit": "249e6815702537a24cd98fc973ed90a8b0493ac3",
+      "source_tree": "6b705e51e464875eb8f84f71d0a27e9a072dc77d",
+      "packet_sha256": "f1e9eb73db08853078f5fde9b2903af3dc28f47694a21fc3b0a7ccebd2f04fe3",
+      "evidence_path": "context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json",
+      "evidence_sha256": "8a885249b41ba0b698e388f1685fd72e3b6b04fbe93b6caeecfffbfabcaca0a0",
+      "actual_result": "DERIVED_REVIEWED_RESTORE047_EXACT_THREE_CONTROL_ASSERTIONS_ONLY",
+      "qualification_scope": "Exactly real_backup PASS, restored_parity PASS, restored_authority PARTIAL; all other obligations unchanged."
     }
   ],
   "cases": [
@@ -18219,25 +18229,73 @@
     },
     {
       "id": "P0C-RESTORE-01",
-      "status": "NOT_RUN",
+      "status": "PARTIAL",
       "assertions": [
         {
           "id": "control.real_backup",
           "mandatory": true,
-          "status": "NOT_RUN",
-          "dependency_ids": []
+          "status": "PASS",
+          "dependency_ids": [],
+          "evidence": {
+            "case_id": "P0C-RESTORE-01",
+            "assertion_id": "control.real_backup",
+            "status": "PASS",
+            "expected_assertion_sha256": "f8d7eb3bb2a551566de8ca07ea392ddfcb4c48186bdbb6375f8a8c4c84de4507",
+            "source_commit": "249e6815702537a24cd98fc973ed90a8b0493ac3",
+            "source_tree": "6b705e51e464875eb8f84f71d0a27e9a072dc77d",
+            "packet_sha256": "f1e9eb73db08853078f5fde9b2903af3dc28f47694a21fc3b0a7ccebd2f04fe3",
+            "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "run_id": "04731001-a27b-4be1-a8ea-ad61e64154a7",
+            "evidence_path": "context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json",
+            "evidence_sha256": "8a885249b41ba0b698e388f1685fd72e3b6b04fbe93b6caeecfffbfabcaca0a0",
+            "json_pointer": "/claims/0",
+            "qualification_scope": "Exact physical synthetic Restore047 control subset only.",
+            "qualification_limit": "Candidate real physical artifact only, pending reviewed operator + actual evidence."
+          }
         },
         {
           "id": "control.restored_parity",
           "mandatory": true,
-          "status": "NOT_RUN",
-          "dependency_ids": []
+          "status": "PASS",
+          "dependency_ids": [],
+          "evidence": {
+            "case_id": "P0C-RESTORE-01",
+            "assertion_id": "control.restored_parity",
+            "status": "PASS",
+            "expected_assertion_sha256": "dad5eb44f2a1fefcace3f8fdf9d58b895d19139cd2ef75d24dc03946fde1907e",
+            "source_commit": "249e6815702537a24cd98fc973ed90a8b0493ac3",
+            "source_tree": "6b705e51e464875eb8f84f71d0a27e9a072dc77d",
+            "packet_sha256": "f1e9eb73db08853078f5fde9b2903af3dc28f47694a21fc3b0a7ccebd2f04fe3",
+            "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "run_id": "04731001-a27b-4be1-a8ea-ad61e64154a7",
+            "evidence_path": "context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json",
+            "evidence_sha256": "8a885249b41ba0b698e388f1685fd72e3b6b04fbe93b6caeecfffbfabcaca0a0",
+            "json_pointer": "/claims/1",
+            "qualification_scope": "Exact physical synthetic Restore047 control subset only.",
+            "qualification_limit": "Candidate exact physical schema/data/ledger/authority parity only, pending actual evidence."
+          }
         },
         {
           "id": "control.restored_authority",
           "mandatory": true,
-          "status": "NOT_RUN",
-          "dependency_ids": []
+          "status": "PARTIAL",
+          "dependency_ids": [],
+          "evidence": {
+            "case_id": "P0C-RESTORE-01",
+            "assertion_id": "control.restored_authority",
+            "status": "PARTIAL",
+            "expected_assertion_sha256": "4615b1d2ba25a611f90a9887506aaf0e856d186bf544147638a4d60e3b246f1a",
+            "source_commit": "249e6815702537a24cd98fc973ed90a8b0493ac3",
+            "source_tree": "6b705e51e464875eb8f84f71d0a27e9a072dc77d",
+            "packet_sha256": "f1e9eb73db08853078f5fde9b2903af3dc28f47694a21fc3b0a7ccebd2f04fe3",
+            "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+            "run_id": "04731001-a27b-4be1-a8ea-ad61e64154a7",
+            "evidence_path": "context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json",
+            "evidence_sha256": "8a885249b41ba0b698e388f1685fd72e3b6b04fbe93b6caeecfffbfabcaca0a0",
+            "json_pointer": "/claims/2",
+            "qualification_scope": "Exact physical synthetic Restore047 control subset only.",
+            "qualification_limit": "PARTIAL only: synthetic credential/currentness/tuple simulations; real service activation stays held."
+          }
         },
         {
           "id": "control.privacy_reapplication",

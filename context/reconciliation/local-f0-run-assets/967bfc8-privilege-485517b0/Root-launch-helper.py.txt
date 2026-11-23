@@ -1,0 +1,24 @@
+"""Launch one unchanged, independently reviewed owning packet with the proven parser environment."""
+from pathlib import Path
+import argparse,datetime,hashlib,json,os,subprocess,sys
+from control_967b_V9_exact_literal_20261123 import CFG,C,TREE,T,R,ENV,environment
+sha=lambda b:hashlib.sha256(b).hexdigest()
+p=argparse.ArgumentParser();p.add_argument('lane',choices=CFG);args=p.parse_args();q=CFG[args.lane]
+mp=T/q['dir']/'operation-manifest.json';raw=mp.read_bytes();m=json.loads(raw)
+ap=T/('967b_V9_'+args.lane+'_Root_literal_approval_receipt_20261120.json');a=json.loads(ap.read_bytes())
+assert sha(raw)==a['approved_manifest_sha256']and a['source_commit']==C and a['source_tree']==TREE
+assert m['run_id']==q['run']and m['source_commit']==C and m['source_tree']==TREE and m['packet_sha256']==a['packet_sha256']and m['review_status']==q['flag']
+rr=Path(a['review_path']).read_bytes();assert sha(rr)==a['review_sha256'];review=json.loads(rr)
+assert review['decision']=='SOURCE_APPROVED_OPERATIONAL_LITERAL'and review['findings']==[]and review['mandatory_actual_launch_environment']==ENV==a['mandatory_actual_launch_environment']
+wrapper='execute_local_f0_restore_hba_bytes_v6_20261120.py'if args.lane=='restore'else'execute_local_f0_privilege_ceiling_v9_20261122.py'
+flag='--execute-reviewed-restore'if args.lane=='restore'else'--execute-reviewed-privilege-ceilings'
+five=dict(m[q['sub']]['external_files_sha256']);five[q['pinner']]=m['pin_helper_sha256'];assert five==a['external5_sha256']==review['source']['external5_sha256']
+for name,wanted in five.items():assert sha((T/name).read_bytes())==wanted
+assert sha((T/wrapper).read_bytes())==m['wrapper_sha256']and not Path(m['evidence_directory']).exists()
+e=environment();assert e['Python_version']==[3,12,10]
+tmp=T/'test-tmp';assert tmp.is_dir();env=os.environ.copy();env.update(PYTHONUTF8='1',PYTHONPATH=str(T/'offline-python'),TMP=str(tmp),TEMP=str(tmp),TMPDIR=str(tmp))
+receipt={'schema':'workinants.967b_V9-reviewed-owning-pinned-environment-launch.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'lane':args.lane,'run_id':q['run'],'source_commit':C,'source_tree':TREE,'packet_sha256':m['packet_sha256'],'approved_manifest_sha256':sha(raw),'Root_approval_receipt_sha256':sha(ap.read_bytes()),'review_sha256':a['review_sha256'],'external5_sha256':five,'actual_environment':e,'environment_keys_set':['PYTHONUTF8','PYTHONPATH','TMP','TEMP','TMPDIR'],'database_contacted_at_record':False,'changed_runtime_code':False,'Posture':'D'}
+rp=T/('967b_V9_'+args.lane+'_pinned_environment_launch_receipt_20261120.json')
+with rp.open('x',encoding='utf8')as f:json.dump(receipt,f,indent=2,allow_nan=False);f.write('\n')
+print(json.dumps({'launch_receipt':rp.name,'sha256':sha(rp.read_bytes()),'lane':args.lane,'run_id':q['run'],'status':'LAUNCHING_UNCHANGED_REVIEWED_OWNING_PACKET'}),flush=True)
+raise SystemExit(subprocess.run([sys.executable,'-X','utf8',str(T/wrapper),flag,'--manifest',str(mp)],cwd=R,env=env,shell=False).returncode)

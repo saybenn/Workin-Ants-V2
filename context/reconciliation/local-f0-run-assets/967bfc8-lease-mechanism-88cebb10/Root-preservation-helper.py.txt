@@ -1,0 +1,35 @@
+"""Preserve the independently audited closed synthetic mechanism attempt; zero ledger links."""
+from pathlib import Path
+import collections,datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+F='context/reconciliation/local-f0-run-assets/967bfc8-lease-mechanism-88cebb10'
+P='context/reconciliation/local-f0-lease-mechanism-967bfc8-88cebb10-execution.json'
+raw=(T/'local-f0-lease-mechanism-v1-88cebb10/run-evidence.json').read_bytes()
+assert sha(raw)=='9470333df922c2434c337c8dbe4076c1662ecc243e4e4289ee0f8cb76c845d8d'
+v=json.loads(raw);assert v['status']=='PASS_SYNTHETIC_PG_EXPRESSION_ACL_MECHANISM_ONLY'and v['stage']=='COMPLETE'and v['unexpected']==[]
+assert v['evidence_complete']is True and v['output_complete']is True and v['persistence_failure']is False
+assert len(v['cases'])==11 and all(c['status']=='PASS_SYNTHETIC_ONLY'and c['operation_closed']is True and c['complete_state_checked']is True for c in v['cases'])
+assert len(v['authentication'])==16 and all(a['wrong_rejected']is True and a['correct_exit_zero']is True and all(x is True for x in a['comparisons'].values())and all(x is True for x in a['wrong_comparisons'].values())for a in v['authentication'])
+assert len(v['closures'])==233 and all(c['confirmed']is True and c['integer_zero']is True for c in v['closures'])
+assert all(x is True for x in v['cleanup'].values())and not(T/'local-f0-lease-mechanism-v1-88cebb10/private').exists()
+audit=(T/'lease88_independent_closed_actual_audit_20261123.json').read_bytes();assert sha(audit)=='76b2911680a7eeb1a61c809981caedfedc36759386d7d15b40fdff739ccc3013'
+cleanup=(T/'lease88_independent_exact_cleanup_20261123.json').read_bytes();assert sha(cleanup)=='d95a6c58a8d209d28d4852c87d546176b6dd0f0f2084066976004dd56cc752de'
+parent=json.loads((T/'lease88_known_closed_parent_outcome_20261123.json').read_bytes());assert parent['known_closed']is True and type(parent['exit_code'])is int and parent['exit_code']==0 and parent['stdout_empty']is True and parent['stderr_empty']is True
+mp=T/'local-f0-lease-v2-reviewed-plan-88cebb10/operation-manifest.json';m=json.loads(mp.read_bytes());assert sha(mp.read_bytes())=='0687d248cd2419e11da0bbd458ef165ef484bf564204187a072ce50273f81997'
+for n,h in m['packet_files_sha256'].items():assert sha((R/n).read_bytes())==h
+for n,h in m['external_files_sha256'].items():assert sha((T/n).read_bytes())==h
+files={}
+copies={'raw-run-evidence.json':raw,'independent-actual-audit.json':audit,'independent-exact-cleanup.json':cleanup,'approved-operation-manifest.json':mp.read_bytes()}
+for name,source in {'before-pin-operation-manifest.json':'local-f0-lease-v2-reviewed-plan-88cebb10/operation-manifest-before-committed-pin.json','before-literal-operation-manifest.json':'local-f0-lease-v2-reviewed-plan-88cebb10/operation-manifest-before-operational-review.json','independent-operational-literal.json':'lease88_independent_exact_operational_literal_review_20261123.json','Root-fresh-preflight.json':'lease88_Root_literal_approval_receipt_20261123.json','pinned-environment-launch.json':'lease88_pinned_environment_launch_receipt_20261123.json','known-closed-parent.json':'lease88_known_closed_parent_outcome_20261123.json','Root-control-helper.py.txt':'control_lease88_exact_literal_and_cleanup_20261123.py','Root-launch-helper.py.txt':'launch_lease88_pinned_environment_20261123.py','Root-preservation-helper.py.txt':Path(__file__).name}.items():copies[name]=(T/source).read_bytes()
+for n,h in m['external_files_sha256'].items():copies['operator-five/'+n+'.txt']=(T/n).read_bytes()
+for name,b in copies.items():put(R/F/name,b);files[F+'/'+name]=sha(b)
+events=collections.Counter(x['kind']for x in v['events'])
+record={'schema':'workinants.local-f0-lease-mechanism-closed-actual.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'run_id':v['run_id'],'source_commit':v['source_commit'],'source_tree':v['source_tree'],'packet_sha256':v['packet_sha256'],'source_packet_files':len(m['packet_files_sha256']),'status':v['status'],'stage':'COMPLETE','raw_evidence':{'path':F+'/raw-run-evidence.json','sha256':sha(raw)},'independent_actual_audit':{'path':F+'/independent-actual-audit.json','sha256':sha(audit)},'independent_exact_cleanup':{'path':F+'/independent-exact-cleanup.json','sha256':sha(cleanup)},'known_closed_exit':0,'auth_correct_wrong_pairs':16,'global_integer_zero_closures':233,'complete_five_row_state_observations':events['COMPLETE_STATE'],'binary_files':12,'synthetic_original_grantor_finalizations':events['FIXTURE_GRANTOR_FINALIZATION'],'actual_case_names':[c['case']for c in v['cases']],'results':'Old-pending42501 PRIVATE_HELPER at source-bound synthetic guard line3; nested-pending complete success; restored-old42501 repeats original. App direct helper remains denied before/after. Worker and verifier helper calls succeed. Current worker succeeds; expired/wrong-secret/wrong-fence return exact P0001 WORKER_GUARD line7. All markers, binary bytes/prosrc profiles, complete5-row state and closure controls passed.','grantor_limit':'Synthetic grantor postgres; zero synthetic memberships and false leaf CREATE were observed. Canonical installation temporary memberships were NOT_CREATED_NOT_APPLICABLE.','dependency_decision':'ACCEPTED_ACTUAL_SYNTHETIC_MECHANISM_PREREQUISITE_ONLY','selected94_assertion_links_added':0,'canonical_application':'NOT_RUN','Prisma':'NOT_RUN','native29089':'NOT_RUN','oracle416':'NOT_RUN','ledger22':'NOT_RUN','historical_App_limit':'This directly demonstrates the isolated expression/ACL mechanism. It does not reconstruct the old App failure complete cause or qualify the canonical corrected App/Worker transaction.','limits':v['limits'],'cleanup':v['cleanup'],'assets_sha256':dict(sorted(files.items())),'Posture':'D'}
+put(R/P,enc(record));files[P]=sha((R/P).read_bytes())
+out=T/'967b_lease88_closed_mechanism_preserved_inventory_20261123.json';put(out,enc({'schema':'workinants.lease88-closed-mechanism-preservation-inventory.v1','files_sha256':files,'count':len(files),'selected94_links_added':0,'Posture':'D'}))
+print(json.dumps({'status':'CLOSED_MECHANISM_ACTUAL_PRESERVED_ZERO_ASSERTION_LINKS','files':len(files),'inventory_sha256':sha(out.read_bytes()),'record_sha256':files[P]}))

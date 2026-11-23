@@ -1,3 +1,21 @@
+## Local F0 continuation - 654 verified assertions and closed local probes (2026-11-23)
+
+Actual accepted coverage is **654 PASS /33 PARTIAL /308 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**, with687 current rows. Selected94 cases: **8 PASS /80 PARTIAL /6 NOT_RUN**. The real complete builder passed402.359s; all684 older rows and executions remain unchanged. Thirteen applicable legacy checks passed after fixture-only count/dispatch updates.
+
+Exactly three Restore047 claims are admitted: real_backup PASS, restored_parity PASS and restored_authority PARTIAL. Privacy generation, activation and three excluded obligations stay blocked/unexercised. Raw inherited NOT_RUN labels remain unchanged. This is version-qualified physical synthetic recovery evidence, not whole-service or production restoration.
+
+The fresh967b lease mechanism passed all11 real PostgreSQL contrasts: old failure, nested success and restored-old failure; app helper denial before/after; worker/verifier helper success and four worker controls.16 correct/wrong auth pairs,233 global closures and24 complete five-row observations passed. Exact C1V/private cleanup is independently verified. This closes only the isolated mechanism prerequisite; canonical corrected App/Prisma/Worker qualification remains pending.
+
+V9 completed all200 finite negative contrasts,244 closed operations,849 child plus18 parent global boundaries,40 native controls,16 definer records and3 issuer protocols. All18 provider source-position checks matched strictly. Independent audit reproduced source-bound native29089/oracle416/ledger22 prerequisites and the fresh post-component native digest. The42-table/205-row projections exclude only scoped issued grants; no unfiltered immutability or post-component oracle/ledger rerun is claimed. Exact C1V/private cleanup passed; image retained. At most41PASS+3PARTIAL assertions are proposed, with no DAG business-write umbrella or whole-case promotion. Their reader/admission remains pending; no V9 links enter these totals.
+
+New two-history owning transport has a separately approved bounded plan and is privately being implemented. Source13/oldCore, initial5ae/June, A-D and all32 worker ACL rows stay unchanged. CSP owning code is private with pending gates. PostureD and Brain final acceptance remain.
+
+Plain English: The saved backup proof earned two passing answers and one partial answer. Two more local tests finished and cleaned up. Their narrow proof stays separate from the scoreboard until checked admission. The next repaired application path still needs its real tests.
+
+Detailed current record: context/reconciliation/local-f0-654-closed-mechanism-privilege-restore-progress-20261123.json (SHA-256 da5e264624ea74f84dc50289eef67a86ab8514fbb7f07f289bc3edfbb173d80b). Earlier sections below are version-qualified history.
+
+---
+
 ## Local F0 continuation - reviewed lease and privilege replacement sources (2026-11-23)
 
 Accepted coverage remains **652 PASS /32 PARTIAL /311 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE**, with684 current rows and selected94 cases **8 PASS /79 PARTIAL /7 NOT_RUN**. The published evidence checkpoint is5e0e231e44d0813ab29a21eda436329951c08c04. No runtime coverage is added by this source checkpoint.

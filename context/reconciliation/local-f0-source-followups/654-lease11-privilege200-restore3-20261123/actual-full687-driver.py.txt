@@ -1,0 +1,61 @@
+"""Admit exactly three proposed rows, run the real whole Root builder once offline."""
+from pathlib import Path
+import contextlib,copy,datetime,hashlib,io,json,os,re,runpy,sys,time,traceback
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+IP=T/'RestoreV6_exact_three_FINAL_Root_admission_inventory_20261123.json';ir=IP.read_bytes();assert sha(ir)=='77333b61c91f1ffcfd2f4227aab7449c38fc895e57fb0e821745abe04de1efd9';inv=json.loads(ir)
+assert inv['builder_delta_applied']is True and inv['assertion_links_added']==0 and inv['file_count']==50
+for n,h in inv['files_sha256'].items():assert sha((R/n).read_bytes())==h
+review=(T/'RestoreV6_exact_three_evidence_reader_independent_code_source_review_FINAL_20261123.json').read_bytes();assert sha(review)=='4774237d631eb3395eaabfb56f78f3371be6a420ba7fe0944d479e19d784bb64'
+assert json.loads(review)['decision']=='SOURCE_APPROVED'and json.loads(review)['findings']==[]
+L=R/'context/reconciliation/local-f0-assertion-evidence.json';S=R/'context/reconciliation/local-f0-qualification-status.json'
+lb=L.read_bytes();sb=S.read_bytes();assert sha(lb)=='f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f'and sha(sb)=='0f39c42c6fecde007e81d1eb51e17187cc4040244b7699793be1d1c4f954c9c0'
+before=json.loads(lb);assert len(before['assertions'])==684
+preserve=T/'Restore047_Root_before_full687_build_20261123'
+put(preserve/'ledger.json',lb);put(preserve/'status.json',sb)
+tmp=T/'test-tmp';assert tmp.is_dir();os.environ.update(PYTHONUTF8='1',PYTHONPATH=str(T/'offline-python'),TMP=str(tmp),TEMP=str(tmp),TMPDIR=str(tmp))
+sys.path.insert(0,str(T/'offline-python'));import pglast
+assert pglast.__version__=='v7.21'and Path(pglast.__file__).resolve().is_relative_to((T/'offline-python').resolve())
+sys.path.insert(0,str(R/'scripts'))
+def forbidden(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn','os.exec'):raise RuntimeError('OFFLINE_BUILDER_EXTERNAL_BOUNDARY_FORBIDDEN')
+sys.addaudithook(forbidden)
+started=time.monotonic();v={'schema':'workinants.Restore047-actual-full687-Root-build.v1','started_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'RUNNING','source_admission_inventory_sha256':sha(ir),'independent_review_sha256':sha(review),'actual_builder_sha256':inv['newbuilderSHA'],'reader_sha256':inv['reader_sha256'],'before_ledger_sha256':sha(lb),'before_status_sha256':sha(sb),'Python_executable':str(Path(sys.executable).resolve()),'Python_version':list(sys.version_info[:3]),'pglast_version':pglast.__version__,'pglast_resolved_module':str(Path(pglast.__file__).resolve()),'producer_or_validation_functions_mocked':False,'process_Docker_database_network_boundaries_forbidden':True,'counts_forced':False,'Posture':'D'}
+put(T/'Restore047_real_full687_Root_build_started_20261123.json',enc(v))
+print(json.dumps({'status':'RUNNING_REAL_UNMOCKED_FULL_ROOT_BUILDER','before_rows':684,'new_proposed_rows':3,'all_process_network_boundaries_forbidden':True}),flush=True)
+code=0
+try:
+ reader=runpy.run_path(str(R/'scripts/local_f0_restore04731001_evidence.py'),run_name='_Root_reviewed_Restore047_delta')
+ record=json.loads((R/reader['DERIVED']).read_bytes());proposal=reader['propose_ledger_delta'](before,record)
+ # Retain original object insertion order as well as every old value. The
+ # pure reviewed proposal canonicalizes keys, so compare semantic equivalence.
+ candidate=copy.deepcopy(before);candidate['assertions'].extend(copy.deepcopy(proposal['assertions'][-3:]));candidate['executions'].append(copy.deepcopy(proposal['executions'][-1]))
+ assert reader['canonical'](candidate)==reader['canonical'](proposal)
+ assert candidate['assertions'][:-3]==before['assertions']and candidate['executions'][:-1]==before['executions']
+ assert len(candidate['assertions'])==687 and len(candidate['executions'])==len(before['executions'])+1
+ delta=[{k:r[k]for k in('case_id','assertion_id','status')}for r in candidate['assertions'][-3:]]
+ assert {r['assertion_id']:r['status']for r in delta}=={'control.real_backup':'PASS','control.restored_parity':'PASS','control.restored_authority':'PARTIAL'}
+ assert all(r['case_id']=='P0C-RESTORE-01'for r in delta)
+ put(T/'Restore047_reviewed_exact_three_ledger_delta_20261123.json',enc({'schema':'workinants.Restore047-exact-three-input-ledger-delta.v1','before_sha256':sha(lb),'candidate_sha256':sha(enc(candidate)),'rows':delta,'old684_and_executions_unchanged':True,'status_build':'PENDING','Posture':'D'}))
+ assert L.read_bytes()==lb and S.read_bytes()==sb
+ L.write_bytes(enc(candidate));v['candidate_ledger_sha256']=sha(L.read_bytes())
+ with contextlib.redirect_stdout(io.StringIO()),contextlib.redirect_stderr(io.StringIO()):runpy.run_path(str(R/'scripts/prepare-local-f0-status.py'),run_name='__main__')
+ result=json.loads(S.read_bytes());after=json.loads(L.read_bytes())
+ assert result['selected_cases']==94 and result['database_posture']=='D'and result['Brain_acceptance']=='PENDING'
+ assert after==candidate and after['assertions'][:-3]==before['assertions']and after['executions'][:-1]==before['executions']
+ for n,h in inv['files_sha256'].items():assert sha((R/n).read_bytes())==h
+ v.update(status='PASS_REAL_FULL687_ROOT_BUILD',qualification_status_sha256=sha(S.read_bytes()),ledger_sha256=sha(L.read_bytes()),assertion_status_counts=result['assertion_status_counts'],case_status_counts=result['case_status_counts'],current_rows=len(after['assertions']),old684_rows_and_old_executions_unchanged=True,exact_three_only_delta=delta,all_reviewed_source_admission_bytes_unchanged=True)
+except BaseException as error:
+ code=1;message=str(error);safe=message if re.fullmatch('[A-Z][A-Z0-9_]{0,100}',message)else'UNLISTED_OFFLINE_BUILD_FAILURE';frames=[]
+ for frame in traceback.extract_tb(error.__traceback__):
+  path=Path(frame.filename)
+  if path.is_relative_to(R):frames.append({'source_path':path.relative_to(R).as_posix(),'line':frame.lineno})
+ v.update(status='STOPPED_OFFLINE_BUILD_FAILURE',failure={'class':type(error).__name__,'code':safe,'source_frames':frames[-8:],'raw_output_and_exception_text_discarded':True},qualification_counts_not_promoted=True)
+v.update(seconds=round(time.monotonic()-started,3),finished_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat())
+out=T/'Restore047_real_full687_Root_build_20261123.json';put(out,enc(v))
+print(json.dumps({'report':out.name,'sha256':sha(out.read_bytes()),'status':v['status'],'seconds':v['seconds'],'assertion_status_counts':v.get('assertion_status_counts'),'case_status_counts':v.get('case_status_counts')}),flush=True)
+raise SystemExit(code)

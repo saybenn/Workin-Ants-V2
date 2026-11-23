@@ -1,0 +1,64 @@
+"""Preserve independently audited finite V9 actuals; do not change assertion rows."""
+from pathlib import Path
+import datetime,hashlib,io,json,tarfile
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+O=T/'local-f0-privilege-ceiling-485517b0';D=T/'local-f0-privilege-ceiling-plan-485517b0'
+F='context/reconciliation/local-f0-run-assets/967bfc8-privilege-485517b0'
+P='context/reconciliation/local-f0-privilege-967bfc8-485517b0-execution.json'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+def doc(b):
+ def pairs(items):
+  d={}
+  for k,v in items:assert k not in d;d[k]=v
+  return d
+ return json.loads(b,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(AssertionError('NONFINITE_JSON')))
+parent_raw=(O/'run-evidence.json').read_bytes();child_raw=(O/'privilege-ceiling-component/privilege-ceiling-results.json').read_bytes()
+assert sha(parent_raw)=='fe71cc8ef3739a6aa7c6e8af1207af7a00ba2f358f898ba5f5ff336fe17024ab'
+assert sha(child_raw)=='56c37c1ec6ff44304e97ced9187fbe06ec62be967e23012d270be60b55160e6c'
+parent=doc(parent_raw);child=doc(child_raw);m=doc((D/'operation-manifest.json').read_bytes())
+assert parent['status']=='PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY'and child['status']=='PASS_PREPARED_PRIVILEGE_CEILINGS_ONLY_CASES_NOT_RUN'
+assert parent['unexpected']==[]and parent['evidence_complete']is True and parent['output_complete']is True and parent['cleanup_actions_confirmed']is True and parent['component_report_reference_unchanged']is True
+assert len(child['results'])==200 and len(child['operations'])==244 and len(child['global_client_boundaries'])==849
+assert parent['approved_commit']==m['source_commit']=='967bfc854f46ce884f2eee3b93cc317c88cd2f7c'
+assert parent['approved_tree']==m['source_tree']=='b23941dfefd5780031829f29e5f3502c0f40a44e'
+assert parent['approved_packet_sha256']==m['packet_sha256']=='f51068bcc4286a9bf3613c10f28916e7b015cd1d4dc7ad5fab81929668ea7a6d'
+assert not(O/'private').exists()
+for n,h in m['packet_files_sha256'].items():assert sha((R/n).read_bytes())==h
+audit_raw=(T/'V9_485517b0_independent_closed_actual_audit_FINAL_20261123.json').read_bytes();assert sha(audit_raw)=='1d84330f884ed26b99046363a7306247b883c22e1eef8a911299056b3c4667f9';audit=doc(audit_raw)
+assert audit['findings']==[]and audit['runtime_replayed']is False and audit['Root_mutated']is False
+proposal_raw=(T/'V9_485517b0_independent_narrow_assertion_proposal_FINAL_20261123.json').read_bytes();assert sha(proposal_raw)=='71704b2f652bf29f9d9500d85f0798e0955dd1acc319c26c0026dabd92fe6f65'
+cleanup_raw=(T/'967b_V9_privilege_independent_cleanup_20261120.json').read_bytes();assert sha(cleanup_raw)=='39b7bca57b7310a8b0c4c12c1e6b21235606555093f946edaaa7da807d727c79'
+close_raw=(T/'967b_V9_485517b0_known_closed_parent_observation_20261123.json').read_bytes();close=doc(close_raw);assert close['known_closed']is True and type(close['exit_code'])is int and close['exit_code']==0
+allowed=('acl-preflight.json','catalog-comparison.json','ledger-evidence.json','ledger-observation.json','ledger-registration.json','native-after-ledger.json','native-after-oracle.json','native-before.json','oracle-closure.json','oracle-evidence.json','oracle-preflight.json','oracle-results.json','privilege-ceiling-component/privilege-ceiling-results.json','privilege-ceiling-component-result.json','privilege-ceiling-native-attestation.json','privilege-ceiling-native-final.json','privilege-ceiling-run-plan.json','provider-preinstall-proof.json','run-evidence.json','set-private-acl.ps1','text-preflight.json')
+actual={p.relative_to(O).as_posix()for p in O.rglob('*')if p.is_file()};assert actual==set(allowed)
+copies={}
+for n in allowed:
+ b=(O/n).read_bytes();assert len(b)<=8*1024*1024
+ if n.endswith('.json'):doc(b)
+ copies['evidence/'+n+('.txt'if n.endswith('.ps1')else'')]=b
+for n in ('operation-manifest.json','operation-manifest-before-operational-review.json','operation-manifest-before-source-pin.json','ok-migration-manifest.json'):copies['manifest/'+n]=(D/n).read_bytes()
+q=m['migration_targets']['ok'];snapshot=Path(q['source_snapshot']);archive=Path(q['source_archive']);assert snapshot.resolve()==(D/'source-ok').resolve()and archive.resolve()==(D/'source-ok.tar.gz').resolve()
+source={n:(snapshot/n).read_bytes()for n in q['source_files_sha256']};assert len(source)==7
+for n,b in source.items():assert sha(b)==q['source_files_sha256'][n];copies['source-ok/'+n]=b
+ar=archive.read_bytes();assert sha(ar)==q['source_archive_sha256'];seen=set()
+with tarfile.open(fileobj=io.BytesIO(ar),mode='r:gz')as tf:
+ for item in tf:
+  assert item.isfile()and item.name in source and item.name not in seen and item.size==len(source[item.name]);assert tf.extractfile(item).read()==source[item.name];seen.add(item.name)
+assert seen==set(source);copies['public-source-only-seven-files.tar.gz']=ar
+five=dict(m['privilege_ceiling']['external_files_sha256']);five['pin_local_f0_privilege_ceiling_v9_plan_20261122.py']=m['pin_helper_sha256'];assert len(five)==5
+for n,h in five.items():b=(T/n).read_bytes();assert sha(b)==h;copies['external-source/'+n+'.txt']=b
+for dest,src in {'independent-actual-audit-FINAL.json':'V9_485517b0_independent_closed_actual_audit_FINAL_20261123.json','independent-narrow-assertion-PROPOSAL.json':'V9_485517b0_independent_narrow_assertion_proposal_FINAL_20261123.json','independent-exact-cleanup.json':'967b_V9_privilege_independent_cleanup_20261120.json','known-closed-parent.json':'967b_V9_485517b0_known_closed_parent_observation_20261123.json','independent-operational-literal.json':'967b_V9_privilege_independent_exact_operational_literal_review_20261123.json','Root-fresh-preflight.json':'967b_V9_privilege_Root_literal_approval_receipt_20261120.json','pinned-environment-launch.json':'967b_V9_privilege_pinned_environment_launch_receipt_20261120.json','Root-control-helper.py.txt':'control_967b_V9_exact_literal_20261123.py','Root-launch-helper.py.txt':'launch_967b_V9_pinned_environment_20261123.py','Root-preservation-helper.py.txt':Path(__file__).name,'independent-full-audit-helper.py.txt':'audit_V9_485517b0_independent_closed_actual_20261123.py','independent-metadata-closure-helper.py.txt':'finalize_V9_485517b0_independent_audit_metadata_20261123.py','source-only-audit-expectations.json':'V9-source-only-audit-expectations-20261123/expectation-and-possible-mapping-plan.json'}.items():copies[dest]=(T/src).read_bytes()
+assert sha(copies['independent-full-audit-helper.py.txt'])==audit['final_audit_helper_sha256']
+assert sha(copies['independent-metadata-closure-helper.py.txt'])==audit['metadata_closure_helper_sha256']
+for ref in [audit['underlying_full_audit'],*audit['reviewer_support_corrections']]:
+ p=T/ref['path'];assert p.resolve().is_relative_to(T.resolve())and not p.resolve().is_relative_to(R.resolve());b=p.read_bytes();assert sha(b)==ref['sha256'];copies['audit-history/'+ref['path']]=b
+files={}
+for n,b in copies.items():put(R/F/n,b);files[F+'/'+n]=sha(b)
+record={'schema':'workinants.local-f0-V9-closed-actual.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'run_id':m['run_id'],'source_commit':m['source_commit'],'source_tree':m['source_tree'],'operation_packet_sha256':m['packet_sha256'],'source_files':len(m['packet_files_sha256']),'status':parent['status'],'child_status':child['status'],'known_executor_exit':{'code':0,'parent_observation_path':F+'/known-closed-parent.json','sha256':sha(close_raw)},'operator_reported_started_at':parent['started_at'],'operator_reported_finished_at':parent['finished_at'],'raw_parent':{'path':F+'/evidence/run-evidence.json','sha256':sha(parent_raw)},'raw_child':{'path':F+'/evidence/privilege-ceiling-component/privilege-ceiling-results.json','sha256':sha(child_raw)},'independent_actual_audit':{'path':F+'/independent-actual-audit-FINAL.json','sha256':sha(audit_raw)},'exact_narrow_assertion_proposal':{'path':F+'/independent-narrow-assertion-PROPOSAL.json','sha256':sha(proposal_raw)},'independent_exact_cleanup':{'path':F+'/independent-exact-cleanup.json','sha256':sha(cleanup_raw)},'measured_results':audit['measured_results'],'source_and_external_five_unchanged':True,'actual_steps':parent['steps'],'raw_labels_preserved':{'CATALOG_SANITIZED_EXPORT':parent['steps']['CATALOG-SANITIZED_EXPORT'],'selected_cases_and_controls':child['selected_cases'],'child_status':child['status']},'facts':{'finite200_completed':True,'all244_operation_connections_closed':True,'all849_child_global_zero_boundaries':True,'complete42_table205_row_projections':'All244 equal under only source-scoped issued-grant exclusions; this is not an unfiltered all-row immutability claim.','provider18_positions_strictly_matched':True,'native29089_oracle416_ledger22':'Genuine source-bound prerequisites. After component, a fresh native collection/digest matched. Oracle/ledger were not separately rerun after behavior.','provider_simulation_only':True,'original_grantor_finalization':'Original postgres grantor verified after install connection exit; zero temporary memberships and false leaf CREATE.','raw_auth_limit':'Exact recorded role summaries and source auth controls are bound; missing per-role raw probe values are not reconstructed.','assertion_links_added':0,'proposed_maxima_only':'41PASS+3PARTIAL across44 identities;43 new plus history-preserving issuerPARTIAL replacement requires separate reviewed reader/global status build. DAG business-write umbrella has NO_LINK.'},'limits':{'Posture':'D','full94_or451_promoted':False,'production_readiness':False,'hosted_adoption':False,'worker_loop':False,'App_Worker_business_qualification':False},'cleanup':{'independently_absent_exact_C1V':True,'private_credentials_absent':True,'pinned_image_retained':True},'assets_sha256':dict(sorted(files.items()))}
+put(R/P,enc(record));files[P]=sha((R/P).read_bytes())
+out=T/'967b_V9_485517b0_closed_actual_preserved_inventory_20261123.json';put(out,enc({'schema':'workinants.V9-closed-actual-preservation-inventory.v1','files_sha256':files,'count':len(files),'source_packet_files':455,'ledger_rows_changed':0,'Posture':'D'}))
+print(json.dumps({'status':'AUDITED_V9_ACTUAL_PRESERVED_NO_ASSERTION_CHANGES','files':len(files),'inventory_sha256':sha(out.read_bytes()),'normalized_record_sha256':files[P]}))

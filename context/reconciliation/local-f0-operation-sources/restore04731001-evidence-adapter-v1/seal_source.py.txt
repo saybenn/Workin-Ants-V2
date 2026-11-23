@@ -1,0 +1,45 @@
+"""Private author materializer. No archived code, process or network execution."""
+from pathlib import Path
+import hashlib,json,sys,time,types
+A=Path(__file__).resolve().parent;F=A/'future-root';sys.dont_write_bytecode=True
+def forbid(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn','os.exec'):raise AssertionError('REAL_PROCESS_OR_NETWORK_FORBIDDEN')
+sys.addaudithook(forbid)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def encode(x):return(json.dumps(x,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+AR='context/reconciliation/local-f0-operation-sources/restore04731001-evidence-adapter-v1';AS='context/reconciliation/local-f0-run-assets/249e681-restore-04731001';SPEC=AR+'/closed-inputs-and-claims.json';BASE=AR+'/prior-local-f0-assertion-evidence.json';DER='context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json'
+spec=json.loads((F/SPEC).read_bytes());r=json.loads((F/AS/'evidence/run-evidence.json').read_bytes())
+def shape(v):
+ if type(v)is dict:return['dict',{k:shape(x)for k,x in v.items()}]
+ if type(v)is list:return['list',[shape(x)for x in v]]
+ return[type(v).__name__]
+spec['raw_receipt_shape']=shape(r);(F/SPEC).write_bytes(encode(spec))
+baseline=json.loads((F/AS/'evidence/source-parity-before.json').read_bytes())
+spec['observed_baseline42_fingerprints']=baseline['all_data']
+spec['observed_ledger_fingerprint']=baseline['ledger']
+spec['observed_physical_artifact_fingerprint']=r['restore']['backup_artifact']
+spec['observed_system_identifier_sha256']=r['restore']['source_system_identifier_sha256']
+changed=('platform.database_action_grant','platform_private.identity_service_authorization','platform_private.identity_service_receipt')
+spec['observed_security_transition_fingerprints']=[{k:json.loads((F/AS/f'evidence/restore-case-{i}-parity.json').read_bytes())['all_data'][k]for k in changed}for i in range(5)]
+spec['observed_fingerprint_limit']='These are exact retained count/digest observations, not reconstructed row contents, times, grant IDs, secrets, handles, archive bytes or missing9cf values. Semantic checks independently bind table sets/counts,39stable business rows, allowed3security changes, source expected observers, native/ledger/authority/coherence and strict producer receipts.'
+(F/SPEC).write_bytes(encode(spec))
+pins=dict(spec['closed_inputs_sha256']);pins[SPEC]=sha((F/SPEC).read_bytes());pins[BASE]=sha((F/BASE).read_bytes())
+p=F/'scripts/local_f0_restore04731001_evidence.py';base=p.read_text(encoding='utf8').split('# BEGIN FROZEN CONSTANTS')[0]
+footer='\n# BEGIN FROZEN CONSTANTS\n'
+footer+='CLOSURE_STAGES='+repr([c['stage']for c in r['backend_closures']])+'\n'
+footer+='CATALOG_OPERATION_SOURCES='+repr([(c['stage'],c['input_sha256'])for c in r['catalog_operations']])+'\n'
+footer+='EVENT_IDENTITIES='+repr([{k:v for k,v in c.items()if k in('stage','operation','role','target','status','input_sha256')}for c in r['events']])+'\n'
+footer+='EXPECTED_STEPS='+repr(r['steps'])+'\n'
+def module(pins):
+ text=base+footer+'PINS=MappingProxyType('+repr(pins)+')\nGRAPH_FILES='+str(len(pins))+'\nMAX_BUNDLE_BYTES='+str(sum((F/n).stat().st_size for n in pins))+'\n'
+ p.write_text(text,encoding='utf8',newline='\n');m=types.ModuleType('_author_restore047');m.__file__=str(p);exec(compile(text,str(p),'exec'),m.__dict__);return m
+history=A/'author-history'/sys.argv[1];history.mkdir(parents=True,exist_ok=False);start=time.monotonic()
+try:
+ m=module(pins);blobs={n:(F/n).read_bytes()for n in pins};record=m.expected_record(blobs)
+ (F/DER).write_bytes(encode(record));pins[DER]=sha((F/DER).read_bytes());m=module(pins);blobs[DER]=(F/DER).read_bytes()
+ m.validate_bundle(blobs)
+ outcome={'decision':'PASS_PRIVATE_SEMANTIC_MATERIALIZATION','seconds':time.monotonic()-start,'graph_files':len(pins),'graph_bytes':sum(map(len,blobs.values())),'reader_sha256':sha(p.read_bytes()),'derived_sha256':pins[DER],'claims':[(c['assertion_id'],c['status'])for c in record['claims']],'runtime':'NOT_RUN','Posture':'D'}
+except BaseException as e:
+ outcome={'decision':'FAILED_PRIVATE_MATERIALIZATION','error_class':type(e).__name__,'safe_code':str(e)if isinstance(e,m.EvidenceFailure)else'UNEXPECTED_PRIVATE_AUTHOR_BOUNDARY','seconds':time.monotonic()-start,'runtime':'NOT_RUN','Posture':'D'}
+ (history/'reader.py.txt').write_bytes(p.read_bytes());(history/'outcome.json').write_bytes(encode(outcome));print(json.dumps(outcome));raise
+(history/'reader.py.txt').write_bytes(p.read_bytes());(history/'outcome.json').write_bytes(encode(outcome));print(json.dumps(outcome))

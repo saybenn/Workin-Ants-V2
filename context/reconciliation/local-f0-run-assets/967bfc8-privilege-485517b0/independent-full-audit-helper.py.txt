@@ -1,0 +1,144 @@
+"""Independent closed V9 audit; data/pure APIs only, every live edge forbidden."""
+from pathlib import Path
+from types import ModuleType
+import ast,builtins,collections,copy,datetime,hashlib,io,json,os,re,stat,sys,tarfile
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';O=T/'local-f0-privilege-ceiling-485517b0';P=T/'local-f0-privilege-ceiling-plan-485517b0'
+OUT=T/'V9-485517b0-independent-closed-audit-run4-20261123';RUN='485517b0-46a3-495e-b5cc-96b910257fa4';COMMIT='967bfc854f46ce884f2eee3b93cc317c88cd2f7c';TREE='b23941dfefd5780031829f29e5f3502c0f40a44e';PACKET='f51068bcc4286a9bf3613c10f28916e7b015cd1d4dc7ad5fab81929668ea7a6d'
+sha=lambda b:hashlib.sha256(b).hexdigest();canonical=lambda v:json.dumps(v,sort_keys=True,separators=(',',':'),ensure_ascii=False);digest=lambda v:sha(canonical(v).encode());enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+INPUTS={};EDGES=[]
+def audit(e,a):
+ if e.startswith(('subprocess.','socket.'))or e in ('os.system','os.posix_spawn','os.spawn','os.exec'):EDGES.append(e);raise AssertionError('LIVE_BOUNDARY_FORBIDDEN')
+sys.addaudithook(audit);sys.dont_write_bytecode=True
+def read(p,h=None):
+ p=Path(p);s=p.stat();assert stat.S_ISREG(s.st_mode)and s.st_nlink==1 and s.st_size<=8*1024*1024
+ a=p.read_bytes();b=p.read_bytes();z=p.stat();assert a==b and (s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns,z.st_ctime_ns)
+ if h:assert sha(a)==h
+ assert str(p)not in INPUTS or INPUTS[str(p)]==sha(a);INPUTS[str(p)]=sha(a);return a
+def doc(raw):
+ def pairs(xs):
+  d={}
+  for k,v in xs:assert k not in d;d[k]=v
+  return d
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(AssertionError('NONFINITE_JSON')))
+def j(p,h=None):return doc(read(p,h))
+def put(p,v):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(enc(v))
+def alltrue(d):return type(d)is dict and d and all(v is True for v in d.values())
+def main():
+ OUT.mkdir();mraw=read(P/'operation-manifest.json','dd943f9eb917738a017d44d22bf0b664e194bc7d8dcd058942cf37b16009cad7');m=doc(mraw)
+ parent=j(O/'run-evidence.json','fe71cc8ef3739a6aa7c6e8af1207af7a00ba2f358f898ba5f5ff336fe17024ab');childraw=read(O/'privilege-ceiling-component/privilege-ceiling-results.json','56c37c1ec6ff44304e97ced9187fbe06ec62be967e23012d270be60b55160e6c');child=doc(childraw)
+ known=j(T/'967b_V9_485517b0_known_closed_parent_observation_20261123.json','b13f0106250541b63b6dff6906ebab70f351632f66d8b2d0a6c646453373fd61');cleanup=j(T/'967b_V9_privilege_independent_cleanup_20261120.json','39b7bca57b7310a8b0c4c12c1e6b21235606555093f946edaaa7da807d727c79')
+ assert known['known_closed']is True and type(known['exit_code'])is int and known['exit_code']==0 and known['run_id']==RUN and known['independent_cleanup_sha256']==INPUTS[str(T/'967b_V9_privilege_independent_cleanup_20261120.json')]
+ assert m['run_id']==parent['run_id']==child['run_id']==RUN and m['source_commit']==parent['approved_commit']==child['source_commit']==COMMIT and m['source_tree']==parent['approved_tree']==child['source_tree']==TREE
+ pins=m['packet_files_sha256'];assert len(pins)==455 and sha(''.join(n+'\0'+pins[n]+'\n'for n in sorted(pins)).encode())==m['packet_sha256']==parent['approved_packet_sha256']==child['operation_packet_sha256']==PACKET
+ assert not set(pins)&{'context/reconciliation/local-f0-assertion-evidence.json','context/reconciliation/local-f0-qualification-status.json','scripts/prepare-local-f0-status.py'}
+ blobs={n:read(R/n,h)for n,h in pins.items()}
+ five=dict(m['privilege_ceiling']['external_files_sha256']);five['pin_local_f0_privilege_ceiling_v9_plan_20261122.py']=m['pin_helper_sha256'];assert len(five)==5
+ for n,h in five.items():read(T/n,h);assert blobs['context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v9/'+n+'.txt']==read(T/n,h)
+ # Retain all closed input references as hashes, never raw operation data.
+ artifacts={p.relative_to(O).as_posix():read(p)for p in O.rglob('*')if p.is_file()};assert len(artifacts)==21
+ f=doc(blobs['review-output/privilege-ceiling-control-rehearsal-v9/fixtures.json']);native_packet=doc(blobs['review-output/native-table-denials-v2/packet.json']);expect=j(T/'V9-source-only-audit-expectations-20261123/expectation-and-possible-mapping-plan.json','77c730f8f8f08826f9cbccff2a4e12f469ae6ca1651882d86eaa2ad43cdff467')
+ planraw=artifacts['privilege-ceiling-run-plan.json'];plan=doc(planraw);assert plan['run_id']==RUN and plan['source_commit']==COMMIT and plan['source_tree']==TREE and plan['packet_sha256']==PACKET and plan['packet_files_sha256']==pins and plan['native_plan']['immutable_container_id']==parent['targets'][m['targets'][0]['name']]['container_id']
+ # Execute only source-defined pure result validators selected as AST nodes.
+ ar='context/reconciliation/local-f0-operation-sources/privilege-ceiling-owned-v9/'
+ core=ast.parse(blobs[ar+'execute_local_f0_privilege_ceiling_v9_20261122.py.txt']);steps=ast.parse(blobs[ar+'local_f0_privilege_ceiling_v9_operation_steps.py.txt'])
+ core_nodes=[n for n in core.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))and n.name in ('Stop','need')]
+ names={'canonical','digest','exact','privilege_match_receipt_allowed','privilege_schema_create_comparison_allowed','privilege_metadata_receipt_allowed','privilege_diagnostic_allowed','verify_privilege_result'};step_nodes=[n for n in steps.body if isinstance(n,ast.FunctionDef)and n.name in names];assert len(step_nodes)==len(names)
+ auth=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker','anon','authenticated','service_role')
+ ns={'json':json,'hashlib':hashlib,'re':re,'RUN_ID':RUN,'COMMIT':COMMIT,'TREE':TREE,'PACKET':PACKET,'PRIVILEGE_CONTENT_SHA':f['source_only_packet_sha256'],'PRIVILEGE_FIXTURES':f,'PRIVILEGE_NATIVE':{'packet':native_packet,'module':{'AUTH_ROLES':auth}},'report':{'stage':'INDEPENDENT_CLOSED_AUDIT'}}
+ exec(compile(ast.Module(body=core_nodes+step_nodes,type_ignores=[]),'_closed_source_pure_V9_verifiers','exec'),ns)
+ summary=ns['verify_privilege_result'](child,plan,planraw);assert summary==doc(artifacts['privilege-ceiling-component-result.json'])and summary['component_report_sha256']==digest(child)==parent['privilege_ceiling']['component_report_sha256']
+ assert parent['status']=='PASS_LOCAL_PRIVILEGE_CEILING_SQL_SUBSET_ONLY'and parent['evidence_complete']is True and parent['persistence_failure']is False and parent['output_complete']is True and parent['unexpected']==[]and parent['cleanup_actions_confirmed']is True
+ assert child['current_stage']=='FINISHED'and child['subsequent_cases_stopped']is False and child['source_assertion_links']=='NOT_PROMOTED'and 'failure'not in child and 'original_failure'not in child
+ operations=child['operations'];results=child['results'];order=expect['source_execution_order'];assert [x['name']for x in operations]==order['closed_operation_names_in_required_runtime_order']and [x['name']for x in results]==order['negative_names_in_required_runtime_order']
+ cases={c['name']:c for c in f['cases']};byop={r['name']:r for r in operations};names=sorted(native_packet['baseline_fk_order']);assert len(names)==42
+ projections=[r['data_projection']for r in operations];baseline=projections[0];assert len(baseline)==42 and [x['object']for x in baseline]==names and sum(x['row_count']for x in baseline)==205
+ for row in baseline:assert set(row)=={'object','row_count','rows_sha256'}and type(row['row_count'])is int and row['row_count']>=0 and re.fullmatch('[0-9a-f]{64}',row['rows_sha256'])
+ assert all(p==baseline for p in projections)
+ for op in operations:
+  assert op['closed_before_observers']is True and op['all_100_trigger_functions_restored']is True and op['native_catalog_unchanged']is True and alltrue(op['fingerprint_checks'])
+  if 'post_case_state_verified'in op:assert op['post_case_state_verified']is True
+  for s in [op.get('session_after_close'),*[x.get('session_after_close')for x in op.get('actors',[])]]:
+   if s is None:continue
+   assert all(s[k]is True for k in ('process_created','backend_tuple_present','capture_completed','process_exit_confirmed','stdout_reader_finished','stderr_reader_finished','readers_finished','backend_absence_query_attempted','backend_absence_confirmed'))and s['output_invalid']is False and s['process_exit_class']in ('EXITED_ZERO','EXITED_NONZERO')
+  if 'session_after_close'in op:assert op['session_after_close']['finish_completed']is True
+  for actor in op.get('actors',[]):
+   assert actor['closed_before_observers']is True and actor['actual_login_context_absent']is True
+   expected_finish=op['name']=='ISSUER-STORED-SERVICE-GRANT-CANNOT-SELF-ATTEST-REVOKED-IDENTITY'and actor['role']=='wa_worker';assert actor['session_after_close']['finish_completed']is expected_finish
+  for c in op.get('private_grant_checks',[]):assert type(c['expected_count'])is int and c['expected_count']==c['observed_count']==1 and c['complete_known_row_matches']is True and type(c['unexpired'])is bool and (not c['unexpired_required']or c['unexpired']is True)
+  if 'grant_total_check'in op:
+   g=op['grant_total_check'];assert type(g['expected_count'])is int and g['observed_count']==g['expected_count']and g['matches']is True and g['expected_count']in(3,4,5)
+  if op['name']in cases:
+   c=cases[op['name']];assert op['role']==c['role']and op['source_template_sha256']==c['sql_sha256']and op['actual_login_context_absent']is True and type(op['exit_code'])is int and op['exit_code']==3 and op['acknowledgement']is False and op['exact_empty_output']is True and op['global_client_closure_confirmed']is True
+   if c['family']=='PROVIDER_REACHABILITY':assert op['executed_sql_sha256']==c['sql_sha256']and op['diagnostic_match_receipt']['position_presence']=='PRESENT'and all(op['diagnostic_match_receipt'][k]is True for k in ('expected_message_matches','native_location_matches','metadata_requirement_matches','position_projection_matches','strict_match'))
+ boundaries=child['global_client_boundaries'];expected_stages=['BEFORE_EXACT_NATIVE_FACT_SETUP',*['AFTER_NATIVE_VALIDITY_'+c['model']for c in native_packet['cases']],'PRIVILEGE_METADATA_PREFLIGHT']
+ for op in operations[41:]:
+  name=op['name'];expected_stages.append('BEFORE_'+name)
+  if name in cases and cases[name]['diagnostic']['kind']!='IMMUTABLE_GRANT':expected_stages.append('AFTER_METADATA_'+name)
+  expected_stages.extend(['AFTER_OPERATION_'+name,'AFTER_'+name])
+ expected_stages.append('FINAL_PRIVILEGE_SOURCE_STATE');assert len(expected_stages)==849 and [x['stage']for x in boundaries]==expected_stages and all(x=={'stage':x['stage'],'attempted':True,'confirmed':True}for x in boundaries)
+ assert len(parent['backend_closures'])==18 and all(r['scope']=='ALL_DATABASES_ALL_ROLES_ALL_TAGS'and all(r[k]is True for k in ('observation_completed','counts_valid','migrator_zero','other_clients_zero','all_other_client_backends_absent'))for r in parent['backend_closures'])
+ for field in ('four_owner_roles_NOLOGIN_NOINHERIT_nonprivileged',):assert alltrue(child['role_metadata'][field])
+ for field in ('exact_permanent_migrator_edge_and_zero_temporary_edges','all_three_leaf_CREATE_false'):assert child['role_metadata'][field]is True
+ assert child['role_metadata']['direct_NOLOGIN_startup_guard_exercised']is False and child['role_metadata']['function_body_catalog_confidentiality_claimed']is False
+ person,revoke,service=[byop[n]for n in order['issuer_protocols']]
+ assert person['same_app_tuple_and_separate_issuer_COMMIT']is True and person['issuer_COMMIT_acknowledged']is True and person['created_at_source_return_verified']is True and person['own_grant_visible']is True and person['foreign_grant_hidden']is True and person['caller_path_comparisons']==[True,True]and all(alltrue(x)for x in person['caller_path_comparison_outcomes'])
+ assert revoke['first_revoke_COMMIT_acknowledged']is True and revoke['source_mutated_timestamp_verified']is True and service['known_revoked_identity_source_witness']is True and service['issuer_did_not_manufacture_service_currentness']is True and service['issuer_COMMIT_acknowledged']is True
+ assert service['diagnostic']=={'matched':True,'sqlstate':'42501','kind':'BIND_CURRENTNESS','gate':None,'object':'platform_private.bind_request_context','source_position_verified':False,'source_frame_verified':True,'selected_column_or_verb_isolation_claimed':False}
+ assert child['fingerprint_order_control']['c_order_matches_source']is True and type(child['fingerprint_order_control']['default_order_matches_source'])is bool
+ # Actual source seven: bounded public archive only, no tool/private archive.
+ source=m['migration_targets']['ok'];nested_raw=read(Path(source['manifest_path']),source['manifest_sha256']);nested=doc(nested_raw);assert nested['run_id']==RUN
+ public={n:read(Path(source['source_snapshot'])/n,h)for n,h in source['source_files_sha256'].items()};assert len(public)==7
+ archive=read(Path(source['source_archive']),source['source_archive_sha256']);members={};total=0
+ with tarfile.open(fileobj=io.BytesIO(archive),mode='r:gz')as tar:
+  for member in tar:
+   assert member.isfile()and member.name in public and member.name not in members and member.size<=2*1024*1024;total+=member.size;assert total<=4*1024*1024
+   with tar.extractfile(member)as fobj:value=fobj.read(2*1024*1024+1)
+   assert value==public[member.name];members[member.name]=value
+ assert members==public;history=doc(public['prisma/foundation/history-manifest.json']);assert history['run_id']==RUN and history['run_manifest_sha256']==sha(nested_raw)and history['source_sql_sha256']=='5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad'
+ # Pure exact pinned source module loader, independent of Python project cache.
+ sys.path.insert(0,str(T/'offline-python'));import pglast
+ assert pglast.__version__=='v7.21'and Path(pglast.__file__).resolve().is_relative_to((T/'offline-python').resolve())and sha(read(Path(pglast.__file__)))=='39a953a49f784e016246395f6f28cfaae5298c5436cca5fbd03461154f49b8cc'
+ cm=doc(blobs['review-output/native-catalog/source-pins.json']);project={Path(n).stem:n for n in cm if n.endswith('.py')};cache={};real_import=builtins.__import__
+ def load(name):
+  if name in cache:return cache[name]
+  path=project[name];mod=ModuleType(name);mod.__file__=str(R/path);cache[name]=mod;private=dict(vars(builtins))
+  def imported(n,g=None,l=None,fromlist=(),level=0):
+   assert level==0
+   if n in project:return load(n)
+   assert n.split('.')[0]in {'__future__','argparse','collections','hashlib','json','pathlib','re','pglast','runpy','uuid','subprocess','unicodedata'};return real_import(n,g,l,fromlist,level)
+  private['__import__']=imported;mod.__dict__['__builtins__']=private;exec(compile(blobs[path],str(R/path),'exec'),mod.__dict__);return mod
+ native=doc(artifacts['native-before.json']);assert all(doc(artifacts[n])==native for n in ('native-after-oracle.json','native-after-ledger.json','privilege-ceiling-native-final.json'))
+ expected=doc(blobs['review-output/native-catalog/expected.json']);ora=doc(artifacts['oracle-evidence.json']);registration=doc(artifacts['ledger-registration.json']);ledger_evidence=doc(artifacts['ledger-evidence.json']);public_registration=doc(blobs['review-output/native-catalog/public-schema-registration.json'])
+ for n,h in registration['tool_source_files_sha256'].items():read(R/n,h)
+ runtime_expected=load('catalog_manifest').build_manifest(R,cm);assert canonical(runtime_expected)==canonical(expected)
+ oracle=load('catalog_expression_oracle');oracle.validate_evidence(runtime_expected,native,ora,database='wa_p0c_rehearsal',grantor='postgres',root=R);assert len(ora['results']['expressions'])==416
+ ledger_result=load('prisma_ledger_proof').compare_proof(registration,ledger_evidence,native,bootstrap_grantor='postgres',source_expected_sha256=expected['expected_sha256'],root=R);assert ledger_result==parent['ledger_comparison']and ledger_result['status']=='PASS'and len(ledger_result['checks'])==22
+ comparison=load('compare_native_catalog').compare_manifest(runtime_expected,native,bootstrap_grantor='postgres',bootstrap_superuser=True,public_schema_owner='pg_database_owner',public_acl_registration=public_registration['full_acl'],ledger_registration=registration,ledger_evidence=ledger_evidence,expression_oracle_evidence=ora,oracle_database='wa_p0c_rehearsal',root=R);assert comparison==doc(artifacts['catalog-comparison.json'])==parent['catalog_comparison']and comparison['check_counts']=={'PASS':29089}
+ assert len(parent['migration_operations'])==1 and parent['migration_operations'][0]['operation']=='deploy'and parent['migration_operations'][0]['exit_code']==0 and parent['migration_operations'][0]['run_id']==RUN
+ for row in parent['authentication']:assert row['correct_password']=='PASS_SCRAM'and row['wrong_password']=='PASS_REJECTED'and type(row['wrong_password_exit_code'])is int and row['wrong_password_exit_code']==2
+ assert len(parent['authentication'])==6 and len(parent['provider_authentication'])==3 and len(child['authentication'])==9
+ for row in parent['provider_authentication']:assert row['correct_password']=='PASS_SCRAM'and row['wrong_password_rejected']is True
+ assert parent['credential_handling']['real_credentials_in_argv_env_or_evidence']is False and parent['sanitization']['actual_password_values_found']is False and parent['sanitization']['raw_context_handles_persisted']is False and parent['sanitization']['unrestricted_subprocess_output_persisted']is False
+ for flag in ('component_report_reference_unchanged','packet_unchanged_after_run','tool_source_data_unchanged_after_run','external_sources_unchanged_after_run','external_inputs_unchanged_after_run'):assert parent[flag]is True
+ ref=parent['privilege_ceiling']['component_report_reference'];assert ref['artifact_sha256']==sha(childraw)and type(ref['bytes'])is int and ref['bytes']==len(childraw)and ref['closed_recheck_match']is True and ref['integrity_recheck_match']is True
+ assert cleanup['run_id']==RUN and cleanup['private_directory_absent']is True and cleanup['retained_pinned_image_inspect_succeeded']is True and cleanup['mutation_performed']is False and len(cleanup['exact_names'])==2 and all(x['absent_exact_known_diagnostic']is True for x in cleanup['exact_names'].values())and not (O/'private').exists()
+ assert all(x is False for x in parent['cleanup_summary']['resource_presence_after'].values())and parent['cleanup_summary']['image_removed']is False and parent['cleanup_summary']['unrelated_resources_changed']is False
+ baseline_path=T/'restore04731001-evidence-reader-author-20261123/future-root/context/reconciliation/local-f0-operation-sources/restore04731001-evidence-adapter-v1/prior-local-f0-assertion-evidence.json';old=j(baseline_path,'f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f');current={(r['case_id'],r['assertion_id']):r for r in old['assertions']};assert len(current)==684
+ obligations=doc(blobs['context/reconciliation/local-f0-assertions.json']);req={(c['id'],r['id']):r for c in obligations['cases']for r in c['assertions']};proposals=[]
+ for link in f['issuer_umbrella_links']:
+  if link['model']=='DatabaseActionGrant':continue
+  key=link['case_id'],link['assertion_id'];contrasts=[c['name']for c in f['cases']if(c['source_case_id'],c['assertion_id'])==key];assert len(contrasts)==3
+  proposals.append({'case_id':key[0],'assertion_id':key[1],'proposed_maximum':'PASS','expected_assertion_sha256':sha(req[key]['expected_assertion'].encode()),'supporting_contrasts':contrasts,'current_baseline_status':current[key]['status']if key in current else'NO_CURRENT_ROW','scope_limit':'Exact actual issuer native INSERT/UPDATE/DELETE ceiling on valid synthetic targets with complete privilege metadata and unchanged full state; no owner positive or whole table case.'})
+ for link in f['control_links']:
+  key=link['case_id'],link['assertion_id'];maximum='PASS'if key[1]in ('control.runtime_escalation','vector.CATALOG-LEAVES.adversarial')else'PARTIAL';proposals.append({'case_id':key[0],'assertion_id':key[1],'proposed_maximum':maximum,'expected_assertion_sha256':link['expected_assertion_sha256'],'current_baseline_status':current[key]['status']if key in current else'NO_CURRENT_ROW','scope_limit':link['maximum'],'supporting_scope':'Source-declared exact direct matrix/role/native metadata and finite protocols. Catalog vector uses39 business groups/four private source writes/verifier role denials/full native ACL; no private DELETE execution or verifier business positive is invented.'})
+ assert len(proposals)==44 and len({(c['case_id'],c['assertion_id'])for c in proposals})==44 and sum(c['current_baseline_status']=='NO_CURRENT_ROW'for c in proposals)==43
+ # Fresh final reference/data barriers. Never read mutable Root status outputs.
+ for p,h in list(INPUTS.items()):read(Path(p),h)
+ assert EDGES==[]
+ result={'schema':'workinants.V9-485517b0-independent-closed-actual-audit.v1','decision':'ACTUAL_FINITE_PRIVILEGE_SUBSET_SUPPORTED_PENDING_SEPARATE_ASSERTION_ADMISSION','reviewer':'/root/restore_exact3_code_review','reviewer_did_not_author_V9_or_execute_attempt':True,'findings':[],'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'operation_packet_sha256':PACKET,'input_files_sha256':INPUTS,'current455_source_and_external5_verified':True,'measured_results':{'negative_contrasts':200,'closed_operations':244,'child_global_zero_boundaries':849,'parent_global_zero_boundaries':18,'definer_metadata':16,'native_rollback_validity_controls':40,'issuer_protocols':3,'complete_state_projection_tables':42,'complete_state_projection_rows':205,'identical_projection_observations':244,'provider_strict_present_position_cases':18,'source_bound_metadata_query_receipts':197,'native_comparison_PASS':29089,'oracle_expressions':416,'ledger_checks':22,'parent_six_auth_pairs':6,'parent_provider_auth_pairs':3,'child_nine_auth_pairs':9},'source_result_verifier_called_as_pure_API':True,'native_oracle_ledger_recomputed_through_closed_pure_modules':True,'all_case_roles_templates_diagnostics_order_state_and_closure_checked':True,'exact849_global_stage_sequence_recomputed':True,'parent_component_reference_raw_and_semantic_digests_bound':True,'source7_public_archive_verified':True,'tool_archive_opened_or_decompressed_by_auditor':False,'same_current_applied_initial5ae_only':True,'independent_C1V_private_cleanup_bound':True,'source_only_expectation_plan_sha256':'77c730f8f8f08826f9cbccff2a4e12f469ae6ca1651882d86eaa2ad43cdff467','raw_output_or_credentials_handles_SQL_bodies_retained_by_auditor':False,'runtime_replayed':False,'Root_mutated':False,'Root_active_status_build_outputs_read':False,'forbidden_boundary_events':EDGES,'limits':{'Posture':'D','owner_API_positive':False,'whole94_or451':False,'hosted_parity':False,'NOLOGIN_startup_guard':False,'function_body_confidentiality':False,'shadow_object_resistance':False,'worker_loop':False},'proof_limits':['This is a retrospective data/pure-validator audit of already closed actual PostgreSQL observations, not a database rerun.','Native29089, oracle416 and ledger22 are prerequisite proofs; only a fresh native collection is performed after the component. No extra post-behavior oracle or ledger execution is invented.','The tool archive is not reopened; exact source/tool closure and recorded original operator preservation/copy results remain bound.','All200 statements are finite contrasts. Assertion links and whole case totals require separate reviewed evidence admission and a real current status rebuild.']}
+ audit_path=T/'V9_485517b0_independent_closed_actual_audit_20261123.json';put(audit_path,result)
+ proposal={'schema':'workinants.V9-485517b0-exact-narrow-assertion-proposal.v1','decision':'PROPOSAL_ONLY_NO_ROOT_LINKS_OR_STATUS_WRITES','audit':{'path':str(audit_path),'sha256':sha(read(audit_path))},'run_id':RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'baseline_ledger_sha256':'f45942d767398761e33b53eb6fe0aaaaf92d45ca7a9d153011109386a3173d1f','baseline_current_rows':684,'proposed_exact_assertions':proposals,'proposed_count':44,'source_conditioned_maximum_counts':dict(collections.Counter(c['proposed_maximum']for c in proposals)),'absent_from_baseline':43,'existing_issuer_PARTIAL_to_preserve':'Retain its prior evidence/history/batch validation and exactly one current grade. Keep PARTIAL; no issuer DELETE or every compound branch is claimed.','no_link':[{'case_id':'P0C-TABLE-DatabaseActionGrant-DENY','assertion_id':'denial.wa_context_issuer.source_business_write','reason':'SOURCE_BUSINESS_WRITE umbrella remains explicitly undisambiguated; legitimate own grant issue/select/revoke coexist with other denied mutations. Do not silently map it.'}],'all_other_existing_rows_and_executions':'PRESERVE_UNCHANGED_INCLUDING_LATER_RESTORE687_DELTA','all32_dependencies_and7_unresolved_source':'UNCHANGED','no_200_new_links_or_whole_case_promotions':True,'Root_ledger_or_status_changed':False,'next_required':'Separate Root ACK, bounded strict retrospective evidence-reader implementation and nonauthor review, then actual current full status build. No graph/gate/reader has been implemented here.','Posture':'D'}
+ proposal_path=T/'V9_485517b0_independent_narrow_assertion_proposal_20261123.json';put(proposal_path,proposal);put(OUT/'audit-summary.json',{'decision':result['decision'],'measured_results':result['measured_results'],'audit_sha256':sha(read(audit_path)),'proposal_sha256':sha(read(proposal_path))});print(json.dumps({'decision':result['decision'],'findings':[],'audit_sha256':sha(read(audit_path)),'proposal_sha256':sha(read(proposal_path)),'proposed_assertions':44,'current_and_later_Root_rows_untouched':True}))
+if __name__=='__main__':main()

@@ -1,0 +1,164 @@
+"""Focused offline Restore047 reader checks; all service/process edges forbidden."""
+from pathlib import Path
+import ast,copy,hashlib,io,json,os,sys,tempfile,time,types,unittest
+from unittest import mock
+from types import MappingProxyType
+ROOT=Path(__file__).resolve().parents[1];AR='context/reconciliation/local-f0-operation-sources/restore04731001-evidence-adapter-v1'
+A=ROOT.parent;sys.dont_write_bytecode=True;EDGES=[]
+def forbid(event,args):
+    if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn','os.exec'):
+        EDGES.append(event);raise AssertionError('REAL_PROCESS_OR_NETWORK_FORBIDDEN')
+sys.addaudithook(forbid)
+def load():
+    p=ROOT/'scripts/local_f0_restore04731001_evidence.py';m=types.ModuleType('_restore047_test');m.__file__=str(p);exec(compile(p.read_bytes(),str(p),'exec'),m.__dict__);return m
+M=load();RESULTS=[]
+def encoded(v):return(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+class Check(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.blobs={n:(ROOT/n).read_bytes()for n in M.PINS};cls.execution=M.doc(cls.blobs[M.DERIVED]);cls.current=M.doc(cls.blobs[M.BASELINE])
+    def tearDown(self):self.assertEqual(EDGES,[])
+    def _batch(self):
+        # Only state-machine unit tests replace the internal filesystem capture.
+        # The public API accepts no cache/proof hook. Golden test01 performs both
+        # real closed captures and all real semantic parsing on the private tree.
+        with mock.patch.object(M,'_capture',return_value=dict(self.blobs)):
+            return M.prepare_batch(ROOT)
+    def _claim(self,b,i=0,**overrides):
+        c=self.execution['claims'][i];values=dict(case_id=c['case_id'],assertion_id=c['assertion_id'],status=c['status'],execution=self.execution,root=ROOT,json_pointer='/claims/'+str(i),ledger_row=M._expected_row(c,i));values.update(overrides);return b.validate_claim(**values)
+    def test_01_actual_private_three_row_builder_and_final_all_input_barrier(self):
+        before_rows=M.canonical(self.current['assertions']);before_executions=M.canonical(self.current['executions']);b=M.prepare_batch(ROOT)
+        proposed=M.propose_ledger_delta(self.current,self.execution)
+        for i in range(3):self.assertTrue(self._claim(b,i))
+        self.assertTrue(b.verify_unchanged());self.assertTrue(b.require_finalized())
+        self.assertEqual(M.canonical(proposed['assertions'][:-3]),before_rows);self.assertEqual(M.canonical(proposed['executions'][:-1]),before_executions)
+        self.assertEqual([(r['assertion_id'],r['status'])for r in proposed['assertions'][-3:]],[('control.real_backup','PASS'),('control.restored_parity','PASS'),('control.restored_authority','PARTIAL')])
+        self.assertEqual(len(self.current['assertions']),684);self.assertEqual(len(proposed['assertions']),687)
+        proof={'schema':'workinants.restore047-three-row-builder-PROPOSAL.v1','decision':'PROPOSAL_ONLY_NOT_ROOT_ADMISSION','original_rows':684,'proposed_rows':687,'three_rows':proposed['assertions'][-3:],'one_execution':proposed['executions'][-1],'all_existing_rows_sha256':M.digest(self.current['assertions']),'all_existing_executions_sha256':M.digest(self.current['executions']),'original_rows_preserved':True,'original_executions_preserved':True,'real_private_closed_capture_and_final_barrier':True,'full_Root684_or687_builder_run':False,'runtime':'NOT_RUN','Posture':'D'}
+        (A/'private-three-row-builder-PROPOSAL.json').write_bytes(encoded(proof));RESULTS.append({'test':'actual_private_three','new_rows':3,'old_rows_preserved':True,'old_executions_preserved':True,'real_final_barrier':True})
+    def test_02_semantic_mutations_with_only_test_envelope_rebound(self):
+        raw=M.ASSET+'/evidence/run-evidence.json'
+        cases=[
+          ('missing_HBA',raw,lambda x:x['restore']['hba_binary_comparisons'].pop()),
+          ('HBA_order',raw,lambda x:x['restore']['hba_binary_comparisons'].reverse()),
+          ('basebackup_bool_exit',raw,lambda x:x['restore']['basebackup_process_outcomes'][0].update(exit_code=False)),
+          ('verifybackup_missing',raw,lambda x:x['restore']['tools'].pop(4)),
+          ('source_stop_order',raw,lambda x:x['restore_resource_inspection_checks'].reverse()),
+          ('DACL_unverified',raw,lambda x:x['credential_handling'].update(host_private_directory_owner_only_acl_verified=False)),
+          ('same_CID',raw,lambda x:x['targets'][M.TARGET].update(container_id=x['targets'][M.SOURCE]['container_id'])),
+          ('wrong_auth',raw,lambda x:x['restore']['authentication'][1]['comparison'].update(selected_file_warning_exact=False)),
+          ('rotation_order',raw,lambda x:x['restore']['authentication'].reverse()),
+          ('system_identity',raw,lambda x:x['restore'].update(source_system_identifier_sha256='a'*64)),
+          ('issuer_not_committed',raw,lambda x:x['restore']['issuer_operations'][0].update(commit_acknowledged=False)),
+          ('XID_not_same',raw,lambda x:x['restore']['bound_operations'][0]['same_xid'].update(acknowledgement=False)),
+          ('generic_SQLSTATE',raw,lambda x:x['restore']['bound_operations'][5]['outcome']['diagnostic'].update(sqlstate='P0001')),
+          ('strict_guard_missing',raw,lambda x:x['restore']['probe_operations'][0].update(source_frame_verified=False)),
+          ('closure_not_global',raw,lambda x:x['backend_closures'][0].update(all_other_client_backends_absent=False)),
+          ('cleanup_not_absent',raw,lambda x:x['cleanup_summary']['resource_presence_after'].update({M.TARGET:True})),
+          ('raw_review_promoted',raw,lambda x:x['steps'].update({'RESTORE-REVIEW':'PASS'})),
+          ('secret_extra_field',raw,lambda x:x['restore'].update(password='SECRET_CANARY_NO_RETAIN')),
+          ('parity_data_changed',M.ASSET+'/evidence/restore-parity-initial.json',lambda x:x['all_data']['app.users'].update(rows_sha256='a'*64)),
+          ('identity_state_changed',M.ASSET+'/evidence/restore-case-3-parity.json',lambda x:x['all_data']['platform_private.identity_service_authorization'].update(rows_sha256='a'*64)),
+          ('business_hash_changed',M.ASSET+'/evidence/restore-case-4-parity.json',lambda x:x.update(business_sha256='a'*64)),
+          ('ledger_history_changed',M.ASSET+'/evidence/ledger-observation.json',lambda x:x['history'][0].update(checksum_sha256='a'*64)),
+          ('native_acl_changed',M.ASSET+'/evidence/native-before.json',lambda x:x['memberships'][0].update(admin=True)),
+        ]
+        for label,path,change in cases:
+            with self.subTest(label=label):
+                blobs=dict(self.blobs);v=M.doc(blobs[path]);change(v);blobs[path]=encoded(v);pins=dict(M.PINS);pins[path]=M.sh(blobs[path])
+                # Rebind capture-envelope maps only. Source expectations,
+                # observed fingerprint references and closed receipt frames
+                # remain fixed, so rejection must reach semantic validation.
+                spec=M.doc(blobs[M.SPEC]);spec['closed_inputs_sha256'][path]=pins[path];spec['preserved61_sha256'][path]=pins[path]
+                blobs[M.SPEC]=encoded(spec);pins[M.SPEC]=M.sh(blobs[M.SPEC])
+                with mock.patch.object(M,'PINS',MappingProxyType(pins)),self.assertRaises(M.EvidenceFailure)as caught:M.audit_semantics(blobs)
+                code=str(caught.exception);self.assertNotIn('SECRET_CANARY',code);self.assertNotIn(code,('CAPTURED_HASHES','EXACT1346_INPUTS','ALL_SIXTY_PRESERVED_ASSETS'));RESULTS.append({'semantic_mutant':label,'safe_code':code})
+    def test_03_exact_status_pointer_duplicate_and_sticky_batch_rejection(self):
+        for name,overrides in [('authority_PASS',{'status':'PASS'}),('wrong_pointer',{'json_pointer':'/claims/0'}),('forged_row',{'ledger_row':{}})]:
+            with self.subTest(name=name):
+                b=self._batch()
+                with self.assertRaises(M.EvidenceFailure)as first:self._claim(b,2,**overrides)
+                with self.assertRaises(M.EvidenceFailure)as second:self._claim(b,2)
+                self.assertEqual(str(first.exception),str(second.exception))
+        b=self._batch();self._claim(b,0)
+        with self.assertRaises(M.EvidenceFailure)as first:self._claim(b,0)
+        with self.assertRaises(M.EvidenceFailure)as second:b.verify_unchanged()
+        self.assertEqual(str(first.exception),str(second.exception))
+        b=self._batch()
+        with self.assertRaises(M.EvidenceFailure):b.verify_unchanged()
+        with self.assertRaises(M.EvidenceFailure):self._claim(b,0)
+        b=self._batch()
+        with self.assertRaises(M.EvidenceFailure):b.require_finalized()
+        with self.assertRaises(M.EvidenceFailure):self._claim(b,0)
+    def test_04_no_links_caps_forged_cache_and_duplicate_proposals(self):
+        called=[]
+        with self.assertRaises(TypeError):M.prepare_batch(ROOT,cache=self.blobs)
+        with self.assertRaises(TypeError):M.prepare_batch(ROOT,proof=lambda:called.append(True))
+        self.assertEqual(called,[])
+        b=self._batch()
+        with self.assertRaises(M.EvidenceFailure):self._claim(b,0,assertion_id='control.privacy_reapplication')
+        current=copy.deepcopy(self.current);current['assertions'].append(M._expected_row(self.execution['claims'][0],0))
+        with self.assertRaises(M.EvidenceFailure):M.propose_ledger_delta(current,self.execution)
+        forged=copy.deepcopy(self.execution);forged['claims'][2]['status']='PASS'
+        with self.assertRaises(M.EvidenceFailure):M.propose_ledger_delta(self.current,forged)
+        with self.assertRaises(M.EvidenceFailure):M.validate_bundle({M.DERIVED:self.blobs[M.DERIVED]})
+    def test_05_strict_JSON_paths_IO_secret_and_single_link(self):
+        for raw in(b'{"a":1,"a":2}',b'{"v":NaN}',b'{"v":Infinity}',b'{"v":1e999}',b'\xff',b'[] trailing',b'x'*(8*1024*1024+1)):
+            with self.assertRaises(M.EvidenceFailure):M.doc(raw)
+        with tempfile.TemporaryDirectory(dir=A,prefix='reader-io-')as name:
+            root=Path(name);p=root/'safe';p.write_bytes(b'SAFE');h=M.sh(b'SAFE')
+            for relative in('../safe','C:/safe','/safe','a\\safe','a//safe','a/./safe'):
+                with self.assertRaises(M.EvidenceFailure):M._read(root,relative,h)
+            with mock.patch.object(Path,'open',side_effect=PermissionError('SECRET_CANARY_IO')),self.assertRaises(M.EvidenceFailure)as e:M._read(root,'safe',h)
+            self.assertNotIn('SECRET_CANARY',str(e.exception))
+            real_fstat=M.os.fstat
+            def linked(fd):
+                s=real_fstat(fd);return types.SimpleNamespace(st_mode=s.st_mode,st_dev=s.st_dev,st_ino=s.st_ino,st_size=s.st_size,st_mtime_ns=s.st_mtime_ns,st_ctime_ns=s.st_ctime_ns,st_nlink=2)
+            with mock.patch.object(M.os,'fstat',side_effect=linked),self.assertRaises(M.EvidenceFailure)as e:M._read(root,'safe',h)
+            self.assertEqual(str(e.exception),'REGULAR_SINGLE_LINK_BOUNDED')
+            actual=Path.is_symlink
+            with mock.patch.object(Path,'is_symlink',lambda path:True if path==p else actual(path)),self.assertRaises(M.EvidenceFailure):M._read(root,'safe',h)
+    def _raced_read(self,reader,root,p,raw):
+        real=Path.open;old=p.stat();changed=[]
+        class Stream:
+            def __init__(self,f):self.f=f
+            def __enter__(self):self.f.__enter__();return self
+            def __exit__(self,*args):return self.f.__exit__(*args)
+            def fileno(self):return self.f.fileno()
+            def read(self,*args):
+                b=self.f.read(*args)
+                if not changed:
+                    changed.append(True)
+                    with real(p,'wb')as f:f.write(bytes([raw[0]^1])+raw[1:])
+                    os.utime(p,ns=(old.st_atime_ns,old.st_mtime_ns))
+                return b
+        def opened(path,*args,**kwargs):
+            f=real(path,*args,**kwargs);return Stream(f)if path==p and args and args[0]=='rb'else f
+        with mock.patch.object(Path,'open',opened):return reader(root,p.relative_to(root).as_posix(),M.sh(raw))
+    def test_06_same_size_double_closed_read_and_old_reader_mechanism_restoration(self):
+        fixture=ROOT/AR/'test-fixtures/older-native-complete-reader.py.txt';old=fixture.read_bytes();self.assertEqual(M.sh(old),'50dfe9c1ae661785e408ad9707473028c6bc9b4d2ee308bdaad1844905668b76')
+        node=next(n for n in ast.parse(old).body if isinstance(n,ast.FunctionDef)and n.name=='read');ns={'Path':Path,'re':M.re,'need':M.need,'digest':M.sh};exec(compile(ast.Module(body=[node],type_ignores=[]),'_older_pure_reader_read_AST','exec'),ns)
+        with tempfile.TemporaryDirectory(dir=A,prefix='reader-race-')as name:
+            root=Path(name);p=root/'safe';p.write_bytes(b'SAFE')
+            with self.assertRaises(M.EvidenceFailure):self._raced_read(M._read,root,p,b'SAFE')
+            p.write_bytes(b'SAFE');self.assertEqual(self._raced_read(ns['read'],root,p,b'SAFE'),b'SAFE');self.assertNotEqual(p.read_bytes(),b'SAFE')
+            RESULTS.append({'older_reader_mechanism_path':str(fixture),'sha256':M.sh(old),'older_one_read_returns_stale_bytes':True,'new_double_closed_read_rejects':True,'not_a_prior_Restore047_implementation':True})
+    def test_07_same_size_in_final_batch_read_rejects_stickily(self):
+        b=self._batch()
+        for i in range(3):self._claim(b,i)
+        relative=next(iter(M.PINS));p=ROOT/relative;raw=p.read_bytes();real_read=M._read;changed=[]
+        def one_read(root,n,w):
+            if n==relative and not changed:
+                changed.append(True);return self._raced_read(real_read,root,p,raw)
+            return real_read(root,n,w)
+        try:
+            with mock.patch.object(M,'_read',one_read),self.assertRaises(M.EvidenceFailure)as first:b.verify_unchanged()
+            with self.assertRaises(M.EvidenceFailure)as second:b.require_finalized()
+            self.assertEqual(str(first.exception),str(second.exception));self.assertTrue(changed)
+            RESULTS.append({'actual_final_capture_same_size_race_rejected':True,'sticky_code':str(first.exception)})
+        finally:p.write_bytes(raw)
+
+if __name__=='__main__':
+    start=time.monotonic();suite=unittest.defaultTestLoader.loadTestsFromNames(sys.argv[1:]or['Check'],module=sys.modules[__name__]);stream=io.StringIO();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite)
+    outcome={'schema':'workinants.restore047-reader-focused-checks.v1','tests':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'seconds':time.monotonic()-start,'exit_code':0 if result.wasSuccessful()else 1,'real_process_network_events':EDGES,'details':RESULTS,'runtime':'NOT_RUN','Posture':'D'}
+    tag='golden'if any('test_01'in x for x in sys.argv[1:])else'focused';out=A/'author-history'/('checks-'+tag+'-'+str(time.time_ns()));out.mkdir(parents=True);(out/'actual.log').write_text(stream.getvalue(),encoding='utf8',newline='\n');(out/'outcome.json').write_bytes(encoded(outcome));print(stream.getvalue());print(json.dumps(outcome));raise SystemExit(outcome['exit_code'])

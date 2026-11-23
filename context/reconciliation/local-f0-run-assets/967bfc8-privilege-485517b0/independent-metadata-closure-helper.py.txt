@@ -1,0 +1,42 @@
+"""Close additional read-only bindings/provenance without changing actual reports."""
+from pathlib import Path
+import datetime,hashlib,json,stat,sys
+T=Path(__file__).resolve().parent;O=T/'local-f0-privilege-ceiling-485517b0';P=T/'local-f0-privilege-ceiling-plan-485517b0'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def audit(e,a):
+ if e.startswith(('subprocess.','socket.'))or e in ('os.system','os.posix_spawn','os.spawn','os.exec'):raise AssertionError('LIVE_BOUNDARY_FORBIDDEN')
+sys.addaudithook(audit)
+def read(p,h=None):
+ p=Path(p);s=p.stat();a=p.read_bytes();b=p.read_bytes();z=p.stat();assert stat.S_ISREG(s.st_mode)and s.st_nlink==1 and a==b and(s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns,z.st_ctime_ns)
+ if h:assert sha(a)==h
+ return a
+def put(p,v):
+ with p.open('xb')as f:f.write(enc(v))
+raw=read(T/'V9_485517b0_independent_closed_actual_audit_20261123.json','aa11a53146133280deb8ba201f5065a1459d6b73567ae764abdac59dd385a236');v=json.loads(raw)
+qraw=read(T/'V9_485517b0_independent_narrow_assertion_proposal_20261123.json','e60737d129ca1159f5a3c762168a3b1dd7212512f9e1cbb5ea7f0f5bb81ef3f4');q=json.loads(qraw)
+praw=read(O/'run-evidence.json','fe71cc8ef3739a6aa7c6e8af1207af7a00ba2f358f898ba5f5ff336fe17024ab');parent=json.loads(praw);craw=read(O/'privilege-ceiling-component/privilege-ceiling-results.json','56c37c1ec6ff44304e97ced9187fbe06ec62be967e23012d270be60b55160e6c');child=json.loads(craw);mraw=read(P/'operation-manifest.json','dd943f9eb917738a017d44d22bf0b664e194bc7d8dcd058942cf37b16009cad7');m=json.loads(mraw)
+assert parent['source_verification']=={'commit':v['source_commit'],'tree':v['source_tree'],'packet_sha256':v['operation_packet_sha256'],'files_sha256':m['packet_files_sha256'],'file_count':455}
+assert parent['run_manifest_sha256']==sha(mraw)
+name='wa-p0c-485517b0-privilege';volume=name+'-data';target=parent['targets'][name];assert set(parent['targets'])=={name}and target['volume']==volume and target['network_mode']=='none'and target['published_ports']is False and target['labels']=={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':v['run_id']}
+assert target['connections_before_finalization']=={'migrator':0,'other_client_backends':0}and target['finalization']=='PASS'
+assert target['finalization_observation']=={'auth':'scram-sha-256:postgres','grantor':'postgres','leaf_create':{'wa_track_verifier':False,'wa_customer_verifier':False,'wa_private_helper_owner':False},'remaining_memberships':0,'active_install_connections':0}
+resource=child['resource'];assert resource['container_id']==target['container_id']and resource['container_name']==name and resource['volume_name']==volume and resource['image']==m['image']and resource['network']=='none'and resource['published_ports']is False and resource['labels']==target['labels']
+observations=parent['provider_observations'];assert [r['stage']for r in observations]==['PROVIDER_BEFORE_CANONICAL_INSTALL','PROVIDER_AFTER_CANONICAL_INSTALL']
+assert[(r['explicit_usage'],r['effective_usage'])for r in observations]==[(9,9),(0,0)]and observations[0]['roles']==observations[1]['roles']==child['provider_roles']
+roles=('postgres','wa_migrator','wa_context_issuer','wa_identity_service_authority','wa_app_runtime','wa_worker');hba=parent['effective_hba_selections'];assert len(hba)==12 and{(r['role'],r['address'])for r in hba}=={(r,a)for r in roles for a in('127.0.0.1','::1')}and all(r['method']=='scram-sha-256'and type(r['rule_number'])is int for r in hba)
+assert all(x is True for x in parent['authentication_comparison'].values())and all(x is True for x in child['authentication_comparisons'].values())
+assert parent['image']['reference']==m['image']and parent['image']['manifest_content_hash_verified']is True and parent['image']['pinned_repo_digest_verified']is True and parent['image']['config_digest']=='sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d'
+assert parent['cleanup'][name]=={'removed':True,'verified_id':target['container_id'],'name_and_both_labels_verified':True}and parent['cleanup'][volume]=={'removed':True,'name_labels_creation_identity_verified':True}
+errors=[]
+for relative in ('V9-485517b0-independent-closed-audit-20261123/source-order-support-error.json','V9-485517b0-independent-closed-audit-run2-20261123/interactive-close-mode-support-error.json','V9-485517b0-independent-closed-audit-run3-20261123/manifest-order-support-error.json'):
+ b=read(T/relative);errors.append({'path':relative,'sha256':sha(b),'code':json.loads(b)['code']})
+v['underlying_full_audit']={'path':'V9_485517b0_independent_closed_actual_audit_20261123.json','sha256':sha(raw),'known_final_invocation_exit':0}
+v['additional_closed_bindings']={'source_verification_exact455_and_master_manifest':True,'same_parent_child_CID_name_labels_volume_image_isolation':True,'original_postgres_grantor_closed_install_zero_temp_membership_leaf_CREATE_false':True,'provider_preinstall_sentinels9_then_canonical_revoke0':True,'parent_effective_HBA12_and_actualSCRAM_role_summaries':True,'retained_last_auth_comparison_true':'Per-role raw probe values were not reconstructed; exact recorded role summaries and source controls remain bound.','same_CID_and_created_volume_cleanup':True}
+v['reviewer_support_corrections']=errors;v['final_audit_helper_sha256']=sha(read(T/'audit_V9_485517b0_independent_closed_actual_20261123.py'));v['metadata_closure_helper_sha256']=sha(read(Path(__file__)));v['recorded_at_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat()
+out=T/'V9_485517b0_independent_closed_actual_audit_FINAL_20261123.json';put(out,v)
+q['audit']={'path':str(out),'sha256':sha(read(out))};q['catalog_vector_mapping_rationale']='The registered vector allows verifier business DML OR role assumption. This run exercises verifier/helper role-assumption denials, all39 business issuer groups, four private current-source INSERT/UPDATE ceilings, known-revoked Identity binding and complete native ACL/owner metadata. Proposed PASS is bounded to that exact adversarial vector; no private DELETE execution, verifier business positive, NOLOGIN startup/body secrecy or whole catalog case is inferred.'
+q['issuer_partial_limit']='No issuer DELETE on the grant table is in this200 packet; control.issuer_ceiling remainsPARTIAL despite the newly observed branch coverage. Preserve prior evidence.'
+q['proposal_is_not_automatic_admission']=True;q['all_44_candidates_require_separate_Root_mapping_ACK_and_strict_reader']=True
+qp=T/'V9_485517b0_independent_narrow_assertion_proposal_FINAL_20261123.json';put(qp,q)
+assert read(O/'run-evidence.json')==praw and read(O/'privilege-ceiling-component/privilege-ceiling-results.json')==craw and read(P/'operation-manifest.json')==mraw
+print(json.dumps({'decision':v['decision'],'findings':[],'audit_final_sha256':sha(read(out)),'proposal_final_sha256':sha(read(qp)),'proposed_maxima':q['source_conditioned_maximum_counts'],'proposed_count':44,'new_vs_fixed684_baseline':43,'Root_status_outputs_read':False,'Root_mutated':False}))

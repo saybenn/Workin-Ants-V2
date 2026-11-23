@@ -1,0 +1,168 @@
+"""Root-reviewed metadata admission proposal. No service, process or Git operations.
+
+Default is inspection only. Root must review this exact file, independently issue
+the receipt and explicitly request --apply-reviewed-root-metadata. The author of
+this proposal does not issue source approval and has not applied it to Root.
+"""
+from pathlib import Path, PurePosixPath
+import argparse, hashlib, json, os, stat
+
+TASK = Path(__file__).resolve().parent.parent
+FROZEN = TASK / 'runtime-lease-two-history-v1-FINAL-frozen-author-20261123'
+TARGET = TASK / 'workinants-correction-pass'
+PREFIX = 'context/reconciliation/local-f0-operation-sources/runtime-lease-two-history-v1/'
+VAL = 'context/reconciliation/local-f0-runtime-lease-two-history-v1-source-validation.json'
+EXPECTED = 'cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4'
+PINS = {
+ 'runtime_lease_two_history_v1_FINAL_author_delivery_20261123.json': '78488e2273405a4b26ac8a88bf06b1589f722e92b4cb97e027d6af0fb4dd47ad',
+ 'runtime_lease_two_history_v1_independent_code_security_source_review_20261123.json': 'd00bd399ca295888bcad2b352a33ff65bb96156d6c42e1aa8066f9f5deb64e0a',
+ 'runtime_lease_two_history_v1_independent_actual_login_ACL_addendum_20261123.json': 'c008864146000c1977f545322eda08d79d298a50f5b040cb9a47d659379334e3',
+}
+MAP_SHA = '99f887442eb62f41fdf8b1acedcd3d1f5f8b04534cee4e9df945b56d0150d731'
+FREEZE_SHA = '8d825b037f3724db6c3222fb25c6376fb2fca06306b7726acf4aee27366157fb'
+FREEZE_AGG = '23ad31d8db61ad1ee69e5b2d81183bf752f66bd4f5e519a597a8861010dea82b'
+
+def need(value, code):
+ if not value: raise ValueError(code)
+
+def sha(raw): return hashlib.sha256(raw).hexdigest()
+def encode(value): return (json.dumps(value, sort_keys=True, indent=2, allow_nan=False)+'\n').encode('utf8')
+
+def unique(raw):
+ def pairs(rows):
+  result = {}
+  for key, value in rows:
+   need(key not in result, 'DUPLICATE_JSON_KEY'); result[key] = value
+  return result
+ return json.loads(raw.decode('utf8'), object_pairs_hook=pairs,
+                   parse_constant=lambda _: (_ for _ in ()).throw(ValueError('NONFINITE_JSON')))
+
+def safe_name(name):
+ need(type(name) is str and name and '\\' not in name, 'UNSAFE_RELATIVE_PATH')
+ p = PurePosixPath(name)
+ need(not p.is_absolute() and all(x not in ('', '.', '..') and ':' not in x for x in p.parts), 'UNSAFE_RELATIVE_PATH')
+ need(p.as_posix() == name, 'NONCANONICAL_PATH')
+ return name
+
+def no_links(path):
+ for p in (path, *path.parents):
+  if p.exists():
+   s = p.lstat()
+   need(not stat.S_ISLNK(s.st_mode) and not (getattr(s, 'st_file_attributes', 0) & 0x400), 'LINK_OR_REPARSE')
+
+def read(path, expected=None):
+ path = Path(path); no_links(path)
+ a = path.stat(); need(stat.S_ISREG(a.st_mode) and a.st_size <= 16*1024*1024, 'FILE_TYPE_OR_SIZE')
+ raw = path.read_bytes(); b = path.stat()
+ need((a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns,a.st_ctime_ns) == (b.st_dev,b.st_ino,b.st_size,b.st_mtime_ns,b.st_ctime_ns), 'FILE_CHANGED')
+ need(len(raw) == a.st_size and (expected is None or sha(raw) == expected), 'FILE_HASH')
+ return raw
+
+def aggregate(mapping):
+ return sha(''.join(n+'\t'+mapping[n]+'\n' for n in sorted(mapping)).encode('utf8'))
+
+def plan(root, receipt, receipt_sha):
+ need(root.resolve(strict=True) == TARGET.resolve(strict=True), 'EXACT_ROOT_REQUIRED')
+ no_links(root)
+ records = {n: read(TASK/n,h) for n,h in PINS.items()}
+ delivery = unique(records[next(iter(PINS))])
+ review = unique(records['runtime_lease_two_history_v1_independent_code_security_source_review_20261123.json'])
+ acl = unique(records['runtime_lease_two_history_v1_independent_actual_login_ACL_addendum_20261123.json'])
+ cmap = unique(read(FROZEN/'candidate-file-map.json', MAP_SHA))
+ freeze = unique(read(FROZEN/'FREEZE-MANIFEST.json', FREEZE_SHA))
+ need(len(freeze['files_sha256']) == 655 and freeze['file_count'] == 655 and aggregate(freeze['files_sha256']) == FREEZE_AGG, 'FREEZE_MAP')
+ for name,h in freeze['files_sha256'].items(): read(FROZEN/safe_name(name),h)
+ candidate = cmap['files_sha256']; source = cmap['closed_required_source_files_sha256']; code = review['code_files_sha256']
+ need(len(candidate)==30 and len(source)==36 and len(code)==13, 'EXACT_COUNTS')
+ need(aggregate(candidate)==cmap['aggregate_sha256'] and aggregate(source)==cmap['closed_required_source_aggregate_sha256'], 'CANDIDATE_AGGREGATES')
+ need(review['decision']=='SOURCE_APPROVED' and review['findings']==[] and review['source_files_sha256']==source and review['candidate_files_sha256']==candidate, 'INDEPENDENT_REVIEW_BINDING')
+ need(acl['decision']=='SOURCE_APPROVED' and acl['findings']==[] and acl['source_review_sha256']==PINS['runtime_lease_two_history_v1_independent_code_security_source_review_20261123.json'], 'ACL_BINDING')
+ need(delivery['candidate_file_map_sha256']==MAP_SHA and delivery['freeze_manifest_sha256']==FREEZE_SHA and delivery['freeze_aggregate_sha256']==FREEZE_AGG, 'DELIVERY_BINDING')
+ for name,h in {**source,**candidate,**code}.items(): read(FROZEN/'future-root'/safe_name(name),h)
+ root_receipt_raw = read(receipt,receipt_sha); rr = unique(root_receipt_raw)
+ required = {'schema':'workinants.runtime-lease-two-history-v1-Root-source-review.v1','decision':'SOURCE_APPROVED','reviewer':'/root','findings':[],
+  'scope':'EXACT_INACTIVE_SOURCE13_AND_SOURCE_DERIVED_ASSETS_NO_OWNING_CODE_OR_RUNTIME_APPROVAL','source_files_sha256':source,
+  'source_expected_sha256':EXPECTED,'author_delivery_sha256':PINS['runtime_lease_two_history_v1_FINAL_author_delivery_20261123.json'],
+  'independent_source_review_sha256':PINS['runtime_lease_two_history_v1_independent_code_security_source_review_20261123.json'],
+  'actual_login_ACL_addendum_sha256':PINS['runtime_lease_two_history_v1_independent_actual_login_ACL_addendum_20261123.json'],
+  'new_business_assertions_qualified':0,'runtime':'NOT_RUN','Posture':'D'}
+ need(all(rr.get(k)==v and type(rr.get(k)) is type(v) for k,v in required.items()), 'ROOT_RECEIPT_CONTRACT')
+ original = read(FROZEN/'future-root'/VAL,candidate[VAL]); validation = unique(original)
+ need(validation['review_gate']=='PENDING' and validation['source_files_sha256']==source and validation['source_expected_sha256']==EXPECTED, 'ORIGINAL_PENDING')
+ proposed = {name:read(FROZEN/'future-root'/name,h) for name,h in candidate.items()}
+ proposed.update({
+  PREFIX+'reviews/independent-source-review.json':records['runtime_lease_two_history_v1_independent_code_security_source_review_20261123.json'],
+  PREFIX+'reviews/actual-login-ACL-addendum.json':records['runtime_lease_two_history_v1_independent_actual_login_ACL_addendum_20261123.json'],
+  PREFIX+'reviews/Root-source-review.json':root_receipt_raw,
+  PREFIX+'preserved-before-Root-approval/source-validation-PENDING.json':original,
+  PREFIX+'authoring/Root-source13-admission-helper.py.txt':read(Path(__file__)),
+ })
+ closure_name = PREFIX+'Root-source13-admission-closure.json'
+ existing_archive = {}
+ ap = root/PREFIX
+ if ap.exists():
+  no_links(ap)
+  for p in ap.rglob('*'):
+   no_links(p)
+   if p.is_file(): existing_archive[p.relative_to(root).as_posix()] = read(p)
+ # No unrelated archive work is overwritten or silently adopted.
+ allowed_archive = {n for n in proposed if n.startswith(PREFIX)} | {closure_name}
+ need(set(existing_archive)<=allowed_archive, 'EXISTING_ARCHIVE_CONFLICT')
+ archive = {n:sha(raw) for n,raw in proposed.items() if n.startswith(PREFIX)}
+ closure = {'schema':'workinants.source13-Root-metadata-admission-closure.v1','scope':'SOURCE_METADATA_ONLY',
+  'author_delivery_sha256':required['author_delivery_sha256'],'original_candidate_map_sha256':MAP_SHA,
+  'original_PENDING_validation_sha256':sha(original),'source_files_sha256':source,'code_files_sha256':code,
+  'Root_receipt_sha256':receipt_sha,'archive_files_sha256_excluding_this_closure':dict(sorted(archive.items())),
+  'runtime':'NOT_RUN','Posture':'D','business_assertions_qualified':0}
+ proposed[closure_name] = encode(closure); archive[closure_name] = sha(proposed[closure_name])
+ validation['review_gate'] = 'SOURCE_APPROVED'
+ for key,name in (('independent_source_review','independent-source-review.json'),('Root_source_review','Root-source-review.json')):
+  n = PREFIX+'reviews/'+name; validation[key] = {'decision':'SOURCE_APPROVED','path':n,'sha256':sha(proposed[n])}
+ validation['Root_metadata_admission'] = {'original_PENDING_validation_sha256':sha(original),'closure_path':closure_name,
+  'closure_sha256':sha(proposed[closure_name]),'archive_files_sha256':dict(sorted(archive.items()))}
+ proposed[VAL] = encode(validation)
+ before = {}; changed = []
+ for name,raw in proposed.items():
+  p = root/safe_name(name); no_links(p)
+  old = read(p) if p.exists() else None
+  before[name] = None if old is None else sha(old)
+  need(old is None or old==raw or (name==VAL and old==original), 'EXISTING_CANDIDATE_CONFLICT')
+  if old!=raw: changed.append(name)
+ for name,h in source.items():
+  raw = proposed.get(name)
+  need((sha(raw) if raw is not None else sha(read(root/name)))==h,'ROOT_SOURCE36_CONFLICT')
+ return proposed, {'schema':'workinants.source13-Root-metadata-admission-inventory.v1','root':str(root),'mode':'INSPECT_ONLY',
+  'proposed_files_sha256':{n:sha(v) for n,v in sorted(proposed.items())},'before_files_sha256':before,
+  'changed_paths':sorted(changed),'source_files_sha256':source,'code_files_sha256':code,
+  'archive_files_sha256':dict(sorted(archive.items())),'original_PENDING_validation_sha256':sha(original),
+  'Root_receipt_sha256':receipt_sha,'helper_sha256':sha(read(Path(__file__))), 'runtime':'NOT_RUN','Posture':'D'}
+
+def main():
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--root',type=Path,required=True)
+ p.add_argument('--Root-receipt',type=Path,required=True);p.add_argument('--Root-receipt-sha256',required=True)
+ p.add_argument('--apply-reviewed-root-metadata',action='store_true');a=p.parse_args()
+ proposed,result=plan(a.root,a.Root_receipt,a.Root_receipt_sha256)
+ if a.apply_reviewed_root_metadata:
+  # All conflict checks complete before the first write; old pending is preserved
+  # in the exact closure before its metadata replacement. No deletion occurs.
+  names=sorted(n for n in proposed if n!=VAL)+[VAL]
+  for name in names:
+   target=a.root/name;raw=proposed[name]
+   if target.exists() and read(target)==raw: continue
+   actual_before=sha(read(target)) if target.exists() else None
+   need(actual_before==result['before_files_sha256'][name],'ROOT_CHANGED_BEFORE_WRITE')
+   target.parent.mkdir(parents=True,exist_ok=True);no_links(target.parent)
+   temporary=target.with_name(target.name+'.Root-source13-admission.tmp')
+   with temporary.open('xb') as f: f.write(raw);f.flush();os.fsync(f.fileno())
+   os.replace(temporary,target)
+  for name,raw in proposed.items(): read(a.root/name,sha(raw))
+  for name,h in result['source_files_sha256'].items(): read(a.root/name,h)
+  result['mode']='ROOT_EXPLICIT_METADATA_APPLIED'
+ print(json.dumps(result,sort_keys=True,indent=2,allow_nan=False))
+
+if __name__=='__main__':
+ try: main()
+ except (ValueError,OSError,KeyError,TypeError,json.JSONDecodeError) as e:
+  # No arbitrary path, probe output, statement or credential is emitted.
+  code=e.args[0] if type(e)is ValueError and len(e.args)==1 and type(e.args[0])is str and e.args[0].isupper() else type(e).__name__
+  print(json.dumps({'status':'STOP','safe_code':code,'runtime':'NOT_RUN'}));raise SystemExit(1)
