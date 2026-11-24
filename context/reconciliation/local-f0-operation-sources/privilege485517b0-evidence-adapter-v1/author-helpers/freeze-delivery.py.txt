@@ -1,0 +1,80 @@
+"""Freeze author-owned source delivery only after the focused process is closed."""
+from pathlib import Path
+import ast,datetime,difflib,hashlib,json,shutil,sys
+T=Path(__file__).resolve().parent;A=T/'privilege485517b0-evidence-reader-author-v2-20261123';R=T/'workinants-correction-pass';AR='context/reconciliation/local-f0-operation-sources/privilege485517b0-evidence-adapter-v1';D='context/reconciliation/local-f0-privilege-967bfc8-485517b0-qualified-evidence.json';VAL='context/reconciliation/local-f0-privilege485517b0-evidence-source-validation.json'
+sha=lambda b:hashlib.sha256(b).hexdigest();enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode();j=lambda p:json.loads(p.read_bytes())
+def write(p,b):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    if p.exists():assert p.read_bytes()==b,('EXCLUSIVE_DELIVERY_BYTES',p.name)
+    else:
+        with p.open('xb')as f:f.write(b)
+def copy(source,target):write(target,source.read_bytes())
+assert len(sys.argv)==2 and sys.argv[1]=='--focused-session-known-closed0','Root must not run this helper against an active checker.'
+report=j(A/'author-checks/focused-checks-v2-final.stdout.json');assert report['status']=='PASS'and report['forbidden_boundary_events']==[]and(A/'author-checks/focused-checks-v2-final.stderr.txt').read_bytes()==b''
+reader=A/'scripts/local_f0_privilege485517b0_evidence.py';checker=A/'scripts/check-local-f0-privilege485517b0-evidence.py';assert sha(reader.read_bytes())==report['reader_sha256']
+tree=ast.parse(reader.read_bytes());pin_node=next(n for n in tree.body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='PINS'for t in n.targets));pins=ast.literal_eval(pin_node.value.args[0]);assert len(pins)==519
+assert all(sha((A/n).read_bytes())==h for n,h in pins.items());before=j(A/'before-private-implementation.json');assert len(before['files_sha256'])==511 and all(pins[n]==h for n,h in before['files_sha256'].items())
+archive=A/AR
+preclosure=T/'V9_485517b0_reader_author_pre_freeze_byte_closure_v2_20261123.json'
+pre=j(preclosure);assert pre['actual_expected_record_encoded_bytes_equal_derived_bytes']is True and pre['spec_byte_reproduction_from_new_author_recipe']is True and pre['reader_sha256']==sha(reader.read_bytes()) and pre['derived_sha256']==sha((A/D).read_bytes())
+copy(preclosure,archive/'governance/pre-freeze-byte-closure-v2.json')
+for n in ['Root-plan-ACK.json','bounded-source-plan.FROZEN.json','plan-basis.FROZEN.json']:copy(A/'governance'/n,archive/'governance'/n)
+copy(A/'before-private-implementation.json',archive/'before-private-implementation.json')
+copy(T/'prepare_privilege485517b0_reader_private_20261123.py',archive/'author-helpers/prepare-private.py.txt')
+copy(T/'seal_privilege485517b0_reader_private_v2_20261123.py',archive/'author-helpers/seal-private.py.txt')
+copy(Path(__file__),archive/'author-helpers/freeze-delivery.py.txt')
+copy(T/'prepare_privilege485517b0_reader_private_20261123.before-map-correction.py.txt',archive/'author-history/preservation-helper.before-map-correction.py.txt')
+copy(T/'privilege485517b0-reader-preservation-plan-map-support-error-20261123.json',archive/'author-history/preservation-plan-map-support-error.json')
+for directory in ['author-checks','author-history']:
+    for p in (A/directory).rglob('*'):
+        if p.is_file():copy(p,archive/directory/p.relative_to(A/directory))
+# Build the source-only dispatcher proposal from the exact preserved builder.
+base=(archive/'prior-builder7a2.py.txt').read_bytes();assert sha(base)=='7a2aec1c5d66b813fd610447421ca11418812478319d4a623434bf6f1ca61029';s=base.decode();dh=sha((A/D).read_bytes())
+def add(a,b):
+    global s
+    assert s.count(a)==1;s=s.replace(a,b)
+add('ROOT=Path(__file__).resolve().parents[1]',"from local_f0_privilege485517b0_evidence import prepare_batch as prepare_privilege485517b0_batch, EvidenceFailure as Privilege485517b0EvidenceFailure\nROOT=Path(__file__).resolve().parents[1]")
+add('EVIDENCE_RECORDS={',"EVIDENCE_RECORDS={\n    '"+D+"':('"+dh+"','PASS_RETROSPECTIVE_EXACT44_PRIVILEGE_ASSERTIONS_ONLY'),")
+a="    ledger=json.loads((REC/'local-f0-assertion-evidence.json').read_text(encoding='utf8'))";add(a,a+"\n    privilege485517b0_batch=None\n    if any(row.get('evidence_path')=='"+D+"' for row in ledger['assertions']):\n        try:privilege485517b0_batch=prepare_privilege485517b0_batch(ROOT)\n        except Privilege485517b0EvidenceFailure as error:raise AssertionError(str(error)) from None")
+a="                elif row['evidence_path']=='context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json':";add(a,"                elif row['evidence_path']=='"+D+"':\n                    try:privilege485517b0_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer,ledger_row=row)\n                    except Privilege485517b0EvidenceFailure as error:raise AssertionError(str(error)) from None\n"+a)
+a='    if restore047_batch is not None:';add(a,"    if privilege485517b0_batch is not None:\n        try:privilege485517b0_batch.verify_unchanged();privilege485517b0_batch.require_finalized()\n        except Privilege485517b0EvidenceFailure as error:raise AssertionError(str(error)) from None\n"+a)
+class Normalize(ast.NodeTransformer):
+    def visit_ImportFrom(self,n):return None if n.module=='local_f0_privilege485517b0_evidence'else n
+    def visit_Assign(self,n):
+        if any(isinstance(t,ast.Name)and t.id=='privilege485517b0_batch'for t in n.targets):return None
+        if any(isinstance(t,ast.Name)and t.id=='EVIDENCE_RECORDS'for t in n.targets):
+            z=[i for i,k in enumerate(n.value.keys)if isinstance(k,ast.Constant)and k.value==D];assert len(z)==1;i=z[0];del n.value.keys[i];del n.value.values[i]
+        return self.generic_visit(n)
+    def visit_If(self,n):
+        if 'privilege485517b0'in ast.unparse(n.test)or D in ast.unparse(n.test):
+            if isinstance(n.test,ast.Compare)and isinstance(n.test.left,ast.Subscript):return self.visit(n.orelse[0])
+            return None
+        return self.generic_visit(n)
+assert ast.dump(Normalize().visit(ast.parse(s)),include_attributes=False)==ast.dump(ast.parse(base),include_attributes=False)
+patch=''.join(difflib.unified_diff(base.decode().splitlines(True),s.splitlines(True),fromfile='scripts/prepare-local-f0-status.py',tofile='scripts/prepare-local-f0-status.py'));added=sum(x.startswith('+')and not x.startswith('+++')for x in patch.splitlines());removed=sum(x.startswith('-')and not x.startswith('---')for x in patch.splitlines());assert(added,removed)==(12,0)
+proposal=A/'builder-proposal/FINAL';write(proposal/'prepare-local-f0-status.py.PROPOSAL',s.encode());write(proposal/'additive-builder.delta.patch',patch.encode());contract={'base_sha256':sha(base),'proposal_sha256':sha(s.encode()),'derived_sha256':dh,'added_lines':12,'removed_lines':0,'all_old_AST_unchanged':True,'Root_mutated':False,'full730_build':'NOT_RUN','source_review':'PENDING'};write(proposal/'proposal-contract.json',enc(contract))
+readme='''This standard-library reader checks saved evidence from the already closed V9 privilege rehearsal. It does not run a database, archived producer, helper, native comparator, tooling archive, or backup archive. Only the exact public seven-file source tar is read.
+
+The immutable qualification graph has 519 files: 455 source files, 56 preserved actual files, six historical inputs, the declarative specification, and the derived record. Source expectations and fixed observed fingerprints remain separate. It verifies the 200 intended diagnostics, 244 operations, 849 child and 18 parent closures, 197 source-derived metadata queries, 16 definers, 100 restored guards, 40 rollback validity controls, three issuer protocols, authentication, original-grantor finalization, exact ownership, and cleanup. All 244 data projections retain only the reviewed issued-grant exclusions. The unfiltered grant counts are separately reconciled from three to four to five.
+
+The native 29089 result is a closed prerequisite, whose individual successful rows were not retained. The reader independently compares full source ACL, role, owner, function-body and guard projections, then binds the remaining exact observed catalog and fresh final catalog. It also checks all 416 source-to-native oracle expression links and independently rebuilds all 22 genuine ledger checks. Oracle and ledger are not claimed rerun after behavior. Missing raw per-role authentication values are not invented.
+
+The proposed admission is exactly 44 assertions: 43 new rows and one issuer PARTIAL replacement carrying its complete previous evidence. There are 41 PASS ceilings and three PARTIAL ceilings. The DatabaseActionGrant business-write umbrella has NO_LINK. All other 686 historical rows, all 14 old execution rows, and Restore3 remain unchanged. The new execution row labels a retrospective wrapper, not a new database run.
+
+Source review and Root admission remain PENDING. The 12-line additive builder file is a proposal. Root must admit reviewed bytes and run the real current aggregate build. No whole-case count, 94-case replay, 451-case register, hosted adoption, worker loop or readiness grade is forced. Posture D remains.
+
+Plain English: We keep the old report safe and check 44 small answers from the finished test. Bigger answers still need more proof.
+''';write(archive/'README.md',readme.encode())
+source={'scripts/local_f0_privilege485517b0_evidence.py':sha(reader.read_bytes()),'scripts/check-local-f0-privilege485517b0-evidence.py':sha(checker.read_bytes())}
+archive_map={p.relative_to(A).as_posix():sha(p.read_bytes())for p in archive.rglob('*')if p.is_file()}
+offline={'focused_vectors':report['focused_vectors'],'focused_status':report['status'],'focused_reader_sha256':report['reader_sha256'],'focused_seconds':report['seconds'],'focused_report_sha256':sha((A/'author-checks/focused-checks-v2-final.stdout.json').read_bytes()),'first_reader48_vectors_PASS_preserved':True,'expanded_attempt2_completed30_before_envelope_helper_error_preserved':True,'version_qualified':True,'derived_and_spec_actual_byte_reproduction_before_freeze':True,'original_fa90_stopped_private_source_handoff_preserved':True,'real_private44_claim_batch':True,'final_all519_input_barrier':True,'all_other686_rows_and14_old_executions_Restore3_preserved':True,'hash_envelope_aware_semantic_mutants':True,'strict_JSON_path_IO_and_secret_canaries':True,'actual_same_size_private_final_capture_race':True,'exact50dfe_one_read_restoration':'TEST_ONLY_PURE_READ_AST_NOT_A_PRIOR_V9_READER','author_full687_or730_build':'NOT_RUN','forbidden_boundary_events':report['forbidden_boundary_events']}
+validation={'schema':'workinants.privilege485517b0-evidence-source-validation.v1','scope':'RETROSPECTIVE_EXACT44_STDLIB_READER_SOURCE_ONLY','source_files_sha256':source,'closed_qualification_input_graph_sha256':pins,'archive_files_sha256':archive_map,'independent_source_review':{'decision':'PENDING','path':None,'sha256':None,'source_files_sha256':source},'Root_admission':{'decision':'PENDING','source_review':None,'receipt_path':None,'receipt_sha256':None,'full_current_status_build':'NOT_RUN','Root_builder_base_sha256':sha(base)},'offline_results':offline,'runtime_reexecuted':False,'limits':j(A/AR/'closed-inputs-and-claims.json')['limits'],'Posture':'D'};write(A/VAL,enc(validation))
+owned=[reader,checker,A/D,A/VAL,*[p for p in archive.rglob('*')if p.is_file()]];candidates={p.relative_to(A).as_posix():sha(p.read_bytes())for p in owned};assert len(candidates)==len(owned)
+for p,h in before['files_sha256'].items():assert sha((A/p).read_bytes())==h and sha((R/p).read_bytes())==h
+write(A/'author-review.json',enc({'schema':'workinants.privilege485517b0-reader-author-source-review.v1','author':'/root/restore_exact3_code_review','source_files_sha256':source,'candidate_Root_files_sha256':candidates,'qualification_graph_sha256':pins,'new_files':len(candidates),'derived_sha256':dh,'spec_sha256':pins[AR+'/closed-inputs-and-claims.json'],'builder_proposal':contract,'offline_results':offline,'preserved_support_failures':[p.relative_to(A).as_posix()for p in(A/'author-checks/sealer-support-errors').glob('*.json')],'Root_mutated':False,'runtime_reexecuted':False,'source_gates':'PENDING','Posture':'D'}))
+freeze=A/'author-freeze-20261123';assert not freeze.exists();freeze.mkdir();all_files={p.relative_to(A).as_posix():sha(p.read_bytes())for p in A.rglob('*')if p.is_file()and not p.is_relative_to(freeze)}
+for p,h in all_files.items():copy(A/p,freeze/'files'/p)
+write(freeze/'freeze-manifest.json',enc({'schema':'workinants.privilege485517b0-reader-author-freeze.v1','files_sha256':all_files,'candidate_Root_files_sha256':candidates,'qualification_graph_sha256':pins,'source_review':'PENDING','Root_admission':'PENDING','runtime':'NOT_RUN_SOURCE_ONLY'}))
+delivery={'schema':'workinants.privilege485517b0-reader-frozen-author-delivery.v1','author':'/root/restore_exact3_code_review','Root_plan_ACK_sha256':'ba07e9d0fe5ebca2430584ad16d0250464ccc3e08c5ff51b17e1f4657346a966','private_author_root':str(A),'freeze_manifest_path':str(freeze/'freeze-manifest.json'),'freeze_manifest_sha256':sha((freeze/'freeze-manifest.json').read_bytes()),'frozen_files':len(all_files),'candidate_Root_files_sha256':candidates,'candidate_files':len(candidates),'source_files_sha256':source,'qualification_graph_files':519,'qualification_graph_sha256':sha(enc(pins)),'derived_record_sha256':dh,'source_validation_sha256':sha((A/VAL).read_bytes()),'spec_sha256':pins[AR+'/closed-inputs-and-claims.json'],'author_review_sha256':sha((A/'author-review.json').read_bytes()),'builder_proposal':{'path':str(proposal/'prepare-local-f0-status.py.PROPOSAL'),**contract},'offline_results':offline,'source_gates':'PENDING','Root_mutated':False,'runtime_reexecuted':False,'Posture':'D'}
+delivery.update(qualification_input_files_sha256=pins,qualification_graph_aggregate_sha256=sha(''.join(n+'\0'+pins[n]+'\n' for n in sorted(pins)).encode()),qualification_graph_recipe='SHA256(UTF8(sorted path + NUL + sha256 + LF))')
+p=T/'V9_485517b0_retrospective_reader_frozen_author_delivery_v2_20261123.json';write(p,enc(delivery));print(json.dumps({'delivery_path':str(p),'delivery_sha256':sha(p.read_bytes()),'source_files':source,'candidate_files':len(candidates),'frozen_files':len(all_files),'graph_files':519,'derived_sha256':dh,'source_validation_sha256':delivery['source_validation_sha256'],'source_gates':'PENDING'}))

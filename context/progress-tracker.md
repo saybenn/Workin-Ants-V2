@@ -1,3 +1,19 @@
+## Local F0 continuation - 695 verified assertions (2026-11-23)
+
+Accepted assertion coverage is **695 PASS /35 PARTIAL /265 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**, with730 current rows. The selected94 cases are **9 PASS /79 PARTIAL /6 NOT_RUN**. P0C-CATALOG-01 is now complete for its exercised version. PostureD and Brain final acceptance remain pending.
+
+The completed967b V9 run now has its reviewed exact44 evidence links:41PASS ceilings and3PARTIAL ceilings.43 rows are new; the issuer remains PARTIAL with its complete previous evidence retained. All other686 current rows, all14 earlier executions and the Restore3 evidence remain unchanged. The real unmocked complete builder passed696.297s. All13 existing legacy checks passed after measured fixture/dispatch updates; their recorded elapsed interval is retained without a CPU-time inference.
+
+This is retrospective admission of the already completed200 contrasts/244 operations. No fresh database run occurred here. Native29089/oracle416/ledger22 are recorded prerequisites; only read-only native parity followed behavior. The42-table/205-row projections exclude source-scoped issued grants, separately checked as known3-to4-to5 totals/full claims. Missing per-probe authentication values remain missing. Issuer/helper/browser remain PARTIAL, the DatabaseActionGrant business-write umbrella has no link, and whole94/451/production readiness are not promoted.
+
+CSP and the new two-history owning operator remain held for concrete source findings before use: uncertain authentication/inner CLI closure, original safe failure-code preservation, and the two-history credential/mount ordering. Successors are privately corrected and independently reviewed. These are static/modeled findings, not newly observed runtime failures. The isolated11-case lease mechanism and physical Restore047 subset remain preserved. Corrected canonical App/affectedWorker and committed Customer UPDATE/concurrency/codec paths remain unqualified.
+
+Plain English: The saved tests earned41 more passing checkboxes. We kept all the older proof, including the parts that are still incomplete. The next test runners need their safety fixes checked before they can use a new test database.
+
+Detailed current record: context/reconciliation/local-f0-695-privilege44-admission-progress-20261123.json (SHA-256 3bbd8f5c311332108b4bf6eebc38315f15d78b587718a90f0590fff6f7988561). Earlier sections below are version-qualified history.
+
+---
+
 ## Local F0 continuation - 654 verified assertions and closed local probes (2026-11-23)
 
 Actual accepted coverage is **654 PASS /33 PARTIAL /308 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**, with687 current rows. Selected94 cases: **8 PASS /80 PARTIAL /6 NOT_RUN**. The real complete builder passed402.359s; all684 older rows and executions remain unchanged. Thirteen applicable legacy checks passed after fixture-only count/dispatch updates.

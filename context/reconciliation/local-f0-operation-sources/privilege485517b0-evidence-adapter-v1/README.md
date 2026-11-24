@@ -1,0 +1,11 @@
+This standard-library reader checks saved evidence from the already closed V9 privilege rehearsal. It does not run a database, archived producer, helper, native comparator, tooling archive, or backup archive. Only the exact public seven-file source tar is read.
+
+The immutable qualification graph has 519 files: 455 source files, 56 preserved actual files, six historical inputs, the declarative specification, and the derived record. Source expectations and fixed observed fingerprints remain separate. It verifies the 200 intended diagnostics, 244 operations, 849 child and 18 parent closures, 197 source-derived metadata queries, 16 definers, 100 restored guards, 40 rollback validity controls, three issuer protocols, authentication, original-grantor finalization, exact ownership, and cleanup. All 244 data projections retain only the reviewed issued-grant exclusions. The unfiltered grant counts are separately reconciled from three to four to five.
+
+The native 29089 result is a closed prerequisite, whose individual successful rows were not retained. The reader independently compares full source ACL, role, owner, function-body and guard projections, then binds the remaining exact observed catalog and fresh final catalog. It also checks all 416 source-to-native oracle expression links and independently rebuilds all 22 genuine ledger checks. Oracle and ledger are not claimed rerun after behavior. Missing raw per-role authentication values are not invented.
+
+The proposed admission is exactly 44 assertions: 43 new rows and one issuer PARTIAL replacement carrying its complete previous evidence. There are 41 PASS ceilings and three PARTIAL ceilings. The DatabaseActionGrant business-write umbrella has NO_LINK. All other 686 historical rows, all 14 old execution rows, and Restore3 remain unchanged. The new execution row labels a retrospective wrapper, not a new database run.
+
+Source review and Root admission remain PENDING. The 12-line additive builder file is a proposal. Root must admit reviewed bytes and run the real current aggregate build. No whole-case count, 94-case replay, 451-case register, hosted adoption, worker loop or readiness grade is forced. Posture D remains.
+
+Plain English: We keep the old report safe and check 44 small answers from the finished test. Bigger answers still need more proof.

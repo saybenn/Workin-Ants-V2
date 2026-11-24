@@ -1,0 +1,30 @@
+"""Refresh unpublished progress with the newly closed forced-exec source finding."""
+from pathlib import Path
+import hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+F='context/reconciliation/local-f0-source-followups/695-privilege44-admission-20261123'
+P='context/reconciliation/local-f0-695-privilege44-admission-progress-20261123.json'
+IP=T/'695_privilege44_progress_inventory_20261123.json';ib=IP.read_bytes();inv=json.loads(ib);files=inv['files_sha256']
+old=(R/P).read_bytes();oh=sha(old);assert oh=='aa33d172b956e955bca486900e48a48a6ddbb4c676c2af75ea1dab4260a47ee6'
+(T/'695_progress_before_forced_exec_source_closure_20261123.json').open('xb').write(old)
+for dst,src,wanted in [
+ ('CSP-forced-exec-independent-HOLD-addendum.json','customer_stale_predecessor_owned_v1_forced_exec_closure_independent_HOLD_addendum_20261123.json','fceaed462c7a69189dc95107893cd4ec8fd80ddfa58c7ff6f3034577e1089cb7'),
+ ('both-forced-remote-exec-Root-ruling.json','owning_forced_remote_exec_closure_Root_bounded_ruling_20261123.json','c9ec48e73b4489d7297ed9b2950732910ec731398865ef67fb4ff2b02f8058c6')]:
+ b=(T/src).read_bytes();assert sha(b)==wanted;p=R/F/dst;p.open('xb').write(b);files[F+'/'+dst]=wanted
+helper=R/F/'Root-forced-source-progress-refresh-helper.py.txt';helper.open('xb').write(Path(__file__).read_bytes());files[helper.relative_to(R).as_posix()]=sha(helper.read_bytes())
+v=json.loads(old);holds=v['held_source_findings'];holds['historical_additional_review_question_before_forced_probe']=holds.pop('additional_review_question')
+holds['forced_remote_exec']={'path':F+'/CSP-forced-exec-independent-HOLD-addendum.json','sha256':'fceaed462c7a69189dc95107893cd4ec8fd80ddfa58c7ff6f3034577e1089cb7','finding':'CSP1-REMOTE-EXEC-CLOSURE-03','result':'SOURCE_MODEL_COUNTEREXAMPLE_NO_ACTUAL_RUNTIME_LEAK_CLAIM'}
+holds['forced_exec_Root_ruling']={'path':F+'/both-forced-remote-exec-Root-ruling.json','sha256':'c9ec48e73b4489d7297ed9b2950732910ec731398865ef67fb4ff2b02f8058c6'}
+holds['current_correction']='Both new owning transports require abnormal authorized exec/no natural byte result to latch remote-client uncertainty before IO/observers; preserve outer metrics and earliest safe cause; natural raw-return UTF8/semantic contrasts stay distinct. Same codepeer re-review remains mandatory.'
+v['exact_blocker']='CSP and two-history owning source corrections/re-review remain required for exact inner/remote-client uncertainty, original safe code and two-history mount/secret ordering. Forced outer CLI closure/globalzero is not a remote exit receipt. Canonical corrected App/affectedWorker need reviewed two-history machinery and actual qualification.32 later dependencies and7 unresolved source questions remain.'
+(R/P).write_bytes(enc(v));nh=sha((R/P).read_bytes());files[P]=nh
+for name in ['context/progress-tracker.md','context/reconciliation/phase0-foundation-report.md','context/reconciliation/foundation-sql-draft-review.md']:
+ p=R/name;b=p.read_bytes();assert b.count(oh.encode())==1;p.write_bytes(b.replace(oh.encode(),nh.encode()));files[name]=sha(p.read_bytes())
+bpath='context/reconciliation/local-f0-qualification-board.json';b=json.loads((R/bpath).read_bytes());assert b['latest_version_qualified_progress']['sha256']==oh;b['latest_version_qualified_progress']['sha256']=nh;b['exact_blocker']=v['exact_blocker'];b['inflight_private_sources']['CSP1_owning']='FIRST_CODE_AND_FORCED_REMOTE_EXEC_CLOSURE_BOUNDED_CORRECTIONS_CODE_REVIEW_PENDING';b['inflight_private_sources']['two_history_owning']='ORIGIN_INNER_AND_FORCED_REMOTE_CLOSURE_RESOURCE_ORDER_CORRECTIONS_CODE_REVIEW_PENDING';(R/bpath).write_bytes(enc(b));files[bpath]=sha((R/bpath).read_bytes())
+vp='context/reconciliation/foundation-sql-draft-validation.json';val=json.loads((R/vp).read_bytes());item=val['privilege_485517b0_exact44_admission_20261123'];assert item['progress_sha256']==oh;item['progress_sha256']=nh;item['current_forced_exec_source_ruling_sha256']='c9ec48e73b4489d7297ed9b2950732910ec731398865ef67fb4ff2b02f8058c6';(R/vp).write_bytes(enc(val));files[vp]=sha((R/vp).read_bytes())
+assert sha((R/'context/reconciliation/local-f0-assertion-evidence.json').read_bytes())=='8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7'
+assert sha((R/'context/reconciliation/local-f0-qualification-status.json').read_bytes())=='a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a'
+inv['file_count']=len(files);IP.write_bytes(enc(inv))
+print(json.dumps({'status':'FORCED_EXEC_SOURCE_FINDING_RECONCILED','progress_sha256':nh,'progress_files':len(files),'coverage_unchanged':True,'runtime':'NOT_RUN'}))

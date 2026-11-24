@@ -1,0 +1,44 @@
+from pathlib import Path
+import hashlib, json, os, stat, sys
+
+T = Path(__file__).resolve().parent
+R = T / 'workinants-correction-pass'
+A = T / 'privilege485517b0-evidence-reader-author-20261123'
+P = T / 'V9-retrospective-reader-source-plan-private-20261123'
+def h(b): return hashlib.sha256(b).hexdigest()
+def write(p, b):
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open('xb') as f: f.write(b)
+def j(b): return json.loads(b)
+ack = (T/'V9_485517b0_retrospective_reader_Root_plan_ACK_20261123.json').read_bytes()
+assert h(ack) == 'ba07e9d0fe5ebca2430584ad16d0250464ccc3e08c5ff51b17e1f4657346a966'
+plan = (P/'bounded-source-plan.FROZEN.json').read_bytes()
+assert h(plan) == '56b24d0541dcba4c8219d17e9dff75f17b8cc3c73b7597fbf7eb4a5c079e82e0'
+basis = j((P/'plan-basis.FROZEN.json').read_bytes())
+pins = basis['existing_closed_union']
+assert type(pins) is dict and len(pins) == 511
+assert not A.exists()
+A.mkdir()
+write(A/'before-private-implementation.json', (json.dumps({'schema':'workinants.privilege485517b0-reader-author-before.v1','author':'/root/restore_exact3_code_review','Root_ACK_sha256':h(ack),'plan_sha256':h(plan),'files_sha256':pins,'Root_mutated':False,'runtime':'NOT_RUN_SOURCE_ONLY','source_gates':'PENDING'},indent=2)+'\n').encode())
+write(A/'governance/Root-plan-ACK.json', ack)
+write(A/'governance/bounded-source-plan.FROZEN.json', plan)
+write(A/'governance/plan-basis.FROZEN.json', (P/'plan-basis.FROZEN.json').read_bytes())
+total = 0
+for n,wanted in pins.items():
+    p = R/n
+    assert p.resolve().is_relative_to(R.resolve()) and not p.is_symlink()
+    a=p.stat(); assert stat.S_ISREG(a.st_mode) and a.st_nlink==1
+    first=p.read_bytes(); second=p.read_bytes(); z=p.stat()
+    assert first==second and h(second)==wanted and (a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns,a.st_ctime_ns)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns,z.st_ctime_ns)
+    write(A/n,second); total+=len(second)
+archive=A/'context/reconciliation/local-f0-operation-sources/privilege485517b0-evidence-adapter-v1'
+for target,src,wanted in [
+    ('prior687-assertion-evidence.json',P/'preserved-current687/local-f0-assertion-evidence.json',basis['prior687_ledger_sha256']),
+    ('prior687-qualification-status.json',P/'preserved-current687/local-f0-qualification-status.json',basis['prior687_status_sha256']),
+    ('prior-issuer-partial-record.json',P/'preserved-old-issuer-record.json','9a090022c11f150cb133617af11cb9c6afafba1624313673ee3a5237ae637232'),
+    ('validating-full687-build.json',P/'validating-full687-build.json','c3425bf43aa949fd4eb92cf70c800aed7fbabe191e41e26bbdfd3b37a7cd9606'),
+    ('prior-builder7a2.py.txt',R/'scripts/prepare-local-f0-status.py',basis['builder_base_sha256']),
+    ('prior-restricted-validator.py.txt',R/'scripts/local_f0_restricted_evidence.py','8809426d7dba4cc2f14f41b1b3230dbb704f758542d42134e2d0ea25b25054f3')]:
+    b=src.read_bytes();assert h(b)==wanted;write(archive/target,b)
+write(A/'private-preservation-result.json',(json.dumps({'files':511,'bytes':total,'closed_inputs_sha256':pins,'Root_mutated':False,'runtime':'NOT_RUN_SOURCE_ONLY'},indent=2)+'\n').encode())
+print(json.dumps({'private_root':str(A),'preserved':511,'bytes':total,'Root_mutated':False}))

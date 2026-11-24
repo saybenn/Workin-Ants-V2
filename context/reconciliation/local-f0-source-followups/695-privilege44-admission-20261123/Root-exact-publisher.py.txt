@@ -1,0 +1,74 @@
+"""Root bounded695 evidence publication; exact curated paths and normal FF only."""
+from pathlib import Path
+import argparse,datetime,hashlib,importlib.util,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+up=T/'publish_reviewed_lease_V9_source_20261123.py';us=importlib.util.spec_from_file_location('_reviewed_exact_publication_utilities',up);u=importlib.util.module_from_spec(us);us.loader.exec_module(u)
+BASE='71678d3364be9ddf84c1d29f9c63a97ddd091219';BRANCH='codex/p0c-candidate-corrections-2026-10-31'
+sha=u.sha;enc=u.enc;git=u.git;put=u.put
+F='context/reconciliation/local-f0-source-followups/695-privilege44-admission-20261123'
+MP=T/'695_exact_curated_checkpoint_map_20261123.json';PRE=T/'695_full_committed_checkpoint_pre_push_20261123.json'
+RAW_CAPTURE='context/reconciliation/local-f0-operation-sources/privilege485517b0-evidence-adapter-v1/author-checks/focused-checks-attempt2.stdout.json'
+EMPTY='e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+def scan(files):
+ # This one source-reviewed failed-harness stdout capture is empty, despite
+ # its historical .json suffix. It is not a structured qualification record.
+ p=R/RAW_CAPTURE;assert files.get(RAW_CAPTURE)==EMPTY and not p.is_symlink()and p.stat().st_nlink==1 and p.read_bytes()==b''
+ delivery=json.loads((T/'V9_485517b0_retrospective_reader_frozen_author_delivery_v2_20261123.json').read_bytes())
+ assert delivery['candidate_Root_files_sha256'][RAW_CAPTURE]==EMPTY and RAW_CAPTURE not in delivery['qualification_input_files_sha256']
+ result=u.scan({n:h for n,h in files.items()if n!=RAW_CAPTURE})
+ result['preserved_source_reviewed_empty_raw_capture']={RAW_CAPTURE:EMPTY};return result
+def remote():return git('ls-remote','--exit-code','origin','refs/heads/'+BRANCH).decode().split()
+def main():
+ p=argparse.ArgumentParser();p.add_argument('mode',choices=['prepare','commit','verify']);a=p.parse_args()
+ if a.mode=='prepare':
+  assert git('rev-parse','HEAD').decode().strip()==BASE and git('diff','--cached','--name-only','-z')==b''
+  u.originals();assert remote()==[BASE,'refs/heads/'+BRANCH]
+  log=(T/'695_context_check_20261123.log').read_bytes();assert b'Structural checks PASSED'in log
+  foundation=(T/'695_foundation_check_20261123.json').read_bytes();assert json.loads(foundation)['errors']==[]
+  full=(T/'V9_485517b0_real_full730_Root_build_20261123.json').read_bytes();assert sha(full)=='9046bc4071637575038920a8cde083d3238d0ab60971e2568038d0e1387f92a4'and json.loads(full)['status']=='PASS_REAL_FULL730_ROOT_BUILD'
+  check=json.loads((T/'V9_730_existing_legacy_status_checks_20261123.json').read_bytes());assert check['passed']==check['tests']==13 and check['failed_methods']==check['error_methods']==[]
+  files={}
+  for name,key in [('V9_485517b0_FINAL_Root_source_admission_inventory_20261123.json','Root_files_sha256'),('695_privilege44_progress_inventory_20261123.json','files_sha256')]:
+   for n,h in json.loads((T/name).read_bytes())[key].items():assert n not in files or files[n]==h;files[n]=h
+  for n,h in {'context/reconciliation/local-f0-assertion-evidence.json':'8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7','context/reconciliation/local-f0-qualification-status.json':'a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a','scripts/check-local-f0-status.py':'c1228e579d5490b07390ffd55fabd5bd2375137a134be5a79c4cf6e0f79ecf79'}.items():
+   assert sha((R/n).read_bytes())==h;files[n]=h
+  for name,body in {'context-check.log':log,'foundation-check.json':foundation,'Root-exact-publisher.py.txt':Path(__file__).read_bytes()}.items():
+   n=F+'/'+name;assert n not in files;path=R/n
+   if path.exists():
+    old=path.read_bytes()
+    if old!=body:
+     assert name=='Root-exact-publisher.py.txt'and old==(T/'publish_695_privilege44_checkpoint.before-exact-raw-capture-classification-20261124.py.txt').read_bytes();path.write_bytes(body)
+   else:put(path,body)
+   assert path.read_bytes()==body;files[n]=sha(body)
+  assert len(files)==119
+  result={'schema':'workinants.695-exact-curated-evidence-map.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'base_commit':BASE,'files_sha256':dict(sorted(files.items())),'file_count':len(files),'scan':scan(files),'original_checkouts_preserved':True,'accepted_rows':730,'assertion_status_counts':json.loads((R/'context/reconciliation/local-f0-qualification-status.json').read_bytes())['assertion_status_counts'],'fresh_database_runs':0,'Posture':'D'}
+  put(MP,enc(result));print(json.dumps({'status':'CURATED_695_CHECKPOINT_READY','files':len(files),'map_sha256':sha(MP.read_bytes()),'scan':result['scan']}));return
+ if a.mode=='verify':
+  proof=json.loads(PRE.read_bytes());c=proof['commit'];files=proof['files_sha256']
+  assert git('rev-parse','HEAD').decode().strip()==c and remote()==[c,'refs/heads/'+BRANCH]
+  u.blobs(c,files);u.originals();scan(files)
+  out=T/'695_full_remote_publication_verification_20261123.json'
+  put(out,enc({'schema':'workinants.695-full-remote-publication-verification.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'commit':c,'tree':proof['tree'],'full_remote_hash':c,'normal_FF_parent':BASE,'curated_files':len(files),'all_current_committed_blobs_equal':True,'original_checkouts_preserved':True,'source_qualification':'VERSION967B_RETROSPECTIVE_EXACT44','fresh_database_runs':0,'Posture':'D'}))
+  print(json.dumps({'status':'PUBLISHED_FULL_REMOTE_HASH_AND_ALL_BLOBS_VERIFIED','commit':c,'tree':proof['tree'],'proof_sha256':sha(out.read_bytes())}));return
+ raw=MP.read_bytes();curated=json.loads(raw);files=curated['files_sha256']
+ assert git('rev-parse','HEAD').decode().strip()==BASE and remote()==[BASE,'refs/heads/'+BRANCH]
+ assert git('remote','get-url','origin').decode().strip()=='https://github.com/saybenn/Workin-Ants-V2.git'
+ assert git('diff','--cached','--name-only','-z')==b''
+ u.originals();scan(files)
+ changed=set()
+ for n,h in files.items():
+  q=subprocess.run(['git','--no-optional-locks','-c','core.longpaths=true','cat-file','blob',BASE+':'+n],cwd=R,capture_output=True,timeout=30)
+  if q.returncode!=0 or sha(q.stdout)!=h:changed.add(n)
+ assert set(filter(None,git('diff','--name-only','-z').decode().split('\0')))<=changed
+ names=T/'695_exact_stage_paths_20261123.nul';put(names,b''.join(n.encode()+b'\0'for n in sorted(files)))
+ git('add','--pathspec-from-file='+str(names),'--pathspec-file-nul')
+ assert set(filter(None,git('diff','--cached','--name-only','-z').decode().split('\0')))==changed
+ u.blobs('',files);u.originals();assert remote()==[BASE,'refs/heads/'+BRANCH]
+ git('commit','-m','Admit exact privilege evidence and preserve issuer history')
+ c=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+ assert git('rev-parse','HEAD^').decode().strip()==BASE
+ assert set(filter(None,git('diff-tree','--no-commit-id','--name-only','-r','-z',c).decode().split('\0')))==changed
+ u.blobs(c,files);u.originals()
+ put(PRE,enc({'schema':'workinants.695-full-committed-checkpoint-proof.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'commit':c,'tree':tree,'direct_parent':BASE,'curated_map_sha256':sha(raw),'files_sha256':files,'changed_files':len(changed),'all_current_committed_equal':True,'originals_preserved':True,'fresh_database_runs':0,'Posture':'D'}))
+ print(json.dumps({'status':'COMMITTED_READY_NORMAL_FF_PUSH','commit':c,'tree':tree,'files':len(files),'changed_files':len(changed),'proof_sha256':sha(PRE.read_bytes())}))
+if __name__=='__main__':main()

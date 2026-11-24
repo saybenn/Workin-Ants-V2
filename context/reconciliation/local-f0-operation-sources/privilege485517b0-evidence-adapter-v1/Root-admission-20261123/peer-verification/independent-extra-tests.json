@@ -1,0 +1,23 @@
+{
+  "schema": "workinants.independent-reader-extra-tests.v1",
+  "status": "PASS",
+  "tests": [
+    {
+      "name": "actual_missing_file_IO_path_secret_safe",
+      "status": "PASS",
+      "safe_code": "FILE_READ_REJECTED"
+    },
+    {
+      "name": "same_shape_previous_operation_is_stale_current",
+      "status": "PASS",
+      "safe_code": "FINAL_CURRENT_OPERATION_NOT_PARTIAL"
+    },
+    {
+      "name": "secret_extra_field_is_frame_rejected_without_value",
+      "status": "PASS",
+      "safe_code": "EXACT_ALLOWLISTED_JSON_FRAME"
+    }
+  ],
+  "boundary_events": [],
+  "runtime": "NOT_RUN_SOURCE_ONLY"
+}

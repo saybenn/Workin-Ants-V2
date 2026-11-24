@@ -1,0 +1,96 @@
+"""Root progress reconciliation after actual730 and existing13 checks; no runtime."""
+from pathlib import Path
+import datetime,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def put(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+F='context/reconciliation/local-f0-source-followups/695-privilege44-admission-20261123'
+P='context/reconciliation/local-f0-695-privilege44-admission-progress-20261123.json'
+OLD='context/reconciliation/local-f0-654-closed-mechanism-privilege-restore-progress-20261123.json'
+L='context/reconciliation/local-f0-assertion-evidence.json';S='context/reconciliation/local-f0-qualification-status.json'
+lb=(R/L).read_bytes();sb=(R/S).read_bytes()
+assert sha(lb)=='8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7'and sha(sb)=='a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a'
+st=json.loads(sb);assert len(json.loads(lb)['assertions'])==730
+full=(T/'V9_485517b0_real_full730_Root_build_20261123.json').read_bytes();assert sha(full)=='9046bc4071637575038920a8cde083d3238d0ab60971e2568038d0e1387f92a4'
+build=json.loads(full);assert build['status']=='PASS_REAL_FULL730_ROOT_BUILD'and build['other686_and14_executions_Restore3_unchanged']and build['counts_forced']is False
+check=json.loads((T/'V9_730_existing_legacy_status_checks_20261123.json').read_bytes());assert check['tests']==check['passed']==13 and check['failed_methods']==check['error_methods']==[] and check['unchanged_after']is True
+prose=['context/progress-tracker.md','context/reconciliation/phase0-foundation-report.md','context/reconciliation/foundation-sql-draft-review.md']
+B='context/reconciliation/local-f0-qualification-board.json';V='context/reconciliation/foundation-sql-draft-validation.json';paths=prose+[B,V]
+# Current progress is outside both held operational source graphs.
+held=json.loads((T/'runtime-lease-two-history-owned-v1-FINAL-frozen-author-20261123/candidate-file-map.json').read_bytes())['whole_packet_files_sha256']
+csp=json.loads((T/'customer-stale-predecessor-owned-v1-auth-closure-private-20261123/frozen-author-delivery.json').read_bytes())['all_prepared_Root_files_sha256']
+assert not(set(paths)&set(held))and not(set(paths)&set(csp))
+before={n:(R/n).read_bytes()for n in paths};backup=T/'V9_695_progress_before_20261123'
+# Preserve originals outside Root; the exact published71678 parent also retains them in Git.
+for n,b in before.items():put(backup/n,b)
+files={}
+copies={
+ 'actual-full730-build.json':'V9_485517b0_real_full730_Root_build_20261123.json',
+ 'actual-full730-driver.py.txt':'run_V9_485517b0_real_full730_Root_build_20261123.py',
+ 'Root-exact44-input-delta.json':'V9_485517b0_reviewed_exact44_ledger_input_delta_20261123.json',
+ 'source82-admission-inventory.json':'V9_485517b0_FINAL_Root_source_admission_inventory_20261123.json',
+ 'legacy13-checks.json':'V9_730_existing_legacy_status_checks_20261123.json',
+ 'legacy13-checks.log':'V9_730_existing_legacy_status_checks_20261123.log',
+ 'legacy13-driver.py.txt':'run_V9_730_legacy_status_checks_20261123.py',
+ 'legacy-fixture-refresh.json':'V9_real730_legacy_status_fixture_refresh_20261123.json',
+ 'legacy-fixture-refresh-helper.py.txt':'update_V9_real730_legacy_status_fixture_20261123.py',
+ 'legacy-checker.before-V9.py.txt':'check-local-f0-status.before-V9-730-20261123.py.txt',
+ 'CSP-original-independent-HOLD.json':'customer_stale_predecessor_owned_v1_independent_code_security_HOLD_20261123.json',
+ 'CSP-auth-successor-independent-HOLD.json':'customer_stale_predecessor_owned_v1_auth_successor_independent_HOLD_20261123.json',
+ 'two-history-owning-independent-HOLD.json':'runtime_lease_two_history_owned_v1_independent_code_security_HOLD_20261123.json',
+ 'CSP-auth-Root-ruling.json':'CSP1_auth_closure_HOLD_Root_bounded_correction_ruling_20261123.json',
+ 'CSP-inner-CLI-Root-ruling.json':'CSP1_inner_CLI_closure_Root_bounded_ruling_20261123.json',
+ 'both-no-validated-inner-receipt-Root-ruling.json':'owning_no_validated_inner_receipt_Root_ruling_20261123.json',
+ 'two-history-Root-ruling.json':'two_history_owning_HOLD_Root_bounded_correction_ruling_20261123.json',
+ 'two-history-prestart-API-Root-refinement.json':'two_history_prestart_API_Root_ruling_refinement_20261123.json',
+ 'CSP-maxone-admission-plan.FROZEN.json':'csp1-stale-predecessor-admission-plan-private-20261123/csp1-stale-predecessor-evidence-admission-plan.FROZEN.json',
+ 'CSP-maxone-admission-Root-ACK.json':'CSP1_maxone_evidence_admission_Root_plan_ACK_20261123.json',
+ 'prior687-remaining-investigation-queue.json':'687_remaining_assertion_investigation_queue_20261123.json',
+ 'Root-progress-helper.py.txt':Path(__file__).name}
+for n,src in copies.items():
+ b=(T/src).read_bytes();put(R/F/n,b);files[F+'/'+n]=sha(b)
+counts=st['assertion_status_counts'];cases=st['case_status_counts']
+record={'schema':'workinants.695-privilege44-admission-progress.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'previous_progress':{'path':OLD,'sha256':sha((R/OLD).read_bytes())},'parent_published_checkpoint':'71678d3364be9ddf84c1d29f9c63a97ddd091219','actual_source_checkpoint':'967bfc854f46ce884f2eee3b93cc317c88cd2f7c','assertion_status_counts':counts,'case_status_counts':cases,'current_rows':730,'ledger_sha256':sha(lb),'status_sha256':sha(sb),'current_checkpoint':'3.7','Posture':'D','Brain_final_acceptance':'PENDING','continue_after_publication':True,'fresh_database_runs_this_checkpoint':0,'old_other686_and14executions_Restore3_preserved':True,'issuer_PARTIAL_replacement_full_previous_evidence_preserved':True,'new_assertion_rows':43,'reviewed_exact44_caps':{'PASS':41,'PARTIAL':3},'newly_complete_case':'P0C-CATALOG-01'}
+record['actual_full_build']={'path':F+'/actual-full730-build.json','sha256':files[F+'/actual-full730-build.json'],'seconds':build['seconds'],'all_validators_unmocked':True,'all_process_network_boundaries_forbidden':True,'counts_forced':False}
+record['legacy13']={'path':F+'/legacy13-checks.json','sha256':files[F+'/legacy13-checks.json'],'passed':13,'reported_elapsed_seconds':check['seconds'],'elapsed_interpretation':'Retained measured interval only; no CPU-time or cause-of-duration assertion.','fixture_only_changes':'Measured count/case expectations and exact44 dispatcher isolation.13 existing test methods and old mutations preserved. Actual new reader/full730 proof remains separate.','independent_fixture_source_review':{'reviewer':'/root/v9_44_reader_code_peer','message_decision':'OK_FOR_APPLY_AFTER_KNOWN_730_CLOSE_NO_WEAKENING','helper_sha256':'1375c0dc95240f43c44e16ac68f2818941ff947e8f2b7525b111f1849a052c0a','one_shot_note':'Dry proposal was inspected and then applied separately by exact byte hash; helper was not rerun --apply.'}}
+record['V9']={'normalized_actual':'context/reconciliation/local-f0-privilege-967bfc8-485517b0-execution.json','normalized_sha256':'5db1e30011d699ae697af48df78b21226539a887ecb3d71a283444c18bde9762','qualified_record':'context/reconciliation/local-f0-privilege-967bfc8-485517b0-qualified-evidence.json','qualified_sha256':'7276e44216dabf7ad2f57f214e88cff3c9ecff27c2ed54c0103b70e8cd325776','run_id':'485517b0-46a3-495e-b5cc-96b910257fa4','packet_sha256':'f51068bcc4286a9bf3613c10f28916e7b015cd1d4dc7ad5fab81929668ea7a6d','exact44_admitted':True,'contrast_count':200,'closed_operations':244,'child_global_boundaries':849,'parent_global_boundaries':18,'native_prerequisites':29089,'oracle_expressions':416,'ledger_checks':22,'postbehavior':'READ_ONLY_NATIVE_ONLY_NO_ORACLE_OR_LEDGER_RERUN','state':'FILTERED42_TABLE205_ROW_PROJECTION_WITH_SEPARATE_KNOWN_GRANT3_TO4_TO5_FULL_CLAIMS','DAG_business_write_umbrella':'NO_LINK','issuer_helper_browser':'PARTIAL','missing_auth_probe_values':'NOT_RECONSTRUCTED','cleanup':'INDEPENDENT_EXACT_C1V_PRIVATE_ABSENCE_IMAGE_RETAINED'}
+record['held_source_findings']={'CSP_original':{'path':F+'/CSP-original-independent-HOLD.json','sha256':files[F+'/CSP-original-independent-HOLD.json'],'finding':'CSP1-AUTH-CLOSURE-01'},'CSP_successor':{'path':F+'/CSP-auth-successor-independent-HOLD.json','sha256':files[F+'/CSP-auth-successor-independent-HOLD.json'],'finding':'CSP1-INNER-FIRST-CODE-02'},'two_history':{'path':F+'/two-history-owning-independent-HOLD.json','sha256':files[F+'/two-history-owning-independent-HOLD.json'],'findings':['TWOH-INNER-CLOSURE-01','TWOH-FIRST-ORIGIN-02','TWOH-RESOURCE-ORDER-03']},'kind':'SOURCE_MODEL_AND_STATIC_FINDINGS_NO_ACTUAL_RUNTIME_FAILURE_OR_LEAK_CLAIM','additional_review_question':'Forced outer Dockerexec termination must not be mistaken for a normal remote-client exit receipt; focused source probes pending as of this progress record.'}
+record['exact_blocker']='New CSP and two-history owning operators remain held for exact closure/original-failure/resource-order source findings and independent successor review. Corrected canonical App/affectedWorker require reviewed two-history machinery plus actual qualification.32 later dependencies and7 unresolved source questions remain; no owner/ACL widening.'
+record['next_action']='Publish this bounded695 evidence normally with deployment suppressed, then continue. Close concrete source findings through distinct review; prepare/publish/pin/literal/fresh-execute CSP and two-history owned packets. Then corrected App/affectedWorker, remaining attainable selected94 denials/owner/atomic paths, and evidence-backed Brain recommendation beforeP0D.'
+record['repeated_and_why']='Actual unmocked full730 build696.297s verified new exact44 batch, complete issuer previous evidence and old686/14 executions/Restore3. Existing13 checks passed after measured fixture updates and exact44 dispatch isolation. Author54 and independent31/spec/race checks are source-qualified separately. Canonical5ae/June/A-D/worker32/requirements1034/451register unchanged; no unrelated750/501/75 rerun.'
+record['preserved_prior_progress_files']={'published_parent':'71678d3364be9ddf84c1d29f9c63a97ddd091219','files_sha256':{n:sha(b)for n,b in before.items()},'external_exact_backups':str(backup),'previous_sections_retained_in_each_prose_file':True}
+put(R/P,enc(record));files[P]=sha((R/P).read_bytes())
+text="""## Local F0 continuation - 695 verified assertions (2026-11-23)
+
+Accepted assertion coverage is **695 PASS /35 PARTIAL /265 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**, with730 current rows. The selected94 cases are **9 PASS /79 PARTIAL /6 NOT_RUN**. P0C-CATALOG-01 is now complete for its exercised version. PostureD and Brain final acceptance remain pending.
+
+The completed967b V9 run now has its reviewed exact44 evidence links:41PASS ceilings and3PARTIAL ceilings.43 rows are new; the issuer remains PARTIAL with its complete previous evidence retained. All other686 current rows, all14 earlier executions and the Restore3 evidence remain unchanged. The real unmocked complete builder passed696.297s. All13 existing legacy checks passed after measured fixture/dispatch updates; their recorded elapsed interval is retained without a CPU-time inference.
+
+This is retrospective admission of the already completed200 contrasts/244 operations. No fresh database run occurred here. Native29089/oracle416/ledger22 are recorded prerequisites; only read-only native parity followed behavior. The42-table/205-row projections exclude source-scoped issued grants, separately checked as known3-to4-to5 totals/full claims. Missing per-probe authentication values remain missing. Issuer/helper/browser remain PARTIAL, the DatabaseActionGrant business-write umbrella has no link, and whole94/451/production readiness are not promoted.
+
+CSP and the new two-history owning operator remain held for concrete source findings before use: uncertain authentication/inner CLI closure, original safe failure-code preservation, and the two-history credential/mount ordering. Successors are privately corrected and independently reviewed. These are static/modeled findings, not newly observed runtime failures. The isolated11-case lease mechanism and physical Restore047 subset remain preserved. Corrected canonical App/affectedWorker and committed Customer UPDATE/concurrency/codec paths remain unqualified.
+
+Plain English: The saved tests earned41 more passing checkboxes. We kept all the older proof, including the parts that are still incomplete. The next test runners need their safety fixes checked before they can use a new test database.
+
+"""
+for n in prose:(R/n).write_bytes((text+'Detailed current record: '+P+' (SHA-256 '+files[P]+'). Earlier sections below are version-qualified history.\n\n---\n\n').encode()+before[n])
+b=json.loads(before[B]);b['previous_current_progress_before695']=b['latest_version_qualified_progress'];b['latest_version_qualified_progress']={'path':P,'sha256':files[P]}
+for k in('current_checkpoint','exact_blocker','next_action','repeated_and_why'):b[k]=record[k]
+for k in('assertion_status_counts','actual_assertion_counts'):b[k]=counts
+for k in('case_status_counts','actual_case_counts'):b[k]=cases
+b['current_used_packet_retry_holds']={'App':'TWO_HISTORY_OWNING_ACTUAL_PENDING','V9':'EXACT44_ADMITTED_REAL730_PASS','RestoreV6':'EXACT3_READER_ADMITTED_PRESERVED','mechanism':'ACTUAL11_PASS_AUDITED_CLEANED','CSP1':'OWNING_SOURCE_FIRST_CODE_HOLD_REVIEW_PENDING','two_history':'OWNING_SOURCE_CLOSURE_ORIGIN_RESOURCE_ORDER_HOLD_REVIEW_PENDING'}
+b['recorded_local_date']='2026-11-23';b['privilege_latest_attempt']=record['V9'];b['previous_reviewed_operators_before695']=b['current_reviewed_replacement_operators']
+b['current_reviewed_replacement_operators']=dict(b['current_reviewed_replacement_operators']);b['current_reviewed_replacement_operators']['PrivilegeV9']=record['V9']
+b['inflight_private_sources']={'two_history_owning':'BOUNDED_HOLD_CORRECTIONS_SOURCE_REVIEW_PENDING_RUNTIME_NOT_RUN','CSP1_owning':'AUTH_SUCCESSOR_FIRST_CODE_HOLD_AND_FORCED_EXIT_RECEIPT_QUESTION_RUNTIME_NOT_RUN','CSP_maxone_reader':'DATA_ONLY_PLAN_NO_ACTUAL_NO_CODE_NO_PROMOTION'}
+for step in b['steps']:
+ if step['id']=='3.7':step['current_limit']='695PASS/35PARTIAL/265NOT_RUN/32DEPENDENCY_BLOCKED/7UNRESOLVED_SOURCE;94cases9PASS/79PARTIAL/6NOT_RUN. Exact44V9 admitted; per-operation limits and future-source qualification remain explicit.'
+ if step['id']=='3.8':step['current_limit']='Isolated11mechanism PASS; CSP and two-history owning source corrections/re-review before actuals, then canonical correctedApp/affectedWorker. No committed UPDATE/winner/codec invention.'
+ if step['id']=='3.10':step['current_limit']='IN_PROGRESS_ALL_ATTAINABLE94; preserve32latergates/7sourcequestions; Brain acceptance beforeP0D.'
+(R/B).write_bytes(enc(b));v=json.loads(before[V]);v['privilege_485517b0_exact44_admission_20261123']={'progress_path':P,'progress_sha256':files[P],'ledger_sha256':sha(lb),'status_sha256':sha(sb),'actual_full730_build_sha256':files[F+'/actual-full730-build.json'],'legacy13_checks_sha256':files[F+'/legacy13-checks.json'],'source82_admission_inventory_sha256':files[F+'/source82-admission-inventory.json'],'new_rows':43,'issuer_PARTIAL_previous_evidence_preserved':True,'new_database_runs':0,'Posture':'D'};(R/V).write_bytes(enc(v))
+for n in paths:files[n]=sha((R/n).read_bytes())
+assert(R/L).read_bytes()==lb and(R/S).read_bytes()==sb
+put(T/'695_privilege44_progress_inventory_20261123.json',enc({'schema':'workinants.695-privilege44-progress-inventory.v1','files_sha256':files,'file_count':len(files),'Posture':'D'}))
+print(json.dumps({'status':'ACTUAL695_PROGRESS_RECORDED','files':len(files),'progress_sha256':files[P],'ledger_status_unchanged':True,'no_new_runtime':True}))

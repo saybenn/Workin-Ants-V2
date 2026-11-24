@@ -1,0 +1,48 @@
+"""Author-only offline sealer. Executes only the newly authored stdlib reader."""
+from pathlib import Path
+from types import MappingProxyType
+import ast,hashlib,json,runpy,sys,time
+T=Path(__file__).resolve().parent; A=T/'privilege485517b0-evidence-reader-author-v2-20261123'; P=T/'V9-retrospective-reader-source-plan-private-20261123'
+EDGES=[]
+def guard(event,args):
+    if event.startswith(('subprocess.','socket.')) or event in ('os.system','os.posix_spawn','os.spawn','os.exec'):
+        EDGES.append(event);raise AssertionError('PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(guard);sys.dont_write_bytecode=True
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+readj=lambda p:json.loads(p.read_bytes())
+def put(p,b):
+    p.parent.mkdir(parents=True,exist_ok=True)
+    if p.exists() and p.read_bytes()!=b:
+        q=A/'author-history'/((p.name)+'.'+sha(p.read_bytes())+'.before');q.parent.mkdir(parents=True,exist_ok=True)
+        if not q.exists():q.write_bytes(p.read_bytes())
+    p.write_bytes(b)
+plan=readj(P/'bounded-source-plan.FROZEN.json'); frozen=plan['preservation_and_frozen_graph']; before=readj(A/'before-private-implementation.json')
+assert before['Root_ACK_sha256']=='ba07e9d0fe5ebca2430584ad16d0250464ccc3e08c5ff51b17e1f4657346a966'
+rp=A/'scripts/local_f0_privilege485517b0_evidence.py'; text=rp.read_text(); text=text.split('# BEGIN FROZEN CONSTANTS')[0].rstrip()+'\n';put(rp,text.encode())
+ns=runpy.run_path(str(rp),run_name='_new_private_V9_reader');g=ns['expected_record'].__globals__
+AR=g['ARCHIVE']; AS=g['ASSET']; FX=g['FIXTURE']; SP=g['SPEC']; DER=g['DERIVED']; RUN=g['RUN']
+history=['prior687-assertion-evidence.json','prior687-qualification-status.json','prior-issuer-partial-record.json','validating-full687-build.json','prior-builder7a2.py.txt','prior-restricted-validator.py.txt']
+pins=dict(frozen['closed_existing_union511_sha256']);pins.update({AR+'/'+n:sha((A/AR/n).read_bytes())for n in history})
+assert len(pins)==517 and all(sha((A/n).read_bytes())==h for n,h in pins.items())
+blobs={n:(A/n).read_bytes()for n in pins};child=readj(A/AS/'evidence/privilege-ceiling-component/privilege-ceiling-results.json');parent=readj(A/AS/'evidence/run-evidence.json');fixture=readj(A/FX/'fixtures.json')
+descriptors=g['_literal'](blobs['scripts/sql-review/run-privilege-ceiling-control-rehearsal-v9.py'],'METADATA_DESCRIPTORS')
+claims=plan['claim_maxima_and_no_links']['exact44_proposals'] if 'exact44_proposals'in plan['claim_maxima_and_no_links'] else next(v for v in plan['claim_maxima_and_no_links'].values()if isinstance(v,list)and len(v)==44)
+jsonpaths=[p for p in frozen['preserved_actual56_sha256']if p.endswith('.json') and '/audit-history/'not in p]
+frames={p:g['_frame'](g['doc'](blobs[p]))for p in jsonpaths}
+spec={'schema':'workinants.privilege485517b0-closed-inputs-and-claims.v1','source455_sha256':frozen['executed_source455_sha256'],'preserved56_sha256':frozen['preserved_actual56_sha256'],'closed_existing511_sha256':frozen['closed_existing_union511_sha256'],'six_history_sha256':{AR+'/'+n:pins[AR+'/'+n]for n in history},'source_metadata_descriptors':descriptors,'source_ledger_schema':g['_ledger_schema'](),'source_parent_closure_stages':[r['stage']for r in parent['backend_closures']],'sanitized_json_frames':frames,'claim_maxima':claims,'prior_issuer_row70':readj(A/AR/'prior687-assertion-evidence.json')['assertions'][70],'validating_build_contract':readj(A/AR/'validating-full687-build.json'),'prior_status_semantic_sha256':g['digest'](readj(A/AR/'prior687-qualification-status.json')),'observed':{'native_catalog_sha256':g['digest'](readj(A/AS/'evidence/native-before.json')),'filtered42_baseline':child['operations'][0]['data_projection'],'rendered_statement_sha256':{o['name']:o['executed_sql_sha256']for o in child['operations']if'executed_sql_sha256'in o},'grant_check_profiles':{o['name']:{'count':len(o['private_grant_checks']),'unexpired_required':[r['unexpired_required']for r in o['private_grant_checks']]}for o in child['operations']if'private_grant_checks'in o},'protocol_statement_sha256':{o['name']:o['issuer_statement_sha256']for o in child['operations']if'issuer_statement_sha256'in o},'restricted_service_statement_sha256':next(o['restricted_statement_sha256']for o in child['operations']if'restricted_statement_sha256'in o)},'limits':{'Posture':'D','exact44_only':True,'new_assertions':43,'issuer_history_preserving_PARTIAL_replacement':1,'helper_and_browser':'PARTIAL','DAG_umbrella':'NO_LINK','whole_cases':'NOT_PROMOTED','selected94':'NOT_PROMOTED','451_register':'NOT_PROMOTED','native960_replayed':False,'owner_API_positive':False,'worker_loop':False,'hosted_parity':False,'function_body_confidentiality':False,'NOLOGIN_startup_guard':False,'post_behavior_oracle_or_ledger_rerun':False,'runtime':'NOT_RUN_RETROSPECTIVE_SOURCE_ONLY'}}
+spec['prior_Restore3_rows']=[r for r in readj(A/AR/'prior687-assertion-evidence.json')['assertions']if r['case_id']=='P0C-RESTORE-01']
+put(A/SP,enc(spec));pins[SP]=sha((A/SP).read_bytes());pins[DER]='0'*64;blobs[SP]=(A/SP).read_bytes();g['PINS']=MappingProxyType(pins)
+started=time.monotonic()
+try:
+    record=g['expected_record'](blobs)
+except BaseException as error:
+    put(A/'author-history'/('reader.'+sha(rp.read_bytes())+'.py.txt'),rp.read_bytes())
+    put(A/'author-checks/sealer-support-errors'/('failure-'+str(time.time_ns())+'.json'),enc({'stage':'EXPECTED_RECORD_SEMANTICS','source_sha256':sha(rp.read_bytes()),'error_class':type(error).__name__,'safe_code':str(error)if isinstance(error,(g['EvidenceFailure'],KeyError,StopIteration))else'REDACTED','forbidden_boundaries':EDGES,'runtime':'NOT_RUN_SOURCE_ONLY'}));raise
+put(A/DER,enc(record));pins[DER]=sha((A/DER).read_bytes());blobs[DER]=(A/DER).read_bytes();g['PINS']=MappingProxyType(pins)
+assert len(pins)==519 and g['validate_bundle'](blobs)==g['canonical'](record)
+maxima={(r['case_id'],r['assertion_id']):r['proposed_maximum']for r in claims}
+constants='\n# BEGIN FROZEN CONSTANTS\nPINS=MappingProxyType('+repr(dict(sorted(pins.items())))+')\nMAXIMA=MappingProxyType('+repr(maxima)+')\nMAX_BUNDLE_BYTES='+str(sum(map(len,blobs.values()))+1024)+'\n'
+put(rp,text.encode()+constants.encode())
+put(A/'author-checks/sealed-source-and-record.json',enc({'schema':'workinants.privilege485517b0-author-sealed-source.v1','reader_sha256':sha(rp.read_bytes()),'spec_sha256':pins[SP],'derived_sha256':pins[DER],'qualification_graph_files':519,'qualification_graph_sha256':g['digest'](pins),'closed_input_bytes':sum(map(len,blobs.values())),'claims':44,'maxima':{'PASS':41,'PARTIAL':3},'semantic_validation_seconds':round(time.monotonic()-started,3),'forbidden_boundary_events':EDGES,'source_review':'PENDING','Root_mutated':False,'runtime':'NOT_RUN_SOURCE_ONLY'}))
+print(json.dumps({'reader_sha256':sha(rp.read_bytes()),'spec_sha256':pins[SP],'derived_sha256':pins[DER],'graph':519,'claims':44,'source_review':'PENDING','forbidden_boundary_events':EDGES}))

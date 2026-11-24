@@ -1,0 +1,39 @@
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f/privilege485517b0-evidence-reader-author-20261123\scripts\check-local-f0-privilege485517b0-evidence.py", line 23, in reject
+    try:call()
+        ^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f/privilege485517b0-evidence-reader-author-20261123\scripts\check-local-f0-privilege485517b0-evidence.py", line 92, in <lambda>
+    try:M.PINS=pins;reject(name,lambda:M.validate_bundle(altered),{code})
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege485517b0-evidence-reader-author-20261123\scripts\local_f0_privilege485517b0_evidence.py", line 613, in validate_bundle
+    value=doc(blobs[DERIVED]); same(value,expected_record(blobs),'EXACT_DERIVED44_AND_HISTORY')
+                                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege485517b0-evidence-reader-author-20261123\scripts\local_f0_privilege485517b0_evidence.py", line 607, in expected_record
+    claims=audit_semantics(blobs); spec=doc(blobs[SPEC])
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege485517b0-evidence-reader-author-20261123\scripts\local_f0_privilege485517b0_evidence.py", line 602, in audit_semantics
+    try: return _audit_semantics(blobs)
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege485517b0-evidence-reader-author-20261123\scripts\local_f0_privilege485517b0_evidence.py", line 586, in _audit_semantics
+    _authority_and_cleanup(blobs,spec,parent,child,manifest); _normalization(blobs,parent,child); old=_history(blobs,spec)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege485517b0-evidence-reader-author-20261123\scripts\local_f0_privilege485517b0_evidence.py", line 536, in _authority_and_cleanup
+    need(approval['approved_manifest_sha256']==launch['approved_manifest_sha256']==sh(blobs[ASSET+'/manifest/operation-manifest.json']) and launch['Root_approval_receipt_sha256']==sh(blobs[ASSET+'/Root-fresh-preflight.json']) and approval['review_sha256']==launch['review_sha256']==sh(blobs[ASSET+'/independent-operational-literal.json']),'LITERAL_PREFLIGHT_LAUNCH_CHAIN')
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f\privilege485517b0-evidence-reader-author-20261123\scripts\local_f0_privilege485517b0_evidence.py", line 40, in need
+    if not value: raise EvidenceFailure(code)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_new_privilege485517b0_reader.EvidenceFailure: LITERAL_PREFLIGHT_LAUNCH_CHAIN
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f/privilege485517b0-evidence-reader-author-20261123\scripts\check-local-f0-privilege485517b0-evidence.py", line 161, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f/privilege485517b0-evidence-reader-author-20261123\scripts\check-local-f0-privilege485517b0-evidence.py", line 92, in main
+    try:M.PINS=pins;reject(name,lambda:M.validate_bundle(altered),{code})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\elijr\.codex\visualizations\2026\11\09\01a1be05-aeb3-7f42-b0f4-6c5e46dc669f/privilege485517b0-evidence-reader-author-20261123\scripts\check-local-f0-privilege485517b0-evidence.py", line 25, in reject
+    code=str(error);assert codes is None or code in codes,(name,'WRONG_SAFE_CODE',code);passed(name,{'safe_code':code});return code
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('rehashed_normalized_readiness_upgrade', 'WRONG_SAFE_CODE', 'LITERAL_PREFLIGHT_LAUNCH_CHAIN')

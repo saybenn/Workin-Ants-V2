@@ -1,0 +1,161 @@
+"""Focused offline checks of the exact V9 reader; never a database rerun."""
+from pathlib import Path
+from types import MappingProxyType
+from unittest import mock
+import argparse,ast,copy,hashlib,importlib.util,json,os,re,sys,tempfile,time
+
+EDGES=[]
+def no_live_boundaries(event,args):
+    if event.startswith(('subprocess.','socket.')) or event in ('os.system','os.posix_spawn','os.spawn','os.exec'):
+        EDGES.append(event); raise AssertionError('PROCESS_NETWORK_FORBIDDEN')
+sys.addaudithook(no_live_boundaries);sys.dont_write_bytecode=True
+
+def main():
+    cli=argparse.ArgumentParser();cli.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[1]);cli.add_argument('--allow-private-race',action='store_true');args=cli.parse_args();root=args.root.resolve(strict=True)
+    path=root/'scripts/local_f0_privilege485517b0_evidence.py';loader=importlib.util.spec_from_file_location('_new_privilege485517b0_reader',path);M=importlib.util.module_from_spec(loader);loader.loader.exec_module(M)
+    results=[];started=time.monotonic();partial=root/'author-checks'/('focused-partial-'+str(time.time_ns())+'.json') if args.allow_private_race and root.name=='privilege485517b0-evidence-reader-author-20261123' else None
+    def progress(stage):
+        if partial is not None:partial.write_text(json.dumps({'status':'RUNNING','current_stage':stage,'completed_vectors':results,'reader_sha256':M.sh(path.read_bytes()),'runtime':'NOT_RUN_SOURCE_ONLY','forbidden_boundary_events':EDGES},indent=2)+'\n')
+    def passed(name,details=None):
+        results.append({'name':name,'status':'PASS',**({'details':details}if details is not None else{})});progress('AFTER_'+name)
+    def reject(name,call,codes=None):
+        progress(name)
+        try:call()
+        except M.EvidenceFailure as error:
+            code=str(error);assert codes is None or code in codes,(name,'WRONG_SAFE_CODE',code);passed(name,{'safe_code':code});return code
+        raise AssertionError(name+'_MUTANT_ACCEPTED')
+    source=path.read_bytes();tree=ast.parse(source)
+    imports={n.module.split('.')[0]for n in ast.walk(tree)if isinstance(n,ast.ImportFrom)}|{x.name.split('.')[0]for n in ast.walk(tree)if isinstance(n,ast.Import)for x in n.names}
+    assert imports<={'pathlib','types','ast','copy','hashlib','io','json','math','os','re','stat','tarfile'}
+    assert not any(isinstance(n,ast.Call)and isinstance(n.func,ast.Name)and n.func.id in {'exec','eval','compile','__import__'}for n in ast.walk(tree))
+    assert len(M.PINS)==519 and len(M.MAXIMA)==44 and sum(s=='PASS'for s in M.MAXIMA.values())==41
+    passed('stdlib_source_no_archived_code_execution')
+    blobs=M._capture(root);execution=M.doc(blobs[M.DERIVED]);old=M.doc(blobs[M.ARCHIVE+'/prior687-assertion-evidence.json']);spec=M.doc(blobs[M.SPEC]);parent=M.doc(blobs[M.ASSET+'/evidence/run-evidence.json']);child=M.doc(blobs[M.ASSET+'/evidence/privilege-ceiling-component/privilege-ceiling-results.json']);fixture=M.doc(blobs[M.FIXTURE+'/fixtures.json']);native_packet=M.doc(blobs['review-output/native-table-denials-v2/packet.json']);descriptors=spec['source_metadata_descriptors'];migration=M.doc(blobs[M.ASSET+'/manifest/ok-migration-manifest.json'])
+    batch=M.prepare_batch(root)
+    rows=[M._expected_row(c,i)for i,c in enumerate(execution['claims'])]
+    # Tests fork only the newly constructed object's independent protocol state;
+    # captured bytes, semantic proof and rows remain real and immutable. No cache
+    # or caller-provided proof callback exists in the production constructor.
+    def branch():
+        b=copy.copy(batch);b._QualificationBatch__seen=set();return b
+    for c,row in zip(execution['claims'],rows):assert batch.validate_claim(c['case_id'],c['assertion_id'],c['status'],execution,root,json_pointer=row['json_pointer'],ledger_row=row)is True
+    assert batch.verify_unchanged()is True and batch.require_finalized()is True
+    delta=M.propose_ledger_delta(old,execution)
+    assert len(delta['assertions'])==730 and len(delta['executions'])==15
+    assert all(delta['assertions'][i]==r for i,r in enumerate(old['assertions'])if i!=70)and delta['executions'][:14]==old['executions']
+    assert delta['assertions'][70]['status']=='PARTIAL'and delta['assertions'][70]['previous_evidence']==old['assertions'][70]
+    restore=[r for r in old['assertions']if r['case_id']=='P0C-RESTORE-01'];assert len(restore)==3 and all(r in delta['assertions']for r in restore)
+    passed('real_private44_batch_final519_barrier_and_pure43plus1_history_delta',{'old_rows_unchanged':686,'old_executions_unchanged':14,'Restore3_unchanged':True,'full730_builder':'NOT_RUN'})
+    # Reset test-fork closed state explicitly; every bytes/domain proof above is
+    # still the actual one, while these vectors isolate protocol enforcement.
+    def opened():
+        b=copy.copy(batch);b._QualificationBatch__seen=set();b._QualificationBatch__finalized=False;b._QualificationBatch__failed=None;return b
+    c=execution['claims'][0];row=rows[0]
+    b=opened();reject('incomplete44_final_barrier',b.verify_unchanged,{'COMPLETE44_BATCH_REQUIRED'});reject('sticky_incomplete_refusal',lambda:b.validate_claim(c['case_id'],c['assertion_id'],c['status'],execution,json_pointer=row['json_pointer'],ledger_row=row),{'COMPLETE44_BATCH_REQUIRED'})
+    b=opened();assert b.validate_claim(c['case_id'],c['assertion_id'],c['status'],execution,json_pointer=row['json_pointer'],ledger_row=row);reject('duplicate_claim',lambda:b.validate_claim(c['case_id'],c['assertion_id'],c['status'],execution,json_pointer=row['json_pointer'],ledger_row=row),{'EXACT_UNSEEN44'})
+    for name,mutate in [('wrong_pointer',lambda r:r.update(json_pointer='/claims/00')),('missing_previous_evidence',lambda r:r.pop('previous_evidence')),('issuer_upgrade',lambda r:r.update(status='PASS')),('old_history_field_changed',lambda r:r['previous_evidence'].update(qualification_limit=''))]:
+        i=next(i for i,r in enumerate(rows)if r['assertion_id']=='control.issuer_ceiling');r=copy.deepcopy(rows[i]);mutate(r);b=opened();reject(name,lambda b=b,r=r:b.validate_claim(r['case_id'],r['assertion_id'],r['status'],execution,json_pointer=r['json_pointer'],ledger_row=r),{'EXACT_STATUS_POINTER','EXACT_EXECUTION_FULL_LEDGER_ROW'})
+    b=opened();reject('DAG_umbrella_no_link',lambda:b.validate_claim('P0C-TABLE-DatabaseActionGrant-DENY','denial.wa_context_issuer.source_business_write','PASS',execution,json_pointer='/claims/0',ledger_row=row),{'EXACT_UNSEEN44'})
+    newer=copy.deepcopy(old);newer['assertions'][0]['qualification_limit']='NEWER';reject('newer_current_work_not_overwritten',lambda:M.propose_ledger_delta(newer,execution),{'EXACT_PRIOR687_NOT_NEWER_WORK'})
+    policy,_=M._native(blobs,spec,fixture,parent,migration);cases={r['name']:r for r in fixture['cases']};operations={r['name']:r for r in child['operations']};resultmap={r['name']:r for r in child['results']}
+    def negative_mutant(name,case_name,mutate,code):
+        op=copy.deepcopy(operations[case_name]);res=copy.deepcopy(resultmap[case_name]);mutate(op,res);reject(name,lambda:M._negative(op,res,cases[case_name],descriptors[case_name],policy,spec['observed']),{code})
+    provider=next(r['name']for r in fixture['cases']if r['family']=='PROVIDER_REACHABILITY');immutable=next(r['name']for r in fixture['cases']if r['diagnostic']['kind']=='IMMUTABLE_GRANT')
+    negative_mutant('unrelated42501_guard',provider,lambda o,r:o['diagnostic'].update(object='unrelated.schema'),'INTENDED_NATIVE_GUARD_REQUIRED')
+    negative_mutant('genericP0001_no_intended_frame',immutable,lambda o,r:o['diagnostic'].update(object='unrelated.guard'),'IMMUTABLE_SOURCE_FRAME_REQUIRED')
+    for field in ['expected_message_matches','native_location_matches','metadata_requirement_matches','source_statement_identity_matches','strict_match']:
+        negative_mutant('provider_independent_'+field,provider,lambda o,r,f=field:o['diagnostic_match_receipt'].__setitem__(f,False),'INDEPENDENT_STRICT_COMPARISON_REQUIRED')
+    negative_mutant('provider_missing_position',provider,lambda o,r:o['diagnostic_match_receipt'].update(position_presence='ABSENT',position_projection_matches=None),'PROVIDER_ALL18_PRESENT_POSITIONS')
+    negative_mutant('metadata_query_hash_not_source',provider,lambda o,r:o['metadata_query_receipt'].update(query_sha256='0'*64),'SOURCE197_QUERY_RECOMPUTED')
+    negative_mutant('metadata_privilege_not_observation_defined',provider,lambda o,r:o['source_native_privilege_projection'].update(schema_usage=True),'SOURCE_POLICY_NOT_OBSERVATION_DEFINES_PROJECTION')
+    negative_mutant('operation_backend_not_absent',provider,lambda o,r:o['session_after_close'].update(backend_absence_confirmed=False),'BACKEND_EXIT_READERS_ABSENCE_REQUIRED')
+    negative_mutant('restricted_operation_wrong_role',provider,lambda o,r:o.update(role='postgres'),'ACTUAL_ROLE_SOURCE_TEMPLATE')
+    negative_mutant('unrelated_metadata42501_is_failure',provider,lambda o,r:o['metadata_query_receipt'].update(sqlstate_class='ALLOWLISTED_SINGLE_HEADER',sqlstate='42501',failure_class='DATABASE_ERROR'),'SUCCESSFUL_METADATA_ONLY')
+    # Rebind only hash admission envelopes, artifact links and nested semantic
+    # digest references. The source expectations, observed projection contracts,
+    # receipt frames and all domain predicates remain unchanged.
+    def rebound(change):
+        b=dict(blobs);objects={p:M.doc(v)for p,v in b.items()if p in spec['sanitized_json_frames']};change(objects)
+        cp=M.ASSET+'/evidence/privilege-ceiling-component/privilege-ceiling-results.json';pp=M.ASSET+'/evidence/run-evidence.json';sp=M.ASSET+'/evidence/privilege-ceiling-component-result.json'
+        ch=objects[cp];objects[sp]['component_report_sha256']=M.digest(ch);objects[pp]['privilege_ceiling']['component_report_sha256']=M.digest(ch)
+        b[cp]=M.encoded(ch);ref=objects[pp]['privilege_ceiling']['component_report_reference'];ref.update(artifact_sha256=M.sh(b[cp]),bytes=len(b[cp]));b[pp]=M.encoded(objects[pp]);b[sp]=M.encoded(objects[sp])
+        for p,v in objects.items():
+            if p!=M.REC:b[p]=M.encoded(v)
+        n=objects[M.REC];n['raw_parent']['sha256']=M.sh(b[pp]);n['raw_child']['sha256']=M.sh(b[cp]);n['assets_sha256']={p:M.sh(b[p])for p in n['assets_sha256']};b[M.REC]=M.encoded(n)
+        s=copy.deepcopy(spec);s['preserved56_sha256']={p:M.sh(b[p])for p in s['preserved56_sha256']};s['closed_existing511_sha256']={**s['source455_sha256'],**s['preserved56_sha256']};b[M.SPEC]=M.encoded(s)
+        pins={p:M.sh(v)for p,v in b.items()};return b,MappingProxyType(pins)
+    cp=M.ASSET+'/evidence/privilege-ceiling-component/privilege-ceiling-results.json';pp=M.ASSET+'/evidence/run-evidence.json'
+    mutations=[('rehashed_child_order',lambda d:d[cp]['operations'].__setitem__(slice(42,44),list(reversed(d[cp]['operations'][42:44]))),'SOURCE_REQUIRED244_ORDER'),('rehashed_grant_total',lambda d:d[cp]['operations'][42]['grant_total_check'].update(observed_count=5),'INDEPENDENT_UNFILTERED_GRANT_TOTALS_3_4_5'),('rehashed_provider_guard',lambda d:next(o for o in d[cp]['operations']if o['name']==provider)['diagnostic'].update(object='unrelated.schema'),'INTENDED_NATIVE_GUARD_REQUIRED'),('rehashed_parent_zero_boundary',lambda d:d[pp]['backend_closures'][0].update(other_clients_zero=False),'ALL18_PARENT_ALL_CLIENT_ZERO_BOUNDARIES'),('rehashed_filtered_state_changed',lambda d:d[cp]['operations'][42]['data_projection'][0].update(row_count=99),'ALL244_FILTERED_STATE_UNCHANGED'),('rehashed_issuer_commit_absent',lambda d:d[cp]['operations'][41].update(issuer_COMMIT_acknowledged=False),'SAME_APP_TUPLE_SEPARATE_ISSUER_COMMIT_REQUIRED'),('rehashed_normalized_readiness_upgrade',lambda d:d[M.REC]['limits'].update(production_readiness=True),'NORMALIZED_LIMITS_NO_PROMOTION')]
+    originalpins=M.PINS
+    for name,change,code in mutations:
+        altered,pins=rebound(change)
+        try:M.PINS=pins;reject(name,lambda:M.validate_bundle(altered),{code})
+        finally:M.PINS=originalpins
+    # Policy-native, oracle and genuine history mutants reach their substantive
+    # checks before any final fixed observed fingerprint identity check.
+    for name,path_suffix,change,code in [('source_native_role','native-before.json',lambda n:n['roles'][0].update(rolsuper=True),'SOURCE_ROLE_ATTRIBUTES'),('source_native_definer_body','native-before.json',lambda n:n['functions'][0].update(body_sha256='0'*64),'SOURCE_FUNCTION_BODY_SHA256'),('source_oracle_expression','oracle-evidence.json',lambda n:n['results']['expressions'][0].update(source_expression_sha256='0'*64),'ORACLE_SOURCE_EXPRESSION'),('source_genuine_history','ledger-evidence.json',lambda n:n['observation']['history'][0].update(finished=False),'ACTUAL_GENUINE_HISTORY')]:
+        altered=dict(blobs);p=M.ASSET+'/evidence/'+path_suffix;n=M.doc(altered[p]);change(n);altered[p]=M.encoded(n);reject(name,lambda a=altered:M._native(a,spec,fixture,parent,migration),{code})
+    altered=dict(blobs);regpath=M.ASSET+'/evidence/ledger-registration.json';registration=M.doc(altered[regpath]);registration['target_attestation_sha256']='0'*64;altered[regpath]=M.encoded(registration);reject('ledger_target_attestation_not_self_consistent',lambda:M._native(altered,spec,fixture,parent,migration),{'SOURCE_LEDGER_REGISTRATION'})
+    wrongparent=copy.deepcopy(parent);wrongparent['ledger_comparison']['checks'][0].update(expected_sha256='0'*64,actual_sha256='0'*64);reject('ledger22_receipt_hashes_recomputed',lambda:M._native(blobs,spec,fixture,wrongparent,migration),{'ALL22_LEDGER_CHECKS_INDEPENDENTLY_RECOMPUTED'})
+    altered=dict(blobs);oldpath=M.ARCHIVE+'/prior687-assertion-evidence.json';newold=copy.deepcopy(old);newold['assertions'][0]['qualification_limit']='SILENT_HISTORY_REWRITE';altered[oldpath]=M.encoded(newold);reject('full_prior687_build_bytes_bound',lambda:M._history(altered,spec),{'HISTORICAL_BUILD_BASELINE_BYTES'})
+    # Unexpected fields/secret canaries are never included in error messages.
+    for i,raw in enumerate([b'{"x":1,"x":2}',b'{"x":NaN}',b'{"x":Infinity}',b'{',b'['*70+b'0'+b']'*70]):reject('strict_JSON_'+str(i),lambda raw=raw:M.doc(raw))
+    secret='V9_CHECKER_SECRET_CANARY_DO_NOT_RETAIN';altered=dict(blobs);n=copy.deepcopy(child);n['raw_stderr']=secret;altered[cp]=M.encoded(n);code=reject('secret_extra_dictionary_rejected',lambda:M.audit_semantics(altered),{'EXACT_ALLOWLISTED_JSON_FRAME'});assert secret not in code
+    with tempfile.TemporaryDirectory(prefix='wa-v9-reader-offline-')as tmp:
+        scratch=Path(tmp);p=scratch/'one.txt';p.write_bytes(b'AAAA');wanted=M.sh(b'AAAA')
+        for value in ['../one.txt','a//b','C:/one.txt','a\\b','/one.txt']:reject('unsafe_path_'+str(len(results)),lambda value=value:M._read(scratch,value,wanted),{'RELATIVE_PATH'})
+        with mock.patch.object(M.os,'fstat',side_effect=OSError(secret)):reject('IO_failure_sanitized',lambda:M._read(scratch,'one.txt',wanted),{'FILE_READ_REJECTED'})
+        original_fstat=M.os.fstat
+        def multilink(fd):
+            st=original_fstat(fd);values=list(st);values[3]=2;return os.stat_result(values)
+        with mock.patch.object(M.os,'fstat',side_effect=multilink):reject('multilink_descriptor_rejected',lambda:M._read(scratch,'one.txt',wanted),{'REGULAR_SINGLE_LINK_BOUNDED'})
+    if args.allow_private_race:
+        assert root.name=='privilege485517b0-evidence-reader-author-20261123'and(root/'before-private-implementation.json').is_file(),'PRIVATE_AUTHOR_RACE_ONLY'
+        # A real 519-input final-capture race alters only this private source
+        # copy and restores exact bytes and mtime in finally. No Root input is
+        # writable by this harness. The first open returns old bytes, then the
+        # path is changed to equal-length bytes before the second closed read.
+        b=M.prepare_batch(root)
+        for claim,r in zip(execution['claims'],rows):b.validate_claim(claim['case_id'],claim['assertion_id'],claim['status'],execution,json_pointer=r['json_pointer'],ledger_row=r)
+        relative=next(p for p in M.PINS if p.endswith('migration_lock.toml'));target=root/relative;before=target.read_bytes();st=target.stat();modified=(b'#'if before[:1]!=b'#'else b'!')+before[1:];opened_original=Path.open;done=[False]
+        class RaceStream:
+            def __init__(self,stream):self.stream=stream
+            def __enter__(self):self.stream.__enter__();return self
+            def __exit__(self,*a):return self.stream.__exit__(*a)
+            def fileno(self):return self.stream.fileno()
+            def read(self,*a):
+                data=self.stream.read(*a)
+                if not done[0]:
+                    done[0]=True
+                    with opened_original(target,'wb')as f:f.write(modified)
+                    os.utime(target,ns=(st.st_atime_ns,st.st_mtime_ns))
+                return data
+        def opening(path,*a,**kw):
+            stream=opened_original(path,*a,**kw)
+            return RaceStream(stream)if path==target and a and a[0]=='rb'and not done[0]else stream
+        try:
+            with mock.patch.object(Path,'open',opening):code=reject('actual_private_final519_same_size_race',b.verify_unchanged,{'HANDLE_CHANGED_DURING_READ','PATH_CHANGED_DURING_READ','FILE_CHANGED_DURING_READ','FILE_BYTES','CLOSED_READ_BYTES_CHANGED'})
+            assert done[0]and target.read_bytes()==modified and target.stat().st_size==st.st_size and target.stat().st_mtime_ns==st.st_mtime_ns
+            reject('sticky_final_race_refusal',b.require_finalized,{code})
+        finally:
+            with opened_original(target,'wb')as f:f.write(before)
+            os.utime(target,ns=(st.st_atime_ns,st.st_mtime_ns))
+        assert target.read_bytes()==before and M.sh(before)==M.PINS[relative]
+        # The old one-read read() AST is an explicit test-only mechanism control,
+        # not an archived producer/validator invocation or a prior V9 reader.
+        oldpath=root/M.ARCHIVE/'test-fixtures/older-native-complete-reader.py.txt';oldraw=oldpath.read_bytes();assert M.sh(oldraw)=='50dfe9c1ae661785e408ad9707473028c6bc9b4d2ee308bdaad1844905668b76'
+        oldtree=ast.parse(oldraw);nodes=[n for n in oldtree.body if isinstance(n,ast.FunctionDef)and n.name=='read'];assert len(nodes)==1
+        namespace={'need':M.need,'re':re,'digest':M.sh};exec(compile(ast.Module(body=nodes,type_ignores=[]),'_test_only_exact50dfe_one_read_AST','exec'),namespace)
+        done[0]=False
+        try:
+            with mock.patch.object(Path,'open',opening):out=namespace['read'](root,relative,M.PINS[relative])
+            assert out==before and target.read_bytes()==modified;passed('exact50dfe_one_read_restoration_returns_stale_bytes',{'not_a_prior_V9_reader':True})
+        finally:
+            with opened_original(target,'wb')as f:f.write(before)
+            os.utime(target,ns=(st.st_atime_ns,st.st_mtime_ns))
+    else:passed('private_filesystem_race_controls',{'status':'NOT_RUN_REQUIRES_PRIVATE_AUTHOR_ROOT_FLAG'})
+    assert not EDGES and all(secret not in json.dumps(r)for r in results)
+    progress('FINISHED_PASS')
+    print(json.dumps({'schema':'workinants.privilege485517b0-reader-focused-checks.v1','status':'PASS','reader_sha256':M.sh(source),'graph_files':519,'claims':44,'results':results,'focused_vectors':len(results),'seconds':round(time.monotonic()-started,3),'full730_builder':'NOT_RUN','runtime':'NOT_RUN_SOURCE_ONLY','forbidden_boundary_events':EDGES,'source_review':'PENDING','Posture':'D'}))
+
+if __name__=='__main__':main()

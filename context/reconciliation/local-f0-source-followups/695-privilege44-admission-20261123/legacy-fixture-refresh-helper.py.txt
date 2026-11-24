@@ -1,0 +1,62 @@
+"""Root legacy-fixture refresh after the known successful actual730 build."""
+from pathlib import Path
+import argparse,ast,hashlib,json
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda v:(json.dumps(v,indent=2,allow_nan=False)+'\n').encode()
+p=R/'scripts/check-local-f0-status.py';raw=p.read_bytes();assert sha(raw)=='2011d5bb5d260e50a0b237fbcb540744f66692264c2953c38d7c7eed35926343'
+a=argparse.ArgumentParser();a.add_argument('--build-sha256',required=True);a.add_argument('--apply',action='store_true');args=a.parse_args()
+report=(T/'V9_485517b0_real_full730_Root_build_20261123.json').read_bytes();assert sha(report)==args.build_sha256
+v=json.loads(report);assert v['status']=='PASS_REAL_FULL730_ROOT_BUILD'and v['current_rows']==730 and v['counts_forced']is False
+status=(R/'context/reconciliation/local-f0-qualification-status.json').read_bytes();assert sha(status)==v['qualification_status_sha256'];st=json.loads(status)
+text=raw.decode();anchor='    def test_recorded_subset_does_not_promote_compound_cases(self):\n';assert text.count(anchor)==1
+addition="""        # The V9 reader has independent semantic/race checks and the real
+        # full730 build. Isolate only its exact44 dispatcher in legacy tests.
+        from local_f0_privilege485517b0_evidence import MAXIMA as V9_CAPS
+        privilege_path='context/reconciliation/local-f0-privilege-967bfc8-485517b0-qualified-evidence.json'
+        privilege_derived=json.loads((ROOT/privilege_path).read_bytes())
+        privilege_rows={(r['case_id'],r['assertion_id']):r for r in ledger['assertions'] if r['evidence_path']==privilege_path}
+        self.assertEqual(len(privilege_rows),44)
+        self.assertEqual({k:r['status'] for k,r in privilege_rows.items()},dict(V9_CAPS))
+        self.privilege485_calls=[]
+        class ClosedPrivilegeBoundary:
+            def __init__(self):self.seen=set();self.finalized=False
+            def validate_claim(self,case,assertion,status,execution,root,json_pointer=None,ledger_row=None):
+                key=(case,assertion);test.assertIn(key,privilege_rows);wanted=privilege_rows[key]
+                test.assertEqual(status,V9_CAPS[key]);test.assertEqual(root,ROOT)
+                test.assertEqual(json_pointer,wanted['json_pointer']);test.assertEqual(execution,privilege_derived)
+                test.assertEqual(ledger_row,wanted);test.assertNotIn(key,self.seen)
+                self.seen.add(key);test.privilege485_calls.append(key);return True
+            def verify_unchanged(self):test.assertEqual(self.seen,set(privilege_rows));self.finalized=True;return True
+            def require_finalized(self):test.assertTrue(self.finalized);return True
+        def privilege_boundary(root):test.assertEqual(root,ROOT);return ClosedPrivilegeBoundary()
+        privilege_dispatch=patch.dict(build.__globals__,prepare_privilege485517b0_batch=privilege_boundary)
+        privilege_dispatch.start();self.addCleanup(privilege_dispatch.stop)
+"""
+text=text.replace(anchor,addition+anchor)
+old="self.assertEqual(result['assertion_status_counts'],{'PASS':654,'PARTIAL':33,'FAILED':0,'DEPENDENCY_BLOCKED':32,'NOT_RUN':308,'UNRESOLVED_SOURCE':7})"
+assert text.count(old)==1;text=text.replace(old,"self.assertEqual(result['assertion_status_counts'],"+repr(st['assertion_status_counts'])+")")
+old="self.assertEqual(result['case_status_counts'],{'PASS':8,'PARTIAL':80,'FAILED':0,'DEPENDENCY_BLOCKED':0,'NOT_RUN':6})"
+assert text.count(old)==1;text=text.replace(old,"self.assertEqual(result['case_status_counts'],"+repr(st['case_status_counts'])+")")
+old="{'P0C-UNIQUE-01','P0C-TABLE-DatabaseActionGrant-ALLOW','P0C-TABLE-ProfessionalProfile-ALLOW','P0C-TABLE-CandidateProfile-ALLOW','P0C-INSTALL-01','P0C-INSTALL-02','P0C-TABLE-OwnerMutationEvidence-ALLOW','P0C-TABLE-CustomerProfileLifecycleEvent-ALLOW'}"
+assert text.count(old)==1;passing=sorted(c['id']for c in st['cases']if c['status']=='PASS');text=text.replace(old,'{'+','.join(repr(n)for n in passing)+'}')
+assert text.count("self.assertEqual(len(restricted_calls),70)")==1;text=text.replace("self.assertEqual(len(restricted_calls),70)","self.assertEqual(len(restricted_calls),69)")
+text=text.replace("self.assertEqual(len(self.restore047_calls),3)","self.assertEqual(len(self.restore047_calls),3)\n        self.assertEqual(len(self.privilege485_calls),44)")
+catalog=next(c for c in st['cases']if c['id']=='P0C-CATALOG-01');leaf=next(x for x in catalog['assertions']if x['id']=='vector.CATALOG-LEAVES.adversarial')
+assert text.count("self.assertEqual(catalog['status'],'PARTIAL')")==1;text=text.replace("self.assertEqual(catalog['status'],'PARTIAL')","self.assertEqual(catalog['status'],"+repr(catalog['status'])+")")
+old="self.assertEqual(next(a for a in catalog['assertions'] if a['id']=='vector.CATALOG-LEAVES.adversarial')['status'],'NOT_RUN')";assert text.count(old)==1
+text=text.replace(old,"self.assertEqual(next(a for a in catalog['assertions'] if a['id']=='vector.CATALOG-LEAVES.adversarial')['status'],"+repr(leaf['status'])+")")
+assert text.count("self.assertEqual(result['assertion_status_counts']['PASS'],654)")==1
+text=text.replace("self.assertEqual(result['assertion_status_counts']['PASS'],654)","self.assertEqual(result['assertion_status_counts']['PASS'],"+repr(st['assertion_status_counts']['PASS'])+")")
+before=ast.parse(raw);after=ast.parse(text)
+oldmethods={n.name:ast.dump(n,include_attributes=False)for n in ast.walk(before)if isinstance(n,ast.FunctionDef)and n.name.startswith('test_')}
+newmethods={n.name:ast.dump(n,include_attributes=False)for n in ast.walk(after)if isinstance(n,ast.FunctionDef)and n.name.startswith('test_')}
+assert set(oldmethods)==set(newmethods)and len(oldmethods)==13
+assert {n for n in oldmethods if oldmethods[n]!=newmethods[n]}=={'test_recorded_subset_does_not_promote_compound_cases','test_parses_exact_hashed_bytes_without_second_file_read'}
+out=T/'V9_real730_legacy_status_fixture_PROPOSAL_20261123.py';assert not out.exists();out.open('xb').write(text.encode())
+summary={'schema':'workinants.V9-real730-legacy-fixture-refresh.v1','base_sha256':sha(raw),'proposal_sha256':sha(text.encode()),'actual_full_build_sha256':sha(report),'test_methods_preserved':13,'new_test_methods':0,'new_exact44_dispatch_boundary_mocked_for_legacy_isolation_only':True,'dedicated_real_reader_and_unmocked_full730_proof_separate':True,'source_record_counts_measured_from_actual_root_build':st['assertion_status_counts'],'case_counts':st['case_status_counts'],'restricted_old_dispatch69':'Issuer previous PARTIAL now validated inside real V9 reader, not top-level old restricted dispatch; complete previous_evidence remains required.','Posture':'D','runtime':'NOT_RUN'}
+if args.apply:
+ preserve=T/'check-local-f0-status.before-V9-730-20261123.py.txt';assert not preserve.exists();preserve.open('xb').write(raw)
+ assert p.read_bytes()==raw;p.write_bytes(text.encode());summary['applied']=True
+(T/'V9_real730_legacy_status_fixture_refresh_20261123.json').open('xb').write(enc(summary))
+print(json.dumps(summary))

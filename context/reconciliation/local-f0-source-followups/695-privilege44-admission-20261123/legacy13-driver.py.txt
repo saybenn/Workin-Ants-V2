@@ -1,0 +1,23 @@
+"""Run existing thirteen legacy regressions after actual730 coverage proof."""
+from pathlib import Path
+import argparse,datetime,hashlib,importlib.util,io,json,os,sys,time,unittest
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sha=lambda b:hashlib.sha256(b).hexdigest()
+ap=argparse.ArgumentParser();ap.add_argument('--build-sha256',required=True);a=ap.parse_args()
+proof=(T/'V9_485517b0_real_full730_Root_build_20261123.json').read_bytes();assert sha(proof)==a.build_sha256
+pv=json.loads(proof);assert pv['status']=='PASS_REAL_FULL730_ROOT_BUILD'
+sys.path[:0]=[str(T/'offline-python'),str(R/'scripts')];sys.dont_write_bytecode=True
+tmp=T/'test-tmp';os.environ.update(PYTHONUTF8='1',PYTHONPATH=str(T/'offline-python'),TMP=str(tmp),TEMP=str(tmp),TMPDIR=str(tmp))
+def forbidden(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn','os.exec'):raise RuntimeError('OFFLINE_EXTERNAL_BOUNDARY_FORBIDDEN')
+sys.addaudithook(forbidden)
+names=['scripts/prepare-local-f0-status.py','scripts/check-local-f0-status.py','scripts/local_f0_install_historical_bridge_v1.py','scripts/local_f0_privilege485517b0_evidence.py','context/reconciliation/local-f0-assertion-evidence.json','context/reconciliation/local-f0-qualification-status.json']
+before={n:sha((R/n).read_bytes())for n in names}
+assert before[names[-2]]==pv['ledger_sha256']and before[names[-1]]==pv['qualification_status_sha256']
+path=R/'scripts/check-local-f0-status.py';spec=importlib.util.spec_from_file_location('_Root_existing_V9_status_checks',path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+suite=unittest.defaultTestLoader.loadTestsFromModule(m);assert suite.countTestCases()==13
+stream=io.StringIO();started=time.monotonic();result=unittest.TextTestRunner(stream=stream,verbosity=2).run(suite)
+after={n:sha((R/n).read_bytes())for n in names};assert before==after
+v={'schema':'workinants.V9-730-existing-legacy-dispatch-checks.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'tests':result.testsRun,'passed':result.testsRun-len(result.failures)-len(result.errors),'failed_methods':[str(x)for x,_ in result.failures],'error_methods':[str(x)for x,_ in result.errors],'seconds':round(time.monotonic()-started,3),'source_and_ledger_status_sha256':before,'unchanged_after':before==after,'nested_process_Docker_database_network_forbidden':True,'actual_full730_build_sha256':sha(proof),'purpose':'Existing legacy dispatch/evidence mutations; exact44 dispatcher isolated only here. Dedicated real V9 reader author54+independent31/race/spec reproduction and actual unmocked full730 separately establish new reader coverage. No database execution.','Posture':'D'}
+for name,raw in [('V9_730_existing_legacy_status_checks_20261123.log',stream.getvalue().encode()),('V9_730_existing_legacy_status_checks_20261123.json',(json.dumps(v,indent=2)+'\n').encode())]:
+ with(T/name).open('xb')as f:f.write(raw)
+print(json.dumps(v));raise SystemExit(0 if result.wasSuccessful()else 1)

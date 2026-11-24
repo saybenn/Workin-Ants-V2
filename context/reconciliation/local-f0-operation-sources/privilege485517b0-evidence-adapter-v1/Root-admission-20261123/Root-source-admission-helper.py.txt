@@ -1,0 +1,99 @@
+"""Root exact V9 reader source admission only; no ledger/status build or runtime."""
+from pathlib import Path
+import argparse,ast,copy,hashlib,json,types,sys
+T=Path(__file__).resolve().parent; R=T/'workinants-correction-pass'
+U=T/'restore047-root-admission-helper-proposal-20261123/admit_restore047_reviewed_source_only_20261123.py'
+ub=U.read_bytes(); assert hashlib.sha256(ub).hexdigest()=='db01b2e1b7d9a258688e536400c107978824aebbe8ead5edef192232868adc77'
+u=types.ModuleType('_reviewed_Root_closed_file_utilities');u.__file__=str(U);exec(compile(ub,str(U),'exec'),u.__dict__)
+read=u.read;need=u.need;sha=u.sha;enc=u.encoded;doc=u.decoded;target=u.target
+D=T/'V9_485517b0_retrospective_reader_frozen_author_delivery_v2_20261123.json'
+DS='b0182aac91effeb16ae6b0814c89175c811145783db9bbff41ee7a92acd8edf7'
+AR='context/reconciliation/local-f0-operation-sources/privilege485517b0-evidence-adapter-v1'
+VAL='context/reconciliation/local-f0-privilege485517b0-evidence-source-validation.json'
+READER='scripts/local_f0_privilege485517b0_evidence.py'
+DERIVED='context/reconciliation/local-f0-privilege-967bfc8-485517b0-qualified-evidence.json'
+DERIVED_SHA='7276e44216dabf7ad2f57f214e88cff3c9ecff27c2ed54c0103b70e8cd325776'
+B='scripts/prepare-local-f0-status.py'
+BS='7a2aec1c5d66b813fd610447421ca11418812478319d4a623434bf6f1ca61029'
+PS='977ccb4b26d2bcbd3ff8c4bd84e9a7e741dbf642e8c8fb558c423f8d634ad83f'
+L='context/reconciliation/local-f0-assertion-evidence.json';S='context/reconciliation/local-f0-qualification-status.json'
+LS='64526edb985855c83766e19c26f9f306526b81ecb0eede492cedde09b200efd8'
+SS='2cec3c700db0c46f0be4a12e6dd1ba8ee5b6b62e549da0b89862cfee6c1c8ade'
+P=AR+'/Root-admission-20261123'
+def normalize(raw):
+ class Strip(ast.NodeTransformer):
+  def visit_ImportFrom(self,n):return None if n.module=='local_f0_privilege485517b0_evidence'else n
+  def visit_Assign(self,n):
+   if any(isinstance(t,ast.Name)and t.id=='privilege485517b0_batch'for t in n.targets):return None
+   if any(isinstance(t,ast.Name)and t.id=='EVIDENCE_RECORDS'for t in n.targets):
+    pairs=[(k,v)for k,v in zip(n.value.keys,n.value.values)if not(isinstance(k,ast.Constant)and k.value==DERIVED)]
+    need(len(pairs)==len(n.value.keys)-1,'EXACT_NEW_RECORD');n.value.keys=[k for k,v in pairs];n.value.values=[v for k,v in pairs]
+   return self.generic_visit(n)
+  def visit_If(self,n):
+   if any(isinstance(x,ast.Name)and x.id=='privilege485517b0_batch'for x in ast.walk(n.test)):return None
+   if any(isinstance(x,ast.Constant)and x.value==DERIVED for x in ast.walk(n.test)):
+    if isinstance(n.test,ast.Call)and isinstance(n.test.func,ast.Name)and n.test.func.id=='any':return None
+    need(isinstance(n.test,ast.Compare),'EXACT_DISPATCH');return[self.visit(x)for x in n.orelse]
+   return self.generic_visit(n)
+ return ast.dump(Strip().visit(ast.parse(raw)),include_attributes=False)
+def main():
+ ap=argparse.ArgumentParser();ap.add_argument('--peer',type=Path,required=True);ap.add_argument('--peer-sha256',required=True);ap.add_argument('--root-review',type=Path);ap.add_argument('--root-review-sha256');ap.add_argument('--apply',action='store_true');a=ap.parse_args()
+ dr=read(D,DS);d=doc(dr);A=Path(d['private_author_root']);fm=doc(read(Path(d['freeze_manifest_path']),d['freeze_manifest_sha256']))
+ need(len(fm['files_sha256'])==626,'FROZEN626')
+ for n,h in fm['files_sha256'].items():read(target(Path(d['freeze_manifest_path']).parent/'files',n),h)
+ m=d['candidate_Root_files_sha256'];need(len(m)==65 and VAL in m,'CANDIDATE65')
+ blobs={n:read(target(A,n),h)for n,h in m.items()};v=doc(blobs[VAL])
+ need(v['independent_source_review']['decision']=='PENDING'and v['Root_admission']['decision']=='PENDING','PENDING_AUTHOR_GATES')
+ graph=d['qualification_input_files_sha256'];need(len(graph)==519 and graph==v['closed_qualification_input_graph_sha256'],'CLOSED519')
+ pin=next(n.value for n in ast.parse(blobs[READER]).body if isinstance(n,ast.Assign)and any(isinstance(t,ast.Name)and t.id=='PINS'for t in n.targets))
+ need(ast.literal_eval(pin.args[0])==graph,'READER_PINS_EXACT')
+ for n,h in graph.items():read(target(A,n),h)
+ original={n:h for n,h in graph.items()if n not in m};need(len(original)==511,'ORIGINAL511')
+ for n,h in original.items():read(target(R,n),h)
+ need(v['source_files_sha256']==d['source_files_sha256']and sha(blobs[DERIVED])==DERIVED_SHA==d['derived_record_sha256'],'EXACT_CODE_DERIVED')
+ actual={p.relative_to(A).as_posix():sha(read(p))for p in(A/AR).rglob('*')if p.is_file()}
+ need(actual==v['archive_files_sha256'],'AUTHOR_ARCHIVE_EXACT')
+ base=read(R/B,BS);proposal=read(Path(d['builder_proposal']['path']),PS)
+ need(normalize(proposal)==ast.dump(ast.parse(base),include_attributes=False),'ALL_OLD_AST_PRESERVED')
+ peerraw=read(a.peer,a.peer_sha256);peer=doc(peerraw)
+ required={'decision':'SOURCE_APPROVED','findings':[],'author_delivery_sha256':DS,'source_files_sha256':d['source_files_sha256'],'candidate_Root_files_sha256':m,'qualification_input_graph_sha256':graph,'derived_record_sha256':DERIVED_SHA}
+ need(all(peer.get(k)==x for k,x in required.items()),'EXACT_NONAUTHOR_PEER_BINDING')
+ need(peer.get('reviewer')not in(None,'/root','/root/restore_exact3_code_review'),'DISTINCT_PEER')
+ protected={L:read(R/L,LS),S:read(R/S,SS)};need(len(doc(protected[L])['assertions'])==687,'CURRENT687')
+ if not a.apply:
+  print(json.dumps({'status':'READ_ONLY_EXACT_SOURCE_INSPECTED','candidate65':True,'fixed519':True,'original511':True,'frozen626':True,'old_AST_unchanged':True,'runtime':'NOT_RUN','Root_mutated':False}));return
+ need(a.root_review and a.root_review_sha256,'ROOT_RECEIPT_REQUIRED')
+ rr=read(a.root_review,a.root_review_sha256);rv=doc(rr)
+ req={'decision':'SOURCE_APPROVED','reviewer':'/root','findings':[],'author_delivery_sha256':DS,'independent_review_sha256':a.peer_sha256,'source_files_sha256':d['source_files_sha256'],'derived_record_sha256':DERIVED_SHA,'builder_base_sha256':BS,'reviewed_builder_proposal_sha256':PS,'assertion_links_added':0,'runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'}
+ need(all(rv.get(k)==x for k,x in req.items()),'EXACT_ROOT_SOURCE_REVIEW')
+ adds={P+'/independent-code-source-review.json':peerraw,P+'/Root-source-review.json':rr,P+'/author-source-validation.PENDING.before.json':blobs[VAL],P+'/author-frozen-delivery-v2.json':dr,P+'/Root-source-admission-helper.py.txt':read(Path(__file__)),P+'/Root-closed-file-utilities.py.txt':ub}
+ artifacts=peer['bounded_verification_artifacts'];need(len(artifacts)==6,'EXACT_PEER_ARTIFACTS6')
+ for name,h in artifacts.items():
+  q=Path(name);need(q.resolve().is_relative_to(T.resolve())and not q.resolve().is_relative_to(R.resolve()),'PRIVATE_PEER_ARTIFACT_PATH')
+  q=target(T,q.relative_to(T).as_posix());dest=P+'/peer-verification/'+q.name;need(dest not in adds,'UNIQUE_PEER_ARTIFACT_NAME');adds[dest]=read(q,h)
+ for name,h,dest in [('V9_485517b0_reader_author_pre_freeze_byte_closure_v2_20261123.json','1960b09c5db4d8d13b5c03c9bf788c5ce992004fccbaf2290a1a569e302c5ff1','author-pre-freeze-byte-closure.json'),('V9_485517b0_reader_author_final_readonly_closure_v2_20261123.json','46f9b7399c2a27bc42c20f562cb306f9fa84d4cbf6003942d8467f5a3767353c','author-final-readonly-closure.json')]:adds[P+'/'+dest]=read(T/name,h)
+ adds[P+'/author-freeze-manifest.json']=read(Path(d['freeze_manifest_path']),d['freeze_manifest_sha256'])
+ receipt={'schema':'workinants.privilege485517b0-Root-source-admission.v1','decision':'SOURCE_APPROVED','source_files_sha256':d['source_files_sha256'],'author_delivery_sha256':DS,'independent_review_sha256':sha(peerraw),'Root_source_review_sha256':sha(rr),'qualification_graph_count':519,'qualification_graph_aggregate_sha256':u.aggregate(graph),'derived_record_sha256':DERIVED_SHA,'reviewed_builder_proposal_sha256':PS,'assertion_links_added':0,'full_current_status_build':'NOT_RUN','runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'}
+ adds[P+'/Root-source-admission-receipt.json']=enc(receipt)
+ writes={**blobs,**adds};need(len(writes)==81,'EXACT_SOURCE81_BEFORE_BUILDER')
+ for n,b in writes.items():
+  p=target(R,n);need(not p.exists()or read(p)==b,'EXISTING_ROOT_WORK_CONFLICT')
+ need(not(R/AR).exists(),'FRESH_SOURCE_ARCHIVE_REQUIRED')
+ need(not(T/'V9_485517b0_FINAL_Root_source_admission_inventory_20261123.json').exists(),'FRESH_INVENTORY')
+ after=copy.deepcopy(v);pd=P+'/independent-code-source-review.json';rd=P+'/Root-source-review.json'
+ after['independent_source_review']={'decision':'SOURCE_APPROVED','path':pd,'sha256':sha(peerraw),'source_files_sha256':d['source_files_sha256']}
+ after['Root_admission']={'decision':'SOURCE_APPROVED','source_review':rd,'receipt_path':P+'/Root-source-admission-receipt.json','receipt_sha256':sha(adds[P+'/Root-source-admission-receipt.json']),'source_review_sha256':sha(rr),'full_current_status_build':'NOT_RUN','Root_builder_base_sha256':BS,'reviewed_builder_proposal_sha256':PS,'assertion_links_added':0}
+ after['archive_files_sha256']={n:sha(b)for n,b in writes.items()if n.startswith(AR+'/')};writes[VAL]=enc(after)
+ for n,b in writes.items():u.new_or_same(target(R,n),b)
+ u.replace_exact(R/B,base,proposal)
+ for n,h in original.items():read(target(R,n),h)
+ for n,b in protected.items():need(read(R/n)==b,'LEDGER_STATUS_UNCHANGED')
+ files={n:sha(read(target(R,n)))for n in writes};files[B]=PS;need(len(files)==82,'EXACT_ADMISSION82')
+ result={'schema':'workinants.privilege485517b0-FINAL-Root-source-admission-inventory.v1','status':'SOURCE_ADMITTED_NO_LEDGER_LINKS_NO_STATUS_BUILD','Root_files_sha256':files,'files_sha256':files,'file_count':len(files),'source_files_sha256':d['source_files_sha256'],'derived_record_sha256':DERIVED_SHA,'newbuilderSHA':PS,'builder_delta_applied':True,'qualification_graph_count':519,'closed_original_Root_count':511,'source_validation_sha256':sha(read(R/VAL)),'independent_review_sha256':sha(peerraw),'Root_source_review_sha256':sha(rr),'old687_unchanged':True,'assertion_links_added':0,'full730_build':'NOT_RUN','runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'}
+ out=T/'V9_485517b0_FINAL_Root_source_admission_inventory_20261123.json';u.new_or_same(out,enc(result))
+ print(json.dumps({'status':result['status'],'Root_files':len(files),'inventory_sha256':sha(read(out)),'validation_sha256':result['source_validation_sha256'],'runtime':'NOT_RUN'}))
+if __name__=='__main__':
+ try:main()
+ except BaseException as e:
+  if isinstance(e,SystemExit):raise
+  print(json.dumps({'status':'HELD','code':str(e)if isinstance(e,u.Refused)else'ROOT_SOURCE_ADMISSION_REFUSED','raw_error_discarded':True}));raise SystemExit(1)

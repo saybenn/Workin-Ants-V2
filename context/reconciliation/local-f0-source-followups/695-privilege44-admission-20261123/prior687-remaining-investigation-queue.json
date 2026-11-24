@@ -1,0 +1,3124 @@
+{
+  "schema": "workinants.remaining-assertion-investigation-queue.v1",
+  "source_status_sha256": "2cec3c700db0c46f0be4a12e6dd1ba8ee5b6b62e549da0b89862cfee6c1c8ade",
+  "source_ledger_sha256": "64526edb985855c83766e19c26f9f306526b81ecb0eede492cedde09b200efd8",
+  "accepted_counts": {
+    "PASS": 654,
+    "PARTIAL": 33,
+    "FAILED": 0,
+    "DEPENDENCY_BLOCKED": 32,
+    "NOT_RUN": 308,
+    "UNRESOLVED_SOURCE": 7
+  },
+  "incomplete_count": 341,
+  "incomplete_by_assertion_id": {
+    "control.append_only": 1,
+    "control.browser_simulation": 1,
+    "control.closed_codec": 1,
+    "control.concurrent_customer_update": 1,
+    "control.consent_chain": 1,
+    "control.create_then_update": 1,
+    "control.direct_ports": 1,
+    "control.empty_context": 1,
+    "control.foreign_consent": 1,
+    "control.helper_ceiling": 1,
+    "control.invented_evidence": 1,
+    "control.issuer_ceiling": 1,
+    "control.lease_transitions": 1,
+    "control.message_reverse": 1,
+    "control.no_authority_from_transport": 1,
+    "control.omit_each_piece": 1,
+    "control.preserve_valid_selection": 1,
+    "control.replay_conflict": 1,
+    "control.reservation_outcomes": 1,
+    "control.restored_authority": 1,
+    "control.revocation_schedule": 1,
+    "control.runtime_escalation": 1,
+    "control.security_generation_schedule": 1,
+    "control.source_generation_schedule": 1,
+    "control.stale_predecessor": 1,
+    "control.typed_relations": 1,
+    "control.worker_ceiling": 1,
+    "control.worker_reverse": 1,
+    "denial.anon.execute_helpers": 1,
+    "denial.authenticated.execute_helpers": 1,
+    "denial.context.foreign_runtime_context": 39,
+    "denial.context.missing_or_stale_tuple_or_generation": 40,
+    "denial.context.ownership_or_immutable_field_reassignment": 40,
+    "denial.context.unregistered_worker_action": 40,
+    "denial.service_role.execute_helpers": 1,
+    "denial.wa_app_runtime.set_role_issuer_helper_owner": 1,
+    "denial.wa_context_issuer.source_business_write": 40,
+    "denial.wa_context_issuer.update_immutable_scope_or_tuple": 1,
+    "denial.wa_private_helper_owner.delete": 1,
+    "denial.wa_private_helper_owner.insert": 1,
+    "denial.wa_private_helper_owner.login": 1,
+    "denial.wa_private_helper_owner.update": 1,
+    "denial.wa_worker.set_role_issuer_helper_owner": 1,
+    "positive.wa_app_runtime.insert": 18,
+    "positive.wa_app_runtime.update": 12,
+    "positive.wa_worker.insert": 1,
+    "positive.wa_worker.update": 1,
+    "separate_gate_denial.wa_app_runtime.insert": 13,
+    "separate_gate_denial.wa_app_runtime.select": 8,
+    "separate_gate_denial.wa_app_runtime.update": 7,
+    "separate_gate_denial.wa_worker.insert": 2,
+    "separate_gate_denial.wa_worker.select": 1,
+    "separate_gate_denial.wa_worker.update": 2,
+    "vector.AGE-APPEND.adversarial": 1,
+    "vector.AGE-APPEND.positive": 1,
+    "vector.BOOLEAN-PORTS.adversarial": 1,
+    "vector.BOOLEAN-PORTS.positive": 1,
+    "vector.CATALOG-LEAVES.adversarial": 1,
+    "vector.CONSENT-CONTENT-SCOPE.adversarial": 1,
+    "vector.CONSENT-CONTENT-SCOPE.positive": 1,
+    "vector.CONSENT-DISPOSITION-SCOPE.adversarial": 1,
+    "vector.CONSENT-DISPOSITION-SCOPE.positive": 1,
+    "vector.CONSENT-EMPTY.adversarial": 1,
+    "vector.CONSENT-EMPTY.positive": 1,
+    "vector.CONSENT-PRESENTATION-SCOPE.adversarial": 1,
+    "vector.CONSENT-PRESENTATION-SCOPE.positive": 1,
+    "vector.CONSENT-SCOPE-CHAIN.adversarial": 1,
+    "vector.CONSENT-SCOPE-CHAIN.positive": 1,
+    "vector.CONSENT-SCOPE-DENY.adversarial": 1,
+    "vector.CONSENT-SCOPE-DENY.positive": 1,
+    "vector.DIRECT-PORT-CAPS.adversarial": 1,
+    "vector.DIRECT-PORT-CAPS.positive": 1,
+    "vector.DIRECT-TRACK-SNAPSHOT.adversarial": 1,
+    "vector.DIRECT-TRACK-SNAPSHOT.positive": 1,
+    "vector.EVIDENCE-CODEC.adversarial": 1,
+    "vector.EVIDENCE-CODEC.positive": 1,
+    "vector.FIRST-CUSTOMER.adversarial": 1,
+    "vector.FIRST-CUSTOMER.positive": 1,
+    "vector.LEASE-ATTACH.adversarial": 1,
+    "vector.LEASE-RECOVERY.adversarial": 1,
+    "vector.LEASE-RENEW.adversarial": 1,
+    "vector.MESSAGE-REVERSE.adversarial": 1,
+    "vector.READ-PURPOSE-NO-WRITE.positive": 1,
+    "vector.RESERVATION-BYPASS.adversarial": 1,
+    "vector.RESERVATION-BYPASS.positive": 1,
+    "vector.RESERVATION-RELEASE.adversarial": 1,
+    "vector.RESERVATION-RELEASE.positive": 1,
+    "vector.RESERVATION-ROLE-REACHABILITY.adversarial": 1,
+    "vector.RESERVATION-ROLE-REACHABILITY.positive": 1,
+    "vector.SERVICE-BOOTSTRAP.adversarial": 1,
+    "vector.WORKER-REVERSE-PROOF.adversarial": 1,
+    "vector.WORKER-REVERSE-PROOF.positive": 1
+  },
+  "context_denials": [
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfile-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfile-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfile-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    }
+  ],
+  "context_denial_count": 159,
+  "context_denial_limits": "Investigation queue only. No new recipes, admission, execution, claims or dependency reclassification. For each selected assertion require complete otherwise-valid scoped target and isolated substitution; preserve exact intended source guard and disclosure/effect checks. Source-declared absent positive owner contracts never authorize bypass.",
+  "all_incomplete": [
+    {
+      "case_id": "P0C-TABLE-ConsentLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-ALLOW",
+      "assertion_id": "vector.CONSENT-SCOPE-CHAIN.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-ALLOW",
+      "assertion_id": "vector.CONSENT-SCOPE-CHAIN.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "vector.CONSENT-SCOPE-DENY.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentLog-DENY",
+      "assertion_id": "vector.CONSENT-SCOPE-DENY.adversarial",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRequest-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateAttempt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AgeGateBlock-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AccessAuditLog-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-User-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserRole-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ProfessionalProfile-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfile-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfile-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfile-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfile-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfile-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CandidateProfile-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuditEvent-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-UserSecurityProfile-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-AuthProviderAccount-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlan-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementDefinition-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackPlanEntitlement-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscription-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEntitlementGrant-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageEvent-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageCounter-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackSubscriptionEvent-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-ALLOW",
+      "assertion_id": "vector.CONSENT-CONTENT-SCOPE.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-ALLOW",
+      "assertion_id": "vector.CONSENT-CONTENT-SCOPE.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentContentRevision-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-ALLOW",
+      "assertion_id": "vector.CONSENT-PRESENTATION-SCOPE.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-ALLOW",
+      "assertion_id": "vector.CONSENT-PRESENTATION-SCOPE.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentPresentation-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-ALLOW",
+      "assertion_id": "vector.CONSENT-DISPOSITION-SCOPE.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-ALLOW",
+      "assertion_id": "vector.CONSENT-DISPOSITION-SCOPE.adversarial",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-ConsentDisposition-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.wa_app_runtime.set_role_issuer_helper_owner",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.wa_worker.set_role_issuer_helper_owner",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.wa_private_helper_owner.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.wa_private_helper_owner.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.wa_private_helper_owner.delete",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.wa_private_helper_owner.login",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.wa_context_issuer.update_immutable_scope_or_tuple",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.anon.execute_helpers",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.authenticated.execute_helpers",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.service_role.execute_helpers",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-DatabaseActionGrant-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeCommandReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "assertion_id": "positive.wa_worker.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_worker.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeOutboxMessage-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_worker.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeAttempt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeInboxReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_worker.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_worker.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_worker.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "vector.RESERVATION-RELEASE.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "vector.RESERVATION-RELEASE.adversarial",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "vector.RESERVATION-ROLE-REACHABILITY.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-ALLOW",
+      "assertion_id": "vector.RESERVATION-ROLE-REACHABILITY.adversarial",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "vector.RESERVATION-BYPASS.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeReservation-DENY",
+      "assertion_id": "vector.RESERVATION-BYPASS.adversarial",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-OwnerMutationEvidence-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-CustomerProfileLifecycleEvent-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-ALLOW",
+      "assertion_id": "positive.wa_worker.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackBaseSelection-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackEnrollmentReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-TrackUsageReservation-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyTargetInstruction-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyOwnerReceipt-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.select",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.insert",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-ALLOW",
+      "assertion_id": "separate_gate_denial.wa_app_runtime.update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.wa_context_issuer.source_business_write",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.context.foreign_runtime_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.context.unregistered_worker_action",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.context.missing_or_stale_tuple_or_generation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TABLE-PrivacyRestoreMarker-DENY",
+      "assertion_id": "denial.context.ownership_or_immutable_field_reassignment",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CATALOG-01",
+      "assertion_id": "vector.CATALOG-LEAVES.adversarial",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CTX-01",
+      "assertion_id": "control.no_authority_from_transport",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CTX-01",
+      "assertion_id": "vector.READ-PURPOSE-NO-WRITE.positive",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CTX-01",
+      "assertion_id": "vector.SERVICE-BOOTSTRAP.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CTX-02",
+      "assertion_id": "control.revocation_schedule",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CTX-02",
+      "assertion_id": "control.security_generation_schedule",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CTX-02",
+      "assertion_id": "control.source_generation_schedule",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "control.issuer_ceiling",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "control.runtime_escalation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "control.helper_ceiling",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "control.browser_simulation",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "control.direct_ports",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "vector.BOOLEAN-PORTS.positive",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "vector.BOOLEAN-PORTS.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "vector.DIRECT-PORT-CAPS.positive",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-PRIV-01",
+      "assertion_id": "vector.DIRECT-PORT-CAPS.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-BOOT-01",
+      "assertion_id": "control.create_then_update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-BOOT-01",
+      "assertion_id": "vector.FIRST-CUSTOMER.positive",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-BOOT-01",
+      "assertion_id": "vector.FIRST-CUSTOMER.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-ATOMIC-01",
+      "assertion_id": "control.omit_each_piece",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-ATOMIC-01",
+      "assertion_id": "control.message_reverse",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-ATOMIC-01",
+      "assertion_id": "vector.MESSAGE-REVERSE.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "control.concurrent_customer_update",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "control.stale_predecessor",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.consent_chain",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.foreign_consent",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.empty_context",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.append_only",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.replay_conflict",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.AGE-APPEND.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.AGE-APPEND.adversarial",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.CONSENT-EMPTY.positive",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "vector.CONSENT-EMPTY.adversarial",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.preserve_valid_selection",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.worker_ceiling",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.typed_relations",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.lease_transitions",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "control.reservation_outcomes",
+      "status": "NOT_RUN",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-ATTACH.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-RENEW.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.LEASE-RECOVERY.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.DIRECT-TRACK-SNAPSHOT.positive",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-TRACK-01",
+      "assertion_id": "vector.DIRECT-TRACK-SNAPSHOT.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-EVIDENCE-01",
+      "assertion_id": "control.closed_codec",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-EVIDENCE-01",
+      "assertion_id": "control.invented_evidence",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-EVIDENCE-01",
+      "assertion_id": "control.worker_reverse",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-EVIDENCE-01",
+      "assertion_id": "vector.WORKER-REVERSE-PROOF.positive",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-EVIDENCE-01",
+      "assertion_id": "vector.WORKER-REVERSE-PROOF.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-EVIDENCE-01",
+      "assertion_id": "vector.EVIDENCE-CODEC.positive",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-EVIDENCE-01",
+      "assertion_id": "vector.EVIDENCE-CODEC.adversarial",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    },
+    {
+      "case_id": "P0C-RESTORE-01",
+      "assertion_id": "control.restored_authority",
+      "status": "PARTIAL",
+      "dependency_ids": []
+    }
+  ],
+  "current_work_priority": [
+    "Two-history owning nonauthor code review then Root gates/actual migration machinery",
+    "Customer stale predecessor owning auth closure fix and independent re-review then Root gates/actual rollback controls",
+    "V9 completed actual exact44 reader nonauthor review then Root real ledger/status build",
+    "Affected canonical App/Worker revalidation on new two-history source packet",
+    "Investigate remaining selected context denials and owner/atomic paths within standing local authority; qualify only real evidenced subset"
+  ],
+  "Posture": "D",
+  "qualified_assertion_changes": 0,
+  "runtime": "NOT_RUN"
+}
