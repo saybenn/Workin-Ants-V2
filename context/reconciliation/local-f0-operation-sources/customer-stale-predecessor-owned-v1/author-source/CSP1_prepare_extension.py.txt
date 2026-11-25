@@ -1,0 +1,94 @@
+OPERATION_RUN='73292a8f-838e-4d92-be2e-42170dd5ec6a'
+FIXTURE_RUN='36e9cae1-53fc-44a7-b90f-b91fb6e8d2b5'
+SOURCE_GATES=('independent_source_review','independent_owned_resource_review','independent_safety_sql_review','independent_binary_transport_review','Root_source_review')
+
+def source_inventory(current,packet,external,require_reviews=False):
+ need(type(require_reviews)is bool,'REVIEW_MODE_TYPE')
+ fixed=decoded(source(OWNED_ARCHIVE+'/fixed-catalog-source-map.json',FIXED_CATALOG_MAP_SHA))
+ need(current==fixed,'EXACT_CATALOG_BASIS_MAP')
+ child_fixed=decoded(source(OWNED_ARCHIVE+'/fixed-child-current-map.json',FIXED_CHILD_MAP_SHA))
+ need(len(child_fixed)==115,'EXACT_CURRENT_CHILD115')
+ child_raw=source(CHILD_VALIDATION,CHILD_VALIDATION_SHA);child=decoded(child_raw);owned_raw=source(OWNED_VALIDATION);owned=decoded(owned_raw)
+ need(child['review_gate']=='SOURCE_APPROVED' and child['source_files_sha256']==packet['source_files_sha256'] and owned['schema']=='workinants.customer-stale-predecessor-owned-v1-source-validation.v1' and owned['operator_sources_sha256']==external,'CSP1_SOURCE_METADATA_BINDING')
+ expected=dict(current)
+ def add(name,wanted):
+  relative(name);need(name not in expected or expected[name]==wanted,'SOURCE_BINDING_CONFLICT');source(name,wanted);expected[name]=wanted
+ for mapping_ in(child_fixed,child['source_files_sha256'],child['packet_files_sha256'],child['archive_files_sha256'],owned['archive_files_sha256'],IMAGE_FILES):
+  for name,wanted in mapping(mapping_).items():add(name,wanted)
+ for n,h in((CHILD_VALIDATION,CHILD_VALIDATION_SHA),(OWNED_VALIDATION,sha(owned_raw)),(FIXTURES,FIXTURES_SHA),(TOOL_CLOSURE,TOOL_CLOSURE_SHA),IMAGE_PROOF_REVIEW):add(n,h)
+ archive_tree(OWNED_ARCHIVE,owned['archive_files_sha256'])
+ for n,h in external.items():need(expected.get(OWNED_ARCHIVE+'/'+n+'.txt')==h and sha((TASK/n).read_bytes())==h and not(TASK/n).is_symlink(),'EXACT_PHYSICAL_FIVE')
+ for key in SOURCE_GATES:
+  review=owned.get(key);need(type(review)is dict and review.get('decision')in('PENDING','SOURCE_APPROVED'),'NEW_PENDING_SOURCE_GATE_REQUIRED')
+  if require_reviews:
+   need(review.get('decision')=='SOURCE_APPROVED' and review.get('operator_sources_sha256')==external and type(review.get('path'))is str and review['path'].startswith(OWNED_ARCHIVE+'/reviews/') and expected.get(review['path'])==review.get('sha256'),'CSP1_REVIEW_REQUIRED')
+   actual=decoded(source(review['path'],review['sha256']));need(actual.get('decision')=='SOURCE_APPROVED' and actual.get('operator_sources_sha256')==external,'CSP1_REVIEW_RECEIPT_BINDING')
+ for key in('independent_source_review','Root_source_review'):
+  review=child[key];need(review['decision']=='SOURCE_APPROVED' and expected.get(review['path'])==review['sha256'],'ACCEPTED_CHILD_REVIEW_BYTES')
+ for n,h in packet['source_files_sha256'].items():need(expected.get(n)==h,'CHILD_SOURCE_NOT_ADMITTED')
+ for n,h in packet['prepared_files_sha256'].items():need(expected.get('review-output/customer-stale-predecessor-v1/'+n)==h,'CHILD_ARTIFACT_NOT_ADMITTED')
+ catalog=decoded(source('review-output/native-catalog/source-pins.json'));need(len(mapping(catalog))==16 and all(expected.get(n)==h for n,h in catalog.items()),'CLOSED_CATALOG16')
+ return dict(sorted(expected.items()))
+
+def validate_plan(value,*,pinned=False,require_reviews=True):
+ need(type(value)is dict and value.get('purpose')=='LOCAL_F0_CUSTOMER_STALE_PREDECESSOR_OWNED_V1_REHEARSAL' and value.get('status')=='SOURCE_PREPARED_NOT_EXECUTED' and value.get('review_status')in('PENDING_OPERATIONAL_REVIEW','APPROVED_LOCAL_F0_CUSTOMER_STALE_PREDECESSOR_OWNED_V1_ATTEMPT'),'EXACT_CSP1_SOURCE_PLAN')
+ fields={'purpose','authority','run_id','source_commit','source_tree','packet_files_sha256','packet_sha256','evidence_directory','targets','migration_targets','image','database','run_label','tool_archive','tool_archive_sha256','wrapper_sha256','review_status','storage','cleanup','source_history_rule','status','server_diagnostics','catalog','allowed_catalog_operations','steps_sha256','customer_stale','prepared_source_file_inventory_sha256','guarded_history_helper_sha256','execution_hold'}
+ need(set(value)==fields|({'pin_helper_sha256'}if pinned else set()),'CSP1_MANIFEST_FIELD_ALLOWLIST')
+ run=value['run_id'];need(run==OPERATION_RUN and str(uuid.UUID(run))==run and uuid.UUID(run).version==4 and run!=FIXTURE_RUN,'DISTINCT_FROZEN_UUIDS')
+ name='wa-p0c-'+run[:8]+'-customer-stale';out=TASK/('local-f0-customer-stale-predecessor-v1-'+run[:8]);directory=TASK/('local-f0-customer-stale-predecessor-v1-plan-'+run[:8])
+ need(value['targets']==[{'name':name,'volume':name+'-data','kind':'ok'}] and value['evidence_directory']==str(out) and not out.exists() and value['image']==IMAGE and value['database']=='wa_p0c_rehearsal' and value['run_label']=='p0c-local-f0','CSP1_TARGET_PROFILE')
+ need(value['storage']=={'container':name,'volume':name+'-data','network':'none','ports':[],'mounts':'exactPGDATAvolume+readonlybootstrapbind+root0700secret-tmpfs','extra_mounts':False,'host_namespaces':False,'privileged':False} and value['guarded_history_helper_sha256']==HISTORY_SHA,'CSP1_STORAGE_AND_HISTORY_PROFILE')
+ cfg=value['customer_stale'];need(set(cfg)=={'fixtures_sha256','content_sha256','coordinator_sha256','external_files_sha256','fixture_run_id'} and cfg['fixtures_sha256']==FIXTURES_SHA and cfg['content_sha256']==CONTENT_SHA and cfg['fixture_run_id']==FIXTURE_RUN and cfg['coordinator_sha256']=='2a3cd4730408d294b767448b2d9f563d4f14937ca95edd1be232383c30591b3e','EXACT_CHILD_PACKET')
+ external=mapping(cfg['external_files_sha256']);need(set(external)==set(EXTERNAL_FILES),'EXACT_FIVE_SET')
+ packet=decoded(source(FIXTURES,FIXTURES_SHA));fixed=decoded(source(OWNED_ARCHIVE+'/fixed-catalog-source-map.json',FIXED_CATALOG_MAP_SHA));files=source_inventory(fixed,packet,external,require_reviews)
+ need(value['prepared_source_file_inventory_sha256']==files and value['wrapper_sha256']==external[EXTERNAL_FILES[0]] and value['steps_sha256']==external[EXTERNAL_FILES[1]],'EXACT_PREPARED_SOURCE_AND_WRAPPER')
+ if pinned:need(value['packet_files_sha256']==files and value['packet_sha256']==sha(''.join(n+'\0'+files[n]+'\n'for n in sorted(files)).encode()) and all(type(value[k])is str and re.fullmatch('[0-9a-f]{40}',value[k])for k in('source_commit','source_tree')) and value['pin_helper_sha256']==external[EXTERNAL_FILES[4]],'EXACT_PINNED_VIEW')
+ else:need(value['packet_files_sha256']=={} and value['source_commit']==value['source_tree']==value['packet_sha256']=='TO_BE_PINNED','EXACT_UNPINNED_VIEW')
+ need(set(value['migration_targets'])=={'ok'},'SINGLE_CANONICAL_SOURCE_TARGET');plan=value['migration_targets']['ok']
+ need(plan['manifest_path']==str(directory/'ok-migration-manifest.json') and plan['source_snapshot']==str(directory/'source-ok') and plan['source_archive']==str(directory/'source-ok.tar.gz'),'FRESH_SOURCE_INPUT_PATHS')
+ raw=Path(plan['manifest_path']).read_bytes();need(sha(raw)==plan['manifest_sha256'],'NESTED_MANIFEST_HASH');nested=decoded(raw)
+ need(nested['run_id']==run and nested['target']=={'container_name':name,'volume_name':name+'-data','database':'wa_p0c_rehearsal','image':IMAGE,'network':'none','labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run},'bootstrap_secret_host_path':str(out/'private/ok-bootstrap-password')},'NESTED_EXACT_TARGET')
+ snapshot=Path(plan['source_snapshot']);need(not any(p.is_symlink()for p in snapshot.rglob('*')),'NO_SOURCE_LINKS')
+ expected={MIGRATION,LOCK,SCHEMA,*RUNTIME,'prisma/foundation/history-manifest.json'};members={p.relative_to(snapshot).as_posix():p.read_bytes()for p in snapshot.rglob('*')if p.is_file()}
+ need(set(members)==expected and {n:sha(b)for n,b in members.items()}==plan['source_files_sha256'],'EXACT_SOURCE_SEVEN')
+ for n in expected-{'prisma/foundation/history-manifest.json'}:need(sha(members[n])==files[n],'SOURCE_SNAPSHOT_CURRENT_BINDING')
+ history=decoded(members['prisma/foundation/history-manifest.json']);need(history['run_id']==run and history['run_manifest_sha256']==sha(raw) and history['source_sql_sha256']==SQL_SHA and history['database_contacted']is False and history['ledger_created_or_modified']is False,'FRESH_HISTORY_BINDING')
+ archive=Path(plan['source_archive']).read_bytes();need(sha(archive)==plan['source_archive_sha256'],'SOURCE_ARCHIVE_SHA');seen=set()
+ with tarfile.open(fileobj=io.BytesIO(archive),mode='r:gz')as tar:
+  for m in tar:
+   need(m.isfile() and m.name in expected and m.name not in seen and tar.extractfile(m).read()==members[m.name],'EXACT_SOURCE_ARCHIVE_MEMBER');seen.add(m.name)
+ need(seen==expected,'EXACT_SOURCE_ARCHIVE_SEVEN');verify_tools(value['tool_archive'],value['tool_archive_sha256'],nested['tools'])
+ return files
+
+def prepare(baseline_path,baseline_sha,run_id=None):
+ path=Path(baseline_path).resolve();need(path.is_relative_to(TASK) and not path.is_relative_to(ROOT) and sha(path.read_bytes())==baseline_sha,'REVIEWED_EXTERNAL_BASELINE')
+ baseline=decoded(path.read_bytes());need(baseline['purpose']=='LOCAL_F0_NATIVE_CATALOG_REHEARSAL' and baseline['review_status']=='APPROVED_LOCAL_F0_NATIVE_CATALOG_ATTEMPT','CATALOG_BASELINE_ONLY')
+ packet=decoded(source(FIXTURES,FIXTURES_SHA));need(packet['fixture_run_id']==FIXTURE_RUN and packet['content_sha256']==CONTENT_SHA and packet['status']=='NOT_RUN' and packet['worker_ACL_rows']==32,'FROZEN_CHILD_FIXTURE')
+ external={n:sha((TASK/n).read_bytes())for n in EXTERNAL_FILES};inventory=source_inventory(baseline['packet_files_sha256'],packet,external,False)
+ need(sha(source(MIGRATION))==sha(source(SQL))==SQL_SHA,'UNCHANGED_CANONICAL_INITIAL')
+ run=OPERATION_RUN if run_id is None else run_id;need(run==OPERATION_RUN and run!=FIXTURE_RUN,'FIXED_DISTINCT_OPERATION_RUN')
+ name='wa-p0c-'+run[:8]+'-customer-stale';directory=TASK/('local-f0-customer-stale-predecessor-v1-plan-'+run[:8]);out=TASK/('local-f0-customer-stale-predecessor-v1-'+run[:8]);need(not directory.exists() and not out.exists(),'EXCLUSIVE_FRESH_PLAN')
+ old=baseline['migration_targets']['ok'];raw=Path(old['manifest_path']).read_bytes();need(sha(raw)==old['manifest_sha256'],'BASELINE_NESTED_HASH');nested=decoded(raw)
+ nested['run_id']=run;nested['target'].update(container_name=name,volume_name=name+'-data',bootstrap_secret_host_path=str(out/'private/ok-bootstrap-password'));nested['target']['labels']={'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run};nested['source']['runtime_files_sha256']={n:sha(source(n))for n in RUNTIME}
+ verify_tools(baseline['tool_archive'],baseline['tool_archive_sha256'],nested['tools'])
+ blobs={n:source(n,h)for n,h in inventory.items()};need(all(sha((TASK/n).read_bytes())==h and blobs[OWNED_ARCHIVE+'/'+n+'.txt']==(TASK/n).read_bytes()for n,h in external.items()),'EXACT_FIVE_BEFORE_COMPILE')
+ generator={'__file__':str(ROOT/'scripts/prepare-customer-stale-predecessor-v1.py'),'__name__':'_pure_CSP1_reproduction'};exec(compile(blobs['scripts/prepare-customer-stale-predecessor-v1.py'],generator['__file__'],'exec'),generator)
+ generated,again=generator['build'](ROOT,FIXTURE_RUN);need(again==packet and len(generated)==12 and all(blobs['review-output/customer-stale-predecessor-v1/'+n]==text.encode()for n,text in generated.items()),'EXACT_TWELVE_REPRODUCTION')
+ snapshot={n:blobs[n]for n in(MIGRATION,LOCK,SCHEMA,*RUNTIME)};nested_raw=data(nested);helper={'__file__':str(ROOT/HISTORY_HELPER),'__name__':'_CSP1_source7_history'};exec(compile(blobs[HISTORY_HELPER],helper['__file__'],'exec'),helper)
+ generated,history=helper['prepare_plan'](nested,nested_raw,snapshot[MIGRATION],snapshot[SCHEMA],{n:snapshot[n]for n in RUNTIME},SQL_SHA);need(set(generated)=={MIGRATION,LOCK} and all(generated[n]==snapshot[n]for n in generated),'EXACT_INITIAL_HISTORY');snapshot['prisma/foundation/history-manifest.json']=data(history)
+ buffer=io.BytesIO()
+ with gzip.GzipFile(fileobj=buffer,mode='wb',mtime=0)as zipped:
+  with tarfile.open(fileobj=zipped,mode='w',format=tarfile.PAX_FORMAT)as tar:
+   for n,content in sorted(snapshot.items()):m=tarfile.TarInfo(n);m.size=len(content);m.mode=0o600;m.mtime=0;tar.addfile(m,io.BytesIO(content))
+ master=deepcopy(baseline);master.update(purpose='LOCAL_F0_CUSTOMER_STALE_PREDECESSOR_OWNED_V1_REHEARSAL',run_id=run,source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_sha256='TO_BE_PINNED',packet_files_sha256={},evidence_directory=str(out),targets=[{'name':name,'volume':name+'-data','kind':'ok'}],review_status='PENDING_OPERATIONAL_REVIEW',status='SOURCE_PREPARED_NOT_EXECUTED',wrapper_sha256=external[EXTERNAL_FILES[0]],steps_sha256=external[EXTERNAL_FILES[1]])
+ archive=buffer.getvalue();master['migration_targets']={'ok':{'manifest_path':str(directory/'ok-migration-manifest.json'),'manifest_sha256':sha(nested_raw),'source_snapshot':str(directory/'source-ok'),'source_files_sha256':{n:sha(b)for n,b in snapshot.items()},'source_archive':str(directory/'source-ok.tar.gz'),'source_archive_sha256':sha(archive)}}
+ master['customer_stale']={'fixtures_sha256':FIXTURES_SHA,'content_sha256':CONTENT_SHA,'coordinator_sha256':packet['source_files_sha256']['scripts/sql-review/run-customer-stale-predecessor-v1.py'],'external_files_sha256':external,'fixture_run_id':FIXTURE_RUN}
+ master['prepared_source_file_inventory_sha256']=inventory;master['guarded_history_helper_sha256']=HISTORY_SHA
+ master['storage']={'container':name,'volume':name+'-data','network':'none','ports':[],'mounts':'exactPGDATAvolume+readonlybootstrapbind+root0700secret-tmpfs','extra_mounts':False,'host_namespaces':False,'privileged':False}
+ master['cleanup']='Only exact attempted CID/name/both labels and volume/name/CreatedAt. Delete only test-owned private/ok-bootstrap-password and empty private directory. Verify exact C1V/private absence; retain image and unrelated work.'
+ master['allowed_catalog_operations']=['One genuine canonical initial5ae deploy and original-grantor finalization; native29089/oracle416/ledger22 before grants.','Actual SH004 Customer creation, only two Identity fixture toggles and exactly three explicit rollback predecessor controls; no Customer bypass, UPDATE COMMIT, winner/codec/Track/worker loop.','Read-only post native/oracle/ledger and complete42 excluding only exact four genuine issuer grants; maximum prospective stale_predecessor assertion, no automatic promotion.']
+ master['execution_hold']='PENDING new source/resource/SafetySQL/binary reviews, Root admission/publication/current+committed pin and distinct literal/fresh live preflight. This source preparation cannot execute.'
+ directory.mkdir();(directory/'ok-migration-manifest.json').write_bytes(nested_raw)
+ for n,b in snapshot.items():p=directory/'source-ok'/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+ (directory/'source-ok.tar.gz').write_bytes(archive);(directory/'operation-manifest.json').write_bytes(data(master))
+ return {'status':'SOURCE_PREPARED_NOT_EXECUTED','run_id':run,'fixture_run_id':FIXTURE_RUN,'operation_manifest':str(directory/'operation-manifest.json'),'manifest_sha256':sha(data(master)),'source_archive_sha256':sha(archive),'source_files':7,'database_contacted':False,'resources_created':False}

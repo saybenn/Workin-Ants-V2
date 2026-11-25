@@ -1,0 +1,89 @@
+"""Root exact CSP-C source admission only; no Docker/SQL/pinning/execution."""
+from pathlib import Path
+import argparse,hashlib,types
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+U=T/'restore047-root-admission-helper-proposal-20261123/admit_restore047_reviewed_source_only_20261123.py'
+ub=U.read_bytes();assert hashlib.sha256(ub).hexdigest()=='db01b2e1b7d9a258688e536400c107978824aebbe8ead5edef192232868adc77'
+u=types.ModuleType('_closed_Root_file_utilities');u.__file__=str(U);exec(compile(ub,str(U),'exec'),u.__dict__)
+read_small=u.read;sha=u.sha;doc=u.decoded;enc=u.encoded;need=u.need;target=u.target
+EXACT_TOOL_PATH=T/'customer-stale-predecessor-owned-v1-first-code-private-20261123/pinned-prisma-tools.tar.gz'
+EXACT_TOOL_SHA='481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb'
+def read(path,wanted=None):
+ path=Path(path)
+ if path.absolute()!=EXACT_TOOL_PATH.absolute():return read_small(path,wanted)
+ need(wanted==EXACT_TOOL_SHA,'EXACT_TOOL_EXPECTED_HASH_REQUIRED')
+ need(not path.is_symlink()and not path.is_junction(),'LINKED_TOOL_READ_REFUSED')
+ def ident(s):return(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+ def once():
+  a=path.stat();need(u.stat.S_ISREG(a.st_mode)and a.st_nlink==1 and a.st_size==113900903,'EXACT_TOOL_REGULAR_SINGLE_LINK_BYTES')
+  with path.open('rb')as f:
+   h=u.os.fstat(f.fileno());need(ident(h)==ident(a),'TOOL_READ_OPEN_IDENTITY');raw=f.read(113900904);z=u.os.fstat(f.fileno());need(ident(z)==ident(h),'TOOL_READ_HANDLE_CHANGED')
+  after=path.stat();need(ident(a)==ident(after)and len(raw)==113900903 and sha(raw)==EXACT_TOOL_SHA,'TOOL_READ_PATH_OR_BYTES_CHANGED');return raw,ident(a)
+ a,x=once();b,y=once();need(a==b and x==y,'CLOSED_TOOL_READ_CHANGED');return a
+A=T/'customer-stale-predecessor-owned-v1-first-code-private-20261123'
+D=A/'frozen-author-delivery.json';DS='2258ea5f3edc040a86ca692197d3e8a31d721c04cc930d0c48a9ae03a2dc8dae'
+AR='context/reconciliation/local-f0-operation-sources/customer-stale-predecessor-owned-v1'
+V='context/reconciliation/local-f0-customer-stale-predecessor-owned-v1-source-validation.json'
+GATES=('independent_source_review','independent_owned_resource_review','independent_safety_sql_review','independent_binary_transport_review')
+FIVE={'execute_local_f0_customer_stale_predecessor_v1_20261120.py':'b587b5da671680eb9edc9445c0ad876a86bdc814b850debbe5296a72bed3afe8','local_f0_customer_stale_predecessor_v1_operation_steps.py':'6518f86457b63269668ad7241c8841f351bc117e0965899c5667c84e61a3ec10','prepare_local_f0_customer_stale_predecessor_v1_plan.py':'28cf7cd10cd1a821114aa4408ab5c61b7d312e28c2e9421ffb174e7246d5bebb','check_local_f0_customer_stale_predecessor_v1_operation.py':'27d5a88e7d82807d26614d142465d3ad26a3abd827a7dd883fc8bc4bcb451748','pin_local_f0_customer_stale_predecessor_v1_plan_20261120.py':'41a2f7ef9e68aeae967d0b647af9a7ade4737d58d82aa65dfad3122bcac1731b'}
+P=AR+'/reviews/Root-C-admission-20261124'
+def main():
+ ap=u.argparse.ArgumentParser();ap.add_argument('--peer',type=Path,required=True);ap.add_argument('--peer-sha256',required=True);ap.add_argument('--Root-review',type=Path);ap.add_argument('--Root-review-sha256');ap.add_argument('--apply',action='store_true');a=ap.parse_args()
+ dr=read(D,DS);d=doc(dr);need(d['external_five_sha256']==FIVE and d['frozen_files']==433,'EXACT_C_FIVE_AND433')
+ index=read(Path(d['frozen_index']),d['frozen_index_sha256']);fm=doc(index)['files_sha256'];need(len(fm)==433,'FROZEN433')
+ for name,h in fm.items():
+  p=Path(name);need(p.resolve().is_relative_to(A.resolve()),'PRIVATE_FREEZE_CONFINEMENT');read(target(A,p.relative_to(A).as_posix()),h)
+ m=d['Root_files_sha256'];need(len(m)==159 and all(n==V or n.startswith(AR+'/')for n in m),'EXACT_NAMESPACE159')
+ F=A/'workinants-correction-pass';blobs={n:read(target(F,n),h)for n,h in m.items()};v=doc(blobs[V])
+ need(v['operator_sources_sha256']==FIVE and all(v[g]['decision']=='PENDING'for g in(*GATES,'Root_source_review')),'AUTHOR_PENDING_GATES')
+ actual={p.relative_to(F).as_posix():sha(read(p))for p in(F/AR).rglob('*')if p.is_file()};need(actual==v['archive_files_sha256'],'EXACT_AUTHOR_ARCHIVE')
+ external={n:read(A/n,h)for n,h in FIVE.items()}
+ for n,b in external.items():need(blobs[AR+'/'+n+'.txt']==b,'PHYSICAL_SNAPSHOT_PAIR')
+ prepared=d['all_prepared_Root_files_sha256'];need(len(prepared)==364,'PREPARED364')
+ for n,h in prepared.items():
+  read(target(F,n),h)
+  if n not in m:read(target(R,n),h)
+ pr=read(a.peer,a.peer_sha256);peer=doc(pr)
+ need(peer.get('decision')=='SOURCE_APPROVED'and peer.get('findings')==[] and peer.get('operator_sources_sha256')==FIVE and peer.get('Root_files_sha256')==m,'EXACT_NonAuthor_CODE_APPROVAL')
+ need(peer.get('reviewer')not in(None,'/root','/root/v9_code_review'),'DISTINCT_PEER')
+ for gate in GATES:
+  value=peer.get('gates',{}).get(gate)
+  need(value=='SOURCE_APPROVED'or(type(value)is dict and value.get('decision')=='SOURCE_APPROVED'),'EXPLICIT_FOUR_GATE_SCOPE')
+ protected={'context/reconciliation/local-f0-assertion-evidence.json':read(R/'context/reconciliation/local-f0-assertion-evidence.json','8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7'),'context/reconciliation/local-f0-qualification-status.json':read(R/'context/reconciliation/local-f0-qualification-status.json','a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a')}
+ if not a.apply:
+  print(u.json.dumps({'status':'READ_ONLY_CSP_C_SOURCE_REVIEWED','candidate_files':159,'frozen_files':433,'prepared_files':364,'physical_five':True,'four_nonauthor_gates':True,'Root_mutated':False,'runtime':'NOT_RUN'}));return
+ need(a.Root_review and a.Root_review_sha256,'SEPARATE_ROOT_RECEIPT')
+ rr=read(a.Root_review,a.Root_review_sha256);rv=doc(rr)
+ required={'decision':'SOURCE_APPROVED','reviewer':'/root','findings':[],'author_delivery_sha256':DS,'independent_review_sha256':sha(pr),'operator_sources_sha256':FIVE,'Root_files_sha256':m,'assertion_promotions':0,'runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'}
+ need(all(rv.get(k)==x for k,x in required.items()),'EXACT_ROOT_SOURCE_RECEIPT')
+ adds={P+'/independent-code-source-review.json':pr,P+'/Root-source-review.json':rr,P+'/author-source-validation.PENDING.before.json':blobs[V],P+'/author-C-frozen-delivery.json':dr,P+'/author-C-frozen-index.json':index,P+'/Root-admission-helper.py.txt':read(Path(__file__)),P+'/Root-closed-file-utilities.py.txt':ub}
+ # Copy only explicitly bounded peer verification artifacts, not its mutable copy.
+ artifacts=peer.get('bounded_verification_artifacts',{});need(type(artifacts)is dict and len(artifacts)<=16,'BOUNDED_PEER_ARTIFACTS')
+ for name,h in artifacts.items():
+  p=Path(name);need(p.resolve().is_relative_to(T.resolve())and not p.resolve().is_relative_to(R.resolve()),'PRIVATE_PEER_ARTIFACT')
+  key=P+'/peer-verification/'+p.name;need(key not in adds,'UNIQUE_PEER_ARTIFACT_NAME');adds[key]=read(target(T,p.relative_to(T).as_posix()),h)
+ receipt={'schema':'workinants.CSP-C-Root-source-admission.v1','decision':'SOURCE_APPROVED','author_delivery_sha256':DS,'independent_review_sha256':sha(pr),'Root_source_review_sha256':sha(rr),'operator_sources_sha256':FIVE,'source_only':True,'assertion_promotions':0,'operational_manifest':'NOT_PREPARED_BY_ADMISSION','runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'}
+ adds[P+'/Root-admission-receipt.json']=enc(receipt)
+ need(not(R/AR).exists()and not(R/V).exists(),'FRESH_ROOT_NAMESPACE_REQUIRED')
+ writes={**blobs,**adds}
+ for n,b in writes.items():need(not target(R,n).exists(),'EXISTING_ROOT_SOURCE_CONFLICT')
+ for n,b in external.items():need(not(T/n).exists()or read(T/n)==b,'EXISTING_EXTERNAL_WORK_CONFLICT')
+ out=T/'CSP_C_FINAL_Root_source_admission_inventory_20261124.json';need(not out.exists(),'FRESH_INVENTORY')
+ after=u.copy.deepcopy(v);pd=P+'/independent-code-source-review.json';rd=P+'/Root-source-review.json'
+ for g in GATES:after[g]={'decision':'SOURCE_APPROVED','path':pd,'sha256':sha(pr),'operator_sources_sha256':FIVE}
+ after['Root_source_review']={'decision':'SOURCE_APPROVED','path':rd,'sha256':sha(rr),'operator_sources_sha256':FIVE}
+ after['status']='SOURCE_APPROVED_CLOSURE_AND_FIRST_ORIGIN_CORRECTED_RUNTIME_NOT_RUN';after['Root_admission']={'path':P+'/Root-admission-receipt.json','sha256':sha(adds[P+'/Root-admission-receipt.json']),'assertion_promotions':0,'runtime':'NOT_RUN'}
+ after['archive_files_sha256']={n:sha(b)for n,b in writes.items()if n.startswith(AR+'/')};writes[V]=enc(after)
+ for n,b in writes.items():u.new_or_same(target(R,n),b)
+ for n,b in external.items():u.new_or_same(target(T,n),b)
+ for n,h in prepared.items():
+  if n not in m:read(target(R,n),h)
+ for n,b in protected.items():need(read(R/n)==b,'LEDGER_STATUS_CHANGED')
+ files={n:sha(read(target(R,n)))for n in writes}
+ result={'schema':'workinants.CSP-C-FINAL-Root-source-admission-inventory.v1','status':'SOURCE_ADMITTED_OPERATION_NOT_EXECUTED','Root_files_sha256':files,'files_sha256':files,'file_count':len(files),'external_five_sha256':FIVE,'source_validation_sha256':sha(read(R/V)),'author_delivery_sha256':DS,'independent_review_sha256':sha(pr),'Root_source_review_sha256':sha(rr),'unchanged_shared_source_files':len(prepared)-len(m),'assertion_promotions':0,'qualification_ledger_status_unchanged':True,'runtime':'NOT_RUN','Posture':'D'}
+ u.new_or_same(out,enc(result));print(u.json.dumps({'status':result['status'],'files':len(files),'inventory_sha256':sha(read(out)),'source_validation_sha256':result['source_validation_sha256'],'runtime':'NOT_RUN'}))
+if __name__=='__main__':
+ try:main()
+ except BaseException as e:
+  if isinstance(e,SystemExit):raise
+  print(u.json.dumps({'status':'HELD','safe_code':str(e)if isinstance(e,u.Refused)else'CSP_ROOT_SOURCE_ADMISSION_REFUSED','raw_error_discarded':True}));raise SystemExit(1)

@@ -1,0 +1,12 @@
+def source_authentication_preflight(name):
+    with _RequiredSafetyBoundary('CLOSE',name,'CSP1_AUTHENTICATION_PREFLIGHT'):
+        class AuthEvidence:
+            value=report
+            def stage(self,value):
+                need(value in _AUTH_PHASES,'PROCESS_PROFILE');report['stage']=value;save()
+            def save(self):save()
+        report.setdefault('authentication',[])
+        api=load_reviewed_helper('scripts/sql-review/run-first-rehearsal.py')
+        try:csp_owned_authentication_preflight(AuthEvidence(),created_containers[name],api)
+        except BaseException as error:
+            code=csp_auth_origin(error);persist_best_effort('AUTH_ORIGIN_RECORD');raise Stop(code)from None

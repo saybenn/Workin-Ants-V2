@@ -1,0 +1,90 @@
+"""Root two-history successor source admission only; no pinning or execution."""
+from pathlib import Path
+import hashlib,types
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+U=T/'restore047-root-admission-helper-proposal-20261123/admit_restore047_reviewed_source_only_20261123.py'
+ub=U.read_bytes();assert hashlib.sha256(ub).hexdigest()=='db01b2e1b7d9a258688e536400c107978824aebbe8ead5edef192232868adc77'
+u=types.ModuleType('_closed_Root_source_utilities');u.__file__=str(U);exec(compile(ub,str(U),'exec'),u.__dict__)
+read_small=u.read;sha=u.sha;doc=u.decoded;enc=u.encoded;need=u.need;target=u.target
+EXACT_TOOL_PATH=T/'runtime-lease-two-history-owned-v1-HOLD-correction-FINAL-frozen-author-20261123/support/pinned-prisma-tools.tar.gz'
+EXACT_TOOL_SHA='481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb'
+def read(path,wanted=None):
+ path=Path(path)
+ if path.absolute()!=EXACT_TOOL_PATH.absolute():return read_small(path,wanted)
+ need(wanted==EXACT_TOOL_SHA,'EXACT_TOOL_EXPECTED_HASH_REQUIRED')
+ need(not path.is_symlink()and not path.is_junction(),'LINKED_TOOL_READ_REFUSED')
+ def ident(s):return(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+ def once():
+  a=path.stat();need(u.stat.S_ISREG(a.st_mode)and a.st_nlink==1 and a.st_size==113900903,'EXACT_TOOL_REGULAR_SINGLE_LINK_BYTES')
+  with path.open('rb')as f:
+   h=u.os.fstat(f.fileno());need(ident(h)==ident(a),'TOOL_READ_OPEN_IDENTITY');raw=f.read(113900904);z=u.os.fstat(f.fileno());need(ident(z)==ident(h),'TOOL_READ_HANDLE_CHANGED')
+  after=path.stat();need(ident(a)==ident(after)and len(raw)==113900903 and sha(raw)==EXACT_TOOL_SHA,'TOOL_READ_PATH_OR_BYTES_CHANGED');return raw,ident(a)
+ a,x=once();b,y=once();need(a==b and x==y,'CLOSED_TOOL_READ_CHANGED');return a
+D=T/'runtime_lease_two_history_owned_v1_HOLD_correction_FINAL_author_delivery_20261123.json'
+DS='35287d4199d948c7012095be0011e501377fdf9e2778d69b2d4869e30953c2ef'
+A=T/'runtime-lease-two-history-owned-v1-HOLD-correction-FINAL-frozen-author-20261123'
+AR='context/reconciliation/local-f0-operation-sources/runtime-lease-two-history-owned-v1'
+V='context/reconciliation/local-f0-runtime-lease-two-history-owned-v1-source-validation.json'
+FIVE={'check_local_f0_runtime_lease_two_history_owned_v1_operation.py':'7eee31ffc640a99f47f849a9137cb7fe067d6665960916018283e22ce0b5c24c','execute_local_f0_runtime_lease_two_history_owned_v1_20261123.py':'c473c555d0d25056252e8a4d0bf5f7bb4f8adda56b455589853ef361c1ad10ad','local_f0_runtime_lease_two_history_owned_v1_operation_steps.py':'f7505b51fd207a0e8c07d9bc7cc2a3887c3719773096b0caad97770453fe0f44','pin_local_f0_runtime_lease_two_history_owned_v1_plan_20261123.py':'02262a866c763e0b1c99533733cf2dfa8c498159777e9bd53bcf248781d0bfb3','prepare_local_f0_runtime_lease_two_history_owned_v1_plan.py':'21b27a5da7ed2b03a27851bc139e974021553001541717605c214eab910281fe'}
+P=AR+'/reviews/Root-successor-admission-20261124'
+ROUTING=T/'two_history_parallel_nonauthor_review_Root_routing_refinement_20261124.json'
+def main():
+ ap=u.argparse.ArgumentParser();ap.add_argument('--peer',type=Path,required=True);ap.add_argument('--peer-sha256',required=True);ap.add_argument('--Root-review',type=Path);ap.add_argument('--Root-review-sha256');ap.add_argument('--apply',action='store_true');a=ap.parse_args()
+ dr=read(D,DS);d=doc(dr);need(d['external_five_sha256']==FIVE and d['freeze_files']==555,'EXACT_SUCCESSOR_FIVE555')
+ fraw=read(A/'FREEZE-MANIFEST.json',d['freeze_manifest_sha256']);fm=doc(fraw)['files_sha256'];need(len(fm)==555,'FROZEN555')
+ for n,h in fm.items():read(target(A,n),h)
+ mr=read(Path(d['candidate_map_path']),d['candidate_map_sha256']);cm=doc(mr)
+ m=cm['candidate_files_sha256'];need(len(m)==56 and all(n==V or n.startswith(AR+'/')for n in m),'EXACT_NAMESPACE56')
+ F=A/'future-root';blobs={n:read(target(F,n),h)for n,h in m.items()};v=doc(blobs[V])
+ need(v['operator_sources_sha256']==FIVE and v['independent_source_review']['decision']=='PENDING'and v['Root_source_review']['decision']=='PENDING','AUTHOR_PENDING_GATES')
+ need(len(v['source_files_sha256'])==374,'IMMUTABLE_RUNTIME374')
+ actual={p.relative_to(F).as_posix():sha(read(p))for p in(F/AR).rglob('*')if p.is_file()};need(actual==v['archive_files_sha256'],'AUTHOR_ARCHIVE55')
+ external={n:read(A/n,h)for n,h in FIVE.items()}
+ for n,b in external.items():need(blobs[AR+'/'+n+'.txt']==b,'EXTERNAL_SNAPSHOT_PAIR')
+ whole=cm['whole_packet_files_sha256'];need(len(whole)==425,'WHOLE425')
+ for n,h in whole.items():
+  read(target(F,n),h)
+  if n not in m:read(target(R,n),h)
+ pr=read(a.peer,a.peer_sha256);peer=doc(pr)
+ required={'decision':'SOURCE_APPROVED','findings':[],'operator_sources_sha256':FIVE,'source_files_sha256':v['source_files_sha256'],'candidate_Root_files_sha256':m,'author_delivery_sha256':DS}
+ need(all(peer.get(k)==x for k,x in required.items()),'EXACT_NONAUTHOR_CODE_APPROVAL')
+ need(peer.get('reviewer')not in(None,'/root','/root/two_history_code_review'),'DISTINCT_PEER')
+ protected={'context/reconciliation/local-f0-assertion-evidence.json':read(R/'context/reconciliation/local-f0-assertion-evidence.json','8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7'),'context/reconciliation/local-f0-qualification-status.json':read(R/'context/reconciliation/local-f0-qualification-status.json','a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a')}
+ if not a.apply:
+  print(u.json.dumps({'status':'READ_ONLY_TWO_HISTORY_SUCCESSOR_REVIEWED','frozen555':True,'candidate56':True,'runtime374':True,'whole425':True,'Root_mutated':False,'runtime':'NOT_RUN'}));return
+ need(a.Root_review and a.Root_review_sha256,'ROOT_RECEIPT_REQUIRED')
+ rr=read(a.Root_review,a.Root_review_sha256);rv=doc(rr)
+ required={'decision':'SOURCE_APPROVED','reviewer':'/root','findings':[],'author_delivery_sha256':DS,'independent_review_sha256':sha(pr),'operator_sources_sha256':FIVE,'source_files_sha256':v['source_files_sha256'],'candidate_Root_files_sha256':m,'assertion_promotions':0,'runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','Posture':'D'}
+ need(all(rv.get(k)==x for k,x in required.items()),'EXACT_ROOT_SOURCE_APPROVAL')
+ route=read(ROUTING,'eb989b411d1ddc6c3db5902993abfd88ab39f2ed6b173a59757cbacd2fede756')
+ adds={P+'/independent-code-source-review.json':pr,P+'/Root-source-review.json':rr,P+'/author-source-validation.PENDING.before.json':blobs[V],P+'/author-frozen-delivery.json':dr,P+'/author-freeze-manifest.json':fraw,P+'/author-candidate-map.json':mr,P+'/Root-admission-helper.py.txt':read(Path(__file__)),P+'/Root-closed-file-utilities.py.txt':ub,P+'/Root-parallel-review-routing-refinement.json':route}
+ artifacts=peer.get('bounded_verification_artifacts',{});need(type(artifacts)is dict and len(artifacts)<=20,'BOUNDED_PEER_ARTIFACTS')
+ for name,h in artifacts.items():
+  p=Path(name);need(p.resolve().is_relative_to(T.resolve())and not p.resolve().is_relative_to(R.resolve()),'PRIVATE_PEER_ARTIFACT')
+  n=P+'/peer-verification/'+p.name;need(n not in adds,'UNIQUE_PEER_ARTIFACT');adds[n]=read(target(T,p.relative_to(T).as_posix()),h)
+ receipt={'schema':'workinants.two-history-successor-Root-source-admission.v1','decision':'SOURCE_APPROVED','operator_sources_sha256':FIVE,'source_files_sha256':v['source_files_sha256'],'author_delivery_sha256':DS,'independent_review_sha256':sha(pr),'Root_review_sha256':sha(rr),'runtime':'NOT_RUN_SOURCE_ADMISSION_ONLY','assertion_promotions':0,'Posture':'D'}
+ adds[P+'/Root-admission-receipt.json']=enc(receipt)
+ need(not(R/AR).exists()and not(R/V).exists(),'FRESH_ROOT_NAMESPACE')
+ writes={**blobs,**adds}
+ for n,b in writes.items():need(not target(R,n).exists(),'EXISTING_ROOT_WORK')
+ for n,b in external.items():need(not(T/n).exists()or read(T/n)==b,'EXISTING_EXTERNAL_WORK')
+ out=T/'two_history_successor_FINAL_Root_source_admission_inventory_20261124.json';need(not out.exists(),'FRESH_INVENTORY')
+ after=u.copy.deepcopy(v);pd=P+'/independent-code-source-review.json';rd=P+'/Root-source-review.json'
+ after['independent_source_review']={'decision':'SOURCE_APPROVED','path':pd,'sha256':sha(pr),'operator_sources_sha256':FIVE,'source_files_sha256':v['source_files_sha256']}
+ after['Root_source_review']={'decision':'SOURCE_APPROVED','path':rd,'sha256':sha(rr),'operator_sources_sha256':FIVE,'source_files_sha256':v['source_files_sha256']}
+ after['status']='SOURCE_APPROVED_SUCCESSOR_CLOSURE_ORIGIN_RESOURCE_ORDER_RUNTIME_NOT_RUN'
+ after['Root_admission']={'path':P+'/Root-admission-receipt.json','sha256':sha(adds[P+'/Root-admission-receipt.json']),'assertion_promotions':0,'runtime':'NOT_RUN'}
+ after['archive_files_sha256']={n:sha(b)for n,b in writes.items()if n.startswith(AR+'/')};writes[V]=enc(after)
+ for n,b in writes.items():u.new_or_same(target(R,n),b)
+ for n,b in external.items():u.new_or_same(target(T,n),b)
+ for n,h in whole.items():
+  if n not in m:read(target(R,n),h)
+ for n,b in protected.items():need(read(R/n)==b,'LEDGER_STATUS_CHANGED')
+ files={n:sha(read(target(R,n)))for n in writes}
+ result={'schema':'workinants.two-history-successor-FINAL-Root-source-admission-inventory.v1','status':'SOURCE_ADMITTED_OPERATION_NOT_EXECUTED','Root_files_sha256':files,'files_sha256':files,'file_count':len(files),'external_five_sha256':FIVE,'source_files_sha256':v['source_files_sha256'],'source_validation_sha256':sha(read(R/V)),'author_delivery_sha256':DS,'independent_review_sha256':sha(pr),'Root_source_review_sha256':sha(rr),'qualification_ledger_status_unchanged':True,'assertion_promotions':0,'runtime':'NOT_RUN','Posture':'D'}
+ u.new_or_same(out,enc(result));print(u.json.dumps({'status':result['status'],'files':len(files),'inventory_sha256':sha(read(out)),'source_validation_sha256':result['source_validation_sha256'],'runtime':'NOT_RUN'}))
+if __name__=='__main__':
+ try:main()
+ except BaseException as e:
+  if isinstance(e,SystemExit):raise
+  print(u.json.dumps({'status':'HELD','safe_code':str(e)if isinstance(e,u.Refused)else'TWO_HISTORY_ROOT_ADMISSION_REFUSED','raw_error_discarded':True}));raise SystemExit(1)

@@ -1,0 +1,54 @@
+"""Inspect one direct-auth outer-killed/no-normal-result path. NO source fix."""
+from pathlib import Path
+import contextlib,hashlib,io,json,runpy,sys,tempfile,threading,time
+OUT=Path(__file__).resolve().parent;forbidden=[]
+def audit(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn'):
+  forbidden.append(event);raise RuntimeError('INNER_RUNTIME_FORBIDDEN')
+sys.addaudithook(audit)
+M=runpy.run_path(str(OUT/'check_local_f0_runtime_lease_two_history_owned_v1_operation.py'),run_name='_direct_auth_deadline_support')
+class KilledOuter(M['Process']):
+ def __init__(self,args,owner):
+  self.release=threading.Event();self.owner=owner
+  def reply(a,b):self.release.wait();return 1,b'',b''
+  super().__init__(args,reply)
+ def wait(self,timeout=None):
+  if not self.ready.is_set():
+   self.owner.shift=31
+   raise __import__('subprocess').TimeoutExpired('UNIT_ONLY_AUTH_DEADLINE',timeout)
+  return self.code
+ def terminate(self):self.release.set();self.code=1;self.ready.set()
+ def kill(self):self.terminate()
+class Driver(M['Boundary']):
+ def __init__(self,reply):super().__init__(reply);self.shift=0;self.injected=False;self.failed=None
+ def monotonic(self):return time.monotonic()+self.shift
+ def Popen(self,args,**kw):
+  if not self.injected and 'psql'in args and '-U'in args and args[args.index('-U')+1]=='wa_migrator':
+   self.injected=True;self.calls.append((args,kw));p=KilledOuter(args,self);self.failed=p;self.processes.append(p);return p
+  return super().Popen(args,**kw)
+
+with tempfile.TemporaryDirectory(dir=OUT,prefix='direct-auth-deadline-UNIT-')as d:
+ core,m,path=M['unit_fixture'](Path(d));pins={n:hashlib.sha256((OUT/n).read_bytes()).hexdigest()for n in core.FIVE};model=M['WholeModel'](core,m);zero=[]
+ def reply(args,payload):
+  result=model.reply(args,payload)
+  if driver.injected and b'pg_stat_activity'in payload:zero.append(json.loads(result[1]))
+  return result
+ driver=Driver(reply)
+ with contextlib.redirect_stdout(io.StringIO()):code=core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+ report=core.report;failed=[v for v in core.TRANSPORT.observations if v['failed']]
+ assert code==1 and driver.injected and model.bootstrapped
+ assert report['primary_failure']=={'stage':'AUTH_wa_migrator','code':'PROCESS_DEADLINE_EXCEEDED'}
+ assert len(failed)==1 and failed[0]['closure_confirmed']and failed[0]['process_exit_confirmed']and failed[0]['pipes_closed']and failed[0]['threads_closed']
+ assert core.TRANSPORT.unknown is False and model.finalizer_calls==1
+ assert {'migrator':0,'other_client_backends':0}in zero
+ assert not model.created and not model.volume and report['cleanup_summary']['private_directory_absent']
+ raw=json.dumps(report).encode();assert all(s.encode()not in raw for s in core.all_secrets)
+ assert pins=={n:hashlib.sha256((OUT/n).read_bytes()).hexdigest()for n in core.FIVE}
+ result={'schema':'workinants.two-history-direct-auth-forced-outer-closure-inspection.v1','status':'SOURCE_MODEL_COUNTEREXAMPLE_OBSERVED_NOT_APPROVAL',
+ 'operator_sources_sha256':pins,'original':report['primary_failure'],'emergency_closed_outer_receipt':failed[0],
+ 'no_normal_auth_result_returned':True,'remote_psql_exit_receipt_observed':False,'later_global_zero_observed':True,
+ 'unknown_latch_observed':core.TRANSPORT.unknown,'grantor_SQL_dispatches_observed':model.finalizer_calls,'exact_mock_resource_cleanup':True,
+ 'limit':'Physical outer CLI termination and a modeled zero backend observation do not assert actual remote psql lifetime; no real remote leak or database execution is claimed.',
+ 'no_source_extension_implemented':True,'forbidden_edges_attempted':forbidden,'runtime':'NOT_RUN','Posture':'D'}
+ encoded=(json.dumps(result,sort_keys=True,indent=2)+'\n').encode();p=OUT/'direct-auth-deadline-inspection.json';p.open('xb').write(encoded)
+ print(json.dumps({'status':result['status'],'receipt_sha256':hashlib.sha256(encoded).hexdigest(),'grantor_SQL_dispatches_observed':model.finalizer_calls,'unknown':core.TRANSPORT.unknown,'all_outer_receipts_true':True}))

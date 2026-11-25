@@ -1,0 +1,80 @@
+"""Record reviewed source-only progress, preserving all prior qualification."""
+from pathlib import Path
+import json,hashlib,datetime
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+enc=lambda d:(json.dumps(d,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+def new(p,b):
+ p.parent.mkdir(parents=True,exist_ok=True)
+ with p.open('xb')as f:f.write(b)
+F='context/reconciliation/local-f0-source-followups/CSP-C-two-history-reviewed-source-20261124'
+P='context/reconciliation/local-f0-CSP-C-two-history-reviewed-source-progress-20261124.json'
+L='context/reconciliation/local-f0-assertion-evidence.json';S='context/reconciliation/local-f0-qualification-status.json'
+lb=(R/L).read_bytes();sb=(R/S).read_bytes();assert sha(lb)=='8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7'and sha(sb)=='a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a'
+prose=['context/progress-tracker.md','context/reconciliation/phase0-foundation-report.md','context/reconciliation/foundation-sql-draft-review.md']
+B='context/reconciliation/local-f0-qualification-board.json';V='context/reconciliation/foundation-sql-draft-validation.json';paths=prose+[B,V]
+before={n:(R/n).read_bytes()for n in paths}
+for kind in('CSP','TWO'):
+ d=json.loads((T/(kind+'_fresh_Root_source_preparation_20261124.json')).read_bytes());assert d['database_contacted']is False and d['resources_created']is False
+ m=json.loads(Path(d['manifest']).read_bytes());mp=m.get('prepared_source_file_inventory_sha256',m['packet_files_sha256']);assert not set(paths)&set(mp)
+for n,b in before.items():new(T/'CSP_C_two_history_progress_before_20261124'/n,b)
+files={}
+copies={
+ 'CSP-source-admission-inventory.json':'CSP_C_FINAL_Root_source_admission_inventory_20261124.json',
+ 'two-history-source-admission-inventory.json':'two_history_successor_FINAL_Root_source_admission_inventory_20261124.json',
+ 'CSP-pure-fresh-preparation.json':'CSP_fresh_Root_source_preparation_20261124.json',
+ 'two-history-pure-fresh-preparation.json':'TWO_fresh_Root_source_preparation_20261124.json',
+ 'Root-pure-preparation-driver.py.txt':'prepare_CSP_C_two_history_fresh_Root_packets_20261124.py',
+ 'Root-admission-helper-delta-independent-review.json':'Root_source_admission_helpers_exact_archive_delta_independent_review_20261124.json',
+ 'CSP-admission-helper-before-exact-archive.py.txt':'admit_CSP_C_reviewed_source_only_20261124.py.before-exact-tool-archive-20261124.txt',
+ 'CSP-admission-helper-cross-stat-ctime-refusal.py.txt':'admit_CSP_C_reviewed_source_only_20261124.py.cross-stat-ctime-refusal-20261124.txt',
+ 'CSP-admission-helper-before-peer-scope.py.txt':'admit_CSP_C_reviewed_source_only_20261124.py.before-actual-peer-scope-field-20261124.txt',
+ 'two-history-admission-helper-before-exact-archive.py.txt':'admit_two_history_successor_reviewed_source_only_20261124.py.before-exact-tool-archive-20261124.txt',
+ 'two-history-admission-helper-cross-stat-ctime-refusal.py.txt':'admit_two_history_successor_reviewed_source_only_20261124.py.cross-stat-ctime-refusal-20261124.txt',
+ 'two-history-admission-helper-before-peer-map-fields.py.txt':'admit_two_history_successor_reviewed_source_only_20261124.py.before-actual-peer-map-fields-20261124.txt',
+ 'Root-progress-recorder.py.txt':Path(__file__).name}
+for name,source in copies.items():
+ b=(T/source).read_bytes();new(R/F/name,b);files[F+'/'+name]=sha(b)
+assert files[F+'/Root-admission-helper-delta-independent-review.json']=='f3c63b222f8cdce723fcafe65912bc3ea8aa2d7b88ce31836c790b965016b5d6'
+for label,source,subkey in [('CSP','customer_stale_predecessor_owned_v1_first_code_independent_source_review_20261124.json','independent_offline_results'),('two-history','two-history-successor-independent-code-peer-private-20261124/SOURCE-APPROVED-independent-review.json','bounded_independent_verification')]:
+ report=json.loads((T/source).read_bytes());checks=report[subkey]['receipts'];assert len(checks)<=24
+ for name,entry in checks.items():
+  p=Path(entry['path']);assert p.resolve().is_relative_to(T.resolve())and not p.resolve().is_relative_to(R.resolve())and p.name==name and not p.is_symlink()
+  b=p.read_bytes();assert sha(b)==entry['sha256'];n=F+'/'+label+'-peer-checks/'+name;new(R/n,b);files[n]=sha(b)
+st=json.loads(sb);record={'schema':'workinants.CSP-C-two-history-reviewed-source-progress.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'parent_published_commit':'971adfd3c560b63461dbf288469055af1a619586','current_checkpoint':'3.8','assertion_status_counts':st['assertion_status_counts'],'case_status_counts':st['case_status_counts'],'current_rows':730,'ledger_sha256':sha(lb),'status_sha256':sha(sb),'assertion_promotions':0,'new_database_runs':0,'Posture':'D','Brain_final_acceptance':'PENDING','continue_after_publication':True}
+record['CSP']={'source_validation':'context/reconciliation/local-f0-customer-stale-predecessor-owned-v1-source-validation.json','source_validation_sha256':'f6b6965d9e153e3433225d924bc7c35b6ff251e90d55f99cb2192f32698c4772','independent_review_sha256':'123053bf51e6c67ede39f4deb4c1e8df8e2496be66e4b602560e7fd210a47364','focused_methods_PASS':20,'source_admitted_files':167,'fresh_run_id':'73292a8f-838e-4d92-be2e-42170dd5ec6a','fresh_prepared_files':372,'prospective_ceiling':'P0C-CAS-01/control.stale_predecessor only; no committed UPDATE/winner/codec/whole-case/worker/Track loop','runtime':'NOT_RUN'}
+record['two_history']={'source_validation':'context/reconciliation/local-f0-runtime-lease-two-history-owned-v1-source-validation.json','source_validation_sha256':'fef3049671dc7770c9768d70d4152c2d152ae307cb91ebbef0bae4ac86bd3b30','independent_review_sha256':'979d33f12efec47635b74d1905ea83aace9039ba5021d1a307e5186675245518','focused_checks_PASS':34,'source_admitted_files':66,'fresh_run_id':'3dd9cf40-508a-4338-82ea-cb6ad0bed819','fresh_prepared_files':435,'source8':'initial5ae39 plus immutable reviewed append49c334; expected effective cfb1c1','prospective_ceiling':'genuine two-file Prisma deployment/noop/full native/ledger machinery only; no business assertion promotion','runtime':'NOT_RUN'}
+record['source_closure']='Independent nonauthor approvals and separate Root source reviews close auth/inner-client/forced-exec uncertainty, original safe failure preservation and credential/mount ordering findings at source/model level only. Prior HOLD reports and original operators remain unchanged. Unknown remote exit vetoes SQL/PASS even with physically closed outer process/pipes/threads.'
+record['Root_helper_refinement']={'large_file':'only exact pinned tool archive113900903B/SHA481b68 receives larger bound; others8MiB','Windows_ctime':'stat/fstat ctime compared only within same API, preserving closed path/handle identity and both reads','peer_field_binding':'actual strict CSP four-scope list and two-history nested374/56/whole425 plus five approved decisions; frozen reports unchanged','prior_safe_dry_refusals':['REGULAR_SINGLE_LINK_BOUNDED','TOOL_READ_OPEN_IDENTITY','EXPLICIT_FOUR_GATE_SCOPE','EXACT_NONAUTHOR_CODE_APPROVAL'],'independent_delta_review_sha256':'f3c63b222f8cdce723fcafe65912bc3ea8aa2d7b88ce31836c790b965016b5d6'}
+record['exact_blocker']='Fresh admitted packets remain unpinned and pending exact operational literal review/live local identity preflight. Corrected App/affectedWorker still require versioned source and actual evidence; no older executable label may select them.'
+record['next_action']='Normal FF publish exact source; pin actual committed complete372/435 views; independent literal reviews and Root fresh endpoint/platform/image/resource checks; execute owned local runs sequentially with controlled cleanup. Review actual outcomes and continue bounded evidence admission and corrected App/Worker work.'
+record['repeated_and_why']='Peer20 and34 focused checks validate changed owning orchestration only, all external process/database boundaries modeled. Root verified full frozen/current source maps, all review gates and fresh pure source7/source8 packet preparation with process/socket audit forbidden. No unchanged750/501/75 or full730 rerun. Qualification ledger/status/old reader and actual evidence unchanged.'
+record['parallel_source_only']='Scoped6 retained-actual audit supports private max4 domain-reader proposal (2 foreign-root PASS ceilings,2 generation PARTIAL ceilings), old403/6claims/15physicalruns unchanged; no new run. App effective-source/versioned composition plan is private, no runtimecode admitted.'
+record['preserved_prior_progress_files']={'parent_commit':'971adfd3c560b63461dbf288469055af1a619586','files_sha256':{n:sha(b)for n,b in before.items()},'exact_external_backup':str(T/'CSP_C_two_history_progress_before_20261124')}
+new(R/P,enc(record));files[P]=sha((R/P).read_bytes())
+text="""## Local F0 continuation - reviewed owning source packets (2026-11-24)
+
+Accepted coverage remains **695 PASS /35 PARTIAL /265 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**,730 current rows. The selected94 cases remain9 PASS /79 PARTIAL /6 NOT_RUN. Posture D and Brain final acceptance remain pending.
+
+Separate nonauthor reviews approved both corrected owning source packets with no findings:20 focused Customer predecessor methods and34 two-history checks passed with every external boundary modeled. Root admitted their exact sources and separate review receipts, preserving earlier HOLD reports and all historical actual evidence. The fixes preserve first safe failures and sticky remote/inner-client uncertainty, and verify exact private mounts before candidate credential writes.
+
+Fresh pure preparations now bind372 Customer predecessor files and435 two-history files. Their operation manifests remain unpinned and pending literal review; no database was contacted or resource created. Source7 uses canonical initial5ae39; source8 adds only the reviewed append49c334/effective cfb1c1. No old baseline label selects an older executable packet.
+
+Next: normal fast-forward publication, exact current/committed source pin, independent literal review and fresh local endpoint/image/resource checks, followed by Root-only sequential disposable runs and exact cleanup. Customer predecessor evidence is capped at one assertion; two-history is machinery proof only. Corrected App/affectedWorker and remaining scoped evidence work continue afterward.
+
+Plain English: The safety fixes passed pretend tests, and the exact files are saved. The real test boxes have not run yet. Older passing and unfinished results keep their old meanings.
+
+"""
+for n in prose:(R/n).write_bytes((text+'Current record: '+P+' (SHA-256 '+files[P]+'). Prior sections below remain version-qualified history.\n\n---\n\n').encode()+before[n])
+b=json.loads(before[B]);b['previous_current_progress_before_owning_source']=b['latest_version_qualified_progress'];b['latest_version_qualified_progress']={'path':P,'sha256':files[P]}
+for k in('current_checkpoint','exact_blocker','next_action','repeated_and_why'):b[k]=record[k]
+b['current_used_packet_retry_holds']=dict(b.get('current_used_packet_retry_holds',{}),CSP1='SOURCE_APPROVED_PENDING_PIN_LITERAL_ACTUAL',two_history='SOURCE_APPROVED_PENDING_PIN_LITERAL_ACTUAL')
+b['inflight_private_sources']={'Scoped6_retrospective':'SOURCE_ONLY_MAX4_READER_PROPOSAL_NOT_ADMITTED_NO_NEW_RUN','App_effective_append':'SOURCE_PLAN_ONLY_NO_RUNTIME_CODE_ADMITTED'};b['recorded_local_date']='2026-11-24'
+for step in b['steps']:
+ if step['id']=='3.8':step['current_limit']='Owning source reviews approved20/34 focused modeled checks; fresh372/435 packet plans require actual pin/literal/live checks and controlled runs. No new qualification from mocks.'
+(R/B).write_bytes(enc(b));v=json.loads(before[V]);v['CSP_C_two_history_owning_source_20261124']={'progress_path':P,'progress_sha256':files[P],'CSP':record['CSP'],'two_history':record['two_history'],'ledger_status_unchanged':True,'new_database_runs':0,'Posture':'D'};(R/V).write_bytes(enc(v))
+for n in paths:files[n]=sha((R/n).read_bytes())
+assert(R/L).read_bytes()==lb and(R/S).read_bytes()==sb
+new(T/'CSP_C_two_history_source_progress_inventory_20261124.json',enc({'schema':'workinants.CSP-C-two-history-reviewed-source-progress-inventory.v1','files_sha256':files,'file_count':len(files),'runtime':'NOT_RUN','Posture':'D'}))
+print(json.dumps({'status':'REVIEWED_SOURCE_PROGRESS_RECORDED','files':len(files),'progress_sha256':files[P],'ledger_status_unchanged':True,'runtime':'NOT_RUN'}))
+

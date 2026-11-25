@@ -1,0 +1,127 @@
+{
+  "Posture": "D",
+  "forbidden_edges_attempted": [],
+  "mode": "forced",
+  "operator_sources_preserved": true,
+  "operator_sources_sha256": {
+    "check_local_f0_runtime_lease_two_history_owned_v1_operation.py": "7eee31ffc640a99f47f849a9137cb7fe067d6665960916018283e22ce0b5c24c",
+    "execute_local_f0_runtime_lease_two_history_owned_v1_20261123.py": "c473c555d0d25056252e8a4d0bf5f7bb4f8adda56b455589853ef361c1ad10ad",
+    "local_f0_runtime_lease_two_history_owned_v1_operation_steps.py": "f7505b51fd207a0e8c07d9bc7cc2a3887c3719773096b0caad97770453fe0f44",
+    "pin_local_f0_runtime_lease_two_history_owned_v1_plan_20261123.py": "02262a866c763e0b1c99533733cf2dfa8c498159777e9bd53bcf248781d0bfb3",
+    "prepare_local_f0_runtime_lease_two_history_owned_v1_plan.py": "21b27a5da7ed2b03a27851bc139e974021553001541717605c214eab910281fe"
+  },
+  "results": [
+    {
+      "case": "force_auth",
+      "exact_cleanup": true,
+      "finalizer_calls": 0,
+      "independent_reexecution": true,
+      "later_zero": true,
+      "memory_report_sha256": "8b61e407ffd736f4d713a62b21f2eb610e291cccf85761a528702c5fb151ca48",
+      "modeled_processes": 70,
+      "no_actual_remote_exit_claim": true,
+      "no_secret_retained": true,
+      "normal_raw_then_rejection": false,
+      "persistent_IO": false,
+      "primary": {
+        "code": "PROCESS_DEADLINE_EXCEEDED",
+        "stage": "AUTH_wa_migrator"
+      },
+      "private_directory_absent": true,
+      "secondary_observer": false,
+      "seconds": 168.11,
+      "status": "PASS_UNIT_ONLY",
+      "target_byte_receipt": {
+        "closure_confirmed": true,
+        "failed": true,
+        "normal_binary_result_returned": false,
+        "pipes_closed": true,
+        "process_exit_confirmed": true,
+        "profile": "control",
+        "remote_exec_attempted": true,
+        "remote_exit_unconfirmed": true,
+        "stderr_bytes": 0,
+        "stdin_bytes": 166,
+        "stdout_bytes": 0,
+        "threads_closed": true
+      },
+      "unknown": true
+    },
+    {
+      "case": "force_auth_io_observer",
+      "exact_cleanup": true,
+      "finalizer_calls": 0,
+      "independent_reexecution": true,
+      "later_zero": false,
+      "memory_report_sha256": "510481febe40622bd7311973a6eb5515a3f59555e074f9ffa029c4293d1b4b68",
+      "modeled_processes": 70,
+      "no_actual_remote_exit_claim": true,
+      "no_secret_retained": true,
+      "normal_raw_then_rejection": false,
+      "persistent_IO": true,
+      "primary": {
+        "code": "PROCESS_DEADLINE_EXCEEDED",
+        "stage": "AUTH_wa_migrator"
+      },
+      "private_directory_absent": true,
+      "secondary_observer": true,
+      "seconds": 125.687,
+      "status": "PASS_UNIT_ONLY",
+      "target_byte_receipt": {
+        "closure_confirmed": true,
+        "failed": true,
+        "normal_binary_result_returned": false,
+        "pipes_closed": true,
+        "process_exit_confirmed": true,
+        "profile": "control",
+        "remote_exec_attempted": true,
+        "remote_exit_unconfirmed": true,
+        "stderr_bytes": 0,
+        "stdin_bytes": 166,
+        "stdout_bytes": 0,
+        "threads_closed": true
+      },
+      "unknown": true
+    },
+    {
+      "case": "force_bootstrap",
+      "exact_cleanup": true,
+      "finalizer_calls": 0,
+      "independent_reexecution": true,
+      "later_zero": false,
+      "memory_report_sha256": "6c21e9ac7ff835fdc174c641e31f894af8ca013b796494bd020331803993d449",
+      "modeled_processes": 61,
+      "no_actual_remote_exit_claim": true,
+      "no_secret_retained": true,
+      "normal_raw_then_rejection": false,
+      "persistent_IO": false,
+      "primary": {
+        "code": "PROCESS_DEADLINE_EXCEEDED",
+        "stage": "ORIGINAL_BOOTSTRAP"
+      },
+      "private_directory_absent": true,
+      "secondary_observer": false,
+      "seconds": 140.219,
+      "status": "PASS_UNIT_ONLY",
+      "target_byte_receipt": {
+        "closure_confirmed": true,
+        "failed": true,
+        "normal_binary_result_returned": false,
+        "pipes_closed": true,
+        "process_exit_confirmed": true,
+        "profile": "control",
+        "remote_exec_attempted": true,
+        "remote_exit_unconfirmed": true,
+        "stderr_bytes": 0,
+        "stdin_bytes": 3219,
+        "stdout_bytes": 0,
+        "threads_closed": true
+      },
+      "unknown": true
+    }
+  ],
+  "reviewer": "/root/two_history_successor_code_peer",
+  "runtime": "NOT_RUN",
+  "schema": "workinants.two-history-independent-peer-bounded-checks.v1",
+  "successful": true
+}

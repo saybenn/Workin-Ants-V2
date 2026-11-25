@@ -1,0 +1,203 @@
+{
+  "Posture": "D",
+  "all_nested_process_DB_network_edges": "MOCKED_OR_AUDIT_FORBIDDEN",
+  "extra": {
+    "selected_auth_both_calls": [
+      {
+        "cleanup": true,
+        "finalizer_calls": 0,
+        "index": 2,
+        "primary": {
+          "code": "PROCESS_BOUNDARY_UNEXPECTED",
+          "stage": "AUTH_HBA"
+        },
+        "unknown": true
+      },
+      {
+        "cleanup": true,
+        "finalizer_calls": 1,
+        "index": 18,
+        "primary": {
+          "code": "PROCESS_BOUNDARY_UNEXPECTED",
+          "stage": "AUTH_WRONG_PASSWORD"
+        },
+        "unknown": true
+      }
+    ]
+  },
+  "forbidden_edges_attempted": [],
+  "measurements": {
+    "actual_CTX_write_payload_sizes": [
+      [
+        "postgres",
+        "BEGIN",
+        210
+      ],
+      [
+        "postgres",
+        "CAPTURE",
+        423
+      ],
+      [
+        "postgres",
+        "CLOSE",
+        3
+      ],
+      [
+        "postgres",
+        "IDENTITY_SETUP",
+        960
+      ],
+      [
+        "wa_app_runtime",
+        "BEGIN",
+        210
+      ],
+      [
+        "wa_app_runtime",
+        "CAPTURE",
+        423
+      ],
+      [
+        "wa_app_runtime",
+        "CLOSE",
+        3
+      ],
+      [
+        "wa_app_runtime",
+        "CONTEXT_BIND",
+        170
+      ],
+      [
+        "wa_app_runtime",
+        "CONTROL",
+        399
+      ],
+      [
+        "wa_app_runtime",
+        "CONTROL",
+        448
+      ],
+      [
+        "wa_app_runtime",
+        "CONTROL",
+        467
+      ],
+      [
+        "wa_app_runtime",
+        "CONTROL",
+        598
+      ],
+      [
+        "wa_app_runtime",
+        "GENUINE_CREATE",
+        6342
+      ],
+      [
+        "wa_context_issuer",
+        "BEGIN",
+        210
+      ],
+      [
+        "wa_context_issuer",
+        "CAPTURE",
+        423
+      ],
+      [
+        "wa_context_issuer",
+        "CLOSE",
+        3
+      ],
+      [
+        "wa_context_issuer",
+        "ISSUER",
+        2348
+      ],
+      [
+        "wa_context_issuer",
+        "ISSUER",
+        15170
+      ]
+    ],
+    "actual_authentication_payload_sizes": [
+      [
+        "AUTH_CORRECT_PASSWORD",
+        165
+      ],
+      [
+        "AUTH_HBA",
+        224
+      ],
+      [
+        "AUTH_HBA",
+        260
+      ],
+      [
+        "AUTH_WRONG_PASSWORD",
+        10
+      ]
+    ],
+    "owning_source_graph": {
+      "Git_batch_framing_bytes": 25707549,
+      "files": 365,
+      "packet_sha256": "53b051d326cb9d102dcaf7ff6f4258bfaf4ca98880bbae8615c9deb1e19b88b7",
+      "source_blob_bytes": 25688446
+    }
+  },
+  "methods": 8,
+  "operator_sources_sha256": {
+    "check_local_f0_customer_stale_predecessor_v1_operation.py": "27d5a88e7d82807d26614d142465d3ad26a3abd827a7dd883fc8bc4bcb451748",
+    "execute_local_f0_customer_stale_predecessor_v1_20261120.py": "b587b5da671680eb9edc9445c0ad876a86bdc814b850debbe5296a72bed3afe8",
+    "local_f0_customer_stale_predecessor_v1_operation_steps.py": "6518f86457b63269668ad7241c8841f351bc117e0965899c5667c84e61a3ec10",
+    "pin_local_f0_customer_stale_predecessor_v1_plan_20261120.py": "41a2f7ef9e68aeae967d0b647af9a7ade4737d58d82aa65dfad3122bcac1731b",
+    "prepare_local_f0_customer_stale_predecessor_v1_plan.py": "28cf7cd10cd1a821114aa4408ab5c61b7d312e28c2e9421ffb174e7246d5bebb"
+  },
+  "phase": "affected",
+  "results": [
+    {
+      "method": "<run_path>.WholeLifecycle.test_actual_full_constructor_install_native_child_three_and_cleanup",
+      "seconds": 90.75,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.WholeLifecycle.test_original_source_code_before_closure_consequence",
+      "seconds": 231.11,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.WholeLifecycle.test_forced_remote_exec_vs_natural_return",
+      "seconds": 512.656,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.WholeLifecycle.test_inner_validated_and_preNode_contrasts",
+      "seconds": 208.375,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.WholeLifecycle.test_auth_unknown_persistent_IO_secondary_close",
+      "seconds": 72.0,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.WholeLifecycle.test_auth_completed_and_confirmed_closed_contrasts",
+      "seconds": 164.468,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.WholeLifecycle.test_peer_verifier_and_second_auth_no_exit",
+      "seconds": 104.234,
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.WholeLifecycle.test_pending_current_five_and_committed_drift_before_steps",
+      "seconds": 15.704,
+      "status": "PASS"
+    }
+  ],
+  "reviewer": "/root/lease_v2_code_review",
+  "runtime": "NOT_RUN",
+  "schema": "workinants.CSP1-C-independent-focused-same-peer-checks.v1",
+  "seconds": 1458.578,
+  "status": "PASS"
+}

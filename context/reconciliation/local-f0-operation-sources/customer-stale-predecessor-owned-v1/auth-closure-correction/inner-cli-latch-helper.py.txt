@@ -1,0 +1,5 @@
+def csp_latch_inner_uncertainty(stage,reason):
+    state=report['transport_closure'];state['transport_closure_unconfirmed']=True;state['inner_cli_closure_unconfirmed']=True
+    remember_failure(stage,'INNER_PRISMA_CLIENT_CLOSURE_UNCONFIRMED')
+    state.setdefault('first_inner_cli_uncertainty',{'reason':reason,'validated_result_received':reason=='VALIDATED_NULL_EXIT','outer_binary_close_proves_inner_exit':False,'coordinator_sha256':MANIFEST['packet_files_sha256']['scripts/sql-review/run-local-f0-migrate.py'],'runner_sha256':MANIFEST['packet_files_sha256']['scripts/sql-review/local-f0-migrate-runner.mjs']})
+    persist_best_effort('INNER_CLI_UNCERTAINTY_RECORD')

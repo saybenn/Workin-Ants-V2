@@ -1,0 +1,448 @@
+"""Focused owning tests. ALL nested service/process/network edges are modeled."""
+from pathlib import Path
+from types import ModuleType
+import contextlib,copy,hashlib,io,json,os,shutil,sys,tempfile,threading,time,unittest
+TASK=Path(__file__).resolve().parent
+ROOT=TASK/'future-root'
+def load(name,base=TASK):
+ m=ModuleType('_test_'+Path(name).stem.replace('-','_'));m.__file__=str(base/name);exec(compile((base/name).read_bytes(),m.__file__,'exec'),m.__dict__);return m
+CORE='execute_local_f0_runtime_lease_two_history_owned_v1_20261123.py'
+PREP='prepare_local_f0_runtime_lease_two_history_owned_v1_plan.py'
+PIN='pin_local_f0_runtime_lease_two_history_owned_v1_plan_20261123.py'
+
+class Pipe:
+ def __init__(self,p,index):self.p=p;self.index=index;self.closed=False;self.at=0
+ def read(self,n):
+  self.p.ready.wait()
+  if self.closed:return b''
+  value=self.p.outputs[self.index][self.at:self.at+n];self.at+=len(value);return value
+ def close(self):self.closed=True
+class Input:
+ def __init__(self,p):self.p=p;self.closed=False;self.data=bytearray()
+ def write(self,data):self.data.extend(data);return len(data)
+ def close(self):
+  if not self.closed:self.closed=True;self.p.finish(bytes(self.data))
+class Process:
+ def __init__(self,args,reply):self.args=args;self.reply=reply;self.outputs=[b'',b''];self.ready=threading.Event();self.code=None;self.error=None;self.stdin=Input(self);self.stdout=Pipe(self,0);self.stderr=Pipe(self,1)
+ def finish(self,data):
+  try:self.code,self.outputs[0],self.outputs[1]=self.reply(self.args,data)
+  except BaseException as e:self.error=(type(e).__name__,'MODEL_CALLBACK_FAILURE');self.code=1;self.outputs=[b'',b'MODEL_BOUNDARY_FAILURE']
+  self.ready.set()
+ def wait(self,timeout=None):
+  if not self.ready.wait(timeout):raise __import__('subprocess').TimeoutExpired('MOCK_ONLY',timeout)
+  return self.code
+ def poll(self):return self.code
+ def terminate(self):self.code=1;self.ready.set()
+ def kill(self):self.terminate()
+class Boundary:
+ Thread=staticmethod(threading.Thread)
+ monotonic=staticmethod(time.monotonic)
+ def __init__(self,reply):self.reply=reply;self.calls=[];self.processes=[]
+ def Popen(self,args,**kw):
+  assert kw.get('shell')is False and 'text'not in kw and 'encoding'not in kw
+  self.calls.append((args,kw));p=Process(args,self.reply);self.processes.append(p);return p
+
+class BlockedInput(Input):
+ def __init__(self,p,release):super().__init__(p);self.release=release;self.entered=threading.Event()
+ def write(self,data):self.data.extend(data);self.entered.set();self.release.wait();return len(data)
+ def close(self):self.closed=True
+
+class FaultBoundary(Boundary):
+ """Inject only physical boundary failures; no program/proof method patching."""
+ def __init__(self,fault,reply=None):
+  super().__init__(reply or(lambda a,b:(0,b'complete',b'')));self.fault=fault;self.release=threading.Event();self.thread_count=0;self.shift=0
+ def monotonic(self):return time.monotonic()+self.shift
+ def Thread(self,*a,**kw):
+  self.thread_count+=1;n=self.thread_count
+  if self.fault=='thread_constructor'and n==2:raise OSError('SECRET_CANARY_THREAD')
+  th=threading.Thread(*a,**kw)
+  if self.fault=='thread_start'and n==2:
+   def start():raise OSError('SECRET_CANARY_START')
+   th.start=start
+  if self.fault=='thread_join'and n==1:
+   def join(timeout=None):raise OSError('SECRET_CANARY_JOIN')
+   th.join=join
+  return th
+ def Popen(self,args,**kw):
+  if self.fault=='spawn_error':raise OSError('SECRET_CANARY_SPAWN')
+  p=super().Popen(args,**kw)
+  if self.fault=='late_spawn':self.shift=2
+  if self.fault in('partial_write','boolean_write'):
+   old=p.stdin.write
+   def write(data):old(data);return True if self.fault=='boolean_write'else len(data)-1
+   p.stdin.write=write
+  if self.fault=='reader_error':
+   def read(n):raise OSError('SECRET_CANARY_READ')
+   p.stdout.read=read
+  if self.fault in('input_close_error','pipe_close_error'):
+   stream=p.stdin if self.fault=='input_close_error'else p.stdout
+   def close():raise OSError('SECRET_CANARY_CLOSE')
+   stream.close=close
+  if self.fault=='exit_boolean':p.reply=lambda a,b:(True,b'complete',b'')
+  if self.fault in('blocked_write','never_exit','terminate_error','kill_error','kill_block','pipe_block','poll_error'):
+   p.stdin=BlockedInput(p,self.release)
+  if self.fault in('never_exit','kill_error','kill_block','terminate_error','poll_error'):
+   def terminate():
+    if self.fault=='terminate_error':raise OSError('SECRET_CANARY_TERMINATE')
+   p.terminate=terminate
+   if self.fault=='kill_error':
+    def kill():raise OSError('SECRET_CANARY_KILL')
+    p.kill=kill
+   elif self.fault=='kill_block':
+    def kill():self.release.wait();p.code=1;p.ready.set()
+    p.kill=kill
+   elif self.fault=='never_exit':p.kill=lambda:None
+  if self.fault=='poll_error':
+   def poll():raise OSError('SECRET_CANARY_POLL')
+   p.poll=poll
+  if self.fault=='pipe_block':
+   def close():self.release.wait();p.stdout.closed=True
+   p.stdout.close=close
+  return p
+
+class WholeFaultBoundary(Boundary):
+ def __init__(self,reply):
+  super().__init__(reply);self.release=threading.Event();self.scaled=False;self.offset=0;self.blocked=None;self.zero_after_unknown=False
+ def monotonic(self):
+  now=time.monotonic()
+  return self.anchor+(now-self.started)*2000 if self.scaled else now+self.offset
+ def Popen(self,args,**kw):
+  if self.scaled:
+   now=time.monotonic();self.offset=self.monotonic()-now;self.scaled=False
+   if args[-1]=='psql' or 'psql'in args:self.zero_after_unknown=True
+  p=super().Popen(args,**kw)
+  if '--execute-reviewed-local-f0-runtime-lease-history-v1'in args and self.blocked is None:
+   self.started=time.monotonic();self.anchor=self.started+self.offset;self.scaled=True
+   p.stdin=BlockedInput(p,self.release);self.blocked=p
+  return p
+
+def unit_fixture(base):
+ root=base/'future-root';shutil.copytree(ROOT,root)
+ for n in load(CORE).FIVE:shutil.copyfile(TASK/n,base/n)
+ (base/'support').mkdir();shutil.copyfile(TASK/'support/pinned-prisma-tools.tar.gz',base/'support/pinned-prisma-tools.tar.gz')
+ core=load(CORE,base);prep=load(PREP,base);ar=root/core.OWNED_ARCHIVE
+ # Root actually admitted this immutable source family. Preserve its genuine
+ # reviews and metadata; only the NEW owning gates below are UNIT-only.
+ family=json.loads((root/core.FAMILY_VAL).read_bytes());source=family['source_files_sha256'];registry=json.loads((ar/'source-inputs.json').read_bytes())
+ assert family['review_gate']=='SOURCE_APPROVED'
+ for key in('independent_source_review','Root_source_review'):
+  gate=family[key];assert gate['decision']=='SOURCE_APPROVED'and registry['files_sha256'][gate['path']]==gate['sha256']==core.digest_bytes((root/gate['path']).read_bytes())
+ own=json.loads((root/core.OWNED_VAL).read_bytes());runtime={**registry['files_sha256'],**{core.OWNED_ARCHIVE+'/'+n+'.txt':core.digest_bytes((base/n).read_bytes())for n in core.FIVE}};own['source_files_sha256']=dict(sorted(runtime.items()))
+ for key in('independent_source_review','Root_source_review'):
+  name=core.OWNED_ARCHIVE+'/reviews/'+key+'-UNIT-ONLY.json';record={'decision':'SOURCE_APPROVED','scope':'UNIT_ONLY_NOT_REAL_SOURCE_REVIEW','operator_sources_sha256':own['operator_sources_sha256'],'source_files_sha256':own['source_files_sha256']};raw=core.canonical_bytes(record);p=root/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw);own[key]={**{k:record[k]for k in('decision','operator_sources_sha256','source_files_sha256')},'path':name,'sha256':core.digest_bytes(raw)}
+ own['archive_files_sha256']={p.relative_to(root).as_posix():core.digest_bytes(p.read_bytes())for p in ar.rglob('*')if p.is_file()};(root/core.OWNED_VAL).write_bytes(core.canonical_bytes(own))
+ directory,m,files=prep.prepare(root,base,base/'support/pinned-prisma-tools.tar.gz')
+ directory.mkdir()
+ for n,b in files.items():p=directory/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+ m.update(source_commit='a'*40,source_tree='b'*40,packet_sha256=prep.aggregate(m['packet_files_sha256']),review_status='APPROVED_LOCAL_F0_TWO_HISTORY_OWNED_ATTEMPT')
+ path=directory/'operation-manifest.json';path.write_bytes(prep.encoded(m));return core,m,path
+
+class WholeModel:
+ """Only OS/Docker/DB replies. Actual owning/helper/proof APIs are not replaced."""
+ def __init__(self,core,m,fault=None):
+  self.c=core;self.m=m;self.root=Path(m['source_root']);self.target=m['migration_manifest']['target'];self.cid='c'*64;self.created=False;self.volume=False;self.running=False;self.bootstrapped=False;self.finalized=False;self.active={'postgres'};self.deploys=0;self.fault=fault;self.attestation_bytes=[];self.finalizer_calls=0;self.oracle_calls=0;self.native_calls=0
+  self.fixture=self.root/core.OWNED_ARCHIVE/'unit-fixtures'
+  self.old_native=json.loads((self.fixture/'native.json').read_bytes());self.oracle=json.loads((self.fixture/'oracle-results.json').read_bytes());self.ledger=json.loads((self.fixture/'ledger.json').read_bytes())
+ def json(self,v):return json.dumps(v,separators=(',',':')).encode()+b'\n'
+ def reply(self,args,payload):
+  if args[0]=='git':
+   if args[-2:]in(['rev-parse','HEAD'],['rev-parse','HEAD^{tree}']):return 0,((self.m['source_tree']if args[-1].endswith('tree}')else self.m['source_commit'])+'\n').encode(),b''
+   assert args[-2:]==['cat-file','--batch'];out=[]
+   for line in payload.decode().splitlines():
+    commit,name=line.split(':',1);assert commit==self.m['source_commit']and name in self.m['packet_files_sha256'];b=(self.root/name).read_bytes();assert hashlib.sha256(b).hexdigest()==self.m['packet_files_sha256'][name]
+    out.append(hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest().encode()+b' blob '+str(len(b)).encode()+b'\n'+b+b'\n')
+   return 0,b''.join(out),b''
+  if args[0]=='powershell.exe':return 0,b'OWNER_ONLY_VERIFIED\n',b''
+  assert args[:3]==['docker','--context','desktop-linux'];a=args[3:]
+  if a[:2]==['context','inspect']:return 0,self.json([{'Name':'desktop-linux','Endpoints':{'docker':{'Host':'npipe:////./pipe/dockerDesktopLinuxEngine'}}}]),b''
+  if a[0]=='version':return 0,self.json({'Os':'linux','Arch':'amd64','Version':'UNIT_ONLY'}),b''
+  if a[:2]==['container','ls']:return 0,('unrelated-kept\n'+(self.target['container_name']+'\n'if self.created else'')).encode(),b''
+  if a[:2]==['volume','ls']:return 0,('unrelated-volume-kept\n'+(self.target['volume_name']+'\n'if self.volume else'')).encode(),b''
+  image_id='sha256:'+self.target['image'].split('@sha256:')[1]
+  if a[:2]==['image','inspect']:
+   raw=(self.root/'scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json').read_bytes();return 0,self.json([{'Id':image_id,'Os':'linux','Architecture':'amd64','RepoDigests':['postgres@'+image_id],'Descriptor':{'mediaType':'application/vnd.oci.image.manifest.v1+json','digest':image_id,'size':len(raw)},'Config':{'Env':['PG_VERSION=17.11-1.pgdg13+2']}}]),b''
+  if a[:2]==['volume','create']:self.volume=True;return 0,(self.target['volume_name']+'\n').encode(),b''
+  if a[:2]==['container','create']:self.created=True;return 0,(self.cid+'\n').encode(),b''
+  if a[:2]==['container','start']:self.running=True;return 0,(self.cid+'\n').encode(),b''
+  if a[:2]==['container','rm']:self.created=False;self.running=False;return 0,(self.cid+'\n').encode(),b''
+  if a[:2]==['volume','rm']:self.volume=False;return 0,(self.target['volume_name']+'\n').encode(),b''
+  if a[:2]==['volume','inspect']:
+   if not self.volume:return 1,b'',b''
+   return 0,self.json([{'Name':self.target['volume_name'],'CreatedAt':'2026-11-23T00:00:00Z','Driver':'local','Scope':'local','Options':{},'Labels':self.target['labels']}]),b''
+  if a[:2]==['container','inspect']or a[0]=='inspect':
+   if not self.created:return 1,b'',b''
+   v={'Id':self.cid,'Name':'/'+self.target['container_name'],'Image':image_id,'Platform':'linux','State':{'Running':self.running},'Config':{'Image':self.target['image'],'Labels':self.target['labels']},'HostConfig':{'NetworkMode':'none','PortBindings':{},'Privileged':False,'PidMode':'','IpcMode':'private','Devices':[],'CapAdd':[],'Links':[],'Tmpfs':{'/run/wa-secrets':'rw,nosuid,noexec,nodev,mode=0700'}},'NetworkSettings':{'Ports':{}},'Mounts':[{'Type':'volume','Name':self.target['volume_name'],'Destination':'/var/lib/postgresql/data','RW':True},{'Type':'bind','Source':self.target['bootstrap_secret_host_path'],'Destination':'/run/bootstrap-password','RW':False},{'Type':'tmpfs','Destination':'/run/wa-secrets','RW':True}]};return 0,self.json([v]),b''
+  if a[0]=='cp':return 0,b'',b''
+  assert a[0]=='exec'and self.cid in a;program=a[a.index(self.cid)+1:]
+  if program[0]=='pg_isready':return 0,b'',b''
+  if program[0]in('mkdir','tar','rm'):return 0,b'',b''
+  if program[0]=='sh':return 0,(self.c.OWNER_SECRET_TMPFS_TOKEN+'\n').encode()if program[-1]==self.c.OWNER_SECRET_TMPFS_SCRIPT else b'600:0:0\n',b''
+  if program[0]=='/run/wa-f0-tools/schema-engine':return 0,b'd1b3f377ca835d73fd50954a5e22128b9ebdd6b8\n',b''
+  if program[0]=='/run/wa-f0-tools/node/bin/node':
+   if program[-1]=='--version':return 0,b'v24.22.1\n',b''
+   att=json.loads(payload);self.attestation_bytes.append(len(payload));assert len(att['planned']['tools']['files_sha256'])==10300
+   operation=program[-1]
+   if operation=='deploy':self.deploys+=1
+   if self.fault=='malformed_runner':return 0,b'\xffSECRET_CANARY_RUNNER',b''
+   if self.fault=='persistent_evidence_io':
+    # A real private filesystem obstruction, not a replaced persistence API.
+    (Path(self.m['evidence_directory'])/'run-evidence.json.tmp').mkdir()
+   flags=dict.fromkeys(self.c.STATE['host'].DIAGNOSTIC_FLAGS,False);flags.update(text_valid=True,headers_valid=True)
+   v={'schema':'workinants.local-f0-runtime-lease-history-migrate-result.v1','operation':operation,'status':'CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS','exit_code':0,'prisma_codes':[],'sqlstates':[],'no_pending_message_observed':operation=='deploy'and self.deploys>1,'raw_output_discarded':True,'database_qualification_claimed':False,'run_id':self.m['run_id'],'container_id':self.cid,**{k:att['planned']['source'][k]for k in('initial_sql_sha256','append_sql_sha256','ordered_history_sha256','effective_expected_sha256')},'attestation_sha256':hashlib.sha256(payload).hexdigest(),'diagnostic_format':flags};self.last_attestation=v['attestation_sha256'];return 0,self.json(v),b''
+  if program[0]=='/usr/bin/sha256sum':
+   if '--check'in program:
+    expected=''.join(h+'  /run/wa-f0-tools/'+n+'\n'for n,h in sorted(self.m['migration_manifest']['tools']['files_sha256'].items())).encode();assert payload==expected;return 0,b'',b''
+   hashes={'/run/wa-f0-source/'+n:h for n,h in self.m['migration_target']['source_files_sha256'].items()};hashes['/run/wa-f0-tools/node/bin/node']=self.m['migration_manifest']['tools']['files_sha256']['node/bin/node'];return 0,''.join(hashes[n]+'  '+n+'\n'for n in program[2:]).encode(),b''
+  if program[0]=='/usr/bin/stat':return 0,''.join(str((Path(self.m['migration_target']['source_snapshot'])/n.removeprefix('/run/wa-f0-source/')).stat().st_size)+'\n'for n in program[3:]).encode(),b''
+  assert program[0]=='psql';role=program[program.index('-U')+1];text=payload.decode('utf8')
+  if role not in self.active or any('PGPASSFILE=/run/wa-secrets/wrong-'in x for x in a):return 2,b'',('FATAL:  password authentication failed for user "'+role+'"\n').encode()
+  if text==(self.root/'review-output/foundation-bootstrap.review.sql').read_text(encoding='utf8'):self.bootstrapped=True;return 0,b'',b''
+  if text==(self.root/'review-output/foundation-bootstrap-finalize.review.sql').read_text(encoding='utf8'):self.finalized=True;self.finalizer_calls+=1;return 0,b'',b''
+  if 'ALTER ROLE'in text and 'PASSWORD'in text:
+   for r in self.c.ROLES:
+    if 'ALTER ROLE '+r+' PASSWORD'in text:self.active.add(r)
+   return 0,b'',b''
+  if "'client',host(inet_client_addr())"in text:
+   return 0,self.json({'login':role,'auth':'scram-sha-256:'+role,'database':'wa_p0c_rehearsal','client':'127.0.0.1','server':'127.0.0.1'}),b''
+  if 'FROM pg_hba_file_rules'in text:
+   return 0,self.json([{'rule_number':i,'type':'host','database':['all'],'user_name':['all'],'address':address,'netmask':mask,'auth_method':'scram-sha-256','error':None}for i,address,mask in((1,'127.0.0.1','255.255.255.255'),(2,'::1','ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'))]),b''
+  if 'jsonb_object_agg(rolname,rolcanlogin'in text:return 0,self.json({r:r in self.active for r in self.c.ROLES if "'"+r+"'"in text}),b''
+  if 'all_null_verifiers'in text:return 0,self.json({'runtime_roles':4,'all_null_verifiers':not any(r in self.active for r in self.c.ROLES[2:]),'flags_exact':True}),b''
+  if 'exact_temporary_options'in text:return 0,self.json({'temporary_memberships':3 if self.bootstrapped and not self.finalized else0,'exact_temporary_options':True,'leaf_create':False,'permanent_migrator_edge':True}),b''
+  if "'source_roles'"in text:return 0,self.json({'source_roles':4 if self.bootstrapped else0,'login':'postgres','auth':'scram-sha-256:postgres'}),b''
+  if "'remaining_memberships'"in text:return 0,self.json({'grantor':'postgres','auth':'scram-sha-256:postgres','remaining_memberships':0 if self.finalized else3,'leaf_create':dict.fromkeys(self.c.LEAVES,False),'active_install_connections':0}),b''
+  if "'migrator'"in text and 'pg_stat_activity'in text:return 0,self.json({'migrator':0,'other_client_backends':1 if self.fault=='active_backend'else0}),b''
+  if "'no_existing_application_namespaces'"in text:return 0,self.json(dict.fromkeys(('no_existing_application_namespaces','no_existing_application_roles','ledger_absent'),True)),b''
+  if "'public_owner'"in text:
+   pub=self.c.CATALOG['public'];return 0,self.json({'public_owner':pub['owner'],'public_acl':[{'role':r['grantee'],'grantor':r['grantor'],'privilege':r['privilege'],'grant_option':r['grant_option']}for r in pub['baseline_acl']],'application_roles':0,'event_triggers':0}),b''
+  if "'prefix'"in text and 'log_line_prefix'in text:return 0,self.json(dict.fromkeys(('prefix','terse','no_statements','no_error_statements','locale','passwords','version','collector','no_duration','no_min_duration','no_connection_logs','no_debug'),True)),b''
+  if text==(self.root/'scripts/sql-review/catalog-acl-preflight.sql').read_text(encoding='utf8'):return 0,self.json(json.loads((self.fixture/'acl-preflight.json').read_bytes())),b''
+  if text==(self.root/'scripts/sql-review/catalog-text-preflight.sql').read_text(encoding='utf8'):return 0,self.json(json.loads((self.fixture/'text-preflight.json').read_bytes())),b''
+  if text==(self.root/'scripts/sql-review/collect_native_catalog.sql').read_text(encoding='utf8'):
+   self.native_calls+=1
+   native=copy.deepcopy(self.old_native)
+   for fn in native['functions']:
+    if fn['object']=='platform_private.runtime_transition()':fn['body_sha256']='dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965'
+   return 0,self.json(native),b''
+  if text==self.c.CATALOG['oracle_sql']:
+   self.oracle_calls+=1
+   catalog=self.c.CATALOG;plan=catalog['plan'];expected=catalog['expected'];v=copy.deepcopy(self.oracle);v.update(source_expected_sha256=expected['expected_sha256'],source_inputs_aggregate_sha256=expected['inputs_aggregate_sha256'],plan_sha256=plan['plan_sha256'])
+   pre={'format':'workinants.expression-oracle-preflight.v1','plan_sha256':plan['plan_sha256'],'outcomes':dict.fromkeys(catalog['tools']['catalog_expression_oracle']._prerequisites(expected,'wa_p0c_rehearsal','postgres'),True)};end={'format':'workinants.expression-oracle-closure.v1','plan_sha256':plan['plan_sha256'],'all_oracle_tables_absent':True,'all_oracle_functions_absent':True};return 0,self.json(pre)+self.json(v)+self.json(end),b''
+  if text==(self.root/'scripts/sql-review/collect_prisma_ledger.sql').read_text(encoding='utf8'):
+   v=copy.deepcopy(self.ledger);v['history']=[]
+   for n,h in self.c.CATALOG['two'].ORDERED:v['history'].append({'name_sha256':hashlib.sha256(n.encode()).hexdigest(),'checksum_sha256':hashlib.sha256(h.encode()).hexdigest(),'checksum_format_valid':True,'id_is_uuid_v4':True,'started':True,'finished':True,'rolled_back':False,'time_order_valid':True,'steps':1,'logs_state':'NULL'})
+   v['history']=sorted(v['history'],key=self.c.CATALOG['tools']['prisma_ledger_proof'].canonical);return 0,self.json(v),b''
+  if 'workinants.runtime-lease-history-fingerprints.v1'in text:
+   rows=sorted([{'name_sha256':hashlib.sha256(n.encode()).hexdigest(),'checksum_sha256':hashlib.sha256(h.encode()).hexdigest(),'row_sha256':hashlib.sha256(('UNIT_ONLY_'+n).encode()).hexdigest()}for n,h in self.c.CATALOG['two'].ORDERED],key=lambda r:(r['name_sha256'],r['checksum_sha256']))
+   if self.fault=='changed_full_row'and self.deploys>1:rows[0]['row_sha256']='f'*64
+   return 0,self.json({'schema':'workinants.runtime-lease-history-fingerprints.v1','server_version_num':170011,'database':'wa_p0c_rehearsal','collected_as':'postgres','collector_is_superuser':True,'read_only':True,'history_count':2,'rows':rows}),b''
+  raise AssertionError('UNMODELED_FIXED_SQL')
+
+class Checks(unittest.TestCase):
+ lifecycle_runs=[]
+ @classmethod
+ def setUpClass(cls):cls.core=load(CORE);cls.prep=load(PREP);cls.pin=load(PIN)
+ def test_binary_exact_bytes_nonzero_and_text_no_translation(self):
+  body=b'abc\r\n'+b'x'*100000;driver=Boundary(lambda a,b:(7,b,b''));t=self.core.Transport(ROOT,driver)
+  r=t.text(['unit-only'],body.decode(),timeout=1,profile='metadata_tools');self.assertEqual(r.stdout.encode(),body);self.assertEqual(r.returncode,7);self.assertFalse(t.unknown)
+ def test_control_overflow_strict_decoding_and_profile_refusals(self):
+  for raw,code in((b'x'*65537,'PROCESS_BOUNDED_COMPLETE_OUTPUT'),(b'\xff','PROCESS_TEXT_DECODING')):
+   t=self.core.Transport(ROOT,Boundary(lambda a,b:(0,raw,b'')))
+   with self.assertRaisesRegex(Exception,code):t.text(['unit-only'],timeout=1)
+  t=self.core.Transport(ROOT,Boundary(lambda a,b:(0,b'',b'')))
+  for timeout in(True,0,float('nan'),151):
+   with self.assertRaises(Exception):t.text(['unit-only'],timeout=timeout)
+ def test_each_measured_channel_cap_exact_and_plus_one(self):
+  for profile,(out_cap,err_cap)in self.core.CAPS.items():
+   for index,cap in enumerate((out_cap,err_cap)):
+    with self.subTest(profile=profile,channel=index):
+     outputs=[b'',b''];outputs[index]=b'x'*cap
+     t=self.core.Transport(ROOT,Boundary(lambda a,b:(0,*outputs)));r=t.binary(['unit-only'],timeout=3,profile=profile)
+     self.assertEqual(len((r.stdout,r.stderr)[index]),cap);self.assertFalse(t.unknown)
+     outputs[index]+=b'x';t=self.core.Transport(ROOT,Boundary(lambda a,b:(0,*outputs)))
+     with self.assertRaisesRegex(Exception,'PROCESS_BOUNDED_COMPLETE_OUTPUT'):t.binary(['unit-only'],timeout=3,profile=profile)
+     self.assertLessEqual(t.observations[-1]['stdout_bytes'],out_cap);self.assertLessEqual(t.observations[-1]['stderr_bytes'],err_cap)
+ def test_transport_worker_failures_and_safe_first_origin(self):
+  cases={'partial_write':'PROCESS_STDIN_WRITE_UNCONFIRMED','boolean_write':'PROCESS_STDIN_WRITE_UNCONFIRMED',
+   'reader_error':'PROCESS_BOUNDED_COMPLETE_OUTPUT','input_close_error':'PROCESS_STDIN_CLOSE_UNCONFIRMED',
+   'pipe_close_error':'PROCESS_PIPE_CLOSE_UNCONFIRMED','thread_constructor':'PROCESS_THREAD_START_UNCONFIRMED',
+   'thread_start':'PROCESS_THREAD_START_UNCONFIRMED','thread_join':'PROCESS_THREAD_JOIN_UNCONFIRMED',
+   'exit_boolean':'PROCESS_EXIT_TYPE','spawn_error':'PROCESS_BOUNDARY_UNEXPECTED','late_spawn':'PROCESS_DEADLINE_EXCEEDED'}
+  for fault,code in cases.items():
+   with self.subTest(fault=fault):
+    driver=FaultBoundary(fault);t=self.core.Transport(ROOT,driver)
+    try:
+     with self.assertRaises(self.core.TransportStop)as raised:t.binary(['unit-only'],b'full-input',1)
+     self.assertEqual(raised.exception.code,code)
+     self.assertNotIn('SECRET_CANARY',json.dumps(t.observations))
+     if fault=='late_spawn':self.assertEqual(bytes(driver.processes[0].stdin.data),b'')
+    finally:
+     driver.release.set()
+     for p in driver.processes:p.code=1;p.ready.set()
+ def test_shared_cleanup_budget_and_sticky_unconfirmed_transport(self):
+  for fault in('blocked_write','never_exit','terminate_error','kill_error','kill_block','pipe_block','poll_error'):
+   with self.subTest(fault=fault):
+    driver=FaultBoundary(fault);t=self.core.Transport(ROOT,driver);start=time.monotonic()
+    try:
+     with self.assertRaises(self.core.TransportStop)as raised:t.binary(['unit-only'],b'x'*1300000,1)
+     self.assertEqual(raised.exception.code,'PROCESS_DEADLINE_EXCEEDED');self.assertLess(time.monotonic()-start,3.7)
+     self.assertTrue(t.unknown);self.assertFalse(raised.exception.closure_confirmed)
+     t.io=Boundary(lambda a,b:(0,b'known-closed-next-command',b''));self.assertEqual(t.binary(['unit-only'],timeout=1).returncode,0);self.assertTrue(t.unknown)
+    finally:
+     driver.release.set()
+     for p in driver.processes:p.code=1;p.ready.set()
+ def test_invalid_UTF8_is_closed_failure_and_strict_input_rejected_before_spawn(self):
+  driver=Boundary(lambda a,b:(0,b'\xffSECRET_CANARY',b''));t=self.core.Transport(ROOT,driver)
+  with self.assertRaises(self.core.TransportStop)as raised:t.text(['unit-only'],timeout=1)
+  self.assertEqual(raised.exception.code,'PROCESS_TEXT_DECODING');self.assertTrue(raised.exception.closure_confirmed);self.assertFalse(t.unknown)
+  for args,payload,timeout,profile in(([True],None,1,'control'),(['a\0b'],None,1,'control'),(['x'*8193],None,1,'control'),(['a'],b'x'*4194305,1,'control'),(['a'],None,True,'control'),(['a'],None,1,'invented')):
+   driver=Boundary(lambda*a:self.fail('SHOULD_NOT_SPAWN'));t=self.core.Transport(ROOT,driver)
+   with self.assertRaises(self.core.TransportStop):t.binary(args,payload,timeout,profile)
+   self.assertEqual(driver.calls,[])
+ def test_strict_JSON_rejects_duplicates_nonfinite_depth_and_float(self):
+  for raw in(b'{"a":1,"a":2}',b'{"a":NaN}',b'{"a":1.5}',b'['*50+b'0'+b']'*50,b'\xff'):
+   with self.assertRaises(self.core.TransportStop):self.core.strict_json(raw)
+  self.assertEqual(self.core.strict_json(b'{"safe":true,"count":2}'),{'safe':True,'count':2})
+ def test_mock_failure_metadata_never_retains_arbitrary_exception_canary(self):
+  def fail(a,b):raise ValueError('SECRET_CANARY_IDENTIFIER')
+  driver=Boundary(fail);result=self.core.Transport(ROOT,driver).binary(['unit-only'],timeout=1)
+  self.assertEqual(result.returncode,1);self.assertEqual(driver.processes[0].error,('ValueError','MODEL_CALLBACK_FAILURE'))
+  self.assertNotIn('SECRET_CANARY',json.dumps(driver.processes[0].error));self.assertNotIn(b'SECRET_CANARY',result.stderr)
+ def test_real_preparation_exact_source8_and_pending_before_process(self):
+  directory,m,files=self.prep.prepare(ROOT,TASK,TASK/'support/pinned-prisma-tools.tar.gz',run_id='60dc0170-67f0-463b-91e2-b5f7d72d7ae1')
+  self.assertEqual(len([n for n in files if n.startswith('source8/')]),8);self.assertEqual(len(m['migration_manifest']['tools']['files_sha256']),10300)
+  self.assertEqual(m['review_status'],'PENDING_OPERATIONAL_REVIEW')
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='mock-pending-')as d:
+   path=Path(d)/'operation.json';path.write_bytes(self.prep.encoded(m));driver=Boundary(lambda *a:self.fail('PROCESS'))
+   with contextlib.redirect_stdout(io.StringIO()):code=self.core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+   self.assertEqual(code,1);self.assertEqual(driver.calls,[])
+ def test_whole_real_source_map_binary_Git_framing_and_batches(self):
+  _,m,_=self.prep.prepare(ROOT,TASK,TASK/'support/pinned-prisma-tools.tar.gz',run_id='73702eae-acb8-46b3-9c36-3213de27b45d')
+  blobs={n:(ROOT/n).read_bytes()for n in m['packet_files_sha256']}
+  groups=self.core.git_batches(blobs,'a'*40);self.assertGreater(sum(g.cap for g in groups),16777216);self.assertGreater(len(groups),1)
+  for g in groups:
+   response=b''.join(hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest().encode()+b' blob '+str(len(b)).encode()+b'\n'+b+b'\n'for n,b in g.entries)
+   self.assertEqual(len(response),g.cap);self.assertTrue(self.core.verify_git_batch(g,response))
+   with self.assertRaises(Exception):self.core.verify_git_batch(g,response[:-1]+b'X')
+   t=self.core.Transport(ROOT,Boundary(lambda a,b:(0,response,b'')));r=t.binary(['git','-c','core.longpaths=true','cat-file','--batch'],g.request,30,'Git_closed_batch',g);self.assertEqual(r.stdout,response)
+ def test_actual_pinner_whole_map_committed_mutants_and_currentness(self):
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='pin-real-map-')as d:
+   base=Path(d);core,m,path=unit_fixture(base);pin=load(PIN,base);model=WholeModel(core,m)
+   held=copy.deepcopy(m);held.update(review_status='PENDING_OPERATIONAL_REVIEW',source_commit='TO_BE_PINNED',source_tree='TO_BE_PINNED',packet_sha256='TO_BE_PINNED');held_raw=core.canonical_bytes(held);path.write_bytes(held_raw)
+   pin_proof=pin.pin(path,Boundary(model.reply));pinned=json.loads(path.read_bytes())
+   self.assertGreater(pin_proof['framed_bytes'],16777216);self.assertGreater(pin_proof['batches'],1);self.assertLessEqual(pin_proof['max_batch_bytes'],16777216)
+   self.assertEqual(pinned['review_status'],'PENDING_OPERATIONAL_REVIEW')
+   self.assertEqual(path.with_name('operation-manifest-before-source-pin.json').read_bytes(),held_raw)
+   # The earlier preserved checks-6 exercised all five through full validate().
+   # Keep one actual complete pin here; use its genuine whole-map frames for
+   # focused parser mutation checks without repeating all Windows disk reads.
+   blobs={n:(Path(m['source_root'])/n).read_bytes()for n in m['packet_files_sha256']}
+   for batch in core.git_batches(blobs,m['source_commit']):
+    out=b''.join(hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest().encode()+b' blob '+str(len(b)).encode()+b'\n'+b+b'\n'for n,b in batch.entries)
+    at=out.index(b'\n')+1
+    for mutant in(out[:at]+bytes([out[at]^1])+out[at+1:],b'f'+out[1:],out+b'X',out[::-1]):
+     with self.assertRaises(core.TransportStop):core.verify_git_batch(batch,mutant)
+   target=Path(m['source_root'])/next(iter(m['packet_files_sha256']));original=target.read_bytes();target.write_bytes(original+b'\n')
+   driver=Boundary(lambda*a:self.fail('CURRENT_MUTANT_REACHED_GIT'))
+   try:
+    with self.assertRaisesRegex(Exception,'CURRENT_ROOT_SOURCE'):pin.validate(m,Path(m['source_root']),base,core.Transport(Path(m['source_root']),driver))
+    self.assertEqual(driver.calls,[])
+   finally:target.write_bytes(original)
+ def test_closed_original_reference_rejects_rewrite_and_wrong_source8(self):
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='closed-reference-')as d:
+   base=Path(d);p=base/'proof.json';p.write_bytes(b'{"safe":true}\n');_,origin=self.core.closed_bytes(p)
+   p.write_bytes(b'{"safe":false}\n')
+   with self.assertRaises(self.core.TransportStop):self.core.closed_bytes(p,origin=origin)
+  directory,m,files=self.prep.prepare(ROOT,TASK,TASK/'support/pinned-prisma-tools.tar.gz')
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='wrong-source8-')as d:
+   snapshot=Path(d)
+   for n,b in files.items():
+    if n.startswith('source8/'):
+     target=snapshot/n.removeprefix('source8/');target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(b)
+   host=ModuleType('_actual_closed_source13');host.__file__=str(ROOT/'scripts/sql-review/run-local-f0-runtime-lease-history-v1.py');exec(compile(Path(host.__file__).read_bytes(),host.__file__,'exec'),host.__dict__)
+   prep,blobs,val=host.load_sources(ROOT,m['packet_files_sha256']);self.assertEqual(len(host.verify_source8(snapshot,m['migration_manifest'],files['migration-manifest.json'],prep)),8)
+   target=snapshot/prep.HISTORY/prep.ORDERED[0][0]/'migration.sql';target.write_bytes(target.read_bytes()+b'\n-- WRONG_SOURCE_CANARY\n')
+   with self.assertRaises(Exception):host.verify_source8(snapshot,m['migration_manifest'],files['migration-manifest.json'],prep)
+ def test_hardlink_source_rejected_when_host_allows_link_creation(self):
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='closed-hardlink-')as d:
+   p=Path(d)/'proof';p.write_bytes(b'synthetic')
+   try:os.link(p,Path(d)/'alias')
+   except PermissionError:self.skipTest('PRIVATE_HARDLINK_CREATION_DENIED')
+   with self.assertRaisesRegex(Exception,'CLOSED_REGULAR_FILE'):self.core.closed_bytes(p)
+ def test_real_whole_owning_entry_coordinate_facade_binary_and_native(self):
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='whole-unit-')as d:
+   base=Path(d);core,m,path=unit_fixture(base);model=WholeModel(core,m);driver=Boundary(model.reply)
+   with contextlib.redirect_stdout(io.StringIO()):code=core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+   report=json.loads((Path(m['evidence_directory'])/'run-evidence.json').read_bytes())
+   self.lifecycle_runs.append({'case':'complete-model','exit_code':code,'status':report['status'],'primary':report.get('primary_failure'),'cleanup':report.get('cleanup_summary'),'native':report.get('native_results'),'attestation_input_bytes':model.attestation_bytes,'modeled_processes':len(driver.calls),'boundary_errors':[p.error for p in driver.processes if p.error]})
+   self.assertEqual([p.error for p in driver.processes if p.error],[]);self.assertEqual(code,0,report.get('primary_failure'));self.assertEqual(report['status'],'PASS_MACHINERY_SUBSET_ONLY');self.assertEqual(model.deploys,2);self.assertEqual(model.finalizer_calls,1);self.assertFalse(model.created or model.volume);self.assertTrue(report['cleanup_summary']['private_directory_absent'])
+   self.assertEqual(len(model.attestation_bytes),3);self.assertTrue(all(1000000<n<4194304 for n in model.attestation_bytes));self.assertEqual(report['initial_two_rows']['rows'],2)
+   self.assertEqual(model.oracle_calls,1)
+   # Exercise the supported callback's own rejection paths after the real
+   # coordinate chain established its genuine manifest/target provenance.
+   runner=next(p for p in driver.processes if '--execute-reviewed-local-f0-runtime-lease-history-v1'in p.args)
+   exact_args=runner.args;att=bytes(runner.stdin.data).decode('utf8');before_calls=len(driver.calls)
+   good={'text':True,'capture_output':True,'shell':False,'timeout':150,'input':att}
+   variants=[{**good,'encoding':'utf8'},{**good,'text':False},{**good,'shell':True},{**good,'timeout':150.0},{**good,'timeout':True}]
+   changed=json.loads(att);changed['run_manifest_sha256']='f'*64;variants.append({**good,'input':json.dumps(changed)})
+   changed=json.loads(att);changed['observed']['container_id']='e'*64;variants.append({**good,'input':json.dumps(changed)})
+   changed=json.loads(att);changed['planned']['source']['initial_sql_sha256']='f'*64;variants.append({**good,'input':json.dumps(changed)})
+   for options in variants:
+    with self.assertRaises(Exception):core.source13_process(exact_args,**options)
+   with self.assertRaises(Exception):core.source13_process(exact_args+['--repair'],**good)
+   self.assertEqual(len(driver.calls),before_calls)
+   for p in Path(m['evidence_directory']).rglob('*'):
+    if p.is_file():self.assertTrue(all(secret.encode()not in p.read_bytes()for secret in core.all_secrets))
+   # The final check must compare to the original closed reference, not a newly
+   # recaptured hash. Mutate only disposable UNIT evidence after cleanup.
+   path.write_bytes(path.read_bytes()+b'\n')
+   with self.assertRaises(core.TransportStop)as changed_origin:core.verify_references()
+   self.assertIn(changed_origin.exception.code,('CLOSED_IDENTITY','CLOSED_ORIGIN_DRIFT'))
+   self.assertEqual(report['native_results']['initial']['oracle_expressions'],416);self.assertEqual(report['native_results']['initial']['ledger_checks'],22);self.assertTrue(report['final_original_references_verified']);self.assertFalse(report['transport']['unknown_closure'])
+ def test_real_whole_changed_full_row_stops_and_keeps_cleanup(self):
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='whole-row-mutant-')as d:
+   core,m,path=unit_fixture(Path(d));model=WholeModel(core,m,'changed_full_row');driver=Boundary(model.reply)
+   with contextlib.redirect_stdout(io.StringIO()):code=core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+   report=json.loads((Path(m['evidence_directory'])/'run-evidence.json').read_bytes());self.lifecycle_runs.append({'case':'changed-full-row','exit_code':code,'status':report['status'],'primary':report.get('primary_failure'),'cleanup':report.get('cleanup_summary'),'native':report.get('native_results'),'attestation_input_bytes':model.attestation_bytes,'modeled_processes':len(driver.calls)})
+   self.assertEqual(code,1);self.assertEqual(report['status'],'STOPPED_ATTEMPT_PRESERVED');self.assertFalse(model.created or model.volume);self.assertTrue(report['cleanup_summary']['private_directory_absent']);self.assertEqual(report['primary_failure']['code'],'NOOP_CHANGED_A_FULL_LEDGER_ROW');self.assertNotIn('noop',report.get('native_results',{}))
+ def test_real_whole_blocked_runner_unknown_veto_survives_later_global_zero(self):
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='whole-unknown-')as d:
+   core,m,path=unit_fixture(Path(d));model=WholeModel(core,m);driver=WholeFaultBoundary(model.reply)
+   try:
+    with contextlib.redirect_stdout(io.StringIO()):code=core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+    report=json.loads((Path(m['evidence_directory'])/'run-evidence.json').read_bytes())
+    self.lifecycle_runs.append({'case':'blocked-actual-coordinate-input-unknown','exit_code':code,'primary':report.get('primary_failure'),'cleanup':report.get('cleanup_summary'),'transport_unknown':report['transport']['unknown_closure'],'later_global_zero_observed':driver.zero_after_unknown,'finalizer_calls':model.finalizer_calls,'input_bytes':len(driver.blocked.stdin.data)if driver.blocked else0})
+    self.assertEqual(code,1);self.assertIsNotNone(driver.blocked);self.assertGreater(len(driver.blocked.stdin.data),1000000)
+    self.assertTrue(driver.zero_after_unknown);self.assertTrue(report['transport']['unknown_closure']);self.assertEqual(model.finalizer_calls,0)
+    self.assertEqual(report['primary_failure']['code'],'PROCESS_DEADLINE_EXCEEDED');self.assertEqual(model.active,{'postgres','wa_migrator'})
+    self.assertEqual(model.oracle_calls,0);self.assertEqual(model.native_calls,0);self.assertFalse(model.created or model.volume)
+    self.assertTrue(report['cleanup_summary']['private_directory_absent']);self.assertNotIn('SECRET_CANARY',json.dumps(report))
+   finally:
+    driver.release.set()
+    for p in driver.processes:p.code=1;p.ready.set()
+ def test_real_whole_unvalidated_runner_error_vetoes_original_grantor_finalizer(self):
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='whole-closed-error-')as d:
+   core,m,path=unit_fixture(Path(d));model=WholeModel(core,m,'malformed_runner');driver=Boundary(model.reply)
+   with contextlib.redirect_stdout(io.StringIO()):code=core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+   report=json.loads((Path(m['evidence_directory'])/'run-evidence.json').read_bytes())
+   self.lifecycle_runs.append({'case':'closed-actual-coordinate-malformed-UTF8','exit_code':code,'primary':report.get('primary_failure'),'cleanup':report.get('cleanup_summary'),'transport_unknown':report['transport']['unknown_closure'],'finalizer_calls':model.finalizer_calls})
+   self.assertEqual(code,1);self.assertTrue(report['transport']['unknown_closure']);self.assertEqual(model.finalizer_calls,0)
+   self.assertEqual(report['primary_failure']['code'],'PROCESS_TEXT_DECODING');self.assertEqual(model.active,{'postgres','wa_migrator'})
+   self.assertEqual(model.oracle_calls,0);self.assertEqual(model.native_calls,0);self.assertFalse(model.created or model.volume)
+   self.assertTrue(report['cleanup_summary']['private_directory_absent']);self.assertNotIn('SECRET_CANARY',json.dumps(report))
+ def test_real_whole_persistent_evidence_IO_keeps_fixed_finalizer_and_cleanup(self):
+  with tempfile.TemporaryDirectory(dir=TASK,prefix='whole-evidence-IO-')as d:
+   core,m,path=unit_fixture(Path(d));model=WholeModel(core,m,'persistent_evidence_io');driver=Boundary(model.reply)
+   with contextlib.redirect_stdout(io.StringIO()):code=core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+   report=core.report;retained=json.loads((Path(m['evidence_directory'])/'run-evidence.json').read_bytes())
+   self.lifecycle_runs.append({'case':'persistent-master-evidence-IO','exit_code':code,'first_save_io':report.get('first_save_io'),'memory_cleanup':report.get('cleanup_summary'),'retained_partial_stage':retained.get('stage'),'retained_final_cleanup_not_claimed':not retained.get('cleanup_summary'),'persistence_failure':report.get('persistence_failure'),'finalizer_calls':model.finalizer_calls,'transport_unknown':core.TRANSPORT.unknown})
+   self.assertEqual(code,1);self.assertEqual(model.finalizer_calls,1);self.assertFalse(core.TRANSPORT.unknown)
+   self.assertTrue(report['persistence_failure']);self.assertFalse(report['evidence_complete']);self.assertEqual(report['first_save_io']['phase'],'TEMP_OPEN')
+   self.assertEqual(model.active,{'postgres','wa_migrator'});self.assertEqual(model.oracle_calls,0);self.assertEqual(model.native_calls,0)
+   self.assertFalse(model.created or model.volume);self.assertTrue(report['cleanup_summary']['private_directory_absent'])
+   self.assertNotIn('PASS_MACHINERY_SUBSET_ONLY',retained['status']);self.assertNotIn('SECRET_CANARY',json.dumps(report))
+
+def main():
+ suite=unittest.defaultTestLoader.loadTestsFromTestCase(Checks);result=unittest.TextTestRunner(verbosity=2).run(suite)
+ return 0 if result.wasSuccessful()else 1
+if __name__=='__main__':raise SystemExit(main())

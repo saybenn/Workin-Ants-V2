@@ -1,0 +1,43 @@
+"""Root pure preparation of admitted packets; audit forbids processes and sockets."""
+from pathlib import Path
+import sys,os,runpy,json,hashlib,datetime,argparse
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass';sys.dont_write_bytecode=True
+def audit(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn','os.exec'):raise RuntimeError('PROCESS_OR_SOCKET_FORBIDDEN')
+sys.addaudithook(audit)
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def write(p,d):
+ b=(json.dumps(d,indent=2,ensure_ascii=False,allow_nan=False)+'\n').encode()
+ with p.open('xb')as f:f.write(b)
+ return sha(b)
+def main():
+ a=argparse.ArgumentParser();a.add_argument('kind',choices=('CSP','TWO'));v=a.parse_args();kind=v.kind
+ L=R/'context/reconciliation/local-f0-assertion-evidence.json';S=R/'context/reconciliation/local-f0-qualification-status.json';before=(L.read_bytes(),S.read_bytes())
+ assert sha(before[0])=='8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7'
+ assert sha(before[1])=='a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a'
+ invname='CSP_C_FINAL_Root_source_admission_inventory_20261124.json'if kind=='CSP'else'two_history_successor_FINAL_Root_source_admission_inventory_20261124.json';inv=json.loads((T/invname).read_bytes())
+ for n,h in inv['Root_files_sha256'].items():assert sha((R/n).read_bytes())==h
+ for n,h in inv['external_five_sha256'].items():assert sha((T/n).read_bytes())==h
+ f='prepare_local_f0_customer_stale_predecessor_v1_plan.py'if kind=='CSP'else'prepare_local_f0_runtime_lease_two_history_owned_v1_plan.py'
+ api=runpy.run_path(str(T/f),run_name='_Root_pure_reviewed_preparation')
+ if kind=='CSP':
+  baseline=T/'local-f0-catalog-v4-plan-23bd8979/operation-manifest.json';assert sha(baseline.read_bytes())=='92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5'
+  result=api['prepare'](baseline,'92cca48f0e8e24c35f1de5fe2b635a229adf2731376a5e91cd33c91071d51be5');path=Path(result['operation_manifest']);manifest=json.loads(path.read_bytes())
+  checked=api['validate_plan'](manifest,pinned=False,require_reviews=True);assert checked==manifest['prepared_source_file_inventory_sha256']
+ else:
+  directory,manifest,files=api['prepare'](R,T,T/'local-f0-linux-tooling-20261117/pinned-prisma-tools.tar.gz')
+  assert not directory.exists()and not Path(manifest['evidence_directory']).exists();directory.mkdir()
+  for n,b in files.items():
+   p=directory/n;p.parent.mkdir(parents=True,exist_ok=True)
+   with p.open('xb')as out:out.write(b)
+  path=directory/'operation-manifest.json'
+  with path.open('xb')as out:out.write(api['encoded'](manifest))
+  result={'status':'SOURCE_PREPARED_NOT_EXECUTED','run_id':manifest['run_id'],'operation_manifest':str(path),'manifest_sha256':sha(path.read_bytes())}
+ for n,h in inv['Root_files_sha256'].items():assert sha((R/n).read_bytes())==h
+ for n,h in inv['external_five_sha256'].items():assert sha((T/n).read_bytes())==h
+ assert(L.read_bytes(),S.read_bytes())==before
+ out=T/(kind+'_fresh_Root_source_preparation_20261124.json')
+ report={'schema':'workinants.Root-fresh-owned-source-preparation.v1','kind':kind,'recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'PASS_PURE_FRESH_PREPARATION_PENDING_PIN_AND_LITERAL','result':result,'manifest_sha256':sha(path.read_bytes()),'manifest':str(path),'run_id':manifest['run_id'],'source_files':len(manifest.get('prepared_source_file_inventory_sha256',manifest['packet_files_sha256'])),'external_five_sha256':inv['external_five_sha256'],'database_contacted':False,'resources_created':False,'process_socket_boundaries_forbidden':True,'ledger_status_unchanged':True,'Posture':'D'}
+ h=write(out,report);print(json.dumps({'status':report['status'],'kind':kind,'result':result,'packet_files':report['source_files'],'proof_sha256':h}))
+if __name__=='__main__':main()
+

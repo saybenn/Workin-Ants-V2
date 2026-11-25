@@ -1,0 +1,102 @@
+"""Affected forced-exec/natural-byte contrasts through actual owning entry."""
+from pathlib import Path
+import argparse,contextlib,hashlib,io,json,re,runpy,sys,tempfile,threading,time,traceback
+OUT=Path(__file__).resolve().parent;forbidden=[]
+def audit(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn'):
+  forbidden.append(event);raise RuntimeError('INNER_RUNTIME_FORBIDDEN')
+sys.addaudithook(audit)
+M=runpy.run_path(str(OUT/'check_local_f0_runtime_lease_two_history_owned_v1_operation.py'),run_name='_forced_remote_exec_support')
+FIVE=M['load'](M['CORE']).FIVE;PINS={n:hashlib.sha256((OUT/n).read_bytes()).hexdigest()for n in FIVE}
+FORCED=('force_auth','force_auth_io_observer','force_bootstrap')
+NATURAL=('natural_auth_utf8','natural_auth_semantic','natural_auth_nonzero')
+
+class KilledOuter(M['Process']):
+ def __init__(self,args,owner,shift):
+  self.release=threading.Event();self.owner=owner;self.deadline_shift=shift
+  def reply(a,b):self.release.wait();return 1,b'',b''
+  super().__init__(args,reply)
+ def wait(self,timeout=None):
+  if not self.ready.is_set():
+   self.owner.shift=self.deadline_shift
+   raise __import__('subprocess').TimeoutExpired('UNIT_ONLY_REMOTE_EXEC_DEADLINE',timeout)
+  return self.code
+ def terminate(self):self.release.set();self.code=1;self.ready.set()
+ def kill(self):self.terminate()
+
+def one(case,label):
+ started=time.monotonic()
+ with tempfile.TemporaryDirectory(dir=OUT,prefix='forced-case-'+case+'-')as d:
+  core,m,path=M['unit_fixture'](Path(d));model=M['WholeModel'](core,m);state={'secondary':False,'zero':False}
+  driver=None
+  def reply(args,payload):
+   result=model.reply(args,payload)
+   if driver.injected and b'pg_stat_activity'in payload:
+    if case=='force_auth_io_observer'and not state['secondary']:
+     state['secondary']=True;return 0,model.json({'migrator':0,'other_client_backends':1}),b''
+    if json.loads(result[1])=={'migrator':0,'other_client_backends':0}:state['zero']=True
+   return result
+  class Driver(M['Boundary']):
+   def __init__(self):super().__init__(reply);self.shift=0;self.injected=False;self.target_index=None
+   def monotonic(self):return time.monotonic()+self.shift
+   def Popen(self,args,**kw):
+    is_sql='psql'in args and '-U'in args
+    target=is_sql and(core.report.get('stage')=='ORIGINAL_BOOTSTRAP'if case=='force_bootstrap'else args[args.index('-U')+1]=='wa_migrator')
+    if target and not self.injected:
+     self.injected=True;self.target_index=len(core.TRANSPORT.observations);self.calls.append((args,kw))
+     if case=='force_auth_io_observer':(Path(m['evidence_directory'])/'run-evidence.json.tmp').mkdir()
+     if case in FORCED:p=KilledOuter(args,self,121 if case=='force_bootstrap'else 31)
+     else:
+      def natural(a,b):
+       r=model.reply(a,b)
+       if case=='natural_auth_utf8':return 0,b'\xffSECRET_CANARY_NATURAL_BYTES',b''
+       if case=='natural_auth_semantic':v=json.loads(r[1]);v['login']='UNIT_ONLY_WRONG_LOGIN';return 0,model.json(v),b''
+       if case=='natural_auth_nonzero':return 3,r[1],b''
+       raise AssertionError('UNREACHABLE_CASE')
+      p=M['Process'](args,natural)
+     self.processes.append(p);return p
+    return super().Popen(args,**kw)
+  driver=Driver();captured=io.StringIO()
+  with contextlib.redirect_stdout(captured):code=core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+  report=core.report;receipt=core.TRANSPORT.observations[driver.target_index]
+  assert code==1 and driver.injected,'EXPECTED_AFFECTED_STOP'
+  stage='ORIGINAL_BOOTSTRAP'if case=='force_bootstrap'else'AUTH_wa_migrator'
+  expected='PROCESS_DEADLINE_EXCEEDED'if case in FORCED else'PROCESS_TEXT_DECODING'if case=='natural_auth_utf8'else'AUTH_ACTUAL_SCRAM'
+  assert report['primary_failure']=={'stage':stage,'code':expected},'ORIGINAL_CAUSE_PRESERVED'
+  assert all(receipt[k]is True for k in('process_exit_confirmed','pipes_closed','threads_closed','closure_confirmed')),'PHYSICAL_RECEIPTS_NOT_FALSIFIED'
+  assert receipt['remote_exec_attempted']is True,'REMOTE_BYTE_ATTEMPT_MEASURED'
+  assert receipt['normal_binary_result_returned']is(case in NATURAL),'NATURAL_BYTE_RESULT_BEFORE_DECODING'
+  assert receipt['remote_exit_unconfirmed']is(case in FORCED),'REMOTE_EXIT_UNCERTAINTY'
+  assert core.TRANSPORT.unknown is(case in FORCED),'STICKY_UNKNOWN_CLASSIFICATION'
+  assert model.finalizer_calls==(0 if case in FORCED else 1),'SQL_FINALIZER_CONTRAST'
+  assert not model.created and not model.volume and report['cleanup_summary']['private_directory_absent'],'EXACT_CLEANUP'
+  assert model.deploys==model.native_calls==model.oracle_calls==0,'NO_LATER_BEHAVIOR'
+  assert model.active<= {'postgres','wa_migrator'},'NO_RUNTIME_FOUR_ACTIVATION'
+  if case!='force_bootstrap'and case!='force_auth_io_observer':assert state['zero'],'LATER_GLOBAL_ZERO'
+  if case=='force_auth_io_observer':
+   assert state['secondary']and report['persistence_failure']and not report['evidence_complete'],'SECONDARY_IO_OBSERVER_CONTRAST'
+   retained=json.loads((Path(m['evidence_directory'])/'run-evidence.json').read_bytes());assert not retained.get('cleanup_summary'),'NO_INVENTED_DISK_CLEANUP'
+  raw=(json.dumps(report,sort_keys=True,indent=2)+'\n').encode()
+  assert b'SECRET_CANARY'not in raw and b'SECRET_CANARY'not in captured.getvalue().encode(),'SECRET_CANARY_EXCLUDED'
+  assert all(s.encode()not in raw for s in core.all_secrets),'PASSWORDS_EXCLUDED'
+  assert PINS=={n:hashlib.sha256((OUT/n).read_bytes()).hexdigest()for n in FIVE},'EXACT_FIVE_PRESERVED'
+  directory=OUT/'unit-correction-reports';directory.mkdir(exist_ok=True);p=directory/(label+'-'+case+'.json');p.open('xb').write(raw)
+  return {'case':case,'status':'PASS_UNIT_ONLY','primary':report['primary_failure'],'target_byte_receipt':receipt,'unknown':core.TRANSPORT.unknown,
+   'finalizer_calls':model.finalizer_calls,'later_zero':state['zero'],'secondary_observer':state['secondary'],'persistent_IO':report.get('persistence_failure',False),
+   'exact_cleanup':True,'private_directory_absent':True,'no_secret_retained':True,'no_actual_remote_exit_claim':True,'normal_raw_then_rejection':case in NATURAL,
+   'memory_report_sha256':hashlib.sha256(raw).hexdigest(),'modeled_processes':len(driver.calls),'seconds':round(time.monotonic()-started,3)}
+
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--set',choices=('forced','natural'),required=True);p.add_argument('--case',choices=FORCED+NATURAL);p.add_argument('--label',required=True);a=p.parse_args()
+ assert re.fullmatch('[a-z0-9-]{1,40}',a.label),'SAFE_OUTPUT_LABEL';path=OUT/('forced-exec-'+a.label+'.json');assert not path.exists(),'PRESERVE_OLD_RECEIPTS'
+ value={'schema':'workinants.two-history-forced-remote-exec-source-closure.v1','operator_sources_sha256':PINS,'results':[],'all_inner_edges':'MODELED_OR_AUDIT_FORBIDDEN','runtime':'NOT_RUN','Posture':'D'}
+ def save():path.write_text(json.dumps(value,sort_keys=True,indent=2)+'\n',encoding='utf8')
+ save()
+ for case in([a.case]if a.case else FORCED if a.set=='forced'else NATURAL):
+  try:row=one(case,a.label)
+  except BaseException as e:row={'case':case,'status':'FAIL','error_type':type(e).__name__,'frames':[{'file':Path(f.filename).name,'line':f.lineno,'function':f.name}for f in traceback.extract_tb(e.__traceback__)]}
+  value['results'].append(row);value['forbidden_edges_attempted']=list(forbidden);save();print(json.dumps({'case':case,'status':row['status']}),flush=True)
+ value['successful']=all(r['status']=='PASS_UNIT_ONLY'for r in value['results'])and not forbidden;value['operator_sources_preserved']=PINS=={n:hashlib.sha256((OUT/n).read_bytes()).hexdigest()for n in FIVE};save()
+ print(json.dumps({'receipt':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'successful':value['successful'],'cases':len(value['results'])}))
+ return 0 if value['successful']and value['operator_sources_preserved']else 1
+if __name__=='__main__':raise SystemExit(main())

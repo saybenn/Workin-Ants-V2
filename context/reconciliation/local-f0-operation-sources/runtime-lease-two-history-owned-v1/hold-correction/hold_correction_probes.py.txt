@@ -1,0 +1,111 @@
+"""Focused HOLD closure through actual entry/source13 APIs; all boundaries mocked."""
+from pathlib import Path
+import argparse,contextlib,copy,hashlib,io,json,re,runpy,sys,tempfile,time,traceback
+OUT=Path(__file__).resolve().parent;forbidden=[]
+def audit(event,args):
+ if event.startswith(('subprocess.','socket.'))or event in('os.system','os.posix_spawn','os.spawn'):
+  forbidden.append(event);raise RuntimeError('INNER_RUNTIME_FORBIDDEN')
+sys.addaudithook(audit)
+M=runpy.run_path(str(OUT/'check_local_f0_runtime_lease_two_history_owned_v1_operation.py'),run_name='_actual_hold_probe_support')
+FIVE=M['load'](M['CORE']).FIVE
+PINS={n:hashlib.sha256((OUT/n).read_bytes()).hexdigest()for n in FIVE}
+NODE=('inner_unknown','inner_unknown_io','closed_nonzero','bad_attestation_observer','bad_attestation_io','malformed_utf8','missing_json','outer_exit_mismatch','pre_node_sha_failure')
+RESOURCE=('pre_source','pre_mode','pre_extra','run_source','run_mode','run_extra','kernel_bad')
+EXPECTED={'inner_unknown':'REPORTED_INNER_CLI_CLOSURE_UNCONFIRMED','inner_unknown_io':'REPORTED_INNER_CLI_CLOSURE_UNCONFIRMED',
+ 'closed_nonzero':'GENUINE_PRISMA_OPERATION_FAILED','bad_attestation_observer':'ATTESTATION_RESULT_MISMATCH','bad_attestation_io':'ATTESTATION_RESULT_MISMATCH',
+ 'malformed_utf8':'PROCESS_TEXT_DECODING','missing_json':'BOUNDED_JSON','outer_exit_mismatch':'RUNNER_EXIT_MISMATCH','pre_node_sha_failure':'COPIED_SOURCE_HASH_OUTPUT',
+ 'pre_source':'PRESTART_EXACT_PRIVATE_MOUNTS','pre_mode':'PRESTART_SECRET_TMPFS','pre_extra':'PRESTART_EXACT_PRIVATE_MOUNTS',
+ 'run_source':'EXACT_PRIVATE_MOUNTS_REQUIRED','run_mode':'PRIVATE_SECRET_TMPFS_REQUIRED','run_extra':'EXACT_PRIVATE_MOUNTS_REQUIRED','kernel_bad':'RUNNING_KERNEL_TMPFS'}
+
+def one(case,label):
+ start=time.monotonic()
+ with tempfile.TemporaryDirectory(dir=OUT,prefix='hold-case-'+case+'-')as d:
+  core,m,path=M['unit_fixture'](Path(d));model=M['WholeModel'](core,m);events=[]
+  state={'injected':False,'secondary':False,'starts':0,'candidate_writes':0,'kernel_calls':0,'later_zero':False,'outer_node_closed':False}
+  def reply(args,payload):
+   if args[:3]==['docker','--context','desktop-linux']and args[3:5]==['container','start']:state['starts']+=1;events.append('START')
+   if 'sh'in args:
+    recipe=args[-1]
+    if recipe==core.OWNER_SECRET_TMPFS_SCRIPT:
+     state['kernel_calls']+=1;events.append('KERNEL_PROOF')
+     if case=='kernel_bad':state['injected']=True;return 0,b'INVALID_KERNEL_TOKEN\n',b''
+    if any(x in recipe for x in('cat > /run/wa-secrets/pgpass','cat > /run/wa-secrets/wrong-','cat > /run/wa-secrets/wa-runtime-lease-history-v1-migrator-url')):
+     state['candidate_writes']+=1;events.append('CANDIDATE_WRITE')
+   result=model.reply(args,payload)
+   inspect=args[:3]==['docker','--context','desktop-linux']and(args[3:5]==['container','inspect']or args[3:4]==['inspect'])
+   if inspect and result[0]==0 and case in RESOURCE and case!='kernel_bad':
+    running=model.running;selected=(case.startswith('pre_')and not running)or(case.startswith('run_')and running)
+    if selected:
+     v=json.loads(result[1])[0];kind=case.split('_')[1]
+     if kind=='source':next(x for x in v['Mounts']if x['Type']=='bind')['Source']='C:/UNIT-ONLY-WRONG-SOURCE'
+     elif kind=='mode':v['HostConfig']['Tmpfs']['/run/wa-secrets']='rw,nosuid,nodev,noexec,mode=0777'
+     elif kind=='extra':v['Mounts'].append({'Type':'bind','Source':'C:/UNIT-ONLY-EXTRA','Destination':'/undeclared','RW':True})
+     state['injected']=True;return result[0],model.json([v]),result[2]
+   if case=='pre_node_sha_failure'and core.report.get('stage')=='GENUINE_TWO_FILE_DEPLOY'and '/usr/bin/sha256sum'in args and '--'in args and not state['injected']:
+    state['injected']=True;events.append('PRE_NODE_HASH_FAILURE');return 0,b'INVALID_HASH_LINE\n',b''
+   if '--execute-reviewed-local-f0-runtime-lease-history-v1'in args and not state['injected']:
+    state['injected']=True;state['outer_node_closed']=True;events.append('NODE_RESPONSE')
+    if case=='malformed_utf8':return 0,b'\xffSECRET_CANARY_INVALID_NODE',b''
+    if case=='missing_json':return 0,b'',b''
+    value=json.loads(result[1])
+    if case in('inner_unknown','inner_unknown_io'):value.update(exit_code=None,status='CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE',no_pending_message_observed=False);result=(1,model.json(value),b'')
+    elif case=='closed_nonzero':value.update(exit_code=1,status='CLI_FAILED_STOP_AND_INSPECT',no_pending_message_observed=False);result=(1,model.json(value),b'')
+    elif case.startswith('bad_attestation'):value['attestation_sha256']='f'*64;result=(result[0],model.json(value),result[2])
+    elif case=='outer_exit_mismatch':result=(1,result[1],result[2])
+    if case.endswith('_io'):(Path(m['evidence_directory'])/'run-evidence.json.tmp').mkdir()
+    return result
+   if state['injected']and b'pg_stat_activity'in payload:
+    events.append('LATER_BACKEND_OBSERVATION')
+    if case=='bad_attestation_observer'and not state['secondary']:
+     state['secondary']=True;return 0,model.json({'migrator':0,'other_client_backends':1}),b''
+    if json.loads(result[1])=={'migrator':0,'other_client_backends':0}:state['later_zero']=True
+   return result
+  driver=M['Boundary'](reply);captured=io.StringIO()
+  with contextlib.redirect_stdout(captured):code=core.launch(['--execute-reviewed-two-history-owned-v1','--manifest',str(path)],driver)
+  report=core.report;retained=json.loads((Path(m['evidence_directory'])/'run-evidence.json').read_bytes())
+  assert code==1 and state['injected'],'EXPECTED_STOP_AND_INJECTION'
+  expected_stage='RESOURCE_PRESTART'if case.startswith('pre_')and case in RESOURCE else'RESOURCE_RUNNING'if case in RESOURCE else'GENUINE_TWO_FILE_DEPLOY'
+  assert report['primary_failure']=={'stage':expected_stage,'code':EXPECTED[case]},'ORIGINAL_PHASE_AND_CODE'
+  unknown=case in NODE and case not in('closed_nonzero','pre_node_sha_failure')
+  assert core.TRANSPORT.unknown is unknown,'DESCENDANT_UNCERTAINTY_RULE'
+  assert model.finalizer_calls==(1 if case in('closed_nonzero','pre_node_sha_failure')else 0),'FINALIZER_ELIGIBILITY_RULE'
+  assert model.native_calls==model.oracle_calls==0 and model.active==({'postgres','wa_migrator'}if case in NODE else{'postgres'}),'NO_LATER_QUALIFICATION_OR_ACTIVATION'
+  assert not model.created and not model.volume and report['cleanup_summary']['private_directory_absent'],'EXACT_RESOURCE_AND_SECRET_CLEANUP'
+  if case in RESOURCE:
+   assert state['candidate_writes']==0,'NO_CANDIDATE_CREDENTIAL_WRITE'
+   assert state['starts']==(0 if case.startswith('pre_')else 1),'STRICT_PRESTART_ORDER'
+   assert model.deploys==0 and not model.bootstrapped,'NO_DATABASE_INSTALL_OR_BOOTSTRAP'
+  else:
+   assert model.bootstrapped,'POST_BOOTSTRAP_CASE'
+   if case!='bad_attestation_observer':assert state['later_zero'],'INDEPENDENT_LATER_ZERO_CONTRAST'
+  if case.endswith('_io'):
+   assert report['persistence_failure']is True and report['evidence_complete']is False,'PERSISTENCE_FAILURE_NOT_QUALIFIED'
+   assert not retained.get('cleanup_summary'),'NO_INVENTED_PERSISTED_CLEANUP'
+  raw=(json.dumps(report,sort_keys=True,indent=2)+'\n').encode()
+  assert b'SECRET_CANARY'not in raw and b'SECRET_CANARY'not in captured.getvalue().encode(),'SECRET_CANARY_EXCLUDED'
+  assert all(s.encode()not in raw for s in core.all_secrets),'GENERATED_SECRETS_EXCLUDED'
+  assert PINS=={n:hashlib.sha256((OUT/n).read_bytes()).hexdigest()for n in FIVE},'EXACT_FIVE_PRESERVED'
+  reports=OUT/'unit-correction-reports';reports.mkdir(exist_ok=True);p=reports/(label+'-'+case+'.json');p.open('xb').write(raw)
+  return {'case':case,'status':'PASS_UNIT_ONLY','original':report['primary_failure'],'unknown':core.TRANSPORT.unknown,'finalizer_calls':model.finalizer_calls,
+   'node_dispatches':len(model.attestation_bytes),'outer_Node_closed_in_model':state['outer_node_closed'],'later_global_zero':state['later_zero'],'secondary_observer_injected':state['secondary'],
+   'persistent_IO':report.get('persistence_failure',False),'retained_disk_stage':retained.get('stage'),'resource_starts':state['starts'],'kernel_calls':state['kernel_calls'],'candidate_credential_writes':state['candidate_writes'],
+   'exact_cleanup':True,'private_directory_absent':True,'no_secret_retained':True,'modeled_processes':len(driver.calls),'event_order':events,
+   'memory_report_sha256':hashlib.sha256(raw).hexdigest(),'memory_report_path':str(p),'memory_report_is_actual_runtime_evidence':False,'seconds':round(time.monotonic()-start,3)}
+
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--group',choices=('node','resource'),required=True);p.add_argument('--case',choices=NODE+RESOURCE);p.add_argument('--label',required=True);a=p.parse_args()
+ assert re.fullmatch('[a-z0-9-]{1,40}',a.label),'SAFE_OUTPUT_LABEL'
+ cases=[a.case]if a.case else NODE if a.group=='node'else RESOURCE
+ path=OUT/('hold-correction-'+a.label+'.json');assert not path.exists(),'PRESERVE_PREVIOUS_RESULTS'
+ value={'schema':'workinants.two-history-owning-HOLD-focused-actual-entry-probes.v1','operator_sources_sha256':PINS,'group':a.group,'results':[],'all_nested_edges':'MODELED_OR_AUDIT_FORBIDDEN','runtime':'NOT_RUN','Posture':'D'}
+ def persist():path.write_text(json.dumps(value,sort_keys=True,indent=2)+'\n',encoding='utf8')
+ persist()
+ for case in cases:
+  try:row=one(case,a.label)
+  except BaseException as error:
+   row={'case':case,'status':'FAIL','error_type':type(error).__name__,'frames':[{'file':Path(f.filename).name,'line':f.lineno,'function':f.name}for f in traceback.extract_tb(error.__traceback__)]}
+  value['results'].append(row);value['forbidden_edges_attempted']=list(forbidden);persist();print(json.dumps({'case':case,'status':row['status']}),flush=True)
+ value['successful']=all(r['status']=='PASS_UNIT_ONLY'for r in value['results'])and not forbidden;value['operator_sources_preserved']=PINS=={n:hashlib.sha256((OUT/n).read_bytes()).hexdigest()for n in FIVE};persist()
+ print(json.dumps({'receipt':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'successful':value['successful'],'cases':len(value['results'])}))
+ return 0 if value['successful']and value['operator_sources_preserved']else 1
+if __name__=='__main__':raise SystemExit(main())

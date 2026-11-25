@@ -1,0 +1,83 @@
+{
+  "Posture": "D",
+  "actual_remote_process_or_runtime_failure_claimed": false,
+  "all_external_boundaries": "MODELED_OR_AUDIT_FORBIDDEN",
+  "forbidden_edges_attempted": [],
+  "operator_sources_sha256": {
+    "check_local_f0_customer_stale_predecessor_v1_operation.py": "1e174515d587bfef822c4103593ca39f0f1ac01286de06faa0c6a5defb34b86f",
+    "execute_local_f0_customer_stale_predecessor_v1_20261120.py": "03adab6a6e50079ae3baecf4ee4cf785b8bf76ba29f3207d1daa7674669e8bd7",
+    "local_f0_customer_stale_predecessor_v1_operation_steps.py": "ac010878565e21a405eb1494aa775c28dcf863f44716ed7bd7e895cb2d20913a",
+    "pin_local_f0_customer_stale_predecessor_v1_plan_20261120.py": "41a2f7ef9e68aeae967d0b647af9a7ade4737d58d82aa65dfad3122bcac1731b",
+    "prepare_local_f0_customer_stale_predecessor_v1_plan.py": "28cf7cd10cd1a821114aa4408ab5c61b7d312e28c2e9421ffb174e7246d5bebb"
+  },
+  "reviewer": "/root/lease_v2_code_review",
+  "rows": [
+    {
+      "actual_auth_path": "owned authentication\u2192csp_auth_process\u2192binary_process\u2192mocked Dockerexec boundary",
+      "auth_receipt": {
+        "call_attempted": true,
+        "client_closure_confirmed": true,
+        "closure_receipt_received": true,
+        "completion_returned": false,
+        "phase": "AUTH_HBA",
+        "pipes_closed": true,
+        "process_exited": true,
+        "threads_closed": true
+      },
+      "child_sessions": 0,
+      "cleanup_confirmed": true,
+      "deploys": 0,
+      "emergency_outer_terminate_called": true,
+      "finalization": "PASS",
+      "later_global_counts": {
+        "migrator": 0,
+        "other_client_backends": 0
+      },
+      "launch_exit": 1,
+      "mode": "forced-outer-auth-deadline",
+      "original_grantor_SQL_dispatches": 1,
+      "primary_failure": {
+        "code": "PROCESS_DEADLINE_EXCEEDED",
+        "stage": "AUTH_HBA"
+      },
+      "remote_exec_exit_ack_or_ExecInspect_observed": false,
+      "secret_canary_excluded": true,
+      "transport_unknown": false
+    },
+    {
+      "actual_auth_path": "owned authentication\u2192csp_auth_process\u2192binary_process\u2192mocked Dockerexec boundary",
+      "auth_receipt": {
+        "call_attempted": true,
+        "client_closure_confirmed": true,
+        "closure_receipt_received": true,
+        "completion_returned": false,
+        "phase": "AUTH_HBA",
+        "pipes_closed": true,
+        "process_exited": true,
+        "threads_closed": true
+      },
+      "child_sessions": 0,
+      "cleanup_confirmed": true,
+      "deploys": 0,
+      "emergency_outer_terminate_called": false,
+      "finalization": "PASS",
+      "later_global_counts": {
+        "migrator": 0,
+        "other_client_backends": 0
+      },
+      "launch_exit": 1,
+      "mode": "natural-binary-return-invalid-UTF8",
+      "original_grantor_SQL_dispatches": 1,
+      "primary_failure": {
+        "code": "PROCESS_UTF8_REJECTED",
+        "stage": "AUTH_HBA"
+      },
+      "remote_exec_exit_ack_or_ExecInspect_observed": false,
+      "secret_canary_excluded": true,
+      "transport_unknown": false
+    }
+  ],
+  "runtime": "NOT_RUN",
+  "schema": "workinants.CSP1-independent-forced-outer-exec-receipt-probe.v1",
+  "seconds": 53.094
+}

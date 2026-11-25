@@ -1,0 +1,68 @@
+"""Pure held preparation. No Git, Docker, database or network edge."""
+from pathlib import Path
+from types import ModuleType
+import argparse,hashlib,io,json,re,stat,tarfile,uuid
+TASK=Path(__file__).resolve().parent
+FIVE=('execute_local_f0_runtime_lease_two_history_owned_v1_20261123.py','local_f0_runtime_lease_two_history_owned_v1_operation_steps.py','prepare_local_f0_runtime_lease_two_history_owned_v1_plan.py','check_local_f0_runtime_lease_two_history_owned_v1_operation.py','pin_local_f0_runtime_lease_two_history_owned_v1_plan_20261123.py')
+ARCHIVE='context/reconciliation/local-f0-operation-sources/runtime-lease-two-history-owned-v1'
+VAL='context/reconciliation/local-f0-runtime-lease-two-history-owned-v1-source-validation.json'
+REGISTRY=ARCHIVE+'/source-inputs.json'
+EXPECTED='cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4'
+def need(v,c):
+ if not v:raise ValueError(c)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def encoded(v):return(json.dumps(v,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+def read(path):
+ p=Path(path);need(p.is_absolute()and not any(x.is_symlink()for x in(p,*p.parents)),'REGULAR_INPUT')
+ s=p.lstat();need(stat.S_ISREG(s.st_mode)and s.st_nlink==1 and 0<=s.st_size<=128*1024*1024 and not getattr(s,'st_file_attributes',0)&1024,'REGULAR_INPUT')
+ raw=p.read_bytes();after=p.lstat()
+ need((s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)==(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns)and len(raw)==s.st_size,'PREPARATION_INPUT_DRIFT');return raw
+def unique(raw):
+ def pairs(items):
+  d={}
+  for k,v in items:need(k not in d,'DUPLICATE_JSON');d[k]=v
+  return d
+ return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_JSON')))
+def aggregate(m):return sha(''.join(n+'\0'+h+'\n'for n,h in sorted(m.items())).encode())
+def sources(root):
+ root=Path(root).resolve();v=unique(read(root/VAL));registry=unique(read(root/REGISTRY));m=dict(registry['files_sha256'])
+ actual={p.relative_to(root).as_posix():sha(read(p))for p in(root/ARCHIVE).rglob('*')if p.is_file()}
+ need(actual==v['archive_files_sha256'],'EXACT_OWNED_ARCHIVE');m.update(actual);m[VAL]=sha(read(root/VAL))
+ for n,h in m.items():need(type(n)is str and ':'not in n and '\\'not in n and all(p not in('','.','..')for p in n.split('/'))and re.fullmatch('[0-9a-f]{64}',h)and sha(read(root/n))==h,'CLOSED_CURRENT_SOURCE')
+ return v,dict(sorted(m.items()))
+def tar_bytes(files):
+ out=io.BytesIO()
+ with tarfile.open(fileobj=out,mode='w',format=tarfile.USTAR_FORMAT)as ar:
+  for n,b in sorted(files.items()):
+   m=tarfile.TarInfo(n);m.size=len(b);m.mode=0o444;m.uid=m.gid=m.mtime=0;ar.addfile(m,io.BytesIO(b))
+ return out.getvalue()
+def prepare(root,task,tool_archive,run_id=None):
+ root=Path(root).resolve();task=Path(task).resolve();need(root.parent==task and root.name in('future-root','workinants-correction-pass'),'SOURCE_ROOT_CONFINEMENT')
+ value,m=sources(root);run_id=run_id or str(uuid.uuid4());need(str(uuid.UUID(run_id))==run_id and uuid.UUID(run_id).version==4,'UUID4')
+ directory=task/('local-f0-runtime-lease-two-history-owned-v1-plan-'+run_id[:8]);out=task/('local-f0-runtime-lease-two-history-owned-v1-'+run_id[:8]);need(not directory.exists()and not out.exists(),'FRESH_PLAN_AND_EVIDENCE')
+ five={n:sha(read(task/n))for n in FIVE};need(five==value['operator_sources_sha256'],'EXACT_FIVE')
+ for n,h in five.items():need(read(task/n)==read(root/(ARCHIVE+'/'+n+'.txt')),'EXACT_FIVE_SNAPSHOTS')
+ closure=unique(read(root/'context/reconciliation/local-f0-tooling/prisma-tools-closure.json'));need(closure['file_count']==len(closure['tools_files_sha256'])==10300,'GENUINE10300')
+ name='wa-p0c-'+run_id[:8]+'-twohistory-v1';target={'container_name':name,'volume_name':name+'-data','database':'wa_p0c_rehearsal','image':'docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1','network':'none','labels':{'workinants.rehearsal':'p0c-local-f0','workinants.rehearsal.run':run_id},'bootstrap_secret_host_path':str(out/'private/ok-bootstrap-password')}
+ prep_name='scripts/prepare-local-f0-runtime-lease-history-v1.py';prep_raw=read(root/prep_name)
+ need(sha(prep_raw)=='d7a83a8ec1e7a3de96b978f9a9b1a02d2d51bbc00129e2df9ae21d79ae6b6bc9','IMMUTABLE_REVIEWED_PREPARER')
+ prep=ModuleType('_pure_reviewed_preparer');prep.__file__=str(root/prep_name);exec(compile(prep_raw,prep.__file__,'exec'),prep.__dict__)
+ nested={'schema':'workinants.local-f0-runtime-lease-history-run.v1','run_id':run_id,'purpose':'LOCAL_F0_RUNTIME_LEASE_TWO_MIGRATION_REHEARSAL','target':target,'history':{'path':prep.HISTORY,'ordered':prep.ordered_rows()},'source':{'initial_sql_sha256':prep.INITIAL,'append_sql_sha256':prep.PATCH,'ordered_history_sha256':sha(prep.canonical(prep.ordered_rows()).encode()),'effective_expected_sha256':EXPECTED,'foundation_schema_sha256':prep.SCHEMA_SHA,'runtime_files_sha256':{n:sha(read(root/n))for n in prep.RUNTIME_FILES}},'tools':{k:closure[k]for k in('node_version','prisma_version','engine_commit')}|{'files_sha256':closure['tools_files_sha256']}}
+ raw=encoded(nested);files,hist=prep.prepare_plan(nested,raw,read(root/prep.INITIAL_PATH),read(root/prep.PATCH_PATH),read(root/prep.SCHEMA),{n:read(root/n)for n in prep.RUNTIME_FILES})
+ files.update({n:read(root/n)for n in(prep.SCHEMA,*prep.RUNTIME_FILES)});files[prep.MANIFEST]=encoded(hist);need(len(files)==8,'SOURCE8')
+ tar=tar_bytes(files);snapshot=directory/'source8';manifest_path=directory/'migration-manifest.json';tar_path=directory/'source8.tar'
+ tool_archive=Path(tool_archive).resolve();need(tool_archive.is_relative_to(task)and not tool_archive.is_relative_to(root),'EXTERNAL_TOOL_ARCHIVE');tool=read(tool_archive);need(sha(tool)=='481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb','TOOL_PIN')
+ bindings=lambda p,b:{'path':str(p),'sha256':sha(b),'bytes':len(b)}
+ manifest={'schema':'workinants.local-f0-runtime-lease-two-history-owned-operation.v1','purpose':'LOCAL_F0_TWO_HISTORY_OWNED','run_id':run_id,'source_root':str(root),'source_commit':'TO_BE_PINNED','source_tree':'TO_BE_PINNED','packet_sha256':'TO_BE_PINNED','packet_files_sha256':m,'prepared_source_file_inventory_sha256':m.copy(),'prepared_source_files_aggregate_sha256':aggregate(m),'operator_sources_sha256':five,'wrapper_sha256':five[FIVE[0]],'steps_sha256':five[FIVE[1]],'evidence_directory':str(out),'review_status':'PENDING_OPERATIONAL_REVIEW','status':'SOURCE_PREPARED_NOT_RUN','image':target['image'],'database':target['database'],'run_label':'p0c-local-f0','targets':[{'name':name,'volume':name+'-data','kind':'ok'}],'tool_archive':str(tool_archive),'tool_archive_sha256':sha(tool),'tool_binding':bindings(tool_archive,tool),'migration_manifest':nested,'migration_target':{'manifest':bindings(manifest_path,raw),'manifest_path':str(manifest_path),'source_snapshot':str(snapshot),'source_archive':str(tar_path),'archive':bindings(tar_path,tar),'source_files_sha256':{n:sha(b)for n,b in files.items()}},'primitive_dependency':{'audit_path':ARCHIVE+'/primitive11/lease88_independent_closed_actual_audit_20261123.json','audit_sha256':'76b2911680a7eeb1a61c809981caedfedc36759386d7d15b40fdff739ccc3013'},'limits':{'Posture':'D','business_cases':False,'hosted':False,'migration_adoption':False,'worker_loop':False,'94_or451_promotion':False}}
+ return directory,manifest,{'migration-manifest.json':raw,'source8.tar':tar,**{'source8/'+n:b for n,b in files.items()}}
+def main(argv=None):
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--prepare-held',action='store_true');p.add_argument('--tool-archive',type=Path);a=p.parse_args(argv)
+ if not a.prepare_held or a.tool_archive is None:return 1
+ directory,m,files=prepare(TASK/'workinants-correction-pass',TASK,a.tool_archive);directory.mkdir()
+ for n,b in files.items():q=directory/n;q.parent.mkdir(parents=True,exist_ok=True);q.open('xb').write(b)
+ path=directory/'operation-manifest.json';path.open('xb').write(encoded(m));print(json.dumps({'status':'HELD_NOT_RUN','path':str(path),'sha256':sha(encoded(m))}));return 0
+if __name__=='__main__':
+ try:raise SystemExit(main())
+ except (ValueError,OSError,KeyError,TypeError)as e:
+  code=str(e)if type(e)is ValueError and re.fullmatch('[A-Z0-9_]{1,96}',str(e))else'PREPARATION_UNCONFIRMED'
+  print(json.dumps({'status':'STOP','safe_code':code,'runtime':'NOT_RUN'}));raise SystemExit(1)

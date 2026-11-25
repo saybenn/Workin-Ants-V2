@@ -1,0 +1,73 @@
+"""Read-only current+committed admission through bounded binary Git batches."""
+from pathlib import Path
+from types import ModuleType
+import argparse,hashlib,json,re
+TASK=Path(__file__).resolve().parent
+FIVE=('execute_local_f0_runtime_lease_two_history_owned_v1_20261123.py','local_f0_runtime_lease_two_history_owned_v1_operation_steps.py','prepare_local_f0_runtime_lease_two_history_owned_v1_plan.py','check_local_f0_runtime_lease_two_history_owned_v1_operation.py','pin_local_f0_runtime_lease_two_history_owned_v1_plan_20261123.py')
+ARCHIVE='context/reconciliation/local-f0-operation-sources/runtime-lease-two-history-owned-v1'
+VAL='context/reconciliation/local-f0-runtime-lease-two-history-owned-v1-source-validation.json'
+def need(v,c):
+ if not v:raise ValueError(c)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def aggregate(m):return sha(''.join(n+'\0'+h+'\n'for n,h in sorted(m.items())).encode())
+def compile_core(task,value):
+ p=Path(task)/FIVE[0];raw=p.read_bytes();need(sha(raw)==value['operator_sources_sha256'][FIVE[0]],'CORE_SOURCE');m=ModuleType('_closed_pin_transport');m.__file__=str(p);exec(compile(raw,str(p),'exec'),m.__dict__);return m
+def validate(value,root,task,transport=None):
+ root=Path(root).resolve();task=Path(task).resolve();core=compile_core(task,value)
+ need(root.parent==task and root.name in('future-root','workinants-correction-pass')and value['source_root']==str(root),'ROOT_IDENTITY')
+ val=core.strict_json(core.closed_bytes(root/VAL)[0]);five={n:sha(core.closed_bytes(task/n)[0])for n in FIVE}
+ need(five==val['operator_sources_sha256']==value['operator_sources_sha256'],'FIVE_SOURCE_MAP')
+ for k in('independent_source_review','Root_source_review'):
+  g=val.get(k);need(type(g)is dict and g.get('decision')=='SOURCE_APPROVED'and g.get('operator_sources_sha256')==five and g.get('source_files_sha256')==val.get('source_files_sha256'),'PENDING_SOURCE_REVIEW')
+  name=g.get('path');need(type(name)is str and name.startswith(ARCHIVE+'/reviews/')and value['packet_files_sha256'].get(name)==g.get('sha256'),'SOURCE_REVIEW_RECORD')
+  record=core.strict_json(core.closed_bytes(root/name)[0]);need(record.get('decision')=='SOURCE_APPROVED'and record.get('operator_sources_sha256')==five and record.get('source_files_sha256')==val.get('source_files_sha256'),'SOURCE_REVIEW_RECORD')
+ raw=core.closed_bytes(root/(ARCHIVE+'/source-inputs.json'))[0];registered=core.strict_json(raw)['files_sha256']
+ archive={p.relative_to(root).as_posix():sha(core.closed_bytes(p)[0])for p in(root/ARCHIVE).rglob('*')if p.is_file()};need(archive==val['archive_files_sha256'],'CLOSED_ARCHIVE')
+ expected={**registered,**archive,VAL:sha(core.closed_bytes(root/VAL)[0])};need(value['packet_files_sha256']==expected,'EXACT_WHOLE_ROOT_MAP')
+ need(aggregate(expected)==value['packet_sha256']and re.fullmatch('[0-9a-f]{40}',value['source_commit']or'')and re.fullmatch('[0-9a-f]{40}',value['source_tree']or''),'PIN_IDENTITY')
+ blobs={}
+ for n,h in expected.items():
+  need(type(n)is str and ':'not in n and '\\'not in n and all(x not in('','.','..')for x in n.split('/')),'ROOT_RELATIVE_PATH')
+  b=core.closed_bytes(root/n)[0];need(sha(b)==h,'CURRENT_ROOT_SOURCE');blobs[n]=b
+ for n in FIVE:need(core.closed_bytes(task/n)[0]==blobs[ARCHIVE+'/'+n+'.txt'],'EXTERNAL_SNAPSHOT')
+ driver=core.Transport(root,None if transport is None else transport.io)
+ def git_rev(arg):
+  r=driver.text(['git','-c','core.longpaths=true','rev-parse',arg],timeout=30);need(r.returncode==0 and r.stderr==''and re.fullmatch('[0-9a-f]{40}\n',r.stdout),'GIT_IDENTITY');return r.stdout.strip()
+ try:
+  need(git_rev('HEAD')==value['source_commit']and git_rev('HEAD^{tree}')==value['source_tree'],'SOURCE_HEAD_TREE')
+  batches=core.git_batches(blobs,value['source_commit'])
+  for batch in batches:
+   r=driver.binary(['git','-c','core.longpaths=true','cat-file','--batch'],batch.request,30,'Git_closed_batch',batch)
+   need(r.returncode==0 and r.stderr==b'','GIT_BATCH_EXIT');core.verify_git_batch(batch,r.stdout)
+  need(git_rev('HEAD')==value['source_commit']and git_rev('HEAD^{tree}')==value['source_tree'],'HEAD_CHANGED_DURING_ADMISSION')
+ finally:
+  if transport is not None:transport.unknown|=driver.unknown;transport.observations.extend(driver.observations)
+ return{'current_and_committed_files':len(blobs),'framed_bytes':sum(b.cap for b in batches),'batches':len(batches),'max_batch_bytes':max(b.cap for b in batches),'source_commit':value['source_commit'],'source_tree':value['source_tree'],'packet_sha256':value['packet_sha256']}
+def pin(path,io=None):
+ original_path=Path(path);need(not any(p.is_symlink()for p in(original_path,*original_path.parents)),'MANIFEST_PATH_LINK')
+ path=original_path.resolve();raw=path.read_bytes();need(0<len(raw)<=4194304,'MANIFEST_SIZE')
+ def pairs(rows):
+  result={}
+  for k,v in rows:need(k not in result,'DUPLICATE_MANIFEST_JSON');result[k]=v
+  return result
+ value=json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in()).throw(ValueError('NONFINITE_MANIFEST_JSON')));root=Path(value['source_root']);need(path.is_relative_to(TASK)and not path.is_relative_to(root)and value['review_status']=='PENDING_OPERATIONAL_REVIEW','HELD_LITERAL')
+ core=compile_core(TASK,value);v=core.strict_json(core.closed_bytes(root/VAL)[0])
+ need(core.closed_bytes(path)[0]==raw,'MANIFEST_INPUT_DRIFT')
+ need(all(v.get(k,{}).get('decision')=='SOURCE_APPROVED'for k in('independent_source_review','Root_source_review')),'PENDING_SOURCE_REVIEW')
+ driver=core.Transport(root,io)
+ def rev(arg):
+  r=driver.text(['git','-c','core.longpaths=true','rev-parse',arg],timeout=30);need(r.returncode==0 and r.stderr=='','GIT_IDENTITY');return r.stdout.strip()
+ value.update(source_commit=rev('HEAD'),source_tree=rev('HEAD^{tree}'),packet_sha256=aggregate(value['packet_files_sha256']))
+ proof=validate(value,root,TASK,driver);need(core.closed_bytes(path)[0]==raw,'MANIFEST_CHANGED_DURING_PIN')
+ path.with_name('operation-manifest-before-source-pin.json').open('xb').write(raw)
+ path.write_bytes(core.canonical_bytes(value));return proof
+def main(argv=None):
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--pin-held-manifest',type=Path);a=p.parse_args(argv)
+ if a.pin_held_manifest is None:return 1
+ print(json.dumps(pin(a.pin_held_manifest)));return 0
+if __name__=='__main__':
+ try:raise SystemExit(main())
+ except (ValueError,OSError,KeyError,TypeError)as e:
+  code=getattr(e,'code',None)
+  if not(type(code)is str and re.fullmatch('[A-Z0-9_]{1,96}',code)):code=str(e)if type(e)is ValueError and re.fullmatch('[A-Z0-9_]{1,96}',str(e))else'PIN_UNCONFIRMED'
+  print(json.dumps({'status':'STOP','safe_code':code,'runtime':'NOT_RUN'}));raise SystemExit(1)

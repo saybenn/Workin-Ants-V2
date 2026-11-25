@@ -1,0 +1,65 @@
+{
+  "Posture": "D",
+  "forbidden_edges_attempted": [],
+  "mode": "normal-corrected",
+  "operator_sources_preserved": true,
+  "operator_sources_sha256": {
+    "check_local_f0_runtime_lease_two_history_owned_v1_operation.py": "7eee31ffc640a99f47f849a9137cb7fe067d6665960916018283e22ce0b5c24c",
+    "execute_local_f0_runtime_lease_two_history_owned_v1_20261123.py": "c473c555d0d25056252e8a4d0bf5f7bb4f8adda56b455589853ef361c1ad10ad",
+    "local_f0_runtime_lease_two_history_owned_v1_operation_steps.py": "f7505b51fd207a0e8c07d9bc7cc2a3887c3719773096b0caad97770453fe0f44",
+    "pin_local_f0_runtime_lease_two_history_owned_v1_plan_20261123.py": "02262a866c763e0b1c99533733cf2dfa8c498159777e9bd53bcf248781d0bfb3",
+    "prepare_local_f0_runtime_lease_two_history_owned_v1_plan.py": "21b27a5da7ed2b03a27851bc139e974021553001541717605c214eab910281fe"
+  },
+  "results": [
+    {
+      "case": "actual_fixture_prepare_pin_initialize_full_entry",
+      "deploys": 2,
+      "exact_cleanup": true,
+      "exit_code": 0,
+      "finalizer_calls": 1,
+      "modeled_processes": 181,
+      "native": {
+        "initial": {
+          "applied_rows": 2,
+          "catalog_check_counts": {
+            "PASS": 29089
+          },
+          "ledger_checks": 22,
+          "native_sha256": "84fda0dfdf1a5d9ea5a85f248b00e49e973084ae29e1a9b81412f2dfffdfbeba",
+          "oracle_expressions": 416
+        },
+        "noop": {
+          "applied_rows": 2,
+          "catalog_check_counts": {
+            "PASS": 29089
+          },
+          "ledger_checks": 22,
+          "native_sha256": "84fda0dfdf1a5d9ea5a85f248b00e49e973084ae29e1a9b81412f2dfffdfbeba",
+          "oracle_expressions": 416,
+          "oracle_proof": "REUSED_INITIAL_AFTER_IDENTICAL_COMPLETE_NATIVE_NO_SECOND_ORACLE"
+        }
+      },
+      "native_calls": 7,
+      "no_secret_retained": true,
+      "oracle_calls": 1,
+      "pinner": {
+        "batches": 2,
+        "current_and_committed_files": 427,
+        "framed_bytes": 32572914,
+        "max_batch_bytes": 16397298,
+        "packet_sha256": "42c6ba87aa9afe9a798609eb78eab3e0322de12e82bac3640747e598e4439111",
+        "source_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "source_tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "report_sha256": "7bb7364acbc3da4e169aa37435d636b6e3cf8999348740a63ee9353dc5d47af5",
+      "seconds": 238.875,
+      "status": "PASS",
+      "status_calls": 1,
+      "unknown": false
+    }
+  ],
+  "reviewer": "/root/two_history_successor_code_peer",
+  "runtime": "NOT_RUN",
+  "schema": "workinants.two-history-independent-peer-bounded-checks.v1",
+  "successful": true
+}

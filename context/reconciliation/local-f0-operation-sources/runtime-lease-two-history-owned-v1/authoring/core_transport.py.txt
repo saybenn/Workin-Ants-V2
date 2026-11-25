@@ -1,0 +1,327 @@
+# NEW owning-only transport. Derived from reviewed8e2; no old source is imported.
+import math, threading
+from dataclasses import dataclass
+
+FIVE=('execute_local_f0_runtime_lease_two_history_owned_v1_20261123.py','local_f0_runtime_lease_two_history_owned_v1_operation_steps.py','prepare_local_f0_runtime_lease_two_history_owned_v1_plan.py','check_local_f0_runtime_lease_two_history_owned_v1_operation.py','pin_local_f0_runtime_lease_two_history_owned_v1_plan_20261123.py')
+OWNED_ARCHIVE='context/reconciliation/local-f0-operation-sources/runtime-lease-two-history-owned-v1'
+OWNED_VAL='context/reconciliation/local-f0-runtime-lease-two-history-owned-v1-source-validation.json'
+FAMILY_VAL='context/reconciliation/local-f0-runtime-lease-two-history-v1-source-validation.json'
+EXPECTED='cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4'
+CAPS={'control':(65536,65536),'metadata_tools':(4194304,4194304),'native_oracle':(16777216,16777216)}
+
+class TransportStop(ValueError):
+    def __init__(self,code):self.code=code;self.closure_confirmed=False;super().__init__(code)
+
+def hold(ok,code):
+    if not ok:raise TransportStop(code)
+
+def digest_bytes(raw):return hashlib.sha256(raw).hexdigest()
+def canonical_bytes(v):return (json.dumps(v,sort_keys=True,indent=2,allow_nan=False)+'\n').encode('utf8')
+def strict_json(raw):
+    hold(type(raw)in(bytes,str) and 0<len(raw)<=32*1024*1024,'BOUNDED_JSON')
+    def pairs(items):
+        out={}
+        for k,v in items:hold(k not in out,'DUPLICATE_JSON');out[k]=v
+        return out
+    try:value=json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:(_ for _ in ()).throw(TransportStop('NONFINITE_JSON')))
+    except (ValueError,UnicodeError,RecursionError):raise TransportStop('MALFORMED_JSON')from None
+    def typed(v,d=0):
+        hold(d<=48,'JSON_DEPTH')
+        if type(v)is dict:
+            for x in v.values():typed(x,d+1)
+        elif type(v)is list:
+            for x in v:typed(x,d+1)
+        else:hold(v is None or type(v)in(str,int,bool),'JSON_TYPES')
+    typed(value);return value
+
+def closed_bytes(path,cap=32*1024*1024,origin=None):
+    """Two closed reads; ctime comparisons use the same representation."""
+    path=Path(path)
+    hold(path.is_absolute() and not any(p.is_symlink()for p in(path,*path.parents)),'CLOSED_PATH')
+    def key(s):return(s.st_dev,s.st_ino,s.st_mode,s.st_nlink,s.st_size,s.st_mtime_ns)
+    def once(token=None):
+        a=path.lstat();attrs=getattr(a,'st_file_attributes',0)
+        hold(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and 0<=a.st_size<=cap and not attrs&getattr(stat,'FILE_ATTRIBUTE_REPARSE_POINT',1024),'CLOSED_REGULAR_FILE')
+        hold(token is None or(key(a),a.st_ctime_ns)==token,'CLOSED_IDENTITY')
+        with path.open('rb')as stream:
+            h=os.fstat(stream.fileno());hold(key(h)==key(a),'CLOSED_DESCRIPTOR')
+            raw=stream.read(cap+1);end=os.fstat(stream.fileno())
+            hold(key(h)==key(end)and h.st_ctime_ns==end.st_ctime_ns,'CLOSED_DESCRIPTOR_DRIFT')
+        b=path.lstat();hold(key(a)==key(b)and a.st_ctime_ns==b.st_ctime_ns and len(raw)==a.st_size,'CLOSED_PATH_DRIFT')
+        return raw,(key(b),b.st_ctime_ns)
+    raw,token=once(None if origin is None else origin[2]);again,token2=once(token)
+    hold(raw==again and token==token2,'CLOSED_BYTES_DRIFT')
+    result=(digest_bytes(raw),len(raw),token)
+    hold(origin is None or result==origin,'CLOSED_ORIGIN_DRIFT');return raw,result
+
+class Result:
+    def __init__(self,code,out,err):self.returncode=code;self.stdout=out;self.stderr=err
+
+class NativeIO:
+    Popen=staticmethod(subprocess.Popen)
+    Thread=staticmethod(threading.Thread)
+    monotonic=staticmethod(time.monotonic)
+
+@dataclass(frozen=True)
+class GitBatch:
+    entries:tuple
+    commit:str
+    @property
+    def request(self):return ''.join(self.commit+':'+name+'\n'for name,raw in self.entries).encode('utf8')
+    @property
+    def cap(self):return sum(len(raw)+48+len(str(len(raw)))for _,raw in self.entries)
+
+def git_batches(blobs,commit):
+    hold(type(blobs)is dict and re.fullmatch('[0-9a-f]{40}',commit or''),'GIT_MAP')
+    groups=[];items=[];total=0
+    for name,raw in sorted(blobs.items()):
+        hold(type(name)is str and ':'not in name and '\\'not in name and all(x not in('','.','..')for x in name.split('/'))and not any(ord(c)<32 for c in name)and type(raw)is bytes,'GIT_REGISTERED_PATH')
+        size=len(raw)+48+len(str(len(raw)));hold(size<=16777216,'GIT_SINGLE_BLOB_TOO_LARGE')
+        if items and total+size>16777216:groups.append(GitBatch(tuple(items),commit));items=[];total=0
+        items.append((name,raw));total+=size
+    if items:groups.append(GitBatch(tuple(items),commit))
+    hold(groups and all(len(g.request)<=4194304 for g in groups),'GIT_REQUEST_BOUND');return groups
+
+def verify_git_batch(batch,raw):
+    hold(type(batch)is GitBatch and type(raw)is bytes and len(raw)==batch.cap,'GIT_COMPLETE_SIZE')
+    at=0
+    for name,body in batch.entries:
+        end=raw.find(b'\n',at);hold(end>=at,'GIT_HEADER')
+        oid=hashlib.sha1(b'blob '+str(len(body)).encode()+b'\0'+body).hexdigest().encode()
+        hold(raw[at:end]==oid+b' blob '+str(len(body)).encode(),'GIT_HEADER');at=end+1
+        hold(raw[at:at+len(body)]==body and raw[at+len(body):at+len(body)+1]==b'\n','GIT_COMMITTED_BYTES');at+=len(body)+1
+    hold(at==len(raw),'GIT_TRAILING_BYTES');return True
+
+class Transport:
+    def __init__(self,cwd,io=None):self.cwd=Path(cwd);self.io=io or NativeIO();self.unknown=False;self.observations=[]
+    def binary(self,args,payload=None,timeout=30,profile='control',batch=None):
+        hold(type(args)is list and 0<len(args)<=128 and all(type(a)is str and '\0'not in a for a in args),'PROCESS_ARGUMENTS')
+        try:
+            hold(all(len(a.encode('utf8'))<=8192 for a in args)and sum(len(a.encode('utf8'))for a in args)<=16384 and len(subprocess.list2cmdline(args).encode('utf-16-le'))//2<=30000,'PROCESS_ARGUMENT_BOUNDS')
+        except UnicodeError:raise TransportStop('PROCESS_ARGUMENT_ENCODING')from None
+        hold((payload is None or type(payload)is bytes and len(payload)<=4194304)and type(timeout)is int and 0<timeout<=150,'PROCESS_PROFILE')
+        if batch is not None:
+            hold(type(batch)is GitBatch and profile=='Git_closed_batch'and payload==batch.request and args==['git','-c','core.longpaths=true','cat-file','--batch']and timeout==30 and 0<batch.cap<=16777216,'GIT_CLOSED_PROFILE');limits=(batch.cap,65536)
+        else:hold(profile in CAPS,'PROCESS_CAPTURE_PROFILE');limits=CAPS[profile]
+        clock=self.io.monotonic;deadline=clock()+timeout
+        remote_exec=args[:4]==['docker','--context','desktop-linux','exec'];attempted=False
+        p=None;threads=[];buffers=[bytearray(),bytearray()];bad=threading.Event();failure=None;code=None
+        thread_errors=[];error_lock=threading.Lock();cleanup_errors=[];cleanup_threads=[]
+        def remember(code):
+            with error_lock:
+                if not thread_errors:thread_errors.append((code,clock()))
+            bad.set()
+        def check_work():
+            if bad.is_set()and thread_errors[0][1]<=deadline:raise TransportStop(thread_errors[0][0])
+            hold(clock()<deadline,'PROCESS_DEADLINE_EXCEEDED')
+        def remaining(end):return max(0,end-clock())
+        try:
+            attempted=True
+            p=self.io.Popen(args,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,cwd=str(self.cwd),shell=False)
+            check_work() # Explicit approved post-spawn check before payload delivery.
+            def reader(stream,index):
+                try:
+                    while True:
+                        chunk=stream.read(4096)
+                        if not chunk:break
+                        if type(chunk)is not bytes or len(buffers[index])+len(chunk)>limits[index]:remember('PROCESS_BOUNDED_COMPLETE_OUTPUT');break
+                        buffers[index].extend(chunk)
+                except BaseException:remember('PROCESS_BOUNDED_COMPLETE_OUTPUT')
+            def writer():
+                try:
+                    if payload:
+                        written=p.stdin.write(payload);hold(type(written)is int and written==len(payload),'PROCESS_STDIN_WRITE_UNCONFIRMED')
+                except BaseException:remember('PROCESS_STDIN_WRITE_UNCONFIRMED')
+                finally:
+                    try:p.stdin.close()
+                    except BaseException:remember('PROCESS_STDIN_CLOSE_UNCONFIRMED')
+            for i,s in enumerate((p.stdout,p.stderr)):
+                try:th=self.io.Thread(target=reader,args=(s,i),daemon=True);threads.append(th);th.start()
+                except BaseException:raise TransportStop('PROCESS_THREAD_START_UNCONFIRMED')from None
+            try:th=self.io.Thread(target=writer,daemon=True);threads.append(th);th.start()
+            except BaseException:raise TransportStop('PROCESS_THREAD_START_UNCONFIRMED')from None
+            while True:
+                check_work()
+                try:code=p.wait(timeout=min(.05,remaining(deadline)));break
+                except subprocess.TimeoutExpired:continue
+            hold(type(code)is int,'PROCESS_EXIT_TYPE')
+            for th in threads:
+                while th.is_alive():
+                    check_work()
+                    try:th.join(timeout=min(.05,remaining(deadline)))
+                    except BaseException:raise TransportStop('PROCESS_THREAD_JOIN_UNCONFIRMED')from None
+            check_work()
+        except BaseException as error:failure=error
+        finally:
+            def observed_exit():
+                try:return p is not None and type(p.poll())is int
+                except BaseException:return False
+            closed=False;alive=True
+            if p is not None:
+                cleanup_deadline=clock()+2
+                def cleanup_call(action,label):
+                    def run():
+                        try:action()
+                        except BaseException:cleanup_errors.append(label)
+                    try:th=self.io.Thread(target=run,daemon=True);cleanup_threads.append(th);th.start();return th
+                    except BaseException:cleanup_errors.append(label);return None
+                def cleanup_join(th,limit=None):
+                    if th is None:return
+                    try:th.join(timeout=remaining(cleanup_deadline)if limit is None else min(limit,remaining(cleanup_deadline)))
+                    except BaseException:cleanup_errors.append('PROCESS_CLOSE_UNCONFIRMED')
+                if not observed_exit():
+                    th=cleanup_call(p.terminate,'PROCESS_CLOSE_UNCONFIRMED');cleanup_join(th,.25)
+                    if th is not None and not th.is_alive():
+                        try:p.wait(timeout=min(.25,remaining(cleanup_deadline)))
+                        except BaseException:pass
+                    if not observed_exit():
+                        th=cleanup_call(p.kill,'PROCESS_CLOSE_UNCONFIRMED');cleanup_join(th)
+                        if th is not None and not th.is_alive():
+                            try:p.wait(timeout=remaining(cleanup_deadline))
+                            except BaseException:pass
+                for stream in(p.stdin,p.stdout,p.stderr):cleanup_call(stream.close,'PROCESS_PIPE_CLOSE_UNCONFIRMED')
+                for th in(*threads,*cleanup_threads):cleanup_join(th)
+                try:closed=all(s.closed is True for s in(p.stdin,p.stdout,p.stderr));alive=any(th.is_alive()for th in(*threads,*cleanup_threads))
+                except BaseException:pass
+                if failure is None:
+                    if not observed_exit():failure=TransportStop('PROCESS_EXIT_UNCONFIRMED')
+                    elif alive:failure=TransportStop('PROCESS_CLOSE_UNCONFIRMED')
+                    elif cleanup_errors or not closed:failure=TransportStop('PROCESS_PIPE_CLOSE_UNCONFIRMED')
+                    elif bad.is_set():failure=TransportStop(thread_errors[0][0])
+            confirmed=observed_exit()and closed and not alive and not cleanup_errors
+            normal_binary_result=failure is None and confirmed
+            remote_unconfirmed=remote_exec and attempted and not normal_binary_result
+            self.unknown|=not confirmed or remote_unconfirmed
+            observation={'profile':profile,'stdin_bytes':0 if payload is None else len(payload),'stdout_bytes':len(buffers[0]),'stderr_bytes':len(buffers[1]),'process_exit_confirmed':observed_exit(),'pipes_closed':closed,'threads_closed':not alive,'closure_confirmed':confirmed,'normal_binary_result_returned':normal_binary_result,'remote_exec_attempted':remote_exec and attempted,'remote_exit_unconfirmed':remote_unconfirmed,'failed':failure is not None}
+            self.observations.append(observation)
+            if failure is not None:
+                if not isinstance(failure,TransportStop):failure=TransportStop('PROCESS_BOUNDARY_UNEXPECTED')
+                failure.closure_confirmed=confirmed;raise failure from None
+        return Result(code,bytes(buffers[0]),bytes(buffers[1]))
+    def text(self,args,input=None,timeout=30,profile='control'):
+        hold(input is None or type(input)is str,'PROCESS_TEXT_INPUT')
+        try:raw=None if input is None else input.encode('utf8',errors='strict')
+        except UnicodeError:raise TransportStop('PROCESS_TEXT_ENCODING')from None
+        result=self.binary(args,raw,timeout,profile)
+        try:return Result(result.returncode,result.stdout.decode('utf8',errors='strict'),result.stderr.decode('utf8',errors='strict'))
+        except UnicodeError:
+            e=TransportStop('PROCESS_TEXT_DECODING');e.closure_confirmed=True;e.normal_binary_result_returned=True;raise e from None
+
+def admit_command(args,input,timeout):
+    hold(PROCESS_ADMITTED is True,'PENDING_PROCESS_ADMISSION')
+    hold(type(args)is list and args,'COMMAND_PROFILE')
+    if args[0]=='powershell.exe':
+        hold(args==['powershell.exe','-NoProfile','-NonInteractive','-File',str(OUT/'set-private-acl.ps1'),str(PRIVATE)]and input is None,'ACL_COMMAND_PROFILE');return'control'
+    hold(args[:3]==['docker','--context','desktop-linux'],'COMMAND_EXECUTABLE')
+    a=args[3:];hold(a,'DOCKER_OPERATION')
+    hold(type(timeout)is int and 0<timeout<=150,'COMMAND_TIMEOUT')
+    target=TARGETS[0];name=target['name'];volume=target['volume']
+    metadata=[['context','inspect','desktop-linux'],['version','--format','{{json .Server}}'],['container','ls','-a','--format','{{.Names}}'],['volume','ls','--format','{{.Name}}'],['container','inspect',name],['volume','inspect',volume],['image','inspect',IMAGE],['inspect',name]]
+    if a in metadata:hold(input is None and timeout<=120,'METADATA_PROFILE');return'metadata_tools'
+    labels=['--label','workinants.rehearsal='+LABEL,'--label','workinants.rehearsal.run='+RUN_ID]
+    if a[:2]==['volume','create']:
+        hold(a==['volume','create',*labels,volume]and input is None and timeout<=120,'VOLUME_CREATE_PROFILE');return'control'
+    if a[:2]==['container','create']:
+        expected=['container','create','--name',name,*labels,'--network','none','--platform','linux/amd64','--mount','type=volume,src='+volume+',dst=/var/lib/postgresql/data','--mount','type=bind,src='+str(PRIVATE/'ok-bootstrap-password')+',dst=/run/bootstrap-password,readonly','--tmpfs','/run/wa-secrets:rw,nosuid,noexec,nodev,mode=0700','-e','POSTGRES_DB='+DB,'-e','POSTGRES_PASSWORD_FILE=/run/bootstrap-password','-e','POSTGRES_HOST_AUTH_METHOD=scram-sha-256','-e','POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256',IMAGE,'postgres']
+        for option in('password_encryption=scram-sha-256','log_statement=none','log_min_error_statement=panic','log_error_verbosity=terse','log_line_prefix=WA_F0_DIAG|%e|%u|%d|','lc_messages=C','log_min_messages=warning'):expected+=['-c',option]
+        hold(a==expected and input is None and timeout<=120,'CONTAINER_CREATE_PROFILE');return'control'
+    if a[:2]in(['container','start'],['container','rm'],['volume','rm']):
+        permitted=[['container','start',v]for v in created_containers.values()]+[['container','rm','-f',v]for v in created_containers.values()]+[['volume','rm',v]for v in RESOURCE_VOLUMES]
+        hold(a in permitted and input is None and timeout<=120,'UNOWNED_RESOURCE_OPERATION');return'control'
+    if a[0]=='cp':
+        hold(input is None and len(a)==3 and a[-1].split(':',1)[0]in created_containers.values()and a[1]in(MANIFEST['tool_archive'],MANIFEST['migration_target']['source_archive']),'CLOSED_ARCHIVE_COPY');return'control'
+    hold(a[0]=='exec','DOCKER_OPERATION_DENIED')
+    ids=[x for x in a if type(x)is str and re.fullmatch('[0-9a-f]{64}',x)]
+    hold(len(ids)==1 and ids[0]in created_containers.values(),'IMMUTABLE_CID_REQUIRED')
+    rest=a[a.index(ids[0])+1:];hold(rest,'EXEC_PROGRAM')
+    cid=ids[0]
+    if rest[0]=='psql':
+        permitted=[psql_args(name,r)[3:]for r in ROLES]
+        permitted +=[[v.replace('PGPASSFILE=/run/wa-secrets/pgpass','PGPASSFILE=/run/wa-secrets/wrong-'+r+'.pgpass')for v in psql_args(name,r)[3:]]for r in ROLES]
+        hold(a in permitted and type(input)is str and timeout<=120,'PSQL_ARGUMENT_PROFILE');return'native_oracle'if report.get('stage','').startswith(('NATIVE','ORACLE','LEDGER'))else'control'
+    if rest[0]=='pg_isready':hold(rest==['pg_isready','-h','127.0.0.1','-p','5432','-U','postgres','-d',DB]and input is None and timeout<=120,'READINESS_PROFILE');return'control'
+    if rest[0]=='sh':
+        pgpass='umask 077; cat > /run/wa-secrets/pgpass; chmod 600 /run/wa-secrets/pgpass; stat -c "%a:%u:%g" /run/wa-secrets/pgpass'
+        recipes={pgpass,OWNER_SECRET_TMPFS_SCRIPT,URL_RECIPE,*[wrong_recipe(r)for r in ROLES]}
+        hold(a==['exec','-i',cid,'sh','-ceu',rest[-1]]and len(rest)==3 and rest[-1]in recipes and timeout<=120,'FIXED_SHELL_RECIPE');return'control'
+    if rest[0]=='mkdir':hold(a==['exec',cid,'mkdir','-p','/run/wa-f0-tools','/run/wa-f0-source']and input is None and timeout<=120,'TOOL_DIRECTORIES_PROFILE');return'control'
+    if rest[0]=='tar':hold(a in([ 'exec',cid,'tar','-xzf','/run/wa-f0-tools.tar.gz','-C','/run/wa-f0-tools'],['exec',cid,'tar','-xf','/run/wa-f0-source.tar','-C','/run/wa-f0-source'])and input is None and timeout<=120,'ARCHIVE_EXTRACT_PROFILE');return'control'
+    if rest[0]=='rm':hold(a in(['exec',cid,'rm','--','/run/wa-f0-tools.tar.gz'],['exec',cid,'rm','--','/run/wa-f0-source.tar'])and input is None and timeout<=120,'ARCHIVE_REMOVE_PROFILE');return'control'
+    if rest[0]in('/run/wa-f0-tools/node/bin/node','/run/wa-f0-tools/schema-engine')and rest[-1]=='--version':hold(len(rest)==2 and input is None and timeout<=120,'TOOL_VERSION_PROFILE');return'control'
+    if rest[0]=='/usr/bin/sha256sum'and rest[1:]==['--check','--strict','--status']:
+        expected=''.join(h+'  /run/wa-f0-tools/'+n+'\n'for n,h in sorted(MANIFEST['migration_manifest']['tools']['files_sha256'].items()))
+        hold(a==['exec','-i',cid,*rest]and input==expected and timeout<=120,'TOOL_HASH_PROFILE');return'metadata_tools'
+    # Remaining exec shapes are admitted only through the independently checked
+    # supported source13 callback, including exact8/hash/stat/Node runner args.
+    hold(rest[0]in('/usr/bin/sha256sum','/usr/bin/stat','/run/wa-f0-tools/node/bin/node')and report.get('stage','').startswith('GENUINE_'),'EXEC_PROGRAM_DENIED')
+    return'control'
+
+def command(args,input=None,timeout=60,*,_inner_cli_attempt=False):
+    try:return TRANSPORT.text(args,input,timeout,admit_command(args,input,timeout))
+    except TransportStop as e:
+        if _inner_cli_attempt:TRANSPORT.unknown=True
+        if 'report'in globals():record_failure(report.get('stage','ENTRY'),e.code)
+        raise Stop(e.code)from None
+
+def source13_process(arguments,*,_node_dispatch_marker=None,**options):
+    hold(set(options)in({'text','capture_output','timeout','shell'},{'text','capture_output','timeout','shell','input'})and options['text']is True and options['capture_output']is True and options['shell']is False,'SOURCE13_PROCESS_KWARGS')
+    a=arguments;hold(type(a)is list and a,'SOURCE13_ARGUMENTS');cid=created_containers[TARGETS[0]['name']];target=MANIFEST['migration_manifest']['target']
+    allowed=[['docker','--context','desktop-linux','context','inspect','desktop-linux'],['docker','--context','desktop-linux','inspect',target['container_name']],['docker','--context','desktop-linux','volume','inspect',target['volume_name']],['docker','--context','desktop-linux','image','inspect',IMAGE]]
+    runner=a==['docker','--context','desktop-linux','exec','-i',cid,'/run/wa-f0-tools/node/bin/node','/run/wa-f0-source/scripts/sql-review/local-f0-runtime-lease-history-v1-runner.mjs','--execute-reviewed-local-f0-runtime-lease-history-v1','--operation',a[-1]]and a[-1]in('deploy','status')
+    hash_names=sorted(['/run/wa-f0-source/'+n for n in MANIFEST['migration_target']['source_files_sha256']]+['/run/wa-f0-tools/node/bin/node'])
+    stat_names=sorted('/run/wa-f0-source/'+n for n in MANIFEST['migration_target']['source_files_sha256'])
+    copied=a==['docker','--context','desktop-linux','exec',cid,'/usr/bin/sha256sum','--',*hash_names]or a==['docker','--context','desktop-linux','exec',cid,'/usr/bin/stat','--format=%s','--',*stat_names]
+    hold(a in allowed or runner or copied,'SOURCE13_ARGUMENT_PROVENANCE')
+    hold(options['timeout']==(150 if runner else30)and type(options['timeout'])is int and(('input'in options)==runner),'SOURCE13_TIMEOUT_INPUT')
+    if runner:
+        hold(type(options['input'])is str,'SOURCE13_TEXT_INPUT')
+        att=strict_json(options['input'])
+        expected_observed={'endpoint':'npipe:////./pipe/dockerDesktopLinuxEngine','context':'desktop-linux','container_id':cid,'container_name':target['container_name'],'volume_name':target['volume_name'],'image':IMAGE,'network':'none','published_ports':False,'labels':target['labels'],'bootstrap_secret_host_path':target['bootstrap_secret_host_path']}
+        hold(type(att)is dict and set(att)=={'schema','planned','run_manifest_sha256','observed'}and att['schema']=='workinants.local-f0-runtime-lease-history-live-attestation.v1'and att['planned']==MANIFEST['migration_manifest']and att['run_manifest_sha256']==MANIFEST['migration_target']['manifest']['sha256']and att['observed']==expected_observed,'SOURCE13_ATTESTATION_PROVENANCE')
+        # Per-coordinate callback-local marker, after exact authorization and
+        # before dispatch. It carries no manufactured process/closure proof.
+        if _node_dispatch_marker is not None:_node_dispatch_marker()
+    return command(a,options.get('input'),options['timeout'],_inner_cli_attempt=runner)
+
+def entry_source_gate():
+    global PROCESS_ADMITTED
+    raw,_=closed_bytes(ROOT/OWNED_VAL);value=strict_json(raw)
+    current={n:digest_bytes(closed_bytes(TASK/n)[0])for n in FIVE}
+    hold(value.get('operator_sources_sha256')==current==MANIFEST['operator_sources_sha256'],'EXACT_OWNED_FIVE')
+    for name in FIVE:hold(closed_bytes(ROOT/(OWNED_ARCHIVE+'/'+name+'.txt'))[0]==closed_bytes(TASK/name)[0],'OWNED_SNAPSHOT')
+    for key in('independent_source_review','Root_source_review'):
+        gate=value.get(key);hold(type(gate)is dict and gate.get('decision')=='SOURCE_APPROVED'and gate.get('operator_sources_sha256')==current and gate.get('source_files_sha256')==value.get('source_files_sha256'),'PENDING_SOURCE_REVIEW')
+        path=gate.get('path');hold(type(path)is str and path.startswith(OWNED_ARCHIVE+'/reviews/')and MANIFEST['packet_files_sha256'].get(path)==gate.get('sha256'),'OWNED_REVIEW_BINDING')
+        record=strict_json(closed_bytes(ROOT/path)[0]);hold(record.get('decision')=='SOURCE_APPROVED'and record.get('operator_sources_sha256')==current and record.get('source_files_sha256')==value.get('source_files_sha256'),'OWNED_REVIEW_RECORD')
+    hold(type(value.get('source_files_sha256'))is dict and value['source_files_sha256'],'OWNED_RUNTIME_CLOSURE')
+    for name,h in value['source_files_sha256'].items():hold(MANIFEST['packet_files_sha256'].get(name)==h and digest_bytes(closed_bytes(ROOT/name)[0])==h,'OWNED_RUNTIME_CURRENT_BYTES')
+    hold(MANIFEST['review_status']=='APPROVED_LOCAL_F0_TWO_HISTORY_OWNED_ATTEMPT','PENDING_OPERATIONAL_LITERAL')
+    PROCESS_ADMITTED=True
+
+def ensure_image():
+    values=json_ok(docker(['image','inspect',IMAGE]),'PINNED_CACHED_IMAGE_REQUIRED')
+    helper='scripts/sql-review/local_image_identity.py';raw=read_pinned(helper)
+    hold(digest_bytes(raw)=='a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604','IMAGE_HELPER_DRIFT')
+    module={'__name__':'_closed_image','__file__':str(ROOT/helper)};exec(compile(raw,module['__file__'],'exec'),module)
+    report['image']=module['validate_cached_image'](values,read_pinned('scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json'));event('PINNED_IMAGE','PASS',pulled=False)
+
+def read_pinned(relative):
+    hold(type(relative)is str and ':'not in relative and '\\'not in relative and all(x not in('','.','..')for x in relative.split('/')),'PINNED_PATH')
+    raw,_=closed_bytes(ROOT/relative);hold(digest_bytes(raw)==MANIFEST['packet_files_sha256'].get(relative),'PINNED_SOURCE_DRIFT');return raw
+
+def json_ok(result,code):
+    need(type(result.returncode)is int and result.returncode==0,code);return strict_json(result.stdout)
+
+def launch(argv=None,io=None):
+    parser=argparse.ArgumentParser(description='Dormant new two-history owning operator; all source/literal gates required.')
+    parser.add_argument('--execute-reviewed-two-history-owned-v1',action='store_true');parser.add_argument('--manifest',type=Path)
+    args=parser.parse_args(argv)
+    if not args.execute_reviewed_two_history_owned_v1 or args.manifest is None:return 1
+    try:
+        initialize(args.manifest,io);entry_source_gate()
+        raw,_=closed_bytes(TASK/FIVE[1]);hold(digest_bytes(raw)==MANIFEST['operator_sources_sha256'][FIVE[1]],'STEPS_SOURCE_DRIFT')
+        exec(compile(raw,str(TASK/FIVE[1]),'exec'),globals());return main()
+    except BaseException as e:
+        print(json.dumps({'status':'HELD','code':e.code if isinstance(e,(Stop,TransportStop))else'OWNED_ENTRY_REFUSED','raw_output_discarded':True}));return 1
+
+if __name__=='__main__':raise SystemExit(launch())

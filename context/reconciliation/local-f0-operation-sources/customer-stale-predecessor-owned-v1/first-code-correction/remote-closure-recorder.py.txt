@@ -1,0 +1,32 @@
+def _csp_authorized_remote_exec(args):
+    if args[:4]!=['docker','--context','desktop-linux','exec']:return False
+    values=globals().get('created_containers',{})
+    return type(values)is dict and any(type(cid)is str and re.fullmatch('[0-9a-f]{64}',cid)and cid in args[4:]for cid in values.values())
+
+def _csp_record_binary_origin(error):
+    if type(globals().get('report'))is not dict:return
+    allowed={'PROCESS_DEADLINE_EXCEEDED','PROCESS_BOUNDED_COMPLETE_OUTPUT','PROCESS_STDIN_WRITE_UNCONFIRMED','PROCESS_STDIN_CLOSE_UNCONFIRMED','PROCESS_EXIT_TYPE','PROCESS_EXIT_UNCONFIRMED','PROCESS_CLOSE_UNCONFIRMED','PROCESS_PIPE_CLOSE_UNCONFIRMED'}
+    code=error.code if type(error)is Stop and error.code in allowed else 'PROCESS_BOUNDARY_UNEXPECTED'
+    stage=error.stage if type(error)is Stop else report.get('stage','ENTRY')
+    remember_failure(stage,code)
+
+def csp_record_transport_closure(process,threads,receipt=None,*,natural_result=False,remote_exec=False):
+    outcomes={'process_exited':False,'pipes_closed':False,'threads_closed':False}
+    if process is not None:
+        try:outcomes['process_exited']=type(process.poll())is int
+        except BaseException:pass
+        try:outcomes['pipes_closed']=all(stream.closed is True for stream in(process.stdin,process.stdout,process.stderr))
+        except BaseException:pass
+    try:outcomes['threads_closed']=not any(thread.is_alive()for thread in threads)
+    except BaseException:pass
+    remote_unknown=remote_exec and not natural_result
+    if receipt is not None:receipt.update({**outcomes,'normal_byte_api_returned':natural_result,'remote_exec_attempted':remote_exec,'remote_exec_exit_unconfirmed':remote_unknown})
+    value=globals().get('report')
+    if type(value)is not dict:return
+    state=value['transport_closure']
+    if not all(outcomes.values()):
+        state['transport_closure_unconfirmed']=True
+        if state['first_unconfirmed_closure']is None:state['first_unconfirmed_closure']=outcomes
+    if remote_unknown:
+        state['transport_closure_unconfirmed']=True;state['remote_exec_exit_unconfirmed']=True
+        state.setdefault('first_remote_exec_uncertainty',{'normal_byte_api_returned':False,'outer_process_exited':outcomes['process_exited'],'outer_pipes_closed':outcomes['pipes_closed'],'outer_threads_closed':outcomes['threads_closed']})

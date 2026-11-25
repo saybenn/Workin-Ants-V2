@@ -1,0 +1,233 @@
+import ast
+CSP_PACKET='review-output/customer-stale-predecessor-v1'
+SCOPED_PACKET=CSP_PACKET
+CSP_CHILD='scripts/sql-review/run-customer-stale-predecessor-v1.py'
+CSP_PROTOCOL='scripts/customer_stale_predecessor_v1_protocol.py'
+CSP_CHILD_VALIDATION='context/reconciliation/customer-stale-predecessor-v1-source-validation.json'
+CSP_FIXTURES_SHA='c2074a45f80147833e958d1f02b5d3840b32eb13a46033ebc7f1e75c322eb10b'
+CSP_FIXTURE_RUN='36e9cae1-53fc-44a7-b90f-b91fb6e8d2b5'
+CSP_OPERATION_RUN='73292a8f-838e-4d92-be2e-42170dd5ec6a'
+OWNED_ARCHIVE='context/reconciliation/local-f0-operation-sources/customer-stale-predecessor-owned-v1'
+OWNED_VALIDATION='context/reconciliation/local-f0-customer-stale-predecessor-owned-v1-source-validation.json'
+EXTERNAL_FILES=('execute_local_f0_customer_stale_predecessor_v1_20261120.py','local_f0_customer_stale_predecessor_v1_operation_steps.py','prepare_local_f0_customer_stale_predecessor_v1_plan.py','check_local_f0_customer_stale_predecessor_v1_operation.py','pin_local_f0_customer_stale_predecessor_v1_plan_20261120.py')
+CSP_HELPER_FILES=(CSP_CHILD,CSP_PROTOCOL,'scripts/sql-review/run-context-control-rehearsal.py','scripts/sql-review/run-first-rehearsal.py','scripts/sql-review/rehearsal-diagnostics.py','scripts/sql-review/run-local-f0-migrate.py','scripts/prepare-local-f0-history.py')
+CSP_HELPERS={}
+CSP_STATE={}
+COMPONENT_ARTIFACT='customer-stale-component/customer-stale-predecessor-results.json'
+TOOLS_CLOSURE='context/reconciliation/local-f0-tooling/prisma-tools-closure.json'
+TOOLS_CLOSURE_SHA='610e36e4006e9680d0e6a036486f302a18ecce9593699125b4173f5914acb88b'
+TOOLS_ARCHIVE_SHA='481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb'
+
+def csp_source_admission():
+    # launch already completed the full source pinner before this Steps module
+    # was compiled and before main created OUT. Its fresh-output admission is
+    # not a runtime API; recheck the admitted bytes and receipts below instead.
+    cfg=MANIFEST['customer_stale'];need(set(cfg)=={'fixtures_sha256','content_sha256','coordinator_sha256','external_files_sha256','fixture_run_id'},'CSP1_CONFIGURATION_FIELDS')
+    need(RUN_ID==CSP_OPERATION_RUN and cfg['fixture_run_id']==CSP_FIXTURE_RUN and RUN_ID!=CSP_FIXTURE_RUN,'CSP1_DISTINCT_FROZEN_IDENTITIES')
+    pins=MANIFEST['packet_files_sha256'];blobs={name:read_pinned(name)for name in pins}
+    owned=unique_json(blobs[OWNED_VALIDATION]);five=cfg['external_files_sha256'];need(owned['operator_sources_sha256']==five,'CSP1_OWNED_SOURCE_BINDING')
+    actual={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()for p in(ROOT/OWNED_ARCHIVE).rglob('*')if p.is_file()}
+    exact(actual,owned['archive_files_sha256'],'CSP1_OWNED_ARCHIVE_TREE')
+    for path,wanted in actual.items():need(pins.get(path)==wanted,'CSP1_OWNED_ARCHIVE_ADMISSION')
+    child=unique_json(blobs[CSP_CHILD_VALIDATION]);packet=unique_json(blobs[CSP_PACKET+'/fixtures.json'])
+    need(hashlib.sha256(blobs[CSP_PACKET+'/fixtures.json']).hexdigest()==CSP_FIXTURES_SHA==cfg['fixtures_sha256'] and packet['fixture_run_id']==CSP_FIXTURE_RUN,'CSP1_FIXED_FIXTURE_BYTES')
+    need(packet['status']=='NOT_RUN' and packet['database_posture']=='D' and packet['database_contacted']is False and packet['sql_executed']is False and packet['case_order']==['wrong-predecessor','skipped-revision','same-grant-second-source-update'],'CSP1_FINITE_SOURCE_SCOPE')
+    for mapping in(child['source_files_sha256'],child['packet_files_sha256'],child['archive_files_sha256']):
+        for name,wanted in mapping.items():need(pins.get(name)==wanted,'CSP1_CHILD_SOURCE_MISSING')
+    for key in('independent_source_review','Root_source_review'):
+        review=child[key];need(review['decision']=='SOURCE_APPROVED' and pins.get(review['path'])==review['sha256'],'CSP1_CHILD_REVIEW_REQUIRED')
+    need(hashlib.sha256(blobs[CSP_CHILD]).hexdigest()==cfg['coordinator_sha256']=='2a3cd4730408d294b767448b2d9f563d4f14937ca95edd1be232383c30591b3e','CSP1_CHILD_SOURCE_IDENTITY')
+    need(packet['content_sha256']==cfg['content_sha256'] and packet['assertion_expected_sha256']=='72f2d75ee3f9af764982f379f5dc82805531d09dc85f0925f8d7c6ab69795d3e','CSP1_CONTENT_ASSERTION_BINDING')
+    need(len(packet['fixture_bypasses'])==2 and {r['table']for r in packet['fixture_bypasses']}=={'app.users','app.user_security_profiles'} and all(r['trigger']=='owner_commit' and r['expected_enabled']=='O' and r['setup_only']is True for r in packet['fixture_bypasses']),'CSP1_TWO_IDENTITY_FIXTURE_EXCEPTIONS_ONLY')
+    validate_owned_source_snapshot();validate_owned_tool_archive()
+    CSP_STATE['blobs']=blobs;CSP_STATE['packet']=packet
+    codes=set()
+    for name,raw in blobs.items():
+        if name.endswith('.py'):
+            for node in ast.walk(ast.parse(raw)):
+                if isinstance(node,ast.Constant)and type(node.value)is str and re.fullmatch('[A-Z][A-Z0-9_]{0,95}',node.value):codes.add(node.value)
+    CSP_STATE['safe_codes']=codes
+    return blobs
+
+def verify_csp_packet():
+    need(re.fullmatch('[0-9a-f]{40}',COMMIT) and re.fullmatch('[0-9a-f]{40}',TREE) and re.fullmatch('[0-9a-f]{64}',PACKET),'CSP1_PUBLISHED_SOURCE_REQUIRED')
+    csp_source_admission();verify_common_packet();verify_catalog_packet()
+    generator_path='scripts/prepare-customer-stale-predecessor-v1.py';raw=read_pinned(generator_path)
+    generator={'__file__':str(ROOT/generator_path),'__name__':'_verified_CSP1_generator'};exec(compile(raw,str(ROOT/generator_path),'exec'),generator)
+    files,packet=generator['build'](ROOT,CSP_FIXTURE_RUN)
+    exact(packet,CSP_STATE['packet'],'CSP1_GENERATOR_FIXTURE_OBJECT')
+    need(len(files)==12 and all(read_pinned(CSP_PACKET+'/'+name)==text.encode('utf8')for name,text in files.items()),'CSP1_EXACT_TWELVE_ARTIFACT_REPRODUCTION')
+    module=load_reviewed_helper(CSP_CHILD)
+    admitted=module['admit_source_graph'](ROOT,MANIFEST['packet_files_sha256'])
+    need(type(admitted)is tuple and len(admitted)==5 and admitted[0]==packet,'CSP1_REAL_CHILD_ADMISSION')
+    CSP_STATE['child_module']=module;CSP_STATE['child_admission']=admitted
+    SAFE_FILES.update({'customer-stale-native-attestation.json','customer-stale-run-plan.json','customer-stale-component-summary.json','post-state-before.json','post-state-after.json','post-native-before.json','post-native-after-oracle.json','post-native-after-ledger.json','post-oracle-evidence.json','post-ledger-observation.json','post-ledger-evidence.json','post-catalog-comparison.json','post-oracle-preflight.json','post-oracle-results.json','post-oracle-closure.json'})
+    report['steps']['CSP1-REVIEW']='PASS_SOURCE_ADMISSION_ONLY';report['customer_stale']['fixture_run_id']=CSP_FIXTURE_RUN;save()
+
+def csp_receipt(value,case,success=False):
+    need(type(value)is dict and set(value)=={'response_received','shape_valid','acknowledged','exact_output','rollback_acknowledged','diagnostic'},'CSP1_RECEIPT_FIELDS')
+    for key in('response_received','shape_valid','exact_output','rollback_acknowledged'):need(type(value[key])is bool,'CSP1_RECEIPT_BOOLEAN')
+    need(value['acknowledged']is None or type(value['acknowledged'])is bool,'CSP1_RECEIPT_ACK')
+    diag=value['diagnostic']
+    if case=='wrong-predecessor':need(diag is None,'CSP1_ZERO_ROWS_NO_DIAGNOSTIC')
+    else:
+        need(type(diag)is dict and set(diag)=={'matched','sqlstate','exact_primary','source_function','source_body','raise_line','bounded_shape'},'CSP1_DIAGNOSTIC_FIELDS')
+        need(diag['sqlstate']in(None,'P0001','42501') and all(type(diag[k])is bool for k in set(diag)-{'sqlstate'}),'CSP1_DIAGNOSTIC_VALUES')
+        if success:need(diag['matched']is True and diag['sqlstate']==('P0001'if case=='skipped-revision'else'42501') and all(diag[k]is True for k in set(diag)-{'sqlstate'}),'CSP1_INTENDED_GUARD_REQUIRED')
+    if success:need(all(value[k]is True for k in('response_received','shape_valid','acknowledged','exact_output','rollback_acknowledged')),'CSP1_EXPLICIT_ROLLBACK_REQUIRED')
+
+def validate_csp_component(value,complete=False):
+    need(type(value)is dict and set(value)=={'schema','status','evidence_complete','current_case','stage','operations','results','first_failure'},'CSP1_CHILD_FIXED_SCHEMA')
+    need(value['schema']=='workinants.customer-stale-predecessor-results.v1' and value['status']in('NOT_RUN','STOPPED','PASS_THREE_STALE_PREDECESSOR_ROLLBACK_CONTROLS_ONLY') and type(value['evidence_complete'])is bool,'CSP1_CHILD_STATUS')
+    cases=CSP_STATE['packet']['case_order'];need(value['current_case']is None or value['current_case']in cases,'CSP1_CURRENT_CASE')
+    need(type(value['stage'])is str and value['stage']in CSP_STATE['safe_codes'],'CSP1_SAFE_STAGE')
+    first=value['first_failure']
+    if first is not None:need(type(first)is dict and set(first)=={'stage','code'} and all(type(first[k])is str and first[k]in CSP_STATE['safe_codes'] for k in first),'CSP1_SAFE_FIRST_FAILURE')
+    results=value['results'];need(type(results)is list and len(results)<=3 and [r.get('name')for r in results if type(r)is dict]==cases[:len(results)],'CSP1_EXACT_RESULT_PREFIX')
+    for row in results:
+        need(set(row)=={'name','status','receipt'} and row['status']=='PASS_ROLLBACK_CONTROL_ONLY','CSP1_RESULT_FIELDS');csp_receipt(row['receipt'],row['name'],True)
+    operations=value['operations'];need(type(operations)is list and len(operations)<=1000,'CSP1_BOUNDED_OPERATIONS')
+    allowed={'stage','attempted','backend_tuple_present','closed','scope','shape_valid','zero','confirmed','response_received','acknowledged','rows','stderr_empty','reader_complete','stderr_observed_after_exit','created_at_verified','same','exact_typed_comparison','table_count','count','exact','committed','case','exact_output','rollback_acknowledged','diagnostic'}
+    nullable={'acknowledged','rows','stderr_empty','table_count'};numbers={'rows','table_count','count'}
+    for row in operations:
+        need(type(row)is dict and set(row)<=allowed and type(row.get('stage'))is str and row['stage']in CSP_STATE['safe_codes'],'CSP1_OPERATION_ALLOWLIST')
+        for key,item in row.items():
+            if key=='stage':continue
+            if key=='scope':need(item=='ALL_DATABASES_ROLES_TAGS','CSP1_GLOBAL_SCOPE');continue
+            if key=='case':need(item in cases,'CSP1_CASE_ENUM');continue
+            if key=='diagnostic':continue
+            if key in nullable and item is None:continue
+            need(type(item)is int and 0<=item<=1000 if key in numbers else type(item)is bool,'CSP1_OPERATION_TYPED_VALUES')
+        if row['stage']=='PRE_VERDICT_ALLOWLISTED_COMPARISONS':csp_receipt({k:v for k,v in row.items()if k not in('stage','case')},row['case'])
+        else:need('diagnostic'not in row,'CSP1_UNEXPECTED_DIAGNOSTIC')
+    if complete:
+        need(value['status']=='PASS_THREE_STALE_PREDECESSOR_ROLLBACK_CONTROLS_ONLY' and value['evidence_complete']is True and first is None and value['current_case']is None and len(results)==3,'CSP1_COMPLETE_THREE_REQUIRED')
+        need(sum(r['stage']=='SEPARATE_ISSUER_COMMIT' and r.get('acknowledged')is True and r.get('created_at_verified')is True and r.get('closed')is True for r in operations)==4,'CSP1_FOUR_INDEPENDENT_ISSUER_COMMITS')
+        need(sum(r['stage']=='FULL42_ROLLBACK_PARITY'and r.get('exact')is True for r in operations)==3,'CSP1_THREE_COMPLETE_ROLLBACKS')
+        need(any(r['stage']=='COMPLETE_ONE_HISTORY_BASELINE'and r.get('exact_typed_comparison')is True for r in operations),'CSP1_GENUINE_CREATE_BASELINE_REQUIRED')
+        need(not any(r.get('closed')is False for r in operations if r['stage']=='OWNED_OPERATION_CLOSE') and all(r.get('confirmed')is True for r in operations if r['stage']=='ALL_CLIENT_CLOSURE'),'CSP1_ALL_OPERATIONS_CLOSED')
+    return value
+
+def csp_child_writer(value):
+    validate_csp_component(value)
+    path=OUT/COMPONENT_ARTIFACT;need(path.parent.parent==OUT and not path.parent.is_symlink(),'CSP1_CHILD_OUTPUT_PATH');path.parent.mkdir(exist_ok=True)
+    raw=(json.dumps(value,indent=2,allow_nan=False)+'\n').encode()
+    need(not any(secret.encode()in raw for secret in all_secrets),'CSP1_CHILD_SECRET_EXCLUSION')
+    temp=path.with_name(path.name+'.tmp')
+    with temp.open('wb')as stream:stream.write(raw);stream.flush();os.fsync(stream.fileno())
+    temp.replace(path)
+
+def scoped_state_observation(name,baseline,final_sha):
+    closed_backends(name,'CSP1_PARENT_COMPLETE42_CLOSURE')
+    module=CSP_STATE['child_admission'];packet,sql,blobs,ctx,protocol=module
+    grants=CSP_STATE['issued_grants'];ids=[row['id']for row in grants]
+    need(len(ids)==4 and len(set(ids))==4 and all(str(uuid.UUID(x))==x and uuid.UUID(x).version==4 for x in ids),'CSP1_EXACT_FOUR_ACTUAL_GRANTS')
+    excluded='ARRAY['+','.join("'"+x+"'::uuid"for x in ids)+']::uuid[]'
+    text=sql['full42-state-observe.sql'];need(text.count('__EXCLUDED_GRANT_IDS__')==1,'CSP1_SINGLE_EXCLUSION')
+    value=observe(name,text.replace('__EXCLUDED_GRANT_IDS__',excluded),'CSP1_PARENT_FULL42')
+    need(protocol['state_shape'](value,packet['full42_tables']),'CSP1_PARENT_TYPED42');exact(value,baseline,'CSP1_PARENT_ROLLBACK_PARITY');exact(digest(value),final_sha,'CSP1_PARENT_BASELINE_HASH')
+    coherence=observe(name,sql['baseline-observe.sql'],'CSP1_PARENT_CREATION_GROUP');exact(coherence,packet['baseline_creation_group'],'CSP1_ORIGINAL_HISTORY_GROUP')
+    comparisons=[]
+    for row in grants:
+        values=row['values'];need(set(values)==set(ctx['GRANT_COLUMNS']),'CSP1_EXACT_ISSUER_FIELDS')
+        match=' AND '.join('g.'+key+' IS NOT DISTINCT FROM ('+values[key]+')'for key in ctx['GRANT_COLUMNS'])
+        comparisons.append('SELECT ('+match+") AND g.issuer_service=session_user::text AND g.revoked_at IS NULL AND g.expires_at>clock_timestamp() AS exact FROM platform.database_action_grant g WHERE id="+values['id'])
+    query="SELECT jsonb_build_object('count',count(*),'exact',coalesce(bool_and(exact),false)) FROM ("+' UNION ALL '.join(comparisons)+') g;'
+    stdout,_=sql_operation_for_issuer(name,query);exact(unique_json(stdout),{'count':4,'exact':True},'CSP1_IMMUTABLE_CURRENT_GRANTS')
+    return value
+
+def sql_operation_for_issuer(name,text):return globals()['sql'](name,'wa_context_issuer',text,'CSP1_PARENT_IMMUTABLE_GRANTS')
+
+def csp_pre_child_finalization_preflight(name):
+    # The accepted finalizer is deliberately one-shot. Re-observe its result
+    # through the existing fixed postgres selector; never execute it twice.
+    first=CSP_STATE['first_install'];permanent={'set':True,'role':'wa_schema_owner','admin':False,'member':'wa_migrator','grantor':'postgres','inherit':False}
+    record={'selector':'FINALIZATION_RESULT','selector_source_sha256':hashlib.sha256(_required_safety_text('FINALIZATION_RESULT').encode()).hexdigest(),'selector_field_count':5,'response_observed':False,'comparisons':{},'permanent_edge_fresh_native_proof':{'native_sha256':digest(first['native']),'source_commit':first['source_commit'],'source_tree':first['source_tree'],'packet_sha256':first['packet_sha256'],'edge_matches':canonical(first['native'].get('memberships'))==canonical([permanent]),'proof_phase':'FRESH_NATIVE_QUALIFICATION_BEFORE_REPEATED_AUTH','subsequent_auth_source_sha256':MANIFEST['packet_files_sha256']['scripts/sql-review/run-first-rehearsal.py'],'subsequent_auth_scope':'HASHED_READ_ONLY_AUTH_QUERIES_AND_WRONG_PASSWORD_SELECT1'}}
+    report['customer_stale']['pre_child_finalization_preflight']=record
+    save();need(record['permanent_edge_fresh_native_proof']['edge_matches'],'CSP1_FRESH_NATIVE_PERMANENT_EDGE_NOT_PROVEN')
+    with _RequiredSafetyBoundary('CLOSE',name,'CSP1_PRE_CHILD_FINALIZATION_CLIENT_CLOSURE'):
+        observed=_required_safety_sql(name,'FINALIZATION_RESULT')
+        record['response_observed']=True
+        record['comparisons']={'original_postgres_grantor':observed['grantor']=='postgres','scram_postgres_identity':observed['auth']=='scram-sha-256:postgres','zero_temporary_memberships':observed['remaining_memberships']==0,'false_leaf_CREATE':all(value is False for value in observed['leaf_create'].values()),'zero_install_clients':observed['active_install_connections']==0}
+        save();need(all(record['comparisons'].values()),'CSP1_PRE_CHILD_FINALIZATION_NOT_PROVEN')
+    need(report['transport_closure']['transport_closure_unconfirmed']is False,'CSP1_CHILD_BLOCKED_UNKNOWN_CLIENT_TRANSPORT')
+    # This finishes before the first grant and never relies on an old source
+    # label or previously cached currentness proof.
+    need(all(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==wanted for path,wanted in MANIFEST['packet_files_sha256'].items())and all(hashlib.sha256((TASK/path).read_bytes()).hexdigest()==wanted for path,wanted in MANIFEST['customer_stale']['external_files_sha256'].items()),'CSP1_PRE_CHILD_CURRENT_SOURCE_DRIFT')
+    record['current_source_bytes_rechecked']=True;save()
+
+def csp_experiment():
+    name=TARGETS[0]['name'];inspect_owner(name);need(name in finalized,'CSP1_ORIGINAL_GRANTOR_REQUIRED');closed_backends(name,'CSP1_PRE_COMPONENT')
+    source_authentication_preflight(name);finalize(name);csp_pre_child_finalization_preflight(name);closed_backends(name,'CSP1_REPEATED_AUTH_FINALIZATION_CLOSURE')
+    first=CSP_STATE['first_install'];need(first['run_id']==RUN_ID and first['container_id']==created_containers[name] and first['source_commit']==COMMIT and first['source_tree']==TREE and first['packet_sha256']==PACKET,'CSP1_ACTUAL_FIRST_INSTALL_REQUIRED')
+    packet,sql_files,blobs,ctx,protocol=CSP_STATE['child_admission'];module=CSP_STATE['child_module']
+    attestation={'schema':'workinants.customer-stale-owned-native-attestation.v1','run_id':RUN_ID,'fixture_run_id':CSP_FIXTURE_RUN,'source_commit':COMMIT,'source_tree':TREE,'packet_sha256':PACKET,'container_id':created_containers[name],'native_sha256':digest(first['native']),'actual_native_checks':29089,'oracle_expressions':416,'ledger_checks':22,'original_grantor_finalized':True,'all_other_clients_absent':True,'whole_case_promoted':False}
+    write_safe('customer-stale-native-attestation.json',attestation)
+    plan={**attestation,'schema':'workinants.customer-stale-owned-run-plan.v1','child_source_files_sha256':packet['source_files_sha256'],'child_artifacts_sha256':unique_json(read_pinned(CSP_CHILD_VALIDATION))['packet_files_sha256'],'fixture_sha256':CSP_FIXTURES_SHA,'cases':packet['case_order']}
+    write_safe('customer-stale-run-plan.json',plan)
+    details=report['customer_stale'];reference={'artifact':COMPONENT_ARTIFACT,'present':None,'read_status':'UNAVAILABLE'};details['component_report_reference']=reference;details['constructor_attempted']=False;details['run_attempted']=False;details['component_closure_confirmed']=False;details['component_owned_clients_closed']=False;details['component_global_backends_absent']=False
+    evidence=module['Evidence'](csp_child_writer);coordinator=None;failure=None;value=None
+    try:
+        need(evidence.save(),'CSP1_INITIAL_CHILD_EVIDENCE_REQUIRED')
+        cls=module['coordinator_class'](ctx,protocol);details['constructor_attempted']=True
+        coordinator=cls(packet,sql_files,blobs,created_containers[name],first['native'],evidence)
+        details['run_attempted']=True;coordinator.run()
+        need(type(coordinator.baseline_state)is list and len(coordinator.grants)==4,'CSP1_REAL_BASELINE_AND_GRANTS_REQUIRED')
+        CSP_STATE['baseline_state']=coordinator.baseline_state;CSP_STATE['issued_grants']=coordinator.grants
+    except BaseException as error:
+        failure=error;origin=evidence.value.get('first_failure')
+        if type(origin)is dict and set(origin)=={'stage','code'} and all(type(origin[k])is str and origin[k]in CSP_STATE['safe_codes']for k in origin):
+            report['customer_stale']['first_child_failure']=dict(origin);remember_failure(origin['stage'],origin['code'])
+        else:remember_failure('CSP1_CHILD','CSP1_CHILD_UNEXPECTED_STOP')
+        persist_best_effort('CSP1_CHILD_FAILURE_RECORD')
+    finally:
+        details['component_closure_attempted']=True
+        if coordinator is not None:
+            try:coordinator.all_closed();details['component_owned_clients_closed']=all(getattr(s,'closed',False)is True for s in coordinator.live)
+            except BaseException as error:
+                if failure is None:failure=error
+        try:closed_backends(name,'CSP1_COMPONENT_FINALLY_GLOBAL_CLOSURE');details['component_global_backends_absent']=True
+        except BaseException as error:
+            if failure is None:failure=error;_required_safety_first_exception(error)
+        details['component_closure_confirmed']=details['component_owned_clients_closed']and details['component_global_backends_absent']
+        try:value=bounded_component_reference(OUT/COMPONENT_ARTIFACT,reference);validate_csp_component(value)
+        except BaseException as error:
+            if failure is None:failure=error;_required_safety_first_exception(error)
+        persist_best_effort('CSP1_CHILD_REFERENCE_RECORD')
+    if failure is not None:raise Stop('CSP1_CHILD_STOPPED_EVIDENCE_RETAINED')from None
+    _required_safety_barrier();need(details['component_closure_confirmed'],'CSP1_PARENT_CLOSURE_REQUIRED');validate_csp_component(value,True)
+    need(canonical(value)==canonical(evidence.value),'CSP1_RAW_CHILD_REFERENCE_MISMATCH');component_reference_integrity(reference)
+    write_safe('customer-stale-component-summary.json',{'schema':'workinants.customer-stale-owned-summary.v1','run_id':RUN_ID,'fixture_run_id':CSP_FIXTURE_RUN,'raw_child_sha256':reference['sha256'],'completed_rollback_controls':3,'prospective_assertion':'P0C-CAS-01/control.stale_predecessor','assertion_promoted':False})
+    readonly_post_proof(name,value);component_reference_integrity(reference)
+    report['steps']['CSP1-COMPONENT']='PASS_THREE_ROLLBACK_CONTROLS_ONLY';details.update(completed_controls=3,selected_assertions='NOT_PROMOTED_PENDING_EVIDENCE_REVIEW');save()
+
+def main():
+    need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_CUSTOMER_STALE_PREDECESSOR_OWNED_V1_ATTEMPT','CSP1_EXACT_OPERATION_NOT_REVIEWED');need(not OUT.exists(),'CSP1_FRESH_EVIDENCE_DIRECTORY');OUT.mkdir(exist_ok=False)
+    report.setdefault('evidence_complete',True);report.setdefault('persistence_failure',False);report.setdefault('output_complete',True)
+    try:
+        need(persist_best_effort('INITIAL_EVIDENCE'),'INITIAL_EVIDENCE_UNAVAILABLE')
+        verify_csp_packet();preflight();ensure_image();create_resources();bootstrap_all();provision_migration_tools();catalog_experiment();csp_experiment();report['status']='PASS_CSP1_THREE_ROLLBACK_CONTROLS_ONLY'
+    except BaseException as error:
+        stage=error.stage if isinstance(error,Stop)else report['stage'];code=error.code if isinstance(error,Stop)else'TIMEOUT_CLOSURE_UNCONFIRMED'if isinstance(error,subprocess.TimeoutExpired)else'INTERRUPTED'if isinstance(error,KeyboardInterrupt)else'UNEXPECTED_CSP1_WRAPPER_FAILURE'
+        remember_failure(stage,code);event_best_effort('STOP','NO_LATER_STEPS',failure={'stage':stage,'code':code})
+    finally:
+        for name in sorted(bootstrap_attempted-finalization_attempted):
+            try:finalize(name)
+            except BaseException:remember_failure('FINALLY_FINALIZATION','FINALIZATION_UNCONFIRMED');persist_best_effort('FINALIZATION_FAILURE_RECORD')
+        for stage,action in(('SANITIZATION',secret_scan),('CLEANUP',cleanup)):
+            try:action()
+            except BaseException:remember_failure(stage,stage+'_UNCONFIRMED');persist_best_effort(stage+'_FAILURE_RECORD')
+        checks=(('packet_unchanged_after_run',lambda:bool(report.get('source_verification',{}).get('files_sha256')) and all(hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==wanted for path,wanted in report['source_verification']['files_sha256'].items())),('tool_source_data_unchanged_after_run',lambda:(verify_tool_data(),True)[1]),('external_sources_unchanged_after_run',lambda:all(hashlib.sha256((TASK/path).read_bytes()).hexdigest()==wanted for path,wanted in MANIFEST['customer_stale']['external_files_sha256'].items())),('external_inputs_unchanged_after_run',lambda:(verify_external_input_preservation(),True)[1]))
+        for flag,action in checks:
+            try:report[flag]=action()is True
+            except BaseException:report[flag]=False
+            if report[flag]is not True:remember_failure('SOURCE_PRESERVATION','SOURCE_OR_ARCHIVE_DRIFT_OR_UNVERIFIED')
+            persist_best_effort('SOURCE_PRESERVATION_RECORD')
+        reference=report['customer_stale'].get('component_report_reference')
+        if reference is not None:
+            try:component_reference_integrity(reference)
+            except BaseException:remember_failure('FINAL_REFERENCE_INTEGRITY','CSP1_COMPONENT_REFERENCE_UNCONFIRMED')
+        if report.get('cleanup_actions_confirmed')is not True:remember_failure('CLEANUP','CLEANUP_ACTIONS_UNCONFIRMED')
+        if report['unexpected']or report['evidence_complete']is not True or report['output_complete']is not True or report['transport_closure']['transport_closure_unconfirmed']is not False:report['status']='STOPPED_ATTEMPT_PRESERVED';report.pop('qualified_native_snapshot_sha256',None)
+        report['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat();persist_best_effort('FINAL_EVIDENCE');emit_best_effort({'status':report['status'],'evidence_complete':report['evidence_complete'],'cleanup_actions_confirmed':report.get('cleanup_actions_confirmed')is True,'unexpected_count':len(report['unexpected'])})
+    return 0 if report['status']=='PASS_CSP1_THREE_ROLLBACK_CONTROLS_ONLY'and not report['unexpected']and report['evidence_complete']is True and report['output_complete']is True and report['transport_closure']['transport_closure_unconfirmed']is False else 1

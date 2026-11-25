@@ -1,3 +1,19 @@
+## Local F0 continuation - reviewed owning source packets (2026-11-24)
+
+Accepted coverage remains **695 PASS /35 PARTIAL /265 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**,730 current rows. The selected94 cases remain9 PASS /79 PARTIAL /6 NOT_RUN. Posture D and Brain final acceptance remain pending.
+
+Separate nonauthor reviews approved both corrected owning source packets with no findings:20 focused Customer predecessor methods and34 two-history checks passed with every external boundary modeled. Root admitted their exact sources and separate review receipts, preserving earlier HOLD reports and all historical actual evidence. The fixes preserve first safe failures and sticky remote/inner-client uncertainty, and verify exact private mounts before candidate credential writes.
+
+Fresh pure preparations now bind372 Customer predecessor files and435 two-history files. Their operation manifests remain unpinned and pending literal review; no database was contacted or resource created. Source7 uses canonical initial5ae39; source8 adds only the reviewed append49c334/effective cfb1c1. No old baseline label selects an older executable packet.
+
+Next: normal fast-forward publication, exact current/committed source pin, independent literal review and fresh local endpoint/image/resource checks, followed by Root-only sequential disposable runs and exact cleanup. Customer predecessor evidence is capped at one assertion; two-history is machinery proof only. Corrected App/affectedWorker and remaining scoped evidence work continue afterward.
+
+Plain English: The safety fixes passed pretend tests, and the exact files are saved. The real test boxes have not run yet. Older passing and unfinished results keep their old meanings.
+
+Current record: context/reconciliation/local-f0-CSP-C-two-history-reviewed-source-progress-20261124.json (SHA-256 67f5ff9ff62fad942b227e65257a8d6f4fcb73dda75bb21ea8e7a685dce6c36c). Prior sections below remain version-qualified history.
+
+---
+
 ## Local F0 continuation - 695 verified assertions (2026-11-23)
 
 Accepted assertion coverage is **695 PASS /35 PARTIAL /265 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**, with730 current rows. The selected94 cases are **9 PASS /79 PARTIAL /6 NOT_RUN**. P0C-CATALOG-01 is now complete for its exercised version. PostureD and Brain final acceptance remain pending.

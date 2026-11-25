@@ -1,0 +1,21 @@
+{
+  "schema": "workinants.two-history-independent-actual-login-ACL-addendum.v1",
+  "decision": "SOURCE_APPROVED",
+  "source_review_sha256": "d00bd399ca295888bcad2b352a33ff65bb96156d6c42e1aa8066f9f5deb64e0a",
+  "findings": [],
+  "reviewer": "/root/two_history_code_review",
+  "support_correction": "The earlier supplemental named-grantee assertion used wa_app, while the actual login is wa_app_runtime. Complete old/new ACL equality had independently passed. This read-only check uses the actual login and exact helper identity; the original receipt remains immutable.",
+  "expected_file_sha256": "4f0fabc35968074f5d00e14c69771343d4e3efe118c92824c503ada0b9bdbc09",
+  "helper": "platform_private.lease_secret_matches(pg_catalog.text)",
+  "actual_app_login": "wa_app_runtime",
+  "actual_app_EXECUTE_rows": 0,
+  "exact_EXECUTE_grantees": [
+    "wa_track_verifier",
+    "wa_worker"
+  ],
+  "worker_grant_preserved": true,
+  "track_verifier_grant_preserved": true,
+  "source_or_gates_changed": false,
+  "runtime": "NOT_RUN",
+  "Posture": "D"
+}

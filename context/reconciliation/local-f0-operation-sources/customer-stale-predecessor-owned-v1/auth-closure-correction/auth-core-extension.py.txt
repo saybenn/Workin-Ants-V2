@@ -1,0 +1,38 @@
+_AUTH_PHASES={'AUTH_HBA','AUTH_CORRECT_PASSWORD','AUTH_WRONG_PASSWORD'}
+_AUTH_CODES={'SQL_STEP_FAILED','HBA_PARSE_ERROR','HBA_UNSUPPORTED_RULE','HBA_AMBIGUOUS_DATABASE','HBA_AMBIGUOUS_USER','HBA_NONCONTIGUOUS_MASK','HBA_UNSUPPORTED_ADDRESS','HBA_SCRAM_REQUIRED','SCRAM_VERIFIERS_REQUIRED','AUTHENTICATED_SCRAM_LOGIN_REQUIRED','WRONG_PASSWORD_CONTROL_FAILED','PROCESS_PROFILE','PROCESS_RECEIPT_OUTPUT_ONLY','PROCESS_DEADLINE_EXCEEDED','PROCESS_BOUNDED_COMPLETE_OUTPUT','PROCESS_STDIN_WRITE_UNCONFIRMED','PROCESS_STDIN_CLOSE_UNCONFIRMED','PROCESS_CLOSE_UNCONFIRMED','PROCESS_PIPE_CLOSE_UNCONFIRMED','PROCESS_EXIT_UNCONFIRMED','PROCESS_BOUNDARY_UNEXPECTED','PROCESS_UTF8_REJECTED','AUTH_CLIENT_CLOSURE_UNCONFIRMED','EVIDENCE_WRITE_UNCONFIRMED'}
+
+def csp_auth_origin(error):
+    phase=report.get('stage');phase=phase if phase in _AUTH_PHASES else 'CSP1_AUTHENTICATION_PREFLIGHT'
+    code=getattr(error,'code',None);code=code if type(code)is str and code in _AUTH_CODES else 'AUTHENTICATION_UNEXPECTED_FAILURE'
+    remember_failure(phase,code)
+    return code
+
+def csp_auth_process(args,**options):
+    need(set(options)<={'input','text','capture_output','timeout','env'}and options.get('text')is True and options.get('capture_output')is True and options.get('timeout')in(30,60)and type(options.get('input'))is str,'PROCESS_PROFILE')
+    receipt={};failure=None;result=None;completed=False
+    phase=report['stage'];need(phase in _AUTH_PHASES,'PROCESS_PROFILE')
+    record={'phase':phase,'call_attempted':True,'completion_returned':False,'closure_receipt_received':False,'process_exited':False,'pipes_closed':False,'threads_closed':False,'client_closure_confirmed':False}
+    report.setdefault('authentication_process_receipts',[]).append(record)
+    try:
+        raw=binary_process(args,options['input'].encode('utf8'),options['timeout'],env=options.get('env'),closure_receipt=receipt)
+        valid=set(receipt)=={'process_exited','pipes_closed','threads_closed'}and all(type(v)is bool for v in receipt.values())
+        need(valid and all(receipt.values()),'AUTH_CLIENT_CLOSURE_UNCONFIRMED')
+        result=subprocess.CompletedProcess(args,raw.returncode,strict_process_text(raw.stdout),strict_process_text(raw.stderr));completed=True
+    except BaseException as error:failure=error
+    finally:
+        valid=set(receipt)=={'process_exited','pipes_closed','threads_closed'}and all(type(v)is bool for v in receipt.values())
+        if valid:record.update(receipt)
+        record['closure_receipt_received']=valid;record['completion_returned']=completed;record['client_closure_confirmed']=valid and all(receipt.values())
+        if not record['client_closure_confirmed']:
+            state=report['transport_closure'];state['transport_closure_unconfirmed']=True
+            if state['first_unconfirmed_closure']is None:state['first_unconfirmed_closure']={k:record[k]for k in('process_exited','pipes_closed','threads_closed')}
+        if failure is not None:csp_auth_origin(failure)
+        persisted=persist_best_effort(phase)
+        if not persisted and failure is None:failure=Stop('EVIDENCE_WRITE_UNCONFIRMED')
+    if failure is not None:raise Stop(csp_auth_origin(failure))from None
+    return result
+
+def csp_auth_read(api,role,text,container):
+    result=csp_auth_process(api['psql'](role,container),input=text,text=True,capture_output=True,timeout=60)
+    api['require'](result.returncode==0,'SQL_STEP_FAILED')
+    return result.stdout.strip()

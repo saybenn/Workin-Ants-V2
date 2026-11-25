@@ -1,0 +1,2630 @@
+{
+  "schema": "workinants.lease-mechanism-v1-run-evidence.v1",
+  "run_id": "88cebb10-2a53-4c65-8d9b-cd655a353676",
+  "source_commit": "967bfc854f46ce884f2eee3b93cc317c88cd2f7c",
+  "source_tree": "b23941dfefd5780031829f29e5f3502c0f40a44e",
+  "packet_sha256": "6c64f632c678f02e65624ac2c26d27a921e1ec3e4a813c9aeb3a6c83cb6cd58c",
+  "status": "PASS_SYNTHETIC_PG_EXPRESSION_ACL_MECHANISM_ONLY",
+  "stage": "COMPLETE",
+  "evidence_complete": true,
+  "persistence_failure": false,
+  "output_complete": true,
+  "events": [
+    {
+      "kind": "SOURCE_VERIFICATION",
+      "packet_sha256": "6c64f632c678f02e65624ac2c26d27a921e1ec3e4a813c9aeb3a6c83cb6cd58c",
+      "files": 276,
+      "current_and_committed": true
+    },
+    {
+      "kind": "LOCAL_PREFLIGHT",
+      "local_endpoint": true,
+      "linux_amd64": true,
+      "exact_names_absent": true
+    },
+    {
+      "kind": "RESOURCE_IDENTITY",
+      "running": false,
+      "exact_identity": true,
+      "kernel_proved": false
+    },
+    {
+      "kind": "RESOURCE_IDENTITY",
+      "running": true,
+      "exact_identity": true,
+      "kernel_proved": true
+    },
+    {
+      "kind": "RESOURCE_READY",
+      "container_id": "27272d7b0d051535d395032049100061a88fc57914961634e642356c54699339",
+      "volume_created_at": "2026-11-23T09:24:36Z",
+      "kernel_tmpfs": true,
+      "owner_only_credentials": true
+    },
+    {
+      "kind": "AUTH_PROFILE",
+      "roles": [
+        "postgres"
+      ],
+      "hba_selections": [
+        {
+          "role": "postgres",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "postgres",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        }
+      ],
+      "verifiers_all_scram": true
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "BINARY_STAGING",
+      "files": 12,
+      "host_linux_hash_length_equal": true,
+      "root0400": true
+    },
+    {
+      "kind": "SOURCE_VARIANT_INSTALL",
+      "file": "setup-original.sql",
+      "exact_bytes": true,
+      "closed": true,
+      "ack": true
+    },
+    {
+      "kind": "CREDENTIAL_PROVISION",
+      "independent_three_logins": true,
+      "secret_sql_retained": false
+    },
+    {
+      "kind": "AUTH_PROFILE",
+      "roles": [
+        "postgres",
+        "wa_lease_v1_app",
+        "wa_lease_v1_worker",
+        "wa_lease_v1_verifier"
+      ],
+      "hba_selections": [
+        {
+          "role": "postgres",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_lease_v1_app",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_lease_v1_worker",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_lease_v1_verifier",
+          "address": "127.0.0.1",
+          "rule_number": 2,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "postgres",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_lease_v1_app",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_lease_v1_worker",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        },
+        {
+          "role": "wa_lease_v1_verifier",
+          "address": "::1",
+          "rule_number": 3,
+          "method": "scram-sha-256"
+        }
+      ],
+      "verifiers_all_scram": true
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "FIXTURE_GRANTOR_FINALIZATION",
+      "actual_original_grantor": "postgres",
+      "read_only_authority_verified": true,
+      "synthetic_memberships_zero": true,
+      "leaf_create_false": true,
+      "canonical_temp_memberships": "NOT_CREATED_NOT_APPLICABLE"
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "OLD",
+      "guard_body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "OLD",
+      "guard_body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "OLD",
+      "guard_body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "SOURCE_VARIANT_INSTALL",
+      "file": "install-nested.sql",
+      "exact_bytes": true,
+      "closed": true,
+      "ack": true
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "12aec7bf4699cebe10311768d3f30c7cc368f14e456c0141f561fa7f0f01dcaa",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "SOURCE_VARIANT_INSTALL",
+      "file": "restore-old.sql",
+      "exact_bytes": true,
+      "closed": true,
+      "ack": true
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "OLD",
+      "guard_body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "OLD",
+      "guard_body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "OLD",
+      "guard_body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "OLD",
+      "guard_body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "SOURCE_VARIANT_INSTALL",
+      "file": "install-nested.sql",
+      "exact_bytes": true,
+      "closed": true,
+      "ack": true
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "cb0e17df16b7bf3d3aae098454eee295eef0adccd8391772a9dc7e6afc7f73b8",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "7022a8480952245ae85cb76c334836971789e33b6f5776fdcf1ee3ea108cae62",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "7022a8480952245ae85cb76c334836971789e33b6f5776fdcf1ee3ea108cae62",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "7022a8480952245ae85cb76c334836971789e33b6f5776fdcf1ee3ea108cae62",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "7022a8480952245ae85cb76c334836971789e33b6f5776fdcf1ee3ea108cae62",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "7022a8480952245ae85cb76c334836971789e33b6f5776fdcf1ee3ea108cae62",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "7022a8480952245ae85cb76c334836971789e33b6f5776fdcf1ee3ea108cae62",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "COMPLETE_STATE",
+      "profile": "NESTED",
+      "guard_body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "row_count": 5,
+      "complete_state_coherent": true,
+      "trigger_enabled": true,
+      "all_other_rows_exact": true,
+      "row_sha256": [
+        "19714b9accd58dd73fcba6f967c806cbb40360e952378daf501c88783020ffa5",
+        "7022a8480952245ae85cb76c334836971789e33b6f5776fdcf1ee3ea108cae62",
+        "44efc90d97bd79ebc91c0e4422c262498059537295a6679d7994de3f2bb0338f",
+        "0120ddaa1423e0c84fbe20a272e8f0d078c682184b58496b597f252aacb3f41e",
+        "f73659d42332eab635603739703c62c9803fcfe2c8263fef1d11cabce19ec783"
+      ]
+    },
+    {
+      "kind": "MECHANISM_COMPLETE",
+      "cases": 11,
+      "old_nested_restored": true,
+      "app_helper_acl_unchanged": true,
+      "worker_contrasts": 4,
+      "canonical_qualification": false
+    },
+    {
+      "kind": "CANONICAL_ABSENCE",
+      "all_absent": true
+    },
+    {
+      "kind": "FIXTURE_GRANTOR_FINALIZATION",
+      "actual_original_grantor": "postgres",
+      "read_only_authority_verified": true,
+      "synthetic_memberships_zero": true,
+      "leaf_create_false": true,
+      "canonical_temp_memberships": "NOT_CREATED_NOT_APPLICABLE"
+    }
+  ],
+  "authentication": [
+    {
+      "role": "postgres",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "postgres",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_app",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_worker",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_verifier",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_app",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_app",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_app",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_app",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_app",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_worker",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_verifier",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_worker",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_worker",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_worker",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    },
+    {
+      "role": "wa_lease_v1_worker",
+      "correct_reply_received": true,
+      "correct_exit_zero": true,
+      "ack": true,
+      "stderr_empty": true,
+      "comparisons": {
+        "fields": true,
+        "types": true,
+        "login": true,
+        "current": true,
+        "auth": true,
+        "database": true,
+        "client": true,
+        "server": true
+      },
+      "wrong_rejected": true,
+      "wrong_comparisons": {
+        "result_fields_typed": true,
+        "exit_two": true,
+        "stdout_empty": true,
+        "stderr_bounded": true,
+        "stderr_utf8": true,
+        "controls_absent": true,
+        "line_count_exact": true,
+        "primary_exact": true,
+        "selected_file_warning_exact": true
+      }
+    }
+  ],
+  "cases": [
+    {
+      "case": "old-pending",
+      "role": "wa_lease_v1_app",
+      "profile": "OLD",
+      "file_sha256": "878fc41806848b068165e029e6cc049928b43303f653d1fe1db6b2630f1bce8b",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": false,
+      "record_count": 1,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": "42501",
+        "diagnostic": "PRIVATE_HELPER",
+        "single_header": true,
+        "source_frame": true,
+        "native_location": true,
+        "body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+        "line": 3
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "nested-pending",
+      "role": "wa_lease_v1_app",
+      "profile": "NESTED",
+      "file_sha256": "878fc41806848b068165e029e6cc049928b43303f653d1fe1db6b2630f1bce8b",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": true,
+      "record_count": 3,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": null,
+        "diagnostic": "NONE",
+        "stderr_empty": true
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "restored-old-pending",
+      "role": "wa_lease_v1_app",
+      "profile": "OLD",
+      "file_sha256": "878fc41806848b068165e029e6cc049928b43303f653d1fe1db6b2630f1bce8b",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": false,
+      "record_count": 1,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": "42501",
+        "diagnostic": "PRIVATE_HELPER",
+        "single_header": true,
+        "source_frame": true,
+        "native_location": true,
+        "body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+        "line": 3
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "app-helper-before",
+      "role": "wa_lease_v1_app",
+      "profile": "OLD",
+      "file_sha256": "25a7bd120d3918d7c015399146f31b3a8c4f219088f6f18fcd5b2b3ebca8ff15",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": false,
+      "record_count": 1,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": "42501",
+        "diagnostic": "PRIVATE_HELPER",
+        "single_header": true,
+        "source_frame": false,
+        "native_location": true,
+        "body_sha256": "636ea713d4f835fa73c6f7d9006580a1266751cfd142f71c63525f2208d0a86a",
+        "line": null
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "app-helper-after",
+      "role": "wa_lease_v1_app",
+      "profile": "NESTED",
+      "file_sha256": "25a7bd120d3918d7c015399146f31b3a8c4f219088f6f18fcd5b2b3ebca8ff15",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": false,
+      "record_count": 1,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": "42501",
+        "diagnostic": "PRIVATE_HELPER",
+        "single_header": true,
+        "source_frame": false,
+        "native_location": true,
+        "body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+        "line": null
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "worker-helper",
+      "role": "wa_lease_v1_worker",
+      "profile": "NESTED",
+      "file_sha256": "25a7bd120d3918d7c015399146f31b3a8c4f219088f6f18fcd5b2b3ebca8ff15",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": true,
+      "record_count": 2,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": null,
+        "diagnostic": "NONE",
+        "stderr_empty": true
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "verifier-helper",
+      "role": "wa_lease_v1_verifier",
+      "profile": "NESTED",
+      "file_sha256": "25a7bd120d3918d7c015399146f31b3a8c4f219088f6f18fcd5b2b3ebca8ff15",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": true,
+      "record_count": 2,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": null,
+        "diagnostic": "NONE",
+        "stderr_empty": true
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "worker-current",
+      "role": "wa_lease_v1_worker",
+      "profile": "NESTED",
+      "file_sha256": "53caac91c0a1de2babd7582fc575a7b883d91fd9dcebb6138f387bda5f31e04d",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": true,
+      "record_count": 5,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": null,
+        "diagnostic": "NONE",
+        "stderr_empty": true
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "worker-expired",
+      "role": "wa_lease_v1_worker",
+      "profile": "NESTED",
+      "file_sha256": "8f94787197176733cbd8af7b645007915a8d4c518ce4ddecf0228be329062d13",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": false,
+      "record_count": 3,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "diagnostic": "WORKER_GUARD",
+        "single_header": true,
+        "source_frame": true,
+        "native_location": true,
+        "body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+        "line": 7
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "worker-wrong-secret",
+      "role": "wa_lease_v1_worker",
+      "profile": "NESTED",
+      "file_sha256": "4245b58cbe1a750167eb6f8d29e364e798d187a800b66ed59a59b16a754a7169",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": false,
+      "record_count": 3,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "diagnostic": "WORKER_GUARD",
+        "single_header": true,
+        "source_frame": true,
+        "native_location": true,
+        "body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+        "line": 7
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    },
+    {
+      "case": "worker-wrong-fence",
+      "role": "wa_lease_v1_worker",
+      "profile": "NESTED",
+      "file_sha256": "6b0e66fb4c6e2d19ce93f0a3f75b978cfcf1723fefe3a6976a6c0dc2ed0cc34c",
+      "reply_received": true,
+      "exit_known": true,
+      "exit_matches": true,
+      "ack": false,
+      "record_count": 3,
+      "markers_match": true,
+      "operation_closed": true,
+      "diagnostic": {
+        "sqlstate": "P0001",
+        "diagnostic": "WORKER_GUARD",
+        "single_header": true,
+        "source_frame": true,
+        "native_location": true,
+        "body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+        "line": 7
+      },
+      "status": "PASS_SYNTHETIC_ONLY",
+      "complete_state_checked": true
+    }
+  ],
+  "closures": [
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    },
+    {
+      "original_grantor": true,
+      "integer_zero": true,
+      "confirmed": true
+    }
+  ],
+  "unexpected": [],
+  "cleanup": {
+    "container_removed": true,
+    "volume_removed": true,
+    "private_removed": true,
+    "physical_absence": true,
+    "image_retained": true
+  },
+  "limits": {
+    "Posture": "D",
+    "synthetic_mechanism_only": true,
+    "canonical_application": "NOT_RUN",
+    "Prisma": "NOT_RUN",
+    "native29089": "NOT_RUN",
+    "oracle416": "NOT_RUN",
+    "ledger22": "NOT_RUN",
+    "migration_adoption": false,
+    "worker_loop": false,
+    "assertion_promotion": false
+  },
+  "image": {
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "image_id": "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "manifest_content_hash_verified": true,
+    "pinned_repo_digest_verified": true,
+    "image_store_identity": "MANIFEST",
+    "os": "linux",
+    "architecture": "amd64",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pulled_this_run": false,
+    "removed": false
+  },
+  "received_operation": {
+    "file": "observe.sql",
+    "role": "postgres",
+    "reply_received": true,
+    "exit_known": true,
+    "ack": true,
+    "record_count": 1,
+    "diagnostic": null
+  },
+  "current": {
+    "case": "worker-wrong-fence",
+    "role": "wa_lease_v1_worker",
+    "profile": "NESTED",
+    "file_sha256": "6b0e66fb4c6e2d19ce93f0a3f75b978cfcf1723fefe3a6976a6c0dc2ed0cc34c",
+    "reply_received": true,
+    "exit_known": true,
+    "exit_matches": true,
+    "ack": false,
+    "record_count": 3,
+    "markers_match": true,
+    "operation_closed": true,
+    "diagnostic": {
+      "sqlstate": "P0001",
+      "diagnostic": "WORKER_GUARD",
+      "single_header": true,
+      "source_frame": true,
+      "native_location": true,
+      "body_sha256": "94390b19ee1c24a819af8bf49465b63d8d8aa10a56ba109b83a2a2084eff8058",
+      "line": 7
+    },
+    "status": "PASS_SYNTHETIC_ONLY",
+    "complete_state_checked": true
+  }
+}

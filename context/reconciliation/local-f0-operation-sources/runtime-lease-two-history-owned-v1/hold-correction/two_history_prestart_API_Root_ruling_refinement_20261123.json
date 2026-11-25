@@ -1,0 +1,17 @@
+{
+  "schema": "workinants.source-correction-ruling-refinement.v1",
+  "parent_ruling_sha256": "73efbc0f5897e80788638d45f15251f88b7a4ad868c7a1c8cb8b44447f5cd910",
+  "finding": "TWOH-RESOURCE-ORDER-03",
+  "observed_source_constraint": "Immutable source13 inspect_live requires actual Running=True; it cannot honestly validate prestart state.",
+  "Root_decision": "Use NEW owning pure prestart comparator with actual Running=False. Preserve immutable source13 API/bytes and existing real running comparator. No fake state mutation.",
+  "requirements": [
+    "Prestart NEW comparator must enforce exact endpoint/container identity/labels/name/configdigest/image/network/noports/bootstrapsource/volume identity+CreatedAt and immutable private_mount_comparison semantics.",
+    "Demonstrate parity with all remaining static checks in immutable inspect_live; source13 running-specific predicate is intentionally false only in new prestart branch.",
+    "Running branch continues actual immutable inspect_live and kernel private-tmpfs proof before candidate pgpass/correct/wrong/URL writes.",
+    "Independent same codepeer must review new pure comparator and actualentry badsource/tmpfsmode/extramount ordering vectors.",
+    "Initial typed innerunknown and firstorigin must latch in memory immediatelyafter coordinatevalidatedreturn BEFORE append/save/event or othermaythrow actions. Persistence best-effort afterwards."
+  ],
+  "scope": "BOUNDED_NEW_OWNING_SOURCE_ONLY",
+  "runtime": "NOT_RUN",
+  "Posture": "D"
+}

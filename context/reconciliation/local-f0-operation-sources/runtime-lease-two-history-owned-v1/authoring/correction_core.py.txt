@@ -1,0 +1,58 @@
+# NEW owning-only earliest failure capture. No old helper/module is patched.
+def _safe_failure_stage(value):
+    return value if type(value)is str and value in SAFE_FAILURE_STAGES else 'UNEXPECTED_STAGE'
+
+def _safe_failure_code(value):
+    return value if type(value)is str and value in SAFE_FAILURE_CODES else 'UNEXPECTED_OWNED_FAILURE'
+
+def _latch_first_failure(stage,code):
+    global FIRST_OPERATION_FAILURE
+    safe={'stage':_safe_failure_stage(stage),'code':_safe_failure_code(code)}
+    if FIRST_OPERATION_FAILURE is None:FIRST_OPERATION_FAILURE=dict(safe)
+    # The in-memory first cause is established before any persistence attempt.
+    try:report['primary_failure']=dict(FIRST_OPERATION_FAILURE)
+    except BaseException:pass
+    return safe
+
+def record_failure(stage,code,primary=False):
+    safe=_latch_first_failure(stage,code)
+    try:
+        report['unexpected'].append(safe);report['status']='STOPPED_ATTEMPT_PRESERVED'
+        report.pop('qualified_native_snapshot_sha256',None)
+    except BaseException:mark_evidence_incomplete()
+    return best_effort_save()
+
+def _required_safety_first_exception(error,stage=None):
+    """Never throw or retain arbitrary exception messages/probe dictionaries."""
+    try:
+        candidate=getattr(error,'code',None)
+        if not(type(candidate)is str and candidate in SAFE_FAILURE_CODES):
+            args=getattr(error,'args',())
+            candidate=args[0]if type(args)is tuple and len(args)==1 and type(args[0])is str and args[0]in SAFE_FAILURE_CODES else'UNEXPECTED_OWNED_FAILURE'
+        original_stage=stage if stage is not None else getattr(error,'stage',report.get('stage','ENTRY'))
+        record_failure(original_stage,candidate)
+    except BaseException:
+        # A failed secondary record may never erase the already latched cause.
+        try:_latch_first_failure(stage,'UNEXPECTED_OWNED_FAILURE')
+        except BaseException:pass
+
+class _RequiredSafetyBoundary:
+    """Latch every originating exception before running eligible safety work."""
+    def __init__(self,action,target,stage=None):
+        need(action in('CLOSE','FINALIZE'),'REQUIRED_SAFETY_BOUNDARY_ACTION')
+        self.action=action;self.target=target;self.stage=stage
+        self.origin_stage=_safe_failure_stage(report.get('stage','ENTRY'))
+    def __enter__(self):return self
+    def __exit__(self,kind,original,traceback):
+        if original is not None:_required_safety_first_exception(original,self.origin_stage)
+        try:
+            if self.action=='CLOSE':closed_backends(self.target,self.stage)
+            else:finalize(self.target)
+        except BaseException as secondary:
+            _required_safety_first_exception(secondary,report.get('stage','ENTRY'))
+            _required_safety_failure('REQUIRED_SAFETY_COMPOSITION','REQUIRED_SAFETY_ACTION_UNCONFIRMED')
+            if original is None:raise
+        # Following semantic checks still belong to the completed operation,
+        # rather than to the successful close observer's temporary phase.
+        report['stage']=self.origin_stage
+        return False

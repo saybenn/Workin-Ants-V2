@@ -1,0 +1,158 @@
+{
+  "schema": "workinants.CSP1-successor-independent-forced-exec-closure-HOLD-addendum.v1",
+  "decision": "HOLD",
+  "reviewer": "/root/lease_v2_code_review",
+  "independent_of_author": true,
+  "parent_review": {
+    "path": "C:/Users/elijr/.codex/visualizations/2026/11/09/01a1be05-aeb3-7f42-b0f4-6c5e46dc669f/customer_stale_predecessor_owned_v1_auth_successor_independent_HOLD_20261123.json",
+    "sha256": "c96d5c2ed4a06465bfcaaec85653d1a85cf9a67624361a21cb0608ed6303fb09",
+    "decision": "HOLD",
+    "original_finding": "CSP1-INNER-FIRST-CODE-02"
+  },
+  "author_final_delivery_sha256": "e4ae6c4f364909e33fa73362a31f313f5a9ac38cc4fd60e6705d3915da472875",
+  "operator_sources_sha256": {
+    "execute_local_f0_customer_stale_predecessor_v1_20261120.py": "03adab6a6e50079ae3baecf4ee4cf785b8bf76ba29f3207d1daa7674669e8bd7",
+    "local_f0_customer_stale_predecessor_v1_operation_steps.py": "ac010878565e21a405eb1494aa775c28dcf863f44716ed7bd7e895cb2d20913a",
+    "prepare_local_f0_customer_stale_predecessor_v1_plan.py": "28cf7cd10cd1a821114aa4408ab5c61b7d312e28c2e9421ffb174e7246d5bebb",
+    "check_local_f0_customer_stale_predecessor_v1_operation.py": "1e174515d587bfef822c4103593ca39f0f1ac01286de06faa0c6a5defb34b86f",
+    "pin_local_f0_customer_stale_predecessor_v1_plan_20261120.py": "41a2f7ef9e68aeae967d0b647af9a7ade4737d58d82aa65dfad3122bcac1731b"
+  },
+  "source_binding": {
+    "frozen_index_sha256": "515ba23005fe262b0a81f13d5d858a878cb11413d6550927a7fe840186ee6d2d",
+    "frozen_files": 402,
+    "candidate_map_bound_in_parent_review": 136,
+    "prepared_file_count": 341,
+    "prepared_map_aggregate_sha256": "86e5ae1bd57a7fd0437693c3fc7aed9627799c7e4e73e0e58815647f8cb3e47b",
+    "prepared_source_archive_sha256": "70ad2cb3ca24ffec324c51543966cb1bd85a35ea423ee30107b0c77bad40e274",
+    "immutable_helper_sha256": "279b8384c7847ec5e2411013dc5def4b0cdd155de4bff75586a29a156f87bf6e"
+  },
+  "findings": [
+    {
+      "id": "CSP1-REMOTE-EXEC-CLOSURE-03",
+      "severity": "P1",
+      "title": "Forced closure of the outer Docker CLI is accepted as an authentication-client exit receipt",
+      "locations": [
+        {
+          "file": "execute_local_f0_customer_stale_predecessor_v1_20261120.py",
+          "line": 160,
+          "function": "binary_process emergency closure and receipt"
+        },
+        {
+          "file": "execute_local_f0_customer_stale_predecessor_v1_20261120.py",
+          "line": 204,
+          "function": "csp_record_transport_closure"
+        },
+        {
+          "file": "execute_local_f0_customer_stale_predecessor_v1_20261120.py",
+          "line": 256,
+          "function": "csp_auth_process"
+        },
+        {
+          "file": "execute_local_f0_customer_stale_predecessor_v1_20261120.py",
+          "line": 565,
+          "function": "finalize"
+        }
+      ],
+      "evidence": {
+        "path": "C:/Users/elijr/.codex/visualizations/2026/11/09/01a1be05-aeb3-7f42-b0f4-6c5e46dc669f/CSP1-auth-closure-independent-rereview-20261123/forced-exec-probe.json",
+        "sha256": "5099ed2c6277fbb96d3df1e746fb36b398600206dae193b8fb404b751edc3454",
+        "launcher_path": "C:/Users/elijr/.codex/visualizations/2026/11/09/01a1be05-aeb3-7f42-b0f4-6c5e46dc669f/CSP1-auth-closure-independent-rereview-20261123/forced_exec_probe.py",
+        "launcher_sha256": "9da0e89540d0ece998ab644472c6a398c4fd1ff01612e69b72a0acbeab114269"
+      },
+      "reproduction": "Actual owning entry after bootstrap, AUTH_HBA direct Dockerexec transport. The modeled outer CLI remains pending until the actual binary helper invokes emergency terminate. Its outer process, pipes and worker threads then all close. No normal raw binary completion returned and no remote exec-exit acknowledgment or ExecInspect proof was consumed. Actual coordinator/proof/persistence methods were not replaced.",
+      "observed": {
+        "emergency_outer_terminate_called": true,
+        "completion_returned": false,
+        "outer_process_exited": true,
+        "outer_pipes_closed": true,
+        "outer_threads_closed": true,
+        "client_closure_confirmed": true,
+        "transport_unknown": false,
+        "later_global_counts": {
+          "migrator": 0,
+          "other_client_backends": 0
+        },
+        "original_grantor_SQL_dispatches": 1,
+        "finalization_status": "PASS",
+        "primary_failure": {
+          "stage": "AUTH_HBA",
+          "code": "PROCESS_DEADLINE_EXCEEDED"
+        },
+        "deploys": 0,
+        "child_sessions": 0,
+        "exact_modeled_cleanup": true,
+        "secrets_excluded": true
+      },
+      "why_substantive": "The three booleans prove closure of the local Docker CLI transport, including after emergency termination. They do not by themselves establish exit of the container exec psql process. The current auth receipt treats them as sufficient even on the exceptional/no-normal-completion path; later backend-zero cannot supply the missing client-exit receipt under the reviewed contract.",
+      "natural_completion_contrast": "The second actual-entry model lets binary_process return normally, then strict UTF8 decoding fails. It correctly remains a confirmed-closed contrast with finalizer eligible. Both records currently have completion_returned:false and the same three closure booleans, so that field cannot distinguish the two cases. Preserve normal raw-completion evidence separately from later decoding/semantic success.",
+      "shared_source_scope": "Generic direct SQL/command paths share the same binary outer-closure mechanism. Their corresponding forced Dockerexec case is a source-shaped same-class concern, not independently executed in this addendum. The new Node callback-local no-validated-inner-receipt flag already conservatively handles its own post-dispatch failures; do not weaken it.",
+      "required_closure": [
+        "In NEW owning code, distinguish normal acknowledged container-exec completion from emergency/unconfirmed outer CLI closure. At minimum, forced/unconfirmed Dockerexec must remain remote/client-closure unknown and permanently veto SQL finalizer/PASS unless an independent appropriate remote-exit proof is established. Do not clear it with a later global-zero observation or good command.",
+        "Capture receipt facts before decoding/semantic assertions so a normal raw binary return followed by UTF8/semantic failure remains separately demonstrable as a closed-error contrast. Do not classify all arbitrary exceptions as safe, or let decoding success manufacture exit proof.",
+        "Apply the consistent unknown-remote classification to the shared new owning direct SQL/command path, including bootstrap/finalization eligibility. Preserve earliest safe original phase/code and independently eligible exact resource/secret cleanup under persistent IO and secondary observers.",
+        "Add bounded actual-entry forced-auth and forced-direct-SQL transport contrasts versus natural raw-completion/decode or semantic failure. Mock all external boundaries; no actual Docker/database execution is required or authorized.",
+        "Keep immutable helper/CTX/child/Node/SQL/ACL/source history unchanged; freeze a new bounded replacement five/archive/validation packet and return for same-peer review. No new remote API/permission expansion or actual execution is authorized by this finding."
+      ]
+    }
+  ],
+  "primary_reference_context": {
+    "provided_by_Root_not_an_installed_version_runtime_proof": [
+      "https://docs.docker.com/reference/api/engine/version/v1.57/operations/ExecInspect/",
+      "https://raw.githubusercontent.com/moby/moby/master/daemon/exec.go"
+    ],
+    "qualification": "Root supplied these references concerning distinct remote ExecInspect Running/ExitCode and cancellation semantics. This addendum does not claim an independently inspected installed Docker/Moby version, an actual remote process leak or a live database failure; its finding is the missing source-level exit-proof contract."
+  },
+  "verification": {
+    "additional_actual_entry_scenarios": 2,
+    "all_external_process_database_network_boundaries": "MODELED_OR_AUDIT_FORBIDDEN",
+    "forbidden_edges_attempted": [],
+    "all_checks_finished": true,
+    "end_source_maps": {
+      "author402": {
+        "files": 402,
+        "bad": []
+      },
+      "copy402": {
+        "files": 402,
+        "bad": []
+      },
+      "candidate136": {
+        "files": 136,
+        "bad": []
+      },
+      "prepared341": {
+        "files": 341,
+        "bad": []
+      },
+      "five": {
+        "files": 5,
+        "bad": []
+      },
+      "original_basis1521": {
+        "files": 1521,
+        "bad": []
+      },
+      "child115": {
+        "files": 115,
+        "bad": []
+      },
+      "original_held374": {
+        "files": 374,
+        "bad": []
+      }
+    },
+    "author_and_originals_preserved": true,
+    "Root_Git_gates_metadata_services_resources_untouched": true
+  },
+  "limits": [
+    "No actual Git/Docker/Node/psql/database/network/service boundary was invoked. Outer offline Python/standard threads and boundary models only.",
+    "No live Root L/S/build/status artifacts were read or changed. Original source families and actual historical primitive results were not reopened or retconned.",
+    "This addendum supplements, and does not replace or resolve, first-origin HOLDc96d. Full normal pipeline/fault suites remain unrerun pending a corrected frozen packet.",
+    "All new owning runtime remains NOT_RUN; PostureD. No business assertion/whole case/94/451/hosted/production/migration-adoption claim."
+  ],
+  "runtime": "NOT_RUN",
+  "Posture": "D",
+  "source_gates": "PENDING_NO_ADMISSION",
+  "runtime_authorization": false,
+  "plain_English": "The remote-control app was forced shut, but the operator counted that as proof the machine stopped. Keep that uncertainty locked. A normal finish followed by a bad message is a different case and should stay separate."
+}

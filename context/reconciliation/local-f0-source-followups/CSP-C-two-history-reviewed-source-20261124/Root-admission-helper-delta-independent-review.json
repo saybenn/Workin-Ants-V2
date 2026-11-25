@@ -1,0 +1,44 @@
+{
+  "AST_checks": {
+    "identical_exact_archive_reader_in_both_helpers": true,
+    "normalized_exact_reader_delta_vs_before_exact_tool_snapshots": true,
+    "normalized_strict_peer_binding_delta_vs_pre_field_snapshots": true,
+    "other_admission_control_flow_unchanged": true
+  },
+  "Posture": "D",
+  "decision": "HELPER_DELTA_APPROVED",
+  "findings": [],
+  "helper_sources_sha256": {
+    "admit_CSP_C_reviewed_source_only_20261124.py": "9879fbb69053b566ce3ac4f1f823fd339fd557d10ba56e088e286c057be29525",
+    "admit_two_history_successor_reviewed_source_only_20261124.py": "66dacc066027148a3577e65026b99b01e26aa7bade52e077a433500f12c0affc"
+  },
+  "limits": [
+    "Static AST/source inspection only; helpers not executed.",
+    "No full433/555/tool10300 reruns, frozen/runtime/gate changes, Root L/S reads or Root metadata mutations by reviewer.",
+    "Root alone applies reviewed source admission; no Git/runtime authorization is granted here."
+  ],
+  "peer_binding": {
+    "CSP": "Exact four-scope list plus one_nonauthor_review_for_four_owned_gates is True; actual sealed peer fields match.",
+    "retained": "Overall SOURCE_APPROVED/findings[], same exact five, distinct peer and separate exact Root receipt checks.",
+    "two_history": "Exact nested runtime374 and candidate56 maps, whole425 equality/counts and five explicit SOURCE_APPROVED decisions."
+  },
+  "prior_CSP_review_sha256": "123053bf51e6c67ede39f4deb4c1e8df8e2496be66e4b602560e7fd210a47364",
+  "prior_CSP_review_unchanged": true,
+  "reader": {
+    "all_other_paths_delegate_to_unchanged_reader": true,
+    "ctime_within_same_path_or_handle_representation": true,
+    "double_closed_read_bytes_hash_and_identity": true,
+    "exact_bytes": 113900903,
+    "fixed_single_path_per_helper": true,
+    "mandatory_expected_SHA256": "481b68ef007cf8889045a50ca3545bb8bd2f6d7290dd40ee730adf12bfd198fb",
+    "normal_other_file_cap_bytes": 8388608,
+    "read_cap_bytes": 113900904,
+    "regular_single_link_no_symlink_or_junction": true,
+    "six_common_identity_fields_cross_API": true
+  },
+  "reviewer": "/root/lease_v2_code_review",
+  "runtime": "NOT_RUN",
+  "schema": "workinants.Root-source-admission-helper-delta-independent-review.v1",
+  "scope": "Exact large-tool read exception and actual frozen peer-record field bindings only. No source admission/runtime execution by reviewer.",
+  "support_note": "Initial AST normalization failed because it omitted the obsolete CSP gate For loop; exact textual delta inspected and normalization corrected. Final AST checks passed; no source finding. Earlier cross-API ctime refusal version is preserved and not approved."
+}

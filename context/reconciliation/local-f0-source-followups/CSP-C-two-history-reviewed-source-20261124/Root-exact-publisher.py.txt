@@ -1,0 +1,56 @@
+"""Root exact CSP-C/two-history source checkpoint; no runtime or evidence promotion."""
+from pathlib import Path
+import argparse,datetime,hashlib,importlib.util,json,subprocess
+T=Path(__file__).resolve().parent;R=T/'workinants-correction-pass'
+up=T/'publish_reviewed_lease_V9_source_20261123.py';spec=importlib.util.spec_from_file_location('_exact_publisher_utilities',up);u=importlib.util.module_from_spec(spec);spec.loader.exec_module(u)
+BASE='971adfd3c560b63461dbf288469055af1a619586';BRANCH='codex/p0c-candidate-corrections-2026-10-31'
+sha=u.sha;enc=u.enc;git=u.git;put=u.put
+F='context/reconciliation/local-f0-source-followups/CSP-C-two-history-reviewed-source-20261124'
+MP=T/'CSP_C_two_history_exact_curated_source_map_20261124.json'
+PRE=T/'CSP_C_two_history_full_committed_source_pre_push_20261124.json'
+def remote():return git('ls-remote','--exit-code','origin','refs/heads/'+BRANCH).decode().split()
+def protected():
+ for n,h in {'context/reconciliation/local-f0-assertion-evidence.json':'8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7','context/reconciliation/local-f0-qualification-status.json':'a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a','scripts/prepare-local-f0-status.py':'977ccb4b26d2bcbd3ff8c4bd84e9a7e741dbf642e8c8fb558c423f8d634ad83f','scripts/check-local-f0-status.py':'c1228e579d5490b07390ffd55fabd5bd2375137a134be5a79c4cf6e0f79ecf79'}.items():assert sha((R/n).read_bytes())==h
+def main():
+ p=argparse.ArgumentParser();p.add_argument('mode',choices=['prepare','commit','verify']);a=p.parse_args()
+ protected()
+ if a.mode=='prepare':
+  assert git('rev-parse','HEAD').decode().strip()==BASE and git('diff','--cached','--name-only','-z')==b''
+  u.originals();assert remote()==[BASE,'refs/heads/'+BRANCH]
+  log=(T/'CSP_C_two_history_context_check_20261124.log').read_bytes();assert b'Structural checks PASSED'in log
+  found=(T/'CSP_C_two_history_foundation_check_20261124.json').read_bytes();assert json.loads(found)['errors']==[]
+  files={}
+  for name,key in [('CSP_C_FINAL_Root_source_admission_inventory_20261124.json','Root_files_sha256'),('two_history_successor_FINAL_Root_source_admission_inventory_20261124.json','Root_files_sha256'),('CSP_C_two_history_source_progress_inventory_20261124.json','files_sha256')]:
+   for n,h in json.loads((T/name).read_bytes())[key].items():assert n not in files or files[n]==h;files[n]=h
+  for n,b in {'context-check.log':log,'foundation-check.json':found,'Root-exact-publisher.py.txt':Path(__file__).read_bytes()}.items():
+   name=F+'/'+n;put(R/name,b);files[name]=sha(b)
+  result={'schema':'workinants.CSP-C-two-history-exact-reviewed-source-checkpoint.v1','base_commit':BASE,'files_sha256':dict(sorted(files.items())),'file_count':len(files),'scan':u.scan(files),'original_checkouts_preserved':True,'accepted_rows_unchanged':730,'new_database_runs':0,'assertion_promotions':0,'runtime':'NOT_RUN','Posture':'D'}
+  put(MP,enc(result));print(json.dumps({'status':'EXACT_SOURCE_READY_FOR_PUBLICATION','file_count':len(files),'map_sha256':sha(MP.read_bytes()),'scan':result['scan']}));return
+ if a.mode=='verify':
+  proof=json.loads(PRE.read_bytes());c=proof['commit'];files=proof['files_sha256']
+  assert git('rev-parse','HEAD').decode().strip()==c and remote()==[c,'refs/heads/'+BRANCH]
+  u.blobs(c,files);u.originals();u.scan(files);protected()
+  out=T/'CSP_C_two_history_full_remote_publication_verification_20261124.json';put(out,enc({'schema':'workinants.CSP-C-two-history-independent-full-remote-verification.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'commit':c,'tree':proof['tree'],'full_remote_hash':c,'normal_FF_parent':BASE,'curated_files':len(files),'all_current_committed_equal':True,'original_checkouts_preserved':True,'new_database_runs':0,'assertion_promotions':0,'Posture':'D'}))
+  print(json.dumps({'status':'PUBLISHED_FULL_REMOTE_HASH_ALL_BLOBS_VERIFIED','commit':c,'tree':proof['tree'],'proof_sha256':sha(out.read_bytes())}));return
+ raw=MP.read_bytes();files=json.loads(raw)['files_sha256']
+ assert git('rev-parse','HEAD').decode().strip()==BASE and remote()==[BASE,'refs/heads/'+BRANCH]
+ assert git('remote','get-url','origin').decode().strip()=='https://github.com/saybenn/Workin-Ants-V2.git'
+ assert git('diff','--cached','--name-only','-z')==b''
+ u.originals();u.scan(files);changed=set()
+ for n,h in files.items():
+  q=subprocess.run(['git','--no-optional-locks','-c','core.longpaths=true','cat-file','blob',BASE+':'+n],cwd=R,capture_output=True,timeout=30)
+  if q.returncode!=0 or sha(q.stdout)!=h:changed.add(n)
+ assert set(filter(None,git('diff','--name-only','-z').decode().split('\0')))<=changed
+ names=T/'CSP_C_two_history_exact_stage_paths_20261124.nul';put(names,b''.join(n.encode()+b'\0'for n in sorted(files)))
+ git('add','--pathspec-from-file='+str(names),'--pathspec-file-nul')
+ assert set(filter(None,git('diff','--cached','--name-only','-z').decode().split('\0')))==changed
+ u.blobs('',files);u.originals();assert remote()==[BASE,'refs/heads/'+BRANCH]
+ git('commit','-m','Review owned Customer predecessor and two-history safety corrections')
+ c=git('rev-parse','HEAD').decode().strip();tree=git('rev-parse','HEAD^{tree}').decode().strip()
+ assert git('rev-parse','HEAD^').decode().strip()==BASE
+ assert set(filter(None,git('diff-tree','--no-commit-id','--name-only','-r','-z',c).decode().split('\0')))==changed
+ u.blobs(c,files);u.originals();protected()
+ put(PRE,enc({'schema':'workinants.CSP-C-two-history-committed-source-proof.v1','recorded_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'commit':c,'tree':tree,'direct_parent':BASE,'curated_map_sha256':sha(raw),'files_sha256':files,'changed_files':len(changed),'all_current_committed_equal':True,'originals_preserved':True,'assertion_promotions':0,'new_database_runs':0,'Posture':'D'}))
+ print(json.dumps({'status':'COMMITTED_READY_NORMAL_FF_PUSH','commit':c,'tree':tree,'files':len(files),'changed_files':len(changed),'proof_sha256':sha(PRE.read_bytes())}))
+if __name__=='__main__':main()
+

@@ -1,0 +1,150 @@
+{
+  "schema": "workinants.CSP1-private-focused-checks.v1",
+  "tag": "auth-normal-final",
+  "status": "PASS",
+  "tests_run": 3,
+  "results": [
+    {
+      "method": "<run_path>.SourcePreservation.test_exact_original_115_and_guard_source",
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.PendingAndProjection.test_actual_pending_entry_before_steps_or_processes",
+      "status": "PASS"
+    },
+    {
+      "method": "<run_path>.WholeLifecycle.test_actual_full_constructor_install_native_child_three_and_cleanup",
+      "status": "PASS"
+    }
+  ],
+  "seconds": 103.828,
+  "runtime": "NOT_RUN",
+  "all_external_boundaries": "MOCKED_OR_AUDIT_FORBIDDEN",
+  "Posture": "D",
+  "unrestricted_output_retained": false,
+  "safe_measured_payload_sizes": {
+    "actual_CTX_write_payload_sizes": [
+      [
+        "postgres",
+        "BEGIN",
+        210
+      ],
+      [
+        "postgres",
+        "CAPTURE",
+        423
+      ],
+      [
+        "postgres",
+        "CLOSE",
+        3
+      ],
+      [
+        "postgres",
+        "IDENTITY_SETUP",
+        960
+      ],
+      [
+        "wa_app_runtime",
+        "BEGIN",
+        210
+      ],
+      [
+        "wa_app_runtime",
+        "CAPTURE",
+        423
+      ],
+      [
+        "wa_app_runtime",
+        "CLOSE",
+        3
+      ],
+      [
+        "wa_app_runtime",
+        "CONTEXT_BIND",
+        170
+      ],
+      [
+        "wa_app_runtime",
+        "CONTROL",
+        399
+      ],
+      [
+        "wa_app_runtime",
+        "CONTROL",
+        448
+      ],
+      [
+        "wa_app_runtime",
+        "CONTROL",
+        467
+      ],
+      [
+        "wa_app_runtime",
+        "CONTROL",
+        598
+      ],
+      [
+        "wa_app_runtime",
+        "GENUINE_CREATE",
+        6342
+      ],
+      [
+        "wa_context_issuer",
+        "BEGIN",
+        210
+      ],
+      [
+        "wa_context_issuer",
+        "CAPTURE",
+        423
+      ],
+      [
+        "wa_context_issuer",
+        "CLOSE",
+        3
+      ],
+      [
+        "wa_context_issuer",
+        "ISSUER",
+        2348
+      ],
+      [
+        "wa_context_issuer",
+        "ISSUER",
+        15170
+      ]
+    ],
+    "actual_authentication_payload_sizes": [
+      [
+        "AUTH_CORRECT_PASSWORD",
+        165
+      ],
+      [
+        "AUTH_HBA",
+        224
+      ],
+      [
+        "AUTH_HBA",
+        260
+      ],
+      [
+        "AUTH_WRONG_PASSWORD",
+        10
+      ]
+    ],
+    "owning_source_graph": {
+      "files": 331,
+      "packet_sha256": "81787beed1517a38d9305e067108afe7ff904acac1e4d33879d436d2593005da",
+      "source_blob_bytes": 25290993,
+      "Git_batch_framing_bytes": 25308323
+    }
+  },
+  "operator_sources_sha256": {
+    "execute_local_f0_customer_stale_predecessor_v1_20261120.py": "03adab6a6e50079ae3baecf4ee4cf785b8bf76ba29f3207d1daa7674669e8bd7",
+    "local_f0_customer_stale_predecessor_v1_operation_steps.py": "ac010878565e21a405eb1494aa775c28dcf863f44716ed7bd7e895cb2d20913a",
+    "prepare_local_f0_customer_stale_predecessor_v1_plan.py": "28cf7cd10cd1a821114aa4408ab5c61b7d312e28c2e9421ffb174e7246d5bebb",
+    "check_local_f0_customer_stale_predecessor_v1_operation.py": "1e174515d587bfef822c4103593ca39f0f1ac01286de06faa0c6a5defb34b86f",
+    "pin_local_f0_customer_stale_predecessor_v1_plan_20261120.py": "41a2f7ef9e68aeae967d0b647af9a7ade4737d58d82aa65dfad3122bcac1731b"
+  }
+}
