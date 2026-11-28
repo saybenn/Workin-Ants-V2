@@ -29,7 +29,8 @@ OBSERVE_SQL = f"{HERE}/observe-smoke.sql"
 FIXTURE_INPUTS = f"{HERE}/fixture-sources.json"
 FILES = {"owner-transaction.ts": OWNER_SOURCE, TEST_MAIN: f"{HERE}/{TEST_MAIN}.txt",
          "fixture.ts": f"{HERE}/fixture.ts.txt", "package.json": f"{HERE}/package.json"}
-TEST_INPUTS = (IDENTITY_SEED, OBSERVE_SQL, FIXTURE_INPUTS, *FILES.values(), f"{HERE}/run.py", f"{HERE}/README.md")
+TEST_INPUTS = (IDENTITY_SEED, OBSERVE_SQL, FIXTURE_INPUTS, *FILES.values(), f"{HERE}/run.py", f"{HERE}/README.md",
+               f"{HERE}/test_run.py")
 SOURCE_SCHEMA = "workinants.cloud-p0d-owner-transaction-source-review.v1"
 LITERAL_SCHEMA = "workinants.cloud-p0d-owner-transaction-literal-review.v1"
 PACKET_SCHEMA = "workinants.cloud-p0d-owner-transaction-operation.v1"
@@ -251,6 +252,9 @@ def owner_type(renewal, modules):
                    "P0D_SCOPE_OBSERVATION_UNCONFIRMED")
             return result.stdout
 
+        def closed_record(self, source):
+            return S.unique_json(self.closed_sql(source).encode("utf-8"))
+
         def copy_sources(self):
             cid = self.resources.cid
             self.exact_container_exec("--user", "0", cid, "/usr/bin/mkdir", "-m", "0755", "--", REMOTE_SOURCE)
@@ -301,13 +305,13 @@ def owner_type(renewal, modules):
                     raise
                 state["node"] = p.write_safe("owner-transaction-node.json", result)
                 S.require(result["status"] == NODE_PASS, "P0D_CHILD_RESULT_UNCONFIRMED")
-            observation = S.unique_json(self.closed_sql(OBSERVE_SQL))
+            observation = self.closed_record(OBSERVE_SQL)
             validate_observation(observation, result, S)
             state["observation"] = p.write_safe("owner-transaction-observation.json", observation)
             fixture = S.unique_json(self.blobs[FIXTURE_INPUTS])
             proof = {}
             for name in ("identity_coherence_observer", "customer_observer", "effect_observer"):
-                proof[name] = S.unique_json(self.closed_sql(fixture["source_files"][name]["path"]))
+                proof[name] = self.closed_record(fixture["source_files"][name]["path"])
                 S.require(S.encode(proof[name]) == S.encode(fixture[f"{name}_expected"]), "P0D_SCOPE_OBSERVATION_UNCONFIRMED")
             state["fixture"] = p.write_safe("owner-transaction-fixture.json", proof)
             post = p.collect_native(self.name, f"NATIVE_{POST}", "owner-transaction-native-after.json")
