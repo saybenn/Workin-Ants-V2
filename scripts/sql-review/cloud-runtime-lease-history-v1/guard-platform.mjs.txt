@@ -1,0 +1,138 @@
+// Rendered into the independently versioned Cloud guard by prepare.py.
+const ENDPOINT = "unix:///var/run/docker.sock";
+const IMAGE_MANIFEST = "sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1";
+const IMAGE_CONFIG = "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d";
+const FILE_MAP_SHA = "e774defdbcec4bd038e131aa2f60bc2d982a2e069ed16230b4cc6ec2ac982310";
+const SIZE_MAP_SHA = "a9cd4e93518a3ef74e781b99cf6dc5f1a4755ed271974459c517016a25db2798";
+const TOOL_TAR_SHA = "5a5deaff7aa721dd3b26be84f3ab1e9da1c1880ad902bced3be39dd5cc9e15f5";
+const MAX_SOURCE_BYTES = 16 * 1024 * 1024;
+const MAX_TOOL_BYTES = 126879696;
+const TOOL_BINARY = new Set(["node/bin/node", "schema-engine"]);
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return "[" + value.map(canonicalJson).join(",") + "]";
+  if (value !== null && typeof value === "object") {
+    return "{" + Object.keys(value).sort().map(k => JSON.stringify(k) + ":" + canonicalJson(value[k])).join(",") + "}";
+  }
+  return JSON.stringify(value);
+}
+
+function validateDaemon(daemon) {
+  keys(daemon, ["daemon_id", "version", "os", "architecture", "rootless", "socket", "docker_binary_sha256"], "DAEMON_FIELDS");
+  requireLocal(typeof daemon.daemon_id === "string" && /^[a-zA-Z0-9:._-]{1,128}$/.test(daemon.daemon_id)
+    && daemon.daemon_id === daemon.daemon_id.trim()
+    && typeof daemon.version === "string" && /^[0-9]+\.[0-9]+\.[0-9]+$/.test(daemon.version)
+    && daemon.version === daemon.version.trim() && daemon.os === "linux" && daemon.architecture === "amd64"
+    && daemon.rootless === true && typeof daemon.docker_binary_sha256 === "string"
+    && HASH.test(daemon.docker_binary_sha256), "CLOUD_DAEMON_IDENTITY");
+  const socket = daemon.socket;
+  keys(socket, ["real_path", "device", "inode", "uid", "gid", "mode"], "SOCKET_FIELDS");
+  requireLocal(["/run/docker.sock", "/var/run/docker.sock", "/run/codex-docker/docker.sock"].includes(socket.real_path)
+    && [socket.device, socket.inode, socket.uid, socket.gid, socket.mode].every(n => Number.isSafeInteger(n) && n >= 0)
+    && socket.inode > 0 && [0o600, 0o660].includes(socket.mode), "CLOUD_SOCKET_IDENTITY");
+}
+
+function validateToolMap(tools) {
+  keys(tools, ["node_version", "prisma_version", "engine_commit", "archive_sha256", "files_sha256", "file_sizes"], "TOOLS_FIELDS");
+  requireLocal(tools.node_version === "v24.22.1" && tools.prisma_version === "7.10.1"
+    && tools.engine_commit === "d1b3f377ca835d73fd50954a5e22128b9ebdd6b8"
+    && tools.archive_sha256 === TOOL_TAR_SHA, "PINNED_TOOLS");
+  const hashes = tools.files_sha256;
+  const sizes = tools.file_sizes;
+  requireLocal(hashes && typeof hashes === "object" && !Array.isArray(hashes)
+    && sizes && typeof sizes === "object" && !Array.isArray(sizes), "TOOL_MAP_SHAPE");
+  const names = Object.keys(hashes);
+  requireLocal(names.length === 10300 && Object.keys(sizes).length === names.length
+    && names.every(n => typeof hashes[n] === "string" && HASH.test(hashes[n])
+      && Object.hasOwn(sizes, n) && Number.isSafeInteger(sizes[n]) && sizes[n] >= 0
+      && sizes[n] <= (TOOL_BINARY.has(n) ? MAX_TOOL_BYTES : MAX_SOURCE_BYTES))
+    && sha256(canonicalJson(hashes)) === FILE_MAP_SHA
+    && sha256(canonicalJson(sizes)) === SIZE_MAP_SHA, "EXACT_TOOL_ARCHIVE_INVENTORY");
+}
+
+export function privateMounts(raw) {
+  for (const [target, required, kind] of [
+    [PRIVATE_ROOT, ["rw", "nosuid", "nodev", "noexec"], "tmpfs"],
+    ["/run/bootstrap-password", ["ro"], null],
+  ]) {
+    const rows = raw.split("\n").map(line => line.split(" ")).filter(fields => fields[4] === target);
+    requireLocal(rows.length === 1, "PRIVATE_MOUNT_REQUIRED");
+    const fields = rows[0];
+    const separator = fields.indexOf("-", 6);
+    requireLocal(separator >= 6 && required.every(option => fields[5].split(",").includes(option))
+      && (kind === null || fields[separator + 1] === kind), "PRIVATE_MOUNT_OPTIONS");
+  }
+}
+
+function sameStat(a, b) {
+  return ["dev", "ino", "mode", "uid", "gid", "size", "nlink", "mtimeNs", "ctimeNs"].every(k => a[k] === b[k]);
+}
+
+function stableFile(filename, owner, maxBytes, exactMode, consume) {
+  let descriptor;
+  try {
+    requireLocal(path.isAbsolute(filename) && fs.realpathSync(filename) === filename, "NONCANONICAL_FILE");
+    const statOptions = {bigint: true};
+    const pathBefore = fs.lstatSync(filename, statOptions);
+    descriptor = fs.openSync(filename, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
+    const info = fs.fstatSync(descriptor, statOptions);
+    const mode = Number(info.mode & 0o7777n);
+    requireLocal(info.isFile() && info.nlink === 1n && info.uid === BigInt(owner)
+      && (mode & 0o7022) === 0 && (exactMode === undefined || mode === exactMode)
+      && info.size <= BigInt(maxBytes) && sameStat(pathBefore, info), "FILE_OWNER_MODE_SIZE");
+    const value = consume(descriptor, Number(info.size));
+    requireLocal(sameStat(info, fs.fstatSync(descriptor, statOptions))
+      && sameStat(info, fs.lstatSync(filename, statOptions)), "FILE_IDENTITY_CHANGED");
+    return value;
+  } catch (error) {
+    throw error instanceof HeldFailure ? error : new HeldFailure("FILE_UNAVAILABLE");
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor);
+  }
+}
+
+function readChunks(descriptor, size, consume) {
+  const buffer = Buffer.allocUnsafe(Math.min(64 * 1024, Math.max(size, 1)));
+  let remaining = size;
+  while (remaining > 0) {
+    const count = fs.readSync(descriptor, buffer, 0, Math.min(buffer.length, remaining), null);
+    requireLocal(count > 0, "FILE_SHORT_READ");
+    consume(buffer.subarray(0, count), size - remaining);
+    remaining -= count;
+  }
+  requireLocal(fs.readSync(descriptor, buffer, 0, 1, null) === 0, "FILE_OVERSIZED_READ");
+}
+
+export function readNoFollow(filename, privateFile = false) {
+  return stableFile(filename, 0, privateFile ? 4 * 1024 * 1024 : MAX_SOURCE_BYTES,
+    privateFile ? 0o600 : undefined, (descriptor, size) => {
+      const raw = Buffer.allocUnsafe(size);
+      readChunks(descriptor, size, (chunk, offset) => chunk.copy(raw, offset));
+      return raw;
+    });
+}
+
+export function hashStableTool(filename, relative, expectedSize, owner = 0) {
+  const binary = TOOL_BINARY.has(relative);
+  requireLocal(Number.isSafeInteger(expectedSize) && expectedSize >= 0
+    && expectedSize <= (binary ? MAX_TOOL_BYTES : MAX_SOURCE_BYTES), "TOOL_SIZE_BOUND");
+  return stableFile(filename, owner, expectedSize, binary ? 0o755 : 0o644, (descriptor, size) => {
+    requireLocal(size === expectedSize, "TOOL_EXACT_SIZE_REQUIRED");
+    const hash = crypto.createHash("sha256");
+    readChunks(descriptor, size, chunk => hash.update(chunk));
+    return hash.digest("hex");
+  });
+}
+
+export function readAttestationStdin() {
+  let total = 0;
+  const chunks = [];
+  while (true) {
+    const buffer = Buffer.allocUnsafe(64 * 1024);
+    const size = fs.readSync(0, buffer, 0, buffer.length, null);
+    if (size === 0) return Buffer.concat(chunks, total);
+    total += size;
+    requireLocal(total <= 4 * 1024 * 1024, "ATTESTATION_SIZE");
+    chunks.push(buffer.subarray(0, size));
+  }
+}
