@@ -1,0 +1,331 @@
+const { createHash } = require("node:crypto");
+const { readFile } = require("node:fs/promises");
+const { isAbsolute, normalize } = require("node:path");
+const { pathToFileURL } = require("node:url");
+const { isDeepStrictEqual } = require("node:util");
+let fixture;
+let provisionKnownCustomerProfile;
+let OwnerTransactionFailure;
+
+const schema = "workinants.p0d-customer-proof-result.v1";
+const modes = ["create-replay", "rollback", "retry", "prior-fingerprint"];
+const hash = (value) => createHash("sha256").update(value).digest("hex");
+const xid = /^[1-9][0-9]{0,19}$/;
+const epoch = /^[1-9][0-9]{0,11}\.[0-9]{6}$/;
+const complete = ["READ_EMPTY", "CLOCK_DATE", "RECEIPT_INSERTED", "CUSTOMER_INSERTED", "HISTORY_INSERTED",
+  "EVIDENCE_INSERTED", "LIFECYCLE_INSERTED", "FREE_INTENT_INSERTED"];
+
+function need(value) {
+  if (!value) throw new Error("pinned_customer_fixture_expectation_failed");
+}
+
+async function readCredentials() {
+  const data = Buffer.alloc(151);
+  let length = 0;
+  const deadline = setTimeout(() => process.stdin.destroy(new Error("stdin_deadline")), 5000);
+  try {
+    for await (const chunk of process.stdin) {
+      need(Buffer.isBuffer(chunk) && length + chunk.length <= data.length);
+      chunk.copy(data, length);
+      length += chunk.length;
+    }
+    const match = /^\{"app":"([0-9a-f]{64})","issuer":"([0-9a-f]{64})"\}\n?$/.exec(data.toString("latin1", 0, length));
+    need(match?.[0].length === length && match[1] !== match[2]);
+    return { app: match[1], issuer: match[2] };
+  } finally {
+    clearTimeout(deadline);
+    data.fill(0);
+  }
+}
+
+async function loadDriver(path) {
+  need(typeof path === "string" && isAbsolute(path) && normalize(path) === path);
+  need(/^\/[A-Za-z0-9_./-]+\/postgres\/src\/index\.js$/.test(path));
+  const url = pathToFileURL(path);
+  const pkg = JSON.parse(await readFile(new URL("../package.json", url), "utf8"));
+  need(pkg.name === "postgres" && pkg.version === "3.4.7");
+  const {default: driver} = await import(url.href);
+  need(typeof driver === "function");
+  return driver;
+}
+
+function deferred() {
+  let release;
+  const ready = new Promise((resolve) => { release = resolve; });
+  return { ready, release };
+}
+
+async function bounded(promise) {
+  let deadline;
+  try {
+    await Promise.race([promise, new Promise((_, reject) => {
+      deadline = setTimeout(() => reject(new Error("race_gate_deadline")), 2500);
+    })]);
+  } finally {
+    clearTimeout(deadline);
+  }
+}
+
+function raceGate() {
+  const primaryRead = deferred();
+  const peerRead = deferred();
+  const primaryInserted = deferred();
+  const peerInsertBuilt = deferred();
+  let peerDispatches = 0;
+  return {
+    async firstRead(side) {
+      if (side === "primary") {
+        primaryRead.release();
+        await bounded(peerRead.ready);
+      } else {
+        peerRead.release();
+        await bounded(primaryRead.ready);
+        await bounded(primaryInserted.ready);
+      }
+    },
+    async winnerInserted() {
+      primaryInserted.release();
+      await bounded(peerInsertBuilt.ready);
+    },
+    peerBuilt() {
+      peerDispatches += 1;
+      peerInsertBuilt.release();
+    },
+    get peerDispatches() { return peerDispatches; },
+  };
+}
+
+function inspectQuery(audit, query, bindings) {
+  const sql = query.join("?");
+  const target = audit.spec.target;
+  if (sql.includes('AS "backendStart"') && sql.includes("pg_catalog.pg_stat_activity")) return "BACKEND";
+  if (sql.includes("SELECT platform_private.bind_request_context(")) return "BIND";
+  if (sql.includes("FROM platform.runtime_command_receipt") && sql.includes("WHERE id = ")) {
+    need(bindings.length === 1 && bindings[0] === target.receiptId);
+    return "READ";
+  }
+  if (sql.includes("SELECT pg_catalog.transaction_timestamp() AS occurred")) return "CLOCK";
+  if (sql.includes("INSERT INTO platform.runtime_command_receipt")) {
+    need(sql.includes("ON CONFLICT DO NOTHING") && bindings[1] === target.receiptId);
+    return "RECEIPT";
+  }
+  if (sql.includes("INSERT INTO app.customer_profiles")) {
+    need(bindings[0] === target.customerProfileId && bindings[1] === target.userId);
+    return "CUSTOMER";
+  }
+  if (sql.includes("INSERT INTO app.customer_profile_lifecycle_event")) {
+    need(bindings[0] === target.lifecycleEventId && bindings[1] === target.customerProfileId && bindings[2] === target.receiptId);
+    return "HISTORY";
+  }
+  if (sql.includes("INSERT INTO platform.owner_mutation_evidence")) {
+    need(bindings[1] === target.evidenceId && bindings[2] === target.receiptId && bindings[4] === target.customerProfileId);
+    return "EVIDENCE";
+  }
+  if (sql.includes("INSERT INTO platform.runtime_outbox_message")) {
+    need(bindings[2] === target.receiptId && bindings[6] === target.customerProfileId);
+    if (bindings[1] === target.lifecycleOutboxId) return "LIFECYCLE";
+    need(bindings[1] === target.defaultFreeIntentId);
+    return "FREE_INTENT";
+  }
+  throw new Error("unregistered_customer_query");
+}
+
+async function observeQuery(audit, tx, parts, bindings) {
+  const kind = inspectQuery(audit, parts, bindings);
+  let rows;
+  try {
+    rows = await tx(parts, ...bindings);
+  } catch (error) {
+    if (kind === "FREE_INTENT" && audit.expectLateDenial && error?.code === "42501"
+        && error?.routine === "ExecWithCheckOptions") audit.steps.push("FREE_INTENT_RLS_DENIED");
+    else audit.steps.push("UNEXPECTED_DRIVER_QUERY_FAILURE");
+    throw error;
+  }
+  if (kind === "BACKEND") {
+    const row = rows[0];
+    need(rows.length === 1 && row.login === "wa_app_runtime" && row.role === "wa_app_runtime"
+      && row.database === "wa_p0c_rehearsal" && row.serverPort === 5432 && row.isolation === "read committed"
+      && Number.isInteger(row.pid) && row.pid > 0 && xid.test(row.xid) && epoch.test(row.backendStart));
+    const tuple = { pid: row.pid, xid: row.xid, backend_start_epoch: row.backendStart };
+    need(audit.tuple === undefined || isDeepStrictEqual(audit.tuple, tuple));
+    audit.tuple = tuple;
+  } else if (kind === "READ") {
+    need(rows.length === 0 || rows.length === 1);
+    audit.steps.push(rows.length === 1 ? "READ_ROW" : "READ_EMPTY");
+    if (audit.gate && audit.steps.length === 1) {
+      need(rows.length === 0);
+      await audit.gate.firstRead(audit.side);
+    }
+  } else if (kind === "CLOCK") {
+    need(rows.length === 1 && rows[0].occurred instanceof Date && Number.isFinite(rows[0].occurred.getTime()));
+    audit.clock = rows[0].occurred.toISOString();
+    audit.steps.push("CLOCK_DATE");
+  } else if (kind === "RECEIPT") {
+    need(rows.command === "INSERT" && (rows.length === 0 || rows.length === 1) && rows.count === rows.length);
+    if (rows.length === 1) need(rows[0].id === audit.spec.target.receiptId);
+    audit.steps.push(rows.length === 1 ? "RECEIPT_INSERTED" : "RECEIPT_CONFLICT_EMPTY");
+    if (audit.gate && audit.side === "primary") {
+      need(rows.length === 1);
+      await audit.gate.winnerInserted();
+    }
+  } else if (kind !== "BIND") {
+    need(rows.command === "INSERT" && rows.count === 1 && rows.length === 0);
+    audit.steps.push(kind + "_INSERTED");
+  }
+  return rows;
+}
+
+function makePair(driver, credentials, side, pools, foundNotice, gate) {
+  const info = (login, password) => ({
+    username: login, password, host: "127.0.0.1", port: 5432, database: "wa_p0c_rehearsal",
+    ssl: false, max: 1, idle_timeout: 0, max_lifetime: 0, connect_timeout: 5, fetch_types: true, prepare: false,
+    onnotice: foundNotice,
+    connection: { application_name: `wa_p0d_customer_${side}_${login}`, TimeZone: "UTC",
+      statement_timeout: 5000, lock_timeout: 1500, idle_in_transaction_session_timeout: 15000 },
+  });
+  let current;
+  const terminal = [];
+  const app = driver({ ...info("wa_app_runtime", credentials.app), debug(_connection, text) {
+    const verb = text.trim().toLowerCase();
+    if (verb === "commit" || verb === "rollback") terminal.push(verb);
+    if (gate && side === "peer" && verb.includes("insert into platform.runtime_command_receipt")) gate.peerBuilt();
+  }});
+  pools.push(app);
+  const issuer = driver(info("wa_context_issuer", credentials.issuer));
+  pools.push(issuer);
+  const runtime = {
+    begin: (level, callback) => app.begin(level, (tx) => {
+      need(current);
+      return callback((parts, ...bindings) => observeQuery(current, tx, parts, bindings));
+    }),
+    end: (options) => app.end(options),
+  };
+  return {
+    async run(spec, options = {}) {
+      need(current === undefined);
+      const audit = { spec, side, gate: options.race ? gate : undefined, steps: [], expectLateDenial: options.late === true };
+      const fields = options.late ? spec.fields.filter((item) => item !== spec.absentField) : spec.fields;
+      need(fields.length === (options.late ? 178 : 179));
+      const context = {principal:{userId:spec.target.userId}, owner:"customer_buyer_profile", action:"SH-004.v1", purpose:"provision",
+        targetKind:"CustomerProfile", targetId:spec.target.customerProfileId, allowedFields:fields,
+        policyVersion:fixture.policyVersion, securityGeneration:0n, sourceGeneration:0n, expiresAt:new Date(Date.now()+120_000)};
+      terminal.length = 0;
+      current = audit;
+      try {
+        const value = await provisionKnownCustomerProfile({runtime, issuer, runtimeLogin:"wa_app_runtime", expectedDatabase:"wa_p0c_rehearsal"},
+          context, options.request ?? spec.request, spec.target);
+        return {value, audit, terminal: [...terminal]};
+      } catch (error) {
+        if (error instanceof OwnerTransactionFailure && error.code === "rolled_back" && options.late) {
+          return {value: {status:"rolled_back"}, audit, terminal:[...terminal]};
+        }
+        throw error;
+      } finally {
+        current = undefined;
+      }
+    },
+  };
+}
+
+function expected(result, status, steps, terminal) {
+  need(result.value.status === status && isDeepStrictEqual(result.audit.steps, steps)
+    && isDeepStrictEqual(result.terminal, terminal));
+  if (status === "denied") need(result.audit.tuple === undefined);
+  else need(result.audit.tuple);
+  return result;
+}
+
+function evidence(result) {
+  const value = result.value.value;
+  if (!value) return {status:result.value.status, steps:result.audit.steps, tuple:result.audit.tuple ?? null};
+  return {status:result.value.status, steps:result.audit.steps, tuple:result.audit.tuple,
+    value_sha256:hash(JSON.stringify(value)), recorded_at:value.receipt.recordedAt};
+}
+
+function validateCreate(result, spec) {
+  const value = result.value.value;
+  need(value.customerProfileId === spec.target.customerProfileId && value.userId === spec.target.userId
+    && value.lifecycle === "active" && value.sourceToken === "0" && value.receipt.owner === "customer_buyer_profile"
+    && value.receipt.id === spec.target.receiptId && value.receipt.semanticKey === spec.request.semanticKey
+    && value.receipt.fingerprint === spec.fingerprint && value.receipt.sourceToken === "0"
+    && value.receipt.recordedAt === result.audit.clock);
+}
+
+let stage = "ENTRY";
+async function execute(mode, driver, credentials) {
+  const pools = [];
+  let notices = 0;
+  const foundNotice = () => { notices += 1; };
+  let result;
+  let closed;
+  try {
+    const primary = fixture.cases.primary;
+    const rollback = fixture.cases.rollback;
+    if (mode === "create-replay") {
+      stage = "COMPETING_KNOWN_CREATE";
+      const gate = raceGate();
+      const main = makePair(driver, credentials, "primary", pools, foundNotice, gate);
+      const peer = makePair(driver, credentials, "peer", pools, foundNotice, gate);
+      const settled = await Promise.allSettled([main.run(primary,{race:true}),peer.run(primary,{race:true})]);
+      need(settled.every((k) => k.status === "fulfilled"));
+      const win = expected(settled[0].value,"created",complete,["commit"]);
+      const other = expected(settled[1].value,"replay",["READ_EMPTY","CLOCK_DATE","RECEIPT_CONFLICT_EMPTY","READ_ROW"],["commit"]);
+      validateCreate(win, primary);
+      need(isDeepStrictEqual(win.value.value, other.value.value) && gate.peerDispatches === 1);
+      need(win.audit.tuple.pid !== other.audit.tuple.pid && win.audit.tuple.xid !== other.audit.tuple.xid);
+      stage = "EXACT_AND_METADATA_REPLAY";
+      const identical = expected(await main.run(primary),"replay",["READ_ROW"],["commit"]);
+      const metadata = expected(await main.run(primary,{request:{...primary.request,requestId:"p0d-customer-proof-retry-transport",
+        correlationId:"p0d-customer-proof-retry-correlation"}}),"replay",["READ_ROW"],["commit"]);
+      need(isDeepStrictEqual(win.value.value, identical.value.value) && isDeepStrictEqual(win.value.value, metadata.value.value));
+      need(new Set([win,other,identical,metadata].map((item)=>item.audit.tuple.xid)).size===4);
+      stage = "FOREIGN_REQUEST_PRINCIPAL";
+      const foreign = expected(await main.run(primary,{request:{...primary.request,userId:rollback.target.userId}}),"denied",[],[]);
+      result = {created:evidence(win),contender:evidence(other),identical_replay:evidence(identical),metadata_replay:evidence(metadata),
+        foreign_principal:evidence(foreign)};
+    } else {
+      const pair = makePair(driver, credentials, "primary", pools, foundNotice);
+      if (mode === "rollback") {
+        stage = "FINAL_FREE_INTENT_RLS_ROLLBACK";
+        const rejected = expected(await pair.run(rollback,{late:true}),"rolled_back",[...complete.slice(0,-1),"FREE_INTENT_RLS_DENIED"],["rollback"]);
+        result = {rejected:evidence(rejected)};
+      } else if (mode === "retry") {
+        stage = "ORIGINAL_KEY_RETRY";
+        const retried = expected(await pair.run(rollback),"created",complete,["commit"]);
+        validateCreate(retried, rollback);
+        result = {retried:evidence(retried)};
+      } else {
+        stage = "PRIOR_FINGERPRINT_CONFLICT";
+        const prior = expected(await pair.run(primary),"conflict",["READ_ROW"],["commit"]);
+        result = {conflict:evidence(prior)};
+      }
+    }
+  } finally {
+    const closures = await Promise.allSettled(pools.map((pool)=>pool.end({timeout:2})));
+    closed = closures.length === (mode === "create-replay" ? 4 : 2) && closures.every((entry)=>entry.status === "fulfilled");
+  }
+  stage = "POOL_CLOSE";
+  need(closed && notices === 0);
+  return result;
+}
+
+async function main() {
+  const [mode, driverPath] = process.argv.slice(2);
+  need(process.argv.length === 4 && modes.includes(mode));
+  stage = "PINNED_IMPORT";
+  fixture = require("./fixture.json");
+  ({provisionKnownCustomerProfile} = require("./compiled/features/customer_buyer_profile/application/resolve-customer-actor.js"));
+  ({OwnerTransactionFailure} = require("./compiled/server/platform/persistence/owner-transaction.js"));
+  stage = "ENTRY";
+  const credentials = await readCredentials();
+  stage = "DRIVER";
+  for (const env of Object.keys(process.env)) if (/^PG[A-Z_]+$/.test(env)) delete process.env[env];
+  const driver = await loadDriver(driverPath);
+  const cases = await execute(mode, driver, credentials);
+  process.stdout.write(JSON.stringify({schema,status:"PASS_FINITE_CUSTOMER_MODE_ONLY",mode,cases,pools_ended:true})+"\n");
+}
+
+void main().catch(() => {
+  process.exitCode = 1;
+  process.stdout.write(JSON.stringify({schema,status:"STOPPED",stage})+"\n");
+});
