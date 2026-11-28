@@ -1,0 +1,158 @@
+{
+  "actual_result": "DERIVED_REVIEWED_CLOUD_CONSENT_EMPTY_CONTEXT_ASSERTION_ONLY",
+  "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "claims": [
+    {
+      "assertion_id": "control.empty_context",
+      "case_id": "P0C-IMMUTABLE-01",
+      "expected_assertion_sha256": "d66b619c87e226d08fa575c71b4485f1a6dff355bb8bca2478fca3e77a237fcd",
+      "matched_rollback_controls": [
+        {
+          "app_and_issuer_closed": true,
+          "case": "null-context",
+          "diagnostic": {
+            "before_marker_only": true,
+            "exact_source_diagnostic": true,
+            "no_success_acknowledgment": true,
+            "source_body_line": 17,
+            "source_body_sha256": "61dc444ce22f462fbbfcfa706f0cfdce5a7e16a028592b51d1fec07fa219e7ae",
+            "sqlstate": "P0001",
+            "terminal_client_exit_3": true
+          },
+          "exact_consent_residue_zero": true,
+          "issued_grants_exact": 3,
+          "native_catalog_unchanged": true,
+          "original_triggers_verified": 100,
+          "status": "PASS_EXACT_DENIED_ROLLBACK_ONLY",
+          "tables_unchanged": 42
+        },
+        {
+          "app_and_issuer_closed": true,
+          "case": "empty-context",
+          "diagnostic": {
+            "before_marker_only": true,
+            "exact_source_diagnostic": true,
+            "no_success_acknowledgment": true,
+            "source_body_line": 17,
+            "source_body_sha256": "61dc444ce22f462fbbfcfa706f0cfdce5a7e16a028592b51d1fec07fa219e7ae",
+            "sqlstate": "P0001",
+            "terminal_client_exit_3": true
+          },
+          "exact_consent_residue_zero": true,
+          "issued_grants_exact": 6,
+          "native_catalog_unchanged": true,
+          "original_triggers_verified": 100,
+          "status": "PASS_EXACT_DENIED_ROLLBACK_ONLY",
+          "tables_unchanged": 42
+        }
+      ],
+      "qualification_limit": "The pinned child issued exact 42-table application data parity checks and retained typed results and zero-residue outcomes. Per-table application fingerprints were unretained. The 42 native catalog relation rows and complete retained ledger/catalog artifacts were independently replayed.",
+      "qualification_scope": "Two restricted Consent proof denials with matching null or empty contexts on the reviewed Cloud source8 history.",
+      "status": "PASS"
+    }
+  ],
+  "database_posture": "D",
+  "evidence_limit": "The pinned child issued exact 42-table application data parity checks and retained typed results and zero-residue outcomes. Per-table application fingerprints were unretained. The 42 native catalog relation rows and complete retained ledger/catalog artifacts were independently replayed.",
+  "input_files_sha256": {
+    "acceptance.json": "542c223ec6877a69088a7cff39de4f0c6e21c6dfa4420fbb6b60848e0b3d7421",
+    "attempt.json": "83ed2046719c4fe7d6016dbc491de8b278ccb25f1ac502194063df4b3f52cb5b",
+    "created-container.json": "b6a16c13a1fcc65c67eba877cc4c8af51c5c762ed3b5497a641d7014d601f88e",
+    "created-volume.json": "38d04d9b3677f21690f6a73e0cef89e9431fbdbdc5be200dc99a9fd89e2b82fc",
+    "evidence/initial-acl-preflight.json": "9c4512f14956c11adbc1f7182bcba9f43baac2025a3f4d5e874e06b02815ba66",
+    "evidence/initial-after-noop-fingerprints.json": "ad006b906ebf69c1743bdd7d4fb0ff6a6cbf48502657a6aac2976a1a28bb5ac3",
+    "evidence/initial-before-noop-fingerprints.json": "ad006b906ebf69c1743bdd7d4fb0ff6a6cbf48502657a6aac2976a1a28bb5ac3",
+    "evidence/initial-catalog-comparison.json": "8f279c95d57ee0a6f44129124f550a6f54b1cfc8f13d10cadafd41124eec5a9e",
+    "evidence/initial-ledger-comparison.json": "ed4a2c2180395fe59d0baddfdfd933e61a2fef008676ea45dad65469768352ad",
+    "evidence/initial-ledger-evidence.json": "13d65034371a0a852da4e41e194fae494c31794b60da2b23c5f5b13712f93b40",
+    "evidence/initial-ledger-observation.json": "aa7e964a1096fa212f7b2bc75f52c48bcb4a83e5cb6057784874bb0e40bd1039",
+    "evidence/initial-ledger-registration.json": "77d3b7fa4fac165e520025006318b63827dea94e566f20d0da179129cc7a804d",
+    "evidence/initial-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-native-after-oracle.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-oracle-closure.json": "37600f840b4c617ff853558baa8902773e645ce937e2f19318513649c29ab112",
+    "evidence/initial-oracle-evidence.json": "f85292f21cf47955189f692bc867b1701f8fcfb904a6ce8973e50bd242c4cef5",
+    "evidence/initial-oracle-preflight.json": "cef8ce63dddadfc4dda47ffa928cd942e97a0639a213d5383e0dcb032c64bfc5",
+    "evidence/initial-oracle-results.json": "c0997279c5d95544aeb998da487ea4771bab08238a36e8d63ff2a62378c2c14a",
+    "evidence/initial-text-preflight.json": "6a211a9dc2c830d3e8efaa0f2b385082444a537ad0b7c0a0d9ea72b2c773465a",
+    "evidence/noop-catalog-comparison.json": "8f279c95d57ee0a6f44129124f550a6f54b1cfc8f13d10cadafd41124eec5a9e",
+    "evidence/noop-consent-after-fingerprints.json": "ad006b906ebf69c1743bdd7d4fb0ff6a6cbf48502657a6aac2976a1a28bb5ac3",
+    "evidence/noop-consent-after-ledger-evidence.json": "13d65034371a0a852da4e41e194fae494c31794b60da2b23c5f5b13712f93b40",
+    "evidence/noop-consent-immutable-results.json": "278f283d65d315fcac8c7218d3b23b1c1d11b157305567bef479a17f8eb7d766",
+    "evidence/noop-consent-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-consent-native-after.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-ledger-comparison.json": "ed4a2c2180395fe59d0baddfdfd933e61a2fef008676ea45dad65469768352ad",
+    "evidence/noop-ledger-evidence.json": "13d65034371a0a852da4e41e194fae494c31794b60da2b23c5f5b13712f93b40",
+    "evidence/noop-ledger-observation.json": "aa7e964a1096fa212f7b2bc75f52c48bcb4a83e5cb6057784874bb0e40bd1039",
+    "evidence/noop-ledger-registration.json": "77d3b7fa4fac165e520025006318b63827dea94e566f20d0da179129cc7a804d",
+    "evidence/noop-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/pre-activation-ledger-evidence.json": "13d65034371a0a852da4e41e194fae494c31794b60da2b23c5f5b13712f93b40",
+    "evidence/pre-activation-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/pre-activation-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/run-evidence.json": "a2382e4fc838703514a4821e193dc26dc7b7377c9c64519ea2dccdc2e3369b3d",
+    "evidence/two-history-results.json": "1cee0aded5022b6addfa953f0ab651472866ad64204dbb28a01f30af0c7a1812",
+    "independent-closure.json": "158f8d9b75404e4ee628339d197f73b1d32b77514993a55e194503efdaa3850c",
+    "literal-review.json": "d2e9e1aac1d21f8113370c67c36726c38e653ecb5f92c9e2304e3673dc532698",
+    "operation-exit.json": "09df0c5d47db6118a7e2acdddb00dca7b9b57bdfb2995a4b950f9a6ce66825f6",
+    "operation.json": "58ac8f2f82180db3ddc0bb4fbf8856303cbdc39d05d6ab86fa037ec1e82095c6",
+    "run-manifest.json": "b8d3fe8beadc3a170d0fea44b20fe49cc3d7abaf57ef2cf8d4b1f8f5ed2a98e9",
+    "source-review.json": "6587ba8725da95d216856398a6062ec9c73319aeb3cc05492e7f6b9841c670d0"
+  },
+  "migration_history": [
+    "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7"
+  ],
+  "native_and_ledger": {
+    "all_eight_ledger_column_names": [
+      "applied_steps_count",
+      "checksum",
+      "finished_at",
+      "id",
+      "logs",
+      "migration_name",
+      "rolled_back_at",
+      "started_at"
+    ],
+    "complete_native_snapshots_identical": true,
+    "expected_catalog_sha256": "cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4",
+    "expression_observations_revalidated": 416,
+    "full8_fingerprint_file_sha256": "ad006b906ebf69c1743bdd7d4fb0ff6a6cbf48502657a6aac2976a1a28bb5ac3",
+    "full8_ledger_fingerprints_unchanged_through_consent": true,
+    "genuine_applied_rows": 2,
+    "ledger_checks_replayed_each": 22,
+    "ledger_observation_identical_through_consent": true,
+    "ledger_replay_phases": [
+      "pre-activation",
+      "initial",
+      "noop",
+      "post-consent"
+    ],
+    "native_catalog_sha256": "c795fa7d78516e6b39c3e8995bcbace8ac31bef66704b8e360b767c639e711dc",
+    "native_checks_replayed": 29089,
+    "native_relation_rows_compared": 42,
+    "native_snapshot_count": 9,
+    "post_consent_oracle_evidence_scope": "INITIAL_416_REUSED_AFTER_EXACT_NATIVE_PARITY",
+    "source_migrations": [
+      {
+        "count": 1,
+        "migration_name": "20261117000100_f0_local_initial",
+        "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261117000100_f0_local_initial/migration.sql",
+        "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "state": "applied"
+      },
+      {
+        "count": 1,
+        "migration_name": "20261120000100_f0_runtime_lease_branch_v1",
+        "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+        "sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+        "state": "applied"
+      }
+    ]
+  },
+  "packet_sha256": "58ac8f2f82180db3ddc0bb4fbf8856303cbdc39d05d6ab86fa037ec1e82095c6",
+  "raw_runtime_result": "PASS_TWO_EMPTY_CONTEXT_ROLLBACK_DENIALS_ONLY",
+  "run_id": "97465adb-9cad-4dca-870b-7d5e77570960",
+  "schema": "workinants.cloud-consent-empty-context-qualified-evidence.v1",
+  "source_commit": "333d07196124a943d6f64015add8ca29cf1ce989",
+  "source_tree": "0a44e4bc2239b87c2bc4adb63bbad94b0eb0ac93"
+}

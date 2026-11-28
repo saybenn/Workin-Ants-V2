@@ -1,0 +1,68 @@
+{
+  "Posture": "D",
+  "actual": {
+    "independent_closure_sha256": "158f8d9b75404e4ee628339d197f73b1d32b77514993a55e194503efdaa3850c",
+    "operator_exit_sha256": "09df0c5d47db6118a7e2acdddb00dca7b9b57bdfb2995a4b950f9a6ce66825f6",
+    "packet_sha256": "58ac8f2f82180db3ddc0bb4fbf8856303cbdc39d05d6ab86fa037ec1e82095c6",
+    "raw_child_sha256": "278f283d65d315fcac8c7218d3b23b1c1d11b157305567bef479a17f8eb7d766",
+    "run_id": "97465adb-9cad-4dca-870b-7d5e77570960",
+    "source_commit": "333d07196124a943d6f64015add8ca29cf1ce989",
+    "source_tree": "0a44e4bc2239b87c2bc4adb63bbad94b0eb0ac93",
+    "verified_archived_raw_files": 41,
+    "verified_input_files_including_receipts": 43
+  },
+  "assertion": {
+    "assertion_id": "control.empty_context",
+    "case_id": "P0C-IMMUTABLE-01",
+    "expected_assertion_sha256": "d66b619c87e226d08fa575c71b4485f1a6dff355bb8bca2478fca3e77a237fcd",
+    "qualification_limit": "The pinned child issued exact 42-table application data parity checks and retained typed results and zero-residue outcomes. Per-table application fingerprints were unretained. The 42 native catalog relation rows and complete retained ledger/catalog artifacts were independently replayed.",
+    "qualification_scope": "Two restricted Consent proof denials with matching null or empty contexts on the reviewed Cloud source8 history.",
+    "status": "PASS"
+  },
+  "canonical_admission_performed_in_review": false,
+  "checks": {
+    "append_exact_assertions": 1,
+    "append_exact_executions": 1,
+    "application_parity_reported_for_all_42_tables_per_case": true,
+    "both_exact_closed_rollback_controls": [
+      "null-context",
+      "empty-context"
+    ],
+    "closed_raw_graph_rechecked_at_finalization": true,
+    "empty_registered_global_consent_contexts": true,
+    "exact_issuer_grants": [
+      3,
+      6
+    ],
+    "expected_case_status_after_admission": "PARTIAL",
+    "focused_offline_tests_passed": 5,
+    "immutable_grant_columns": 21,
+    "in_memory_append_preserves_existing_assertions": 733,
+    "in_memory_append_preserves_existing_executions": 17,
+    "native_catalog_relation_rows_independently_replayed": 42,
+    "raw_application_fingerprints_retained": false,
+    "same_daemon_exact_cleanup_verified": true,
+    "verified_child_operations": 48
+  },
+  "decision": "APPROVE_EXACT_ONE_ASSERTION_ADMISSION_READER",
+  "files_sha256": {
+    "scripts/check-local-f0-cloud-consent-evidence.py": "70b6fbec85e5ef9bd37df8c3131ae664aca89ac35576ac3ce6c83cc46c20a940",
+    "scripts/local_f0_cloud_consent_evidence.py": "c0090ae7f215c08ba1aa8962c7fe7f4096c1e83e7398a865d30576ad98764148"
+  },
+  "findings": [],
+  "nonqualifying_scope": [
+    "global Consent acceptance",
+    "Consent applicability",
+    "other Consent or AgeGate assertions",
+    "release or hosted operation"
+  ],
+  "normalized": {
+    "bytes": 9951,
+    "sha256": "362b3fefa50a74ed07755660e3030f028a65cf8ea258f45b287ce9e126366933"
+  },
+  "operational_authority": false,
+  "reviewed_at_utc": "2026-11-28T05:24:52.567135+00:00",
+  "reviewer": "/root/pending_packets",
+  "schema": "workinants.cloud-consent-empty-context-admission-source-review.v1",
+  "source_author": "/root/two_history_guard"
+}

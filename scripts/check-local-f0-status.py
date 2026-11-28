@@ -5,6 +5,7 @@ import runpy
 import unittest
 from unittest.mock import patch
 from local_f0_cloud_app_evidence import is_reference as app_reference
+from local_f0_cloud_consent_evidence import is_reference as consent_reference
 from local_f0_cloud_csp9e633e3f_evidence import ASSERTION as CSP_ASSERTION, CASE as CSP_CASE, is_reference as csp_reference
 ROOT=Path(__file__).resolve().parents[1]
 build=runpy.run_path(str(ROOT/'scripts/prepare-local-f0-status.py'))['build']
@@ -47,6 +48,8 @@ class StatusTests(unittest.TestCase):
         self.assertIn(len(self.csp_rows),(0,1))
         self.app_rows = [row for row in ledger['assertions'] if app_reference(row)]
         self.assertIn(len(self.app_rows), (0, 2))
+        self.consent_rows = [row for row in ledger['assertions'] if consent_reference(row)]
+        self.assertIn(len(self.consent_rows), (0, 1))
         expected={(row['case_id'],row['assertion_id']) for row in ledger['assertions'] if row['evidence_path']=='context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json'}
         self.assertEqual(len(expected),388)
         self.native_complete_calls=[];test=self
@@ -209,9 +212,11 @@ class StatusTests(unittest.TestCase):
         self.assertEqual(result['selected_cases'],94)
         csp_added=len(self.csp_rows)
         app_added = len(self.app_rows)
+        consent_added = len(self.consent_rows)
         app_case_pass = int(app_added > 0)
-        self.assertEqual(result['assertion_status_counts'],{'PASS': 695+csp_added+app_added, 'PARTIAL': 35, 'FAILED': 0, 'DEPENDENCY_BLOCKED': 32, 'NOT_RUN': 265-csp_added-app_added, 'UNRESOLVED_SOURCE': 7})
-        self.assertEqual(result['case_status_counts'],{'PASS': 9+app_case_pass, 'PARTIAL': 79+csp_added-app_case_pass, 'FAILED': 0, 'DEPENDENCY_BLOCKED': 0, 'NOT_RUN': 6-csp_added})
+        added = csp_added+app_added+consent_added
+        self.assertEqual(result['assertion_status_counts'],{'PASS': 695+added, 'PARTIAL': 35, 'FAILED': 0, 'DEPENDENCY_BLOCKED': 32, 'NOT_RUN': 265-added, 'UNRESOLVED_SOURCE': 7})
+        self.assertEqual(result['case_status_counts'],{'PASS': 9+app_case_pass, 'PARTIAL': 79+csp_added+consent_added-app_case_pass, 'FAILED': 0, 'DEPENDENCY_BLOCKED': 0, 'NOT_RUN': 6-csp_added-consent_added})
         csp=next(c for c in result['cases'] if c['id']==CSP_CASE)
         self.assertEqual(csp['status'],'PARTIAL' if csp_added else 'NOT_RUN')
         self.assertEqual([a['id'] for a in csp['assertions'] if a['status']=='PASS'],[CSP_ASSERTION] if csp_added else [])
@@ -345,6 +350,6 @@ class StatusTests(unittest.TestCase):
             if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json','local-f0-native-access-0a29cf6-495976eb-execution.json','local-f0-owner-da5ad66-72934689-qualified-evidence.json','local-f0-lease-da5ad66-a560e05b-qualified-evidence.json','local-f0-native-1110fa4-4c894dba-qualified-evidence.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
             return original(path,*args,**kwargs)
         with patch.object(Path,'read_text',second_read_trap):result=build()
-        self.assertEqual(result['assertion_status_counts']['PASS'],695+len(self.csp_rows)+len(self.app_rows))
+        self.assertEqual(result['assertion_status_counts']['PASS'],695+len(self.csp_rows)+len(self.app_rows)+len(self.consent_rows))
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -12040,6 +12040,22 @@
       "json_pointer": "/claims/1",
       "qualification_scope": "Restricted App changed only next-attempt time on its separate genuinely scheduled pending work item.",
       "qualification_limit": "SOURCE8_SYNTHETIC_RESTRICTED_SQL_CRITERION_ONLY"
+    },
+    {
+      "case_id": "P0C-IMMUTABLE-01",
+      "assertion_id": "control.empty_context",
+      "status": "PASS",
+      "expected_assertion_sha256": "d66b619c87e226d08fa575c71b4485f1a6dff355bb8bca2478fca3e77a237fcd",
+      "run_id": "97465adb-9cad-4dca-870b-7d5e77570960",
+      "source_commit": "333d07196124a943d6f64015add8ca29cf1ce989",
+      "source_tree": "0a44e4bc2239b87c2bc4adb63bbad94b0eb0ac93",
+      "packet_sha256": "58ac8f2f82180db3ddc0bb4fbf8856303cbdc39d05d6ab86fa037ec1e82095c6",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "evidence_path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/consent-97465adb/qualified-evidence.json",
+      "evidence_sha256": "362b3fefa50a74ed07755660e3030f028a65cf8ea258f45b287ce9e126366933",
+      "json_pointer": "/claims/0",
+      "qualification_scope": "Two restricted Consent proof denials with matching null or empty contexts on the reviewed Cloud source8 history.",
+      "qualification_limit": "The pinned child issued exact 42-table application data parity checks and retained typed results and zero-residue outcomes. Per-table application fingerprints were unretained. The 42 native catalog relation rows and complete retained ledger/catalog artifacts were independently replayed."
     }
   ],
   "executions": [
@@ -12250,6 +12266,16 @@
       "evidence_sha256": "3c89b789402a2f257307e03938e208525165448804991912dececd461b37fc4e",
       "actual_result": "DERIVED_REVIEWED_CLOUD_SOURCE8_TWO_APP_WRITE_ASSERTIONS_ONLY",
       "qualification_scope": "SOURCE8_SYNTHETIC_RESTRICTED_SQL_CRITERION_ONLY"
+    },
+    {
+      "run_id": "97465adb-9cad-4dca-870b-7d5e77570960",
+      "source_commit": "333d07196124a943d6f64015add8ca29cf1ce989",
+      "source_tree": "0a44e4bc2239b87c2bc4adb63bbad94b0eb0ac93",
+      "packet_sha256": "58ac8f2f82180db3ddc0bb4fbf8856303cbdc39d05d6ab86fa037ec1e82095c6",
+      "evidence_path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/consent-97465adb/qualified-evidence.json",
+      "evidence_sha256": "362b3fefa50a74ed07755660e3030f028a65cf8ea258f45b287ce9e126366933",
+      "actual_result": "DERIVED_REVIEWED_CLOUD_CONSENT_EMPTY_CONTEXT_ASSERTION_ONLY",
+      "qualification_scope": "Two restricted Consent proof denials with matching null or empty contexts on the reviewed Cloud source8 history."
     }
   ],
   "scope": "EXACT_ASSERTION_LINKS_NOT_WHOLE_CASE_PROMOTION"
