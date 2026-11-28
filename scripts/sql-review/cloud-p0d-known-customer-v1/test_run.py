@@ -2,10 +2,13 @@
 
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace as NS
 import unittest
+from unittest.mock import patch
 
 import prior
 import proof
@@ -74,6 +77,19 @@ def observe(rows, nodes):
 
 
 class ProofTests(unittest.TestCase):
+    def test_pinned_smoke_source_can_be_read_with_an_old_access_time(self):
+        raw = b"verified = True\n"
+        with TemporaryDirectory() as directory:
+            source = Path(directory) / run.SMOKE
+            source.parent.mkdir(parents=True)
+            source.write_bytes(raw)
+            os.utime(source, ns=(0, source.stat().st_mtime_ns))
+            with patch.object(run, "SMOKE_SHA", S.sha(raw)):
+                self.assertTrue(run.load_smoke(Path(directory)).verified)
+                source.write_bytes(b"verified = False\n")
+                with self.assertRaisesRegex(ValueError, run.INPUT):
+                    run.load_smoke(Path(directory))
+
     def test_exact_all_modes(self):
         for index, mode in enumerate(proof.MODES):
             value = response(mode, 100 + index * 10)

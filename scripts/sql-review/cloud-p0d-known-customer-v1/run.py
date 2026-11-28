@@ -68,6 +68,10 @@ def checkout(override=None, *, draft):
 
 
 def load_smoke(root):
+    def stable_identity(info):
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_nlink, info.st_uid, info.st_gid,
+                info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
     path = root / SMOKE
     before = path.lstat()
     if path.resolve(strict=True) != path or not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
@@ -76,7 +80,8 @@ def load_smoke(root):
         opened = os.fstat(stream.fileno())
         raw = stream.read(128 * 1024 + 1)
         finished = os.fstat(stream.fileno())
-    if before != opened or before != finished or before != path.lstat() or len(raw) != before.st_size:
+    if len(raw) != before.st_size or any(stable_identity(info) != stable_identity(before)
+                                         for info in (opened, finished, path.lstat())):
         raise ValueError(INPUT)
     if hashlib.sha256(raw).hexdigest() != SMOKE_SHA:
         raise ValueError(INPUT)
