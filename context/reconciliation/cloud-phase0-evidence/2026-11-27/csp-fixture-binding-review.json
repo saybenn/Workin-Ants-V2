@@ -1,0 +1,17 @@
+{
+  "schema": "workinants.cloud-csp-fixture-binding-review.v1",
+  "reviewer": "/root/cloud_review_prep",
+  "decision": "APPROVE_SOURCE_ONLY",
+  "findings": [],
+  "prior_stop": "csp-1fc203db/stop.json",
+  "files_sha256": {
+    "scripts/sql-review/cloud-customer-stale-predecessor-owned-v2/cloud_host.py": "5e459a37e9655995498aa72e23adcf58829656295f200a54c893c675c96cdcdd",
+    "scripts/sql-review/cloud-customer-stale-predecessor-owned-v2/test_prepare.py": "c93fe47fc33ae8db9ea1b4e0cca6c40c0ee0a94ee13457b49a529ec87cf8280d"
+  },
+  "focused_checks_passed": 12,
+  "offline_observation": "The prior adapter omitted the verified fixture at CSP_STATE.packet. Replaying the real old evidence writer raised KeyError before file creation, then reported the same bounded persistence refusal. The new binding retains the validated fixture, first writes the expected evidence and reaches the first modeled owner-only closure query.",
+  "runtime": "NOT_RUN",
+  "assertion_promotions": 0,
+  "Posture": "D",
+  "limits": "The source-level missing binding is proven by exact offline reproduction. The earlier actual run retained the bounded EVIDENCE stop and independently audited starter-prefix evidence. The three Customer controls still need a fresh literal-reviewed operation."
+}

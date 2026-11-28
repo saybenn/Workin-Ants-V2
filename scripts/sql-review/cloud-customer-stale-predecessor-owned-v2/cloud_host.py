@@ -562,7 +562,7 @@ def bind(host, plan, assets, blobs, guard, docker, folder, plan_raw, review_sha)
                 safe_codes.update(node.value for node in ast.walk(ast.parse(blobs[rel]))
                                   if isinstance(node, ast.Constant) and type(node.value) is str
                                   and re.fullmatch("[A-Z][A-Z0-9_]{0,95}", node.value))
-        host.CSP_STATE.update(child_module=module, child_admission=(fixture, sql, blobs, ctx, protocol),
+        host.CSP_STATE.update(packet=fixture, child_module=module, child_admission=(fixture, sql, blobs, ctx, protocol),
                               safe_codes=safe_codes, child_artifact_hashes=child_artifacts)
         host.SAFE_FILES.update({
             "customer-stale-native-attestation.json", "customer-stale-run-plan.json",

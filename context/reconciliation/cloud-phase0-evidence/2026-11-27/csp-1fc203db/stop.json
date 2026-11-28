@@ -1,0 +1,55 @@
+{
+  "schema": "workinants.cloud-csp-stopped-normalized.v1",
+  "operation_run_id": "1fc203db-8bb8-4f4a-a464-f438d6015419",
+  "fixture_run_id": "0ccea438-8746-4043-9053-07795f34bbef",
+  "source_commit": "ea2e9f3cdf79514e79b43514676527720f4c097a",
+  "source_tree": "290e88232c466e55f97b3365de8f76bfcb403991",
+  "files_sha256": {
+    "evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "evidence/catalog-comparison.json": "edae18fa298beff66f2df65cfc7131904aeed6f8a89e6dddb8b89cd53006f633",
+    "evidence/customer-stale-native-attestation.json": "709c28492cba44484877ea501e8ad4d846c9821a7ea191c36fc0f7af2889809c",
+    "evidence/customer-stale-run-plan.json": "7cd3de99e1bdcdc9dba7c51fe03378d2eeeb6de4435a4d1f2a7a14222f4b5f7f",
+    "evidence/ledger-evidence.json": "1199f18fc9c0c4f09b8438c05cd663dca8fce6003da77fdd96bc97589f379dfe",
+    "evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "evidence/ledger-registration.json": "7a1ce0bdc029ba23c38ea7f635f32997341f26d072e6e84938113448529f0fa2",
+    "evidence/native-after-ledger.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "evidence/native-after-oracle.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "evidence/native-before.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "evidence/oracle-evidence.json": "0bd7c39f920c7088adcdc77658022e2b78ca49ae6f84b3de205ab696f5827b12",
+    "evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "evidence/run-evidence.json": "e52ead29b13f5143c11311d60c26c0d6c6dc88932d8c2e0006d1b2af0820e9d1",
+    "evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "independent-closure.json": "2d7cd4309158dd1c22734fa39626a64da42fa802fbe968dccf5fb742bd297a3f",
+    "independent-review.json": "ff3352eba3da3fcb888cb326fae07d4c575b8229a97a4cd214b3c29b98d46e85",
+    "operation-plan.json": "be4606b62b596dafc860fd807e3489727c065e97bd345bbe50393045b417c4c9"
+  },
+  "first_stop": {
+    "stage": "EVIDENCE",
+    "code": "PERSISTENCE_UNCONFIRMED"
+  },
+  "operator_exit_code": 1,
+  "parent_evidence_complete": false,
+  "independently_reproduced_prefix": {
+    "exact_copied_source_files": 7,
+    "restricted_login_controls": 6,
+    "initial_prisma_deploy": "PASS",
+    "sole_applied_initial_migration": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "original_grantor_finalization": "PASS",
+    "native_catalog_checks": 29089,
+    "rollback_expression_observations": 416,
+    "ledger_checks": 22,
+    "same_native_snapshot_across_oracle_ledger": true
+  },
+  "qualification": {
+    "customer_component_constructor": "NOT_RUN",
+    "customer_baseline": "NOT_RUN",
+    "three_predecessor_controls": "NOT_RUN",
+    "post_customer_component_proof": "NOT_RUN",
+    "P0C-CAS-01/control.stale_predecessor": "NOT_RUN"
+  },
+  "limits": "Passed exact initial-migration machinery and same-target read-only prefix. The absent component artifact and invalid final reference leave the overall attempt stopped. Complete OS-level persistence cause was not retained. Allocation closure was independently confirmed.",
+  "Posture": "D",
+  "assertion_promotions": 0
+}

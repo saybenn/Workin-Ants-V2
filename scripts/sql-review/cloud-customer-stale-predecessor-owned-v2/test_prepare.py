@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path, PurePosixPath
+import socket
 import stat
 import subprocess
 import tempfile
@@ -181,6 +182,58 @@ class Preparation(unittest.TestCase):
         for record, reason in cases:
             with self.assertRaisesRegex(ValueError, "^" + reason + "$"):
                 cloud_host.validate_copied_inventory(record, files)
+
+    def test_real_child_writes_initial_evidence_and_reaches_modeled_closure_query(self):
+        _, plan, assets = self.model_plan()
+        profile = prepare.parse(self.blobs[f"{prepare.PROFILE}/profile.json"])
+        docker = SimpleNamespace(profile=profile, argv=lambda *args: ["MODELED", *args], env={})
+        host = operate.controller(self.blobs)
+        attempted = []
+        container_id = "a" * 64
+
+        class ModeledBoundary(Exception):
+            pass
+
+        def first_query(args, payload, _timeout, **_options):
+            self.assertEqual(args[0:3], ["MODELED", "exec", "-i"])
+            self.assertIn(container_id, args)
+            self.assertEqual(args[args.index("-U") + 1], "postgres")
+            self.assertIn(b"pg_stat_activity", payload)
+            attempted.append("global-closure")
+            raise ModeledBoundary()
+
+        host.binary_process = first_query
+        with tempfile.TemporaryDirectory() as temp, patch.object(
+            subprocess, "Popen", side_effect=AssertionError("PROCESS_FORBIDDEN"),
+        ), patch.object(socket.socket, "connect", side_effect=AssertionError("NETWORK_FORBIDDEN")):
+            folder = Path(temp)
+            host = cloud_host.bind(host, plan, assets, self.blobs, None, docker, folder, prepare.encode(plan), "f" * 64)
+            host.OUT.mkdir(mode=0o700)
+            host.verify_catalog_packet = lambda: None
+            host.verify_csp_packet()
+            fixture, sql, blobs, context, protocol = host.CSP_STATE["child_admission"]
+            module = host.CSP_STATE["child_module"]
+            artifact = host.OUT / host.COMPONENT_ARTIFACT
+
+            broken = module["Evidence"](host.csp_child_writer)
+            del host.CSP_STATE["packet"]
+            self.assertFalse(broken.save())
+            self.assertEqual(broken.value["first_failure"], {"stage": "EVIDENCE", "code": "PERSISTENCE_UNCONFIRMED"})
+            self.assertFalse(artifact.parent.exists())
+            self.assertEqual(attempted, [])
+
+            host.verify_csp_packet()
+            self.assertIs(host.CSP_STATE["packet"], fixture)
+            evidence = module["Evidence"](host.csp_child_writer)
+            self.assertTrue(evidence.save())
+            self.assertEqual(prepare.parse(artifact.read_bytes()), evidence.value)
+            self.assertTrue(host.bounded_component_reference(artifact, {"present": None})["evidence_complete"])
+            native = prepare.parse(self.blobs["tests/offline/customer-stale-predecessor-v1/native-before.json"])
+            host.created_containers[host.TARGETS[0]["name"]] = container_id
+            coordinator = module["coordinator_class"](context, protocol)(fixture, sql, blobs, container_id, native, evidence)
+            with self.assertRaises(ModeledBoundary):
+                coordinator.setup()
+            self.assertEqual(attempted, ["global-closure"])
 
     def test_modeled_bootstrap_runs_only_after_both_resource_checks(self):
         folder, plan, assets = self.model_plan()

@@ -1,0 +1,111 @@
+{
+  "format": "workinants.catalog-comparison.v1",
+  "status": "PASS",
+  "case_id": "P0C-CATALOG-01",
+  "source_expected_sha256": "3be81a13d3bb2abb41bf03ef68398da6d92fbdbccffec3d74508e91dd455f433",
+  "native_snapshot_sha256": "7f183bd1a745933de51f5d3f1798fbc01885ad7a2cde34c347160e61a8199303",
+  "check_counts": {
+    "PASS": 29089
+  },
+  "findings": [],
+  "database_contacted_by_comparator": false,
+  "database_posture": "D",
+  "pg17_rule_release": "REL_17_11",
+  "pg17_rule_sources": {
+    "foreign_key_inheritance_and_trigger_matrix": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/tablecmds.c",
+      "ranges": [
+        "9568-9619",
+        "11309-11463",
+        "11594-11794"
+      ],
+      "symbols": [
+        "addFkConstraint",
+        "transformFkeyCheckAttrs",
+        "CreateFKCheckTrigger",
+        "createForeignKeyActionTriggers"
+      ]
+    },
+    "index_constraint_inheritance_and_deferred_trigger": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/index.c",
+      "ranges": [
+        "1819-1864",
+        "1888-1914"
+      ],
+      "symbols": [
+        "index_constraint_create"
+      ]
+    },
+    "dependent_type_acl": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/pg_type.c",
+      "ranges": [
+        "315-325",
+        "383-394"
+      ],
+      "symbols": [
+        "TypeCreate"
+      ]
+    },
+    "type_acl_defaults_and_owner_flags": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/adt/acl.c",
+      "ranges": [
+        "816-820",
+        "840-861"
+      ],
+      "symbols": [
+        "acldefault"
+      ]
+    },
+    "array_effective_usage_delegation": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/aclchk.c",
+      "ranges": [
+        "2301-2316",
+        "3592-3617"
+      ],
+      "symbols": [
+        "ExecGrant_Type_check",
+        "pg_type_aclmask_ext"
+      ]
+    },
+    "user_constraint_trigger_catalog_row_and_internal_names": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/trigger.c",
+      "ranges": [
+        "754-803",
+        "813-868",
+        "978-1055"
+      ],
+      "symbols": [
+        "CreateTriggerFiringOn"
+      ]
+    },
+    "pinned_dependencies_are_omitted": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/pg_depend.c",
+      "ranges": [
+        "98-106"
+      ],
+      "symbols": [
+        "recordMultipleDependencies"
+      ]
+    },
+    "pinned_object_classification": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/catalog.c",
+      "ranges": [
+        "317-372"
+      ],
+      "symbols": [
+        "IsPinnedObject"
+      ]
+    },
+    "release_pinned_trigger_functions": {
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/include/catalog/pg_proc.dat",
+      "ranges": [
+        "3743-3789"
+      ],
+      "symbols": [
+        "unique_key_recheck",
+        "RI_FKey_*"
+      ]
+    }
+  },
+  "limit": "Public owner baseline and genuine Prisma ledger require separate reviewed evidence; unresolved expression hashes remain INCOMPLETE. Array effective USAGE follows verified element ACL; generated-type rows compare the collector default-ACL projection."
+}
