@@ -1,0 +1,15 @@
+BEGIN;
+ALTER TABLE app.users DISABLE TRIGGER owner_commit;
+ALTER TABLE app.user_security_profiles DISABLE TRIGGER owner_commit;
+ALTER TABLE app.track_plans DISABLE TRIGGER owner_commit;
+INSERT INTO app.users (id,is_public,revision,privacy_generation,created_at,updated_at) VALUES ('4b860286-670b-5db0-b416-d44c384f936b',FALSE,0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.user_security_profiles (id,user_id,revision,security_generation,created_at,updated_at) VALUES ('20b141fb-4024-5ebe-8538-c105af54e655','4b860286-670b-5db0-b416-d44c384f936b',0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.track_plans (id,track,key,name,status,billing_model,version,content_hash,updated_at) VALUES ('d1ec3994-7360-5033-ae7a-632d8acda915','customer','worker-control-synthetic-free','Synthetic SQL test only','active','free','worker-control-synthetic.v1','a49b9655d7a26d743969acf3013d48cfe86a97f7cc4696333706f5d26daa5944',clock_timestamp());
+INSERT INTO app.users (id,is_public,revision,privacy_generation,created_at,updated_at) VALUES ('075d7ed9-b5c3-5939-a807-9fa238c115ff',FALSE,0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.user_security_profiles (id,user_id,revision,security_generation,created_at,updated_at) VALUES ('b1d247d5-6250-5f7d-bfa8-952705596978','075d7ed9-b5c3-5939-a807-9fa238c115ff',0,0,clock_timestamp(),clock_timestamp());
+INSERT INTO app.track_plans (id,track,key,name,status,billing_model,version,content_hash,updated_at,currency,monthly_price_cents) VALUES ('aeb3144a-8c21-5046-9582-a3bef344907d','customer','f0-retained-manual-shape','F0 synthetic paid-shaped Track plan','active','subscription','f0-retained-manual-shape.v1','cfcb4d8891de392f0e8fad2136e9fd33baccc43e6651b74490bce931167fd3e4',clock_timestamp(),'USD',1);
+SET CONSTRAINTS ALL IMMEDIATE;
+ALTER TABLE app.track_plans ENABLE TRIGGER owner_commit;
+ALTER TABLE app.user_security_profiles ENABLE TRIGGER owner_commit;
+ALTER TABLE app.users ENABLE TRIGGER owner_commit;
+COMMIT;

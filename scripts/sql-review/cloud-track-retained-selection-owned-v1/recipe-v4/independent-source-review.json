@@ -1,0 +1,76 @@
+{
+  "assertion_promotions": 0,
+  "candidate_source_review_sha256": "88dd682505df6b3d52a39c9eab9ceda75fc7dee04f35849d5596ff605c5f802d",
+  "checks": {
+    "complete_state_observer_table_count": 42,
+    "corrected_templates_accepted_with_identical_capability_membership_and_neighbor_fields": 8,
+    "exact_distinct_track_cases": [
+      "retained-free",
+      "retained-paid-shape"
+    ],
+    "exact_manifest_payload_files": 24,
+    "exact_pinned_repository_sources": 17,
+    "exact_rebuilt_generator_outputs_without_process_or_network": 22,
+    "exact_v3_v4_sql_leaves": 21,
+    "expected_retained_stage_exact_row_count_delta": {
+      "app.track_enrollment_receipt": 1,
+      "platform.database_action_grant": 1,
+      "platform.runtime_attempt": 1,
+      "platform.runtime_command_receipt": 1,
+      "platform.runtime_effect_receipt": 1,
+      "platform.runtime_inbox_receipt": 1,
+      "platform.runtime_work_item": 0
+    },
+    "expected_retained_stage_grants_history_and_usage_start_empty": true,
+    "expected_retained_stage_work_update_columns": [
+      "effect_receipt_id",
+      "mutation_transaction_id"
+    ],
+    "offline_original_issuer_validator_tests_pass": 3,
+    "old_source_customer_templates_refused": 2,
+    "pinned_parser": {
+      "files_aggregate_sha256": "1a7cbf682ef26b37a35b8668daf2bdd0c2ff4b2bf79782c3a0b5a0bf674e45e4",
+      "version": "v7.21"
+    }
+  },
+  "decision": "APPROVE_HELD_SOURCE_PREPARATION",
+  "expected_catalog_file_sha256": "df3197e77f3d4c540417c371f8bcd4b80d9c6020c8cf03cc7a18ce23379e8359",
+  "expected_effective_catalog_sha256": "59a6a99a96748b72d8d639977c457857058777bf99346afb59804df926c107a9",
+  "findings": [],
+  "generator_sha256": "7933b4d06496f3a9207e6f6fc4fb6f8d61b3c68463a2e078968ca6bc2f4b31a6",
+  "limits": [
+    "Actual owner fixture seeding, migration application, restricted transactions, native/ledger/cleanup proofs and tool/operation approval are separately required.",
+    "The append is a separately reviewed candidate, and the effective catalog fingerprint is expected source, not an actual catalog observation.",
+    "Track grant, history and usage start empty. The recipes can show no new rows in those tables.",
+    "The paid-shaped fixture is nominal, with no actual provider or billing qualification.",
+    "The Customer subscription validity update race and additional adversarial Track controls are outside this review.",
+    "The inherited worker-attempt label is diagnostic; only exact typed command/effect/enrollment/inbox receipt checks can support a business result."
+  ],
+  "operational_authority": false,
+  "ordered_migrations": [
+    {
+      "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261117000100_f0_local_initial/migration.sql",
+      "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad"
+    },
+    {
+      "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+      "sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7"
+    },
+    {
+      "path": "review-output/track-retained-base-candidate-v1/migration.sql",
+      "sha256": "ae7b94aae1689b54d6da0b9443b2512087018270774124f2b1d012f65f6ddcdb"
+    }
+  ],
+  "original_validator_regression_sha256": "457d63a3eee1a9b0cb882acf8e83e5ff7e3a7ba29f7f306dfaf0e838f4c1e74b",
+  "packet_manifest_sha256": "642d361d24b0c87aee8a11539ade9e85795e40a0802a6a9c54f4c21182a88a26",
+  "packet_proof_sha256": "93aaad3108c339b1e8b3da64b6b32abe1f763da09b7a073e8f7df5197c6430a5",
+  "posture": "D",
+  "preserved_v3_manifest_sha256": "2686d9008703c5676d4a9f083d76d78d74434404f17c1b635d0f89d5d06ad483",
+  "preserved_v3_proof_sha256": "9e08ceec61b05073863c60bf74d6445b423a836e04b97f8c09ff82646cad5d75",
+  "recorded_at_utc": "2026-11-28T05:42:09.034124+00:00",
+  "reviewer": "/root/cloud_review_prep",
+  "runtime": "NOT_RUN",
+  "schema": "workinants.track-retained-base-held-recipe-source-review.v1",
+  "scope": "exact v4 held retained Free and nominal paid-shaped Track recipe source on the isolated three-migration candidate",
+  "source_author": "/root/foundation_gates"
+}
