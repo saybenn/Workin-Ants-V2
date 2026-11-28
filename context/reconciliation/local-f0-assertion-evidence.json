@@ -11992,6 +11992,22 @@
       "json_pointer": "/claims/43",
       "qualification_scope": "Exact finite retrospective V9 SQL privilege subset only.",
       "qualification_limit": "PARTIAL_REPRESENTATIVE_EXECUTION_REACHABILITY_PLUS_COMPLETE_SCHEMA_METADATA_NO_HOSTED_PARITY"
+    },
+    {
+      "case_id": "P0C-CAS-01",
+      "assertion_id": "control.stale_predecessor",
+      "status": "PASS",
+      "expected_assertion_sha256": "72f2d75ee3f9af764982f379f5dc82805531d09dc85f0925f8d7c6ab69795d3e",
+      "run_id": "9e633e3f-9c60-4c6d-a90d-85a368d71500",
+      "source_commit": "a3318b28977740be397d5663880f94c52d05c7dd",
+      "source_tree": "24a012554f2fec2578417080e8c9d4592a24887f",
+      "packet_sha256": "7f47db109ade8949285466d6971327c64e60a1bec4f9d8e5c74a378560fd0728",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "evidence_path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/qualified-evidence.json",
+      "evidence_sha256": "d88498700eccfd4e3bd1b3bf5bd99203e1b7122b11fb3dc847e2cb6af477de38",
+      "json_pointer": "/claims/0",
+      "qualification_scope": "Cloud rehearsal of the three rollback-only Customer predecessor controls.",
+      "qualification_limit": "THREE_ROLLBACK_CONTROLS_ONLY"
     }
   ],
   "executions": [
@@ -12182,6 +12198,16 @@
       "evidence_sha256": "7276e44216dabf7ad2f57f214e88cff3c9ecff27c2ed54c0103b70e8cd325776",
       "actual_result": "PASS_RETROSPECTIVE_EXACT44_PRIVILEGE_ASSERTIONS_ONLY",
       "qualification_scope": "Retrospective exact44 only:43 new plus issuer PARTIAL with full previous_evidence. This wrapper is not another database run."
+    },
+    {
+      "run_id": "9e633e3f-9c60-4c6d-a90d-85a368d71500",
+      "source_commit": "a3318b28977740be397d5663880f94c52d05c7dd",
+      "source_tree": "24a012554f2fec2578417080e8c9d4592a24887f",
+      "packet_sha256": "7f47db109ade8949285466d6971327c64e60a1bec4f9d8e5c74a378560fd0728",
+      "evidence_path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/qualified-evidence.json",
+      "evidence_sha256": "d88498700eccfd4e3bd1b3bf5bd99203e1b7122b11fb3dc847e2cb6af477de38",
+      "actual_result": "DERIVED_REVIEWED_CLOUD_CSP_THREE_ROLLBACK_CONTROLS_ONE_ASSERTION_ONLY",
+      "qualification_scope": "Cloud rehearsal of the three rollback-only Customer predecessor controls."
     }
   ],
   "scope": "EXACT_ASSERTION_LINKS_NOT_WHOLE_CASE_PROMOTION"

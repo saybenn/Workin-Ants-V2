@@ -1,0 +1,164 @@
+{
+  "actual_result": "DERIVED_REVIEWED_CLOUD_CSP_THREE_ROLLBACK_CONTROLS_ONE_ASSERTION_ONLY",
+  "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+  "claims": [
+    {
+      "assertion_id": "control.stale_predecessor",
+      "case_id": "P0C-CAS-01",
+      "controls": [
+        "wrong-predecessor",
+        "skipped-revision",
+        "same-grant-second-source-update"
+      ],
+      "expected_assertion_sha256": "72f2d75ee3f9af764982f379f5dc82805531d09dc85f0925f8d7c6ab69795d3e",
+      "qualification_limit": "THREE_ROLLBACK_CONTROLS_ONLY",
+      "status": "PASS"
+    }
+  ],
+  "database_posture": "D",
+  "derivation": "ONE_ASSERTION_FROM_EXISTING_INDEPENDENTLY_AUDITED_CLOUD_REHEARSAL",
+  "fixture_run_id": "75642d48-a698-4a69-84f9-d1fe013d097a",
+  "input_files_sha256": {
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/attempt.json": "d9f266154df6ae84efb2c5fde329bed3e62292fb8e61879dd2718a15f76c6bc9",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/acl-preflight.json": "b1dffe67c99d83c46073c8db1f5e14bbda1b5dc0ed053be56d56a67a6018f3c8",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/catalog-comparison.json": "edae18fa298beff66f2df65cfc7131904aeed6f8a89e6dddb8b89cd53006f633",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/customer-stale-component-summary.json": "4a1ad30c7943591c2916408de7797c23d38c5136902dfbeaac64eb7f95dcc8e6",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/customer-stale-component/customer-stale-predecessor-results.json": "95fd029dcb26bedb56270a2c356a30e0aaf98a06e5076b26e5cc48f0bc4d59ae",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/customer-stale-native-attestation.json": "a9f405395ae21c9b31dd43eb5bca1f4fb745c8ba87e987f2881619ac992ea540",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/customer-stale-run-plan.json": "13e5796fc9467365c342f8f3a08356cc87be3592022427cfe6ec42601698c5a4",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/ledger-evidence.json": "bd506b9f3156e5e5b912af8c96c698c85b001a259a5abe0b7097b6da7fdd9519",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/ledger-registration.json": "e4be1754c7f7b217e65f114b9c8b54418b79c73386a0be9936b840ff3caa186d",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/native-after-ledger.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/native-after-oracle.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/native-before.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/oracle-evidence.json": "0bd7c39f920c7088adcdc77658022e2b78ca49ae6f84b3de205ab696f5827b12",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-catalog-comparison.json": "edae18fa298beff66f2df65cfc7131904aeed6f8a89e6dddb8b89cd53006f633",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-ledger-evidence.json": "bd506b9f3156e5e5b912af8c96c698c85b001a259a5abe0b7097b6da7fdd9519",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-ledger-observation.json": "5a3d33491366fb9587bcc4a167efa4e38bda170b7b3291c022f28676dbdd94b3",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-native-after-ledger.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-native-after-oracle.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-native-before.json": "24cf2f60e9c6a396d53b8f897b0aa6feea6b8498a1f231eb0241fc6e157d0eb0",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-oracle-closure.json": "89067a06862e197fd49f3aed1e3f18bfc93d6a6c2035f9cdfc85a57036257ab9",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-oracle-evidence.json": "0bd7c39f920c7088adcdc77658022e2b78ca49ae6f84b3de205ab696f5827b12",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-oracle-preflight.json": "e64b96e2f73e7a6d369d61c09301dc7c986c08bcd1cf95af06c6ab9756bcbe66",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-oracle-results.json": "d7f91fb358b73d3f36acde73ec730c41259009c1e0f06931ded2a7d44510f995",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-state-after.json": "351255690b80a99b342a3e9407e22ff2c8ddd3d0dbd6e8a4965dfd127748ee3f",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/post-state-before.json": "351255690b80a99b342a3e9407e22ff2c8ddd3d0dbd6e8a4965dfd127748ee3f",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/run-evidence.json": "151b1d325ece9dc74769d5ed3d960150635c430e4863151f96902da9df245169",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/evidence/text-preflight.json": "176676da1274c55ec6f8800089b61d1c5249c44ed52b3ecfbcf2c8edf6a3cda1",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/independent-closure.json": "ff6b0908716d895cdfc7bcad3a665484b35d529d0cfbb0c5f3e5d55d08511310",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/independent-review.json": "be82d00220579561f3a1a880afc60de61047cccbdbe66c742aafda3ca953f068",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/operation-exit.json": "d826b746e29d7f86ce564c07d81ff1640010b8619ad0b25364a5edc845edd42d",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/csp-9e633e3f/operation-plan.json": "eca80490adb8b2831e69d901d5c6c48fe2bdcacc491aca5fff8ee1d7dd5b57e3",
+    "context/reconciliation/local-f0-assertions.json": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "context/reconciliation/local-f0-source-followups/695-privilege44-admission-20261123/CSP-maxone-admission-Root-ACK.json": "80ed0c1db758ddf5db1a6dbef7a10f8fd609e5d6dae6b01277455a3e9846d4b0",
+    "context/reconciliation/local-f0-source-followups/695-privilege44-admission-20261123/CSP-maxone-admission-plan.FROZEN.json": "0594e9baab44c381f2907643d7b4f65d28ac79268719f8342ad35dd6113dc120"
+  },
+  "limits": {
+    "committed_customer_update": false,
+    "concurrent_winner_qualified": false,
+    "deployment_or_release": false,
+    "hosted_or_production_qualified": false,
+    "migration_adoption": false,
+    "owner_api_qualified": false,
+    "update_result_or_codec_qualified": false,
+    "whole_case_qualified": false,
+    "worker_or_track_qualified": false
+  },
+  "packet_sha256": "7f47db109ade8949285466d6971327c64e60a1bec4f9d8e5c74a378560fd0728",
+  "prior_accepted_board": {
+    "assertion_ledger_path": "context/reconciliation/local-f0-assertion-evidence.json",
+    "assertion_ledger_sha256": "8c285f6ac5cf6579d9ee58e480d64a75fe67034c22661fa1984c35125f9f12d7",
+    "assertion_rows": 730,
+    "builder_path": "scripts/prepare-local-f0-status.py",
+    "builder_sha256": "977ccb4b26d2bcbd3ff8c4bd84e9a7e741dbf642e8c8fb558c423f8d634ad83f",
+    "linked_executions": 15,
+    "mandatory_assertions": 1034,
+    "source_commit": "a3318b28977740be397d5663880f94c52d05c7dd",
+    "status_path": "context/reconciliation/local-f0-qualification-status.json",
+    "status_sha256": "a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a"
+  },
+  "proof": {
+    "actual_executor_exit_code": 0,
+    "completed_rollback_controls": [
+      {
+        "name": "wrong-predecessor",
+        "receipt": {
+          "acknowledged": true,
+          "diagnostic": null,
+          "exact_output": true,
+          "response_received": true,
+          "rollback_acknowledged": true,
+          "shape_valid": true
+        },
+        "status": "PASS_ROLLBACK_CONTROL_ONLY"
+      },
+      {
+        "name": "skipped-revision",
+        "receipt": {
+          "acknowledged": true,
+          "diagnostic": {
+            "bounded_shape": true,
+            "exact_primary": true,
+            "matched": true,
+            "raise_line": true,
+            "source_body": true,
+            "source_function": true,
+            "sqlstate": "P0001"
+          },
+          "exact_output": true,
+          "response_received": true,
+          "rollback_acknowledged": true,
+          "shape_valid": true
+        },
+        "status": "PASS_ROLLBACK_CONTROL_ONLY"
+      },
+      {
+        "name": "same-grant-second-source-update",
+        "receipt": {
+          "acknowledged": true,
+          "diagnostic": {
+            "bounded_shape": true,
+            "exact_primary": true,
+            "matched": true,
+            "raise_line": true,
+            "source_body": true,
+            "source_function": true,
+            "sqlstate": "42501"
+          },
+          "exact_output": true,
+          "response_received": true,
+          "rollback_acknowledged": true,
+          "shape_valid": true
+        },
+        "status": "PASS_ROLLBACK_CONTROL_ONLY"
+      }
+    ],
+    "independent_cleanup_verified": true,
+    "restricted_sh004_create_prerequisite": true,
+    "same_target_post_proof": {
+      "after_state_sha256": "fafe945d42fd8108bc468719861aa05d73c032b3c2b1b2c66e1b3ab58e58aefa",
+      "before_state_sha256": "fafe945d42fd8108bc468719861aa05d73c032b3c2b1b2c66e1b3ab58e58aefa",
+      "child_final_state_sha256": "fafe945d42fd8108bc468719861aa05d73c032b3c2b1b2c66e1b3ab58e58aefa",
+      "independent_tables": 42,
+      "ledger_checks": 22,
+      "native_checks": 29089,
+      "native_sha256": "7f183bd1a745933de51f5d3f1798fbc01885ad7a2cde34c347160e61a8199303",
+      "oracle_expressions": 416,
+      "same_first_install_registration_sha256": "46cab64842c4ecac62286cf3537ed499240624bb25ef520384339c80671164ad",
+      "same_installer_attestation_sha256": "2030b10e5c0ecc7657d41b44707196b265d08055fa901eb7a58a64e941c72524",
+      "second_deploy": false,
+      "status": "PASS_READ_ONLY_SOURCE_BOUND_SUBSET"
+    },
+    "separately_committed_current_issuer_grants": 4
+  },
+  "raw_runtime_result": "PASS_CSP1_THREE_ROLLBACK_CONTROLS_ONLY",
+  "run_id": "9e633e3f-9c60-4c6d-a90d-85a368d71500",
+  "schema": "workinants.cloud-csp9e633e3f-qualified-evidence.v1",
+  "source_commit": "a3318b28977740be397d5663880f94c52d05c7dd",
+  "source_tree": "24a012554f2fec2578417080e8c9d4592a24887f"
+}

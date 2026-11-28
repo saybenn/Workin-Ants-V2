@@ -4,6 +4,7 @@ from pathlib import Path
 import runpy
 import unittest
 from unittest.mock import patch
+from local_f0_cloud_csp9e633e3f_evidence import ASSERTION as CSP_ASSERTION, CASE as CSP_CASE, is_reference as csp_reference
 ROOT=Path(__file__).resolve().parents[1]
 build=runpy.run_path(str(ROOT/'scripts/prepare-local-f0-status.py'))['build']
 
@@ -41,6 +42,8 @@ class StatusTests(unittest.TestCase):
         from local_f0_native_complete_evidence import CLOSED_CLAIMS as NATIVE520
         derived=json.loads((ROOT/'context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json').read_bytes())
         ledger=json.loads((ROOT/'context/reconciliation/local-f0-assertion-evidence.json').read_text())
+        self.csp_rows=[row for row in ledger['assertions'] if csp_reference(row)]
+        self.assertIn(len(self.csp_rows),(0,1))
         expected={(row['case_id'],row['assertion_id']) for row in ledger['assertions'] if row['evidence_path']=='context/reconciliation/local-f0-native-1110fa4-4c894dba-qualified-evidence.json'}
         self.assertEqual(len(expected),388)
         self.native_complete_calls=[];test=self
@@ -201,8 +204,12 @@ class StatusTests(unittest.TestCase):
             return native(*args,**kwargs)
         with patch.dict(namespace,validate_restricted_claim=restricted_dispatch,validate_claim=migration_dispatch,validate_native_prefix_claim=native_dispatch):result=build()
         self.assertEqual(result['selected_cases'],94)
-        self.assertEqual(result['assertion_status_counts'],{'PASS': 695, 'PARTIAL': 35, 'FAILED': 0, 'DEPENDENCY_BLOCKED': 32, 'NOT_RUN': 265, 'UNRESOLVED_SOURCE': 7})
-        self.assertEqual(result['case_status_counts'],{'PASS': 9, 'PARTIAL': 79, 'FAILED': 0, 'DEPENDENCY_BLOCKED': 0, 'NOT_RUN': 6})
+        csp_added=len(self.csp_rows)
+        self.assertEqual(result['assertion_status_counts'],{'PASS': 695+csp_added, 'PARTIAL': 35, 'FAILED': 0, 'DEPENDENCY_BLOCKED': 32, 'NOT_RUN': 265-csp_added, 'UNRESOLVED_SOURCE': 7})
+        self.assertEqual(result['case_status_counts'],{'PASS': 9, 'PARTIAL': 79+csp_added, 'FAILED': 0, 'DEPENDENCY_BLOCKED': 0, 'NOT_RUN': 6-csp_added})
+        csp=next(c for c in result['cases'] if c['id']==CSP_CASE)
+        self.assertEqual(csp['status'],'PARTIAL' if csp_added else 'NOT_RUN')
+        self.assertEqual([a['id'] for a in csp['assertions'] if a['status']=='PASS'],[CSP_ASSERTION] if csp_added else [])
         self.assertEqual({c['id'] for c in result['cases'] if c['status']=='PASS'},{'P0C-CATALOG-01','P0C-INSTALL-01','P0C-INSTALL-02','P0C-TABLE-CandidateProfile-ALLOW','P0C-TABLE-CustomerProfileLifecycleEvent-ALLOW','P0C-TABLE-DatabaseActionGrant-ALLOW','P0C-TABLE-OwnerMutationEvidence-ALLOW','P0C-TABLE-ProfessionalProfile-ALLOW','P0C-UNIQUE-01'})
         self.assertEqual(len(restricted_calls),69)
         self.assertEqual(len(migration_calls),5)
@@ -330,6 +337,6 @@ class StatusTests(unittest.TestCase):
             if path.name in ('local-f0-small-rehearsal-0623028-execution.json','local-f0-migration-6b8910d-execution.json','local-f0-catalog-b9703d7-23bd8979-execution.json','local-f0-restricted-b8f6b10-f161d454-execution.json','local-f0-native-access-0a29cf6-495976eb-execution.json','local-f0-owner-da5ad66-72934689-qualified-evidence.json','local-f0-lease-da5ad66-a560e05b-qualified-evidence.json','local-f0-native-1110fa4-4c894dba-qualified-evidence.json'):raise RuntimeError('UNVERIFIED_SECOND_READ')
             return original(path,*args,**kwargs)
         with patch.object(Path,'read_text',second_read_trap):result=build()
-        self.assertEqual(result['assertion_status_counts']['PASS'],695)
+        self.assertEqual(result['assertion_status_counts']['PASS'],695+len(self.csp_rows))
 
 if __name__=='__main__':unittest.main(verbosity=2)
