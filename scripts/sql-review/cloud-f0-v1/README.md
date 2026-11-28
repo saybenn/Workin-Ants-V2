@@ -1,10 +1,10 @@
-# Cloud F0 capability probe v1
+# Cloud F0 capability probe
 
 Run from the Cloud checkout with Bash, Python 3.11 or later, native Git, and the managed rootless Linux/amd64 Docker service. Use the existing checkout and leave the legacy database write aliases gated. For the app, run `bash scripts/setup-cloud-phase0-v1.sh`, export the toolchain path printed by the script, then run `npm run check`, `npm run test:foundation`, and `npm run db:validate`. The usual development entry is `npm run dev -- --hostname 127.0.0.1`. Use only process-local smoke checks when no Cloud portal is needed.
 
 ## Operational scope
 
-The probe creates one new synthetic PostgreSQL database inside an isolated container and verifies that the Cloud route supports actual restricted connections, denial, concurrent observation, and recovery after a deliberate crash. There is no Workin Ants candidate migration, application schema, or business qualification. The published Windows runner, image manifest, history, and approvals remain historical inputs. This separate profile binds the observed Unix socket and rootless daemon to one reviewed operation.
+The probe creates one new synthetic PostgreSQL database inside an isolated container and verifies that the Cloud route supports actual restricted connections, denial, concurrent observation, and recovery after a deliberate crash. Its scope is the Cloud execution route. This separate profile binds the observed Unix socket and rootless daemon to one reviewed operation. The v2 profile uses an exact named data volume plus private tmpfs. The host sends the one-time bootstrap password through the reviewed container ID's standard input after checking the mount and network from inside. The fixed entrypoint verifies that file's identity and launches the pinned image's normal PostgreSQL initialization. The runner removes the bootstrap file after startup and restages it in a fresh tmpfs after the deliberate crash.
 
 Before preparing, cache the pinned immutable image on the managed daemon. This pull preserves the platform registry and TLS configuration.
 

@@ -37,15 +37,13 @@ class CloudGuardTests(unittest.TestCase):
             "Mounts": [
                 {"Type": "volume", "Source": self.volume["Mountpoint"], "Name": self.volume["Name"],
                  "Destination": profile["data_mount"], "Driver": "local", "RW": True},
-                {"Type": "bind", "Source": self.target["bootstrap_file"], "Destination": profile["bootstrap_mount"],
-                 "Propagation": "rprivate", "RW": False},
             ],
         }
 
     def container(self, metadata):
         verify_container(metadata, self.profile, self.target, self.volume, CID, "test-image", running=False)
 
-    def test_exact_container_and_bind_inventory(self):
+    def test_exact_container_and_no_host_bind_inventory(self):
         self.container(self.metadata)
         for category, key, value in (
             ("HostConfig", "NetworkMode", "bridge"), ("HostConfig", "Privileged", True),
@@ -59,11 +57,15 @@ class CloudGuardTests(unittest.TestCase):
                 variant[category][key] = value
                 with self.assertRaises(Stop):
                     self.container(variant)
-        for index, key, value in ((0, "Name", "unknown"), (1, "RW", True), (1, "Source", "/other")):
+        for key, value in (("Name", "unknown"), ("RW", False), ("Source", "/other")):
             variant = copy.deepcopy(self.metadata)
-            variant["Mounts"][index][key] = value
+            variant["Mounts"][0][key] = value
             with self.assertRaises(Stop):
                 self.container(variant)
+        variant = copy.deepcopy(self.metadata)
+        variant["Mounts"].append({"Type": "bind", "Destination": "/run/bootstrap-password", "RW": False})
+        with self.assertRaisesRegex(Stop, "MOUNT_INVENTORY_MISMATCH"):
+            self.container(variant)
 
     def test_cleanup_refuses_recreated_volume(self):
         self.assertEqual(verify_volume(self.volume, self.target), "synthetic")
@@ -96,17 +98,17 @@ class CloudGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(Stop, "PRIVATE_FILE_MODE_OR_OWNER"):
             private_file(path)
 
-    def test_private_cleanup_still_runs_after_resource_error(self):
+    def test_private_absence_check_still_runs_after_resource_error(self):
         manifest = {"target": self.target}
         probe = Probe(manifest, self.profile, self.packet, None, {})
-        probe.secret.parent.mkdir(mode=0o700)
-        write_new(probe.secret, b"fake")
-        probe.secret_identity = private_file(probe.secret)
         with mock.patch.object(probe, "cleanup_resources", side_effect=Stop("MANIFEST_DAEMON_DRIFT")):
             with self.assertRaisesRegex(Stop, "CLEANUP_UNCONFIRMED"):
                 probe.cleanup()
-        self.assertFalse(probe.secret.parent.exists())
         self.assertEqual(probe.report["cleanup_steps"]["private_files"], "CONFIRMED")
+        private = Path(self.target["private_host_path"])
+        private.mkdir(mode=0o700)
+        with self.assertRaisesRegex(Stop, "PRIVATE_SECRET_ABSENCE_UNCONFIRMED"):
+            probe.cleanup_private()
 
     def test_only_loopback_wrong_password_diagnostic_admitted(self):
         self.assertFalse(refusal(b"connection refused", "postgres"))

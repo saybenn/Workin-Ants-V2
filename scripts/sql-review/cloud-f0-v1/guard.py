@@ -27,10 +27,8 @@ FILES = (
 HEX_ID = re.compile(r"[0-9a-f]{64}")
 KERNEL_FAILURES = {
     b"SECRET_TMPFS_METADATA\n": "SECRET_TMPFS_METADATA",
-    b"BOOTSTRAP_FILE_METADATA\n": "BOOTSTRAP_FILE_METADATA",
     b"SECRET_TMPFS_KERNEL_FLAGS\n": "SECRET_TMPFS_KERNEL_FLAGS",
     b"KERNEL_NETWORK_INTERFACES\n": "KERNEL_NETWORK_INTERFACES",
-    b"BOOTSTRAP_BIND_KERNEL_FLAGS\n": "BOOTSTRAP_BIND_KERNEL_FLAGS",
 }
 
 
@@ -273,7 +271,7 @@ def verify_container(data, profile, target, volume, cid, image_id, running=None)
             "CONTAINER_TMPFS_MISMATCH")
     mounts = data.get("Mounts", [])
     by_dest = {mount["Destination"]: mount for mount in mounts}
-    required = {profile["data_mount"], profile["bootstrap_mount"]}
+    required = {profile["data_mount"]}
     require(len(by_dest) == len(mounts) and set(by_dest) in (required, required | {tmpfs}),
             "MOUNT_INVENTORY_MISMATCH")
     if tmpfs in by_dest:
@@ -283,7 +281,3 @@ def verify_container(data, profile, target, volume, cid, image_id, running=None)
     require(storage.get("Type") == "volume" and storage.get("Name") == target["volume"]
             and storage.get("Driver") == "local" and storage.get("RW") is True
             and storage.get("Source") == volume["Mountpoint"], "DATA_MOUNT_MISMATCH")
-    secret = by_dest[profile["bootstrap_mount"]]
-    require(secret.get("Type") == "bind" and secret.get("Source") == target["bootstrap_file"]
-            and secret.get("RW") is False and secret.get("Propagation") == "rprivate",
-            "BOOTSTRAP_MOUNT_MISMATCH")

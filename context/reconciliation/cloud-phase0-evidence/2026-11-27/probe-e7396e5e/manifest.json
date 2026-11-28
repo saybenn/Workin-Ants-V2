@@ -1,0 +1,64 @@
+{
+  "assertion_promotions": 0,
+  "cached_image": {
+    "architecture": "amd64",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_id": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_store_identity": "CONFIG",
+    "manifest_content_hash_verified": true,
+    "os": "linux",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pinned_repo_digest_verified": true,
+    "pulled_this_run": false,
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "removed": false
+  },
+  "candidate_migrations": false,
+  "daemon": {
+    "architecture": "amd64",
+    "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+    "docker_binary_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621",
+    "os": "linux",
+    "rootless": true,
+    "socket": {
+      "device": 32,
+      "gid": 1000,
+      "inode": 31,
+      "mode": 432,
+      "real_path": "/run/codex-docker/docker.sock",
+      "uid": 65534
+    },
+    "version": "29.9.2"
+  },
+  "database_cases": [
+    "scram_correct_and_wrong_password",
+    "restricted_select_and_write_denial",
+    "two_connections",
+    "container_crash_and_transaction_recovery"
+  ],
+  "purpose": "CLOUD_F0_CAPABILITY_PROBE_ONLY",
+  "run_id": "e7396e5e-7890-4c2e-ace4-5efb683b5e45",
+  "schema": "workinants.cloud-f0-capability-plan.v1",
+  "source": {
+    "commit": "1c5cb6d524f041e2ffafc4721d541ee00c4f9894",
+    "files_sha256": {
+      "scripts/sql-review/cloud-f0-v1/guard.py": "1579cef1b0ea0a2f8b70160d4820229bd6873d6c673aaf16a82db8b19448770a",
+      "scripts/sql-review/cloud-f0-v1/probe.py": "ea5ee044dff18fb1d74d89949db4354ea307f6589c52b03408f012c3a85316cf",
+      "scripts/sql-review/cloud-f0-v1/profile.json": "fe938fe0efc5966dfa9746e90ecc2de14081e5914fafec1c08b7ff7d4c93aba0",
+      "scripts/sql-review/cloud-f0-v1/test_guard.py": "82f3925065bc09c797d6339eceb999420cb83718a6cc74e6831b6d5a1cab4ef6",
+      "scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json": "996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604"
+    },
+    "tree": "17c8319b44bb9dcb62fe516b6ec4a47b1c1ebc84"
+  },
+  "target": {
+    "bootstrap_file": "/workspace/scratch/wa-cloud-f0-probe-e7396e5e-7890-4c2e-ace4-5efb683b5e45/private/bootstrap",
+    "container": "wa-p0c-cloud-probe-e7396e5e-7890-4c2e-ace4-5efb683b5e45",
+    "database": "wa_f0_cloud_probe",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-probe-v1",
+      "workinants.rehearsal.run": "e7396e5e-7890-4c2e-ace4-5efb683b5e45"
+    },
+    "volume": "wa-p0c-cloud-probe-e7396e5e-7890-4c2e-ace4-5efb683b5e45-data"
+  }
+}

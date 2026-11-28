@@ -1,5 +1,5 @@
 {
-  "schema": "workinants.cloud-f0-profile.v1",
+  "schema": "workinants.cloud-f0-profile.v2",
   "docker_socket": "/var/run/docker.sock",
   "docker_server_os": "linux",
   "docker_server_architecture": "amd64",
@@ -8,7 +8,8 @@
   "network_mode": "none",
   "published_ports": [],
   "data_mount": "/var/lib/postgresql/data",
-  "bootstrap_mount": "/run/bootstrap-password",
+  "bootstrap_transport": "exact_container_stdin_to_private_tmpfs",
+  "bootstrap_file": "/run/wa-secrets/bootstrap-password",
   "credential_tmpfs": "/run/wa-secrets",
   "credential_tmpfs_options": "rw,nosuid,nodev,noexec,mode=0700,size=1m",
   "scratch_root": "/workspace/scratch"

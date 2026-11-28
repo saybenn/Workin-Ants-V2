@@ -35,7 +35,6 @@ KERNEL_PROBE = b"""
 set -eu
 refuse() { printf '%s\n' "$1"; exit 42; }
 test "$(stat -c '%u:%g:%a' /run/wa-secrets)" = '0:0:700' || refuse SECRET_TMPFS_METADATA
-test "$(stat -c '%u:%a' /run/bootstrap-password)" = '0:600' || refuse BOOTSTRAP_FILE_METADATA
 awk '$5 == "/run/wa-secrets" {
   if ($6 ~ /(^|,)rw(,|$)/ && $6 ~ /(^|,)nodev(,|$)/ &&
       $6 ~ /(^|,)nosuid(,|$)/ && $6 ~ /(^|,)noexec(,|$)/ && $0 ~ / - tmpfs /) n++
@@ -43,9 +42,30 @@ awk '$5 == "/run/wa-secrets" {
 END { exit n != 1 }' /proc/self/mountinfo || refuse SECRET_TMPFS_KERNEL_FLAGS
 awk -F: 'NR > 2 { gsub(/ /, "", $1); if ($1 != "lo") exit 1; n++ }
 END { if (n != 1) exit 1 }' /proc/net/dev || refuse KERNEL_NETWORK_INTERFACES
-awk '$5 == "/run/bootstrap-password" && $6 ~ /(^|,)ro(,|$)/ { n++ }
-END { exit n != 1 }' /proc/self/mountinfo || refuse BOOTSTRAP_BIND_KERNEL_FLAGS
 printf 'cloud-private-mount-and-loopback\n'
+"""
+
+START_CONTROL = """
+for attempt in $(seq 1 200); do
+  if test -f /run/wa-secrets/bootstrap-password; then
+    test "$(stat -c '%u:%g:%a:%h' /run/wa-secrets/bootstrap-password)" = '0:0:600:1'
+    exec /usr/local/bin/docker-entrypoint.sh postgres "$@"
+  fi
+  sleep 0.25
+done
+exit 42
+"""
+SERVER_FLAGS = ["-c", "listen_addresses=127.0.0.1", "-c", "log_statement=none",
+                "-c", "log_min_error_statement=panic", "-c", "log_error_verbosity=terse"]
+WRITE_BOOTSTRAP = """
+umask 077
+set -C
+root=/run/wa-secrets
+test ! -e "$root/bootstrap-password" && test ! -L "$root/bootstrap-password"
+cat > "$root/bootstrap-pending"
+test "$(stat -c '%u:%g:%a:%h' "$root/bootstrap-pending")" = '0:0:600:1'
+test "$(wc -c < "$root/bootstrap-pending")" = 65
+mv -T -- "$root/bootstrap-pending" "$root/bootstrap-password"
 """
 
 
@@ -73,8 +93,9 @@ def packet_directory(profile, run_id):
 def target_for(packet, run_id):
     name = f"wa-p0c-cloud-probe-{run_id}"
     return {"container": name, "volume": name + "-data", "database": DATABASE,
-            "bootstrap_file": str(packet / "private" / "bootstrap"),
-            "labels": {"workinants.rehearsal": "p0c-cloud-f0-probe-v1",
+            "private_host_path": str(packet / "private"),
+            "bootstrap_container_path": "/run/wa-secrets/bootstrap-password",
+            "labels": {"workinants.rehearsal": "p0c-cloud-f0-probe-v2",
                        "workinants.rehearsal.run": run_id}}
 
 
@@ -163,10 +184,8 @@ class Probe:
         self.docker = docker
         self.report = report
         self.target = manifest["target"]
-        self.secret = Path(self.target["bootstrap_file"])
         self.cid = None
         self.volume_birth = None
-        self.secret_identity = None
         self.background = None
         self.attempted = False
         self.remote_unknown = False
@@ -196,7 +215,12 @@ class Probe:
         verify_volume(volume, self.target, self.volume_birth)
         verify_container(data, self.profile, self.target, volume, self.cid,
                          self.manifest["cached_image"]["image_id"], running)
-        require(private_file(self.secret) == self.secret_identity, "BOOTSTRAP_FILE_DRIFT")
+        require(data["Config"].get("Entrypoint") == ["/bin/sh"]
+                and data["Config"].get("Cmd") == ["-ceu", START_CONTROL, "wa-cloud-bootstrap", *SERVER_FLAGS],
+                "EXACT_START_CONTROL_REQUIRED")
+        require(data["Config"]["Env"].count("POSTGRES_PASSWORD_FILE=" + self.target["bootstrap_container_path"]) == 1
+                and not any(item.startswith("POSTGRES_PASSWORD=") for item in data["Config"]["Env"]),
+                "BOOTSTRAP_ENVIRONMENT_NOT_PRIVATE")
         if running:
             status = self.docker.run("exec", "-i", self.cid, "sh", "-s", stdin=KERNEL_PROBE,
                                      operation="KERNEL_ISOLATION")
@@ -206,9 +230,9 @@ class Probe:
     def provision(self, bootstrap_password):
         self.require_daemon()
         self.require_absent()
-        self.secret.parent.mkdir(mode=0o700)
-        write_new(self.secret, (bootstrap_password + "\n").encode())
-        self.secret_identity = private_file(self.secret)
+        require(self.profile["bootstrap_transport"] == "exact_container_stdin_to_private_tmpfs"
+                and self.profile["bootstrap_file"] == self.target["bootstrap_container_path"],
+                "PROFILE_BOOTSTRAP_TRANSPORT")
         labels = [arg for k, v in sorted(self.target["labels"].items()) for arg in ("--label", k + "=" + v)]
         self.attempted = True
         result = self.docker.run("volume", "create", "--driver", "local", *labels, self.target["volume"])
@@ -222,17 +246,16 @@ class Probe:
         }))
         p = self.profile
         data_mount = f"type=volume,src={self.target['volume']},dst={p['data_mount']}"
-        secret_mount = f"type=bind,src={self.secret},dst={p['bootstrap_mount']},readonly"
         result = self.docker.run(
             "container", "create", "--pull", "never", "--platform", "linux/amd64", "--network", "none",
             "--restart", "no", "--log-driver", "none", "--name", self.target["container"], *labels,
-            "--mount", data_mount, "--mount", secret_mount, "--tmpfs",
+            "--mount", data_mount, "--tmpfs",
             p["credential_tmpfs"] + ":" + p["credential_tmpfs_options"],
-            "-e", "POSTGRES_DB=" + DATABASE, "-e", "POSTGRES_PASSWORD_FILE=" + p["bootstrap_mount"],
+            "-e", "POSTGRES_DB=" + DATABASE, "-e", "POSTGRES_PASSWORD_FILE=" + p["bootstrap_file"],
             "-e", "POSTGRES_HOST_AUTH_METHOD=scram-sha-256",
             "-e", "POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=scram-sha-256 --locale=C --encoding=UTF8",
-            p["database_image"], "-c", "listen_addresses=127.0.0.1", "-c", "log_statement=none",
-            "-c", "log_min_error_statement=panic", "-c", "log_error_verbosity=terse", timeout=30,
+            "--entrypoint", "/bin/sh", p["database_image"], "-ceu", START_CONTROL,
+            "wa-cloud-bootstrap", *SERVER_FLAGS, timeout=30,
         )
         cid = result.stdout.decode().strip()
         require(re.fullmatch(r"[0-9a-f]{64}", cid), "CONTAINER_CREATION_RECEIPT")
@@ -244,10 +267,21 @@ class Probe:
             "run_id": self.manifest["run_id"],
         }))
         self.check_target(False)
-        self.docker.run("container", "start", self.cid, timeout=30, operation="FIRST_START")
-        self.wait_ready()
-        self.check_target(True)
+        self.start_database(bootstrap_password, "FIRST_START")
         self.report["checks"].append("exact_mounts_loopback_and_cache")
+        self.report["checks"].append("bootstrap_only_through_owned_container_tmpfs")
+
+    def start_database(self, bootstrap_password, operation):
+        self.docker.run("container", "start", self.cid, timeout=30, operation=operation)
+        self.check_target(True)
+        self.docker.run("exec", "-i", self.cid, "sh", "-ceu", WRITE_BOOTSTRAP,
+                        stdin=(bootstrap_password + "\n").encode(), operation="WRITE_PRIVATE_BOOTSTRAP")
+        self.wait_ready()
+        process = self.docker.run("exec", self.cid, "cat", "/proc/1/comm", operation="SERVER_PROCESS_IDENTITY")
+        require(process.stdout == b"postgres\n", "SERVER_PID_ONE_UNCONFIRMED")
+        self.docker.run("exec", self.cid, "rm", "--", self.target["bootstrap_container_path"],
+                        operation="UNLINK_PRIVATE_BOOTSTRAP")
+        self.docker.run("exec", self.cid, "test", "!", "-e", self.target["bootstrap_container_path"])
 
     def wait_ready(self):
         deadline = time.monotonic() + 40
@@ -370,9 +404,7 @@ COMMIT;
             raise Stop("CRASH_CLIENT_CLOSURE_UNCONFIRMED") from None
         require(self.background.returncode in (1, 2, 137), "CRASH_CLIENT_EXIT_UNCONFIRMED")
         self.background = None
-        self.docker.run("container", "start", self.cid, timeout=30, operation="RECOVERY_START")
-        self.wait_ready()
-        self.check_target(True)
+        self.start_database(admin, "RECOVERY_START")
         # Restart may clear the operating system's private tmpfs.
         self.docker.run("exec", self.cid, "test", "!", "-e", "/run/wa-secrets/correct.pgpass")
         self.docker.run("exec", self.cid, "test", "!", "-e", "/run/wa-secrets/wrong.pgpass")
@@ -402,11 +434,8 @@ COMMIT;
             self.background = None
 
     def cleanup_private(self):
-        if self.secret_identity is not None:
-            require(private_file(self.secret) == self.secret_identity, "CLEANUP_SECRET_OWNERSHIP")
-            self.secret.unlink()
-            self.secret.parent.rmdir()
-        require(not self.secret.parent.exists() and not self.secret.parent.is_symlink(),
+        private = Path(self.target["private_host_path"])
+        require(not private.exists() and not private.is_symlink(),
                 "PRIVATE_SECRET_ABSENCE_UNCONFIRMED")
 
     def cleanup(self):
