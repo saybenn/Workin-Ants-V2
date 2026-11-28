@@ -25,6 +25,13 @@ FILES = (
     IMAGE_MANIFEST,
 )
 HEX_ID = re.compile(r"[0-9a-f]{64}")
+KERNEL_FAILURES = {
+    b"SECRET_TMPFS_METADATA\n": "SECRET_TMPFS_METADATA",
+    b"BOOTSTRAP_FILE_METADATA\n": "BOOTSTRAP_FILE_METADATA",
+    b"SECRET_TMPFS_KERNEL_FLAGS\n": "SECRET_TMPFS_KERNEL_FLAGS",
+    b"KERNEL_NETWORK_INTERFACES\n": "KERNEL_NETWORK_INTERFACES",
+    b"BOOTSTRAP_BIND_KERNEL_FLAGS\n": "BOOTSTRAP_BIND_KERNEL_FLAGS",
+}
 
 
 class Stop(RuntimeError):
@@ -122,6 +129,28 @@ def file_from_snapshot(path, source):
     return raw
 
 
+def safe_refusal(result, operation):
+    """Retain only destination-independent classifications after command exit."""
+    if (operation == "KERNEL_ISOLATION" and result.returncode == 42
+            and result.stdout in KERNEL_FAILURES and not result.stderr):
+        diagnostic = KERNEL_FAILURES[result.stdout]
+    else:
+        stderr = result.stderr.lower()
+        diagnostic = "UNLISTED"
+        for token, code in (
+            (b"bind source path does not exist", "BIND_SOURCE_ABSENT_AT_DAEMON"),
+            (b"error mounting", "OCI_MOUNT_FAILURE"),
+            (b"operation not permitted", "KERNEL_OPERATION_NOT_PERMITTED"),
+            (b"permission denied", "PERMISSION_DENIED"),
+            (b"not running", "CONTAINER_NOT_RUNNING"),
+            (b"oci runtime create failed", "OCI_RUNTIME_START_FAILED"),
+        ):
+            if token in stderr:
+                diagnostic = code
+                break
+    return {"operation": operation, "exit_code": result.returncode, "diagnostic": diagnostic}
+
+
 class Docker:
     def __init__(self, profile, config):
         require(sys.platform == "linux" and os.getuid() != 0, "LINUX_UNPRIVILEGED_TASK_REQUIRED")
@@ -136,6 +165,7 @@ class Docker:
         self.origin = self.socket_identity()
         self.env = {"PATH": "/usr/local/bin:/usr/bin:/bin", "LC_ALL": "C"}
         self.remote_unknown = False
+        self.last_refusal = None
 
     def socket_identity(self):
         sock = self.socket.stat()
@@ -150,7 +180,7 @@ class Docker:
         return [str(self.binary), "--config", str(self.config), "--host",
                 f"unix://{self.socket}", *args]
 
-    def run(self, *args, stdin=None, timeout=20, allow_fail=False):
+    def run(self, *args, stdin=None, timeout=20, allow_fail=False, operation="DOCKER_METADATA_OR_RESOURCE"):
         command = self.argv(*args)
         try:
             result = subprocess.run(command, input=stdin or b"",
@@ -166,8 +196,9 @@ class Docker:
             self.remote_unknown = True
             raise Stop("DOCKER_PROCESS_OUTCOME_UNKNOWN")
         require(self.socket_identity() == self.origin, "DOCKER_SOCKET_CHANGED")
-        if not allow_fail:
-            require(result.returncode == 0 and not result.stderr, "DOCKER_COMMAND_REFUSED")
+        if not allow_fail and (result.returncode != 0 or result.stderr):
+            self.last_refusal = safe_refusal(result, operation)
+            raise Stop("DOCKER_COMMAND_REFUSED")
         return result
 
     def observe(self):

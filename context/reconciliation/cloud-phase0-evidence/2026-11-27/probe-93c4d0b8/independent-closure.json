@@ -1,0 +1,128 @@
+{
+  "absent_after": {
+    "container_id": true,
+    "container_name": true,
+    "private_bootstrap_directory": true,
+    "volume_name": true
+  },
+  "assertion_promotions": 0,
+  "bounded_docker_provider_events": {
+    "cid": "3be218d02d3ec3232bbafdcc8c74a18d2fee127e454433bd222d30f212ab96ef",
+    "container_actions": [
+      "create",
+      "start",
+      "kill",
+      "die",
+      "destroy"
+    ],
+    "kernel_probe_exec_exit_codes": [
+      1
+    ],
+    "other_execs_observed": 0,
+    "raw_event_payloads_retained": false,
+    "readiness_exec_exit_codes": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      0
+    ],
+    "runtime_logs_read": false,
+    "window_end": "2026-11-28T03:27:56Z",
+    "window_start": "2026-11-28T03:27:40Z"
+  },
+  "created_container": {
+    "id": "3be218d02d3ec3232bbafdcc8c74a18d2fee127e454433bd222d30f212ab96ef",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-probe-v1",
+      "workinants.rehearsal.run": "93c4d0b8-069c-4629-b463-d2d35ea2e5a0"
+    },
+    "name": "wa-p0c-cloud-probe-93c4d0b8-069c-4629-b463-d2d35ea2e5a0",
+    "run_id": "93c4d0b8-069c-4629-b463-d2d35ea2e5a0"
+  },
+  "created_volume": {
+    "created_at": "2026-11-28T03:27:42Z",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-probe-v1",
+      "workinants.rehearsal.run": "93c4d0b8-069c-4629-b463-d2d35ea2e5a0"
+    },
+    "name": "wa-p0c-cloud-probe-93c4d0b8-069c-4629-b463-d2d35ea2e5a0-data",
+    "run_id": "93c4d0b8-069c-4629-b463-d2d35ea2e5a0"
+  },
+  "daemon": {
+    "architecture": "amd64",
+    "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+    "docker_binary_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621",
+    "os": "linux",
+    "rootless": true,
+    "socket": {
+      "device": 32,
+      "gid": 1000,
+      "inode": 31,
+      "mode": 432,
+      "real_path": "/run/codex-docker/docker.sock",
+      "uid": 65534
+    },
+    "version": "29.9.2"
+  },
+  "decision": "EXACT_CLEANUP_INDEPENDENTLY_VERIFIED_STOP_PRESERVED",
+  "file_sha256": {
+    "attempt.json": "58d82b959d940c95a7ad793e0ce6be0bb8a4f59bb5f0927e0245c5d9ac16e17a",
+    "created-container.json": "019129978a19a7a24b66913688df83282dcd97cec4e01e0afc51b9d2c980b4b9",
+    "created-volume.json": "fac32c938d0f2dcdc4a3ca8a350ccd0d45af024eaa386a1b9628b9a0594330c8",
+    "manifest.json": "e8fbcc23ca620c0a77ac027fd4a87820c7062ad7a77d486a9ae7703daea611f6",
+    "result.json": "d0aa03aa76fab080eafff3cdaf5d4eb09d83613e5cb1d2e3880c7ba5e762246a",
+    "review.json": "33054858fb5739a5f28b8d096daaa8519b0a7e28ab56f49a0c7d42d285160ecb"
+  },
+  "image": {
+    "architecture": "amd64",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_id": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_store_identity": "CONFIG",
+    "manifest_content_hash_verified": true,
+    "os": "linux",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pinned_repo_digest_verified": true,
+    "pulled_this_run": false,
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "removed": false
+  },
+  "limits": [
+    "Exact-CID provider events establish successful Docker start, eventual successful readiness polling, then an unsuccessful kernel guard and removal. The kernel predicate and complete cause remain unobserved.",
+    "No synthetic role exercise, workload query, crash-and-recovery protocol or Workin Ants candidate migration was reached.",
+    "The reviewer did not create or mutate Docker or database resources. This is a closure and recorded-source audit on the observed daemon."
+  ],
+  "pinned_image_retained": true,
+  "primary_failure": "DOCKER_COMMAND_REFUSED",
+  "recorded_at_utc": "2026-11-28T03:30:09.797367+00:00",
+  "result_status": "STOPPED",
+  "reviewer": "/root/cloud_review_prep",
+  "run_id": "93c4d0b8-069c-4629-b463-d2d35ea2e5a0",
+  "runtime_cases_completed": 0,
+  "same_live_daemon_socket_and_binary_verified": true,
+  "schema": "workinants.cloud-f0-independent-closure-audit.v1",
+  "source": {
+    "commit": "f7a0fba604416c5a448b12c524216ebba6bd7bce",
+    "files_sha256": {
+      "scripts/sql-review/cloud-f0-v1/guard.py": "b579c302554c68008b0b10d9079116ba3357a1c4c947da8635949a53c0d8a5d1",
+      "scripts/sql-review/cloud-f0-v1/probe.py": "00b5f038ee429b76009f1c541d248133533d74039667a7037d556376fce6f5e4",
+      "scripts/sql-review/cloud-f0-v1/profile.json": "fe938fe0efc5966dfa9746e90ecc2de14081e5914fafec1c08b7ff7d4c93aba0",
+      "scripts/sql-review/cloud-f0-v1/test_guard.py": "3cc0b483f018859fb9fd98427531df46088638fabbb068a1737875dfc8154c11",
+      "scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json": "996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604"
+    },
+    "tree": "fadb7cd794d5a371da335a414551a1959e273796"
+  },
+  "stage": "PROVISION",
+  "target": {
+    "bootstrap_file": "/workspace/scratch/wa-cloud-f0-probe-93c4d0b8-069c-4629-b463-d2d35ea2e5a0/private/bootstrap",
+    "container": "wa-p0c-cloud-probe-93c4d0b8-069c-4629-b463-d2d35ea2e5a0",
+    "database": "wa_f0_cloud_probe",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-probe-v1",
+      "workinants.rehearsal.run": "93c4d0b8-069c-4629-b463-d2d35ea2e5a0"
+    },
+    "volume": "wa-p0c-cloud-probe-93c4d0b8-069c-4629-b463-d2d35ea2e5a0-data"
+  }
+}

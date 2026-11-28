@@ -33,17 +33,18 @@ APPROVALS = [
 
 KERNEL_PROBE = b"""
 set -eu
-test "$(stat -c '%u:%g:%a' /run/wa-secrets)" = '0:0:700'
-test "$(stat -c '%u:%a' /run/bootstrap-password)" = '0:600'
+refuse() { printf '%s\n' "$1"; exit 42; }
+test "$(stat -c '%u:%g:%a' /run/wa-secrets)" = '0:0:700' || refuse SECRET_TMPFS_METADATA
+test "$(stat -c '%u:%a' /run/bootstrap-password)" = '0:600' || refuse BOOTSTRAP_FILE_METADATA
 awk '$5 == "/run/wa-secrets" {
   if ($6 ~ /(^|,)rw(,|$)/ && $6 ~ /(^|,)nodev(,|$)/ &&
       $6 ~ /(^|,)nosuid(,|$)/ && $6 ~ /(^|,)noexec(,|$)/ && $0 ~ / - tmpfs /) n++
 }
-END { exit n != 1 }' /proc/self/mountinfo
+END { exit n != 1 }' /proc/self/mountinfo || refuse SECRET_TMPFS_KERNEL_FLAGS
 awk -F: 'NR > 2 { gsub(/ /, "", $1); if ($1 != "lo") exit 1; n++ }
-END { if (n != 1) exit 1 }' /proc/net/dev
+END { if (n != 1) exit 1 }' /proc/net/dev || refuse KERNEL_NETWORK_INTERFACES
 awk '$5 == "/run/bootstrap-password" && $6 ~ /(^|,)ro(,|$)/ { n++ }
-END { exit n != 1 }' /proc/self/mountinfo
+END { exit n != 1 }' /proc/self/mountinfo || refuse BOOTSTRAP_BIND_KERNEL_FLAGS
 printf 'cloud-private-mount-and-loopback\n'
 """
 
@@ -197,7 +198,8 @@ class Probe:
                          self.manifest["cached_image"]["image_id"], running)
         require(private_file(self.secret) == self.secret_identity, "BOOTSTRAP_FILE_DRIFT")
         if running:
-            status = self.docker.run("exec", "-i", self.cid, "sh", "-s", stdin=KERNEL_PROBE)
+            status = self.docker.run("exec", "-i", self.cid, "sh", "-s", stdin=KERNEL_PROBE,
+                                     operation="KERNEL_ISOLATION")
             require(status.stdout == b"cloud-private-mount-and-loopback\n", "KERNEL_ISOLATION_UNCONFIRMED")
         return data
 
@@ -242,7 +244,7 @@ class Probe:
             "run_id": self.manifest["run_id"],
         }))
         self.check_target(False)
-        self.docker.run("container", "start", self.cid, timeout=30)
+        self.docker.run("container", "start", self.cid, timeout=30, operation="FIRST_START")
         self.wait_ready()
         self.check_target(True)
         self.report["checks"].append("exact_mounts_loopback_and_cache")
@@ -277,7 +279,7 @@ class Probe:
                 "-h", "127.0.0.1", "-p", "5432", "-d", DATABASE, "-U", role)
 
     def query(self, role, sql, expected):
-        result = self.docker.run(*self.psql(role), stdin=sql.encode())
+        result = self.docker.run(*self.psql(role), stdin=sql.encode(), operation="DATABASE_QUERY")
         require(result.stdout == expected.encode(), "UNEXPECTED_DATABASE_RESULT")
 
     def check_auth(self, roles):
@@ -368,7 +370,7 @@ COMMIT;
             raise Stop("CRASH_CLIENT_CLOSURE_UNCONFIRMED") from None
         require(self.background.returncode in (1, 2, 137), "CRASH_CLIENT_EXIT_UNCONFIRMED")
         self.background = None
-        self.docker.run("container", "start", self.cid, timeout=30)
+        self.docker.run("container", "start", self.cid, timeout=30, operation="RECOVERY_START")
         self.wait_ready()
         self.check_target(True)
         # Restart may clear the operating system's private tmpfs.
@@ -447,6 +449,8 @@ def execute(path, review_path):
         report["completed_capability_checks"] = True
     except BaseException as error:
         report["first_stop"] = str(error) if type(error) is Stop else "UNEXPECTED_OPERATION_STOP"
+        if docker.last_refusal is not None:
+            report["docker_refusal"] = docker.last_refusal
         probe.remote_unknown = probe.remote_unknown or probe.background is not None
     finally:
         try:

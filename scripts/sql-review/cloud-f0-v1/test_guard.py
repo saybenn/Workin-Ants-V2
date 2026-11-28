@@ -2,11 +2,12 @@
 
 import copy
 from pathlib import Path
+from subprocess import CompletedProcess
 import tempfile
 import unittest
 from unittest import mock
 
-from guard import ROOT, Docker, Stop, encode, parse, private_file, sha256, stable_file, verify_container, verify_volume
+from guard import ROOT, Docker, Stop, encode, parse, private_file, safe_refusal, sha256, stable_file, verify_container, verify_volume
 from probe import APPROVALS, REVIEW_SCHEMA, Probe, read_review, refusal, target_for, write_new
 
 
@@ -124,6 +125,17 @@ class CloudGuardTests(unittest.TestCase):
             with self.assertRaisesRegex(Stop, "OPERATOR_INTERRUPTED"):
                 docker.run("exec", CID, "psql")
         self.assertTrue(docker.remote_unknown)
+
+    def test_failure_classification_excludes_secret_output(self):
+        result = CompletedProcess(["not retained"], 125, b"unused canary",
+                                  b"error mounting secret-DO-NOT-RETAIN to destination")
+        self.assertEqual(safe_refusal(result, "FIRST_START"), {
+            "operation": "FIRST_START", "exit_code": 125, "diagnostic": "OCI_MOUNT_FAILURE",
+        })
+        result = CompletedProcess([], 42, b"SECRET_TMPFS_KERNEL_FLAGS\n", b"")
+        self.assertEqual(safe_refusal(result, "KERNEL_ISOLATION")["diagnostic"], "SECRET_TMPFS_KERNEL_FLAGS")
+        result.returncode = 125
+        self.assertEqual(safe_refusal(result, "KERNEL_ISOLATION")["diagnostic"], "UNLISTED")
 
 
 if __name__ == "__main__":
