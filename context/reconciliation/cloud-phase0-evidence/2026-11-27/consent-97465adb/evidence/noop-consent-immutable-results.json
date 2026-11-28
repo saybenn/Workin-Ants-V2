@@ -1,0 +1,320 @@
+{
+  "assertion_id": "control.empty_context",
+  "assertion_promotions": 0,
+  "case_id": "P0C-IMMUTABLE-01",
+  "case_order": [
+    "null-context",
+    "empty-context"
+  ],
+  "complete_final_client_closure": true,
+  "consent_recipe_sha256": "ba4894a1104cc1fe7dd4851dc1f5ce6af93aaa9b571e23bcdad17b72a940a9d4",
+  "container_id": "7f7cc4e9182ed0cd20d22b90c05fd2defdf7e101a335f58c23a9d7e3d4fa6a6a",
+  "current_case": null,
+  "current_stage": "COMPLETE",
+  "evidence_complete": true,
+  "first_failure": null,
+  "fixture_run_id": "6429c125-d793-4e70-ab13-6cf47a84fae2",
+  "full_native_baseline_sha256": "c795fa7d78516e6b39c3e8995bcbace8ac31bef66704b8e360b767c639e711dc",
+  "operations": [
+    {
+      "exact_current_login_controls": true,
+      "roles": [
+        "postgres",
+        "wa_context_issuer",
+        "wa_app_runtime"
+      ],
+      "stage": "ACTUAL_AUTHENTICATION"
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    },
+    {
+      "all_triggers_verified": 100,
+      "native_catalog_unchanged": true,
+      "stage": "UNCHANGED_NATIVE_AND_TRIGGERS"
+    },
+    {
+      "actual_login": "postgres",
+      "commit_acknowledged": true,
+      "operation_closed": true,
+      "stage": "TRUSTED_IDENTITY_SEED_ONLY"
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    },
+    {
+      "all_triggers_verified": 100,
+      "native_catalog_unchanged": true,
+      "stage": "UNCHANGED_NATIVE_AND_TRIGGERS"
+    },
+    {
+      "only_two_expected_rows_added": true,
+      "stage": "IDENTITY_BASELINE",
+      "synthetic_identity_only": true,
+      "tables_observed": 42
+    },
+    {
+      "actual_read_committed": true,
+      "stage": "FRESH_APP_TUPLE_CAPTURE"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "same_backend_transaction": true,
+      "stage": "APP_TUPLE_RECAPTURE"
+    },
+    {
+      "acknowledged": true,
+      "action": "publishConsentVersion.v1",
+      "stage": "SCOPED_GRANT_BIND"
+    },
+    {
+      "consent_owner_committed": false,
+      "exact_acknowledged_observation": true,
+      "stage": "publisher.sql"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "same_backend_transaction": true,
+      "stage": "APP_TUPLE_RECAPTURE"
+    },
+    {
+      "acknowledged": true,
+      "action": "recordConsentPresentation.v1",
+      "stage": "SCOPED_GRANT_BIND"
+    },
+    {
+      "consent_owner_committed": false,
+      "exact_acknowledged_observation": true,
+      "stage": "presentation.sql"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "same_backend_transaction": true,
+      "stage": "APP_TUPLE_RECAPTURE"
+    },
+    {
+      "acknowledged": true,
+      "action": "SH-007.v1",
+      "stage": "SCOPED_GRANT_BIND"
+    },
+    {
+      "consent_owner_committed": false,
+      "exact_acknowledged_observation": true,
+      "stage": "preread.sql"
+    },
+    {
+      "before_marker_only": true,
+      "exact_source_diagnostic": true,
+      "no_success_acknowledgment": true,
+      "source_body_line": 17,
+      "source_body_sha256": "61dc444ce22f462fbbfcfa706f0cfdce5a7e16a028592b51d1fec07fa219e7ae",
+      "sqlstate": "P0001",
+      "stage": "EXPECTED_CONSENT_GUARD",
+      "terminal_client_exit_3": true
+    },
+    {
+      "backend_absence_observed": true,
+      "exit_code": 3,
+      "stage": "APP_BACKEND_CLOSURE"
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    },
+    {
+      "all_triggers_verified": 100,
+      "native_catalog_unchanged": true,
+      "stage": "UNCHANGED_NATIVE_AND_TRIGGERS"
+    },
+    {
+      "all_21_columns_verified": true,
+      "grants_exact": 3,
+      "stage": "ISSUER_RETENTION"
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    },
+    {
+      "actual_read_committed": true,
+      "stage": "FRESH_APP_TUPLE_CAPTURE"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "same_backend_transaction": true,
+      "stage": "APP_TUPLE_RECAPTURE"
+    },
+    {
+      "acknowledged": true,
+      "action": "publishConsentVersion.v1",
+      "stage": "SCOPED_GRANT_BIND"
+    },
+    {
+      "consent_owner_committed": false,
+      "exact_acknowledged_observation": true,
+      "stage": "publisher.sql"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "same_backend_transaction": true,
+      "stage": "APP_TUPLE_RECAPTURE"
+    },
+    {
+      "acknowledged": true,
+      "action": "recordConsentPresentation.v1",
+      "stage": "SCOPED_GRANT_BIND"
+    },
+    {
+      "consent_owner_committed": false,
+      "exact_acknowledged_observation": true,
+      "stage": "presentation.sql"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "same_backend_transaction": true,
+      "stage": "APP_TUPLE_RECAPTURE"
+    },
+    {
+      "acknowledged": true,
+      "action": "SH-007.v1",
+      "stage": "SCOPED_GRANT_BIND"
+    },
+    {
+      "consent_owner_committed": false,
+      "exact_acknowledged_observation": true,
+      "stage": "preread.sql"
+    },
+    {
+      "before_marker_only": true,
+      "exact_source_diagnostic": true,
+      "no_success_acknowledgment": true,
+      "source_body_line": 17,
+      "source_body_sha256": "61dc444ce22f462fbbfcfa706f0cfdce5a7e16a028592b51d1fec07fa219e7ae",
+      "sqlstate": "P0001",
+      "stage": "EXPECTED_CONSENT_GUARD",
+      "terminal_client_exit_3": true
+    },
+    {
+      "backend_absence_observed": true,
+      "exit_code": 3,
+      "stage": "APP_BACKEND_CLOSURE"
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    },
+    {
+      "all_triggers_verified": 100,
+      "native_catalog_unchanged": true,
+      "stage": "UNCHANGED_NATIVE_AND_TRIGGERS"
+    },
+    {
+      "all_21_columns_verified": true,
+      "grants_exact": 6,
+      "stage": "ISSUER_RETENTION"
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    },
+    {
+      "stage": "GLOBAL_CLIENT_CLOSURE",
+      "zero_other_clients": true
+    }
+  ],
+  "packet_sha256": "58ac8f2f82180db3ddc0bb4fbf8856303cbdc39d05d6ab86fa037ec1e82095c6",
+  "posture": "D",
+  "remote_outcome_unconfirmed": false,
+  "results": [
+    {
+      "app_and_issuer_closed": true,
+      "case": "null-context",
+      "diagnostic": {
+        "before_marker_only": true,
+        "exact_source_diagnostic": true,
+        "no_success_acknowledgment": true,
+        "source_body_line": 17,
+        "source_body_sha256": "61dc444ce22f462fbbfcfa706f0cfdce5a7e16a028592b51d1fec07fa219e7ae",
+        "sqlstate": "P0001",
+        "terminal_client_exit_3": true
+      },
+      "exact_consent_residue_zero": true,
+      "issued_grants_exact": 3,
+      "native_catalog_unchanged": true,
+      "original_triggers_verified": 100,
+      "status": "PASS_EXACT_DENIED_ROLLBACK_ONLY",
+      "tables_unchanged": 42
+    },
+    {
+      "app_and_issuer_closed": true,
+      "case": "empty-context",
+      "diagnostic": {
+        "before_marker_only": true,
+        "exact_source_diagnostic": true,
+        "no_success_acknowledgment": true,
+        "source_body_line": 17,
+        "source_body_sha256": "61dc444ce22f462fbbfcfa706f0cfdce5a7e16a028592b51d1fec07fa219e7ae",
+        "sqlstate": "P0001",
+        "terminal_client_exit_3": true
+      },
+      "exact_consent_residue_zero": true,
+      "issued_grants_exact": 6,
+      "native_catalog_unchanged": true,
+      "original_triggers_verified": 100,
+      "status": "PASS_EXACT_DENIED_ROLLBACK_ONLY",
+      "tables_unchanged": 42
+    }
+  ],
+  "run_id": "97465adb-9cad-4dca-870b-7d5e77570960",
+  "schema": "workinants.cloud-f0-consent-empty-context-result.v1",
+  "source_commit": "333d07196124a943d6f64015add8ca29cf1ce989",
+  "source_tree": "0a44e4bc2239b87c2bc4adb63bbad94b0eb0ac93",
+  "status": "PASS_TWO_EMPTY_CONTEXT_ROLLBACK_DENIALS_ONLY",
+  "volume_created_at": "2026-11-28T05:09:09Z"
+}
