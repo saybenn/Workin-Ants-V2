@@ -21,12 +21,12 @@ HERE = "scripts/sql-review/cloud-p0d-known-customer-v1"
 SMOKE = "scripts/sql-review/cloud-p0d-owner-transaction-v1/run.py"
 SMOKE_SHA = "da73ebb0eff61387da7548a9f4b48f9d22cc22c449652f83ac9d9805fbb22cef"
 PROOF = f"{HERE}/proof"
-PROOF_SHA = "61ced5e133c70822e2676d4d990977a9bb057cf6dead14a0f2e03374ea6264e4"
-EMIT_SHA = "99fd4f115e3b8c98fe3150142b11a3c7c5c4de0f5f40f8479e81cf754c14252b"
+PROOF_SHA = "f6898e214209ccd0431bcf8ed9c2d45219a0bb5d9250b030907d28e64564f0b7"
+EMIT_SHA = "1c7cc96c7dc1255a1605f4859700517abac76faae5e1edf70fea42616f609bb6"
 SCHEMA = "workinants.cloud-p0d-known-customer-operation.v1"
 SOURCE_SCHEMA = "workinants.cloud-p0d-known-customer-source-review.v1"
 LITERAL_SCHEMA = "workinants.cloud-p0d-known-customer-literal-review.v1"
-AUTHOR = "/root/foundation_gates"
+AUTHOR = "/root"
 EXECUTE = "--execute-reviewed-cloud-p0d-known-customer-v1"
 PASS = "PASS_FINITE_KNOWN_CUSTOMER_MAIN_ONLY"
 POST = "P0D_CUSTOMER_AFTER"
@@ -107,7 +107,7 @@ def capture_proof(root, blobs, S):
     manifest = S.unique_json(raw)
     S.require(manifest["state"] == "PREPARED_NOT_RUN" and manifest["main_modes"] == list(proof.MODES)
               and manifest["separate_held_modes"] == ["prior-fingerprint"], INPUT)
-    expected = {"README.md", "compile-customer-v1.mjs", "compile-inputs.json", NODE_MAIN, "fixture.json",
+    expected = {"README.md", "compile-customer-v1.mjs", "compile-inputs.json", "test-json-binding.mjs", NODE_MAIN, "fixture.json",
                 "observe-customer-proof.sql", "compiled/emit-manifest.json"} | {f"compiled/{leaf}" for leaf in COMPILED}
     S.require(set(manifest["files"]) == expected, INPUT)
     for leaf in sorted(expected):

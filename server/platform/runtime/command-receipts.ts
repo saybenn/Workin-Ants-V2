@@ -52,8 +52,9 @@ export async function insertCommandResult(
   revision: string,
   body: object,
 ): Promise<boolean> {
+  // Bind the serialized JSON as text so the driver sends the JSON bytes directly.
   const rows = await query`
-    WITH result AS (SELECT ${JSON.stringify(body)}::jsonb AS body)
+    WITH result AS (SELECT ${JSON.stringify(body)}::text::jsonb AS body)
     INSERT INTO platform.runtime_command_receipt (
       id, owner_module_id, operation, subject_scope, semantic_key, fingerprint, state,
       source_revision, result_schema_id, result_schema_version, result_digest, result_body

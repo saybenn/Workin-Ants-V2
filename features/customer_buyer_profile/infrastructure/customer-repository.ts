@@ -39,7 +39,7 @@ export async function insertDefaultCustomer(query: OwnerQuery, rows: CustomerPro
     decisionRef: rows.decisionRef,
   };
   await query`
-    WITH evidence AS (SELECT ${JSON.stringify(body)}::jsonb AS body)
+    WITH evidence AS (SELECT ${JSON.stringify(body)}::text::jsonb AS body)
     INSERT INTO platform.owner_mutation_evidence (
       id, command_receipt_id, owner_module_id, aggregate_kind, aggregate_id, previous_revision, committed_revision,
       action, decision_ref, evidence_schema_id, evidence_schema_version, evidence_digest, evidence_body

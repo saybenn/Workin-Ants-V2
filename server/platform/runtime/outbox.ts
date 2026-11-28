@@ -19,7 +19,7 @@ export type OutboxMessage = Readonly<{
 
 export async function appendOutboxMessage(query: OwnerQuery, message: OutboxMessage): Promise<void> {
   await query`
-    WITH payload AS (SELECT ${JSON.stringify(message.payload)}::jsonb AS body)
+    WITH payload AS (SELECT ${JSON.stringify(message.payload)}::text::jsonb AS body)
     INSERT INTO platform.runtime_outbox_message (
       id, command_receipt_id, kind, producer_owner, aggregate_kind, aggregate_id,
       source_revision, source_generation, ordinal, name, schema_version, payload_schema_id,
