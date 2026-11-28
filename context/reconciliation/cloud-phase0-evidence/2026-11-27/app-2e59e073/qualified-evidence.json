@@ -1,0 +1,76 @@
+{
+  "actual_result": "DERIVED_REVIEWED_CLOUD_SOURCE8_TWO_APP_WRITE_ASSERTIONS_ONLY",
+  "claims": [
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "observation": {
+        "all_other_tables_unchanged": true,
+        "allowed_changed_tables": [
+          "app.customer_profile_lifecycle_event",
+          "app.customer_profiles",
+          "platform.database_action_grant",
+          "platform.owner_mutation_evidence",
+          "platform.runtime_command_receipt",
+          "platform.runtime_effect_receipt",
+          "platform.runtime_outbox_message"
+        ],
+        "before_complete_state_sha256": "8871fc22fa9a1d7f7902bc28797568a5a5781ee6e67edc324e084c42c1bcce59",
+        "case": "genuine-sh004-effect-insert",
+        "claim": "P0C-TABLE-RuntimeEffectReceipt-ALLOW|positive.wa_app_runtime.insert",
+        "complete_record_sequence_match": true,
+        "complete_state_sha256": "62897a239503bb8739ddceeca034c6a1f8860a182eb83447460b4d1b4ed941b4",
+        "grants_retained": 6,
+        "operation_closed_before_observers": true,
+        "source_guard": null,
+        "status": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+        "tables_observed": 42
+      },
+      "qualification_limit": "SOURCE8_SYNTHETIC_RESTRICTED_SQL_CRITERION_ONLY",
+      "qualification_scope": "Restricted App effect insert within the reviewed genuine Customer provisioning transaction.",
+      "status": "PASS"
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-RuntimeWorkItem-ALLOW",
+      "observation": {
+        "all_other_tables_unchanged": true,
+        "allowed_changed_tables": [
+          "platform.database_action_grant",
+          "platform.runtime_work_item"
+        ],
+        "before_complete_state_sha256": "0ea2cdca2fff8a31c357fbc78fc0247b8c2cf36ca2f3da37963b33b9c3110a73",
+        "case": "pending-work-next-attempt-update",
+        "claim": "P0C-TABLE-RuntimeWorkItem-ALLOW|positive.wa_app_runtime.update",
+        "complete_record_sequence_match": true,
+        "complete_state_sha256": "217b99bb2f6df3dd5f419f07a5184da5568c37769744279b8e5c33d523794c16",
+        "grants_retained": 15,
+        "operation_closed_before_observers": true,
+        "source_guard": null,
+        "status": "PASS_FINITE_APP_WRITE_PROTOCOL_ONLY",
+        "tables_observed": 42
+      },
+      "qualification_limit": "SOURCE8_SYNTHETIC_RESTRICTED_SQL_CRITERION_ONLY",
+      "qualification_scope": "Restricted App changed only next-attempt time on its separate genuinely scheduled pending work item.",
+      "status": "PASS"
+    }
+  ],
+  "database_posture": "D",
+  "migration_history": [
+    "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7"
+  ],
+  "packet_sha256": "7495da1a762f3e25e7fe6e1a6d35a729dc535ba34dffa62444131d9d1fdfc49a",
+  "pins": {
+    "acceptance.json": "af7258881decbf7d78f1c413a4283f64d7b0235d48c3c7f2200f8b683a69f7cc",
+    "evidence/app-source8/app-write-two-results.json": "00e0746f1f32c76dd7246a51192482c5647cef0f10c960c18478dc73b3a24f1a",
+    "evidence/run-evidence.json": "426bf87e47346532fc3f0998d71e415b131b103d56959c2a1757841f3a8e5e8c",
+    "independent-closure.json": "39eb70917db0bffe61f2f6e0fb6f4f0741f7292d00ca4b73e31387ed7b71329a",
+    "operation-exit.json": "4a8165503726b33722de649d38ad279bd5dfac1692368455b39094d2991ce027",
+    "operation.json": "7495da1a762f3e25e7fe6e1a6d35a729dc535ba34dffa62444131d9d1fdfc49a"
+  },
+  "run_id": "2e59e073-ef6e-4895-bf05-f920767d8543",
+  "schema": "workinants.cloud-app-source8-qualified-evidence.v1",
+  "source_commit": "9fd12ffb882fd7704ab7b428c2073a6fead03296",
+  "source_tree": "a1b2974622afa55cf41b5416ccf24195d6956f22"
+}

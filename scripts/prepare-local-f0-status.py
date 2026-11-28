@@ -23,6 +23,10 @@ from local_f0_cloud_csp9e633e3f_evidence import (
     DERIVED as CLOUD_CSP_RECORD, DERIVED_SHA as CLOUD_CSP_SHA, KIND as CLOUD_CSP_KIND,
     EvidenceFailure as CloudCspEvidenceFailure, is_reference as cloud_csp_reference, prepare_batch as prepare_cloud_csp_batch,
 )
+from local_f0_cloud_app_evidence import (
+    DERIVED as CLOUD_APP_RECORD, DERIVED_SHA as CLOUD_APP_SHA, KIND as CLOUD_APP_KIND,
+    EvidenceFailure as CloudAppEvidenceFailure, is_reference as cloud_app_reference, QualificationBatch as CloudAppBatch,
+)
 ROOT=Path(__file__).resolve().parents[1]
 REC=ROOT/'context/reconciliation'
 SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for model in ('CustomerProfile','CustomerProfileLifecycleEvent','RuntimeCommandReceipt','OwnerMutationEvidence','RuntimeOutboxMessage')}|{
@@ -39,6 +43,7 @@ SMALL_PASSES={(f'P0C-TABLE-{model}-ALLOW','positive.wa_app_runtime.insert') for 
 }
 EVIDENCE_RECORDS={
     CLOUD_CSP_RECORD:(CLOUD_CSP_SHA,CLOUD_CSP_KIND),
+    CLOUD_APP_RECORD:(CLOUD_APP_SHA,CLOUD_APP_KIND),
     'context/reconciliation/local-f0-privilege-967bfc8-485517b0-qualified-evidence.json':('7276e44216dabf7ad2f57f214e88cff3c9ecff27c2ed54c0103b70e8cd325776','PASS_RETROSPECTIVE_EXACT44_PRIVILEGE_ASSERTIONS_ONLY'),
     'context/reconciliation/local-f0-restore-249e681-04731001-qualified-evidence.json':('8a885249b41ba0b698e388f1685fd72e3b6b04fbe93b6caeecfffbfabcaca0a0','DERIVED_REVIEWED_RESTORE047_EXACT_THREE_CONTROL_ASSERTIONS_ONLY'),
     'context/reconciliation/local-f0-read13-0ff2a91-116153b2-qualified-evidence.json':('c1a93ad627e2276b6eceaf0f863efff24890a5c581fbb19a7c4a5c158ede2451','DERIVED_REVIEWED_REMAINING13_SQL_SELECT_ASSERTIONS_ONLY'),
@@ -59,6 +64,10 @@ EVIDENCE_RECORDS={
 def build():
     inventory=json.loads((REC/'local-f0-assertions.json').read_text(encoding='utf8'))
     ledger=json.loads((REC/'local-f0-assertion-evidence.json').read_text(encoding='utf8'))
+    cloud_app_batch=None
+    if any(map(cloud_app_reference,ledger['assertions']+ledger['executions'])):
+        try:cloud_app_batch=CloudAppBatch(ROOT,ledger)
+        except (CloudAppEvidenceFailure,OSError,CloudCspEvidenceFailure) as error:raise AssertionError(str(error)) from None
     cloud_csp_batch=None
     if any(map(cloud_csp_reference,ledger['assertions'])) or any(map(cloud_csp_reference,ledger['executions'])):
         try:cloud_csp_batch=prepare_cloud_csp_batch(ROOT,ledger)
@@ -144,6 +153,9 @@ def build():
                 elif row['evidence_path']==CLOUD_CSP_RECORD:
                     try:cloud_csp_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer,ledger_row=row)
                     except CloudCspEvidenceFailure as error:raise AssertionError(str(error)) from None
+                elif row['evidence_path']==CLOUD_APP_RECORD:
+                    try:cloud_app_batch.validate_claim(execution,row)
+                    except CloudAppEvidenceFailure as error:raise AssertionError(str(error)) from None
                 elif row['evidence_path']=='context/reconciliation/local-f0-privilege-967bfc8-485517b0-qualified-evidence.json':
                     try:privilege485517b0_batch.validate_claim(case['id'],item['id'],row['status'],execution,ROOT,json_pointer=pointer,ledger_row=row)
                     except Privilege485517b0EvidenceFailure as error:raise AssertionError(str(error)) from None
@@ -221,6 +233,9 @@ def build():
     if cloud_csp_batch is not None:
         try:cloud_csp_batch.verify_unchanged();cloud_csp_batch.require_finalized()
         except CloudCspEvidenceFailure as error:raise AssertionError(str(error)) from None
+    if cloud_app_batch is not None:
+        try:cloud_app_batch.verify_unchanged()
+        except (CloudAppEvidenceFailure,OSError,CloudCspEvidenceFailure) as error:raise AssertionError(str(error)) from None
     return {'scope':'ACTUAL_ASSERTION_EVIDENCE_OVER_EXACT_EXISTING94_IDS','database_posture':'D','Brain_acceptance':'PENDING','counts_are_obligations_not_experiments':True,'assertion_status_counts':totals,'case_status_counts':{s:sum(c['status']==s for c in cases) for s in ('PASS','PARTIAL','FAILED','DEPENDENCY_BLOCKED','NOT_RUN')},'selected_cases':94,'executions':ledger['executions'],'cases':cases}
 
 if __name__=='__main__':

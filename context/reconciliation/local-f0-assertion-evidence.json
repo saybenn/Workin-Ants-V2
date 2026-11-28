@@ -12008,6 +12008,38 @@
       "json_pointer": "/claims/0",
       "qualification_scope": "Cloud rehearsal of the three rollback-only Customer predecessor controls.",
       "qualification_limit": "THREE_ROLLBACK_CONTROLS_ONLY"
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "run_id": "2e59e073-ef6e-4895-bf05-f920767d8543",
+      "source_commit": "9fd12ffb882fd7704ab7b428c2073a6fead03296",
+      "source_tree": "a1b2974622afa55cf41b5416ccf24195d6956f22",
+      "packet_sha256": "7495da1a762f3e25e7fe6e1a6d35a729dc535ba34dffa62444131d9d1fdfc49a",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "evidence_path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/app-2e59e073/qualified-evidence.json",
+      "evidence_sha256": "3c89b789402a2f257307e03938e208525165448804991912dececd461b37fc4e",
+      "json_pointer": "/claims/0",
+      "qualification_scope": "Restricted App effect insert within the reviewed genuine Customer provisioning transaction.",
+      "qualification_limit": "SOURCE8_SYNTHETIC_RESTRICTED_SQL_CRITERION_ONLY"
+    },
+    {
+      "case_id": "P0C-TABLE-RuntimeWorkItem-ALLOW",
+      "assertion_id": "positive.wa_app_runtime.update",
+      "status": "PASS",
+      "expected_assertion_sha256": "2236f315d3df2a396b663522bb48f170d88ee4acbe2513d4f4b691d848dad47c",
+      "run_id": "2e59e073-ef6e-4895-bf05-f920767d8543",
+      "source_commit": "9fd12ffb882fd7704ab7b428c2073a6fead03296",
+      "source_tree": "a1b2974622afa55cf41b5416ccf24195d6956f22",
+      "packet_sha256": "7495da1a762f3e25e7fe6e1a6d35a729dc535ba34dffa62444131d9d1fdfc49a",
+      "application_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "evidence_path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/app-2e59e073/qualified-evidence.json",
+      "evidence_sha256": "3c89b789402a2f257307e03938e208525165448804991912dececd461b37fc4e",
+      "json_pointer": "/claims/1",
+      "qualification_scope": "Restricted App changed only next-attempt time on its separate genuinely scheduled pending work item.",
+      "qualification_limit": "SOURCE8_SYNTHETIC_RESTRICTED_SQL_CRITERION_ONLY"
     }
   ],
   "executions": [
@@ -12208,6 +12240,16 @@
       "evidence_sha256": "d88498700eccfd4e3bd1b3bf5bd99203e1b7122b11fb3dc847e2cb6af477de38",
       "actual_result": "DERIVED_REVIEWED_CLOUD_CSP_THREE_ROLLBACK_CONTROLS_ONE_ASSERTION_ONLY",
       "qualification_scope": "Cloud rehearsal of the three rollback-only Customer predecessor controls."
+    },
+    {
+      "run_id": "2e59e073-ef6e-4895-bf05-f920767d8543",
+      "source_commit": "9fd12ffb882fd7704ab7b428c2073a6fead03296",
+      "source_tree": "a1b2974622afa55cf41b5416ccf24195d6956f22",
+      "packet_sha256": "7495da1a762f3e25e7fe6e1a6d35a729dc535ba34dffa62444131d9d1fdfc49a",
+      "evidence_path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/app-2e59e073/qualified-evidence.json",
+      "evidence_sha256": "3c89b789402a2f257307e03938e208525165448804991912dececd461b37fc4e",
+      "actual_result": "DERIVED_REVIEWED_CLOUD_SOURCE8_TWO_APP_WRITE_ASSERTIONS_ONLY",
+      "qualification_scope": "SOURCE8_SYNTHETIC_RESTRICTED_SQL_CRITERION_ONLY"
     }
   ],
   "scope": "EXACT_ASSERTION_LINKS_NOT_WHOLE_CASE_PROMOTION"

@@ -1,0 +1,67 @@
+{
+  "Posture": "D",
+  "app_evidence": {
+    "archived_files_rehashed": 41,
+    "derived_evidence_bytes": 3780,
+    "derived_evidence_sha256": "3c89b789402a2f257307e03938e208525165448804991912dececd461b37fc4e",
+    "independent_audit_files_rehashed": 41,
+    "independent_closure_sha256": "39eb70917db0bffe61f2f6e0fb6f4f0741f7292d00ca4b73e31387ed7b71329a",
+    "packet_sha256": "7495da1a762f3e25e7fe6e1a6d35a729dc535ba34dffa62444131d9d1fdfc49a",
+    "pinned_reader_inputs": 6,
+    "run_id": "2e59e073-ef6e-4895-bf05-f920767d8543",
+    "source_commit": "9fd12ffb882fd7704ab7b428c2073a6fead03296",
+    "source_tree": "a1b2974622afa55cf41b5416ccf24195d6956f22"
+  },
+  "assertions": [
+    {
+      "assertion_id": "positive.wa_app_runtime.insert",
+      "case_id": "P0C-TABLE-RuntimeEffectReceipt-ALLOW",
+      "exact_recipe": "genuine-sh004-effect-insert",
+      "source_scope": "Restricted App effect insert within the reviewed genuine Customer provisioning transaction."
+    },
+    {
+      "assertion_id": "positive.wa_app_runtime.update",
+      "case_id": "P0C-TABLE-RuntimeWorkItem-ALLOW",
+      "exact_recipe": "pending-work-next-attempt-update",
+      "source_scope": "Restricted App changed only next-attempt time on its separate genuinely scheduled pending work item."
+    }
+  ],
+  "canonical_admission_performed_in_review": false,
+  "checks": {
+    "focused_tests_passed": 5,
+    "full_inventory_builder_dispatched_exact_app_leaves_in_memory": 2,
+    "independently_reproduced_exact_derived_bytes": true,
+    "late_original_child_drift_rejected_after_both_dispatches": true,
+    "legacy_dispatcher_code_preserved": true,
+    "other_app_projections_rejected": [
+      "wrong_execution_tree",
+      "wrong_assertion_commit",
+      "wrong_pointer",
+      "extra_execution"
+    ]
+  },
+  "decision": "APPROVE_EXACT_TWO_ASSERTION_ADMISSION_SOURCE",
+  "files_sha256": {
+    "scripts/check-local-f0-cloud-app-evidence.py": "3d35d2e05ae708d5d67d42153d66ab5e95e2f3e8451cfa026e11a1de150e4c3b",
+    "scripts/local_f0_cloud_app_evidence.py": "12b00b132a3e5f30deada2fcd9ea8fccf161d7ff74c191260940409cfae75814",
+    "scripts/prepare-local-f0-status.py": "9caad0bbc096059811d09326fb08a0a0363e931b7ed1121551b88367ec072ab5"
+  },
+  "findings": [],
+  "ledger": {
+    "compound_case_promotions": 0,
+    "inventory_sha256": "7fff51fc849cb37464b3df47d157fda73f1888f4909901c11ff44b5c5d388558",
+    "old_assertions_preserved": 731,
+    "old_executions_preserved": 16,
+    "preceding_board_sha256": "8e931db5d057fdf7aa07fd21d2c4ff19a5172fdcf0d50a25382b22abd3745f78",
+    "preceding_sha256": "8a0c0965c131058586c950ecb982f7f59f1797a78363915ef8ab3dbf136d9650",
+    "proposed_assertions": 733,
+    "proposed_executions": 17,
+    "selected_cases": 94
+  },
+  "operational_authority": false,
+  "qualification_limit": "Exact source8 synthetic App SQL leaf criteria for the original effect insert and pending next-attempt update.",
+  "reviewed_at_utc": "2026-11-28T05:20:04.120116+00:00",
+  "reviewer": "/root/foundation_gates",
+  "schema": "workinants.cloud-app-source8-assertion-admission-source-review.v1",
+  "source_author": "/root"
+}
