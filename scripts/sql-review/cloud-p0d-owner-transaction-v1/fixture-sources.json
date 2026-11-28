@@ -1,0 +1,113 @@
+{
+  "application_names": {
+    "wa_app_runtime": "wa_p0d_owner_smoke_app",
+    "wa_context_issuer": "wa_p0d_owner_smoke_issuer"
+  },
+  "customer_observer_expected": {
+    "coherent": true,
+    "command": 1,
+    "customer": 1,
+    "evidence": 1,
+    "history": 1,
+    "outbox": 2,
+    "track_enrollments": 0
+  },
+  "database": "wa_p0c_rehearsal",
+  "effect_observer_expected": {
+    "actual_sh004_result_and_source_match": true,
+    "effects": 1
+  },
+  "grant_templates": {
+    "createCustomer": {
+      "count": 208,
+      "inherited_template": "genuine-sh004-effect-insert"
+    },
+    "customerRead": {
+      "count": 15,
+      "inherited_template": "customer-existing-complete-revision-read"
+    },
+    "missingRevision": {
+      "count": 14,
+      "inherited_template": "customer-existing-missing-revision-read"
+    },
+    "pendingWorkUpdate": {
+      "count": 16,
+      "inherited_template": "pending-work-next-attempt-update"
+    },
+    "scheduleWork": {
+      "count": 25,
+      "inherited_template": "schedule"
+    }
+  },
+  "host": "127.0.0.1",
+  "identity_coherence_observer_expected": {
+    "coherent": true,
+    "users": 2
+  },
+  "physical_fixture_sql_counts": {
+    "customer_setup_statements": 7,
+    "identity_owner_commit_trigger_pairs": 2,
+    "schedule_setup_statements": 1
+  },
+  "policy_version": "wa-p0d-owner-smoke.v1",
+  "port": 5432,
+  "schema": "workinants.p0d-owner-node-smoke-fixture.v1",
+  "source_files": {
+    "customer_complete_read": {
+      "bytes": 278,
+      "path": "review-output/app-write-two-guard-observation-v2/customer-existing-complete-revision-read.sql",
+      "sha256": "4da07134886ae7acfe6f8a71bae94a0bee849f1a632fe67f1248a4a3472793a6"
+    },
+    "customer_missing_read": {
+      "bytes": 276,
+      "path": "review-output/app-write-two-guard-observation-v2/customer-existing-missing-revision-read.sql",
+      "sha256": "c55812c1c4d0fed7aa8aa27c2f06681badf766661683ea933fec874e5866958e"
+    },
+    "customer_observer": {
+      "bytes": 5451,
+      "path": "review-output/app-write-two-guard-observation-v2/source-customer-observe.sql",
+      "sha256": "1e44be39b65dfa72d21c0ea8fec0c304332e66a5b888cde90683aa0808cbe89f"
+    },
+    "customer_setup": {
+      "bytes": 7090,
+      "path": "review-output/app-write-two-guard-observation-v2/genuine-sh004-effect-insert.sql",
+      "sha256": "f056d0efdf8fbe70302c291b7d1d644fa069fb99fd926b7ec06eb5f2bacd8273"
+    },
+    "effect_observer": {
+      "bytes": 886,
+      "path": "review-output/app-write-two-guard-observation-v2/effect-coherence-observe.sql",
+      "sha256": "4efbc1743ab99e5fbf5fe7373a3e29a0838de3967fa31ebc7c254031a466a555"
+    },
+    "fixture_packet": {
+      "bytes": 254566,
+      "path": "review-output/app-write-two-guard-observation-v2/fixtures.json",
+      "sha256": "9a0b874d96fb621e20adfa5dcca5b1cc472f025507b171af056b58c9ff23c962"
+    },
+    "identity_coherence_observer": {
+      "bytes": 330,
+      "path": "review-output/app-write-two-guard-observation-v2/user-coherence-observe.sql",
+      "sha256": "14000b439a0175ac3b458eb5d87d778013624b54d0f3b77d32202ca71ad87305"
+    },
+    "identity_restore": {
+      "bytes": 134,
+      "path": "review-output/app-write-two-guard-observation-v2/exact-fixture-restore.sql",
+      "sha256": "d6ff439ae6b06d905410c3fc57858c9073a1ce4905258aafae5eda137f124156"
+    },
+    "identity_setup": {
+      "bytes": 1316,
+      "path": "review-output/app-write-two-guard-observation-v2/independent-user-fixtures.sql",
+      "sha256": "ce281631c3dcee36c6e1b8e24182cf8041bb86aae5b2caf8f8902d278bf0663a"
+    },
+    "schedule_setup": {
+      "bytes": 566,
+      "path": "review-output/app-write-two-guard-observation-v2/schedule.sql",
+      "sha256": "aa734875b3579cc5129ac0ed7d0684dc1b9da0ff988f7d02825d5a230bf56700"
+    },
+    "work_update": {
+      "bytes": 716,
+      "path": "review-output/app-write-two-guard-observation-v2/pending-work-next-attempt-update.sql",
+      "sha256": "09301370c3ec2bf45d9385442b8da1b3bbba5e6d955673d15e89e52f12389e4b"
+    }
+  },
+  "status": "PREPARED_NOT_RUN"
+}

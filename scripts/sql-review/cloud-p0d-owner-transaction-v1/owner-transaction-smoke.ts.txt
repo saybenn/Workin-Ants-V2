@@ -1,0 +1,336 @@
+import { readFile } from "node:fs/promises";
+import { isAbsolute, normalize } from "node:path";
+import { stdin } from "node:process";
+import { pathToFileURL } from "node:url";
+import type postgres from "postgres";
+import type { Options, Sql } from "postgres";
+import {
+  OwnerTransactionFailure,
+  runOwnerTransaction,
+  type DatabaseActionContext,
+  type OwnerDatabase,
+  type OwnerQuery,
+} from "./owner-transaction.ts";
+import { createKnownCustomer, customerId, grants, scheduleKnownWork, workId } from "./fixture.ts";
+
+const schema = "workinants.p0d-owner-node-smoke-result.v1";
+const databaseName = "wa_p0c_rehearsal";
+const host = "127.0.0.1";
+const port = 5432;
+const role = { app: "wa_app_runtime", issuer: "wa_context_issuer" } as const;
+const application = { app: "wa_p0d_owner_smoke_app", issuer: "wa_p0d_owner_smoke_issuer" } as const;
+type Login = keyof typeof role;
+type Terminal = "commit" | "rollback";
+type Dispatches = { terminals: Terminal[]; fault: number; afterFault: number };
+
+function need(value: unknown): asserts value {
+  if (!value) throw new Error("fixture_assertion_failed");
+}
+
+async function readCredentials(): Promise<Record<Login, string>> {
+  const buffer = Buffer.alloc(151);
+  let length = 0;
+  const timeout = setTimeout(() => stdin.destroy(new Error("stdin_closed")), 5000);
+  try {
+    for await (const chunk of stdin) {
+      need(Buffer.isBuffer(chunk) && length + chunk.length <= buffer.length);
+      chunk.copy(buffer, length);
+      length += chunk.length;
+    }
+    const match = /^\{"app":"([0-9a-f]{64})","issuer":"([0-9a-f]{64})"\}\n?$/.exec(buffer.toString("ascii", 0, length));
+    need(match?.[0].length === length && match[1] && match[2] && match[1] !== match[2]);
+    need(buffer.subarray(0, length).every((byte) => byte < 128));
+    return { app: match[1], issuer: match[2] };
+  } finally {
+    clearTimeout(timeout);
+    buffer.fill(0);
+  }
+}
+
+async function loadDriver(): Promise<typeof postgres> {
+  const path = process.argv[2];
+  need(process.argv.length === 3 && typeof path === "string" && isAbsolute(path) && normalize(path) === path);
+  need(/^\/[A-Za-z0-9_./-]+\/postgres\/src\/index\.js$/.test(path));
+  const entry = pathToFileURL(path);
+  const manifest = JSON.parse(await readFile(new URL("../package.json", entry), "utf8")) as Record<string, unknown>;
+  need(manifest.name === "postgres" && manifest.version === "3.4.7");
+  const driver = await import(entry.href) as { default?: typeof postgres };
+  need(typeof driver.default === "function");
+  return driver.default;
+}
+
+function poolOptions(login: Login, password: string, onNotice: () => void): Options<{}> {
+  return {
+    host,
+    port,
+    database: databaseName,
+    username: role[login],
+    password,
+    ssl: false,
+    max: 1,
+    idle_timeout: 0,
+    max_lifetime: 0,
+    connect_timeout: 5,
+    fetch_types: true,
+    prepare: false,
+    onnotice: onNotice,
+    connection: {
+      application_name: application[login],
+      TimeZone: "UTC",
+      statement_timeout: 5000,
+      lock_timeout: 1000,
+      idle_in_transaction_session_timeout: 30000,
+    },
+  };
+}
+
+function context(grant: Omit<DatabaseActionContext, "expiresAt">, securityGeneration = grant.securityGeneration) {
+  return { ...grant, securityGeneration, expiresAt: new Date(Date.now() + 120_000) };
+}
+
+function one(rows: readonly Record<string, unknown>[]): Record<string, unknown> {
+  need(rows.length === 1 && rows[0]);
+  return rows[0];
+}
+
+async function failure(action: () => Promise<unknown>, code: OwnerTransactionFailure["code"]) {
+  try {
+    await action();
+  } catch (error: unknown) {
+    need(error instanceof OwnerTransactionFailure && error.code === code && error.message === code);
+    return code;
+  }
+  throw new Error("expected_failure_absent");
+}
+
+async function inspectBackend(query: OwnerQuery) {
+  const row = one(await query`
+    SELECT pg_catalog.pg_backend_pid() AS pid, pg_catalog.pg_current_xact_id()::text AS xid,
+           extract(epoch FROM a.backend_start)::text AS backend_start_epoch,
+           (session_user = 'wa_app_runtime' AND current_user = 'wa_app_runtime'
+            AND pg_catalog.current_database() = 'wa_p0c_rehearsal'
+            AND pg_catalog.current_setting('transaction_isolation') = 'read committed'
+            AND pg_catalog.inet_server_addr() = '127.0.0.1'::inet
+            AND pg_catalog.inet_server_port() = 5432
+            AND a.application_name = 'wa_p0d_owner_smoke_app') AS exact_target,
+           coalesce(pg_catalog.current_setting('wa.context_hash', true), '') <> '' AS bound
+    FROM pg_catalog.pg_stat_activity AS a WHERE a.pid = pg_catalog.pg_backend_pid()
+  `);
+  need(typeof row.pid === "number" && Number.isInteger(row.pid) && row.pid > 0 && row.exact_target === true);
+  need(typeof row.xid === "string" && /^[1-9][0-9]{0,19}$/.test(row.xid));
+  need(typeof row.backend_start_epoch === "string" && /^[1-9][0-9]{0,11}\.[0-9]{6}$/.test(row.backend_start_epoch));
+  need(typeof row.bound === "boolean");
+  return { pid: row.pid, xid: row.xid, backend_start_epoch: row.backend_start_epoch, bound: row.bound };
+}
+
+type Backend = Awaited<ReturnType<typeof inspectBackend>>;
+
+function sameBackend(first: Backend, second: Backend) {
+  return first.pid === second.pid && first.backend_start_epoch === second.backend_start_epoch;
+}
+
+async function countKnownCustomer(query: OwnerQuery) {
+  const row = one(await query`SELECT count(*)::integer AS visible FROM app.customer_profiles WHERE id = ${customerId}::uuid`);
+  need(row.visible === 0 || row.visible === 1);
+  return row.visible;
+}
+
+async function readKnownCustomer(query: OwnerQuery) {
+  return { backend: await inspectBackend(query), count: await countKnownCustomer(query) };
+}
+
+async function unboundRead(runtime: Sql) {
+  const transaction = await runtime.reserve();
+  let closed = false;
+  try {
+    const started = await transaction`BEGIN ISOLATION LEVEL READ COMMITTED`;
+    need(started.command === "BEGIN");
+    return await readKnownCustomer(async (statement, ...parameters) => [...await transaction(statement, ...parameters)]);
+  } finally {
+    try {
+      const ended = await transaction`ROLLBACK`;
+      closed = ended.command === "ROLLBACK";
+      need(closed);
+    } finally {
+      if (closed) transaction.release();
+      else await runtime.end({ timeout: 0 });
+    }
+  }
+}
+
+async function inspectWork(query: OwnerQuery) {
+  const row = one(await query`
+    SELECT encode(sha256(convert_to(to_jsonb(w)::text,'UTF8')),'hex') AS row_sha256,
+           w.mutation_transaction_id AS xid, w.next_attempt_at IS NULL AS not_before_null,
+           (w.state = 'pending' AND w.fence = 0 AND w.attempt_count = 0 AND w.lease_token_hash IS NULL
+            AND w.lease_expires_at IS NULL AND w.effect_receipt_id IS NULL) AS known_pending
+    FROM platform.runtime_work_item AS w WHERE w.id = ${workId}::uuid
+  `);
+  need(row.known_pending === true && typeof row.not_before_null === "boolean");
+  need(typeof row.row_sha256 === "string" && /^[0-9a-f]{64}$/.test(row.row_sha256));
+  need(typeof row.xid === "string" && /^[1-9][0-9]{0,19}$/.test(row.xid));
+  return { row_sha256: row.row_sha256, xid: row.xid, not_before_null: row.not_before_null };
+}
+
+type Work = Awaited<ReturnType<typeof inspectWork>>;
+
+async function changeKnownWork(query: OwnerQuery, initial: Work) {
+  const before = await inspectWork(query);
+  need(before.row_sha256 === initial.row_sha256 && before.xid === initial.xid && before.not_before_null);
+  const backend = await inspectBackend(query);
+  need(backend.bound && backend.xid !== initial.xid);
+  const changed = one(await query`
+    WITH changed AS (
+      UPDATE platform.runtime_work_item SET next_attempt_at = clock_timestamp() + interval '120 seconds'
+      WHERE id = ${workId}::uuid AND state = 'pending' AND fence = 0 AND attempt_count = 0
+        AND next_attempt_at IS NULL AND lease_token_hash IS NULL AND lease_expires_at IS NULL AND effect_receipt_id IS NULL
+      RETURNING next_attempt_at, mutation_transaction_id
+    )
+    SELECT count(*)::integer AS changed,
+           coalesce(bool_and(next_attempt_at > clock_timestamp()
+             AND next_attempt_at <= clock_timestamp() + interval '120 seconds'
+             AND mutation_transaction_id = pg_current_xact_id()::text),false) AS this_transaction
+    FROM changed
+  `);
+  const after = await inspectWork(query);
+  need(changed.changed === 1 && changed.this_transaction === true);
+  need(after.row_sha256 !== initial.row_sha256 && after.xid === backend.xid && !after.not_before_null);
+  return backend;
+}
+
+function fixtureCount(row: Record<string, unknown>, key: "inserted" | "scheduled") {
+  const value = row.jsonb_build_object;
+  return typeof value === "object" && value !== null && Object.keys(value).length === 1
+    && (value as Record<string, unknown>)[key] === 1;
+}
+
+async function exercise(database: OwnerDatabase, runtime: Sql, dispatches: Dispatches, setStage: (stage: string) => void) {
+  const commands = dispatches.terminals;
+  setStage("CUSTOMER_SOURCE_COMMIT");
+  const source = await runOwnerTransaction(database, context(grants.createCustomer), async (query) => {
+    const backend = await inspectBackend(query);
+    need(backend.bound && fixtureCount(one(await createKnownCustomer(query)), "inserted"));
+    return backend;
+  });
+  setStage("WORK_SCHEDULE_COMMIT");
+  const scheduled = await runOwnerTransaction(database, context(grants.scheduleWork), async (query) => {
+    const backend = await inspectBackend(query);
+    need(backend.bound && fixtureCount(one(await scheduleKnownWork(query)), "scheduled"));
+    const work = await inspectWork(query);
+    need(work.not_before_null && work.xid === backend.xid);
+    return { backend, work };
+  });
+  need(commands.join(",") === "commit,commit");
+
+  setStage("CUSTOMER_COMPLETE_SCOPE");
+  const complete = await runOwnerTransaction(database, context(grants.customerRead), readKnownCustomer);
+  need(complete.backend.bound && complete.count === 1);
+
+  setStage("STALE_SECURITY_GENERATION");
+  let staleCallbacks = 0;
+  const stale = await failure(() => runOwnerTransaction(database, context(grants.customerRead, 1n), async () => {
+    staleCallbacks += 1;
+  }), "context_denied");
+  need(staleCallbacks === 0);
+
+  setStage("SAME_POOL_CONTEXT_ABSENT");
+  const unbound = await unboundRead(runtime);
+  need(!unbound.backend.bound && unbound.count === 0);
+
+  setStage("MISSING_CUSTOMER_REVISION");
+  const missing = await runOwnerTransaction(database, context(grants.missingRevision), readKnownCustomer);
+  need(missing.backend.bound && missing.count === 0);
+
+  setStage("SAME_POOL_REBOUND");
+  const rebound = await runOwnerTransaction(database, context(grants.customerRead), readKnownCustomer);
+  need(rebound.backend.bound && rebound.count === 1);
+  need(commands.join(",") === "commit,commit,commit,rollback,rollback,commit,commit");
+
+  setStage("LOCAL_PHYSICAL_ROLLBACK");
+  let rolledBack: Backend | undefined;
+  const local = await failure(() => runOwnerTransaction(database, context(grants.pendingWorkUpdate), async (query) => {
+    rolledBack = await changeKnownWork(query, scheduled.work);
+    throw new Error("request_local_rollback");
+  }), "rolled_back");
+  need(rolledBack);
+
+  setStage("SWALLOWED_DRIVER_FAILURE");
+  let latched: Backend | undefined;
+  let callbackCompleted = false;
+  let queryFailure: OwnerTransactionFailure["code"] | undefined;
+  const caught = await failure(() => runOwnerTransaction(database, context(grants.pendingWorkUpdate), async (query) => {
+    latched = await changeKnownWork(query, scheduled.work);
+    queryFailure = await failure(() => query`SELECT 1 / ${0}::integer AS impossible`, "rolled_back");
+    callbackCompleted = true;
+    return "callback_resolved";
+  }), "rolled_back");
+  need(latched && callbackCompleted && queryFailure === "rolled_back");
+  need(dispatches.fault === 1 && dispatches.afterFault === 0);
+  need(commands.join(",") === "commit,commit,commit,rollback,rollback,commit,commit,rollback,rollback");
+
+  const observed = [source, scheduled.backend, complete.backend, unbound.backend, missing.backend, rebound.backend, rolledBack, latched];
+  need(observed.every((value) => sameBackend(source, value)) && new Set(observed.map((value) => value.xid)).size === observed.length);
+  return {
+    runtime_backend: { pid: source.pid, backend_start_epoch: source.backend_start_epoch },
+    transaction_xids: {
+      source: source.xid,
+      schedule: scheduled.backend.xid,
+      complete: complete.backend.xid,
+      unbound: unbound.backend.xid,
+      missing_revision: missing.backend.xid,
+      rebound: rebound.backend.xid,
+      local_rollback: rolledBack.xid,
+      latched_rollback: latched.xid,
+    },
+    scheduled_work_full_row_sha256: scheduled.work.row_sha256,
+    customer_visibility: { complete: complete.count, unbound: unbound.count, missing_revision: missing.count, rebound: rebound.count },
+    stale_generation: { failure: stale, callback_count: staleCallbacks },
+    local_rollback: { failure: local, changed: 1, actual_mutation_xid_verified: true },
+    latched_failure: {
+      query_failure: queryFailure,
+      transaction_failure: caught,
+      changed: 1,
+      callback_completed: true,
+      commit_dispatched: false,
+      subsequent_query_dispatches: 0,
+    },
+  };
+}
+
+let stage = "ENTRY";
+try {
+  const credentials = await readCredentials();
+  stage = "DRIVER";
+  const driver = await loadDriver();
+  for (const name of Object.keys(process.env)) if (/^PG[A-Z_]+$/.test(name)) delete process.env[name];
+  let notices = 0;
+  const dispatches: Dispatches = { terminals: [], fault: 0, afterFault: 0 };
+  const runtimeOptions = poolOptions("app", credentials.app, () => { notices += 1; });
+  const runtime = driver({
+    ...runtimeOptions,
+    // Retain only closed dispatch categories. A caught query failure allows just the rollback.
+    debug(_connection, text) {
+      const command = text.trim().toLowerCase();
+      if (dispatches.fault > 0 && command !== "rollback") dispatches.afterFault += 1;
+      if (command === "select 1 / $1::integer as impossible") dispatches.fault += 1;
+      if (command === "commit" || command === "rollback") dispatches.terminals.push(command);
+    },
+  });
+  let issuer: Sql | undefined;
+  let result: Awaited<ReturnType<typeof exercise>>;
+  let closureConfirmed = false;
+  try {
+    issuer = driver(poolOptions("issuer", credentials.issuer, () => { notices += 1; }));
+    result = await exercise({ runtime, issuer, runtimeLogin: role.app, expectedDatabase: databaseName }, runtime, dispatches,
+      (next) => { stage = next; });
+  } finally {
+    const completions = await Promise.allSettled([runtime.end({ timeout: 2 }), issuer?.end({ timeout: 2 })]);
+    closureConfirmed = issuer !== undefined && completions.every((completion) => completion.status === "fulfilled");
+  }
+  stage = "POOL_CLOSE";
+  need(closureConfirmed && notices === 0);
+  process.stdout.write(`${JSON.stringify({ schema, status: "PASS_KNOWN_OWNER_TRANSACTION_SMOKE_ONLY", ...result, pools_ended: true })}\n`);
+} catch {
+  process.exitCode = 1;
+  process.stdout.write(`${JSON.stringify({ schema, status: "STOPPED", stage })}\n`);
+}
