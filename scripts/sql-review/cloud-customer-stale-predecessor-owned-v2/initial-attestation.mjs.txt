@@ -1,0 +1,60 @@
+function keys(value, names, code) {
+  requireLocal(value && typeof value === "object" && !Array.isArray(value) &&
+    canonicalJson(Object.keys(value).sort()) === canonicalJson([...names].sort()), code);
+}
+
+export function validateAttestation(value) {
+  keys(value, ["schema", "planned", "run_manifest_sha256", "operation", "observed"], "ATTESTATION_FIELDS");
+  requireLocal(value.schema === "workinants.cloud-csp-initial-live-attestation.v2" &&
+    value.operation === "deploy", "CLOUD_CSP_DEPLOY_ONLY");
+  const planned = value.planned, observed = value.observed;
+  keys(planned, ["schema", "run_id", "purpose", "daemon", "target", "source", "migration", "tools"], "RUN_FIELDS");
+  requireLocal(planned.schema === "workinants.cloud-csp-initial-run.v2" &&
+    planned.purpose === "CLOUD_F0_CSP_INITIAL_MIGRATION_V2", "CLOUD_CSP_MANIFEST");
+  const run = planned.run_id;
+  requireLocal(typeof run === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?![\s\S])/.test(run), "UUID4_RUN_REQUIRED");
+  validateDaemon(planned.daemon);
+  const target = planned.target;
+  keys(target, ["container_name", "volume_name", "database", "image", "network",
+    "labels", "bootstrap_container_path"], "TARGET_FIELDS");
+  const name = "wa-p0c-cloud-csp-" + run;
+  requireLocal(target.container_name === name && target.volume_name === name + "-data" &&
+    target.database === "wa_p0c_rehearsal" && target.image === IMAGE && target.network === "none" &&
+    target.bootstrap_container_path === "/run/wa-secrets/bootstrap-password",
+    "CLOUD_CSP_TARGET");
+  const labels = {"workinants.rehearsal": "p0c-cloud-f0-csp-v2", "workinants.rehearsal.run": run};
+  requireLocal(canonicalJson(target.labels) === canonicalJson(labels), "CLOUD_CSP_LABELS");
+  keys(planned.source, ["integrated_sql_sha256", "foundation_schema_sha256", "runtime_files_sha256"], "SOURCE_FIELDS");
+  requireLocal(planned.source.integrated_sql_sha256 === "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad" &&
+    planned.source.foundation_schema_sha256 === "de069b3beae07ab7f29167203efae11937f6a29c470cb1c95c2c143fdb623723", "CLOUD_CSP_SQL_SCHEMA_PINS");
+  keys(planned.migration, ["id", "history"], "MIGRATION_FIELDS");
+  requireLocal(planned.migration.history === "prisma/foundation/migrations" &&
+    planned.migration.id === "20261117000100_f0_local_initial", "CLOUD_CSP_ONE_HISTORY");
+  validateToolMap(planned.tools);
+  keys(observed, ["endpoint", "daemon", "container_id", "container_name", "volume_name",
+    "volume_created_at", "image", "image_id", "network", "published_ports", "labels",
+    "bootstrap_container_path", "bootstrap_file_absent", "private_tmpfs_verified"], "OBSERVATION_FIELDS");
+  requireLocal(observed.endpoint === ENDPOINT &&
+    canonicalJson(observed.daemon) === canonicalJson(planned.daemon), "CLOUD_ENDPOINT_AND_DAEMON");
+  requireLocal(typeof observed.container_id === "string" && HASH.test(observed.container_id) &&
+    typeof observed.volume_created_at === "string" &&
+    /^[0-9TZ:.+-]{20,64}(?![\s\S])/.test(observed.volume_created_at) &&
+    observed.container_name === name && observed.volume_name === target.volume_name, "LIVE_RESOURCE_IDENTITY");
+  requireLocal(observed.image === IMAGE && [IMAGE_MANIFEST, IMAGE_CONFIG].includes(observed.image_id) &&
+    observed.network === "none" && observed.published_ports === false && observed.bootstrap_file_absent === true &&
+    observed.private_tmpfs_verified === true && observed.bootstrap_container_path === target.bootstrap_container_path &&
+    canonicalJson(observed.labels) === canonicalJson(labels), "LIVE_PRIVATE_TARGET");
+  requireLocal(value.run_manifest_sha256 === sha256(canonicalJson(planned) + "\n"), "RUN_MANIFEST_HASH_MISMATCH");
+  return value;
+}
+
+export function verifyBootstrapAbsent() {
+  try {
+    fs.lstatSync(PRIVATE_ROOT + "/bootstrap-password");
+  } catch (error) {
+    if (error?.code === "ENOENT") return;
+    throw new HeldFailure("CLOUD_BOOTSTRAP_ABSENCE_UNCONFIRMED");
+  }
+  throw new HeldFailure("CLOUD_BOOTSTRAP_FILE_RETAINED");
+}

@@ -1,0 +1,32 @@
+// The owning Cloud profile launches from protected stdin into tmpfs.
+// The bootstrap credential and pending file are both absent by dispatch time.
+export function privateBootstrapAbsent(lstat = fs.lstatSync) {
+  for (const name of ["bootstrap-password", "bootstrap-pending"]) {
+    try {
+      lstat(PRIVATE_ROOT + "/" + name);
+    } catch (error) {
+      if (error.code === "ENOENT") continue;
+      throw new HeldFailure("BOOTSTRAP_ABSENCE_UNCONFIRMED");
+    }
+    throw new HeldFailure("BOOTSTRAP_CREDENTIAL_RETAINED");
+  }
+}
+
+export function privateMounts(raw) {
+  const rows = raw.split("\n").map(line => line.split(" "));
+  const dir = rows.filter(fields => fields[4] === PRIVATE_ROOT);
+  const data = rows.filter(fields => fields[4] === "/var/lib/postgresql/data");
+  requireLocal(dir.length === 1 && data.length === 1, "EXACT_RUNTIME_MOUNTS");
+  requireLocal(!rows.some(fields => fields[4] === "/run/bootstrap-password"
+    || fields[4]?.startsWith(PRIVATE_ROOT + "/")
+    || fields[4]?.startsWith("/var/lib/postgresql/data/")), "UNDECLARED_BOOTSTRAP_OR_DATA_MOUNT");
+  const fields = dir[0];
+  const separator = fields.indexOf("-", 6);
+  const options = fields[5].split(",");
+  const superOptions = fields[separator + 3]?.split(",") || [];
+  requireLocal(separator >= 6 && fields[separator + 1] === "tmpfs"
+    && ["rw", "nosuid", "nodev", "noexec"].every(option => options.includes(option))
+    && superOptions.filter(option => option.startsWith("size=")).length === 1
+    && superOptions.includes("size=8192k"), "PRIVATE_TMPFS_FLAGS_OR_SIZE");
+  requireLocal(data[0][5].split(",").includes("rw"), "DATA_VOLUME_NOT_WRITABLE");
+}
