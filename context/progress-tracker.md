@@ -22,6 +22,8 @@ Independent review accepted database entry for a bounded P0-D implementation usi
 
 The first P0-D server transaction, exact known-ID Customer command receipt and atomic outbox source passed source review, strict type checking and the build. The owner transaction and Customer replay need separate live results. [Owner smoke test](../scripts/sql-review/cloud-p0d-owner-transaction-v1/README.md) · [Bounded Customer application](../features/customer_buyer_profile/application/resolve-customer-actor.ts)
 
+The Track candidate passed fresh three-migration deployment and no-op, then a separate restricted run preserved both existing Free and synthetic paid-shaped selections. The independent reviews verified exact cleanup and retained the applicability limits for populated usage, the subscription validity race and real billing. [Three-migration evidence](reconciliation/cloud-phase0-evidence/2026-11-27/track-e067ba41/acceptance.json) · [Business evidence](reconciliation/cloud-phase0-evidence/2026-11-27/track-business-005ce121/acceptance.json)
+
 See the [execution checklist](reconciliation/cloud-phase0-execution.md), [starting Cloud results](reconciliation/cloud-phase0-evidence/2026-11-27/baseline.json), and [reviewed P0-B update](reconciliation/cloud-phase0-evidence/2026-11-27/p0b-requalification.json).
 
 ---

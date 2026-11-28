@@ -1,0 +1,111 @@
+{
+  "case_id": "P0C-CATALOG-01",
+  "check_counts": {
+    "PASS": 29089
+  },
+  "database_contacted_by_comparator": false,
+  "database_posture": "D",
+  "findings": [],
+  "format": "workinants.catalog-comparison.v1",
+  "limit": "Public owner baseline and genuine Prisma ledger require separate reviewed evidence; unresolved expression hashes remain INCOMPLETE. Array effective USAGE follows verified element ACL; generated-type rows compare the collector default-ACL projection.",
+  "native_snapshot_sha256": "a17eea93a4bd7b76a75885ef2786ebb7c6f211b360ceaa8479f4abdd2d8ef44b",
+  "pg17_rule_release": "REL_17_11",
+  "pg17_rule_sources": {
+    "array_effective_usage_delegation": {
+      "ranges": [
+        "2301-2316",
+        "3592-3617"
+      ],
+      "symbols": [
+        "ExecGrant_Type_check",
+        "pg_type_aclmask_ext"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/aclchk.c"
+    },
+    "dependent_type_acl": {
+      "ranges": [
+        "315-325",
+        "383-394"
+      ],
+      "symbols": [
+        "TypeCreate"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/pg_type.c"
+    },
+    "foreign_key_inheritance_and_trigger_matrix": {
+      "ranges": [
+        "9568-9619",
+        "11309-11463",
+        "11594-11794"
+      ],
+      "symbols": [
+        "addFkConstraint",
+        "transformFkeyCheckAttrs",
+        "CreateFKCheckTrigger",
+        "createForeignKeyActionTriggers"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/tablecmds.c"
+    },
+    "index_constraint_inheritance_and_deferred_trigger": {
+      "ranges": [
+        "1819-1864",
+        "1888-1914"
+      ],
+      "symbols": [
+        "index_constraint_create"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/index.c"
+    },
+    "pinned_dependencies_are_omitted": {
+      "ranges": [
+        "98-106"
+      ],
+      "symbols": [
+        "recordMultipleDependencies"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/pg_depend.c"
+    },
+    "pinned_object_classification": {
+      "ranges": [
+        "317-372"
+      ],
+      "symbols": [
+        "IsPinnedObject"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/catalog/catalog.c"
+    },
+    "release_pinned_trigger_functions": {
+      "ranges": [
+        "3743-3789"
+      ],
+      "symbols": [
+        "unique_key_recheck",
+        "RI_FKey_*"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/include/catalog/pg_proc.dat"
+    },
+    "type_acl_defaults_and_owner_flags": {
+      "ranges": [
+        "816-820",
+        "840-861"
+      ],
+      "symbols": [
+        "acldefault"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/utils/adt/acl.c"
+    },
+    "user_constraint_trigger_catalog_row_and_internal_names": {
+      "ranges": [
+        "754-803",
+        "813-868",
+        "978-1055"
+      ],
+      "symbols": [
+        "CreateTriggerFiringOn"
+      ],
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_17_11/src/backend/commands/trigger.c"
+    }
+  },
+  "source_expected_sha256": "59a6a99a96748b72d8d639977c457857058777bf99346afb59804df926c107a9",
+  "status": "PASS"
+}

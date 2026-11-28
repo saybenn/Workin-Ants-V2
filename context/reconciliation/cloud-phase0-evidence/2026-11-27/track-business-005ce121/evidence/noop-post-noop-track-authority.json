@@ -1,0 +1,42 @@
+{
+  "authentication": "scram-sha-256:postgres",
+  "database": "wa_p0c_rehearsal",
+  "effective_login": "postgres",
+  "functions": {
+    "platform_private.track_atomic_valid(pg_catalog.text,pg_catalog.jsonb,pg_catalog.jsonb)": {
+      "body_sha256": "0f4fd883a826f21929de697cd874f0e61ac6ca91861540d0ff54859e15b83bc8",
+      "owner": "wa_track_verifier",
+      "security_definer": true
+    },
+    "platform_private.track_binding()": {
+      "body_sha256": "437118001223c617427a82786caf5772b5a0d6f2c67f42d172dc9a57df373681",
+      "owner": "wa_schema_owner",
+      "security_definer": false
+    },
+    "platform_private.track_enrollment_commit()": {
+      "body_sha256": "818ded1186c4f1bff56a258541fb22012d5a31ffdb60e6ea5bf2f714b3f7c115",
+      "owner": "wa_schema_owner",
+      "security_definer": false
+    }
+  },
+  "login": "postgres",
+  "migrator_can_set_owner": true,
+  "migrator_can_set_track_verifier": false,
+  "other_client_backends": 0,
+  "permanent_migrator_owner": [
+    {
+      "admin": false,
+      "grantor": "postgres",
+      "inherit": false,
+      "set": true
+    }
+  ],
+  "read_only": true,
+  "server_version_num": 170011,
+  "temporary_leaf_schema_create": {
+    "wa_customer_verifier": false,
+    "wa_private_helper_owner": false,
+    "wa_track_verifier": false
+  },
+  "temporary_memberships": []
+}
