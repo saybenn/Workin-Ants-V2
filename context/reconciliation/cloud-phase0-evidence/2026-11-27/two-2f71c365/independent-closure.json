@@ -1,0 +1,218 @@
+{
+  "assertion_promotions": 0,
+  "business_assertions_qualified": 0,
+  "cleanup_verified": {
+    "approved_image_retained": true,
+    "container_id_absent": true,
+    "container_name_absent": true,
+    "container_run_label_absent": true,
+    "private_host_paths_absent": true,
+    "same_daemon": true,
+    "volume_name_absent": true,
+    "volume_run_label_absent": true
+  },
+  "created_container_id": "4743f05eda2c8886f48425d9faa4a09bd7dc859556efaf1bf31e0253d3bf2607",
+  "created_volume": {
+    "created_at": "2026-11-28T04:13:10Z",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "2f71c365-4c31-4000-837c-cdd72ac163ae"
+    },
+    "name": "wa-p0c-cloud-two-history-2f71c365-4c31-4000-837c-cdd72ac163ae-data",
+    "run_id": "2f71c365-4c31-4000-837c-cdd72ac163ae"
+  },
+  "daemon": {
+    "architecture": "amd64",
+    "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+    "docker_binary_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621",
+    "os": "linux",
+    "rootless": true,
+    "socket": {
+      "device": 32,
+      "gid": 1000,
+      "inode": 31,
+      "mode": 432,
+      "real_path": "/run/codex-docker/docker.sock",
+      "uid": 65534
+    },
+    "version": "29.9.2"
+  },
+  "decision": "EXACT_MACHINERY_SUBSET_AND_CLEANUP_VERIFIED",
+  "exact_cli_receipts": [
+    {
+      "attestation_sha256": "31753385a46a4f0f00b0028007974c82d044b4bcb8975f39c8ee0accdc04dacb",
+      "exit_code": 0,
+      "no_pending_message_observed": false,
+      "operation": "deploy"
+    },
+    {
+      "attestation_sha256": "d80e18cad94328edb29dbe92cbc57217b77592094a45330c53800366d5ce827f",
+      "exit_code": 0,
+      "no_pending_message_observed": false,
+      "operation": "status"
+    },
+    {
+      "attestation_sha256": "31753385a46a4f0f00b0028007974c82d044b4bcb8975f39c8ee0accdc04dacb",
+      "exit_code": 0,
+      "no_pending_message_observed": true,
+      "operation": "deploy"
+    }
+  ],
+  "exact_native_and_ledger": {
+    "all_eight_ledger_column_names": [
+      "applied_steps_count",
+      "checksum",
+      "finished_at",
+      "id",
+      "logs",
+      "migration_name",
+      "rolled_back_at",
+      "started_at"
+    ],
+    "before_and_after_full_row_fingerprint_sha256": "8aae5b9f4f89358ddcc576600836da51279e29de68033037eee0e710fb282642",
+    "every_full_row_fingerprint_unchanged": true,
+    "genuine_applied_rows": 2,
+    "ledger_checks": 22,
+    "ledger_observations_and_registrations_identical": true,
+    "migration_names_and_sql_checksums_match_exact_bytes": true,
+    "native_catalog_checks": 29089,
+    "native_sha256": "c795fa7d78516e6b39c3e8995bcbace8ac31bef66704b8e360b767c639e711dc",
+    "native_snapshot_count": 7,
+    "native_snapshots_identical": true,
+    "no_second_oracle_run_required_after_identical_native": true,
+    "oracle_expression_count": 416,
+    "oracle_rollback_and_temp_object_absence_checked": true,
+    "source_derived_migrations": [
+      {
+        "count": 1,
+        "migration_name": "20261117000100_f0_local_initial",
+        "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261117000100_f0_local_initial/migration.sql",
+        "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "state": "applied"
+      },
+      {
+        "count": 1,
+        "migration_name": "20261120000100_f0_runtime_lease_branch_v1",
+        "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+        "sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+        "state": "applied"
+      }
+    ]
+  },
+  "file_sha256": {
+    "attempt.json": "9b78871a10129dc8b96750c573caede5f51ee6f0cafa13f7def88d0b59905df2",
+    "created-container.json": "2f99a25a3ee4868cb8442409dd073f03c126e03fcac07a9647e17d2378f409b5",
+    "created-volume.json": "3761a778f3b9e6a995152218975324f504535bd4855eaf83be975cf780fbc0d1",
+    "evidence/initial-after-noop-fingerprints.json": "8aae5b9f4f89358ddcc576600836da51279e29de68033037eee0e710fb282642",
+    "evidence/initial-before-noop-fingerprints.json": "8aae5b9f4f89358ddcc576600836da51279e29de68033037eee0e710fb282642",
+    "evidence/initial-catalog-comparison.json": "8f279c95d57ee0a6f44129124f550a6f54b1cfc8f13d10cadafd41124eec5a9e",
+    "evidence/initial-ledger-comparison.json": "00c74b8fccbaadf118c91cadb689f10dca821c5586cc43887f950bf635c717fd",
+    "evidence/initial-ledger-evidence.json": "e8513546f720257104de4f997d70d3399e974d3e87d5f1d68ce43102b45c7203",
+    "evidence/initial-ledger-observation.json": "aa7e964a1096fa212f7b2bc75f52c48bcb4a83e5cb6057784874bb0e40bd1039",
+    "evidence/initial-ledger-registration.json": "ba9ce4ed8f378815d45aa1d3470789cb0005d5bec6218ab7c7e52fadf21e0b0d",
+    "evidence/initial-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-native-after-oracle.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-oracle-closure.json": "37600f840b4c617ff853558baa8902773e645ce937e2f19318513649c29ab112",
+    "evidence/initial-oracle-evidence.json": "f85292f21cf47955189f692bc867b1701f8fcfb904a6ce8973e50bd242c4cef5",
+    "evidence/initial-oracle-preflight.json": "cef8ce63dddadfc4dda47ffa928cd942e97a0639a213d5383e0dcb032c64bfc5",
+    "evidence/initial-oracle-results.json": "c0997279c5d95544aeb998da487ea4771bab08238a36e8d63ff2a62378c2c14a",
+    "evidence/noop-catalog-comparison.json": "8f279c95d57ee0a6f44129124f550a6f54b1cfc8f13d10cadafd41124eec5a9e",
+    "evidence/noop-ledger-comparison.json": "00c74b8fccbaadf118c91cadb689f10dca821c5586cc43887f950bf635c717fd",
+    "evidence/noop-ledger-evidence.json": "e8513546f720257104de4f997d70d3399e974d3e87d5f1d68ce43102b45c7203",
+    "evidence/noop-ledger-observation.json": "aa7e964a1096fa212f7b2bc75f52c48bcb4a83e5cb6057784874bb0e40bd1039",
+    "evidence/noop-ledger-registration.json": "ba9ce4ed8f378815d45aa1d3470789cb0005d5bec6218ab7c7e52fadf21e0b0d",
+    "evidence/noop-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/pre-activation-ledger-evidence.json": "e8513546f720257104de4f997d70d3399e974d3e87d5f1d68ce43102b45c7203",
+    "evidence/pre-activation-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/pre-activation-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/run-evidence.json": "3c2c4e75b6414d8a4cb62bb7356274628481e3e679a84e0494c79869409dfbf3",
+    "evidence/two-history-results.json": "81d04362aa00e52bcb7161899cf3711c644cd7abb7237c2d1f0a33f0cb41115c",
+    "literal-review.json": "44c921713b5bfa89ec9ed9266a6a4e21fd640b8e1c5562e9d067400c22ea7bec",
+    "operation.json": "ad689dc962febeeb72b5f7583598cef559d475b2fe7227d097e57558625cef30",
+    "run-manifest.json": "9fee74219523c7f711fed8015904681b2d28a7b95e4e4c2a19ff43abe699ea93",
+    "source-review.json": "421abb8090fa7835a8b64577ab660dead16ce9fb11adbf60d9a87e1b785c63e6",
+    "source8.tar": "0e29a46480c26c33211918ce869e8fc51ae4e54f9a1cdfdfde52e0f1b2781c34"
+  },
+  "finalization_and_role_boundary": {
+    "activation_after_two_rows_and_finalization": true,
+    "active_scram_and_wrong_password_pairs": 9,
+    "closed_connections_before_finalization": {
+      "migrator": 0,
+      "other_client_backends": 0
+    },
+    "global_backend_closures": 46,
+    "inactive_role_refusals": 8,
+    "original_grantor": {
+      "active_install_connections": 0,
+      "auth": "scram-sha-256:postgres",
+      "grantor": "postgres",
+      "leaf_create": {
+        "wa_customer_verifier": false,
+        "wa_private_helper_owner": false,
+        "wa_track_verifier": false
+      },
+      "remaining_memberships": 0
+    },
+    "unknown_transport_closure": false
+  },
+  "image": {
+    "architecture": "amd64",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_id": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_store_identity": "CONFIG",
+    "manifest_content_hash_verified": true,
+    "os": "linux",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pinned_repo_digest_verified": true,
+    "pulled_this_run": false,
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "removed": false
+  },
+  "limits": [
+    "Independent offline computation used exact retained sanitized observations from the real reviewed run. It did not repeat database execution.",
+    "Whole-row hashes cover all eight registered ledger columns; raw unprojected row values are not retained.",
+    "This confirms two-history migration machinery for the exact Cloud source, tool, and target. It does not qualify application or worker behavior or adopt a database baseline.",
+    "No credentials, raw handles, runtime statement bodies, unrestricted stderr, or unfiltered provider payloads are retained here."
+  ],
+  "native_expected_sha256": "cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4",
+  "packet_sha256": "ad689dc962febeeb72b5f7583598cef559d475b2fe7227d097e57558625cef30",
+  "posture": "D",
+  "recorded_at_utc": "2026-11-28T04:18:08.172577+00:00",
+  "review_receipts": {
+    "literal": "44c921713b5bfa89ec9ed9266a6a4e21fd640b8e1c5562e9d067400c22ea7bec",
+    "literal_reviewer": "/root/foundation_gates",
+    "source": "421abb8090fa7835a8b64577ab660dead16ce9fb11adbf60d9a87e1b785c63e6",
+    "source_reviewer": "/root/foundation_gates"
+  },
+  "reviewer": "/root/foundation_gates",
+  "run_id": "2f71c365-4c31-4000-837c-cdd72ac163ae",
+  "schema": "workinants.cloud-two-history-independent-closure-audit.v2",
+  "source_commit": "464caba083c2c53dd158af027df2af933a0bdc18",
+  "source_tree": "61a1036e0e7cd059c9aa6a02e9f4214886fe49b4",
+  "status": "PASS_MACHINERY_SUBSET_ONLY",
+  "target": {
+    "bootstrap": {
+      "container_path": "/run/wa-secrets/bootstrap-password",
+      "startup_gate_sha256": "2cbfda9bca8a7f2f4970eb49cbec3270dfc12310adfec5ef5dd6c4870a96793b",
+      "tmpfs_options": "rw,nosuid,nodev,noexec,mode=0700,size=8m",
+      "transport": "exact_container_stdin_to_private_tmpfs",
+      "write_gate_sha256": "7402460740b59686578fd8389a713fd5ce237c07452d64d8a2b017fbabcd37da"
+    },
+    "container_name": "wa-p0c-cloud-two-history-2f71c365-4c31-4000-837c-cdd72ac163ae",
+    "database": "wa_p0c_rehearsal",
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "2f71c365-4c31-4000-837c-cdd72ac163ae"
+    },
+    "network": "none",
+    "volume_name": "wa-p0c-cloud-two-history-2f71c365-4c31-4000-837c-cdd72ac163ae-data"
+  },
+  "verified_committed_packet_files": 461,
+  "verified_generated_source_files": 8,
+  "verified_native_assets": 6,
+  "verified_parser_files": 23,
+  "verified_tool_members": 10300
+}
