@@ -1,3 +1,11 @@
+## Cloud Phase 0 continuation — 27 November 2026
+
+The [new owner directive](directives/cloud-phase0-standing-authority-2026-11-27.md) governs sequential synthetic Cloud execution through P0-G. The [Cloud baseline](cloud-phase0-evidence/2026-11-27/baseline.json) records passing shell, runtime identity, and offline Prisma checks. Current audits reopen P0-B's dependency security gate on the starting lock. The [Cloud execution checklist](cloud-phase0-execution.md) records the current gates and exact scope.
+
+P0-C remains at checkpoint 3.8 and posture D. The local historical qualification counts remain attached to their recorded source and environment. The Cloud-specific database checks require their own operational reviews and evidence. Later stages and Step 20 have no new acceptance.
+
+---
+
 ## Local F0 continuation - reviewed owning source packets (2026-11-24)
 
 Accepted coverage remains **695 PASS /35 PARTIAL /265 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**,730 current rows. The selected94 cases remain9 PASS /79 PARTIAL /6 NOT_RUN. Posture D and Brain final acceptance remain pending.

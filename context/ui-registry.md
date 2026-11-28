@@ -44,3 +44,5 @@ No component,API,class or token changed. The same bounded shell passes lint/type
 17 November2026 native catalog preparation: no UI component/API/classes/token changes. New source-only catalog/expression/private-ledger collectors, isolated loader and local operation mocks; runtime remains NOT_RUN until reviewed execution.
 
 18 November2026 native catalog TEXT correction: no component/API/classes/token change; structured UI inventory remains unchanged. Only read-only database-inspection SQL, bounded diagnostics, source tests and qualification evidence changed.
+
+27 November 2026 Cloud setup: no component, API, class, or token changed. The real Cloud shell passed 47 HTTP checks. Dependency security and product UI evidence remain separate. [Cloud baseline results](reconciliation/cloud-phase0-evidence/2026-11-27/baseline.json)

@@ -1,0 +1,15 @@
+{
+  "schema": "workinants.cloud-f0-profile.v1",
+  "docker_socket": "/var/run/docker.sock",
+  "docker_server_os": "linux",
+  "docker_server_architecture": "amd64",
+  "docker_server_rootless": true,
+  "database_image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+  "network_mode": "none",
+  "published_ports": [],
+  "data_mount": "/var/lib/postgresql/data",
+  "bootstrap_mount": "/run/bootstrap-password",
+  "credential_tmpfs": "/run/wa-secrets",
+  "credential_tmpfs_options": "rw,nosuid,nodev,noexec,mode=0700,size=1m",
+  "scratch_root": "/workspace/scratch"
+}

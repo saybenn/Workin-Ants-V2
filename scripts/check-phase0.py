@@ -4,9 +4,37 @@ import hashlib
 import json
 import runpy
 from pathlib import Path
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 ROLES = ['project-overview.md','architecture.md','build-plan.md','code-standards.md','library-docs.md','ui-tokens.md','ui-rules.md','ui-registry.md','progress-tracker.md']
+CLOUD_BRANCH = 'codex/phase0-cloud-2026-11-27'
+CLOUD_BASE = '532445ed1f861211978dd8b2e9ae12d4b5e6e180'
+
+
+def candidate_review(root):
+    """Inspect the retained candidate and the additive Cloud deployment restriction."""
+    checker = runpy.run_path(str(root / 'scripts/check-database-candidate.py'))
+    if not (root / 'context/reconciliation/cloud-phase0-execution.md').is_file():
+        return checker['inspect'](root=root)
+    try:
+        previous = subprocess.check_output(
+            ['git', '-C', str(root), 'show', f'{CLOUD_BASE}:vercel.json'],
+            stderr=subprocess.DEVNULL, timeout=15,
+        )
+        expected = json.loads(previous)
+        intended = expected['git']['deploymentEnabled']
+        if CLOUD_BRANCH in intended:
+            return {'errors': ['Cloud branch already present in the historical deployment configuration']}
+        intended[CLOUD_BRANCH] = False
+        current = (root / 'vercel.json').read_bytes()
+        if current != (json.dumps(expected, indent=2) + '\n').encode():
+            return {'errors': ['Cloud deployment configuration differs from the reviewed additive denial']}
+    except (OSError, KeyError, ValueError, subprocess.SubprocessError):
+        return {'errors': ['Cloud deployment configuration could not be independently verified']}
+    packet = checker['load'](root)
+    packet['vercel.json'] = previous.decode()
+    return checker['inspect'](root=root, packet=packet)
 
 
 def inspect_database_observation(root, status, provenance):
@@ -101,7 +129,7 @@ def inspect_fresh_database_observation(root, status, provenance):
             if candidate_ref != 'context/reconciliation/database-candidate-manifest.json' or provenance.get('candidate_review_manifest') != candidate_ref:
                 errors.append('Unregistered database candidate review')
             else:
-                candidate_result = runpy.run_path(str(root / 'scripts/check-database-candidate.py'))['inspect'](root=root)
+                candidate_result = candidate_review(root)
                 errors.extend('Database candidate review: ' + e for e in candidate_result['errors'])
                 partial.add('DBP-09')
                 pending.remove('DBP-09')

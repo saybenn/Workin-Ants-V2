@@ -2,6 +2,8 @@
 
 Recorded 26 October 2026 from the project owner's supplied 20-step roadmap. [The root build plan](build-plan.md) remains the detailed construction sequence. [Launch scope](reconciliation/launch-scope-baseline.md) supplies the approved first-release restrictions. Progress and validation record actual evidence separately.
 
+Current execution authority and evidence are routed through the [Cloud Phase 0 directive](reconciliation/directives/cloud-phase0-standing-authority-2026-11-27.md) and [execution checklist](reconciliation/cloud-phase0-execution.md). They supersede earlier approval and execution-status statements below within the authorized Cloud scope. The stage sequence and substantive exit requirements still govern.
+
 | Step | Work | State |
 |---|---|---|
 | 1 | Project overview | Done |

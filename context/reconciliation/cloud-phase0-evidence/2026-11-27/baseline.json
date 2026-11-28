@@ -1,0 +1,42 @@
+{
+  "schema": "workinants.cloud-phase0-baseline.v1",
+  "recorded_local_date": "2026-11-27",
+  "source_commit": "532445ed1f861211978dd8b2e9ae12d4b5e6e180",
+  "source_tree": "80ce59cf4f23334dbfa2c9ded237357bb5a57683",
+  "branch": "codex/phase0-cloud-2026-11-27",
+  "authority": "../../directives/cloud-phase0-standing-authority-2026-11-27.md",
+  "toolchain": {
+    "os": "linux",
+    "architecture": "amd64",
+    "node": "24.22.1",
+    "node_binary_sha256": "e32e2d16081cf644f88392934288086e7662529d0d43277c34f7aad2207cfafb",
+    "npm": "11.9.0",
+    "next": "16.4.3",
+    "prisma": "7.10.1",
+    "package_lock_sha256": "6b4e322549d6a6c14cd8542a21c1a6621a2625f88dbab5606174fd655dcdda1f"
+  },
+  "P0_B": {
+    "clean_locked_install": {"exit_code": 0, "packages": 492, "lifecycle_enabled": true},
+    "lint_typecheck_build": {"exit_code": 0, "lint_warning_count": 1, "lint_warning_path": "scripts/sql-review/local-f0-runtime-lease-history-v1-guard.mjs"},
+    "real_framework_http": {"exit_code": 0, "passed": 47, "evidence": "baseline-http.json", "sha256": "657ca01739646d611fb4e732ee7b582cf16bfea8a08daa59a66e211172b5eda2"},
+    "environment_free_prisma_validate": {"exit_code": 0},
+    "node_identity_checks": {"exit_code": 0, "passed": 9},
+    "full_dependency_audit": {"exit_code": 1, "high": 3, "moderate": 8, "evidence": "baseline-audit-all.json", "sha256": "2d69573f71273859e88433a4972669d09bc8b7f03106d0ca6e91eea2ed310d80"},
+    "production_dependency_audit": {"exit_code": 1, "high": 3, "moderate": 1, "evidence": "baseline-audit-prod.json", "sha256": "c54c60dbde86f8cb122e559b1bad09c3ddfd841099ae4e2a9b7501214e9d71e2"},
+    "dependency_security_gate": "OPEN_ON_THIS_LOCK"
+  },
+  "P0_C": {
+    "posture": "D",
+    "checkpoint": "3.8",
+    "cloud_runtime": "MANAGED_ROOTLESS_DAEMON_AND_PINNED_IMAGE_AVAILABLE_DATABASE_NOT_RUN",
+    "historical_assertion_status_sha256": "a3a09332a1e8d34c56cd4f85bd2fe30c5665a5c73c49907d9715874a4b08c27a",
+    "assertion_promotions": 0
+  },
+  "P0_D": "BLOCKED_BY_REQUIRED_P0_C_EVIDENCE",
+  "P0_E": "NOT_RUN",
+  "P0_F": "NOT_RUN",
+  "P0_G": "NOT_RUN",
+  "application_or_business_assertions_promoted": 0,
+  "unpublished_transfer": "UNVERIFIED_ATTACHMENT_TOO_LARGE",
+  "scope": "Current Cloud instance only. Shell and tooling checks with no Workin Ants database, provider, public deployment, or product scope exercised."
+}

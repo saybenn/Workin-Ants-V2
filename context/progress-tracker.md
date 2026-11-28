@@ -1,3 +1,13 @@
+## Cloud Phase 0 continuation — 27 November 2026
+
+Current authority is the [Cloud Phase 0 owner directive](reconciliation/directives/cloud-phase0-standing-authority-2026-11-27.md). The isolated Cloud branch starts at verified published commit `532445e`. The managed rootless Docker socket responds, and the approved PostgreSQL 17.11 image is cached. The exact Node/npm pins and repository lock installed. Cloud lint, strict type checking, build, all 47 HTTP checks, offline Prisma validation, and all nine Node identity checks passed. Current full and production dependency audits reopened the app security gate with 11 and 4 findings, respectively.
+
+P0-C remains at checkpoint 3.8, posture D, with the [historical 695 PASS and 35 PARTIAL](reconciliation/local-f0-qualification-status.json) and no new business evidence. The earlier transfer ZIP remains unverified due to the attachment limit. The next actions are exact review and execution of the separate Cloud capability probe, a focused dependency requalification, and independently reviewed Cloud source7 Customer and source8 two-history compositions. P0-D through P0-G await their actual prerequisites.
+
+See the [execution checklist](reconciliation/cloud-phase0-execution.md) and [Cloud baseline results](reconciliation/cloud-phase0-evidence/2026-11-27/baseline.json).
+
+---
+
 ## Local F0 continuation - reviewed owning source packets (2026-11-24)
 
 Accepted coverage remains **695 PASS /35 PARTIAL /265 NOT_RUN /32 DEPENDENCY_BLOCKED /7 UNRESOLVED_SOURCE /0 FAILED**,730 current rows. The selected94 cases remain9 PASS /79 PARTIAL /6 NOT_RUN. Posture D and Brain final acceptance remain pending.
