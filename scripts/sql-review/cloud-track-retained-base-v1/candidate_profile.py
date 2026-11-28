@@ -153,16 +153,21 @@ def render_native(blobs, review):
     manifest["inputs_sha256"] = {**base["inputs_sha256"], APPEND: CANDIDATE_SHA}
     manifest["inputs_aggregate_sha256"] = S.sha("".join(
         f"{name}\t{pin}\n" for name, pin in sorted(manifest["inputs_sha256"].items())).encode())
+    # The oracle uses manifest iteration order. Generate from the exact JSON
+    # representation that the owning controller will later reopen and validate.
+    manifest_raw = S.encode(manifest)
+    manifest = S.unique_json(manifest_raw)
     oracle = tools["catalog_expression_oracle"]
     expression = oracle.build_plan(manifest, ROOT)
     previous = S.unique_json(blobs[f"{S.NATIVE_REVIEW}/expression-oracle-plan.json"])
     S.require(expression["expression_count"] == 416 and expression["expected_tables"] == 42
-              and expression["expected_columns"] == 600 and expression["expressions"] == previous["expressions"],
+              and expression["expected_columns"] == 600
+              and sorted(map(S.encode, expression["expressions"])) == sorted(map(S.encode, previous["expressions"])),
               "CANDIDATE_UNCHANGED_416_ORACLE_EXPRESSIONS")
     public = original.public_registration(manifest, tools["catalog_manifest"])
     S.require(public == S.unique_json(blobs[f"{S.NATIVE_REVIEW}/public-schema-registration.json"]),
               "UNCHANGED_PUBLIC_SCHEMA_REGISTRATION")
-    assets = {"native-manifest.json": S.encode(manifest), "expression-oracle-plan.json": S.encode(expression),
+    assets = {"native-manifest.json": manifest_raw, "expression-oracle-plan.json": S.encode(expression),
               "expression-oracle.sql": oracle.emit_sql(manifest, expression, database="wa_p0c_rehearsal",
                                                         grantor="postgres").encode(),
               "public-schema-registration.json": S.encode(public)}

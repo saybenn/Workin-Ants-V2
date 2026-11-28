@@ -60,6 +60,12 @@ class TrackOwnerTests(unittest.TestCase):
             self.assertEqual(owner.program.EXPECTED_SHA, C.CATALOG_SHA)
             self.assertEqual(owner.program.CATALOG["expected"]["expected_sha256"], C.CATALOG_SHA)
             self.assertEqual(owner.program.CATALOG["plan"]["expression_count"], 416)
+            oracle = owner.program.CATALOG["tools"]["catalog_expression_oracle"]
+            closed_manifest = owner.program.CATALOG["expected"]
+            recreated_plan = oracle.build_plan(closed_manifest, C.ROOT)
+            self.assertEqual(S.encode(recreated_plan), self.native["expression-oracle-plan.json"])
+            self.assertEqual(oracle.emit_sql(closed_manifest, recreated_plan, database="wa_p0c_rehearsal",
+                                             grantor="postgres").encode(), self.native["expression-oracle.sql"])
             self.assertEqual(owner.program._required_safety_text("ORIGINAL_GRANTOR_FINALIZATION").encode(),
                              blobs[C.ORIGINAL_FINALIZER])
             self.assertEqual(owner.report["events"][-1]["stage"], "TRACK_SOURCE")
