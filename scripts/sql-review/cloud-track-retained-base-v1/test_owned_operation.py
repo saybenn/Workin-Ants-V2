@@ -13,6 +13,12 @@ import test_profile as fixture
 
 
 S, P, C = O.S, O.P, O.candidate
+TWO_NATIVE_FIXTURES = {
+    "initial-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "initial-oracle-preflight.json": "cef8ce63dddadfc4dda47ffa928cd942e97a0639a213d5383e0dcb032c64bfc5",
+    "initial-oracle-results.json": "c0997279c5d95544aeb998da487ea4771bab08238a36e8d63ff2a62378c2c14a",
+    "initial-oracle-closure.json": "37600f840b4c617ff853558baa8902773e645ce937e2f19318513649c29ab112",
+}
 
 
 class TrackOwnerTests(unittest.TestCase):
@@ -106,6 +112,71 @@ class TrackOwnerTests(unittest.TestCase):
                 owner.track_authority("POST_FINALIZATION")
             self.assertTrue(owner.track_authority("POST_FINALIZATION")["leaf_create_absent"])
             self.assertEqual(executed, ["TRACK_PRE_FINALIZATION", "TRACK_POST_FINALIZATION", "TRACK_POST_FINALIZATION"])
+
+    def test_initial_and_noop_full_comparison_use_private_ledger_and_repo_oracle(self):
+        with TemporaryDirectory() as scratch, mock.patch("builtins.print"):
+            owner, _ = self.initialize(Path(scratch))
+            owner.verify_packet()
+            p = owner.program
+            catalog = p.CATALOG
+            prior = {name: p.unique_json(S.pinned(C.ROOT, f"{C.PRIOR}/evidence/{name}", digest))
+                     for name, digest in TWO_NATIVE_FIXTURES.items()}
+            # These are modeled collector replies, never operational evidence.
+            # The exact archived TWO native and oracle values are the fixture
+            # basis. Only the three source-approved track bodies and bindings
+            # are projected to the distinct candidate and current test run.
+            snapshot = prior["initial-native-before.json"]
+            expected_functions = catalog["expected"]["expected"]["functions"]
+            projected = set()
+            for row in snapshot["functions"]:
+                if row["object"] in O.proof.FUNCTIONS:
+                    row["body_sha256"] = expected_functions[row["object"]]["body_sha256"]
+                    projected.add(row["object"])
+            self.assertEqual(projected, set(O.proof.FUNCTIONS))
+            records = [prior[f"initial-oracle-{name}.json"] for name in ("preflight", "results", "closure")]
+            for row in records:
+                row["plan_sha256"] = catalog["plan"]["plan_sha256"]
+            records[1].update(source_expected_sha256=C.CATALOG_SHA,
+                              source_inputs_aggregate_sha256=catalog["expected"]["inputs_aggregate_sha256"])
+            ledger = catalog["tools"]["prisma_ledger_proof"]
+            installed = {"attestation_sha256": "a" * 64}
+            registration = catalog["two"].registration(ledger, root=Path(scratch) / "source9", run_id=owner.operation["run_id"],
+                target_attestation_sha256=installed["attestation_sha256"], source_expected_sha256=C.CATALOG_SHA)
+            observation = {**ledger.schema_expectation(), "history": registration["history_expected"], "history_ids_unique": True,
+                           "format": ledger.NATIVE_FORMAT, "server_version_num": 170011, "database": O.proof.DATABASE,
+                           "read_only": True, "isolation": "repeatable read", "collected_as": "postgres", "session_user": "postgres",
+                           "collector_is_superuser": True}
+            queries = []
+
+            def collector(name, text, stage):
+                queries.append(stage)
+                if stage == "ORACLE_initial":
+                    self.assertEqual(text, catalog["oracle_sql"])
+                    return p.Result(0, "\n".join(json.dumps(row) for row in records) + "\n", "")
+                self.assertEqual(text, owner.blobs[C.LEDGER_COLLECTOR].decode())
+                return p.Result(0, json.dumps(observation) + "\n", "")
+
+            p.collect_native = lambda *_: deepcopy(snapshot)
+            p.run_catalog_query = collector
+            p.observe_public_baseline = p.acl_compatibility_preflight = p.text_compatibility_preflight = lambda *_: None
+            initial, initial_ledger = p.qualify(installed, "initial")
+            noop, noop_ledger = p.qualify_noop(installed, initial)
+            self.assertEqual((initial, initial_ledger), (noop, noop_ledger))
+            self.assertEqual(queries, ["ORACLE_initial", "LEDGER_initial", "LEDGER_NOOP"])
+            for result in owner.report["native_results"].values():
+                self.assertEqual((result["catalog_check_counts"], result["applied_rows"], result["ledger_checks"], result["oracle_expressions"]),
+                                 ({"PASS": 29089}, 3, 22, 416))
+
+            third = Path(scratch) / "source9" / owner.operation["ledger_expected"][-1]["path"]
+            third.write_bytes(third.read_bytes() + b"\n-- deliberate modeled source9 drift\n")
+            typed_ledger_evidence = p.unique_json((p.OUT / "initial-ledger-evidence.json").read_bytes())
+            failure = catalog["tools"]["compare_native_catalog"].compare_manifest(
+                catalog["expected"], initial, bootstrap_grantor="postgres", bootstrap_superuser=True,
+                public_schema_owner="pg_database_owner", public_acl_registration=catalog["public"]["full_acl"],
+                ledger_registration=registration, ledger_evidence=typed_ledger_evidence,
+                expression_oracle_evidence=p.STATE["initial_oracle_evidence"], oracle_database=O.proof.DATABASE, root=C.ROOT)
+            self.assertEqual([(row["category"], row["field"], row["status"]) for row in failure["findings"]],
+                             [("ledger", "source-bound-registration", "FAIL")])
 
     def test_exact_separate_reviews_bound_to_this_packet(self):
         plan = {**self.prepared[1], "source": {"commit": "a" * 40, "tree": "b" * 40}}

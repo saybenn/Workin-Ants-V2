@@ -28,6 +28,8 @@ RESULT_FILE = "track-retained-base-results.json"
 PASS = "PASS_TRACK_THREE_MIGRATION_MACHINERY_ONLY"
 EXECUTE = "--execute-reviewed-cloud-f0-track-retained-base-owned-v1"
 PREFINAL = "GENUINE_THREE_FILE_DEPLOY"
+CATALOG_COMPARATOR = "scripts/sql-review/compare_native_catalog.py"
+CATALOG_COMPARATOR_SHA = "20441930b769d93eb00d762861018878d18d8c0f64194d65c468f0e320c204f6"
 SOURCE_SCOPES = ["accepted_cloud_owner_and_closed_three_history_sources", "candidate_native_and_ledger_authority",
                  "exact_track_leaf_handoff_and_restoration", "bounded_receipts_first_failure_and_cleanup"]
 LITERAL_SCOPES = ["actual_cloud_daemon_image_and_fresh_owned_target", "stdin_tmpfs_no_network_and_exact_tool_archive",
@@ -246,6 +248,29 @@ def track_result(original):
     return validate
 
 
+def bind_ledger_source9(comparator, raw, source9):
+    """Keep the full pinned comparison and bind its ledger call to extracted history."""
+    S.require(S.sha(raw) == CATALOG_COMPARATOR_SHA, "EXACT_TRACK_CATALOG_COMPARATOR_SOURCE")
+    functions = [node for node in ast.parse(raw, filename=CATALOG_COMPARATOR).body
+                 if isinstance(node, ast.FunctionDef) and node.name == "compare_manifest"]
+    S.require(len(functions) == 1, "EXACT_TRACK_CATALOG_COMPARATOR")
+    function = functions[0]
+    calls = [node for node in ast.walk(function) if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Attribute) and node.func.attr == "compare_proof"
+             and isinstance(node.func.value, ast.Name) and node.func.value.id == "prisma_ledger_proof"]
+    S.require(len(calls) == 1, "EXACT_TRACK_CATALOG_LEDGER_CALL")
+    root_args = [kw for kw in calls[0].keywords if kw.arg == "root"]
+    S.require(len(root_args) == 1 and isinstance(root_args[0].value, ast.Name) and root_args[0].value.id == "root",
+              "EXACT_TRACK_CATALOG_LEDGER_ROOT")
+    root_args[0].value = ast.Name(id="TRACK_LEDGER_SOURCE9", ctx=ast.Load())
+    namespace = {**vars(comparator), "TRACK_LEDGER_SOURCE9": P.private_path(source9, file=False)}
+    tree = ast.fix_missing_locations(ast.Module(body=[function], type_ignores=[]))
+    exec(compile(tree, CATALOG_COMPARATOR, "exec", dont_inherit=True), namespace)
+    # Its existing isolated helper importer still resolves the exact pinned
+    # oracle and proof modules. Only the nested ledger receives source9.
+    return namespace["compare_manifest"]
+
+
 def owner_type(two, steps, native):
     two.compare_source8 = compare_source9  # Override only this isolated module's host source lookup.
     two.validate_result = track_result(two.validate_result)
@@ -279,6 +304,8 @@ def owner_type(two, steps, native):
                 "TRACK_FINGERPRINT_FIELDS", "TRACK_FINGERPRINT_CONTEXT", "EXACT_THREE_FULL_ROW_FINGERPRINTS",
                 "TRACK_FINGERPRINT_EXACT_HISTORY", "NOOP_CHANGED_A_FULL_TRACK_LEDGER_ROW", "TRACK_THREE_NATIVE_ORACLE_PROOF",
                 "TRACK_GENUINE_MIGRATION_SEQUENCE", "TRACK_AUTHORITY_OBSERVATION_CONTEXT", "TRACK_REQUIRED_AUTHORITY_PROOF",
+                "EXACT_TRACK_CATALOG_COMPARATOR_SOURCE", "EXACT_TRACK_CATALOG_COMPARATOR", "EXACT_TRACK_CATALOG_LEDGER_CALL",
+                "EXACT_TRACK_CATALOG_LEDGER_ROOT",
             }
 
         def verify_packet(self):
@@ -305,6 +332,8 @@ def owner_type(two, steps, native):
                              oracle_sql=native["expression-oracle.sql"].decode("utf-8"),
                              two=SimpleNamespace(registration=registration, fingerprint_shape=lambda observation: proof.fingerprints(observation, order),
                                                  compare_noop=compare_noop))
+            comparator = p.CATALOG["tools"]["compare_native_catalog"]
+            comparator.compare_manifest = bind_ledger_source9(comparator, self.blobs[CATALOG_COMPARATOR], self.directory / "source9")
             p.CATALOG["strings"], p.CATALOG["generated_names"] = p.metadata_allowlist(expected, p.CATALOG["tools"])
             self.report["source_verification"].update(native_sha256=candidate.CATALOG_SHA, original_two_source_preflight=True,
                                                        exact_three_migration_source_readback=True)
