@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path, PurePosixPath
+import stat
 import subprocess
 import tempfile
 from types import SimpleNamespace
@@ -123,6 +124,41 @@ class Preparation(unittest.TestCase):
             subprocess, "Popen", side_effect=AssertionError("PROCESS_FORBIDDEN"),
         ), patch.object(operate, "verify_plan", side_effect=AssertionError("SOURCE_LOAD_FORBIDDEN")):
             self.assertEqual(operate.main(), 1)
+
+    def test_gnu_tar_preserves_exact_modes_with_restrictive_umask(self):
+        _, _, assets = self.model_plan()
+        host = operate.controller(self.blobs)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "source7.tar.gz"
+            source.write_bytes(assets["source7.tar.gz"])
+            plain, preserved = root / "plain", root / "preserved"
+            for path in (plain, preserved):
+                path.mkdir()
+            subprocess.run(["tar", "-xzf", str(source), "-C", str(plain)], umask=0o077,
+                           env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"}, check=True, timeout=10)
+            subprocess.run(["tar", "--same-permissions", "-xzf", str(source), "-C", str(preserved)],
+                           umask=0o077, env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"}, check=True, timeout=10)
+            self.assertEqual([stat.S_IMODE(p.stat().st_mode) for p in plain.rglob("*") if p.is_file()], [0o400] * 7)
+            self.assertEqual([stat.S_IMODE(p.stat().st_mode) for p in preserved.rglob("*") if p.is_file()], [0o444] * 7)
+            self.assertIn("--same-permissions", host.provision_migration_tools.__code__.co_consts)
+
+    def test_inventory_discloses_only_fixed_classifications(self):
+        files = {"runner.mjs": b"source"}
+        source = cloud_host.COPIED_SOURCE
+        directory = f"d|{source}|4096|0|0|700|2\n"
+        file = f"f|{source}/runner.mjs|6|0|0|444|1\n"
+        cloud_host.validate_copied_inventory(directory + file, files)
+        cases = (
+            (file.replace("|444|", "|400|"), "CSP_CLOUD_COPIED_FILE_MODE"),
+            (file.replace("|0|0|", "|1000|0|"), "CSP_CLOUD_COPIED_OWNER"),
+            (file.replace("|444|1", "|444|2"), "CSP_CLOUD_COPIED_FILE_TYPE_OR_LINK"),
+            (file.replace("runner.mjs", "unknown.mjs"), "CSP_CLOUD_EXACT_COPIED_INVENTORY"),
+            ("UNRESTRICTED_CANARY\n", "CSP_CLOUD_COPIED_ROW_SHAPE"),
+        )
+        for record, reason in cases:
+            with self.assertRaisesRegex(ValueError, "^" + reason + "$"):
+                cloud_host.validate_copied_inventory(directory + record, files)
 
     def test_modeled_bootstrap_runs_only_after_both_resource_checks(self):
         folder, plan, assets = self.model_plan()

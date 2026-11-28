@@ -36,6 +36,11 @@ POSTGRES_OPTIONS = (
 INITDB = "POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256 --auth-local=scram-sha-256 --locale=C --encoding=UTF8"
 COPIED_SOURCE = "/run/wa-f0-source"
 COPIED_NODE = "/run/wa-f0-tools/node/bin/node"
+COPIED_LAYOUT_CODES = {
+    "CSP_CLOUD_COPIED_ROW_SHAPE", "CSP_CLOUD_COPIED_OWNER", "CSP_CLOUD_COPIED_MODE_SHAPE",
+    "CSP_CLOUD_COPIED_DIRECTORY_MODE", "CSP_CLOUD_COPIED_FILE_TYPE_OR_LINK",
+    "CSP_CLOUD_COPIED_FILE_MODE", "CSP_CLOUD_COPIED_FILE_SIZE", "CSP_CLOUD_EXACT_COPIED_INVENTORY",
+}
 
 
 def probe_literals(raw):
@@ -58,18 +63,22 @@ def validate_copied_inventory(raw, files):
     expected_dirs = {str(parent) for name in expected_files for parent in PurePosixPath(name).parents
                      if str(parent).startswith(COPIED_SOURCE)}
     actual_files, actual_dirs = {}, set()
+    prepare.require(raw.isascii() and raw.endswith("\n"), "CSP_CLOUD_COPIED_ROW_SHAPE")
     for line in raw.splitlines():
-        kind, path, size, uid, gid, mode, links = line.split("|")
-        prepare.require(uid == gid == "0" and re.fullmatch("[0-7]{3,4}", mode),
-                        "CSP_CLOUD_COPIED_OWNER_OR_MODE")
+        fields = line.split("|")
+        prepare.require(len(fields) == 7, "CSP_CLOUD_COPIED_ROW_SHAPE")
+        kind, path, size, uid, gid, mode, links = fields
+        prepare.require(uid == gid == "0", "CSP_CLOUD_COPIED_OWNER")
+        prepare.require(re.fullmatch("[0-7]{3,4}", mode), "CSP_CLOUD_COPIED_MODE_SHAPE")
         if kind == "d":
             prepare.require(path not in actual_dirs and not (int(mode, 8) & 0o7022),
                             "CSP_CLOUD_COPIED_DIRECTORY_MODE")
             actual_dirs.add(path)
         else:
-            prepare.require(kind == "f" and mode == "444" and links == "1"
-                            and path not in actual_files and re.fullmatch("[0-9]+", size),
-                            "CSP_CLOUD_COPIED_FILE_TYPE_OR_MODE")
+            prepare.require(kind == "f" and links == "1" and path not in actual_files,
+                            "CSP_CLOUD_COPIED_FILE_TYPE_OR_LINK")
+            prepare.require(mode == "444", "CSP_CLOUD_COPIED_FILE_MODE")
+            prepare.require(re.fullmatch("[0-9]{1,12}", size), "CSP_CLOUD_COPIED_FILE_SIZE")
             actual_files[path] = int(size)
     prepare.require(actual_files == expected_files and actual_dirs == expected_dirs,
                     "CSP_CLOUD_EXACT_COPIED_INVENTORY")
@@ -331,14 +340,34 @@ def bind(host, plan, assets, blobs, guard, docker, folder, plan_raw, review_sha)
                    "CSP_CLOUD_BOOTSTRAP_ABSENCE")
 
     def copied_runtime_preflight(cid):
-        inventory = docker_run(["exec", cid, "/usr/bin/find", COPIED_SOURCE,
-                                "-maxdepth", "12", "-printf", "%y|%p|%s|%U|%G|%m|%n\\n"], timeout=30)
-        need(inventory.returncode == 0 and inventory.stderr == "" and len(inventory.stdout) <= 16384,
-             "CSP_CLOUD_COPIED_INVENTORY_UNCONFIRMED")
+        receipt = {"checked": 0, "node_verified": False, "immutable_container_id": cid,
+                   "metadata": "DISPATCH_PENDING"}
+        host.report["copied_runtime_preflight"] = receipt
+        host.save()
+        args = docker.argv("exec", cid, "/usr/bin/find", COPIED_SOURCE,
+                           "-maxdepth", "12", "-printf", "%y|%p|%s|%U|%G|%m|%n\\n")
         try:
-            validate_copied_inventory(inventory.stdout, source_files)
-        except (ValueError, TypeError):
-            raise host.Stop("CSP_CLOUD_COPIED_INVENTORY_UNCONFIRMED") from None
+            inventory = binary_process(args, None, 30, output_limit=16384)
+        except BaseException:
+            receipt["metadata"] = "COMMAND_OUTCOME_UNCONFIRMED"
+            host.persist_best_effort("CSP_CLOUD_COPIED_INVENTORY_EVIDENCE")
+            raise
+        receipt["command_exit"] = inventory.returncode
+        receipt["command_stderr_present"] = bool(inventory.stderr)
+        receipt["stdout_bytes"] = len(inventory.stdout)
+        if inventory.returncode or inventory.stderr:
+            receipt["metadata"] = "COMMAND_REFUSED_OR_STDERR"
+            host.save()
+            raise host.Stop("CSP_CLOUD_COPIED_INVENTORY_COMMAND_REFUSED")
+        try:
+            validate_copied_inventory(inventory.stdout.decode("ascii"), source_files)
+        except (ValueError, TypeError) as error:
+            reason = error.args[0] if len(error.args) == 1 and error.args[0] in COPIED_LAYOUT_CODES else "CSP_CLOUD_COPIED_ROW_SHAPE"
+            receipt["metadata"] = reason
+            host.save()
+            raise host.Stop(reason) from None
+        receipt["metadata"] = "PASS_EXACT_ROOT_OWNED_TREE"
+        host.save()
         lines = "".join(f"{prepare.sha(data)}  {COPIED_SOURCE}/{relative}\n"
                         for relative, data in sorted(source_files.items()))
         lines += f"{migration['tools']['files_sha256']['node/bin/node']}  {COPIED_NODE}\n"
@@ -347,10 +376,8 @@ def bind(host, plan, assets, blobs, guard, docker, folder, plan_raw, review_sha)
         exact_call(["exec", cid, "/usr/bin/stat", "--printf", "%u:%g:%a:%h:%s", "--", COPIED_NODE],
                    "CSP_CLOUD_COPIED_NODE_IDENTITY",
                    output=f"0:0:755:1:{migration['tools']['file_sizes']['node/bin/node']}")
-        host.report["copied_runtime_preflight"] = {
-            "checked": len(source_files), "node_verified": True, "immutable_container_id": cid,
-            "source_map_sha256": prepare.sha(prepare.encode(host.MANIFEST["migration_targets"]["ok"]["source_files_sha256"])),
-        }
+        receipt.update(checked=len(source_files), node_verified=True,
+                       source_map_sha256=prepare.sha(prepare.encode(host.MANIFEST["migration_targets"]["ok"]["source_files_sha256"])))
         host.save()
 
     def create_resources():

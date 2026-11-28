@@ -62,6 +62,9 @@ def controller(blobs):
         prepare.require(prepare.sha(raw) == prepare.OPERATOR_PINS[index], "CSP_HISTORICAL_OPERATOR_DRIFT")
         text = raw.decode()
         if index == 1:
+            extract = "'tar','-xzf',"
+            prepare.require(text.count(extract) == 2, "CSP_EXACT_ARCHIVE_EXTRACTION_ANCHORS")
+            text = text.replace(extract, "'tar','--same-permissions','-xzf',")
             text = source7.replace(text, "env = os.environ.copy()\n        env['PGPASSWORD'] = secrets.token_hex(32)",
                                    "env = {'PGPASSWORD': secrets.token_hex(32)}")
             text = source7.replace(text, "need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_CUSTOMER_STALE_PREDECESSOR_OWNED_V1_ATTEMPT','CSP1_EXACT_OPERATION_NOT_REVIEWED')",

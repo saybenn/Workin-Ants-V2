@@ -1,0 +1,18 @@
+{
+  "schema": "workinants.cloud-csp-copy-correction-review.v1",
+  "reviewer": "/root/cloud_review_prep",
+  "decision": "APPROVE_SOURCE_ONLY",
+  "findings": [],
+  "prior_stop": "csp-2dad6be7/stop.json",
+  "files_sha256": {
+    "scripts/sql-review/cloud-customer-stale-predecessor-owned-v2/cloud_host.py": "41f9cee669daf1e48f68310e8523af035ed9c2118eeaa6a0044cdca1913b668e",
+    "scripts/sql-review/cloud-customer-stale-predecessor-owned-v2/operate.py": "9e7b703887cfac131114ad9bbf08c549808b8a51c1eb2d0f845fe2cb35adf5a8",
+    "scripts/sql-review/cloud-customer-stale-predecessor-owned-v2/test_prepare.py": "6fab4dfd36eedb3fdc5e9890d9fac6f92b2ee49bb3e6bc9ce3b29be8c09da69f"
+  },
+  "focused_checks_passed": 10,
+  "actual_offline_observation": "All seven source members preserved identical hashes. Under uid1000 umask 0077, default GNU tar extraction produced mode 0400; explicit --same-permissions produced reviewed mode 0444.",
+  "runtime": "NOT_RUN",
+  "assertion_promotions": 0,
+  "Posture": "D",
+  "limits": "Historical in-container find content was unretained. Explicit archive permissions improve reproducibility and future fixed diagnostics distinguish the failing predicate. Strict owners, types, link counts, sizes, full paths and copied SHA-256 checks remain in force."
+}
