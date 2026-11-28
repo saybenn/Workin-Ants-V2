@@ -1,0 +1,11 @@
+# Held Cloud Track retained-base rehearsal
+
+This packet prepares a separate three-migration Cloud rehearsal under Posture D. It binds the closed TWO run, the published retained-base candidate and its independent source review. The first two migration files retain their exact applied bytes and identifiers. `20261128000100_f0_track_retained_base_v1` is a rehearsal identifier assigned to the reviewed third migration inside the private packet.
+
+`candidate_profile.py prepare --tool-archive <absolute path>` reproduces the candidate catalog, checks all 10,300 files of the pinned Cloud tool archive and writes a private scratch packet. `candidate_profile.py verify <absolute operation.json path>` repeats the checks and compares the complete packet, source archive, native assets and file trees. Both commands require the reviewed pglast 7.21 installation and an exact Cloud tool archive under `/workspace/scratch`. The packet carries `runtime_authority: false`. Its historical Cloud daemon and image projection is a source-preparation input.
+
+`three_proof.py` defines the required pre-deploy and pre-finalization authority observations. After the first deploy and closed-client check, it checks the exact original-grantor membership options, the three function owners and body hashes, absence of leaf schema `CREATE`, and exact fingerprints for three applied rows. The finalizer runs as the original `postgres` grantor. A three-row ledger comparison verifies the post-finalization state before the inherited isolated SCRAM login and authentication checks. A real status and redeploy with the no-pending marker must preserve all eight columns for every ledger row and the full native snapshot. The model stops on the first failed check, keeps descendant uncertainty latched and always attempts exact owned-resource cleanup.
+
+The [owning adapter](OPERATION.md) prepares its own committed packet and typed approvals. It reuses the accepted Linux startup, authentication and bounded transport. The separate held preparation described here runs offline.
+
+The Track behavior cases, live three-row ledger and native parity remain `NOT_RUN`. The active migration history, hosted adoption state and assertion promotions stay outside this preparation.
