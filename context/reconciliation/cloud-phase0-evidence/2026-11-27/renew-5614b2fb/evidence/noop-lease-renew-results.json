@@ -1,0 +1,236 @@
+{
+  "assertion_promotions": 0,
+  "complete_final_client_closure": true,
+  "container_id": "7980f0017ee06cea7d4b4c38cfdd254534b8f2d09482346a22d2a435bc3301dd",
+  "evidence_complete": true,
+  "first_failure": null,
+  "fixture_run_id": "9d12fd02-7bac-44b3-954a-2f43d3b05cd4",
+  "native_baseline_sha256": "c795fa7d78516e6b39c3e8995bcbace8ac31bef66704b8e360b767c639e711dc",
+  "operations": [
+    {
+      "correct_wrong_pairs": 5,
+      "exact": true,
+      "stage": "CURRENT_ROLE_AUTH"
+    },
+    {
+      "all_other_clients_absent": true,
+      "stage": "GLOBAL_CLOSURE"
+    },
+    {
+      "stage": "EXACT_TRIGGERS",
+      "verified": 100
+    },
+    {
+      "exact_backend_absence": true,
+      "leaf": "identity-seed.sql",
+      "mode": "COMMITTED",
+      "role": "postgres",
+      "stage": "CLOSED_SQL"
+    },
+    {
+      "stage": "EXACT_TRIGGERS",
+      "verified": 100
+    },
+    {
+      "stage": "NATIVE_AFTER_IDENTITY_SEED",
+      "unchanged": true
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "exact_backend_absence": true,
+      "leaf": "source-lease.sql",
+      "mode": "COMMITTED",
+      "role": "wa_app_runtime",
+      "stage": "CLOSED_SQL"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "exact_backend_absence": true,
+      "leaf": "schedule-lease.sql",
+      "mode": "COMMITTED",
+      "role": "wa_app_runtime",
+      "stage": "CLOSED_SQL"
+    },
+    {
+      "exact_backend_absence": true,
+      "leaf": "identity-worker-bootstrap.sql",
+      "mode": "COMMITTED",
+      "role": "wa_identity_service_authority",
+      "stage": "CLOSED_SQL"
+    },
+    {
+      "all_other_clients_absent": true,
+      "stage": "GLOBAL_CLOSURE"
+    },
+    {
+      "exact": true,
+      "fields": 21,
+      "grants": 2,
+      "stage": "ISSUER_RETENTION"
+    },
+    {
+      "current_service_generation": 0,
+      "stage": "EXACT_RESTRICTED_SETUP_STATE",
+      "tables": 42,
+      "work_rows": 1
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "exact_backend_absence": true,
+      "leaf": "worker-claim.sql",
+      "mode": "COMMITTED",
+      "role": "wa_worker",
+      "stage": "CLOSED_SQL"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "case": "current-holder-renew",
+      "exact_compared_to_step": true,
+      "stage": "RESTRICTED_LIVE_RENEW_SCOPE"
+    },
+    {
+      "exact_backend_absence": true,
+      "leaf": "current-holder-renew.sql",
+      "mode": "COMMITTED",
+      "role": "wa_worker",
+      "stage": "CLOSED_SQL"
+    },
+    {
+      "exact": true,
+      "fields": 21,
+      "grants": 4,
+      "stage": "ISSUER_RETENTION"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "case": "shorten-renew-denied",
+      "exact_compared_to_step": true,
+      "stage": "RESTRICTED_LIVE_RENEW_SCOPE"
+    },
+    {
+      "exact_backend_absence": true,
+      "leaf": "shorten-renew-denied.sql",
+      "mode": "DENIED",
+      "role": "wa_worker",
+      "stage": "CLOSED_SQL"
+    },
+    {
+      "exact": true,
+      "fields": 21,
+      "grants": 5,
+      "stage": "ISSUER_RETENTION"
+    },
+    {
+      "commit_acknowledged": true,
+      "created_at_return_verified": true,
+      "issuer_committed": true,
+      "operation_closed": true,
+      "stage": "SEPARATE_ISSUER_COMMIT"
+    },
+    {
+      "case": "copied-hash-renew-denied",
+      "exact_compared_to_step": true,
+      "stage": "RESTRICTED_LIVE_RENEW_SCOPE"
+    },
+    {
+      "exact_backend_absence": true,
+      "leaf": "copied-hash-renew-denied.sql",
+      "mode": "DENIED",
+      "role": "wa_worker",
+      "stage": "CLOSED_SQL"
+    },
+    {
+      "exact": true,
+      "fields": 21,
+      "grants": 6,
+      "stage": "ISSUER_RETENTION"
+    },
+    {
+      "stage": "EXACT_TRIGGERS",
+      "verified": 100
+    },
+    {
+      "all_other_clients_absent": true,
+      "stage": "GLOBAL_CLOSURE"
+    }
+  ],
+  "packet_sha256": "78ad55b60698a00a2ed7a5e806fac9c0f692912672daa7f3b5cf49bdb0767ee4",
+  "posture": "D",
+  "recipe_sha256": "7b9604f94acf0fc39dce8dc3b04579437a34a109af340ef01995a0335680d828",
+  "remote_outcome_unconfirmed": false,
+  "results": [
+    {
+      "case": "worker-claim",
+      "changed_rows": 1,
+      "exact_captured_claim_xid": true,
+      "exact_committed_work_change": true,
+      "live_fence": 1,
+      "other_tables_unchanged": true
+    },
+    {
+      "all_other_domain_fields_unchanged": true,
+      "case": "current-holder-renew",
+      "changed_rows": 1,
+      "exact_committed_work_change": true,
+      "live_fence": 1,
+      "tables_observed": 42
+    },
+    {
+      "body_line": 31,
+      "body_sha256": "dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965",
+      "case": "shorten-renew-denied",
+      "exact_denial": true,
+      "sqlstate": "P0001",
+      "tables_unchanged": 42,
+      "unchanged_live_renewed_row": true
+    },
+    {
+      "body_line": 31,
+      "body_sha256": "dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965",
+      "case": "copied-hash-renew-denied",
+      "exact_denial": true,
+      "sqlstate": "P0001",
+      "tables_unchanged": 42,
+      "unchanged_live_renewed_row": true
+    }
+  ],
+  "run_id": "5614b2fb-a621-4938-be35-5de32562f722",
+  "schema": "workinants.cloud-lease-renew-source8-result.v1",
+  "source": {
+    "commit": "4390144c9be4d359ba32eca1e4a05b73bab6ac63",
+    "tree": "e4d70d2195f5df3422b0a4d95501c9b4cddd6abd"
+  },
+  "stage": "COMPLETE",
+  "status": "PASS_ONE_LIVE_LEASE_EXTENSION_AND_TWO_DENIALS_ONLY",
+  "volume_created_at": "2026-11-28T05:37:02Z"
+}

@@ -1,0 +1,309 @@
+{
+  "child_evidence_sha256": "c3f7688d1c432cd92280425b11eeb53f222ad4098007ec135b157c7547395487",
+  "cleanup_metadata_observation": {
+    "mutating_commands": 0,
+    "preceding_consent_full_identity_still_absent": true,
+    "read_only_local_metadata_commands": 17
+  },
+  "cleanup_verified": {
+    "approved_image_retained": true,
+    "container_id_absent": true,
+    "container_name_absent": true,
+    "container_run_label_absent": true,
+    "private_host_paths_absent": true,
+    "same_daemon": true,
+    "volume_name_absent": true,
+    "volume_run_label_absent": true
+  },
+  "container_id": "7980f0017ee06cea7d4b4c38cfdd254534b8f2d09482346a22d2a435bc3301dd",
+  "created_container": {
+    "id": "7980f0017ee06cea7d4b4c38cfdd254534b8f2d09482346a22d2a435bc3301dd",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "5614b2fb-a621-4938-be35-5de32562f722"
+    },
+    "name": "wa-p0c-cloud-two-history-5614b2fb-a621-4938-be35-5de32562f722",
+    "run_id": "5614b2fb-a621-4938-be35-5de32562f722"
+  },
+  "created_volume": {
+    "created_at": "2026-11-28T05:37:02Z",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "5614b2fb-a621-4938-be35-5de32562f722"
+    },
+    "name": "wa-p0c-cloud-two-history-5614b2fb-a621-4938-be35-5de32562f722-data",
+    "run_id": "5614b2fb-a621-4938-be35-5de32562f722"
+  },
+  "daemon": {
+    "architecture": "amd64",
+    "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+    "docker_binary_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621",
+    "os": "linux",
+    "rootless": true,
+    "socket": {
+      "device": 32,
+      "gid": 1000,
+      "inode": 31,
+      "mode": 432,
+      "real_path": "/run/codex-docker/docker.sock",
+      "uid": 65534
+    },
+    "version": "29.9.2"
+  },
+  "decision": "EXACT_ONE_LIVE_RENEWAL_AND_TWO_ROLLBACK_DENIALS_AND_CLEANUP_VERIFIED",
+  "exact_native_and_ledger": {
+    "all_eight_ledger_columns_unchanged": true,
+    "exact_full8": {
+      "all_eight_columns_unchanged": true,
+      "database_qualification_claimed": false,
+      "history_count": 2,
+      "schema": "workinants.runtime-lease-noop-full-ledger-proof.v1",
+      "status": "PASS_EXACT_TWO_ROW_HASH_PRESERVATION_ONLY"
+    },
+    "expected_catalog_sha256": "cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4",
+    "expression_observations_revalidated": 416,
+    "genuine_applied_rows": 2,
+    "identical_ledger_fingerprint_sha256": "a0dc67591c8ef6266b3234ee7bbe707d25d6c60370b43d819124948aedc9fc1c",
+    "native_catalog_sha256": "c795fa7d78516e6b39c3e8995bcbace8ac31bef66704b8e360b767c639e711dc",
+    "native_relation_rows_compared": 42,
+    "native_snapshot_count": 9,
+    "post_renewal_oracle_evidence_scope": "INITIAL_416_REUSED_AFTER_EXACT_NATIVE_PARITY",
+    "replayed_catalog_checks_per_phase": {
+      "initial": 29089,
+      "noop": 29089,
+      "post-renewal": 29089,
+      "pre-activation": 29089
+    },
+    "replayed_ledger_checks_per_phase": {
+      "initial": 22,
+      "noop": 22,
+      "post-renewal": 22,
+      "pre-activation": 22
+    },
+    "same_initial_install_attestation_sha256": "c568d13c3f1a5728e98974719f38b5c108092463fd8c0bcf0b4c84c5bc45ccc0",
+    "source_migrations": [
+      {
+        "count": 1,
+        "migration_name": "20261117000100_f0_local_initial",
+        "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261117000100_f0_local_initial/migration.sql",
+        "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+        "state": "applied"
+      },
+      {
+        "count": 1,
+        "migration_name": "20261120000100_f0_runtime_lease_branch_v1",
+        "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+        "sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+        "state": "applied"
+      }
+    ]
+  },
+  "file_sha256": {
+    "attempt.json": "7b0c744972309d5f2ef034dce4df6912b3723a95eb2fd4d31f8b86ae6800fa76",
+    "created-container.json": "2fc893908240fc4f7cd73588245df6ec0cc60a0b327ae5fa924834b859cfcbe1",
+    "created-volume.json": "d9927e8f229c06dd0460fd6448a89335147671b57e25a5e12356fd1a05891456",
+    "evidence/initial-acl-preflight.json": "9c4512f14956c11adbc1f7182bcba9f43baac2025a3f4d5e874e06b02815ba66",
+    "evidence/initial-after-noop-fingerprints.json": "ee5973a8a93ef8eab5f0137a5b385ef4a8e7cd3f17ff75acbdaf36fe4903919b",
+    "evidence/initial-before-noop-fingerprints.json": "ee5973a8a93ef8eab5f0137a5b385ef4a8e7cd3f17ff75acbdaf36fe4903919b",
+    "evidence/initial-catalog-comparison.json": "8f279c95d57ee0a6f44129124f550a6f54b1cfc8f13d10cadafd41124eec5a9e",
+    "evidence/initial-ledger-comparison.json": "0e8e02fd919ffec1154a7bd527819ea287678b68b91b378b3f87557de6649a57",
+    "evidence/initial-ledger-evidence.json": "73501d2f92df9a7003ad5848fca59350237858cca2e66d1cfec8ba4f2787f29d",
+    "evidence/initial-ledger-observation.json": "aa7e964a1096fa212f7b2bc75f52c48bcb4a83e5cb6057784874bb0e40bd1039",
+    "evidence/initial-ledger-registration.json": "a7c3f178de42cb9537f83c3546c6ce6746d2afdf9bb07cd6052b69cccaad08d8",
+    "evidence/initial-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-native-after-oracle.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-oracle-closure.json": "37600f840b4c617ff853558baa8902773e645ce937e2f19318513649c29ab112",
+    "evidence/initial-oracle-evidence.json": "f85292f21cf47955189f692bc867b1701f8fcfb904a6ce8973e50bd242c4cef5",
+    "evidence/initial-oracle-preflight.json": "cef8ce63dddadfc4dda47ffa928cd942e97a0639a213d5383e0dcb032c64bfc5",
+    "evidence/initial-oracle-results.json": "c0997279c5d95544aeb998da487ea4771bab08238a36e8d63ff2a62378c2c14a",
+    "evidence/initial-text-preflight.json": "6a211a9dc2c830d3e8efaa0f2b385082444a537ad0b7c0a0d9ea72b2c773465a",
+    "evidence/noop-catalog-comparison.json": "8f279c95d57ee0a6f44129124f550a6f54b1cfc8f13d10cadafd41124eec5a9e",
+    "evidence/noop-lease-renew-after-fingerprints.json": "ee5973a8a93ef8eab5f0137a5b385ef4a8e7cd3f17ff75acbdaf36fe4903919b",
+    "evidence/noop-lease-renew-after-ledger-evidence.json": "73501d2f92df9a7003ad5848fca59350237858cca2e66d1cfec8ba4f2787f29d",
+    "evidence/noop-lease-renew-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-lease-renew-native-after.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-lease-renew-results.json": "c3f7688d1c432cd92280425b11eeb53f222ad4098007ec135b157c7547395487",
+    "evidence/noop-ledger-comparison.json": "0e8e02fd919ffec1154a7bd527819ea287678b68b91b378b3f87557de6649a57",
+    "evidence/noop-ledger-evidence.json": "73501d2f92df9a7003ad5848fca59350237858cca2e66d1cfec8ba4f2787f29d",
+    "evidence/noop-ledger-observation.json": "aa7e964a1096fa212f7b2bc75f52c48bcb4a83e5cb6057784874bb0e40bd1039",
+    "evidence/noop-ledger-registration.json": "a7c3f178de42cb9537f83c3546c6ce6746d2afdf9bb07cd6052b69cccaad08d8",
+    "evidence/noop-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/pre-activation-ledger-evidence.json": "73501d2f92df9a7003ad5848fca59350237858cca2e66d1cfec8ba4f2787f29d",
+    "evidence/pre-activation-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/pre-activation-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/run-evidence.json": "f367d64ea859c03cf2bfb1e7cbf7280d437e1be0b7bb16c2369336860735a2c3",
+    "evidence/two-history-results.json": "00abc63e9480466f765b35c0cbe0c1bf8ac6881252c72b4f3a71326d1bedeb9d",
+    "literal-review.json": "1605d8fccf2b6222b7aefbeb6e6c77c9c3a4f42f5fcffd2335034edee000f8ff",
+    "operation-exit.json": "74dfe48936326a7b3c84fa8ffd3191e9f864c07fa430cabf31dd34d3e57377f2",
+    "operation.json": "78ad55b60698a00a2ed7a5e806fac9c0f692912672daa7f3b5cf49bdb0767ee4",
+    "run-manifest.json": "a6c371cf148e4fc3a14728cb8b92e052413277ad2417b72435f8ccbff25391e7",
+    "source-review.json": "88e1571a29c725ff6c3089ce4534ad3c41b0b904e453fd096266f61aa812b689"
+  },
+  "first_failure": null,
+  "fixture_run_id": "9d12fd02-7bac-44b3-954a-2f43d3b05cd4",
+  "image": {
+    "architecture": "amd64",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_id": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_store_identity": "CONFIG",
+    "manifest_content_hash_verified": true,
+    "os": "linux",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pinned_repo_digest_verified": true,
+    "pulled_this_run": false,
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "removed": false
+  },
+  "operator": "/root",
+  "operator_exit_code": 0,
+  "operator_exit_receipt_sha256": "74dfe48936326a7b3c84fa8ffd3191e9f864c07fa430cabf31dd34d3e57377f2",
+  "outer_evidence_sha256": "f367d64ea859c03cf2bfb1e7cbf7280d437e1be0b7bb16c2369336860735a2c3",
+  "outer_status": "PASS_MACHINERY_SUBSET_ONLY",
+  "owner_security": {
+    "active_scram_correct_wrong_pairs": 9,
+    "all_temporary_authority_removed": true,
+    "inactive_role_refusals": 8,
+    "original_grantor": "postgres",
+    "owner_global_backend_closures_zero": 50,
+    "owner_transport_dispatches_closed": 282,
+    "sticky_unknown_closure": false
+  },
+  "packet_sha256": "78ad55b60698a00a2ed7a5e806fac9c0f692912672daa7f3b5cf49bdb0767ee4",
+  "raw_archive_comparison": {
+    "byte_identical_to_owner_scratch": 40,
+    "direct_operator_exit_receipts": 1
+  },
+  "recorded_at_utc": "2026-11-28T05:43:55.468529+00:00",
+  "renewal_controls": {
+    "application_table_count": 42,
+    "closed_issuer_grants": 6,
+    "closed_restricted_worker_transactions": 4,
+    "immutable_grant_fields": 21,
+    "initial_server_lease_seconds": 12,
+    "minimum_server_time_reserve_seconds": 2,
+    "ordered_cases": [
+      "worker-claim",
+      "current-holder-renew",
+      "shorten-renew-denied",
+      "copied-hash-renew-denied"
+    ],
+    "ordered_operations": 30,
+    "positive_server_renewal_seconds": 90,
+    "raw_application_fingerprints_retained": false,
+    "raw_lease_secret_hash_xid_or_timestamp_retained": false,
+    "reported_denial_row_unchanged_and_live": true,
+    "reported_positive_change_only_lease_deadline_and_guard_xid": true,
+    "restricted_preaction_checks": 3,
+    "stored_hash_used_only_for_copied_hash_control": true,
+    "typed_observations": [
+      {
+        "case": "worker-claim",
+        "changed_rows": 1,
+        "exact_captured_claim_xid": true,
+        "exact_committed_work_change": true,
+        "live_fence": 1,
+        "other_tables_unchanged": true
+      },
+      {
+        "all_other_domain_fields_unchanged": true,
+        "case": "current-holder-renew",
+        "changed_rows": 1,
+        "exact_committed_work_change": true,
+        "live_fence": 1,
+        "tables_observed": 42
+      },
+      {
+        "body_line": 31,
+        "body_sha256": "dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965",
+        "case": "shorten-renew-denied",
+        "exact_denial": true,
+        "sqlstate": "P0001",
+        "tables_unchanged": 42,
+        "unchanged_live_renewed_row": true
+      },
+      {
+        "body_line": 31,
+        "body_sha256": "dee63b1c682a3cdef8a125df691fa2d4a2ee163b7afc43f740ce04f8f41ae965",
+        "case": "copied-hash-renew-denied",
+        "exact_denial": true,
+        "sqlstate": "P0001",
+        "tables_unchanged": 42,
+        "unchanged_live_renewed_row": true
+      }
+    ]
+  },
+  "review_receipts": {
+    "literal": "1605d8fccf2b6222b7aefbeb6e6c77c9c3a4f42f5fcffd2335034edee000f8ff",
+    "literal_reviewer": "/root/pending_packets",
+    "source": "88e1571a29c725ff6c3089ce4534ad3c41b0b904e453fd096266f61aa812b689",
+    "source_reviewer": "/root/pending_packets"
+  },
+  "reviewer": "/root/pending_packets",
+  "run_id": "5614b2fb-a621-4938-be35-5de32562f722",
+  "same_run_prisma_cli": [
+    {
+      "attestation_sha256": "c568d13c3f1a5728e98974719f38b5c108092463fd8c0bcf0b4c84c5bc45ccc0",
+      "exit_code": 0,
+      "no_pending_message_observed": false,
+      "operation": "deploy"
+    },
+    {
+      "attestation_sha256": "8d18a4dca2d7a1564c078307d6d238e7abb6c2ee2978b75d1dcc195de8865e9d",
+      "exit_code": 0,
+      "no_pending_message_observed": false,
+      "operation": "status"
+    },
+    {
+      "attestation_sha256": "c568d13c3f1a5728e98974719f38b5c108092463fd8c0bcf0b4c84c5bc45ccc0",
+      "exit_code": 0,
+      "no_pending_message_observed": true,
+      "operation": "deploy"
+    }
+  ],
+  "schema": "workinants.cloud-lease-renew-source8-independent-closure.v1",
+  "scope": {
+    "assertion_promotions": 0,
+    "evidence_limit": "Retained typed observations record the application row and all 42 table comparisons. The independent audit replayed the complete retained native catalog, initial expression oracle and ledger artifacts. Raw application fingerprints and clock readings were unretained.",
+    "hosted_or_release_qualification": false,
+    "posture": "D",
+    "qualifying_controls": [
+      "shorten-renew-denied",
+      "copied-hash-renew-denied"
+    ],
+    "supported_assertion_ceiling": "P0C-TRACK-01/vector.LEASE-RENEW.positive",
+    "whole_adversarial_vector_qualified": false,
+    "whole_track_case_qualified": false,
+    "worker_loop_qualified": false
+  },
+  "source_author": "/root/cloud_review_prep",
+  "source_commit": "4390144c9be4d359ba32eca1e4a05b73bab6ac63",
+  "source_tree": "e4d70d2195f5df3422b0a4d95501c9b4cddd6abd",
+  "status": "PASS_ONE_LIVE_LEASE_EXTENSION_AND_TWO_DENIALS_ONLY",
+  "target": {
+    "bootstrap": {
+      "container_path": "/run/wa-secrets/bootstrap-password",
+      "startup_gate_sha256": "2cbfda9bca8a7f2f4970eb49cbec3270dfc12310adfec5ef5dd6c4870a96793b",
+      "tmpfs_options": "rw,nosuid,nodev,noexec,mode=0700,size=8m",
+      "transport": "exact_container_stdin_to_private_tmpfs",
+      "write_gate_sha256": "7402460740b59686578fd8389a713fd5ce237c07452d64d8a2b017fbabcd37da"
+    },
+    "container_name": "wa-p0c-cloud-two-history-5614b2fb-a621-4938-be35-5de32562f722",
+    "database": "wa_p0c_rehearsal",
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "5614b2fb-a621-4938-be35-5de32562f722"
+    },
+    "network": "none",
+    "volume_name": "wa-p0c-cloud-two-history-5614b2fb-a621-4938-be35-5de32562f722-data"
+  },
+  "verified_committed_packet_files": 497,
+  "verified_generated_source_files": 8,
+  "verified_native_assets": 6,
+  "verified_parser_files": 23,
+  "verified_renewal_sql_assets": 13,
+  "verified_tool_members": 10300,
+  "volume_created_at": "2026-11-28T05:37:02Z"
+}
