@@ -20,6 +20,8 @@ The separate Consent rehearsal denied the matching NULL and empty contexts at th
 
 Independent review accepted database entry for a bounded P0-D implementation using trusted known Customer profiles and known WorkItem IDs. The Cloud branch can implement and test the new Customer to new default-Free path. General discovery, recovery following a lost completion acknowledgment, and the current Free or paid selection paths retain separate qualification requirements. [Bounded entry acceptance](reconciliation/cloud-phase0-evidence/2026-11-27/p0d-bounded-entry/acceptance.json)
 
+The first P0-D server transaction, exact known-ID Customer command receipt and atomic outbox source passed source review, strict type checking and the build. The owner transaction and Customer replay need separate live results. [Owner smoke test](../scripts/sql-review/cloud-p0d-owner-transaction-v1/README.md) · [Bounded Customer application](../features/customer_buyer_profile/application/resolve-customer-actor.ts)
+
 See the [execution checklist](reconciliation/cloud-phase0-execution.md), [starting Cloud results](reconciliation/cloud-phase0-evidence/2026-11-27/baseline.json), and [reviewed P0-B update](reconciliation/cloud-phase0-evidence/2026-11-27/p0b-requalification.json).
 
 ---
