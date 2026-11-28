@@ -1,0 +1,402 @@
+{
+  "all_client_closures_observed": 51,
+  "cleanup_verified": {
+    "approved_image_retained": true,
+    "container_full_id_absent": true,
+    "container_labels_absent": true,
+    "container_name_absent": true,
+    "private_host_path_absent": true,
+    "same_daemon": true,
+    "volume_labels_absent": true,
+    "volume_name_absent": true
+  },
+  "created_container": {
+    "id": "aba492f56a17b3567b423b00b05f47b92ea08fd582058602710ae231a2383560",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043"
+    },
+    "name": "wa-p0c-cloud-two-history-0f752aac-69c2-4c8d-ab1e-d2d4c0020043",
+    "run_id": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043"
+  },
+  "created_volume": {
+    "created_at": "2026-11-28T07:08:27Z",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043"
+    },
+    "name": "wa-p0c-cloud-two-history-0f752aac-69c2-4c8d-ab1e-d2d4c0020043-data",
+    "run_id": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043"
+  },
+  "customer_stop": {
+    "before_child_checkpoints": {
+      "seeded": {
+        "complete_state_sha256": "33dc589ba8986177b29323b6ebf1ed819800a40a762db9e3b93a2019961bb5a9",
+        "physical_counts": {
+          "customers": 0,
+          "effects": 0,
+          "evidence": 0,
+          "grants": 0,
+          "history": 0,
+          "outbox": 0,
+          "receipts": 0,
+          "security_profiles": 2,
+          "users": 2,
+          "work": 0
+        }
+      },
+      "unborn": {
+        "complete_state_sha256": "36cc29fe3bfea0570ad278c9ddc77ec4c88703f050cd90775bdd225a934352e2",
+        "physical_counts": {
+          "customers": 0,
+          "effects": 0,
+          "evidence": 0,
+          "grants": 0,
+          "history": 0,
+          "outbox": 0,
+          "receipts": 0,
+          "security_profiles": 0,
+          "users": 0,
+          "work": 0
+        }
+      }
+    },
+    "bounded_dispatch_metadata": {
+      "closure_confirmed": true,
+      "failed": false,
+      "normal_binary_result_returned": true,
+      "pipes_closed": true,
+      "process_exit_confirmed": true,
+      "profile": "control",
+      "remote_exec_attempted": true,
+      "remote_exit_unconfirmed": false,
+      "stderr_bytes": 0,
+      "stdin_bytes": 150,
+      "stdout_bytes": 786,
+      "threads_closed": true
+    },
+    "business_state_after_child": "UNOBSERVED",
+    "case_outcomes_at_stop": "UNOBSERVED",
+    "mode": "create-replay",
+    "prior_fingerprint": "HELD_SEPARATE_TARGET",
+    "raw_node_transcript_retained": false,
+    "receipt_sha256": "ea5a4c346c4dab3d541860c33e894aa1e14fe7b6295815271cc82bd7ec44553e",
+    "retry": "NOT_RUN",
+    "rollback": "NOT_RUN",
+    "server_constraint_identity_and_raw_error": "UNOBSERVED",
+    "terminal_builds_are_driver_events_only": true,
+    "terminal_scope_checkpoint_reached": false,
+    "typed_receipt": {
+      "attempts": {
+        "peer": {
+          "completed_steps": [
+            "READ_EMPTY"
+          ],
+          "failure": {
+            "side": "peer",
+            "sqlstate": null,
+            "step": "WAIT_PRIMARY_RECEIPT_ACK"
+          },
+          "last": "APP_ROLLBACK_BUILD",
+          "outcome": null,
+          "owner_failure": "rolled_back",
+          "phase": "COMPETING_KNOWN_CREATE",
+          "terminal_builds": [
+            "rollback"
+          ]
+        },
+        "primary": {
+          "completed_steps": [
+            "READ_EMPTY",
+            "CLOCK_DATE",
+            "UNEXPECTED_DRIVER_QUERY_FAILURE"
+          ],
+          "failure": {
+            "side": "primary",
+            "sqlstate": "23514",
+            "step": "APP_SQL_RECEIPT"
+          },
+          "last": "APP_ROLLBACK_BUILD",
+          "outcome": null,
+          "owner_failure": "rolled_back",
+          "phase": "COMPETING_KNOWN_CREATE",
+          "terminal_builds": [
+            "rollback"
+          ]
+        }
+      },
+      "first_failure": {
+        "side": "primary",
+        "sqlstate": "23514",
+        "step": "APP_SQL_RECEIPT"
+      },
+      "pools": "END_RESOLVED",
+      "schema": "workinants.p0d-customer-proof-stop-diagnostic.v1",
+      "stage": "COMPETING_KNOWN_CREATE",
+      "status": "STOPPED"
+    }
+  },
+  "daemon": {
+    "architecture": "amd64",
+    "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+    "docker_binary_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621",
+    "os": "linux",
+    "rootless": true,
+    "socket": {
+      "device": 32,
+      "gid": 1000,
+      "inode": 31,
+      "mode": 432,
+      "real_path": "/run/codex-docker/docker.sock",
+      "uid": 65534
+    },
+    "version": "29.9.2"
+  },
+  "decision": "EXACT_STOPPED_CUSTOMER_PREFIX_AND_OWNED_CLEANUP_VERIFIED",
+  "file_sha256": {
+    "attempt.json": "14c7c24eae816302319e6a6c83fe1108231062b2d1496db830b86f22376a533b",
+    "created-container.json": "4717e715f9c3e5490eed21f0c399dd99839f27f5c720901bcc5c49d55eae3a7e",
+    "created-volume.json": "95f83de4ebdaea81bcbcaa517296e89b22705a9f3324008baf9aeef864878145",
+    "docker-client/config.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "evidence/initial-acl-preflight.json": "9c4512f14956c11adbc1f7182bcba9f43baac2025a3f4d5e874e06b02815ba66",
+    "evidence/initial-after-noop-fingerprints.json": "dc0ca28eda30d79962023d405ff3cebab09dcfb14db7e17464a6ef1a6ade0224",
+    "evidence/initial-before-noop-fingerprints.json": "dc0ca28eda30d79962023d405ff3cebab09dcfb14db7e17464a6ef1a6ade0224",
+    "evidence/initial-catalog-comparison.json": "8f279c95d57ee0a6f44129124f550a6f54b1cfc8f13d10cadafd41124eec5a9e",
+    "evidence/initial-ledger-comparison.json": "bf30b63f23a8d14297237602786aff1c2b0bb5f81c7d7c0e3756ac707fd303ca",
+    "evidence/initial-ledger-evidence.json": "ff3a30a4bae82fa2c46f55c6af05070143bc3f173dc99a44c2c95cf8e3067d3c",
+    "evidence/initial-ledger-observation.json": "aa7e964a1096fa212f7b2bc75f52c48bcb4a83e5cb6057784874bb0e40bd1039",
+    "evidence/initial-ledger-registration.json": "ff2f53f4de7264d6718aa3a6e173f7bb10c13478b98d6a2081ee65ee284a7680",
+    "evidence/initial-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-native-after-oracle.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/initial-oracle-closure.json": "37600f840b4c617ff853558baa8902773e645ce937e2f19318513649c29ab112",
+    "evidence/initial-oracle-evidence.json": "f85292f21cf47955189f692bc867b1701f8fcfb904a6ce8973e50bd242c4cef5",
+    "evidence/initial-oracle-preflight.json": "cef8ce63dddadfc4dda47ffa928cd942e97a0639a213d5383e0dcb032c64bfc5",
+    "evidence/initial-oracle-results.json": "c0997279c5d95544aeb998da487ea4771bab08238a36e8d63ff2a62378c2c14a",
+    "evidence/initial-text-preflight.json": "6a211a9dc2c830d3e8efaa0f2b385082444a537ad0b7c0a0d9ea72b2c773465a",
+    "evidence/noop-catalog-comparison.json": "8f279c95d57ee0a6f44129124f550a6f54b1cfc8f13d10cadafd41124eec5a9e",
+    "evidence/noop-customer-create-replay-node.json": "ea5a4c346c4dab3d541860c33e894aa1e14fe7b6295815271cc82bd7ec44553e",
+    "evidence/noop-customer-identity-projection.json": "5f02602006f1c28f3dc3f32156cdb6c0c8e639d6d976c1713ae45565e3d9bb9a",
+    "evidence/noop-customer-native-after-seed.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-customer-seeded-full42.json": "79fbf08569ce7ddddee731267a3e0f52cc285a2e9685b832a56435778db7f009",
+    "evidence/noop-customer-seeded-scope.json": "b1a702d7fd6c8183d15635864c2ff1fd1d75eaca41254c41902e0a935b77b9bb",
+    "evidence/noop-customer-unborn-full42.json": "5856a508e44d07bcce205d095aeb83760609870a275a395c260fe45eaf12ff14",
+    "evidence/noop-customer-unborn-scope.json": "bece2102c4a8a5e7f271f22ad4d0c24e625ea7882fdbb9c83b8215ece84e5b49",
+    "evidence/noop-ledger-comparison.json": "bf30b63f23a8d14297237602786aff1c2b0bb5f81c7d7c0e3756ac707fd303ca",
+    "evidence/noop-ledger-evidence.json": "ff3a30a4bae82fa2c46f55c6af05070143bc3f173dc99a44c2c95cf8e3067d3c",
+    "evidence/noop-ledger-observation.json": "aa7e964a1096fa212f7b2bc75f52c48bcb4a83e5cb6057784874bb0e40bd1039",
+    "evidence/noop-ledger-registration.json": "ff2f53f4de7264d6718aa3a6e173f7bb10c13478b98d6a2081ee65ee284a7680",
+    "evidence/noop-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/noop-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/pre-activation-ledger-evidence.json": "ff3a30a4bae82fa2c46f55c6af05070143bc3f173dc99a44c2c95cf8e3067d3c",
+    "evidence/pre-activation-native-after-ledger.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/pre-activation-native-before.json": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a",
+    "evidence/run-evidence.json": "89d596b5f086f40ffca555ff87a16ab1d7b90ca2137936f85917de64b01887c3",
+    "literal-review.json": "0828a375c231787e61db87fccfecf365ca03da39d3267259a26a26aa225728f7",
+    "operation-exit.json": "664625c7c7f60c2662ada0935e6ccb1650cfddfa82f1707560bdb0a00b318477",
+    "operation.json": "01179621562c3e12db8a9c563f8f48dd7e4d48c8114085f755d54c9174fbb218",
+    "run-manifest.json": "df7a72fe3e47b73e3c7ac211cd499da34446112fba9aaab398382b8ac7e8c4f7",
+    "source-review.json": "c2cd926509dfcd51a8a157f3fcef5532e704e31ac66961293806869ea30dc140",
+    "source8.tar": "51aace9ce3fe5c1b0b471356e8ee1dcd5a6d48291a0fe7a4df9c051a6a15a8f0"
+  },
+  "genuine_pre_child_migration_receipts": [
+    {
+      "append_sql_sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+      "attestation_sha256": "fcef98533a8ea77093a7e5972068d17aa000cef3c3449c9820922121fb7d32c0",
+      "container_id": "aba492f56a17b3567b423b00b05f47b92ea08fd582058602710ae231a2383560",
+      "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+      "database_qualification_claimed": false,
+      "diagnostic_format": {
+        "database_header_present": false,
+        "database_header_unique": false,
+        "headers_valid": true,
+        "prisma_header_present": false,
+        "prisma_header_unique": false,
+        "sgr_stripped": false,
+        "text_valid": true
+      },
+      "effective_expected_sha256": "cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4",
+      "exit_code": 0,
+      "initial_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "literal_review_sha256": "0828a375c231787e61db87fccfecf365ca03da39d3267259a26a26aa225728f7",
+      "no_pending_message_observed": false,
+      "operation": "deploy",
+      "ordered_history_sha256": "af2fcc2bc5fa1846e894e6fb8c91183e144c82935c8ac9088d3f603ab4cfde67",
+      "packet_sha256": "01179621562c3e12db8a9c563f8f48dd7e4d48c8114085f755d54c9174fbb218",
+      "prisma_codes": [],
+      "raw_output_discarded": true,
+      "run_id": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043",
+      "schema": "workinants.cloud-f0-runtime-lease-history-migrate-result.v2",
+      "sqlstates": [],
+      "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS"
+    },
+    {
+      "append_sql_sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+      "attestation_sha256": "9e2a9d3437ce70961d9da88a8f48b34b586edd46da1320dbff1ab23f92e4aebc",
+      "container_id": "aba492f56a17b3567b423b00b05f47b92ea08fd582058602710ae231a2383560",
+      "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+      "database_qualification_claimed": false,
+      "diagnostic_format": {
+        "database_header_present": false,
+        "database_header_unique": false,
+        "headers_valid": true,
+        "prisma_header_present": false,
+        "prisma_header_unique": false,
+        "sgr_stripped": false,
+        "text_valid": true
+      },
+      "effective_expected_sha256": "cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4",
+      "exit_code": 0,
+      "initial_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "literal_review_sha256": "0828a375c231787e61db87fccfecf365ca03da39d3267259a26a26aa225728f7",
+      "no_pending_message_observed": false,
+      "operation": "status",
+      "ordered_history_sha256": "af2fcc2bc5fa1846e894e6fb8c91183e144c82935c8ac9088d3f603ab4cfde67",
+      "packet_sha256": "01179621562c3e12db8a9c563f8f48dd7e4d48c8114085f755d54c9174fbb218",
+      "prisma_codes": [],
+      "raw_output_discarded": true,
+      "run_id": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043",
+      "schema": "workinants.cloud-f0-runtime-lease-history-migrate-result.v2",
+      "sqlstates": [],
+      "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS"
+    },
+    {
+      "append_sql_sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+      "attestation_sha256": "fcef98533a8ea77093a7e5972068d17aa000cef3c3449c9820922121fb7d32c0",
+      "container_id": "aba492f56a17b3567b423b00b05f47b92ea08fd582058602710ae231a2383560",
+      "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+      "database_qualification_claimed": false,
+      "diagnostic_format": {
+        "database_header_present": false,
+        "database_header_unique": false,
+        "headers_valid": true,
+        "prisma_header_present": false,
+        "prisma_header_unique": false,
+        "sgr_stripped": false,
+        "text_valid": true
+      },
+      "effective_expected_sha256": "cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4",
+      "exit_code": 0,
+      "initial_sql_sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+      "literal_review_sha256": "0828a375c231787e61db87fccfecf365ca03da39d3267259a26a26aa225728f7",
+      "no_pending_message_observed": true,
+      "operation": "deploy",
+      "ordered_history_sha256": "af2fcc2bc5fa1846e894e6fb8c91183e144c82935c8ac9088d3f603ab4cfde67",
+      "packet_sha256": "01179621562c3e12db8a9c563f8f48dd7e4d48c8114085f755d54c9174fbb218",
+      "prisma_codes": [],
+      "raw_output_discarded": true,
+      "run_id": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043",
+      "schema": "workinants.cloud-f0-runtime-lease-history-migrate-result.v2",
+      "sqlstates": [],
+      "status": "CLI_COMPLETED_REQUIRES_INDEPENDENT_LEDGER_CATALOG_CHECKS"
+    }
+  ],
+  "image": {
+    "architecture": "amd64",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_id": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_store_identity": "CONFIG",
+    "manifest_content_hash_verified": true,
+    "os": "linux",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pinned_repo_digest_verified": true,
+    "pulled_this_run": false,
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "removed": false
+  },
+  "native_and_ledger_pre_child": {
+    "actual_oracle_rollback_executions": 1,
+    "effective_expected_sha256": "cfb1c1cc9855e72978eadcd9e4902174e2e97a39383d480a71133c1fb07360c4",
+    "final_customer_native_or_ledger_comparison_reached": false,
+    "full8_migration_noop_before_customer": {
+      "all_eight_columns_unchanged": true,
+      "database_qualification_claimed": false,
+      "history_count": 2,
+      "schema": "workinants.runtime-lease-noop-full-ledger-proof.v1",
+      "status": "PASS_EXACT_TWO_ROW_HASH_PRESERVATION_ONLY"
+    },
+    "identical_native_snapshots_through_seed": 8,
+    "independent_catalog_checks_initial_and_noop": 29089,
+    "ledger_checks_both_before_customer": 22,
+    "native_sha256": "c795fa7d78516e6b39c3e8995bcbace8ac31bef66704b8e360b767c639e711dc",
+    "oracle_expression_receipts": 416
+  },
+  "operator": "/root",
+  "operator_exit": {
+    "evidence_complete": true,
+    "exit_code": 1,
+    "file_sha256": "664625c7c7f60c2662ada0935e6ccb1650cfddfa82f1707560bdb0a00b318477",
+    "method": "EXACT_RETAINED_DIRECT_PROCESS_EXIT_OBSERVATION",
+    "observer": "/root"
+  },
+  "outer_failure_records": [
+    {
+      "code": "P0D_CUSTOMER_KNOWN_NODE_STOP",
+      "stage": "P0D_CUSTOMER_CREATE_REPLAY_NODE"
+    },
+    {
+      "code": "P0D_CUSTOMER_KNOWN_NODE_STOP",
+      "stage": "P0D_CUSTOMER_CREATE_REPLAY_NODE"
+    },
+    {
+      "code": "P0D_CUSTOMER_KNOWN_NODE_STOP",
+      "stage": "P0D_CUSTOMER_CREATE_REPLAY_NODE"
+    }
+  ],
+  "outer_primary_failure": {
+    "code": "P0D_CUSTOMER_KNOWN_NODE_STOP",
+    "stage": "P0D_CUSTOMER_CREATE_REPLAY_NODE"
+  },
+  "packet_sha256": "01179621562c3e12db8a9c563f8f48dd7e4d48c8114085f755d54c9174fbb218",
+  "prior_accepted_owner_smoke_sha256": "e913b361e228f277e3a2af392d894ddd03ebfcd66a2e6df76cd0b53dd2e085b3",
+  "recorded_at_utc": "2026-11-28T07:12:50.463043+00:00",
+  "reviewer": "/root/two_history_guard",
+  "run_id": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043",
+  "schema": "workinants.cloud-p0d-known-customer-independent-stop-closure.v2",
+  "scope": {
+    "assertions_promoted": 0,
+    "candidate_adoption": false,
+    "customer_business_cases_qualified": false,
+    "database_posture": "D",
+    "hosted_or_production_qualified": false,
+    "integrated_runtime_qualified": false,
+    "retry_authority": false
+  },
+  "source8_archive_members": 8,
+  "source_and_literal_review_receipts": {
+    "literal": "0828a375c231787e61db87fccfecf365ca03da39d3267259a26a26aa225728f7",
+    "literal_reviewer": "/root/two_history_guard",
+    "source": "c2cd926509dfcd51a8a157f3fcef5532e704e31ac66961293806869ea30dc140",
+    "source_reviewer": "/root/two_history_guard"
+  },
+  "source_commit": "b979b15bdfa8b1e2e129f5ca6ab9a4262ed678c0",
+  "source_tree": "addf2aae619e6956592785185cdf8a5a16c999aa",
+  "status": "STOPPED_ATTEMPT_PRESERVED",
+  "sticky_remote_uncertainty": false,
+  "target": {
+    "bootstrap": {
+      "container_path": "/run/wa-secrets/bootstrap-password",
+      "startup_gate_sha256": "2cbfda9bca8a7f2f4970eb49cbec3270dfc12310adfec5ef5dd6c4870a96793b",
+      "tmpfs_options": "rw,nosuid,nodev,noexec,mode=0700,size=8m",
+      "transport": "exact_container_stdin_to_private_tmpfs",
+      "write_gate_sha256": "7402460740b59686578fd8389a713fd5ce237c07452d64d8a2b017fbabcd37da"
+    },
+    "container_name": "wa-p0c-cloud-two-history-0f752aac-69c2-4c8d-ab1e-d2d4c0020043",
+    "database": "wa_p0c_rehearsal",
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "0f752aac-69c2-4c8d-ab1e-d2d4c0020043"
+    },
+    "network": "none",
+    "volume_name": "wa-p0c-cloud-two-history-0f752aac-69c2-4c8d-ab1e-d2d4c0020043-data"
+  },
+  "transport_dispatches_closed": {
+    "control": 177,
+    "metadata_tools": 91,
+    "native_oracle": 14
+  },
+  "verified_committed_sources": 523,
+  "verified_external_tool_members": 10300,
+  "verified_parser_files": 23
+}

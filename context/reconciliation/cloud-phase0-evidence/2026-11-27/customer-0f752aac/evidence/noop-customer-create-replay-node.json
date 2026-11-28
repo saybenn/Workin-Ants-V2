@@ -1,0 +1,49 @@
+{
+  "attempts": {
+    "peer": {
+      "completed_steps": [
+        "READ_EMPTY"
+      ],
+      "failure": {
+        "side": "peer",
+        "sqlstate": null,
+        "step": "WAIT_PRIMARY_RECEIPT_ACK"
+      },
+      "last": "APP_ROLLBACK_BUILD",
+      "outcome": null,
+      "owner_failure": "rolled_back",
+      "phase": "COMPETING_KNOWN_CREATE",
+      "terminal_builds": [
+        "rollback"
+      ]
+    },
+    "primary": {
+      "completed_steps": [
+        "READ_EMPTY",
+        "CLOCK_DATE",
+        "UNEXPECTED_DRIVER_QUERY_FAILURE"
+      ],
+      "failure": {
+        "side": "primary",
+        "sqlstate": "23514",
+        "step": "APP_SQL_RECEIPT"
+      },
+      "last": "APP_ROLLBACK_BUILD",
+      "outcome": null,
+      "owner_failure": "rolled_back",
+      "phase": "COMPETING_KNOWN_CREATE",
+      "terminal_builds": [
+        "rollback"
+      ]
+    }
+  },
+  "first_failure": {
+    "side": "primary",
+    "sqlstate": "23514",
+    "step": "APP_SQL_RECEIPT"
+  },
+  "pools": "END_RESOLVED",
+  "schema": "workinants.p0d-customer-proof-stop-diagnostic.v1",
+  "stage": "COMPETING_KNOWN_CREATE",
+  "status": "STOPPED"
+}
