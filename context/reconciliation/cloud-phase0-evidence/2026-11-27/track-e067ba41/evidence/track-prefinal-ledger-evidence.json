@@ -1,0 +1,310 @@
+{
+  "collector_sql_sha256": "6dfa02fa375da4a126b996fc547dfff063c61b41c854db6b07ea62f52d63286b",
+  "format": "workinants.prisma-ledger-evidence.v1",
+  "native_catalog_after_sha256": "fb6840b67dfd5a4e99dbea57ccfb7e511b22b8e9dac0c2a8bc01527d8576f64a",
+  "native_catalog_before_sha256": "fb6840b67dfd5a4e99dbea57ccfb7e511b22b8e9dac0c2a8bc01527d8576f64a",
+  "observation": {
+    "collected_as": "postgres",
+    "collector_is_superuser": true,
+    "column_acl": [],
+    "columns": [
+      {
+        "array_dimensions": 0,
+        "collation_is_type_default": true,
+        "compression": "",
+        "default_sha256": null,
+        "generated": "",
+        "identity": "",
+        "inherited_count": 0,
+        "is_local": true,
+        "name": "id",
+        "nullable": false,
+        "ordinal": 1,
+        "storage_is_type_default": true,
+        "type": "pg_catalog.varchar",
+        "typmod": 40
+      },
+      {
+        "array_dimensions": 0,
+        "collation_is_type_default": true,
+        "compression": "",
+        "default_sha256": null,
+        "generated": "",
+        "identity": "",
+        "inherited_count": 0,
+        "is_local": true,
+        "name": "checksum",
+        "nullable": false,
+        "ordinal": 2,
+        "storage_is_type_default": true,
+        "type": "pg_catalog.varchar",
+        "typmod": 68
+      },
+      {
+        "array_dimensions": 0,
+        "collation_is_type_default": true,
+        "compression": "",
+        "default_sha256": null,
+        "generated": "",
+        "identity": "",
+        "inherited_count": 0,
+        "is_local": true,
+        "name": "finished_at",
+        "nullable": true,
+        "ordinal": 3,
+        "storage_is_type_default": true,
+        "type": "pg_catalog.timestamptz",
+        "typmod": -1
+      },
+      {
+        "array_dimensions": 0,
+        "collation_is_type_default": true,
+        "compression": "",
+        "default_sha256": null,
+        "generated": "",
+        "identity": "",
+        "inherited_count": 0,
+        "is_local": true,
+        "name": "migration_name",
+        "nullable": false,
+        "ordinal": 4,
+        "storage_is_type_default": true,
+        "type": "pg_catalog.varchar",
+        "typmod": 259
+      },
+      {
+        "array_dimensions": 0,
+        "collation_is_type_default": true,
+        "compression": "",
+        "default_sha256": null,
+        "generated": "",
+        "identity": "",
+        "inherited_count": 0,
+        "is_local": true,
+        "name": "logs",
+        "nullable": true,
+        "ordinal": 5,
+        "storage_is_type_default": true,
+        "type": "pg_catalog.text",
+        "typmod": -1
+      },
+      {
+        "array_dimensions": 0,
+        "collation_is_type_default": true,
+        "compression": "",
+        "default_sha256": null,
+        "generated": "",
+        "identity": "",
+        "inherited_count": 0,
+        "is_local": true,
+        "name": "rolled_back_at",
+        "nullable": true,
+        "ordinal": 6,
+        "storage_is_type_default": true,
+        "type": "pg_catalog.timestamptz",
+        "typmod": -1
+      },
+      {
+        "array_dimensions": 0,
+        "collation_is_type_default": true,
+        "compression": "",
+        "default_sha256": "28a4dae0461e17af56e979c2095abfbe0bfc45fe9ca8abf3144338a518a1bb8f",
+        "generated": "",
+        "identity": "",
+        "inherited_count": 0,
+        "is_local": true,
+        "name": "started_at",
+        "nullable": false,
+        "ordinal": 7,
+        "storage_is_type_default": true,
+        "type": "pg_catalog.timestamptz",
+        "typmod": -1
+      },
+      {
+        "array_dimensions": 0,
+        "collation_is_type_default": true,
+        "compression": "",
+        "default_sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "generated": "",
+        "identity": "",
+        "inherited_count": 0,
+        "is_local": true,
+        "name": "applied_steps_count",
+        "nullable": false,
+        "ordinal": 8,
+        "storage_is_type_default": true,
+        "type": "pg_catalog.int4",
+        "typmod": -1
+      }
+    ],
+    "constraints": [
+      {
+        "columns": [
+          "id"
+        ],
+        "deferrable": false,
+        "index_name": "public._prisma_migrations_pkey",
+        "initially_deferred": false,
+        "kind": "p",
+        "name": "_prisma_migrations_pkey",
+        "no_expression": true,
+        "no_inherit": true,
+        "no_referenced_relation": true,
+        "validated": true
+      }
+    ],
+    "database": "wa_p0c_rehearsal",
+    "format": "workinants.prisma-ledger-native.v1",
+    "history": [
+      {
+        "checksum_format_valid": true,
+        "checksum_sha256": "0b49ce958ac762acad2705f29e480cc7d38354e5c46ddc8c38096767639ee38c",
+        "finished": true,
+        "id_is_uuid_v4": true,
+        "logs_state": "NULL",
+        "name_sha256": "45bda41cbf8bc23eda6a6cb1005a51bdcdb00281848b9caa7e1b8a7ca9e940d8",
+        "rolled_back": false,
+        "started": true,
+        "steps": 1,
+        "time_order_valid": true
+      },
+      {
+        "checksum_format_valid": true,
+        "checksum_sha256": "cf7c485a32b87ee2c7cb0e93cb352fb6e49eebf064a3694107d93755af7e8efc",
+        "finished": true,
+        "id_is_uuid_v4": true,
+        "logs_state": "NULL",
+        "name_sha256": "794dd4cab4c377cc6467bf168d7b5dc0181b9f8444b470d450e1ea7f3df37ccc",
+        "rolled_back": false,
+        "started": true,
+        "steps": 1,
+        "time_order_valid": true
+      },
+      {
+        "checksum_format_valid": true,
+        "checksum_sha256": "11ae7a25fc20825975a385629aec3f8fcaa058379110445d669b4c28a4915aac",
+        "finished": true,
+        "id_is_uuid_v4": true,
+        "logs_state": "NULL",
+        "name_sha256": "ea9470aa5445140cc6f94d6cfab09db60f82ffede53e49569cffe6d9b3a48670",
+        "rolled_back": false,
+        "started": true,
+        "steps": 1,
+        "time_order_valid": true
+      }
+    ],
+    "history_ids_unique": true,
+    "indexes": [
+      {
+        "access_method": "btree",
+        "clustered": false,
+        "default_tablespace": true,
+        "immediate": true,
+        "key_count": 1,
+        "keys": [
+          {
+            "collation_is_type_default": true,
+            "column": "id",
+            "descending": false,
+            "included": false,
+            "nulls_first": false,
+            "opclass": "pg_catalog.text_ops",
+            "opclass_default": true,
+            "position": 1
+          }
+        ],
+        "live": true,
+        "no_expressions": true,
+        "no_index_acl": true,
+        "no_options": true,
+        "no_predicate": true,
+        "nulls_not_distinct": false,
+        "object": "public._prisma_migrations_pkey",
+        "owner": "wa_migrator",
+        "persistence": "p",
+        "primary": true,
+        "ready": true,
+        "replica_identity": false,
+        "total_count": 1,
+        "unique": true,
+        "valid": true
+      }
+    ],
+    "isolation": "repeatable read",
+    "policies_count": 0,
+    "read_only": true,
+    "relations": [
+      {
+        "access_method": "heap",
+        "default_tablespace": true,
+        "force_rls": false,
+        "kind": "r",
+        "no_inheritance": true,
+        "no_options": true,
+        "not_partition": true,
+        "object": "public._prisma_migrations",
+        "owner": "wa_migrator",
+        "persistence": "p",
+        "replica_identity": "d",
+        "rls": false
+      }
+    ],
+    "rules_count": 0,
+    "server_version_num": 170011,
+    "session_user": "postgres",
+    "table_acl": [
+      {
+        "grant_option": false,
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "DELETE"
+      },
+      {
+        "grant_option": false,
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "INSERT"
+      },
+      {
+        "grant_option": false,
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "MAINTAIN"
+      },
+      {
+        "grant_option": false,
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "REFERENCES"
+      },
+      {
+        "grant_option": false,
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "SELECT"
+      },
+      {
+        "grant_option": false,
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "TRIGGER"
+      },
+      {
+        "grant_option": false,
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "TRUNCATE"
+      },
+      {
+        "grant_option": false,
+        "grantee": "wa_migrator",
+        "grantor": "wa_migrator",
+        "privilege": "UPDATE"
+      }
+    ],
+    "triggers_count": 0
+  },
+  "registration_sha256": "67ac2e55d4736a3d25abf7e662fae834926f4bdd415d53d79c1ed2839629d1e0",
+  "run_id": "e067ba41-a9b2-46ef-994b-56b1a7ef1d6f",
+  "target_attestation_sha256": "2d14855fb5955fe57a24e391a3a8411ac96995661abc6f09ed74d205f71d46b8"
+}
