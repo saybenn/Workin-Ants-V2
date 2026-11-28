@@ -1,0 +1,165 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { PassThrough } from "node:stream";
+import { runKnownWorkProof, loadWorkerTemplates } from "./bundle/known-work-child.mjs";
+
+const base = 1800000000000;
+const credentials = { phase: "INIT", app: "1".repeat(64), worker: "2".repeat(64), issuer: "3".repeat(64) };
+const phases = [
+  ["SOURCE", 0], ["SCHEDULE", 0], ["REPLAY", 0], ["CLAIM", 1000],
+  ["LIVE_RECLAIM", 2000], ["RENEW", 3000], ["COPIED_HASH_RENEW", 4000], ["RECLAIM", 30000],
+  ["STALE_RENEW", 31000], ["FINISH", 0],
+];
+const templates = loadWorkerTemplates(await readFile(new URL("./bundle/worker-fixture.json", import.meta.url), "utf8"));
+
+async function model({ breakPhase, branch } = {}) {
+  let now = base;
+  let owned = 0;
+  let maxOpen = 0;
+  let counter = 9;
+  let transactionCount = 0;
+  let active;
+  let work = null;
+  let sourceWrites = 0;
+  let grants = [];
+  const receipts = [];
+  const workId = "530db9d1-b945-53ec-bb0c-6d91c914b5fc";
+
+  const stream = new PassThrough();
+  stream.write(Buffer.from(JSON.stringify(credentials) + "\n"));
+
+  function continueWith(index) {
+    const [phase, offset] = phases[index];
+    active = phase;
+    if (phase === breakPhase && branch === "malformed") {
+      stream.end('{"phase":"REPLAY","phase":"SCHEDULE"}\n');
+      return;
+    }
+    if (offset) now = base + offset;
+    const message = { phase, ...(offset ? { server_ms: now } : {}) };
+    const frame = Buffer.from(JSON.stringify(message) + "\n");
+    stream.write(frame.subarray(0, 5));
+    if (phase === "FINISH") stream.end(frame.subarray(5));
+    else stream.write(frame.subarray(5));
+  }
+
+  function createPool(options) {
+    const login = options.username;
+    assert.ok(["wa_app_runtime", "wa_worker", "wa_context_issuer"].includes(login));
+    assert.deepEqual([options.host, options.port, options.database, options.max, options.ssl],
+      ["127.0.0.1", 5432, "wa_p0c_rehearsal", 1, false]);
+    assert.equal(options.password, credentials[{wa_app_runtime:"app",wa_worker:"worker",wa_context_issuer:"issuer"}[login]]);
+    const pid = ++counter;
+    owned += 1;
+    maxOpen = Math.max(owned, maxOpen);
+    return {
+      async begin(isolation, callback) {
+        assert.equal(isolation, "isolation level read committed");
+        const xid = String(++transactionCount);
+        let token = null;
+        let pending = work;
+        let inserts = 0;
+        const query = async (template, ...parameters) => {
+          const sql = template.join("?");
+          if (sql.includes("extract(epoch FROM activity.backend_start)")) {
+            return [{ login, role: login, database: "wa_p0c_rehearsal", isolation: "read committed",
+              pid, xid, backendStart: "111111.000000", serverStart: "123.000000", serverAddress: "127.0.0.1/32", serverPort: 5432 }];
+          }
+          if (sql.includes("INSERT INTO platform.database_action_grant")) {
+            assert.equal(login, "wa_context_issuer");
+            const allowed = parameters[10];
+            grants.push(allowed.length);
+            return [{ id: parameters[0] }];
+          }
+          if (sql.includes("bind_request_context")) {
+            if (active === breakPhase && branch === "context_denied") throw Object.assign(new Error("protected mock detail"), { code: "42501" });
+            return [{}];
+          }
+          if (sql.includes("FROM platform.runtime_work_item") && sql.includes("SELECT id::text")) {
+            return pending?.fence === 0 ? [pending] : [];
+          }
+          if (sql.startsWith("INSERT") && active === "SOURCE") {
+            assert.equal(login, "wa_app_runtime");
+            assert.ok(!sql.includes("runtime_effect_receipt"));
+            inserts += 1;
+            return [];
+          }
+          if (sql.includes("INSERT INTO platform.runtime_work_item")) {
+            assert.equal(login, "wa_app_runtime");
+            assert.equal(pending, null);
+            const [id,outbox_message_id,handler_name,semantic_work_key] = parameters;
+            pending = { id, outbox_message_id, handler_name, semantic_work_key, fence: 0 };
+            return [{ id }];
+          }
+          if (sql.includes("pg_catalog.set_config('wa.lease_secret'")) {
+            assert.equal(login, "wa_worker");
+            [token] = parameters;
+            return [{ secret_bound: true, fence_bound: true }];
+          }
+          if (sql.includes("SET state = 'leased'")) {
+            assert.equal(login, "wa_worker");
+            const [hash,deadline,id,from] = parameters;
+            assert.equal(hash, createHash("sha256").update(Buffer.from(token,"hex")).digest("hex"));
+            assert.equal(id, workId);
+            if (pending.fence !== Number(from) || (pending.deadline ?? 0) > now) return [];
+            const fence = Number(from) + 1;
+            pending = { ...pending, hash, deadline: Date.parse(deadline), fence };
+            return [{ id, fence: String(fence), lease_expires_at: new Date(deadline) }];
+          }
+          if (sql.includes("SET lease_expires_at")) {
+            assert.equal(login, "wa_worker");
+            const [deadline,id,from] = parameters;
+            const hash = createHash("sha256").update(Buffer.from(token,"hex")).digest("hex");
+            if (pending.fence !== Number(from) || pending.deadline <= now || pending.hash !== hash || pending.deadline >= Date.parse(deadline)) return [];
+            pending = { ...pending, deadline: Date.parse(deadline) };
+            return [{ id, fence: from, lease_expires_at: new Date(deadline) }];
+          }
+          throw new Error("unmodeled query");
+        };
+        query.array = (items) => items;
+        const result = await callback(query);
+        if (login !== "wa_context_issuer") {
+          work = pending;
+          sourceWrites += inserts;
+        }
+        return result;
+      },
+      async end() {
+        owned -= 1;
+        if (active === breakPhase && branch === "end_failure" && login === "wa_app_runtime") throw new Error("protected detail");
+      },
+    };
+  }
+
+  const code = await runKnownWorkProof(stream, (row) => {
+    assert.equal(owned, 0);
+    assert.equal(Object.values(credentials).slice(1).some((value) => JSON.stringify(row).includes(value)), false);
+    receipts.push(row);
+    if (row.status === "READY" || row.status === "PHASE_PASS") continueWith(row.sequence);
+  }, createPool, templates, () => now);
+  return { code, receipts, grants, maxOpen, sourceWrites, work };
+}
+
+const pass = await model();
+assert.equal(pass.code, 0, JSON.stringify(pass.receipts));
+assert.deepEqual(pass.receipts.map((row) => row.phase), ["INIT", ...phases.map(([phase]) => phase)]);
+assert.equal(pass.maxOpen, 2);
+assert.deepEqual(pass.grants, [179,25,25,20,20,16,16,20,16]);
+assert.equal(pass.sourceWrites, 6);
+assert.equal(pass.work.fence, 2);
+const selected = Object.fromEntries(pass.receipts.filter((row) => row.lease).map((row) => [row.phase,row.lease]));
+assert.equal(selected.CLAIM.lease_digest_sha256,selected.RENEW.lease_digest_sha256);
+assert.notEqual(selected.RECLAIM.lease_digest_sha256,selected.CLAIM.lease_digest_sha256);
+
+for (const [branch, code, unknown] of [["malformed","PHASE_ORDER",false], ["context_denied","OWNER_CONTEXT_DENIED",false],
+                                       ["end_failure","POOL_CLOSE_UNCONFIRMED",true]]) {
+  const fail = await model({ breakPhase: "SCHEDULE", branch });
+  assert.equal(fail.code, 1);
+  assert.deepEqual(fail.receipts.map((row) => row.phase), ["INIT", "SOURCE", "SCHEDULE"]);
+  const receipt = fail.receipts.at(-1);
+  assert.equal(receipt.status, "STOPPED");
+  assert.equal(receipt.code, code);
+  assert.equal(receipt.outcome_unconfirmed, unknown);
+}
+console.log("4 offline child scenarios passed using actual compiled owners and a simulated driver");

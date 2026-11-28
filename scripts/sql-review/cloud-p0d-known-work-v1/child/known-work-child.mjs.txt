@@ -1,0 +1,287 @@
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { stdin, stdout } from "node:process";
+import { pathToFileURL } from "node:url";
+import owner from "./compiled/server/platform/persistence/owner-transaction.js";
+import work from "./compiled/server/platform/runtime/work-leases.js";
+import source from "./compiled/fixture/fixture.js";
+
+const schema = "workinants.p0d-known-work-node.v1";
+const policyVersion = "wa-p0d-known-work.v1";
+const databaseName = "wa_p0c_rehearsal";
+const driverPath = "/run/wa-f0-tools/node_modules/postgres/src/index.js";
+const intent = Object.freeze({
+  workId: source.workId,
+  outboxMessageId: "6be93914-5cc2-5cc0-a5b6-0906f8b4add1",
+  customerProfileId: source.customerId,
+  userId: "8136b2ae-cea6-5c8d-a04e-9bd70784c943",
+});
+const roles = {
+  app: ["wa_app_runtime", "wa_p0d_known_work_app"],
+  worker: ["wa_worker", "wa_p0d_known_work_worker"],
+  issuer: ["wa_context_issuer", "wa_p0d_known_work_issuer"],
+};
+const sequence = [
+  ["SOURCE", "app", "source", 0, "created"],
+  ["SCHEDULE", "app", "schedule", 0, "scheduled"],
+  ["REPLAY", "app", "schedule", 0, "already_scheduled"],
+  ["CLAIM", "worker", "claim-0", 18000, "claimed"],
+  ["LIVE_RECLAIM", "worker", "claim-1", 18000, "unavailable"],
+  ["RENEW", "worker", "renew-1", 26000, "renewed"],
+  ["COPIED_HASH_RENEW", "worker", "renew-1", 42000, "unavailable"],
+  ["RECLAIM", "worker", "claim-1", 18000, "claimed"],
+  ["STALE_RENEW", "worker", "renew-1", 42000, "unavailable"],
+];
+const ownerCodes = {
+  target_mismatch: "OWNER_TARGET_MISMATCH",
+  context_denied: "OWNER_CONTEXT_DENIED",
+  transaction_closed: "OWNER_TRANSACTION_CLOSED",
+  rolled_back: "OWNER_ROLLED_BACK",
+  database_unavailable: "OWNER_DATABASE_UNAVAILABLE",
+  commit_unconfirmed: "OWNER_COMMIT_UNCONFIRMED",
+};
+const hex = /^[0-9a-f]{64}$/;
+
+class ProofFailure extends Error {
+  constructor(code) {
+    super(code);
+    this.code = code;
+  }
+}
+
+function requireProof(ok, code) {
+  if (!ok) throw new ProofFailure(code);
+}
+
+function failureCode(error) {
+  if (error instanceof ProofFailure) return error.code;
+  if (error instanceof owner.OwnerTransactionFailure && Object.hasOwn(ownerCodes, error.code)) {
+    return ownerCodes[error.code];
+  }
+  return "UNEXPECTED_FAILURE";
+}
+
+async function* readLines(stream) {
+  const buffer = Buffer.alloc(1024);
+  let length = 0;
+  try {
+    for await (const chunk of stream) {
+      requireProof(Buffer.isBuffer(chunk), "INPUT_FORMAT");
+      for (const byte of chunk) {
+        if (byte === 10) {
+          requireProof(length > 0, "INPUT_FORMAT");
+          const line = buffer.toString("ascii", 0, length);
+          buffer.fill(0, 0, length);
+          length = 0;
+          yield line;
+        } else {
+          requireProof(byte >= 32 && byte <= 126 && length < buffer.length, "INPUT_FORMAT");
+          buffer[length++] = byte;
+        }
+      }
+    }
+    requireProof(length === 0, "INPUT_FORMAT");
+  } finally {
+    buffer.fill(0);
+  }
+}
+
+function credentials(line) {
+  const match = /^\{"phase":"INIT","app":"([0-9a-f]{64})","worker":"([0-9a-f]{64})","issuer":"([0-9a-f]{64})"\}$/.exec(line ?? "");
+  requireProof(match && new Set(match.slice(1)).size === 3, "CREDENTIAL_FORMAT");
+  return { app: match[1], worker: match[2], issuer: match[3] };
+}
+
+function deadline(line, phase, delay, now) {
+  const match = /^\{"phase":"([A-Z_]+)"(?:,"server_ms":([1-9][0-9]{12}))?\}$/.exec(line ?? "");
+  requireProof(match && match[1] === phase && Boolean(match[2]) === (delay > 0), "PHASE_ORDER");
+  if (!delay) return null;
+  const server = Number(match[2]);
+  requireProof(Math.abs(server - now()) <= 5000, "CLOCK_SAMPLE_OUT_OF_RANGE");
+  return new Date(server + delay);
+}
+
+function poolOptions(login, password) {
+  const [username, application_name] = roles[login];
+  return {
+    host: "127.0.0.1", port: 5432, database: databaseName, username, password, ssl: false,
+    max: 1, idle_timeout: 0, max_lifetime: 0, connect_timeout: 5, fetch_types: true, prepare: false,
+    onnotice: () => {},
+    connection: { application_name, TimeZone: "UTC", statement_timeout: 5000, lock_timeout: 1000,
+      idle_in_transaction_session_timeout: 15000 },
+  };
+}
+
+function scope(template, now) {
+  return { ...template, policyVersion, expiresAt: new Date(now() + 120000) };
+}
+
+function hashToken(token) {
+  const bytes = Buffer.from(token, "hex");
+  try {
+    return createHash("sha256").update(bytes).digest("hex");
+  } finally {
+    bytes.fill(0);
+  }
+}
+
+function checkedLease(receipt, expected, requestedDeadline, prior) {
+  const { lease } = receipt;
+  const fence = expected === "RECLAIM" ? 2n : 1n;
+  requireProof(lease?.workId === intent.workId && lease.fence === fence && hex.test(lease.token)
+    && lease.expiresAt instanceof Date && lease.expiresAt.getTime() === requestedDeadline.getTime(),
+    "LEASE_RESULT_UNCONFIRMED");
+  if (prior) {
+    const sameToken = lease.token === prior.token;
+    requireProof(sameToken === (expected === "RENEW") && lease.expiresAt > prior.expiresAt,
+      "LEASE_TRANSITION_UNCONFIRMED");
+  }
+  return lease;
+}
+
+function leaseProof(lease) {
+  if (!lease) return null;
+  const digest = createHash("sha256").update(hashToken(lease.token), "ascii").digest("hex");
+  return { fence: Number(lease.fence), deadline_ms: lease.expiresAt.getTime(), lease_digest_sha256: digest };
+}
+
+export function loadWorkerTemplates(raw) {
+  const parsed = JSON.parse(raw);
+  const names = "claim-0,claim-1,renew-1";
+  requireProof(parsed.schema === "workinants.p0d-known-work-worker-scope.v1"
+    && Object.keys(parsed.grants).sort().join(",") === names, "FIXTURE_UNCONFIRMED");
+  const templates = {};
+  for (const name of names.split(",")) {
+    const entry = parsed.grants[name];
+    const action = name.startsWith("claim") ? "claim" : "renew";
+    requireProof(entry.login === "wa_worker" && entry.servicePrincipal === "lease-revoke-worker.v1"
+      && entry.owner === "platform_integration_owner" && entry.action === `runtime.${action}_work.v1`
+      && entry.purpose === `work.${action}` && entry.targetKind === "RuntimeWorkItem"
+      && entry.targetId === intent.workId && entry.securityGeneration === "0"
+      && entry.sourceGeneration === name.at(-1) && Array.isArray(entry.allowedFields)
+      && entry.allowedFields.length === (action === "claim" ? 20 : 16)
+      && entry.allowedFields.every((field, i, fields) => typeof field === "string"
+        && field.startsWith(`RuntimeWorkItem/${intent.workId}/`) && (i === 0 || field > fields[i - 1])),
+      "FIXTURE_UNCONFIRMED");
+    const { login, servicePrincipal, ...template } = entry;
+    templates[name] = {
+      ...template, principal: { servicePrincipal }, securityGeneration: 0n,
+      sourceGeneration: BigInt(entry.sourceGeneration),
+    };
+  }
+  return templates;
+}
+
+export async function runKnownWorkProof(stream, send, createPool, workerTemplates, now = Date.now) {
+  const lines = readLines(stream);
+  let phase = "INIT";
+  let progress = 0;
+  let closed = true;
+  let password;
+  let first;
+  let second;
+  function report(status, detail) {
+    send({ schema, phase, sequence: progress, status, ...detail });
+  }
+  try {
+    password = credentials((await lines.next()).value);
+    report("READY", { pools_closed: true });
+    for (const [wanted, role, grant, delay, expect] of sequence) {
+      phase = wanted;
+      progress += 1;
+      const due = deadline((await lines.next()).value, phase, delay, now);
+      const template = role === "worker" ? workerTemplates[grant]
+        : grant === "source" ? source.grants.createCustomer : source.grants.scheduleWork;
+      const pools = [];
+      let result;
+      let problem;
+      try {
+        const runtime = createPool(poolOptions(role, password[role]));
+        pools.push(runtime);
+        closed = false;
+        const issuer = createPool(poolOptions("issuer", password.issuer));
+        pools.push(issuer);
+        const database = { runtime, issuer, runtimeLogin: roles[role][0], expectedDatabase: databaseName };
+        const context = scope(template, now);
+        if (phase === "SOURCE") {
+          await owner.runOwnerTransaction(database, context, async (query) => {
+            let dispatched = 0;
+            await source.createKnownCustomer(async (statement, ...parameters) => {
+              const response = await query(statement, ...parameters);
+              requireProof(response.length === 0, "SOURCE_RESULT_UNCONFIRMED");
+              dispatched += 1;
+              return response;
+            });
+            requireProof(dispatched === 6, "SOURCE_RESULT_UNCONFIRMED");
+          });
+          result = { status: "created" };
+        } else if (role === "app") {
+          result = await work.scheduleKnownDefaultFreeWork(database, context, intent);
+          requireProof(result.workId === intent.workId, "SCHEDULE_RESULT_UNCONFIRMED");
+        } else if (phase === "CLAIM" || phase === "LIVE_RECLAIM" || phase === "RECLAIM") {
+          result = await work.claimKnownWorkLease(database, context, intent.workId, phase === "CLAIM" ? 0n : 1n, due);
+        } else {
+          requireProof(first && (phase !== "STALE_RENEW" || second), "LEASE_RESULT_UNCONFIRMED");
+          const current = phase === "COPIED_HASH_RENEW" ? { ...first, token: hashToken(first.token) } : first;
+          result = await work.renewKnownWorkLease(database, context, current, due);
+        }
+      } catch (error) {
+        problem = error;
+      } finally {
+        const ended = await Promise.allSettled(pools.map(async (pool) => pool.end({ timeout: 3 })));
+        closed = ended.every((entry) => entry.status === "fulfilled");
+      }
+      if (problem) throw problem;
+      requireProof(closed, "POOL_CLOSE_UNCONFIRMED");
+      requireProof(result?.status === expect, "OUTCOME_UNCONFIRMED");
+      let observedLease = null;
+      if (phase === "CLAIM" || phase === "RENEW") {
+        first = observedLease = checkedLease(result, phase, due, first);
+      } else if (phase === "RECLAIM") {
+        requireProof(first, "LEASE_RESULT_UNCONFIRMED");
+        second = observedLease = checkedLease(result, phase, due, first);
+      }
+      report("PHASE_PASS", { pools_closed: true, outcome: result.status, lease: leaseProof(observedLease) });
+    }
+    phase = "FINISH";
+    progress += 1;
+    deadline((await lines.next()).value, phase, 0, now);
+    requireProof((await lines.next()).done, "PHASE_ORDER");
+    report("PASS", { pools_closed: true, assertion_promotions: 0 });
+    return 0;
+  } catch (error) {
+    const code = failureCode(error);
+    report("STOPPED", { code, pools_closed: closed,
+      outcome_unconfirmed: !closed || ["OWNER_COMMIT_UNCONFIRMED", "OWNER_DATABASE_UNAVAILABLE", "UNEXPECTED_FAILURE"].includes(code) });
+    return 1;
+  } finally {
+    password = first = second = undefined;
+  }
+}
+
+async function main() {
+  const send = (value) => {
+    const ack = ["READY", "PHASE_PASS"].includes(value.status) ? `WA_P0D_WORK_ACK|${value.phase}\n` : "";
+    stdout.write(JSON.stringify(value) + "\n" + ack);
+  };
+  const life = setTimeout(() => stdin.destroy(new ProofFailure("SESSION_DEADLINE")), 90000);
+  try {
+    requireProof(process.argv.length === 3 && process.argv[2] === driverPath, "DRIVER_IDENTITY");
+    const driver = pathToFileURL(driverPath);
+    const manifest = JSON.parse(await readFile(new URL("../package.json", driver), "utf8"));
+    requireProof(manifest.name === "postgres" && manifest.version === "3.4.7", "DRIVER_IDENTITY");
+    const { default: createPool } = await import(driver.href);
+    requireProof(typeof createPool === "function", "DRIVER_IDENTITY");
+    const templates = loadWorkerTemplates(await readFile(new URL("./worker-fixture.json", import.meta.url), "utf8"));
+    return await runKnownWorkProof(stdin, send, createPool, templates);
+  } catch (error) {
+    send({ schema, phase: "ENTRY", sequence: 0, status: "STOPPED", code: failureCode(error),
+      pools_closed: true, outcome_unconfirmed: false });
+    return 1;
+  } finally {
+    clearTimeout(life);
+    stdin.destroy();
+  }
+}
+
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) process.exitCode = await main();

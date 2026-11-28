@@ -1,0 +1,37 @@
+const { createHash } = require("node:crypto");
+const { readFileSync, mkdirSync, writeFileSync } = require("node:fs");
+const { dirname, resolve } = require("node:path");
+
+const [root, output, inputsJSON] = process.argv.slice(2);
+const { source, compiler } = JSON.parse(inputsJSON);
+const compilerPath = resolve(root, "node_modules/typescript/lib/typescript.js");
+const sha = (raw) => createHash("sha256").update(raw).digest("hex");
+if (sha(readFileSync(compilerPath)) !== compiler.sha256) throw new Error("compiler_pin");
+const ts = require(compilerPath);
+if (ts.version !== "5.9.3" || process.version !== "v24.22.1") throw new Error("compiler_version");
+
+const emitted = { "package.json": Buffer.from('{"private":true,"type":"commonjs"}\n') };
+for (const [file, destination] of Object.entries(source)) {
+  const result = ts.transpileModule(readFileSync(resolve(root, file), "utf8"), {
+    fileName: destination,
+    reportDiagnostics: true,
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+      newLine: ts.NewLineKind.LineFeed,
+      sourceMap: false,
+      declaration: false,
+      removeComments: false,
+    },
+  });
+  if (result.diagnostics.length) throw new Error("compile_diagnostics");
+  emitted[destination.replace(/\.ts$/, ".js")] = Buffer.from(result.outputText);
+}
+const files = {};
+for (const name of Object.keys(emitted).sort()) {
+  const path = resolve(output, name);
+  mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
+  writeFileSync(path, emitted[name], { flag: "wx", mode: 0o600 });
+  files[name] = { bytes: emitted[name].length, sha256: sha(emitted[name]) };
+}
+process.stdout.write(JSON.stringify({ version: ts.version, compiler_sha256: compiler.sha256, files }) + "\n");
