@@ -20,6 +20,8 @@ The [Cloud capability probe](cloud-phase0-evidence/2026-11-27/probe-862971a5/res
 
 Next is completion of the separate owning operations and review of each exact Cloud packet before its own synthetic database run. Posture D permits the reviewed disposable experiments in the current owner directive. Hosted and retained targets, baseline adoption, production deployment, and legacy database-write aliases stay outside this work.
 
+The [Customer stopped run](cloud-phase0-evidence/2026-11-27/csp-69064076/stop.json) ties the pre-Prisma failure to a copied directory's mode and preserves the separately observed finalizer and cleanup. The [TWO stop](cloud-phase0-evidence/2026-11-27/two-33c25dcd/stop.json) verifies the different owned run, the closed Node wrapper, unconfirmed Prisma/transaction state and exact cleanup. Candidate proof is still required before the downstream App and Worker tests.
+
 Use `bash scripts/setup-cloud-phase0-v1.sh` from a checkout of the Cloud branch. After exporting the toolchain path printed by setup, reproduce the Cloud Prisma tool archive from the current pinned installation and npm cache.
 
 ```bash

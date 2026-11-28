@@ -4,6 +4,8 @@ The [new owner directive](directives/cloud-phase0-standing-authority-2026-11-27.
 
 P0-C remains at checkpoint 3.8 and posture D. The [v2 Cloud capability probe](cloud-phase0-evidence/2026-11-27/probe-862971a5/result.json) passed actual restricted Postgres authentication, denial, concurrency, and crash recovery. [Independent closure](cloud-phase0-evidence/2026-11-27/probe-862971a5/independent-closure.json) ties the resource and exit observations to the exact source, manifest, and image. The local historical qualification counts remain attached to their recorded source and environment. Candidate operations require their own reviews and actual evidence. Later stages and Step 20 have no new acceptance.
 
+Both Cloud owning operations have independently audited stopped attempts. The Customer run reached six-role SCRAM authentication, copied tool compatibility and original-grantor finalization. Its inventory diagnostic replacement isolated the pre-Prisma stop to a copied directory's mode. TWO confirmed the Cloud startup, 10,300 extracted tool files and inactive-role authentication. Its exact Node wrapper exited 1 without a verified terminal receipt. The Prisma child and transaction outcome remain unobserved, so later SQL and finalization stayed unrun. Both experiments have independently verified resource cleanup and zero assertion promotions. [Customer directory stop](cloud-phase0-evidence/2026-11-27/csp-69064076/stop.json) · [Two-history stopped evidence](cloud-phase0-evidence/2026-11-27/two-33c25dcd/stop.json)
+
 ---
 
 ## Local F0 continuation - reviewed owning source packets (2026-11-24)

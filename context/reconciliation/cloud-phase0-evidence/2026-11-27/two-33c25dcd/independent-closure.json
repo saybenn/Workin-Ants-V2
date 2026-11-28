@@ -1,0 +1,247 @@
+{
+  "assertion_promotions": 0,
+  "bounded_docker_provider_events": {
+    "container_event_family_counts": {
+      "create": 1,
+      "destroy": 1,
+      "die": 1,
+      "exec_create": 70,
+      "exec_die": 70,
+      "exec_start": 70,
+      "extract-to-dir": 2,
+      "kill": 1,
+      "start": 1
+    },
+    "container_lifecycle_actions": [
+      "create",
+      "start",
+      "kill",
+      "die",
+      "destroy"
+    ],
+    "guarded_node_deploy_command_observed": true,
+    "no_further_container_exec_observed_after_node_exit": true,
+    "node_wrapper_create_and_start_observed": true,
+    "node_wrapper_exit_code": 1,
+    "raw_event_payloads_retained": false,
+    "runtime_logs_read": false,
+    "volume_actions": [
+      "create",
+      "mount",
+      "mount",
+      "unmount",
+      "mount",
+      "unmount",
+      "mount",
+      "unmount",
+      "mount",
+      "unmount",
+      "unmount",
+      "destroy"
+    ],
+    "window_end": "2026-11-28T03:58:39.976345+00:00",
+    "window_start": "2026-11-28T03:58:08.691972+00:00"
+  },
+  "cleanup_verified": {
+    "approved_image_retained": true,
+    "container_id_absent": true,
+    "container_name_absent": true,
+    "container_run_label_absent": true,
+    "private_host_paths_absent": true,
+    "same_daemon": true,
+    "volume_name_absent": true,
+    "volume_run_label_absent": true
+  },
+  "created_container_id": "a8b0b8d129a96c30121bbfcd002ff85b4ee4526aef293bd584d337f88d454829",
+  "created_volume": {
+    "created_at": "2026-11-28T03:58:11Z",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "33c25dcd-5963-4fd1-8a65-c675afeabc35"
+    },
+    "name": "wa-p0c-cloud-two-history-33c25dcd-5963-4fd1-8a65-c675afeabc35-data",
+    "run_id": "33c25dcd-5963-4fd1-8a65-c675afeabc35"
+  },
+  "current_git_head_at_recompilation": {
+    "commit": "3c23e8f626f4de4206146fecd4a786def15ec6a6",
+    "tree": "1072d64d7a0cc62745504e9faa018636ec271023"
+  },
+  "daemon": {
+    "architecture": "amd64",
+    "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+    "docker_binary_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621",
+    "os": "linux",
+    "rootless": true,
+    "socket": {
+      "device": 32,
+      "gid": 1000,
+      "inode": 31,
+      "mode": 432,
+      "real_path": "/run/codex-docker/docker.sock",
+      "uid": 65534
+    },
+    "version": "29.9.2"
+  },
+  "decision": "EXACT_CLEANUP_AND_STOPPED_PREFIX_PRESERVED",
+  "file_sha256": {
+    "attempt.json": "313380c0b8fd20974f1069c68d564ed81e8917370a863c00079ffc75f4dff16f",
+    "created-container.json": "8e8bc1c2bd0d4b462c84d48ab00441266c9de984ba38b004ecc80abd1a92712a",
+    "created-volume.json": "092ffe69799c319fec792e0222ed4a9022212accc8dcca7898c52754d55c0221",
+    "evidence/run-evidence.json": "9ff96aa9c7388997b1c59360d35400ccb9112b4edfe89e11438250605964280e",
+    "literal-review.json": "7abdecdc076fe8819bcfdf1745cb84a9f1a101f3be37fea7c1ca1d7c4856bf97",
+    "operation.json": "9a8dca7d8de7d80da281dd672f1f209817e85c0b7bc4c30984f0dff09a059708",
+    "run-manifest.json": "b4a956d47577fd34e68864f85b14b5d708803db1c2cc4c4a2e7bee09c35f74e9",
+    "source-review.json": "c699194211fa79238fa5c12cace8f12d783d4817cdae8266f2c70e5c2b7ba3d6",
+    "source8.tar": "3343f5954e0b6ab4f23d9a22b6c374714f66d049e938acbbb6f82c419f7ba9b7"
+  },
+  "historical_source_reproduction": "EXACT_ORIGINAL_COMMIT_VIEW_NO_CHECKOUT_CHANGE",
+  "image": {
+    "architecture": "amd64",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_id": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_store_identity": "CONFIG",
+    "manifest_content_hash_verified": true,
+    "os": "linux",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pinned_repo_digest_verified": true,
+    "pulled_this_run": false,
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "removed": false
+  },
+  "limits": [
+    "The Docker provider observed the exact Node wrapper start and exit 1. It did not observe any child Prisma process, database transaction, or native catalog and ledger outcome. The runner's exact inner refusal and cause were not retained.",
+    "The runner recorded sticky client closure uncertainty and vetoed post-dispatch SQL. The verified resource removal does not establish database client closure or original-grantor finalization.",
+    "The live checkout advanced after the run. All 460 sources and generated files independently match the recorded original commit and packet. No execution was retried.",
+    "No credentials, raw provider events, raw context handles, runtime SQL, or unrestricted stderr are retained in this audit."
+  ],
+  "observed_boundary": {
+    "accepted_run_stage_values": {
+      "AUTH-ACTIVE": "NOT_RUN",
+      "AUTH-INACTIVE": "PASS",
+      "CLEANUP": "PASS",
+      "DEPLOY": "NOT_RUN",
+      "FINALIZATION": "NOT_RUN",
+      "FINGERPRINT": "NOT_RUN",
+      "LEDGER": "NOT_RUN",
+      "LEDGER-INITIAL": "NOT_RUN",
+      "LOCAL": "PASS",
+      "NATIVE": "NOT_RUN",
+      "NOOP": "NOT_RUN",
+      "ORACLE": "NOT_RUN",
+      "RESOURCES": "PASS",
+      "SOURCE": "PASS",
+      "STATUS": "NOT_RUN",
+      "TOOLS": "PASS",
+      "TWO-HISTORY-CLEANUP": "PASS"
+    },
+    "activation_before_cleanup": {
+      "database_password_sql_executed": false,
+      "permit": false
+    },
+    "authoritative_inner_cli_receipt": "NOT_VALIDATED",
+    "database_migration_transactions_and_ledger": "UNOBSERVED_UNCONFIRMED",
+    "global_backend_closure_after_dispatch_observed": false,
+    "global_backend_closure_before_dispatch_observations": 10,
+    "later_migration_checks": {
+      "AUTH-ACTIVE": "NOT_RUN",
+      "DEPLOY": "NOT_RUN",
+      "FINALIZATION": "NOT_RUN",
+      "FINGERPRINT": "NOT_RUN",
+      "LEDGER": "NOT_RUN",
+      "LEDGER-INITIAL": "NOT_RUN",
+      "NATIVE": "NOT_RUN",
+      "NOOP": "NOT_RUN",
+      "ORACLE": "NOT_RUN",
+      "STATUS": "NOT_RUN"
+    },
+    "node_wrapper_dispatch": "OBSERVED_PROCESS_EXIT_1",
+    "original_grantor_finalization_after_dispatch": "NOT_RUN_VETOED_BY_UNKNOWN_TRANSPORT",
+    "predeploy_authentication": [
+      {
+        "actual_connection_closed": true,
+        "correct_password": "PASS_SCRAM",
+        "role": "postgres",
+        "wrong_password": "PASS_REJECTED"
+      },
+      {
+        "actual_connection_closed": true,
+        "correct_password": "PASS_SCRAM",
+        "role": "postgres",
+        "wrong_password": "PASS_REJECTED"
+      },
+      {
+        "actual_connection_closed": true,
+        "correct_password": "PASS_SCRAM",
+        "role": "wa_migrator",
+        "wrong_password": "PASS_REJECTED"
+      },
+      {
+        "actual_connection_closed": true,
+        "correct_password": "PASS_REJECTED_INACTIVE",
+        "role": "wa_context_issuer",
+        "wrong_password": "NOT_RUN"
+      },
+      {
+        "actual_connection_closed": true,
+        "correct_password": "PASS_REJECTED_INACTIVE",
+        "role": "wa_identity_service_authority",
+        "wrong_password": "NOT_RUN"
+      },
+      {
+        "actual_connection_closed": true,
+        "correct_password": "PASS_REJECTED_INACTIVE",
+        "role": "wa_app_runtime",
+        "wrong_password": "NOT_RUN"
+      },
+      {
+        "actual_connection_closed": true,
+        "correct_password": "PASS_REJECTED_INACTIVE",
+        "role": "wa_worker",
+        "wrong_password": "NOT_RUN"
+      }
+    ],
+    "prisma_cli_spawn_and_child_closure": "UNOBSERVED_UNCONFIRMED",
+    "unknown_transport_closure_latched": true
+  },
+  "packet_sha256": "9a8dca7d8de7d80da281dd672f1f209817e85c0b7bc4c30984f0dff09a059708",
+  "posture": "D",
+  "primary_failure": {
+    "code": "CLOUD_RUNNER_AUTHORIZATION_BINDING",
+    "stage": "GENUINE_TWO_FILE_DEPLOY"
+  },
+  "recorded_at_utc": "2026-11-28T04:03:11.834911+00:00",
+  "review_receipts": {
+    "literal": "7abdecdc076fe8819bcfdf1745cb84a9f1a101f3be37fea7c1ca1d7c4856bf97",
+    "literal_reviewer": "/root/foundation_gates",
+    "source": "c699194211fa79238fa5c12cace8f12d783d4817cdae8266f2c70e5c2b7ba3d6",
+    "source_reviewer": "/root/foundation_gates"
+  },
+  "reviewer": "/root/foundation_gates",
+  "run_id": "33c25dcd-5963-4fd1-8a65-c675afeabc35",
+  "schema": "workinants.cloud-two-history-independent-closure-audit.v2",
+  "source_commit": "7c1cc1c0bd67a5d191f6b04e452d974c28747100",
+  "source_tree": "0e03c236d109694c42db1a49eaebd78d38d18034",
+  "status": "STOPPED_ATTEMPT_PRESERVED",
+  "target": {
+    "bootstrap": {
+      "container_path": "/run/wa-secrets/bootstrap-password",
+      "startup_gate_sha256": "2cbfda9bca8a7f2f4970eb49cbec3270dfc12310adfec5ef5dd6c4870a96793b",
+      "tmpfs_options": "rw,nosuid,nodev,noexec,mode=0700,size=8m",
+      "transport": "exact_container_stdin_to_private_tmpfs",
+      "write_gate_sha256": "7402460740b59686578fd8389a713fd5ce237c07452d64d8a2b017fbabcd37da"
+    },
+    "container_name": "wa-p0c-cloud-two-history-33c25dcd-5963-4fd1-8a65-c675afeabc35",
+    "database": "wa_p0c_rehearsal",
+    "image": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-two-history-v2",
+      "workinants.rehearsal.run": "33c25dcd-5963-4fd1-8a65-c675afeabc35"
+    },
+    "network": "none",
+    "volume_name": "wa-p0c-cloud-two-history-33c25dcd-5963-4fd1-8a65-c675afeabc35-data"
+  },
+  "verified_committed_packet_files": 460,
+  "verified_generated_source_files": 8,
+  "verified_native_assets": 6,
+  "verified_tool_members": 10300
+}

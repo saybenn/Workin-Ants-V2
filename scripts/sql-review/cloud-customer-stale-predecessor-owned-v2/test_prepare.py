@@ -141,7 +141,28 @@ class Preparation(unittest.TestCase):
                            umask=0o077, env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"}, check=True, timeout=10)
             self.assertEqual([stat.S_IMODE(p.stat().st_mode) for p in plain.rglob("*") if p.is_file()], [0o400] * 7)
             self.assertEqual([stat.S_IMODE(p.stat().st_mode) for p in preserved.rglob("*") if p.is_file()], [0o444] * 7)
-            self.assertIn("--same-permissions", host.provision_migration_tools.__code__.co_consts)
+            literals = host.provision_migration_tools.__code__.co_consts
+            self.assertIn("umask 022; exec /usr/bin/mkdir -p -- /run/wa-f0-tools /run/wa-f0-source", literals)
+            for leaf in ("tools", "source"):
+                relative = f"/run/wa-f0-{leaf}"
+                self.assertIn(f"umask 022; exec /usr/bin/tar --same-permissions -xzf {relative}.tar.gz -C {relative}",
+                              literals)
+
+    def test_gnu_tar_creates_safe_implicit_directories_under_umask_022(self):
+        _, _, assets = self.model_plan()
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            source = root / "source7.tar.gz"
+            source.write_bytes(assets["source7.tar.gz"])
+            for title, umask, mode in (("group-writable", 0o002, 0o775), ("safe", 0o022, 0o755)):
+                destination = root / title
+                subprocess.run(["/usr/bin/mkdir", "-p", "--", str(destination)], umask=umask, check=True, timeout=10)
+                subprocess.run(["/usr/bin/tar", "--same-permissions", "-xzf", str(source), "-C", str(destination)],
+                               umask=umask, env={"PATH": "/usr/bin:/bin", "LC_ALL": "C"}, check=True, timeout=10)
+                self.assertEqual(stat.S_IMODE(destination.stat().st_mode), mode)
+                self.assertTrue(all(stat.S_IMODE(path.stat().st_mode) == mode
+                                    for path in destination.rglob("*") if path.is_dir()))
+                self.assertEqual([stat.S_IMODE(p.stat().st_mode) for p in destination.rglob("*") if p.is_file()], [0o444] * 7)
 
     def test_inventory_discloses_only_fixed_classifications(self):
         files = {"runner.mjs": b"source"}
@@ -150,15 +171,16 @@ class Preparation(unittest.TestCase):
         file = f"f|{source}/runner.mjs|6|0|0|444|1\n"
         cloud_host.validate_copied_inventory(directory + file, files)
         cases = (
-            (file.replace("|444|", "|400|"), "CSP_CLOUD_COPIED_FILE_MODE"),
-            (file.replace("|0|0|", "|1000|0|"), "CSP_CLOUD_COPIED_OWNER"),
-            (file.replace("|444|1", "|444|2"), "CSP_CLOUD_COPIED_FILE_TYPE_OR_LINK"),
-            (file.replace("runner.mjs", "unknown.mjs"), "CSP_CLOUD_EXACT_COPIED_INVENTORY"),
-            ("UNRESTRICTED_CANARY\n", "CSP_CLOUD_COPIED_ROW_SHAPE"),
+            (directory.replace("|700|", "|775|") + file, "CSP_CLOUD_COPIED_DIRECTORY_MODE"),
+            (directory + file.replace("|444|", "|400|"), "CSP_CLOUD_COPIED_FILE_MODE"),
+            (directory + file.replace("|0|0|", "|1000|0|"), "CSP_CLOUD_COPIED_OWNER"),
+            (directory + file.replace("|444|1", "|444|2"), "CSP_CLOUD_COPIED_FILE_TYPE_OR_LINK"),
+            (directory + file.replace("runner.mjs", "unknown.mjs"), "CSP_CLOUD_EXACT_COPIED_INVENTORY"),
+            (directory + "UNRESTRICTED_CANARY\n", "CSP_CLOUD_COPIED_ROW_SHAPE"),
         )
         for record, reason in cases:
             with self.assertRaisesRegex(ValueError, "^" + reason + "$"):
-                cloud_host.validate_copied_inventory(directory + record, files)
+                cloud_host.validate_copied_inventory(record, files)
 
     def test_modeled_bootstrap_runs_only_after_both_resource_checks(self):
         folder, plan, assets = self.model_plan()
@@ -171,6 +193,7 @@ class Preparation(unittest.TestCase):
         disk = {"CreatedAt": "2026-11-28T03:39:01Z"}
         checked = []
         prepared = {}
+        unsafe_directories = True
         volume = plan["target"]["volume_name"]
         bootstrap = plan["target"]["bootstrap_container_path"]
         copied = {rel.removeprefix("source7/"): data for rel, data in assets.items() if rel.startswith("source7/")}
@@ -216,11 +239,13 @@ class Preparation(unittest.TestCase):
                 self.assertEqual(len(payload.splitlines()), 6)
                 return host.Result(0, b"0:0:600:1\n", b"")
             if "/usr/bin/find" in args:
-                rows = [f"d|{directory}|4096|0|0|755|2\n" for directory in sorted(dirs)]
+                mode = "775" if unsafe_directories else "755"
+                rows = [f"d|{directory}|4096|0|0|{mode}|2\n" for directory in sorted(dirs)]
                 rows.extend(f"f|{cloud_host.COPIED_SOURCE}/{name}|{len(raw)}|0|0|444|1\n"
                             for name, raw in sorted(copied.items()))
                 return host.Result(0, "".join(rows).encode(), b"")
             if "/usr/bin/sha256sum" in args:
+                self.assertFalse(unsafe_directories, "Unsafe directory must stop before copied hashes")
                 self.assertEqual(len(payload.splitlines()), 8)
                 self.assertIn(source7.RUNNER.encode(), payload)
                 return host.Result(1, b"", b"")
@@ -241,6 +266,11 @@ class Preparation(unittest.TestCase):
         host.create_resources()
         self.assertEqual(checked, [False, True, "kernel", "stdin-only", "removed", "bootstrap-absent"])
         self.assertEqual(host.secret_paths, [])
+        with self.assertRaisesRegex(host.Stop, "^CSP_CLOUD_COPIED_DIRECTORY_MODE$"):
+            host.migrate(host.TARGETS[0], "deploy", "MODELED")
+        self.assertEqual(host.report["copied_runtime_preflight"]["metadata"], "CSP_CLOUD_COPIED_DIRECTORY_MODE")
+        self.assertNotIn("migration_attempted", host.report)
+        unsafe_directories = False
         with self.assertRaisesRegex(host.Stop, "CSP_CLOUD_COPIED_RUNTIME_CHANGED"):
             host.migrate(host.TARGETS[0], "deploy", "MODELED")
         self.assertNotIn("migration_attempted", host.report)

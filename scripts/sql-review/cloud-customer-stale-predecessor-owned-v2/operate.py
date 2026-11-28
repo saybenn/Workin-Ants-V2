@@ -62,9 +62,15 @@ def controller(blobs):
         prepare.require(prepare.sha(raw) == prepare.OPERATOR_PINS[index], "CSP_HISTORICAL_OPERATOR_DRIFT")
         text = raw.decode()
         if index == 1:
-            extract = "'tar','-xzf',"
-            prepare.require(text.count(extract) == 2, "CSP_EXACT_ARCHIVE_EXTRACTION_ANCHORS")
-            text = text.replace(extract, "'tar','--same-permissions','-xzf',")
+            directories = "'mkdir','-p','/run/wa-f0-tools','/run/wa-f0-source'"
+            create = "umask 022; exec /usr/bin/mkdir -p -- /run/wa-f0-tools /run/wa-f0-source"
+            text = source7.replace(text, directories, "'/bin/sh','-ceu'," + repr(create))
+            for basename in ("tools", "source"):
+                directory = f"/run/wa-f0-{basename}"
+                archive = f"{directory}.tar.gz"
+                extract = f"'tar','-xzf','{archive}','-C','{directory}'"
+                preserve = f"umask 022; exec /usr/bin/tar --same-permissions -xzf {archive} -C {directory}"
+                text = source7.replace(text, extract, "'/bin/sh','-ceu'," + repr(preserve))
             text = source7.replace(text, "env = os.environ.copy()\n        env['PGPASSWORD'] = secrets.token_hex(32)",
                                    "env = {'PGPASSWORD': secrets.token_hex(32)}")
             text = source7.replace(text, "need(MANIFEST['review_status']=='APPROVED_LOCAL_F0_CUSTOMER_STALE_PREDECESSOR_OWNED_V1_ATTEMPT','CSP1_EXACT_OPERATION_NOT_REVIEWED')",

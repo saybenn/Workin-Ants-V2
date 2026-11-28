@@ -1,0 +1,18 @@
+{
+  "schema": "workinants.cloud-csp-directory-correction-review.v1",
+  "reviewer": "/root/cloud_review_prep",
+  "decision": "APPROVE_SOURCE_ONLY",
+  "findings": [],
+  "prior_stop": "csp-69064076/stop.json",
+  "files_sha256": {
+    "scripts/sql-review/cloud-customer-stale-predecessor-owned-v2/cloud_host.py": "41f9cee669daf1e48f68310e8523af035ed9c2118eeaa6a0044cdca1913b668e",
+    "scripts/sql-review/cloud-customer-stale-predecessor-owned-v2/operate.py": "be32b6b663b59076163bf21e6c0ce09de965e1f56b7c4580477d604d0146c724",
+    "scripts/sql-review/cloud-customer-stale-predecessor-owned-v2/test_prepare.py": "d595a2a62fdb72f233dfb154fc2a5ffda66d2420b3b1856cef6557b1061c3cc0"
+  },
+  "focused_checks_passed": 11,
+  "actual_offline_observation": "The seven checksum-verified archive files kept their hashes and mode 0444. The eight new directories had mode 0777 under mask 0000, 0775 under 0002, and 0755 under 0022.",
+  "runtime": "NOT_RUN",
+  "assertion_promotions": 0,
+  "Posture": "D",
+  "limits": "The stopped path and mode remain unobserved. The creation/extraction commands use a fixed mask and exact paths. Strict inventory and copied byte checks are unchanged."
+}
