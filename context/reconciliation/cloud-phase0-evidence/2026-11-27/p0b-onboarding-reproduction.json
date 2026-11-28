@@ -1,0 +1,439 @@
+{
+  "checkout": {
+    "branch": "codex/phase0-cloud-2026-11-27",
+    "clean_after_checks": true,
+    "commit": "adf4dd9fc3e4dd17177b6b9722b806c5f33c3039",
+    "method": "FRESH_GIT_CLONE_IN_CURRENT_CLOUD",
+    "origin": "https://github.com/saybenn/Workin-Ants-V2.git"
+  },
+  "checks": {
+    "foundation_http_result": {
+      "limits": "Real local Next development/production HTTP, image-source denial, instruction preservation and client-asset smoke only. No Windows execution, universal exploit immunity, DB/provider/owner contract/runtime, full browser accessibility or deployed hosting qualification.",
+      "status": "PASS",
+      "tests": [
+        {
+          "case": "root shell",
+          "method": "GET",
+          "mode": "development",
+          "path": "/",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "process liveness only",
+          "method": "GET",
+          "mode": "development",
+          "path": "/api/health",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "health HEAD",
+          "method": "HEAD",
+          "mode": "development",
+          "path": "/api/health",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "health has no mutation",
+          "method": "POST",
+          "mode": "development",
+          "path": "/api/health",
+          "result": "PASS",
+          "status": 405
+        },
+        {
+          "case": "unknown route",
+          "method": "GET",
+          "mode": "development",
+          "path": "/unregistered-foundation-route",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "unapproved image source denied",
+          "method": "GET",
+          "mode": "development",
+          "path": "/_next/image?url=http%3A%2F%2F127.0.0.1%3A35081%2Ftest.svg&w=640&q=75",
+          "result": "PASS",
+          "status": 400
+        },
+        {
+          "case": "non-HTTP image scheme denied",
+          "method": "GET",
+          "mode": "development",
+          "path": "/_next/image?url=data%3Aimage%2Fsvg%2Bxml%2Cinvalid&w=640&q=75",
+          "result": "PASS",
+          "status": 400
+        },
+        {
+          "case": "old page filename is not a route",
+          "method": "GET",
+          "mode": "development",
+          "path": "/page",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "old diagnostic filename is not a route",
+          "method": "GET",
+          "mode": "development",
+          "path": "/dev/status/page",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "old handler filename is not a route",
+          "method": "GET",
+          "mode": "development",
+          "path": "/api/debug/env-check/route",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "development page execution-mode gate",
+          "method": "GET",
+          "mode": "development",
+          "path": "/dev/status",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "development page HEAD gate",
+          "method": "HEAD",
+          "mode": "development",
+          "path": "/dev/status",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "query/header cannot change execution mode",
+          "method": "GET",
+          "mode": "development",
+          "path": "/dev/status?NODE_ENV=development",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "GET",
+          "mode": "development",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "HEAD",
+          "mode": "development",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "POST",
+          "mode": "development",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 405
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "PUT",
+          "mode": "development",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 405
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "PATCH",
+          "mode": "development",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 405
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "DELETE",
+          "mode": "development",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 405
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "OPTIONS",
+          "mode": "development",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 405
+        },
+        {
+          "case": "root shell",
+          "method": "GET",
+          "mode": "production",
+          "path": "/",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "process liveness only",
+          "method": "GET",
+          "mode": "production",
+          "path": "/api/health",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "health HEAD",
+          "method": "HEAD",
+          "mode": "production",
+          "path": "/api/health",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "health has no mutation",
+          "method": "POST",
+          "mode": "production",
+          "path": "/api/health",
+          "result": "PASS",
+          "status": 405
+        },
+        {
+          "case": "unknown route",
+          "method": "GET",
+          "mode": "production",
+          "path": "/unregistered-foundation-route",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "unapproved image source denied",
+          "method": "GET",
+          "mode": "production",
+          "path": "/_next/image?url=http%3A%2F%2F127.0.0.1%3A35081%2Ftest.svg&w=640&q=75",
+          "result": "PASS",
+          "status": 400
+        },
+        {
+          "case": "non-HTTP image scheme denied",
+          "method": "GET",
+          "mode": "production",
+          "path": "/_next/image?url=data%3Aimage%2Fsvg%2Bxml%2Cinvalid&w=640&q=75",
+          "result": "PASS",
+          "status": 400
+        },
+        {
+          "case": "old page filename is not a route",
+          "method": "GET",
+          "mode": "production",
+          "path": "/page",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "old diagnostic filename is not a route",
+          "method": "GET",
+          "mode": "production",
+          "path": "/dev/status/page",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "old handler filename is not a route",
+          "method": "GET",
+          "mode": "production",
+          "path": "/api/debug/env-check/route",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "development page execution-mode gate",
+          "method": "GET",
+          "mode": "production",
+          "path": "/dev/status",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "development page HEAD gate",
+          "method": "HEAD",
+          "mode": "production",
+          "path": "/dev/status",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "query/header cannot change execution mode",
+          "method": "GET",
+          "mode": "production",
+          "path": "/dev/status?NODE_ENV=development",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "GET",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "HEAD",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "POST",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "PUT",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "PATCH",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "DELETE",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "debug endpoint method/mode gate",
+          "method": "OPTIONS",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "internal-looking headers do not enable diagnostics",
+          "method": "GET",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "debug query/header cannot enable route",
+          "method": "GET",
+          "mode": "production",
+          "path": "/api/debug/env-check?NEXT_PUBLIC_APP_ENV=development",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "trailing slash remains denied",
+          "method": "GET",
+          "mode": "production",
+          "path": "/api/debug/env-check/",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "assets_checked": 6,
+          "case": "root client scripts do not contain secret canary",
+          "mode": "production",
+          "result": "PASS"
+        },
+        {
+          "case": "restart same build health recovery",
+          "method": "GET",
+          "mode": "production",
+          "path": "/api/health",
+          "result": "PASS",
+          "status": 200
+        },
+        {
+          "case": "restart preserves diagnostic denial",
+          "method": "GET",
+          "mode": "production",
+          "path": "/api/debug/env-check",
+          "result": "PASS",
+          "status": 404
+        },
+        {
+          "case": "project database rules survive framework startup",
+          "mode": "development/production",
+          "result": "PASS"
+        }
+      ],
+      "total": 47
+    },
+    "foundation_http_result_sha256": "a25966539d89de1e5708d7fe5aea164ce7b35406eb69c257c3cecb4e2d979bfe",
+    "legacy_lint_warnings": 1,
+    "npm_run_check": 0,
+    "offline_prisma_validate": 0,
+    "startup_result": {
+      "command": [
+        "npm",
+        "run",
+        "dev",
+        "--",
+        "--hostname",
+        "127.0.0.1",
+        "--port",
+        "3000"
+      ],
+      "health": {
+        "check": "process",
+        "service": "workin-ants",
+        "status": "ok"
+      },
+      "http_status": 200,
+      "owned_process_stopped_and_port_closed": true,
+      "status": "PASS"
+    },
+    "startup_result_sha256": "b72c4dd14d78df0be882709ab079003ad84aae547a0b31bc7cefc61467b24535"
+  },
+  "database_execution_in_setup_proof": false,
+  "database_posture": "D",
+  "environment_draft": {
+    "credentials_metadata_preserved": true,
+    "fields": [
+      "install_script",
+      "start_skill"
+    ],
+    "network_policy_preserved": true,
+    "repository_membership_preserved": true,
+    "requires_publish": true,
+    "status": "SAVED_AND_EXACT_READBACK_VERIFIED"
+  },
+  "install": {
+    "exit_code": 0,
+    "node": "24.22.1",
+    "npm": "11.9.0",
+    "npm_ci_installed_packages": 493,
+    "parser_wheel_sha256": "2006f89ab517700e33c9f81d3dee6ae2ce0888b91e2e0be59d008fb37e8cc2a0",
+    "pglast": "7.21",
+    "script_sha256": "50ef943e552eafab93426bd2f1759c78c8bd0a6bd7aaffa8d2273367f602c17b"
+  },
+  "new_cloud_instance_restoration_verified": false,
+  "recorded_at_utc": "2026-11-28T07:47:27.431894+00:00",
+  "schema": "workinants.cloud-onboarding-fresh-checkout.v1"
+}

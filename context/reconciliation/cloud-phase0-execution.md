@@ -35,6 +35,8 @@ The expected archive has 113,920,987 bytes and SHA-256 `5a5deaff7aa721dd3b26be84
 
 For SQL packet generation, use CPython 3.12 on Linux amd64 and run `bash scripts/setup-cloud-f0-parser-v1.sh`. Apply the printed `PYTHONPATH` for the packet's generation and verification commands. The script verifies the pglast 7.21 wheel and both imported parser files.
 
+The saved Cloud environment draft uses these pinned setup scripts and the Cloud branch. A fresh Git checkout in the current Cloud instance installed 493 packages and passed the build, offline Prisma validation, all 47 HTTP checks, and the exact startup command. The owned test server stopped and the loopback port closed. The draft contains the setup and startup instructions and requires publication in environment settings. [Fresh checkout and draft evidence](cloud-phase0-evidence/2026-11-27/p0b-onboarding-reproduction.json)
+
 ## Remaining scope at checkpoint 3.8
 
 The 94 selected cases and 1,034 individual assertions are derived from the evidence ledger. It retains the original 730 assertion rows and 15 executions. Separate reviews added one Customer PASS, two App PASS entries and one Consent PASS. The App effect insert supplies the final required result for the RuntimeEffectReceipt allow case. [Selected case register](local-f0-qualification-status.json) · [Customer admission review](cloud-phase0-evidence/2026-11-27/csp-9e633e3f/admission-source-review.json) · [App admission review](cloud-phase0-evidence/2026-11-27/app-2e59e073/admission-source-review.json) · [Consent admission review](cloud-phase0-evidence/2026-11-27/consent-97465adb/admission-source-review.json)
