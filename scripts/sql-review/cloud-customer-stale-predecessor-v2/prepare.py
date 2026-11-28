@@ -42,6 +42,9 @@ def build(root: Path, fixture_run_id: str) -> tuple[dict[str, str], dict]:
 
     parent = load_parent(root)
     files, packet = parent.build(root, fixture_run_id)
+    # Fresh UUIDs can change the order of capabilities within a model.
+    grant = packet["baseline"]["grant"]
+    grant["allowed_fields"] = sorted(grant["allowed_fields"])
     observer = files[SNAPSHOT]
     if not observer.startswith(PARENT_PREFIX) or observer.count(PARENT_PREFIX) != 1:
         raise ValueError("CSP_CLOUD_V2_UNRECOGNIZED_SNAPSHOT")

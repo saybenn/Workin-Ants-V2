@@ -10,6 +10,7 @@ import socket
 import subprocess
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -19,6 +20,7 @@ import prepare
 HISTORICAL_PACKET = prepare.ROOT / "review-output/customer-stale-predecessor-v1"
 HISTORICAL_ID = json.loads((HISTORICAL_PACKET / "fixtures.json").read_bytes())["fixture_run_id"]
 TEST_ID = "d71b17d0-8156-416b-aadb-d2abc2c3ef21"
+REMAP_REPRO_ID = "ddcf9158-e950-4451-9563-83dad52b444d"
 ORDER = re.compile(
     r"^SELECT jsonb_agg\(jsonb_build_object\('table',table_name,'count',row_count,"
     r"'sha256',row_sha\) ORDER BY table_name(?P<collation> COLLATE \"C\")?\) FROM \("
@@ -69,6 +71,7 @@ class Checks(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.core = runpy.run_path(str(prepare.ROOT / "scripts/sql-review/run-customer-stale-predecessor-v1.py"))
+        cls.ctx = runpy.run_path(str(prepare.ROOT / cls.core["CTX"]))
         cls.protocol = runpy.run_path(str(prepare.ROOT / prepare.PROTOCOL))
         cls.application = (prepare.ROOT / "review-output/foundation-application.review.sql").read_bytes()
         cls.native = json.loads(
@@ -86,7 +89,7 @@ class Checks(unittest.TestCase):
 
     def coordinator(self, files, packet):
         evidence = self.core["Evidence"](lambda report: None)
-        core = self.core["coordinator_class"]({}, self.protocol)
+        core = self.core["coordinator_class"](self.ctx, self.protocol)
         coordinator = core(
             packet,
             files,
@@ -116,6 +119,66 @@ class Checks(unittest.TestCase):
             json.dumps(content, sort_keys=True, separators=(",", ":")).encode("utf-8")
         )
         self.assertEqual(json.loads(self.corrected["fixtures.json"]), expected)
+
+    def test_remapped_baseline_uses_exact_issuer_capability_order(self):
+        previous_files, previous = prepare.load_parent(prepare.ROOT).build(prepare.ROOT, REMAP_REPRO_ID)
+        files, packet = prepare.build(prepare.ROOT, REMAP_REPRO_ID)
+        before = previous["baseline"]["grant"]
+        capabilities = before["allowed_fields"]
+        self.assertEqual(len(capabilities), 179)
+        self.assertEqual(len(set(capabilities)), 179)
+        self.assertNotEqual(capabilities, sorted(capabilities))
+        self.assertEqual(packet["baseline"]["grant"], {**before, "allowed_fields": sorted(capabilities)})
+        self.assertEqual(packet["update_grant"], previous["update_grant"])
+        self.assertEqual(
+            {name: text for name, text in files.items() if name.endswith(".sql")},
+            {name: (text.replace(prepare.PARENT_PREFIX, prepare.CLOUD_PREFIX, 1) if name == prepare.SNAPSHOT else text)
+             for name, text in previous_files.items() if name.endswith(".sql")},
+        )
+
+        clock = "2026-11-28 04:19:30+00"
+        created = "2026-11-28T04:19:31+00:00"
+        backend = {"login": "wa_app_runtime", "current_user": "wa_app_runtime", "pid": "101", "xid": "102"}
+        issuer = {"login": "wa_context_issuer", "pid": "201", "xid": "202", "clock": clock}
+        calls = []
+        sessions = []
+
+        def opened(role):
+            self.assertEqual(role, "wa_context_issuer")
+            session = SimpleNamespace(backend=issuer, closed=False)
+
+            def call(text):
+                self.assertTrue(text.startswith("INSERT INTO platform.database_action_grant ("))
+                self.assertTrue(text.endswith(" RETURNING jsonb_build_object('created_at',created_at); COMMIT;"))
+                calls.append(role)
+                return [json.dumps({"created_at": created})], True, ""
+
+            def close():
+                session.closed = True
+                return 0
+
+            session.call, session.close = call, close
+            sessions.append(session)
+            return session, issuer
+
+        coordinator = self.coordinator(files, packet)
+        coordinator.opened = opened
+        with self.assertRaises(self.ctx["HeldFailure"]) as refusal:
+            coordinator.issue(before, backend)
+        self.assertEqual(refusal.exception.code, "FINITE_CAPABILITIES_REQUIRED")
+        self.assertEqual(calls, [])
+        self.assertTrue(sessions[0].closed)
+        self.assertEqual(coordinator.grants, [])
+
+        coordinator.issue(packet["baseline"]["grant"], backend)
+        self.assertEqual(calls, ["wa_context_issuer"])
+        self.assertTrue(sessions[1].closed)
+        self.assertEqual(len(coordinator.grants), 1)
+        self.assertEqual(coordinator.grants[0]["values"]["created_at"], f"'{created}'::timestamptz")
+        self.assertEqual(coordinator.evidence.value["operations"][-1], {
+            "stage": "SEPARATE_ISSUER_COMMIT", "acknowledged": True,
+            "created_at_verified": True, "closed": True,
+        })
 
     def test_default_order_stops_at_strict_shape_check(self):
         coordinator = self.coordinator(self.original, self.old)

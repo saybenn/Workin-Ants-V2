@@ -1,0 +1,20 @@
+{
+  "schema": "workinants.cloud-csp-issuer-order-review.v1",
+  "reviewer": "/root/cloud_review_prep",
+  "decision": "APPROVE_SOURCE_ONLY",
+  "findings": [],
+  "prior_stop": "csp-549e90b7/stop.json",
+  "files_sha256": {
+    "scripts/sql-review/cloud-customer-stale-predecessor-v2/prepare.py": "a17df109a7328a5617184ca6de5fc9d8f83d0fd83794b2b660083f3eaaedc2f8",
+    "scripts/sql-review/cloud-customer-stale-predecessor-v2/test_prepare.py": "62ea891335693c44b571240fffc3d56315d05316fe0424adb3a55b32fdebacb5",
+    "scripts/sql-review/cloud-customer-stale-predecessor-v2/README.md": "aba20d268c2c7f25a4a2cf24633d6f3e771697b971a58a473b95286810524c0d"
+  },
+  "focused_child_checks_passed": 7,
+  "focused_owning_checks_passed": 12,
+  "fresh_uuid_fixtures_checked_independently": 100,
+  "source_observation": "The old generator produced the same 179 distinct baseline capabilities in noncanonical order after identifier substitution. Exact offline reproduction reaches the inherited FINITE_CAPABILITIES_REQUIRED refusal before building an issuer INSERT. The fixed generator sorts that same list, preserves its values and preserves all 11 SQL leaves.",
+  "runtime": "NOT_RUN",
+  "Posture": "D",
+  "assertion_promotions": 0,
+  "limits": "The exact historical live exception was not retained. The source-level cause and corrected shape were independently reproduced offline. The real issuer acknowledgment and all three Customer controls require a fresh run."
+}
