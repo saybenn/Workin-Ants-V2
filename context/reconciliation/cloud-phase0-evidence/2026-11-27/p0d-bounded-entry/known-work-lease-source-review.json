@@ -1,0 +1,132 @@
+{
+  "assertion_promotions": 0,
+  "checks": {
+    "bound_fixed_statement_template_sha256": {
+      "bind": "a2844e0a48108ba35b1ddf117a248fd98884bfd17426445aecb3f833cbc9cdf8",
+      "claim": "ee318873f3bd383af017b9d113ca33e73647bdbb9d4f8081505b857302098c12",
+      "renew": "ae4e5c726e45559b7248764f11594d4dc40c40b80523e06d45de377c5cb9b75d"
+    },
+    "legacy_worker_reclaim_21_to_exact_20_excludes_effect_receipt_update": true,
+    "no_acl_or_source8_migration_change": true,
+    "offline_node_boundary": {
+      "claim_and_reclaim_guc_predecessors": [
+        0,
+        1
+      ],
+      "exact_v5_claim_reclaim_renewal_grants": true,
+      "issuer_refused_for_invalid_or_nonminimal_grant": true,
+      "malformed_result_rejected": true,
+      "modeled_zero_rows_unavailable": true,
+      "node": "v24.22.3",
+      "parameters_only_preimage_and_decoded_hash": true,
+      "postgres": "3.4.7",
+      "reclaim_rotated_token": true,
+      "renewal_guc_current": 1,
+      "renewal_same_token_and_fence": true,
+      "source_sha256": "c63d836f064616c54b9b44dbb6d350df7b973f3b1b23227c785b0fb95b9e75c4",
+      "typescript": "5.9.3"
+    },
+    "parameterized_sql_shape_statements": 3,
+    "postgres_server_clock_in_eligibility_predicates": true,
+    "renewal_only_deadline_update_before_trigger_xid_stamp": true,
+    "source8_effect_pointer_preserved_by_claim_omission": true,
+    "static_pglast_version": "v7.21",
+    "typescript_strict_no_emit": "PASS"
+  },
+  "database_posture": "D",
+  "decision": "APPROVE_HELD_KNOWN_WORK_LEASE_SOURCE_FOR_LITERAL_PREPARATION",
+  "exact_input_files_sha256": {
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/p0d-bounded-entry/acceptance.json": "968f10aebc657eaf6653303d5ea6d56b9aaaf6a1746012a52768927e30d49987",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/renew-5614b2fb/acceptance.json": "f1dbac0e36e9fe03be568a22d340ba1a07f33b58eaa16c0db6415e69edb3ea82",
+    "context/reconciliation/cloud-phase0-evidence/2026-11-27/worker-fbcb03f7/acceptance.json": "a3cdf096bb6ba19cb18c72e70b8758818e3dbc75664c4348f662b579a7ff794e",
+    "context/reconciliation/foundation-sql-scope-policy.json": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b",
+    "prisma/local-f0-runtime-lease-history-v1/migrations/20261117000100_f0_local_initial/migration.sql": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad",
+    "prisma/local-f0-runtime-lease-history-v1/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7",
+    "review-output/lease-revoke-control-rehearsal/copied-hash-renew-denied.sql": "fd0941f524cfe6c59b5114c03106a603ace1c02a64bc27e109ac2cba76bffedf",
+    "review-output/lease-revoke-control-rehearsal/current-holder-renew.sql": "a6fa47f8f429b59a4283d9982c364bf9c3154c43d0040dcce5ad09568d48c901",
+    "review-output/lease-revoke-control-rehearsal/fixtures.json": "fe59a9867093f1cbab01741fa7d4f1fd727090e410374e663bbbd0796903c7e5",
+    "review-output/lease-revoke-control-rehearsal/shorten-renew-denied.sql": "74a5d45f0d526ea6293c9fae7c84d3cd6de6279ba4981e3f705df2c018c22a7c",
+    "review-output/lease-revoke-control-rehearsal/worker-claim.sql": "5573e8eec3c175e5b9da27165e4fb3af4eda1e4efa7d429f618dddb40d5ae5ed",
+    "review-output/runtime-lease-branch-v1/worker-acl32.json": "6909f3cd9e2a795d1f39379b7f81db4c24f9526e235e802deea5ce1a2da8e5a3",
+    "review-output/worker-recovery-control-rehearsal/fixtures.json": "497275a81de4c06bef1033a461f8cc3ada6d6b42bc1899ae77a7a1f0ca7678f0",
+    "review-output/worker-recovery-control-rehearsal/real-higher-fence-reclaim-with-retained-effect.sql": "209573486f766bdaff8bbf3db278d0fae0a5cdc1c28313b7dff85b7bd3453c5b",
+    "server/platform/persistence/owner-transaction.ts": "fb94f8843d89d33bd3025eab49aeed498101efd392983f76b3db2b6b4fca2c84"
+  },
+  "findings": [],
+  "limits": [
+    "Exact parameterized known-Work-ID claim, reclaim and renewal source only. Historical SQL evidence supports the database guards and scopes.",
+    "The Node model substitutes the transaction boundary and does not open sockets or execute SQL. Actual PostgreSQL RETURNING, dropped acknowledgments, concurrency and row/receipt behavior remain to be observed in a fresh reviewed Cloud run.",
+    "Lease deadlines are supplied by the trusted caller and checked against PostgreSQL time, with no new duration policy inferred.",
+    "The existing known-ID scheduling path, dispatcher discovery, terminal receipt reconciliation, broader owner adapters, hosted deployment and candidate adoption remain outside this receipt."
+  ],
+  "observations_required_for_actual_qualification": [
+    "Under the exact worker and issuer logins, confirm one typed work ID, integer fence returned as decimal text, and finite raw Postgres timestamptz parsed to the requested Date.",
+    "Independently compare the whole synthetic state before and after. Exclude only the exact separately committed issuer grant from business no-change comparisons. Check its 21 immutable fields through the exact issuer scope.",
+    "Use the actual server clock to prove an expired previous lease for reclaim and a still-live unchanged lease with sufficient reserve around copied-hash and shortening negatives. A zero-row result only describes this wrapper; it does not witness the historical P0001 diagnostic.",
+    "Report bounded booleans and safe digests for preimage equality, lease hash parity, prior effect pointer, deadline, fence, attempt and transaction stamp. Keep plaintext preimages and stored lease hashes in-memory and out of logs, argv, environment and evidence.",
+    "Exercise same predecessor competition through distinct owned pool pairs, expired reclaim with preserved effect, not-due work, stale or copied holder and shortening, plus uncertain commit handling if that path is claimed."
+  ],
+  "operational_authority": false,
+  "previous_source_review": {
+    "prior_known_id_scheduling_commit": "7729f032d8abeb673d29c336b1471adcbdd9e661",
+    "prior_known_id_scheduling_functions_unchanged": true,
+    "reviewed_sha256": "7179355159777b70cc39a0021b414a2c8f22350a1ed3cbf5dcc3719ed287a9ab",
+    "single_predecessor_guc_change_verified_by_exact_hash_reversal": true
+  },
+  "recorded_at_utc": "2026-11-28T07:00:07.268908+00:00",
+  "reviewed_scopes": {
+    "claim-0": {
+      "action": "runtime.claim_work.v1",
+      "field_count": 20,
+      "owner": "platform_integration_owner",
+      "purpose": "work.claim",
+      "revision": 0,
+      "role": "wa_worker",
+      "select_count": 13,
+      "updates": [
+        "attemptCount",
+        "fence",
+        "leaseExpiresAt",
+        "leaseTokenHash",
+        "state"
+      ]
+    },
+    "claim-1": {
+      "action": "runtime.claim_work.v1",
+      "field_count": 20,
+      "owner": "platform_integration_owner",
+      "purpose": "work.claim",
+      "revision": 1,
+      "role": "wa_worker",
+      "select_count": 13,
+      "updates": [
+        "attemptCount",
+        "fence",
+        "leaseExpiresAt",
+        "leaseTokenHash",
+        "state"
+      ]
+    },
+    "renew-1": {
+      "action": "runtime.renew_work.v1",
+      "field_count": 16,
+      "owner": "platform_integration_owner",
+      "purpose": "work.renew",
+      "revision": 1,
+      "role": "wa_worker",
+      "select_count": 13,
+      "updates": [
+        "leaseExpiresAt"
+      ]
+    }
+  },
+  "reviewer": "/root/cloud_review_prep",
+  "runtime": "NOT_RUN",
+  "schema": "workinants.p0d-known-work-lease-source-review.v1",
+  "source": {
+    "path": "server/platform/runtime/work-leases.ts",
+    "read_from_working_tree": true,
+    "sha256": "c63d836f064616c54b9b44dbb6d350df7b973f3b1b23227c785b0fb95b9e75c4"
+  },
+  "source_author": "/root"
+}

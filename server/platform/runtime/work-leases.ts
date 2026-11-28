@@ -1,3 +1,4 @@
+import { createHash, randomBytes } from "node:crypto";
 import { runOwnerTransaction, type DatabaseActionContext, type OwnerDatabase, type OwnerQuery } from "../persistence/owner-transaction";
 
 const handler = "assignDefaultFreeTrack.v1";
@@ -5,6 +6,10 @@ const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 const insertFields = ["attemptCount", "effectReceiptId", "fence", "handlerName", "id", "leaseExpiresAt", "leaseTokenHash",
   "nextAttemptAt", "outboxMessageId", "semanticWorkKey", "state"];
 const selectFields = [...insertFields, "createdAt", "mutationTransactionId"].sort();
+const claimFields = ["@row", "attemptCount", "fence", "leaseExpiresAt", "leaseTokenHash", "state"];
+const renewFields = ["@row", "leaseExpiresAt"];
+const leaseToken = /^[0-9a-f]{64}$/;
+const maxFence = BigInt("9223372036854775807");
 
 export type KnownDefaultFreeIntent = Readonly<{
   workId: string;
@@ -16,6 +21,13 @@ export type KnownDefaultFreeIntent = Readonly<{
 export type KnownWorkScheduleOutcome =
   | { status: "scheduled" | "already_scheduled"; workId: string }
   | { status: "denied" | "conflict" | "unavailable" };
+
+/** Transport this handle only inside the worker. Its token is a credential. */
+export type KnownWorkLease = Readonly<{ workId: string; fence: bigint; expiresAt: Date; token: string }>;
+
+export type KnownWorkLeaseOutcome =
+  | { status: "claimed" | "renewed"; lease: KnownWorkLease }
+  | { status: "denied" | "unavailable" };
 
 function hasScheduleFields(context: DatabaseActionContext, workId: string): boolean {
   const prefix = `RuntimeWorkItem/${workId}`;
@@ -77,5 +89,105 @@ export async function scheduleKnownDefaultFreeWork(
     if (rows.length === 0) return (await existingWork(query, intent, key)) ?? { status: "unavailable" };
     if (rows.length !== 1 || rows[0]?.id !== intent.workId) throw new Error("work_schedule_unconfirmed");
     return { status: "scheduled", workId: intent.workId };
+  });
+}
+
+function hasLeaseScope(
+  database: OwnerDatabase,
+  context: DatabaseActionContext,
+  workId: string,
+  fence: bigint,
+  action: "claim" | "renew",
+): boolean {
+  if (!uuid.test(workId) || fence < BigInt(0) || fence > maxFence || database.runtimeLogin !== "wa_worker"
+      || !("servicePrincipal" in context.principal) || context.owner !== "platform_integration_owner"
+      || context.action !== `runtime.${action}_work.v1` || context.purpose !== `work.${action}`
+      || context.targetKind !== "RuntimeWorkItem" || context.targetId !== workId || context.sourceGeneration !== fence) return false;
+  const prefix = `RuntimeWorkItem/${workId}`;
+  const updates = action === "claim" ? claimFields : renewFields;
+  const expected = [
+    ...selectFields.map((field) => `${prefix}/SELECT/${field}`),
+    ...updates.map((field) => `${prefix}/UPDATE/${field}`),
+    `${prefix}/revision/${fence}`,
+  ];
+  return context.allowedFields.length === expected.length && expected.every((field, index) => context.allowedFields[index] === field);
+}
+
+async function bindLease(query: OwnerQuery, token: string, fence: bigint) {
+  const rows = await query`
+    SELECT pg_catalog.set_config('wa.lease_secret', ${token}, true) IS NOT NULL AS secret_bound,
+           pg_catalog.set_config('wa.fence', ${fence.toString()}, true) IS NOT NULL AS fence_bound
+  `;
+  if (rows.length !== 1 || rows[0]?.secret_bound !== true || rows[0].fence_bound !== true) {
+    throw new Error("work_lease_binding_unconfirmed");
+  }
+}
+
+function leaseFromRow(rows: readonly Record<string, unknown>[], workId: string, fence: bigint, token: string): KnownWorkLease | undefined {
+  if (rows.length === 0) return undefined;
+  const row = rows[0];
+  if (rows.length !== 1 || row?.id !== workId || row.fence !== fence.toString()
+      || !(row.lease_expires_at instanceof Date) || !Number.isFinite(row.lease_expires_at.getTime())) {
+    throw new Error("work_lease_unconfirmed");
+  }
+  return { workId, fence, token, expiresAt: row.lease_expires_at };
+}
+
+/** Use the registered claim scope for this known Work ID and its observed predecessor fence. */
+export async function claimKnownWorkLease(
+  database: OwnerDatabase,
+  context: DatabaseActionContext,
+  workId: string,
+  previousFence: bigint,
+  expiresAt: Date,
+): Promise<KnownWorkLeaseOutcome> {
+  if (!hasLeaseScope(database, context, workId, previousFence, "claim") || previousFence === maxFence
+      || !Number.isFinite(expiresAt.getTime())) return { status: "denied" };
+  const deadline = expiresAt.toISOString();
+  const fence = previousFence + BigInt(1);
+  const bytes = randomBytes(32);
+  const token = bytes.toString("hex");
+  const hash = createHash("sha256").update(bytes).digest("hex");
+  bytes.fill(0);
+  return runOwnerTransaction(database, context, async (query) => {
+    await bindLease(query, token, previousFence);
+    const rows = await query`
+      UPDATE platform.runtime_work_item
+      SET state = 'leased', fence = fence + 1, attempt_count = attempt_count + 1,
+          lease_token_hash = ${hash}, lease_expires_at = ${deadline}::timestamptz
+      WHERE id = ${workId}::uuid AND fence = ${previousFence.toString()}::bigint
+        AND (state = 'pending' OR (state = 'leased' AND lease_expires_at <= pg_catalog.clock_timestamp()))
+        AND (next_attempt_at IS NULL OR next_attempt_at <= pg_catalog.clock_timestamp())
+        AND ${deadline}::timestamptz > pg_catalog.clock_timestamp()
+      RETURNING id::text, fence::text, lease_expires_at
+    `;
+    const lease = leaseFromRow(rows, workId, fence, token);
+    return lease ? { status: "claimed", lease } : { status: "unavailable" };
+  });
+}
+
+/** Extend the currently owned live lease. The database clock and fence govern the update. */
+export async function renewKnownWorkLease(
+  database: OwnerDatabase,
+  context: DatabaseActionContext,
+  current: KnownWorkLease,
+  expiresAt: Date,
+): Promise<KnownWorkLeaseOutcome> {
+  const { workId, fence, token } = current;
+  if (fence <= BigInt(0) || !hasLeaseScope(database, context, workId, fence, "renew")
+      || !leaseToken.test(token) || !Number.isFinite(expiresAt.getTime())) return { status: "denied" };
+  const deadline = expiresAt.toISOString();
+  return runOwnerTransaction(database, context, async (query) => {
+    await bindLease(query, token, fence);
+    const rows = await query`
+      UPDATE platform.runtime_work_item
+      SET lease_expires_at = ${deadline}::timestamptz
+      WHERE id = ${workId}::uuid AND fence = ${fence.toString()}::bigint AND state = 'leased'
+        AND lease_expires_at > pg_catalog.clock_timestamp() AND lease_expires_at < ${deadline}::timestamptz
+        AND platform_private.lease_secret_matches(lease_token_hash::text)
+      RETURNING id::text, fence::text, lease_expires_at
+    `;
+    const lease = leaseFromRow(rows, workId, fence, token);
+    return lease ? { status: "renewed", lease } : { status: "unavailable" };
   });
 }
