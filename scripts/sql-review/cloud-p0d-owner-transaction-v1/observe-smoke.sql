@@ -72,7 +72,7 @@ SELECT jsonb_build_object(
   'separate_issuer_transactions',(SELECT count(DISTINCT mutation_transaction_id) FROM issued),
   'grant_ids_distinct',(SELECT count(DISTINCT id) = count(*) FROM issued),
   'grant_hashes_distinct',(SELECT count(DISTINCT token_hash) = count(*) FROM issued),
-  'grant_runtime_xids_distinct',(SELECT count(DISTINCT transaction_id) = count(*) FROM issued),
+  'grant_runtime_xids_distinct',(SELECT count(DISTINCT transaction_id) FROM issued),
   'issuer_and_runtime_xids_disjoint',(SELECT NOT EXISTS (
     SELECT 1 FROM issued a JOIN issued b ON a.mutation_transaction_id = b.transaction_id)),
   'grant_metadata_exact',(SELECT coalesce(bool_and(

@@ -45,6 +45,10 @@ NODE_STAGES = {"ENTRY", "DRIVER", "CUSTOMER_SOURCE_COMMIT", "WORK_SCHEDULE_COMMI
                "LOCAL_PHYSICAL_ROLLBACK", "SWALLOWED_DRIVER_FAILURE", "POOL_CLOSE"}
 XIDS = {"source", "schedule", "complete", "unbound", "missing_revision", "rebound", "local_rollback", "latched_rollback"}
 XID = re.compile(r"[1-9][0-9]{0,19}")
+OBSERVER_COUNTS = {"source_count", "source_distinct_xids", "work_count", "restricted_sessions", "grant_total", "grant_count",
+                   "runtime_pids", "separate_issuer_transactions", "grant_runtime_xids_distinct"}
+OBSERVER_FLAGS = {"grant_ids_distinct", "grant_hashes_distinct", "issuer_and_runtime_xids_disjoint", "grant_metadata_exact"}
+OBSERVER_SHAPES = {"source", "schedule", "complete", "stale", "missing_revision", "work_update", "unexpected"}
 REMOTE_SOURCE = "/run/wa-f0-application"
 NODE = "/run/wa-f0-tools/node/bin/node"
 DRIVER = "/run/wa-f0-tools/node_modules/postgres/src/index.js"
@@ -216,6 +220,29 @@ def validate_observation(observed, result, S):
     S.require(S.encode(observed) == S.encode(expected), "P0D_SCOPE_OBSERVATION_UNCONFIRMED")
 
 
+def check_observation_shape(observed, S):
+    """Allow only known counts, flags, transaction IDs and the synthetic work digest in evidence."""
+    keys = OBSERVER_COUNTS | OBSERVER_FLAGS | {"source_xid", "work", "runtime_pid", "grant_shapes"}
+    code = "P0D_SCOPE_OBSERVATION_UNCONFIRMED"
+    S.require(type(observed) is dict and set(observed) == keys
+              and all(type(observed[key]) is int and 0 <= observed[key] <= 8192 for key in OBSERVER_COUNTS)
+              and all(type(observed[key]) is bool for key in OBSERVER_FLAGS), code)
+    pid, source, work, grants = (observed[key] for key in ("runtime_pid", "source_xid", "work", "grant_shapes"))
+    def xid(value):
+        return type(value) is str and XID.fullmatch(value)
+
+    S.require((pid is None or type(pid) is int and 0 < pid < 2**31)
+              and (source is None or xid(source)), code)
+    if work is not None:
+        S.require(type(work) is dict and set(work) == {"full_row_sha256", "scheduled_xid", "known_pending_original"}
+                  and type(work["full_row_sha256"]) is str and S.HASH.fullmatch(work["full_row_sha256"])
+                  and xid(work["scheduled_xid"]) and type(work["known_pending_original"]) is bool, code)
+    if grants is not None:
+        S.require(type(grants) is dict and set(grants) <= OBSERVER_SHAPES
+                  and all(type(rows) is list and len(rows) <= 32 and all(xid(value) for value in rows)
+                          for rows in grants.values()), code)
+
+
 def owner_type(renewal, modules):
     basis, _, two = modules
     S = basis.S
@@ -306,8 +333,9 @@ def owner_type(renewal, modules):
                 state["node"] = p.write_safe("owner-transaction-node.json", result)
                 S.require(result["status"] == NODE_PASS, "P0D_CHILD_RESULT_UNCONFIRMED")
             observation = self.closed_record(OBSERVE_SQL)
-            validate_observation(observation, result, S)
+            check_observation_shape(observation, S)
             state["observation"] = p.write_safe("owner-transaction-observation.json", observation)
+            validate_observation(observation, result, S)
             fixture = S.unique_json(self.blobs[FIXTURE_INPUTS])
             proof = {}
             for name in ("identity_coherence_observer", "customer_observer", "effect_observer"):
