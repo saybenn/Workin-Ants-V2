@@ -1,4 +1,8 @@
-## Current pinned usage — Directive007,26 October2026
+## Current Cloud pinned usage — 27 November 2026
+
+Node 24.22.1, npm 11.9.0, Next and eslint-config-next 16.4.6, React 19.2.4, and Prisma 7.10.1 are covered by the [Cloud requalification](reconciliation/cloud-phase0-evidence/2026-11-27/p0b-requalification.json). The lock corrects the affected ESLint dependency and binds Effect 3.22.1 specifically under Prisma Config. Both current audits report zero known findings. The new Cloud F0 tool closure is independently pinned for database operations. Historical closure and migration bytes are retained.
+
+## Historical pinned usage — Directive007,26 October2026
 
 Current qualified foundation:Node 24.22.1/npm 11.9.0,Next/eslint-config-next16.4.3,React/react-dom19.2.4,Prisma/client7.10.1. Lockfile and [current requalification](reconciliation/phase0-security-requalification.json) govern exact resolution/guidance. Full and production audits report zero known vulnerabilities at this checkpoint. Read exact installed Next guidance before framework edits. Use explicit prisma.offline.config.ts for environment-free CLI commands;default historical Prisma configuration expects DATABASE_URL and remains outside qualification. No target is configured or contacted by offline validation.
 

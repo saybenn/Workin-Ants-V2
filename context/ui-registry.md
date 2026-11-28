@@ -45,4 +45,4 @@ No component,API,class or token changed. The same bounded shell passes lint/type
 
 18 November2026 native catalog TEXT correction: no component/API/classes/token change; structured UI inventory remains unchanged. Only read-only database-inspection SQL, bounded diagnostics, source tests and qualification evidence changed.
 
-27 November 2026 Cloud setup: no component, API, class, or token changed. The real Cloud shell passed 47 HTTP checks. Dependency security and product UI evidence remain separate. [Cloud baseline results](reconciliation/cloud-phase0-evidence/2026-11-27/baseline.json)
+27 November 2026 Cloud setup and dependency requalification. Component paths, APIs, classes, and tokens are unchanged. The reviewed dependency update passed the real Cloud shell's 47 HTTP checks and both dependency audits. The UI evidence covers the shell and leaves the planned product screen states unqualified. [Cloud requalification](reconciliation/cloud-phase0-evidence/2026-11-27/p0b-requalification.json)

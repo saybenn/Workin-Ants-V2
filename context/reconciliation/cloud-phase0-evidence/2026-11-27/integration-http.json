@@ -1,0 +1,378 @@
+{
+  "status": "PASS",
+  "total": 47,
+  "tests": [
+    {
+      "mode": "development",
+      "case": "root shell",
+      "method": "GET",
+      "path": "/",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "process liveness only",
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "health HEAD",
+      "method": "HEAD",
+      "path": "/api/health",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "health has no mutation",
+      "method": "POST",
+      "path": "/api/health",
+      "status": 405,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "unknown route",
+      "method": "GET",
+      "path": "/unregistered-foundation-route",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "unapproved image source denied",
+      "method": "GET",
+      "path": "/_next/image?url=http%3A%2F%2F127.0.0.1%3A45995%2Ftest.svg&w=640&q=75",
+      "status": 400,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "non-HTTP image scheme denied",
+      "method": "GET",
+      "path": "/_next/image?url=data%3Aimage%2Fsvg%2Bxml%2Cinvalid&w=640&q=75",
+      "status": 400,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "old page filename is not a route",
+      "method": "GET",
+      "path": "/page",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "old diagnostic filename is not a route",
+      "method": "GET",
+      "path": "/dev/status/page",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "old handler filename is not a route",
+      "method": "GET",
+      "path": "/api/debug/env-check/route",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "development page execution-mode gate",
+      "method": "GET",
+      "path": "/dev/status",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "development page HEAD gate",
+      "method": "HEAD",
+      "path": "/dev/status",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "query/header cannot change execution mode",
+      "method": "GET",
+      "path": "/dev/status?NODE_ENV=development",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "debug endpoint method/mode gate",
+      "method": "GET",
+      "path": "/api/debug/env-check",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "debug endpoint method/mode gate",
+      "method": "HEAD",
+      "path": "/api/debug/env-check",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "debug endpoint method/mode gate",
+      "method": "POST",
+      "path": "/api/debug/env-check",
+      "status": 405,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "debug endpoint method/mode gate",
+      "method": "PUT",
+      "path": "/api/debug/env-check",
+      "status": 405,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "debug endpoint method/mode gate",
+      "method": "PATCH",
+      "path": "/api/debug/env-check",
+      "status": 405,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "debug endpoint method/mode gate",
+      "method": "DELETE",
+      "path": "/api/debug/env-check",
+      "status": 405,
+      "result": "PASS"
+    },
+    {
+      "mode": "development",
+      "case": "debug endpoint method/mode gate",
+      "method": "OPTIONS",
+      "path": "/api/debug/env-check",
+      "status": 405,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "root shell",
+      "method": "GET",
+      "path": "/",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "process liveness only",
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "health HEAD",
+      "method": "HEAD",
+      "path": "/api/health",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "health has no mutation",
+      "method": "POST",
+      "path": "/api/health",
+      "status": 405,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "unknown route",
+      "method": "GET",
+      "path": "/unregistered-foundation-route",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "unapproved image source denied",
+      "method": "GET",
+      "path": "/_next/image?url=http%3A%2F%2F127.0.0.1%3A45995%2Ftest.svg&w=640&q=75",
+      "status": 400,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "non-HTTP image scheme denied",
+      "method": "GET",
+      "path": "/_next/image?url=data%3Aimage%2Fsvg%2Bxml%2Cinvalid&w=640&q=75",
+      "status": 400,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "old page filename is not a route",
+      "method": "GET",
+      "path": "/page",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "old diagnostic filename is not a route",
+      "method": "GET",
+      "path": "/dev/status/page",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "old handler filename is not a route",
+      "method": "GET",
+      "path": "/api/debug/env-check/route",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "development page execution-mode gate",
+      "method": "GET",
+      "path": "/dev/status",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "development page HEAD gate",
+      "method": "HEAD",
+      "path": "/dev/status",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "query/header cannot change execution mode",
+      "method": "GET",
+      "path": "/dev/status?NODE_ENV=development",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "debug endpoint method/mode gate",
+      "method": "GET",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "debug endpoint method/mode gate",
+      "method": "HEAD",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "debug endpoint method/mode gate",
+      "method": "POST",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "debug endpoint method/mode gate",
+      "method": "PUT",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "debug endpoint method/mode gate",
+      "method": "PATCH",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "debug endpoint method/mode gate",
+      "method": "DELETE",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "debug endpoint method/mode gate",
+      "method": "OPTIONS",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "internal-looking headers do not enable diagnostics",
+      "method": "GET",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "debug query/header cannot enable route",
+      "method": "GET",
+      "path": "/api/debug/env-check?NEXT_PUBLIC_APP_ENV=development",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "trailing slash remains denied",
+      "method": "GET",
+      "path": "/api/debug/env-check/",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "root client scripts do not contain secret canary",
+      "assets_checked": 6,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "restart same build health recovery",
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200,
+      "result": "PASS"
+    },
+    {
+      "mode": "production",
+      "case": "restart preserves diagnostic denial",
+      "method": "GET",
+      "path": "/api/debug/env-check",
+      "status": 404,
+      "result": "PASS"
+    },
+    {
+      "mode": "development/production",
+      "case": "project database rules survive framework startup",
+      "result": "PASS"
+    }
+  ],
+  "limits": "Real local Next development/production HTTP, image-source denial, instruction preservation and client-asset smoke only. No Windows execution, universal exploit immunity, DB/provider/owner contract/runtime, full browser accessibility or deployed hosting qualification."
+}

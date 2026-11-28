@@ -1,0 +1,222 @@
+{
+  "absent_after": {
+    "container_id": true,
+    "container_name": true,
+    "private_host_path": true,
+    "volume_name": true
+  },
+  "assertion_promotions": 0,
+  "bounded_docker_provider_events": {
+    "cid": "4e0d3aacc1947cef8171ed399296401bb34d87a1b91b6b0914fb0d8db0f4d216",
+    "container_actions": [
+      "create",
+      "start",
+      "kill",
+      "die",
+      "start",
+      "kill",
+      "die",
+      "destroy"
+    ],
+    "container_exit_codes": [
+      137,
+      137
+    ],
+    "exec_exit_codes_by_exact_container_start": {
+      "1": {
+        "bootstrap_absence": [
+          0
+        ],
+        "bootstrap_or_password_writer": [
+          0,
+          0,
+          0
+        ],
+        "bootstrap_unlink": [
+          0
+        ],
+        "database_client": [
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          3,
+          0,
+          0,
+          0,
+          0,
+          2
+        ],
+        "kernel_check": [
+          0,
+          0
+        ],
+        "postgres_pid1": [
+          0
+        ],
+        "readiness": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          0
+        ]
+      },
+      "2": {
+        "bootstrap_absence": [
+          0
+        ],
+        "bootstrap_or_password_writer": [
+          0,
+          0,
+          0
+        ],
+        "bootstrap_unlink": [
+          0
+        ],
+        "database_client": [
+          0,
+          0,
+          2
+        ],
+        "kernel_check": [
+          0
+        ],
+        "password_file_absence": [
+          0,
+          0
+        ],
+        "postgres_pid1": [
+          0
+        ],
+        "readiness": [
+          2,
+          0
+        ]
+      }
+    },
+    "forces_signal_numbers": [
+      9,
+      9
+    ],
+    "raw_event_payloads_retained": false,
+    "runtime_logs_read": false,
+    "volume_actions": [
+      "create",
+      "mount",
+      "unmount",
+      "mount",
+      "unmount",
+      "destroy"
+    ],
+    "window_end": "2026-11-28T03:39:17.132928+00:00",
+    "window_start": "2026-11-28T03:38:59.539877+00:00"
+  },
+  "created_container": {
+    "id": "4e0d3aacc1947cef8171ed399296401bb34d87a1b91b6b0914fb0d8db0f4d216",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-probe-v2",
+      "workinants.rehearsal.run": "862971a5-3cdf-4cca-8189-e40e3318b081"
+    },
+    "name": "wa-p0c-cloud-probe-862971a5-3cdf-4cca-8189-e40e3318b081",
+    "run_id": "862971a5-3cdf-4cca-8189-e40e3318b081"
+  },
+  "created_volume": {
+    "created_at": "2026-11-28T03:39:01Z",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-probe-v2",
+      "workinants.rehearsal.run": "862971a5-3cdf-4cca-8189-e40e3318b081"
+    },
+    "name": "wa-p0c-cloud-probe-862971a5-3cdf-4cca-8189-e40e3318b081-data",
+    "run_id": "862971a5-3cdf-4cca-8189-e40e3318b081"
+  },
+  "daemon": {
+    "architecture": "amd64",
+    "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+    "docker_binary_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621",
+    "os": "linux",
+    "rootless": true,
+    "socket": {
+      "device": 32,
+      "gid": 1000,
+      "inode": 31,
+      "mode": 432,
+      "real_path": "/run/codex-docker/docker.sock",
+      "uid": 65534
+    },
+    "version": "29.9.2"
+  },
+  "decision": "EXACT_CLEANUP_AND_SYNTHETIC_CAPABILITY_SUBSET_SUPPORTED",
+  "file_sha256": {
+    "attempt.json": "803f5008afb247518a93b8e3ccae6db46f404cc16ebee5b9e3fe063a2a70e523",
+    "created-container.json": "24a9ed2b4a065d3a31e8d6f108e1819dfad898d38918c2df4fe9284e0212b89e",
+    "created-volume.json": "1fa3ec001ae134512065ff28eb37b7d7f67de9870d4f71cd96d3b589b149369e",
+    "manifest.json": "233c38f820016656d111c6cfda36c94c6ac1d8a041fb8c6fa0c3afaf241eee6d",
+    "result.json": "35ee05063bd654bd182dc2bd92e2462a736a813cebf4596f539806e302e5f4ed",
+    "review.json": "117c938c528df32666a6aa435cc5f08eedbd61622a9686963a99792bfcc2a786"
+  },
+  "image": {
+    "architecture": "amd64",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_id": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_store_identity": "CONFIG",
+    "manifest_content_hash_verified": true,
+    "os": "linux",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pinned_repo_digest_verified": true,
+    "pulled_this_run": false,
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "removed": false
+  },
+  "limits": [
+    "The exact approved runner recorded six synthetic capability checks. Independent read-only provider events corroborate one creation, real startup, signal-9 crash with exit 137, restart of the same container, then final forced cleanup. They corroborate both readiness and modeled command families' exits. They do not independently encode database row values or the meaning of every psql error.",
+    "The disposable volume was retained across the deliberate restart and removed at the end. The audited host path is absent. Credential transport was the reviewed synthetic private tmpfs path and exact container stdin; no credentials or statement bodies are in the retained audit.",
+    "This does not establish Workin Ants candidate migration installation, owner-specific business behavior, a qualified database baseline, or a change to the P0-C assertion board.",
+    "Review involved read-only Docker observations and record byte checks. It created or mutated no Docker or database resource."
+  ],
+  "pinned_image_retained": true,
+  "recorded_at_utc": "2026-11-28T03:40:51.430911+00:00",
+  "result_status": "PASS_CAPABILITY_SUBSET_ONLY",
+  "reviewer": "/root/cloud_review_prep",
+  "run_id": "862971a5-3cdf-4cca-8189-e40e3318b081",
+  "runner_checks_observed": [
+    "exact_mounts_loopback_and_cache",
+    "bootstrap_only_through_owned_container_tmpfs",
+    "scram_correct_and_wrong_password",
+    "restricted_select_and_write_denial",
+    "independent_connections_and_uncommitted_visibility",
+    "same_storage_crash_recovery_and_rollback"
+  ],
+  "same_live_daemon_socket_and_binary_verified": true,
+  "schema": "workinants.cloud-f0-independent-closure-audit.v1",
+  "source": {
+    "commit": "fc5b5879abb5bd764fc0e5f5c1a03f95e2b0b7c8",
+    "files_sha256": {
+      "scripts/sql-review/cloud-f0-v1/guard.py": "00c3b91295db01c2f692f97c2f4ff4484ac4bc27733bc1229d577436aa927d2b",
+      "scripts/sql-review/cloud-f0-v1/probe.py": "3ffb812b29c643ce119e209a79e8b55ea011d34e3c112e4c58563a92651a1a85",
+      "scripts/sql-review/cloud-f0-v1/profile.json": "55d94434981828b49f03983c050bea0b6d9df7af51f68ad4fb3e079c49ea7c97",
+      "scripts/sql-review/cloud-f0-v1/test_guard.py": "81ef3c86e0c15eb2f582b1d4e8c7856a6c5426a3201a849ca01e8e5ae8dd4963",
+      "scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json": "996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604"
+    },
+    "tree": "8691cfa70d208e3b305c306ad6ad5d8997cf491e"
+  },
+  "stage": "CONCURRENCY_CRASH_AND_RECOVERY",
+  "target": {
+    "bootstrap_container_path": "/run/wa-secrets/bootstrap-password",
+    "container": "wa-p0c-cloud-probe-862971a5-3cdf-4cca-8189-e40e3318b081",
+    "database": "wa_f0_cloud_probe",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-probe-v2",
+      "workinants.rehearsal.run": "862971a5-3cdf-4cca-8189-e40e3318b081"
+    },
+    "private_host_path": "/workspace/scratch/wa-cloud-f0-probe-862971a5-3cdf-4cca-8189-e40e3318b081/private",
+    "volume": "wa-p0c-cloud-probe-862971a5-3cdf-4cca-8189-e40e3318b081-data"
+  }
+}

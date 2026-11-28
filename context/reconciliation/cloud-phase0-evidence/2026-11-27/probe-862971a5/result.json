@@ -1,0 +1,83 @@
+{
+  "assertion_promotions": 0,
+  "checks": [
+    "exact_mounts_loopback_and_cache",
+    "bootstrap_only_through_owned_container_tmpfs",
+    "scram_correct_and_wrong_password",
+    "restricted_select_and_write_denial",
+    "independent_connections_and_uncommitted_visibility",
+    "same_storage_crash_recovery_and_rollback"
+  ],
+  "cleanup": "EXACT_CONTAINER_VOLUME_AND_PRIVATE_SECRET_ABSENT",
+  "cleanup_steps": {
+    "docker_resources": "CONFIRMED",
+    "local_client": "CONFIRMED",
+    "private_files": "CONFIRMED"
+  },
+  "completed_capability_checks": true,
+  "container_id": "4e0d3aacc1947cef8171ed399296401bb34d87a1b91b6b0914fb0d8db0f4d216",
+  "daemon": {
+    "architecture": "amd64",
+    "daemon_id": "e6fda295-df2c-493f-b082-a5f20dab7392",
+    "docker_binary_sha256": "6c71cfe71faff949a602946a4df4799b563232e79d0b8b6fd343d0ef081c9621",
+    "os": "linux",
+    "rootless": true,
+    "socket": {
+      "device": 32,
+      "gid": 1000,
+      "inode": 31,
+      "mode": 432,
+      "real_path": "/run/codex-docker/docker.sock",
+      "uid": 65534
+    },
+    "version": "29.9.2"
+  },
+  "database_scope": "disposable synthetic capability probe",
+  "finished_at": "2026-11-28T03:39:15.132928+00:00",
+  "image": {
+    "architecture": "amd64",
+    "config_digest": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_id": "sha256:eb0fb2377534e65aad04f37838956b3dfb888e1a3dd3c1acf957bc6557eb6c7d",
+    "image_store_identity": "CONFIG",
+    "manifest_content_hash_verified": true,
+    "os": "linux",
+    "pg_version": "17.11-1.pgdg13+2",
+    "pinned_repo_digest_verified": true,
+    "pulled_this_run": false,
+    "reference": "docker.io/library/postgres:17.11@sha256:996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+    "removed": false
+  },
+  "manifest_sha256": "233c38f820016656d111c6cfda36c94c6ac1d8a041fb8c6fa0c3afaf241eee6d",
+  "remote_outcome_unconfirmed": false,
+  "review_sha256": "117c938c528df32666a6aa435cc5f08eedbd61622a9686963a99792bfcc2a786",
+  "reviewer": "/root/cloud_review_prep",
+  "run_id": "862971a5-3cdf-4cca-8189-e40e3318b081",
+  "schema": "workinants.cloud-f0-capability-result.v1",
+  "source": {
+    "commit": "fc5b5879abb5bd764fc0e5f5c1a03f95e2b0b7c8",
+    "files_sha256": {
+      "scripts/sql-review/cloud-f0-v1/guard.py": "00c3b91295db01c2f692f97c2f4ff4484ac4bc27733bc1229d577436aa927d2b",
+      "scripts/sql-review/cloud-f0-v1/probe.py": "3ffb812b29c643ce119e209a79e8b55ea011d34e3c112e4c58563a92651a1a85",
+      "scripts/sql-review/cloud-f0-v1/profile.json": "55d94434981828b49f03983c050bea0b6d9df7af51f68ad4fb3e079c49ea7c97",
+      "scripts/sql-review/cloud-f0-v1/test_guard.py": "81ef3c86e0c15eb2f582b1d4e8c7856a6c5426a3201a849ca01e8e5ae8dd4963",
+      "scripts/sql-review/fixtures/postgres-17.11-approved-manifest.json": "996e9dc583ba9f0265a2c75547a9c95fb22c251e394749cab205a0a00e1856a1",
+      "scripts/sql-review/local_image_identity.py": "a0742d4f25271cc5c4b8bced19909415181a76fb9856948a3dffed28abb80604"
+    },
+    "tree": "8691cfa70d208e3b305c306ad6ad5d8997cf491e"
+  },
+  "stage": "CONCURRENCY_CRASH_AND_RECOVERY",
+  "started_at": "2026-11-28T03:39:01.539877+00:00",
+  "status": "PASS_CAPABILITY_SUBSET_ONLY",
+  "target": {
+    "bootstrap_container_path": "/run/wa-secrets/bootstrap-password",
+    "container": "wa-p0c-cloud-probe-862971a5-3cdf-4cca-8189-e40e3318b081",
+    "database": "wa_f0_cloud_probe",
+    "labels": {
+      "workinants.rehearsal": "p0c-cloud-f0-probe-v2",
+      "workinants.rehearsal.run": "862971a5-3cdf-4cca-8189-e40e3318b081"
+    },
+    "private_host_path": "/workspace/scratch/wa-cloud-f0-probe-862971a5-3cdf-4cca-8189-e40e3318b081/private",
+    "volume": "wa-p0c-cloud-probe-862971a5-3cdf-4cca-8189-e40e3318b081-data"
+  },
+  "volume_created_at": "2026-11-28T03:39:01Z"
+}

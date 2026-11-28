@@ -5,11 +5,11 @@ import json
 import runpy
 from pathlib import Path
 import subprocess
+from cloud_phase0_security import historical_packages, inspect_cloud_security
 
 ROOT = Path(__file__).resolve().parents[1]
 ROLES = ['project-overview.md','architecture.md','build-plan.md','code-standards.md','library-docs.md','ui-tokens.md','ui-rules.md','ui-registry.md','progress-tracker.md']
 CLOUD_BRANCH = 'codex/phase0-cloud-2026-11-27'
-CLOUD_BASE = '532445ed1f861211978dd8b2e9ae12d4b5e6e180'
 
 
 def candidate_review(root):
@@ -18,22 +18,19 @@ def candidate_review(root):
     if not (root / 'context/reconciliation/cloud-phase0-execution.md').is_file():
         return checker['inspect'](root=root)
     try:
-        previous = subprocess.check_output(
-            ['git', '-C', str(root), 'show', f'{CLOUD_BASE}:vercel.json'],
-            stderr=subprocess.DEVNULL, timeout=15,
-        )
-        expected = json.loads(previous)
-        intended = expected['git']['deploymentEnabled']
-        if CLOUD_BRANCH in intended:
-            return {'errors': ['Cloud branch already present in the historical deployment configuration']}
-        intended[CLOUD_BRANCH] = False
         current = (root / 'vercel.json').read_bytes()
-        if current != (json.dumps(expected, indent=2) + '\n').encode():
+        expected = json.loads(current)
+        if (current != (json.dumps(expected, indent=2) + '\n').encode()
+                or expected['git']['deploymentEnabled'].pop(CLOUD_BRANCH, None) is not False
+                or len(expected['git']['deploymentEnabled']) != 1):
             return {'errors': ['Cloud deployment configuration differs from the reviewed additive denial']}
-    except (OSError, KeyError, ValueError, subprocess.SubprocessError):
+        # The retained candidate checker validates this predecessor against its
+        # frozen byte fingerprint. Changed providers or flags still fail it.
+        previous = json.dumps(expected, indent=2) + '\n'
+    except (OSError, KeyError, TypeError, ValueError):
         return {'errors': ['Cloud deployment configuration could not be independently verified']}
     packet = checker['load'](root)
-    packet['vercel.json'] = previous.decode()
+    packet['vercel.json'] = previous
     return checker['inspect'](root=root, packet=packet)
 
 
@@ -84,7 +81,7 @@ def inspect_database_observation(root, status, provenance):
     return errors
 
 
-def inspect_fresh_database_observation(root, status, provenance):
+def inspect_fresh_database_observation(root, status, provenance, candidate_root=None):
     reference = status.get('fresh_database_observation')
     if reference is None:
         if status.get('database_access_mode') == 'READ_ONLY_EXISTING_AND_FRESH_TARGETS_NOT_ADOPTED':
@@ -129,7 +126,7 @@ def inspect_fresh_database_observation(root, status, provenance):
             if candidate_ref != 'context/reconciliation/database-candidate-manifest.json' or provenance.get('candidate_review_manifest') != candidate_ref:
                 errors.append('Unregistered database candidate review')
             else:
-                candidate_result = candidate_review(root)
+                candidate_result = candidate_review(candidate_root or root)
                 errors.extend('Database candidate review: ' + e for e in candidate_result['errors'])
                 partial.add('DBP-09')
                 pending.remove('DBP-09')
@@ -148,11 +145,21 @@ def inspect_fresh_database_observation(root, status, provenance):
 
 
 def inspect(root=ROOT):
+    try:
+        with historical_packages(root, ROOT) as baseline:
+            return inspect_phases(root, baseline)
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return {'errors': ['Historical Cloud dependency baseline unavailable or fingerprint mismatch'],
+                'status': 'FAIL'}
+
+
+def inspect_phases(root, baseline):
     base=root/'context/reconciliation'
     if not (base/'phase0-foundation-status.json').exists():
         return {'errors':[],'status':'NOT_APPLICABLE_PRE_DIRECTIVE006'}
     read=lambda p:json.loads((root/p).read_text())
-    errors=[]
+    cloud = inspect_cloud_security(root, baseline)
+    errors=list(cloud['errors'])
     status=read('context/reconciliation/phase0-foundation-status.json')
     inventory=read('context/reconciliation/legacy-application-inventory.json')
     review=read('context/reconciliation/context-foundation-review.json')
@@ -175,7 +182,7 @@ def inspect(root=ROOT):
     provenance=read('context/reconciliation/database-provenance-requirements.json')
     if provenance['strategy_selected'] or provenance['database_posture']!='D' or any(provenance[key] for key in ['database_provisioned','migrations_executed','old_supabase_reused_reset_or_erased']):errors.append('Unproven database provenance or baseline adoption')
     errors.extend(inspect_database_observation(root, status, provenance))
-    errors.extend(inspect_fresh_database_observation(root, status, provenance))
+    errors.extend(inspect_fresh_database_observation(root, status, provenance, baseline))
     models=read('context/reconciliation/greenfield-model-security-inventory.json')['models']
     registry=read('context/reconciliation/platform-schema-compatibility-review.json')['model_owner_coverage']
     expected={x['model']:x['owners'][0] for x in registry}
@@ -197,14 +204,16 @@ def inspect(root=ROOT):
         if evidence.get('http_smoke',{}).get('status')!='PASS' or evidence.get('http_smoke',{}).get('total',0)<41:errors.append('Incomplete real dev/production HTTP evidence')
         if not evidence.get('foundation_source_sha256'):errors.append('Missing qualified foundation source fingerprints')
         for p,expected_sha in evidence.get('foundation_source_sha256',{}).items():
-            if not (root/p).is_file() or hashlib.sha256((root/p).read_bytes()).hexdigest()!=expected_sha:errors.append('Qualified foundation source drift '+p)
+            if not (baseline/p).is_file() or hashlib.sha256((baseline/p).read_bytes()).hexdigest()!=expected_sha:errors.append('Qualified foundation source drift '+p)
         security=read('context/reconciliation/dependency-security-review.json')
         if status.get('dependency_security_gate')=='PASS_KNOWN_ADVISORIES_REMEDIATED' and evidence_name=='phase0-security-requalification.json':
             errors.extend(runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_qualification'](root,evidence))
             previous=read('context/reconciliation/phase0-approved-file-changes.json')
-            errors.extend(runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_change_review'](root,previous)['errors'])
+            errors.extend(runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_change_review'](baseline,previous)['errors'])
         elif security['status']!='OPEN_CONTROLLED_REMEDIATION_REQUIRED' or status.get('dependency_security_gate')!='OPEN':errors.append('Known dependency security gate silently cleared')
-    return {'errors':errors,'nine_roles':len(review['roles']),'archived_files':len(inventory['files']),'source_models':len(models),'database_posture':'D','status':status['P0_B'],'scope':'Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.'}
+    return {'errors':errors,'nine_roles':len(review['roles']),'archived_files':len(inventory['files']),'source_models':len(models),'database_posture':'D','status':status['P0_B'],
+            'cloud_dependency_successor': 'VERIFIED_RETAINED_EVIDENCE' if cloud['approved'] else 'UNVERIFIED_OR_ABSENT',
+            'scope':'Static source/evidence/context/denial gate checks, including integrity of the separately recorded read-only existing-database observation. No fresh-target adoption, RLS behavior, owner-runtime or SH qualification.'}
 
 
 if __name__=='__main__':

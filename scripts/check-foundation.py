@@ -4,12 +4,14 @@ import hashlib
 import json
 import re
 import runpy
+import subprocess
 import sys
 from collections import Counter
 from pathlib import Path
 from urllib.parse import unquote
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(Path(__file__).parent))
+from cloud_phase0_security import historical_packages, inspect_cloud_security
 
 def markdown_targets(text):
     text=re.sub(r'```.*?```','',text,flags=re.S)
@@ -107,8 +109,16 @@ def inspect(root=ROOT):
                 if f['previous_sha256']!=baseline['sha256'][f['path']]:errors.append('Reviewed package baseline mismatch')
                 else:approved[f['path']]=f['reviewed_sha256']
         if (root/'context/reconciliation/phase0-security-file-changes.json').exists():
-            extension=runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_change_review'](root,review)
-            errors.extend(extension['errors']);approved.update(extension['approved'])
+            try:
+                with historical_packages(root, ROOT) as history:
+                    extension=runpy.run_path(str(root/'scripts/phase0_security_evidence.py'))['inspect_change_review'](history,review)
+                    cloud = inspect_cloud_security(root, history)
+                errors.extend(extension['errors']);approved.update(extension['approved'])
+                errors.extend(cloud['errors'])
+                if not extension['errors']:
+                    approved.update(cloud['approved'])
+            except (OSError, ValueError, subprocess.SubprocessError):
+                errors.append('Historical Cloud dependency baseline unavailable or fingerprint mismatch')
         else:
             original=read('legacy/checkpoint-005/configuration/package.json');current=read('package.json')
             if any(original[k]!=current[k] for k in ['dependencies','devDependencies']):errors.append('Unapproved direct dependency change')

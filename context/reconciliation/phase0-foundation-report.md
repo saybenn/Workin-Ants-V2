@@ -1,8 +1,8 @@
 ## Cloud Phase 0 continuation — 27 November 2026
 
-The [new owner directive](directives/cloud-phase0-standing-authority-2026-11-27.md) governs sequential synthetic Cloud execution through P0-G. The [Cloud baseline](cloud-phase0-evidence/2026-11-27/baseline.json) records passing shell, runtime identity, and offline Prisma checks. Current audits reopen P0-B's dependency security gate on the starting lock. The [Cloud execution checklist](cloud-phase0-execution.md) records the current gates and exact scope.
+The [new owner directive](directives/cloud-phase0-standing-authority-2026-11-27.md) governs sequential synthetic Cloud execution through P0-G. The [Cloud baseline](cloud-phase0-evidence/2026-11-27/baseline.json) records passing shell, runtime identity, and offline Prisma checks alongside the starting audit findings. The [independently reviewed Cloud P0-B update](cloud-phase0-evidence/2026-11-27/p0b-requalification.json) records the changed dependency graph, zero full and production audit findings, and the repeated real checks. The [Cloud execution checklist](cloud-phase0-execution.md) records the current gates and exact scope.
 
-P0-C remains at checkpoint 3.8 and posture D. The local historical qualification counts remain attached to their recorded source and environment. The Cloud-specific database checks require their own operational reviews and evidence. Later stages and Step 20 have no new acceptance.
+P0-C remains at checkpoint 3.8 and posture D. The [v2 Cloud capability probe](cloud-phase0-evidence/2026-11-27/probe-862971a5/result.json) passed actual restricted Postgres authentication, denial, concurrency, and crash recovery. [Independent closure](cloud-phase0-evidence/2026-11-27/probe-862971a5/independent-closure.json) ties the resource and exit observations to the exact source, manifest, and image. The local historical qualification counts remain attached to their recorded source and environment. Candidate operations require their own reviews and actual evidence. Later stages and Step 20 have no new acceptance.
 
 ---
 
