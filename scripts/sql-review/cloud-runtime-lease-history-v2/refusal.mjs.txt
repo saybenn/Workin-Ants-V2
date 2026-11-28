@@ -1,0 +1,30 @@
+// This receipt records a finite phase and available validated identities.
+// It never records the exception message, stack, input, or tool output.
+const IO_CODES = new Set(["EACCES", "EAGAIN", "EBADF", "EEXIST", "EIO", "EISDIR",
+  "EMFILE", "ENOENT", "ENOSPC", "ENOTDIR", "EPERM", "EPIPE", "EROFS"]);
+
+function refusal(state, error) {
+  let family = "OTHER";
+  if (error instanceof HeldFailure) family = "HELD_GUARD";
+  else if (error instanceof TypeError) family = "TYPE";
+  else if (error instanceof SyntaxError) family = "SYNTAX";
+  else if (error instanceof RangeError) family = "RANGE";
+  else if (error instanceof Error && IO_CODES.has(error.code)) family = "IO";
+
+  const code = family === "HELD_GUARD"
+    ? (CLOSED_REFUSAL_PHASE_CODES[state.phase].includes(error.code) ? error.code : "UNLISTED_GUARD_CODE")
+    : REFUSAL_CAUSE_CODES[family];
+  return {
+    schema: REFUSAL_SCHEMA,
+    status: "REFUSED_OR_INCOMPLETE",
+    phase: state.phase,
+    cause_family: family,
+    code,
+    child_dispatch: ["DISPATCH", "RESULT"].includes(state.phase) ? "UNCONFIRMED" : "NOT_ATTEMPTED",
+    operation: state.operation,
+    raw_output_discarded: true,
+    database_qualification_claimed: false,
+    ...(state.inputSha === null ? {} : {attestation_sha256: state.inputSha}),
+    ...state.attested,
+  };
+}

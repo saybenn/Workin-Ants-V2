@@ -69,7 +69,7 @@ S, P, B = v1_helpers()
 def capture(root=ROOT):
     blobs, reviews = S.capture(root)
     names = [
-        *PROBE_PINS, f"{INNER}/prepare.py", f"{INNER}/kernel-guard.mjs.txt",
+        *PROBE_PINS, *(f"{INNER}/{name}" for name in ("prepare.py", "kernel-guard.mjs.txt", "refusal.mjs.txt")),
         *(f"{CAPABILITY}/{name}" for name in CAPABILITY_FILES),
         *(f"{BASE}/{name}" for name in ("basis.py", "plan.py", "operation.py", "test_operation.py", "README.md")),
     ]

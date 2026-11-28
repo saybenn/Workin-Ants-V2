@@ -32,6 +32,8 @@ The reviewed controller stages the exact eight source files and pinned tool file
 
 The inner launcher checks the kernel mounts, private directory permissions, absence of both bootstrap leaves, exact tool paths, hashes and sizes, local restricted URL, daemon and run identity, source bytes, and the bound operation. It returns the Cloud v2 receipt with the operation, source hashes, packet and literal review hashes, stdin hash, daemon and container IDs, client status and bounded diagnostics. The controller verifies both process exits and the receipt. Ledger, native catalog, role closure, finalization, no-op and resource cleanup evidence remain separate from the launcher result.
 
+The separate refusal receipt records only the finite phase, cause family and allowlisted code. It includes the stdin hash after bounded input is received and includes reviewed target and release bindings after the complete attestation is verified. Entering the child dispatch phase makes a refusal's child state unconfirmed. The controller retains its conservative stop and closure requirements on every refusal.
+
 ## Focused offline verification
 
 ```sh

@@ -158,6 +158,61 @@ check(() => {
   assert(!JSON.stringify(receipt).includes("canary"));
 });
 
+const baseRefusal = {
+  schema: "workinants.cloud-f0-runtime-lease-history-refusal.v2",
+  status: "REFUSED_OR_INCOMPLETE",
+  raw_output_discarded: true,
+  database_qualification_claimed: false,
+};
+const boundRefusal = {
+  attestation_sha256: guard.sha256(raw),
+  run_id: attestation.planned.run_id,
+  container_id: attestation.observed.container_id,
+  daemon_id: attestation.observed.daemon.daemon_id,
+  packet_sha256: authorization.packet_sha256,
+  literal_review_sha256: authorization.literal_review_sha256,
+};
+const ioError = () => { throw Object.assign(new Error("secret-canary"), {code: "EIO"}); };
+const guardError = code => () => { throw new guard.HeldFailure(code); };
+function checkRefusal(args, options, expected) {
+  let receipt;
+  const defaults = {
+    readStdin: () => raw,
+    store() {},
+    load: () => local,
+    spawn() { assert.fail("Unexpected child spawn"); },
+    emit(value) { assert.equal(receipt, undefined); receipt = value; },
+  };
+  assert.equal(runner.main(args, {...defaults, ...options}), 1);
+  assert.deepEqual(receipt, {...baseRefusal, ...expected});
+  assert(!JSON.stringify(receipt).includes("canary"));
+}
+const exactArgs = [flag, "--operation", "deploy"];
+check(() => checkRefusal([flag, "--operation", "canary"], {}, {
+  phase: "ARGUMENTS", cause_family: "HELD_GUARD", code: "EXPLICIT_EXECUTION_REQUIRED",
+  child_dispatch: "NOT_ATTEMPTED", operation: null,
+}));
+check(() => checkRefusal(exactArgs, {readStdin: ioError}, {
+  phase: "INPUT", cause_family: "IO", code: "LOCAL_IO_ERROR",
+  child_dispatch: "NOT_ATTEMPTED", operation: "deploy",
+}));
+check(() => {
+  const malformed = Buffer.from('{"canary":1,"canary":2}');
+  checkRefusal(exactArgs, {readStdin: () => malformed}, {
+    phase: "ATTESTATION", cause_family: "HELD_GUARD", code: "DUPLICATE_JSON",
+    child_dispatch: "NOT_ATTEMPTED", operation: "deploy", attestation_sha256: guard.sha256(malformed),
+  });
+});
+for (const [phase, dependency, failure, family, code, child] of [
+  ["PRIVATE_STORE", "store", ioError, "IO", "LOCAL_IO_ERROR", "NOT_ATTEMPTED"],
+  ["LOCAL_GUARD", "load", guardError("TREE_OWNER_MODE"), "HELD_GUARD", "TREE_OWNER_MODE", "NOT_ATTEMPTED"],
+  ["LOCAL_GUARD", "load", guardError("secret-canary"), "HELD_GUARD", "UNLISTED_GUARD_CODE", "NOT_ATTEMPTED"],
+  ["DISPATCH", "spawn", ioError, "IO", "LOCAL_IO_ERROR", "UNCONFIRMED"],
+  ["RESULT", "spawn", () => null, "TYPE", "LOCAL_INPUT_TYPE_ERROR", "UNCONFIRMED"],
+]) check(() => checkRefusal(exactArgs, {[dependency]: failure}, {
+  phase, cause_family: family, code, child_dispatch: child, operation: "deploy", ...boundRefusal,
+}));
+
 console.log(JSON.stringify({
   status: "PASS_OFFLINE", checks, real_tool_member_hashes: hashes, node: process.version,
   kernel_and_processes_modeled: true, prisma_spawned: false, database_contacted: false,

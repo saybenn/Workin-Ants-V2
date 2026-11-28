@@ -4,7 +4,7 @@ import argparse
 import ast
 from datetime import datetime, timezone
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import secrets
 import signal
@@ -26,6 +26,11 @@ NATIVE_PINS = f"{S.NATIVE_REVIEW}/source-pins.json"
 ROLE_LEAVES = ("wa_private_helper_owner", "wa_customer_verifier", "wa_track_verifier")
 START_RECIPE = ("umask 077; set -C; cat > \"$1\"; "
                 "test \"$(stat -c '%u:%g:%a:%h' -- \"$1\")\" = '0:0:600:1'")
+EXTRACT_RECIPE = 'umask 022; exec /usr/bin/tar "$1" "$2" -C "$3"'
+TREE_FORMAT = "%y|%p|%s|%U|%G|%m|%n\n"
+TREE_INVENTORY_LIMIT = 4 * 1024 * 1024
+TOOL_EXECUTABLES = frozenset(("node/bin/node", "schema-engine"))
+REFUSAL_PHASES = ("ARGUMENTS", "INPUT", "ATTESTATION", "PRIVATE_STORE", "LOCAL_GUARD", "DISPATCH", "RESULT")
 EXCLUDED_CORE = {
     "initialize", "docker", "inventory", "owned", "inspect_container", "inspect_volume", "psql_args",
     "secure_private_directory", "preflight", "create_resources", "cleanup",
@@ -175,6 +180,9 @@ class Owner:
             "CLOUD_OWNING_SOURCE_REVIEW_DRIFT", "CLOUD_TOOL_COPY_IDENTITY", "CLOUD_SOURCE_COPY_HASH_DRIFT",
             "CLOUD_SOURCE_COPY_LENGTHS", "UNSAFE_PSQL_COMMAND", "UNEXPECTED_PSQL_STDERR",
             "FULL_CONTAINER_ABSENCE_UNCONFIRMED",
+            "CLOUD_COPIED_INVENTORY_SHAPE", "CLOUD_COPIED_INVENTORY_METADATA", "CLOUD_COPIED_INVENTORY_DRIFT",
+            "CLOUD_INNER_TERMINAL_REFUSAL", "CLOUD_INNER_REFUSAL_RESPONSE_SHAPE",
+            "CLOUD_INNER_REFUSAL_BINDING", "CLOUD_STICKY_TRANSPORT_UNCERTAINTY",
         })
 
     def verify_packet(self):
@@ -267,15 +275,29 @@ class Owner:
         p = self.program
         cid = self.resources.cid
         self.resources.check_target(True)
-        self.exact_container_exec(cid, "mkdir", "-p", "/run/wa-f0-tools", "/run/wa-f0-source")
+        root_exec = ("--user", "0", cid)
+        self.exact_container_exec(*root_exec, "/usr/bin/mkdir", "-p", "-m", "0755",
+                                  "/run/wa-f0-tools", "/run/wa-f0-source")
         paths = ((self.operation["tools"], "/run/wa-f0-tools.tar.gz", "tools", "-xzf"),
                  (self.operation["archive"], "/run/wa-f0-source.tar", "source", "-xf"))
         for record, dest, purpose, flags in paths:
             self.docker.run("cp", record["path"], f"{cid}:{dest}", timeout=120)
             measured = self.exact_container_exec(cid, "/usr/bin/sha256sum", "--", dest, timeout=120)
             S.require(measured.stdout == f"{record['sha256']}  {dest}\n".encode(), "CLOUD_TOOL_COPY_IDENTITY")
-            self.exact_container_exec(cid, "tar", flags, dest, "-C", f"/run/wa-f0-{purpose}", timeout=120)
+            self.exact_container_exec(*root_exec, "/bin/sh", "-ceu", EXTRACT_RECIPE, "wa-extract",
+                                      flags, dest, f"/run/wa-f0-{purpose}", timeout=120)
             self.exact_container_exec(cid, "rm", "--", dest)
+        tool_metadata = {
+            f"/run/wa-f0-tools/{name}": (size, "755" if name in TOOL_EXECUTABLES else "644")
+            for name, size in self.manifest["tools"]["file_sizes"].items()
+        }
+        source_metadata = {f"/run/wa-f0-source/{name}": (len(raw), "444") for name, raw in self.files.items()}
+        inventory = self.exact_container_exec(
+            *root_exec, "/usr/bin/find", "-P", "/run/wa-f0-tools", "/run/wa-f0-source", "-printf", TREE_FORMAT,
+            timeout=60, profile="metadata_tools",
+        )
+        self.report["verified_copied_inventory_counts"] = validate_inventory(
+            inventory.stdout, {**tool_metadata, **source_metadata})
         hashes = "".join(f"{digest}  /run/wa-f0-tools/{name}\n"
                          for name, digest in sorted(self.manifest["tools"]["files_sha256"].items()))
         verified = self.exact_container_exec("-i", cid, "/usr/bin/sha256sum", "--check", "--strict", "--status",
@@ -366,13 +388,15 @@ class Owner:
                     input=raw, timeout=150, allow_fail=True,
                 )
                 receipt = validate_result(result, self.receipt_validator, self.manifest, observed,
-                                          operation, raw, authorization)
+                                          operation, raw, authorization, self.inner)
                 if receipt["status"] == "CLI_CLOSURE_UNCONFIRMED_STOP_AND_CLEAN_EXACT_RESOURCE":
                     raise S.Held("REPORTED_INNER_CLI_CLOSURE_UNCONFIRMED")
             except BaseException as original:
                 if dispatched:
                     self.transport.unknown = True
                     self.report["inner_cli_closure"] = {"node_dispatch_attempted": True, "validated_closed": False}
+                    if isinstance(original, InnerRefusal):
+                        self.report["inner_cli_closure"]["bounded_terminal_refusal"] = original.receipt
                 p._required_safety_first_exception(original, label)
                 raise
             self.report.setdefault("migration_results", []).append(receipt)
@@ -403,14 +427,91 @@ class Owner:
         S.require(raw == self.raw and prepared[1] == self.operation
                   and exact_reviews(self.directory, self.operation, self.raw) == self.reviews,
                   "CLOUD_OWNING_SOURCE_REVIEW_DRIFT")
-        S.require(not self.transport.unknown, "FINALIZATION_UNKNOWN_TRANSPORT")
+        self.report["immutable_source_postcheck"] = "PASS"
+        if self.transport.unknown:
+            # The stopped runtime and the read-only source recheck have
+            # separate outcomes. This preserves uncertainty without
+            # reporting invented drift of archive bytes or typed reviews.
+            self.report["postcheck_remote_uncertainty_retained"] = True
+            if self.report["status"] == "PASS_MACHINERY_SUBSET_ONLY":
+                self.program.record_failure("POSTCHECKS", "CLOUD_STICKY_TRANSPORT_UNCERTAINTY")
 
     def run(self):
         return self.program.main()
 
 
-def validate_result(result, validator, manifest, observed, operation, raw, authorization):
+def validate_inventory(raw, expected):
+    """Prove both copied trees before Node, without recording their raw listing."""
+    dirs = {str(parent) for name in expected for parent in PurePosixPath(name).parents
+            if str(parent) not in ("/", "/run")}
+    files, actual_dirs = {}, set()
+    S.require(type(raw) is bytes and 0 < len(raw) <= TREE_INVENTORY_LIMIT
+              and raw.isascii() and raw.endswith(b"\n"), "CLOUD_COPIED_INVENTORY_SHAPE")
+    for line in raw[:-1].decode("ascii").split("\n"):
+        row = line.split("|")
+        S.require(len(row) == 7, "CLOUD_COPIED_INVENTORY_SHAPE")
+        kind, name, size, uid, gid, mode, links = row
+        S.require(uid == gid == "0" and re.fullmatch(r"[0-9]{1,12}", size)
+                  and re.fullmatch(r"[1-9][0-9]{0,11}", links)
+                  and name not in actual_dirs and name not in files, "CLOUD_COPIED_INVENTORY_METADATA")
+        if kind == "d":
+            S.require(mode == "755", "CLOUD_COPIED_INVENTORY_METADATA")
+            actual_dirs.add(name)
+        else:
+            S.require(kind == "f" and links == "1" and mode in ("444", "644", "755"),
+                      "CLOUD_COPIED_INVENTORY_METADATA")
+            files[name] = (int(size), mode)
+    S.require(files == expected and actual_dirs == dirs, "CLOUD_COPIED_INVENTORY_DRIFT")
+    return {"regular_files": len(files), "directories": len(dirs)}
+
+
+class InnerRefusal(S.Held):
+    def __init__(self, receipt):
+        self.receipt = receipt
+        super().__init__("CLOUD_INNER_TERMINAL_REFUSAL")
+
+
+def validate_refusal(value, result, manifest, observed, operation, raw, authorization, inner):
+    common = {"schema", "status", "phase", "cause_family", "code", "child_dispatch",
+              "operation", "raw_output_discarded", "database_qualification_claimed"}
+    phase = value.get("phase")
+    S.require(result.returncode == 1 and value.get("status") == "REFUSED_OR_INCOMPLETE"
+              and type(phase) is str and phase in REFUSAL_PHASES and value.get("raw_output_discarded") is True
+              and value.get("database_qualification_claimed") is False,
+              "CLOUD_INNER_REFUSAL_RESPONSE_SHAPE")
+    ordinal = REFUSAL_PHASES.index(phase)
+    required = {"attestation_sha256": S.sha(raw)} if ordinal >= 2 else {}
+    if ordinal >= 3:
+        required.update(run_id=manifest["run_id"], container_id=observed["container_id"],
+                        daemon_id=observed["daemon"]["daemon_id"], **authorization)
+    S.require(set(value) == common | set(required)
+              and all(value[name] == wanted for name, wanted in required.items())
+              and value["operation"] == (None if ordinal == 0 else operation),
+              "CLOUD_INNER_REFUSAL_BINDING")
+    cause, code = value["cause_family"], value["code"]
+    S.require(type(cause) is str and type(code) is str
+              and (code in inner.CLOSED_REFUSAL_PHASE_CODES[phase] if cause == "HELD_GUARD"
+                   else inner.REFUSAL_CAUSE_CODES.get(cause) == code)
+              and value["child_dispatch"] == ("NOT_ATTEMPTED" if ordinal < 5 else "UNCONFIRMED"),
+              "CLOUD_INNER_REFUSAL_RESPONSE_SHAPE")
+    # Keep only the approved finite projection. Even the complete echo does
+    # not authorize the outer controller to clear descendant uncertainty.
+    raise InnerRefusal({
+        "phase": phase, "cause_family": cause, "code": code,
+        "reported_child_dispatch": value["child_dispatch"],
+        "verified_receipt_fields": sorted(required),
+        "transport_uncertainty_cleared": False,
+    })
+
+
+def validate_result(result, validator, manifest, observed, operation, raw, authorization, inner):
+    S.require(type(result.returncode) is int and result.returncode in (0, 1)
+              and result.stderr == b"" and type(result.stdout) is bytes and 1 <= len(result.stdout) <= 65536,
+              "CLOUD_RUNNER_RESPONSE")
     value = S.unique_json(result.stdout)
+    S.require(type(value) is dict, "CLOUD_RUNNER_RESPONSE")
+    if value.get("schema") == inner.REFUSAL_SCHEMA:
+        validate_refusal(value, result, manifest, observed, operation, raw, authorization, inner)
     S.require(all(value.get(key) == wanted for key, wanted in authorization.items()),
               "CLOUD_RUNNER_AUTHORIZATION_BINDING")
     parent_result = type(result)(result.returncode, S.encode({

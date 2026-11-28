@@ -150,6 +150,108 @@ class LogicalPortTests(unittest.TestCase):
                 reader.assert_called_once()
                 owner.assert_not_called()
 
+    def test_copied_tree_proves_implicit_directories_and_file_modes(self):
+        path = "/run/wa-f0-source/scripts/a.mjs"
+        rows = ("d|/run/wa-f0-source|0|0|0|755|3\n"
+                "d|/run/wa-f0-source/scripts|0|0|0|755|2\n"
+                "f|/run/wa-f0-source/scripts/a.mjs|4|0|0|444|1\n").encode()
+        expected = {path: (4, "444")}
+        self.assertEqual(operation.validate_inventory(rows, expected), {"regular_files": 1, "directories": 2})
+        with self.assertRaisesRegex(S.Held, "CLOUD_COPIED_INVENTORY_METADATA"):
+            operation.validate_inventory(rows.replace(b"|755|2", b"|775|2"), expected)
+        with self.assertRaisesRegex(S.Held, "CLOUD_COPIED_INVENTORY_METADATA"):
+            operation.validate_inventory(rows.replace(b"|755|2\n", b"|755|2\r\n"), expected)
+        with self.assertRaisesRegex(S.Held, "CLOUD_COPIED_INVENTORY_DRIFT"):
+            operation.validate_inventory(rows.replace(b"a.mjs", b"b.mjs"), expected)
+
+    def test_terminal_refusal_preserves_only_validated_fixed_provenance(self):
+        code = "TREE_OWNER_MODE"
+        inner = SimpleNamespace(REFUSAL_SCHEMA="workinants.cloud-f0-runtime-lease-history-refusal.v2",
+                                CLOSED_REFUSAL_PHASE_CODES={"LOCAL_GUARD": (code,)},
+                                REFUSAL_CAUSE_CODES={"OTHER": "INVALID_LOCAL_INPUT_OR_IO"})
+        manifest = {"run_id": "run"}
+        observed = {"container_id": "c" * 64, "daemon": {"daemon_id": "actual-daemon"}}
+        raw = b"private exact typed attestation source"
+        authorization = {"packet_sha256": "p" * 64, "literal_review_sha256": "b" * 64}
+        complete = {
+            "schema": inner.REFUSAL_SCHEMA, "status": "REFUSED_OR_INCOMPLETE", "phase": "LOCAL_GUARD",
+            "cause_family": "HELD_GUARD", "code": code, "child_dispatch": "NOT_ATTEMPTED",
+            "operation": "deploy", "raw_output_discarded": True, "database_qualification_claimed": False,
+            "attestation_sha256": S.sha(raw), "run_id": "run", "container_id": "c" * 64, "daemon_id": "actual-daemon",
+            **authorization,
+        }
+
+        def invoke(value, stderr=b""):
+            result = SimpleNamespace(returncode=1, stderr=stderr, stdout=S.encode(value))
+            return operation.validate_result(result, None, manifest, observed, "deploy", raw, authorization, inner)
+
+        with self.assertRaises(operation.InnerRefusal) as caught:
+            invoke(complete)
+        self.assertEqual(caught.exception.receipt, {
+            "phase": "LOCAL_GUARD", "cause_family": "HELD_GUARD", "code": code,
+            "reported_child_dispatch": "NOT_ATTEMPTED", "transport_uncertainty_cleared": False,
+            "verified_receipt_fields": ["attestation_sha256", "container_id", "daemon_id", "literal_review_sha256",
+                                        "packet_sha256", "run_id"],
+        })
+        with self.assertRaisesRegex(S.Held, "CLOUD_INNER_REFUSAL_BINDING"):
+            invoke({**complete, "packet_sha256": "x" * 64})
+        with self.assertRaisesRegex(S.Held, "CLOUD_INNER_REFUSAL_RESPONSE_SHAPE"):
+            invoke({**complete, "code": "ATTACKER_SUPPLIED_DETAIL"})
+        with self.assertRaisesRegex(S.Held, "CLOUD_RUNNER_RESPONSE"):
+            invoke(complete, stderr=b"raw diagnostic is not eligible")
+
+    def test_validated_inner_refusal_vetoes_actual_safety_sql_and_later_stages(self):
+        receipt = {"phase": "LOCAL_GUARD", "code": "TREE_OWNER_MODE"}
+        cid = "d" * 64
+        with tempfile.TemporaryDirectory() as directory:
+            p, history = self.model(Path(directory))
+            owner = object.__new__(operation.Owner)
+            owner.program, owner.report, owner.transport = p, p.report, p.TRANSPORT
+            owner.name, owner.directory, owner.raw = "synthetic-target", Path(directory), b"packet"
+            owner.nested, owner.files, owner.archive, owner.manifest = b"manifest", {}, b"archive", {}
+            owner.reviews, owner.receipt_validator = {"literal": "e" * 64}, None
+            owner.inner = SimpleNamespace(BASE="test", OP_ARG="--test", attest=mock.Mock(return_value=b"stdin"))
+            owner.observed_target = mock.Mock(return_value={"container_id": cid})
+            owner.exact_container_exec, owner.docker = mock.Mock(), mock.Mock()
+            p.migrate, p.command = owner.migrate, owner.command
+            p.RESOURCE_CONTAINERS = (owner.name,)
+            p.psql_args = mock.Mock(return_value=[cid, "-U", "postgres"])
+            p.ensure_cleanup = lambda: p.finalize(owner.name)
+            p.SAFE_FAILURE_CODES |= {"CLOUD_INNER_TERMINAL_REFUSAL", "FINALIZATION_UNKNOWN_TRANSPORT"}
+            owner.manifest["tools"] = {"files_sha256": {"node/bin/node": "f" * 64}}
+            with (mock.patch.object(operation, "compare_source8"),
+                  mock.patch.object(operation.B, "copied_paths", return_value={}),
+                  mock.patch.object(operation.B, "verify_source_copy"),
+                  mock.patch.object(operation.B, "verify_source_lengths"),
+                  mock.patch.object(operation, "validate_result", side_effect=operation.InnerRefusal(receipt)),
+                  mock.patch("builtins.print")):
+                self.assertEqual(p.main(), 1)
+            self.assertEqual(p.report["primary_failure"], {
+                "stage": "GENUINE_TWO_FILE_DEPLOY", "code": "CLOUD_INNER_TERMINAL_REFUSAL",
+            })
+            self.assertEqual(p.report["inner_cli_closure"]["bounded_terminal_refusal"], receipt)
+            self.assertNotIn("migration_results", p.report)
+            self.assertTrue(p.TRANSPORT.unknown)
+            self.assertFalse(p.report["backend_closures"][-1]["observation_completed"])
+            self.assertEqual(owner.exact_container_exec.call_count, 3)
+            owner.docker.run.assert_not_called()
+            self.assertEqual(history[-4:], ["sanitization", "cleanup", "postchecks", "verify_references"])
+            self.assertNotIn("activate", history)
+
+    def test_postcheck_does_not_conflate_source_integrity_and_runtime_uncertainty(self):
+        owner = object.__new__(operation.Owner)
+        owner.directory, owner.raw, owner.operation, owner.reviews = Path("/held"), b"held", {"v": 2}, {"v": 2}
+        owner.report = {"status": "STOPPED_ATTEMPT_PRESERVED"}
+        owner.transport = SimpleNamespace(unknown=True)
+        owner.program = SimpleNamespace(record_failure=mock.Mock())
+        with (mock.patch.object(operation, "read_closed", return_value=((Path("/held"), {"v": 2}), b"held")),
+              mock.patch.object(operation, "exact_reviews", return_value={"v": 2})):
+            owner.postchecks()
+        owner.program.record_failure.assert_not_called()
+        self.assertTrue(owner.transport.unknown)
+        self.assertEqual(owner.report["immutable_source_postcheck"], "PASS")
+        self.assertTrue(owner.report["postcheck_remote_uncertainty_retained"])
+
 
 if __name__ == "__main__":
     unittest.main()
