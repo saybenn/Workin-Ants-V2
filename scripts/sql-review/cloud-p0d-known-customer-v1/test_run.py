@@ -96,6 +96,19 @@ class ProofTests(unittest.TestCase):
         with self.assertRaisesRegex(Held, proof.RESPONSE):
             proof.node_receipt(reply(stopped, 1), "retry", S, ())
 
+    def test_diagnostic_requires_finite_codes_and_an_exact_first_failure(self):
+        origin = {"side": "primary", "step": "APP_SQL_RECEIPT", "sqlstate": "42804"}
+        primary = {"phase": "COMPETING_KNOWN_CREATE", "last": "APP_ROLLBACK_BUILD", "failure": origin,
+                   "owner_failure": "rolled_back", "outcome": None, "completed_steps": ["READ_EMPTY", "CLOCK_DATE"],
+                   "terminal_builds": ["rollback"]}
+        stopped = {"schema": proof.STOP_SCHEMA, "status": "STOPPED", "stage": primary["phase"],
+                   "first_failure": origin, "attempts": {"primary": primary, "peer": None}, "pools": "END_RESOLVED"}
+        self.assertEqual(proof.node_receipt(reply(stopped, 1), "create-replay", S, ()), stopped)
+        for bad in ({**origin, "sqlstate": "00000"}, {**origin, "step": "APP_SQL_BIND"},
+                    {**origin, "side": "peer"}, {**origin, "message": "unexpected field"}):
+            with self.assertRaisesRegex(Held, proof.RESPONSE):
+                proof.node_receipt(reply({**stopped, "first_failure": bad}, 1), "create-replay", S, ())
+
     def test_full_sequence_observe(self):
         nodes, previous, previous_obs = {}, None, None
         for index, phase in enumerate(proof.PHASES):
@@ -221,6 +234,18 @@ class OwnerTests(unittest.TestCase):
         self.assertEqual(first, [run.STOP])
         self.assertEqual(attempted, ["customer-retry-node.json"])
         self.assertIs(owner.transport.unknown, False)
+
+    def test_unconfirmed_driver_end_retains_stop_and_marks_transport_uncertain(self):
+        stopped = {"schema": proof.STOP_SCHEMA, "status": "STOPPED", "stage": "POOL_CLOSE", "pools": "END_UNCONFIRMED",
+                   "first_failure": {"side": "harness", "step": "POOL_CLOSE", "sqlstate": None},
+                   "attempts": {"primary": None, "peer": None}}
+        owner, _, first, retained = self.instance(reply(stopped, 1))
+        with self.assertRaisesRegex(Held, run.STOP):
+            owner.invoke("retry")
+        self.assertEqual(first, [run.STOP])
+        self.assertEqual(retained, ["customer-retry-node.json"])
+        self.assertTrue(owner.transport.unknown and owner.docker.remote_unknown)
+        self.assertIs(owner.report["known_customer"]["closure_probes"]["P0D_CUSTOMER_RETRY_NODE"], False)
 
     def test_invalid_or_unclosed_response_is_sticky(self):
         for value, closed in ((reply(response("rollback")), True), (reply(response("retry")), False)):

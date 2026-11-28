@@ -1,0 +1,497 @@
+{
+  "adjacent_handoff": {
+    "p0e_identity_known_provider_account": {
+      "finding": "The registered SH-001.v1 owner:resolveAuthenticatedActor route can project an already known AuthProviderAccount UUID at its exact current revision under a trusted bound grant. Provider type and provider subject/account indexes are nonunique. This leaves the verified external subject-to-local binding, current actor and qualification as a separate Identity dependency.",
+      "observed_column_acl_wa_app_runtime": {
+        "INSERT": [
+          "email",
+          "email_verified_at",
+          "id",
+          "last_used_at",
+          "linked_at",
+          "provider_account_id",
+          "provider_type",
+          "provider_user_id",
+          "revision",
+          "revoked_at",
+          "security_profile_id",
+          "status",
+          "updated_at",
+          "user_id"
+        ],
+        "SELECT": [
+          "created_at",
+          "email",
+          "email_verified_at",
+          "id",
+          "last_used_at",
+          "linked_at",
+          "mutation_transaction_id",
+          "provider_account_id",
+          "provider_type",
+          "provider_user_id",
+          "revision",
+          "revoked_at",
+          "security_profile_id",
+          "status",
+          "updated_at",
+          "user_id"
+        ],
+        "UPDATE": [
+          "email",
+          "email_verified_at",
+          "last_used_at",
+          "linked_at",
+          "provider_type",
+          "revision",
+          "revoked_at",
+          "status",
+          "updated_at"
+        ]
+      },
+      "observed_index_uniqueness": {
+        "app.auth_provider_accounts_pkey": true,
+        "app.auth_provider_accounts_provider_type_provider_account_id_idx": false,
+        "app.auth_provider_accounts_provider_type_provider_user_id_idx": false,
+        "app.auth_provider_accounts_status_idx": false,
+        "app.auth_provider_accounts_user_id_provider_type_idx": false
+      },
+      "paths": {
+        "cloud_stage_plan": [
+          86,
+          90
+        ],
+        "scope_registry": [
+          1993
+        ],
+        "sh_001": [
+          7,
+          51,
+          83
+        ],
+        "source8_initial": [
+          344,
+          362,
+          1048,
+          1051,
+          1938,
+          2205,
+          2411,
+          2615,
+          2620,
+          3431
+        ]
+      }
+    },
+    "p0f_completion_guards": {
+      "dependency": "Use approved SH-095\u2013098 owner field/action/executor and generation bindings, actual protected export bytes or applicable provider evidence, and approved retention/restore handling before a restricted append can admit supported owner completions. Full request accounting remains separate. No determination here about external service availability.",
+      "finding": "Source8 privacy_guard rejects completed owner receipts with 0A000 and rejects completed or partially_completed requests or nonnull completed_at with 0A000. The nonnull command result allowlist only admits the three observed Customer/Track operations, so exact Privacy result binding needs review as well.",
+      "paths": {
+        "cloud_stage_plan": [
+          87
+        ],
+        "source8_initial": [
+          4699,
+          4709,
+          5054,
+          5063,
+          5068,
+          5077
+        ],
+        "wf11": [
+          13
+        ]
+      }
+    }
+  },
+  "assessment": "FINITE_KNOWN_ID_WORK_CAN_PROCEED_FULL_RESTART_AND_TERMINAL_READ_REQUIRE_OWNER_REGISTRATION",
+  "minimum_separate_owner_and_sql_dependency": {
+    "discovery": "Platform runtime and Customer with Role register one bounded cursor purpose for the exact Customer-to-Track command, yielding only permitted stable handoff identities and current Work fence for eligible items. Account for committed intents without Work and pending due or expired Work. Define the authorized scheduler principal and current source checks for the unscheduled case; the existing exact app User schedule grant cannot be reused as worker permission.",
+    "reviewed_append": "After the explicit registration, use a separately reviewed append-only restricted authorization/projection change with fixed route and exact minimized read fields. Preserve existing migrations, roles and lease actions. Independently recheck narrow grants/RLS and positive/negative real disposable cases for fresh startup, known-fence recovery, true lost acknowledgment, wrong/stale/revoked caller/source, foreign owner, over-limit/stale cursor and uncertain proof. No operational authority follows from this assessment.",
+    "status": "UNREGISTERED_AND_NOT_EXECUTED",
+    "terminal": "Track with Platform, Customer and Role register an exact current-authority recovery read keyed to the original semantic command identity. It must return only a minimal proven committed outcome from the exact Work, Outbox, Customer, Command, Effect, Inbox and enrollment linkage and yield safe unknown/denied/unavailable on uncertain or inaccessible proof. It cannot infer fenced noncommit from absence."
+  },
+  "read_only_findings": {
+    "architecture_and_mechanisms": {
+      "finding": "WA-R018 and WA-R078 require durable dispatch and reconciliation. WA-R017 and WA-R085 require each bounded source query to have explicit current caller, purpose, target, field and source registration. WA-R085 names Candidate, Order/Booking, Hiring and Hold ports, with no matching dispatcher or Track terminal outcome read. Ops queryQueueJobs is an operational projection.",
+      "mechanism_limit": "Outbox append, enqueue/receipt, transaction lock and CAS do not extend read authority. SH-054 claim takes the exact item and expected token.",
+      "paths": {
+        "authority_rulings": [
+          158,
+          169,
+          399,
+          1280,
+          1362
+        ],
+        "ops_owner_architecture": [
+          634
+        ],
+        "sh_046": [
+          51
+        ],
+        "sh_047": [
+          33,
+          41,
+          50
+        ],
+        "sh_051": [
+          48
+        ],
+        "sh_052": [
+          52
+        ],
+        "sh_054": [
+          33,
+          50
+        ],
+        "track_owner_architecture": [
+          689
+        ],
+        "track_owner_plan": [
+          464,
+          480
+        ]
+      }
+    },
+    "finite_known_ids": {
+      "authorized_next_slice": "Qualify actual known-ID Customer replay/rollback, hand the same committed intent to the registered exact scheduler, then exercise real known-ID claim/renew/expiry/higher-fence reattach under the current service and Customer checks. Probe hidden rows, stale source/fence, competing claims and ambiguous commit without claiming unknown restart or new terminal receipt behavior.",
+      "finding": "The approved finite known-ID source can use trusted original Customer, outbox and Work identities plus an observed current fence. That scope leaves broad restart discovery and post-commit Track proof unavailable.",
+      "paths": {
+        "cloud_stage_plan": [
+          63,
+          65,
+          67,
+          71,
+          85
+        ],
+        "customer_repo": [
+          52,
+          64
+        ],
+        "known_customer_code": [
+          27,
+          81,
+          89,
+          104
+        ],
+        "known_work_code": [
+          19,
+          49,
+          95,
+          136,
+          169
+        ],
+        "known_work_source_review": [
+          57
+        ],
+        "p0d_owner_plan": [
+          17,
+          23,
+          55
+        ]
+      },
+      "source_limit": "The SH-004 result carries original Customer and command receipt IDs. The trusted call supplies the original outbox intent ID separately. The scheduler needs the stable Work ID, known Customer/intent and current User action scope; its revision-0 grant loses visibility after claim. Claim/reclaim needs the already observed current fence. Fresh renewal or effect work also needs the live lease and valid preimage. None resolves an unknown ID or fence."
+    },
+    "restart_discovery": {
+      "finding": "Work select combines an exact bound RuntimeWorkItem target, per-row field capabilities and the matching current fence. Worker claim/renew can inspect only that Work item, while existing Outbox SELECT requires an exact owner scope or current Track lease. An app scheduling grant cannot supply a later fence. Initial committed Customer intent can also exist before any Work row.",
+      "observed_column_select_counts": {
+        "wa_app_runtime": {
+          "platform.runtime_command_receipt": 14,
+          "platform.runtime_effect_receipt": 15,
+          "platform.runtime_inbox_receipt": 8,
+          "platform.runtime_outbox_message": 21,
+          "platform.runtime_work_item": 13
+        },
+        "wa_worker": {
+          "platform.runtime_command_receipt": 14,
+          "platform.runtime_effect_receipt": 15,
+          "platform.runtime_inbox_receipt": 8,
+          "platform.runtime_outbox_message": 21,
+          "platform.runtime_work_item": 13
+        }
+      },
+      "observed_memberships": [
+        {
+          "admin": false,
+          "grantor": "postgres",
+          "inherit": false,
+          "member": "wa_migrator",
+          "role": "wa_schema_owner",
+          "set": true
+        }
+      ],
+      "observed_roles": {
+        "wa_app_runtime": {
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolsuper": false
+        },
+        "wa_context_issuer": {
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolsuper": false
+        },
+        "wa_identity_service_authority": {
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolsuper": false
+        },
+        "wa_track_verifier": {
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolinherit": false,
+          "rolsuper": false
+        },
+        "wa_worker": {
+          "rolbypassrls": false,
+          "rolcanlogin": true,
+          "rolinherit": false,
+          "rolsuper": false
+        }
+      },
+      "paths": {
+        "known_work_code": [
+          19,
+          49,
+          137
+        ],
+        "scope_registry": [
+          3997,
+          4003
+        ],
+        "source8_initial": [
+          1938,
+          1987,
+          2005,
+          2403,
+          2423,
+          2432,
+          3179,
+          3183,
+          3537,
+          3543
+        ],
+        "source8_runtime_append": [
+          8,
+          21
+        ]
+      },
+      "role_separation": "The issuer has no queue-table ACL. The Identity authority maintains Identity service generation. The Track verifier is a NOLOGIN proof principal. Current service authorization comes from the separate trusted generation record and the live bound grant; it does not confer an owner action."
+    },
+    "terminal_receipt": {
+      "existing_actual_limit": "Worker SQL proved 21 exact synthetic known-Work controls, including reuse of an attached effect after actual expiry while Work was still leased. The retained selection append changes only three Track functions. It adds no restart or terminal-read route.",
+      "finding": "A matching fresh exact Work grant may see the immutable terminal Work state/link at the known current fence. The actual Track command, effect, inbox and enrollment proof still require current Customer/source binding and Track lease authority. Completed Work is considered in lease validation only inside its completing transaction, with the valid preimage and deadline. Reclaim cannot turn a completed item back into a live lease.",
+      "paths": {
+        "cloud_stage_plan": [
+          71,
+          85
+        ],
+        "command_receipt_code": [
+          20
+        ],
+        "source8_initial": [
+          3103,
+          3121,
+          3138,
+          3170,
+          3192,
+          3202,
+          3206,
+          3214,
+          3605
+        ],
+        "source8_runtime_append": [
+          14,
+          42
+        ]
+      }
+    }
+  },
+  "schema": "workinants.p0d-restart-and-terminal-read-assessment.v1",
+  "scope": {
+    "assertion_promotions": 0,
+    "database_or_docker_executed": false,
+    "evaluated_git_commit": "d71205a8923252ac8a4279ce3e37fad9c1eaad26",
+    "evaluated_git_tree": "1fbdd894509eece02c7355be41e34487320dd073",
+    "operational_authority": false,
+    "posture": "D",
+    "repository": "saybenn/Workin-Ants-V2",
+    "repository_edited": false,
+    "tracked_sources_match_evaluated_worktree": true
+  },
+  "sources": {
+    "actual_source8_native": {
+      "bytes": 2031220,
+      "path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/worker-fbcb03f7/evidence/worker-after-native-before.json",
+      "sha256": "2d32f31aed413327dbb8d4476233268f5fb8b5029eb7bdd76308a7d4ac0d891a"
+    },
+    "actual_source8_worker_acceptance": {
+      "bytes": 10340,
+      "path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/worker-fbcb03f7/acceptance.json",
+      "sha256": "a3cdf096bb6ba19cb18c72e70b8758818e3dbc75664c4348f662b579a7ff794e"
+    },
+    "actual_track_retained_acceptance": {
+      "bytes": 1834,
+      "path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/track-business-005ce121/acceptance.json",
+      "sha256": "5cccb5f32763933ffb6b33474c233fb7de14d69606ffa2c98f4dc2de8468fd9b"
+    },
+    "authority_rulings": {
+      "bytes": 337075,
+      "path": "context/reconciliation/platform-architecture-rulings.md",
+      "sha256": "a15e71747452980e74944b2b01e59d89b4d6bff95c3ac335b4acfdb3a8868f7b"
+    },
+    "cloud_stage_plan": {
+      "bytes": 23926,
+      "path": "context/reconciliation/cloud-phase0-execution.md",
+      "sha256": "8438be7cbd989a3e10b544bfae2f870bf2b01a6a408960cbc04cd4183b40221b"
+    },
+    "command_receipt_code": {
+      "bytes": 3076,
+      "path": "server/platform/runtime/command-receipts.ts",
+      "sha256": "d32d0718c057d11388c044f39c07963114460a44ec19217bca4775d570bf3bbb"
+    },
+    "current_cloud_directive": {
+      "bytes": 25978,
+      "path": "context/reconciliation/directives/cloud-phase0-standing-authority-2026-11-27.md",
+      "sha256": "6b7904c37ebab7867f30c00e1a556c387fd3fc63115a86955594ff8dc07b56c4"
+    },
+    "customer_repo": {
+      "bytes": 3583,
+      "path": "features/customer_buyer_profile/infrastructure/customer-repository.ts",
+      "sha256": "6f5c460375effdfc7a410179fc06ba742f426bb2a514323235acaf0cd1d763f0"
+    },
+    "known_customer_code": {
+      "bytes": 5993,
+      "path": "features/customer_buyer_profile/application/resolve-customer-actor.ts",
+      "sha256": "d89a4d3429ed88c4c0aaf0a318453ecfbbfd603a24bb8f76646dced66d72001f"
+    },
+    "known_work_code": {
+      "bytes": 9407,
+      "path": "server/platform/runtime/work-leases.ts",
+      "sha256": "c63d836f064616c54b9b44dbb6d350df7b973f3b1b23227c785b0fb95b9e75c4"
+    },
+    "known_work_source_review": {
+      "bytes": 7703,
+      "path": "context/reconciliation/cloud-phase0-evidence/2026-11-27/p0d-bounded-entry/known-work-lease-source-review.json",
+      "sha256": "fd61ce6bac172ba8896659e6164d2c352c04d19aa57c10724d78592a65375035"
+    },
+    "ops_owner_architecture": {
+      "bytes": 117355,
+      "path": "context/clusters/Moderation holds Audits and Ops/Observability Ops Module/observability-ops-module-architecture.md",
+      "sha256": "3f2327670085da3618183dce5cb1432ffe6dc3f1bde1062d8ac9ff41810b4a8a"
+    },
+    "outbox_append_code": {
+      "bytes": 1639,
+      "path": "server/platform/runtime/outbox.ts",
+      "sha256": "ee4b899fe63e14b37dd2932a1a0ae3bdfb820a0c481371c1020b32626e36ce7b"
+    },
+    "owner_transaction_code": {
+      "bytes": 11120,
+      "path": "server/platform/persistence/owner-transaction.ts",
+      "sha256": "fb94f8843d89d33bd3025eab49aeed498101efd392983f76b3db2b6b4fca2c84"
+    },
+    "p0d_owner_plan": {
+      "bytes": 10553,
+      "path": "context/reconciliation/database-candidate-continuation.md",
+      "sha256": "8c6d089eebd318e6092d6acc1cd2298e5bb32dc9ab7c5c480700b83e40ce62fb"
+    },
+    "scope_registry": {
+      "bytes": 95333,
+      "path": "context/reconciliation/foundation-sql-scope-policy.json",
+      "sha256": "a1c56896b12e15e03eb04bef6d5c9254692cdc3918167e024e54006b6fa38b1b"
+    },
+    "sh_001": {
+      "bytes": 12354,
+      "path": "context/shared/contracts/SH-001.md",
+      "sha256": "5a868290d885f989823a8cf28798f16b62eab76b4a4c80d5164e001d32f53087"
+    },
+    "sh_044": {
+      "bytes": 12897,
+      "path": "context/shared/contracts/SH-044.md",
+      "sha256": "25ec251bb07bc39958c8e1a7d174197856a4dc9e7f0ac9ed7a2fbf5d2a4fe6ad"
+    },
+    "sh_046": {
+      "bytes": 12653,
+      "path": "context/shared/contracts/SH-046.md",
+      "sha256": "2b29a053816ea57aab3b73e5bbcebc056f566f410d8258a071f958ab267fd49d"
+    },
+    "sh_047": {
+      "bytes": 11175,
+      "path": "context/shared/contracts/SH-047.md",
+      "sha256": "9c2d733dd1a2c72c448c91d9ddeaf4e0d113a918a022a8ed8208bae03827bcc2"
+    },
+    "sh_051": {
+      "bytes": 10788,
+      "path": "context/shared/contracts/SH-051.md",
+      "sha256": "296215aa7deae1fcb20352f8b0aaf27531ee97c140c8780925466c491b3251be"
+    },
+    "sh_052": {
+      "bytes": 12211,
+      "path": "context/shared/contracts/SH-052.md",
+      "sha256": "744fccc1f795e056ce633abf0b835b3c6aa714d646c2ffe17d25afe862e99403"
+    },
+    "sh_054": {
+      "bytes": 11559,
+      "path": "context/shared/contracts/SH-054.md",
+      "sha256": "3cd480d9a43f37a2a0c8a0ab289ed83d1d765e21d70df2686f0aaf19161b941e"
+    },
+    "sh_095": {
+      "bytes": 25620,
+      "path": "context/shared/contracts/SH-095.md",
+      "sha256": "f2129842528357ddb4ec6f867b9da77ff4367fd32fb9c4666c137df0df683a54"
+    },
+    "sh_096": {
+      "bytes": 23831,
+      "path": "context/shared/contracts/SH-096.md",
+      "sha256": "bd2ed68d3a80b24ffa4f2e5e0659822f04614c09aff615411aebbedf239859f0"
+    },
+    "sh_097": {
+      "bytes": 24895,
+      "path": "context/shared/contracts/SH-097.md",
+      "sha256": "ea8d24bf469d5f9c89157386ab1fe955c4e784dc56a8e0cfc0f28b64fe55a5fc"
+    },
+    "sh_098": {
+      "bytes": 24080,
+      "path": "context/shared/contracts/SH-098.md",
+      "sha256": "7c9ec7f21bd45f652cf12094ac1208f0e11428f5b4569bf42b2467d807c08e32"
+    },
+    "source8_initial": {
+      "bytes": 789138,
+      "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261117000100_f0_local_initial/migration.sql",
+      "sha256": "5ae39abf991f9c189e367eb6ab6968b0ad50836bf4220ac27ef8c18306ac26ad"
+    },
+    "source8_runtime_append": {
+      "bytes": 5719,
+      "path": "prisma/local-f0-runtime-lease-history-v1/migrations/20261120000100_f0_runtime_lease_branch_v1/migration.sql",
+      "sha256": "49c3345c281d8ef62355d5392d02085d5fdfa71f7193e7e0bd4264562c33cfb7"
+    },
+    "track_owner_architecture": {
+      "bytes": 163062,
+      "path": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-module-architecture.md",
+      "sha256": "9af7a7c3142fba550c13727f0143f9612b180d4ab6fd96975846d562d4ec17d5"
+    },
+    "track_owner_plan": {
+      "bytes": 112671,
+      "path": "context/clusters/identity, authority, & consent/Track Subscription & Entitlement Module/track-subscription-entitlement-implementation-plan.md",
+      "sha256": "2b2281b86b3521023c25bee656dffbefd64a5cda34e1a45c9289f9fd175b8e29"
+    },
+    "track_retained_append": {
+      "bytes": 15174,
+      "path": "review-output/track-retained-base-candidate-v1/migration.sql",
+      "sha256": "ae7b94aae1689b54d6da0b9443b2512087018270774124f2b1d012f65f6ddcdb"
+    },
+    "wf01": {
+      "bytes": 6934,
+      "path": "context/workflows/WF-01.md",
+      "sha256": "d4aed154df1f762ae10e70b77d6ba5a5a744a492cc419f19e56aab8b1a4d3f5a"
+    },
+    "wf11": {
+      "bytes": 10103,
+      "path": "context/workflows/WF-11.md",
+      "sha256": "fe7620880cc858434ba3f5b0fd7f026ab909ad4560ebd954628619fbdf8c5c13"
+    }
+  }
+}

@@ -21,7 +21,7 @@ HERE = "scripts/sql-review/cloud-p0d-known-customer-v1"
 SMOKE = "scripts/sql-review/cloud-p0d-owner-transaction-v1/run.py"
 SMOKE_SHA = "da73ebb0eff61387da7548a9f4b48f9d22cc22c449652f83ac9d9805fbb22cef"
 PROOF = f"{HERE}/proof"
-PROOF_SHA = "6c27f27880372137287df378607dc7484fbf67db66153d2ddc8268ba253bbd97"
+PROOF_SHA = "61ced5e133c70822e2676d4d990977a9bb057cf6dead14a0f2e03374ea6264e4"
 EMIT_SHA = "99fd4f115e3b8c98fe3150142b11a3c7c5c4de0f5f40f8479e81cf754c14252b"
 SCHEMA = "workinants.cloud-p0d-known-customer-operation.v1"
 SOURCE_SCHEMA = "workinants.cloud-p0d-known-customer-source-review.v1"
@@ -380,6 +380,8 @@ def owner_type(root, smoke, renewal, modules):
                 state["status"] = "CHILD_TERMINAL_STOP" if stopped else "CHILD_PASS_PENDING_OBSERVATION"
                 if stopped:
                     p._required_safety_first_exception(S.Held(STOP), stage)
+                    if typed.get("pools") == "END_UNCONFIRMED":
+                        self.sticky()
                 state["node"] = p.write_safe(f"customer-{mode}-node.json", typed)
                 p.save()
                 S.require(not stopped, STOP)

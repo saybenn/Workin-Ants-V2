@@ -7,6 +7,21 @@ MODES = ("create-replay", "rollback", "retry")
 PHASES = ("unborn", "seeded", *MODES)
 NODE_SCHEMA = "workinants.p0d-customer-proof-result.v1"
 NODE_PASS = "PASS_FINITE_CUSTOMER_MODE_ONLY"
+STOP_SCHEMA = "workinants.p0d-customer-proof-stop-diagnostic.v1"
+SQLSTATES = {"08000", "08003", "08006", "22003", "22007", "22012", "22023", "22P02",
+             "23502", "23503", "23505", "23514", "25P02", "28P01", "40001", "40P01", "42501", "42601",
+             "42703", "42804", "42883", "42P01", "42P18", "55P03", "57014", "57P01", "P0001", "P0002", "XX000"}
+OWNER_CODES = {"target_mismatch", "context_denied", "transaction_closed", "rolled_back",
+               "database_unavailable", "commit_unconfirmed"}
+CASE_RESULTS = {"created", "replay", "denied", "conflict", "unavailable", "rolled_back"}
+QUERY_KINDS = ("BACKEND", "BIND", "READ", "CLOCK", "RECEIPT", "CUSTOMER", "HISTORY", "EVIDENCE", "LIFECYCLE", "FREE_INTENT")
+ATTEMPT_STEPS = {"CONTEXT_INPUT", "APP_BEGIN", "ISSUER_BEGIN", "APP_QUERY_SHAPE", "APP_COMMIT_BUILD", "APP_ROLLBACK_BUILD",
+                 "ISSUER_COMMIT_BUILD", "ISSUER_ROLLBACK_BUILD", "ISSUER_SQL_GRANT", "ISSUER_SQL_BACKEND", "ISSUER_SQL_OTHER",
+                 "CASE_RESULT_CHECK", "WAIT_PEER_FIRST_READ", "WAIT_PRIMARY_FIRST_READ", "WAIT_PRIMARY_RECEIPT_ACK",
+                 "WAIT_PEER_RECEIPT_BUILD"} | {f"APP_{family}_{kind}" for family in ("SQL", "RESULT") for kind in QUERY_KINDS}
+HARNESS_STEPS = {"HARNESS_ENTRY", "PINNED_IMPORT", "DRIVER", "POOL_CLOSE", "RACE_PREPARATION", "RACE_PAIR_SETTLED",
+                 "RACE_CREATED_VALUE", "RACE_REPLAY_VALUE_AND_PEER_BUILD", "RACE_DISTINCT_BACKENDS", "EXACT_AND_METADATA_REPLAY",
+                 "FOREIGN_REQUEST_PRINCIPAL", "FINAL_FREE_INTENT_RLS_ROLLBACK", "ORIGINAL_KEY_RETRY"}
 RESPONSE = "P0D_CUSTOMER_CHILD_RESULT_UNCONFIRMED"
 OBSERVATION = "P0D_CUSTOMER_SCOPE_OBSERVATION_UNCONFIRMED"
 FULL42 = "P0D_CUSTOMER_FULL42_UNCONFIRMED"
@@ -68,17 +83,60 @@ def tuple_fields(value):
             and type(value["backend_start_epoch"]) is str and EPOCH.fullmatch(value["backend_start_epoch"]))
 
 
+def stop_stage(value, mode):
+    return type(value) is str and value in NODE_STAGES[mode] | {"ENTRY", "PINNED_IMPORT", "DRIVER", "POOL_CLOSE"}
+
+
+def diagnostic_origin(value, sides, S):
+    S.require(type(value) is dict and set(value) == {"side", "step", "sqlstate"}
+              and type(value["side"]) is str and value["side"] in sides
+              and type(value["step"]) is str and value["step"] in (HARNESS_STEPS if value["side"] == "harness" else ATTEMPT_STEPS)
+              and (value["sqlstate"] is None or type(value["sqlstate"]) is str and value["sqlstate"] in SQLSTATES), RESPONSE)
+
+
+def check_stop_diagnostic(value, mode, S):
+    S.require(set(value) == {"schema", "status", "stage", "first_failure", "attempts", "pools"}
+              and value["status"] == "STOPPED" and stop_stage(value["stage"], mode)
+              and type(value["pools"]) is str and value["pools"] in {"NOT_OPENED", "END_RESOLVED", "END_UNCONFIRMED"}, RESPONSE)
+    attempts = value["attempts"]
+    S.require(type(attempts) is dict and set(attempts) == {"primary", "peer"}
+              and (mode == "create-replay" or attempts["peer"] is None)
+              and (value["pools"] != "NOT_OPENED" or all(attempt is None for attempt in attempts.values())), RESPONSE)
+    first = value["first_failure"]
+    diagnostic_origin(first, {"harness", "primary", "peer"}, S)
+    known_steps = set(SYNTHETIC_STEPS) | {"READ_ROW", "RECEIPT_CONFLICT_EMPTY", "FREE_INTENT_RLS_DENIED", "UNEXPECTED_DRIVER_QUERY_FAILURE"}
+    for side, attempt in attempts.items():
+        if attempt is None:
+            S.require(first["side"] != side, RESPONSE)
+            continue
+        S.require(type(attempt) is dict and set(attempt) == {"phase", "last", "failure", "owner_failure", "outcome",
+                  "completed_steps", "terminal_builds"} and type(attempt["phase"]) is str and attempt["phase"] in NODE_STAGES[mode]
+                  and type(attempt["last"]) is str and attempt["last"] in ATTEMPT_STEPS
+                  and (attempt["owner_failure"] is None or type(attempt["owner_failure"]) is str and attempt["owner_failure"] in OWNER_CODES)
+                  and (attempt["outcome"] is None or type(attempt["outcome"]) is str and attempt["outcome"] in CASE_RESULTS), RESPONSE)
+        for key, allowed, limit in (("completed_steps", known_steps, 12), ("terminal_builds", {"commit", "rollback"}, 4)):
+            S.require(type(attempt[key]) is list and len(attempt[key]) <= limit
+                      and all(type(item) is str and item in allowed for item in attempt[key]), RESPONSE)
+        if attempt["failure"] is not None:
+            diagnostic_origin(attempt["failure"], {side}, S)
+        if first["side"] == side:
+            same(first, attempt["failure"], S, RESPONSE)
+
+
 def node_receipt(reply, mode, S, secrets):
     S.require(mode in MODES and type(reply.returncode) is int and reply.returncode in (0, 1)
               and reply.stderr == b"" and type(reply.stdout) is bytes and 0 < len(reply.stdout) <= 8192
               and not any(secret.encode() in reply.stdout for secret in secrets), RESPONSE)
     value = S.unique_json(reply.stdout)
-    S.require(type(value) is dict and value.get("schema") == NODE_SCHEMA, RESPONSE)
+    S.require(type(value) is dict, RESPONSE)
     if reply.returncode == 1:
-        S.require(set(value) == {"schema", "status", "stage"} and value["status"] == "STOPPED"
-                  and type(value["stage"]) is str and value["stage"] in NODE_STAGES[mode] | {
-                      "ENTRY", "PINNED_IMPORT", "DRIVER", "POOL_CLOSE"}, RESPONSE)
+        if value.get("schema") == STOP_SCHEMA:
+            check_stop_diagnostic(value, mode, S)
+        else:
+            S.require(value.get("schema") == NODE_SCHEMA and set(value) == {"schema", "status", "stage"}
+                      and value["status"] == "STOPPED" and stop_stage(value["stage"], mode), RESPONSE)
         return value
+    S.require(value.get("schema") == NODE_SCHEMA, RESPONSE)
     expected = CASE_EXPECTATIONS[mode]
     S.require(set(value) == {"schema", "status", "mode", "cases", "pools_ended"}
               and value["status"] == NODE_PASS and value["pools_ended"] is True and value["mode"] == mode
